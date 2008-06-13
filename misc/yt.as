@@ -7,7 +7,7 @@ System.security.allowInsecureDomain('*');
 // Variables
 var ytPlayer:MovieClip = this.createEmptyMovieClip("ytPlayer",this.getNextHighestDepth());
 var ytPlayerLoader:MovieClipLoader = new MovieClipLoader();
-var ytLocation:String = "http://gdata.youtube.com/apiplayer?key=AI39si4CHS3-oQa0cHIhANstFbCLE71-qK6CB3mNe0lEx2h1mwXsOz6n1fkPo0yTKpZgYH4jsLgSX1Qg4jXNrYhJYKfMQiPlzw";
+var ytLocation:String = "http://gdata.youtube.com/apiplayer/cl.swf?key=AI39si5vap3DRPYttWUdJutb5aeUHz7-uPnwWMt4X9QgzwBQqSOl5r6Tzd0Su3MPJx_9t8LR5zi-bw5ztLcxIOh-Auj-fiiYEw";
 var _as3_to_as2:LocalConnection = new LocalConnection();
 var _as2_to_as3:LocalConnection = new LocalConnection();
 _as3_to_as2.allowDomain('*');
