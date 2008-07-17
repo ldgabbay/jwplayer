@@ -381,9 +381,13 @@ jeroenwijering.View.prototype = {
 			snd.findName("MuteIcon").Visibility = "Collapsed";
 			snd.findName("BufferIcon").Visibility = "Collapsed";
 			snd.findName("BufferText").Visibility = "Collapsed";
-			snd.findName("PlaySymbol").Visibility = "Visible";
 			snd.findName("PlayOffSymbol").Visibility = "Collapsed";
-			snd.findName("PlayIcon").Visibility = "Visible";
+			snd.findName("PlaySymbol").Visibility = "Visible";
+			if(this.configuration['linkfromdisplay'] == 'true') {
+				snd.findName("PlayIcon").Visibility = "Collapsed";
+			} else { 
+				snd.findName("PlayIcon").Visibility = "Visible";
+			}
 		}
 		try {
 			if(!(old == 'Completed' && stt == 'Buffering') &&
@@ -429,6 +433,7 @@ jeroenwijering.View.prototype = {
 			this.display.addEventListener('MouseLeftButtonUp',
 				jeroenwijering.utils.delegate(this.controller,
 				this.controller.setLink));
+			this.display.findName("PlayIcon").Visibility = "Collapsed";
 		}
 		if(this.configuration['logo'] != '') {
 			this.display.findName('OverlayCanvas').Visibility = "Visible";
@@ -556,7 +561,8 @@ jeroenwijering.View.prototype = {
 		this.centerElement('MuteIcon',wid,hei);
 		this.centerElement('BufferIcon',wid,hei);
 		this.centerElement('BufferText',wid,hei);
-		this.display.findName('OverlayCanvas')['Canvas.Left'] = wid-110;
+		this.display.findName('OverlayCanvas')['Canvas.Left'] = wid -
+			this.display.findName('OverlayCanvas').Width - 10;
 		this.display.Visibility = "Visible";
 	},
 
@@ -703,6 +709,7 @@ jeroenwijering.Model.prototype = {
 		this.goPause(0);
 		this.video.Source = 'null';
 		this.view.onBuffer(0);
+		clearInterval(this.timeint);
 	},
 
 	goVolume: function(pct) {
