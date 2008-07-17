@@ -73,12 +73,13 @@ jeroenwijering.Player = function(cnt,src,cfg) {
 			width:this.configuration['width'],
 			height:this.configuration['height'],
 			version:'1.0',
-			inplaceInstallPrompt:true,
+			inplaceInstallPrompt:false,
 			isWindowless:'false',
 			background:'#'+this.configuration['backgroundcolor']
 		},
 		events:{
-			onLoad:this.onLoadHandler
+			onLoad:this.onLoadHandler,
+			onError:null
 		},
 		context:this
 	});

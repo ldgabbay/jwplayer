@@ -1,15 +1,576 @@
-///////////////////////////////////////////////////////////////////////////////
+﻿///////////////////////////////////////////////////////////////////////////////
 //
-//  Silverlight.js   			version 1.0
+//  Silverlight.js   			version 2.0.30523.6
 //
 //  This file is provided by Microsoft as a helper file for websites that
-//  incorporate Silverlight Objects. This file is provided under the Silverlight 
-//  SDK 1.0 license available at http://go.microsoft.com/fwlink/?linkid=94240.  
+//  incorporate Silverlight Objects. This file is provided under the Microsoft
+//  Public License available at 
+//  http://code.msdn.microsoft.com/silverlightjs/Project/License.aspx.  
 //  You may not use or distribute this file or the code in this file except as 
 //  expressly permitted under that license.
 // 
-//  Copyright (c) 2007 Microsoft Corporation. All rights reserved.
+//  Copyright (c) Microsoft Corporation. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-if(!window.Silverlight)window.Silverlight={};Silverlight._silverlightCount=0;Silverlight.ua=null;Silverlight.available=false;Silverlight.fwlinkRoot="http://go.microsoft.com/fwlink/?LinkID=";Silverlight.detectUserAgent=function(){var a=window.navigator.userAgent;Silverlight.ua={OS:"Unsupported",Browser:"Unsupported"};if(a.indexOf("Windows NT")>=0)Silverlight.ua.OS="Windows";else if(a.indexOf("PPC Mac OS X")>=0)Silverlight.ua.OS="MacPPC";else if(a.indexOf("Intel Mac OS X")>=0)Silverlight.ua.OS="MacIntel";if(Silverlight.ua.OS!="Unsupported")if(a.indexOf("MSIE")>=0){if(navigator.userAgent.indexOf("Win64")==-1)if(parseInt(a.split("MSIE")[1])>=6)Silverlight.ua.Browser="MSIE"}else if(a.indexOf("Firefox")>=0){var b=a.split("Firefox/")[1].split("."),c=parseInt(b[0]);if(c>=2)Silverlight.ua.Browser="Firefox";else{var d=parseInt(b[1]);if(c==1&&d>=5)Silverlight.ua.Browser="Firefox"}}else if(a.indexOf("Safari")>=0)Silverlight.ua.Browser="Safari"};Silverlight.detectUserAgent();Silverlight.isInstalled=function(d){var c=false,a=null;try{var b=null;if(Silverlight.ua.Browser=="MSIE")b=new ActiveXObject("AgControl.AgControl");else if(navigator.plugins["Silverlight Plug-In"]){a=document.createElement("div");document.body.appendChild(a);if(Silverlight.ua.Browser=="Safari")a.innerHTML='<embed type="application/x-silverlight" />';else a.innerHTML='<object type="application/x-silverlight"  data="data:," />';b=a.childNodes[0]}document.body.innerHTML;if(b.IsVersionSupported(d))c=true;b=null;Silverlight.available=true}catch(e){c=false}if(a)document.body.removeChild(a);return c};Silverlight.createObject=function(l,g,m,j,k,i,h){var b={},a=j,c=k;a.source=l;b.parentElement=g;b.id=Silverlight.HtmlAttributeEncode(m);b.width=Silverlight.HtmlAttributeEncode(a.width);b.height=Silverlight.HtmlAttributeEncode(a.height);b.ignoreBrowserVer=Boolean(a.ignoreBrowserVer);b.inplaceInstallPrompt=Boolean(a.inplaceInstallPrompt);var e=a.version.split(".");b.shortVer=e[0]+"."+e[1];b.version=a.version;a.initParams=i;a.windowless=a.isWindowless;a.maxFramerate=a.framerate;for(var d in c)if(c[d]&&d!="onLoad"&&d!="onError"){a[d]=c[d];c[d]=null}delete a.width;delete a.height;delete a.id;delete a.onLoad;delete a.onError;delete a.ignoreBrowserVer;delete a.inplaceInstallPrompt;delete a.version;delete a.isWindowless;delete a.framerate;delete a.data;delete a.src;if(Silverlight.isInstalled(b.version)){if(Silverlight._silverlightCount==0)if(window.addEventListener)window.addEventListener("onunload",Silverlight.__cleanup,false);else window.attachEvent("onunload",Silverlight.__cleanup);var f=Silverlight._silverlightCount++;a.onLoad="__slLoad"+f;a.onError="__slError"+f;window[a.onLoad]=function(a){if(c.onLoad)c.onLoad(document.getElementById(b.id),h,a)};window[a.onError]=function(a,b){if(c.onError)c.onError(a,b);else Silverlight.default_error_handler(a,b)};slPluginHTML=Silverlight.buildHTML(b,a)}else slPluginHTML=Silverlight.buildPromptHTML(b);if(b.parentElement)b.parentElement.innerHTML=slPluginHTML;else return slPluginHTML};Silverlight.supportedUserAgent=function(){var a=Silverlight.ua,b=a.OS=="Unsupported"||a.Browser=="Unsupported"||a.OS=="Windows"&&a.Browser=="Safari"||a.OS.indexOf("Mac")>=0&&a.Browser=="IE";return !b};Silverlight.buildHTML=function(c,d){var a=[],e,i,g,f,h;if(Silverlight.ua.Browser=="Safari"){a.push("<embed ");e="";i=" ";g='="';f='"';h=' type="application/x-silverlight"/>'+"<iframe style='visibility:hidden;height:0;width:0'/>"}else{a.push('<object type="application/x-silverlight" data="data:,"');e=">";i=' <param name="';g='" value="';f='" />';h="</object>"}a.push(' id="'+c.id+'" width="'+c.width+'" height="'+c.height+'" '+e);for(var b in d)if(d[b])a.push(i+Silverlight.HtmlAttributeEncode(b)+g+Silverlight.HtmlAttributeEncode(d[b])+f);a.push(h);return a.join("")};Silverlight.default_error_handler=function(e,b){var d,c=b.ErrorType;d=b.ErrorCode;var a="\nSilverlight error message     \n";a+="ErrorCode: "+d+"\n";a+="ErrorType: "+c+"       \n";a+="Message: "+b.ErrorMessage+"     \n";if(c=="ParserError"){a+="XamlFile: "+b.xamlFile+"     \n";a+="Line: "+b.lineNumber+"     \n";a+="Position: "+b.charPosition+"     \n"}else if(c=="RuntimeError"){if(b.lineNumber!=0){a+="Line: "+b.lineNumber+"     \n";a+="Position: "+b.charPosition+"     \n"}a+="MethodName: "+b.methodName+"     \n"}alert(a)};Silverlight.createObjectEx=function(b){var a=b,c=Silverlight.createObject(a.source,a.parentElement,a.id,a.properties,a.events,a.initParams,a.context);if(a.parentElement==null)return c};Silverlight.buildPromptHTML=function(l){var a=null,d=Silverlight.fwlinkRoot,c=Silverlight.ua.OS,b="92822",e,f="Get Microsoft Silverlight",m="0x409";if(l.inplaceInstallPrompt){var n="98109",i;if(Silverlight.available){e="96189";i="96422"}else{e="96188";i="96422"}var h="93481",g="93483";if(c=="Windows"){b="92799";h="92803";g="92805"}else if(c=="MacIntel"){b="92808";h="92804";g="92806"}else if(c=="MacPPC"){b="92807";h="92815";g="92816"}var k='By clicking <b>"Get Microsoft Silverlight"</b> you accept the<br /><a title="Silverlight License Agreement" href="{2}" target="_top" style="text-decoration: underline; color: #96C5E1"><b>Silverlight license agreement</b></a>',j='Silverlight updates automatically, <a title="Silverlight Privacy Statement" href="{3}" target="_top" style="text-decoration: underline; color: #96C5E1"><b>learn more</b></a>';a='<table border="0" cellpadding="0" cellspacing="0" width="206px"><tr><td><img style="display: block; cursor: pointer; border= 0;" title="'+f+'" alt="'+f+'" onclick="javascript:Silverlight.followFWLink({0});" src="{1}" /></td></tr><tr><td style="width: 206px; margin: 0px; background: #FFFFFF; color: #C7C7C7; text-align: left; border-left-style: solid; border-right-style: solid; padding-left: 6px; padding-right: 6px; padding-top: 3px; padding-bottom: 0px; border-width: 2px; border-color: #c7c7bd; font-family: Verdana; font-size: 55%">'+k+'</td></tr><tr><td><img src="{5}" style="border: 0; display: block" /></td></tr><tr><td style="width: 206px; margin: 0px; background: #D8EFF9; color: #C7C7C7; text-align: left; border-left-style: solid; border-right-style: solid; padding-left: 6px; padding-right: 6px; padding-top: 0px; padding-bottom: 2px; border-width: 2px; border-color: #c7c7bd; font-family: Verdana; font-size: 55%">'+j+'</td></tr><tr><td><img alt="" src="{4}" /></td></tr></table>';a=a.replace("{2}",d+h);a=a.replace("{3}",d+g);a=a.replace("{4}",d+i);a=a.replace("{5}",d+n)}else{if(Silverlight.available)e="94377";else e="92801";if(c=="Windows")b="92800";else if(c=="MacIntel")b="92812";else if(c=="MacPPC")b="92811";a='<div style="display:block; width: 205px; height: 67px;"><img onclick="javascript:Silverlight.followFWLink({0});" style="border:0; cursor:pointer" src="{1}" title="'+f+'" alt="'+f+'"/></div>'}a=a.replace("{0}",b);a=a.replace("{1}",d+e+"&amp;clcid="+m);return a};Silverlight.__cleanup=function(){for(var a=Silverlight._silverlightCount-1;a>=0;a--){window["__slLoad"+a]=null;window["__slError"+a]=null}if(window.removeEventListener)window.removeEventListener("unload",Silverlight.__cleanup,false);else window.detachEvent("onunload",Silverlight.__cleanup)};Silverlight.followFWLink=function(a){top.location=Silverlight.fwlinkRoot+String(a)};Silverlight.HtmlAttributeEncode=function(c){var a,b="";if(c==null)return null;for(var d=0;d<c.length;d++){a=c.charCodeAt(d);if(a>96&&a<123||a>64&&a<91||a>43&&a<58&&a!=47||a==95)b=b+String.fromCharCode(a);else b=b+"&#"+a+";"}return b}
+if (!window.Silverlight)
+{
+    window.Silverlight = { };
+}
+
+//////////////////////////////////////////////////////////////////
+//
+// _silverlightCount:
+//
+// Counter of globalized event handlers
+//
+//////////////////////////////////////////////////////////////////
+Silverlight._silverlightCount = 0;
+
+//////////////////////////////////////////////////////////////////
+//
+// fwlinkRoot:
+//
+// Prefix for fwlink URL's
+//
+//////////////////////////////////////////////////////////////////
+Silverlight.fwlinkRoot='http://go2.microsoft.com/fwlink/?LinkID=';
+
+//////////////////////////////////////////////////////////////////
+//  
+// onGetSilverlight:
+//
+// Called by Silverlight.GetSilverlight to notify the page that a user
+// has requested the Silverlight installer
+//
+//////////////////////////////////////////////////////////////////
+Silverlight.onGetSilverlight = null;
+
+//////////////////////////////////////////////////////////////////
+//
+// onSilverlightInstalled:
+//
+// Called by Silverlight.WaitForInstallCompletion when the page detects
+// that Silverlight has been installed. The event handler is not called
+// in upgrade scenarios.
+//
+//////////////////////////////////////////////////////////////////
+Silverlight.onSilverlightInstalled = function () {window.location.reload(false);};
+
+//////////////////////////////////////////////////////////////////
+//
+// isInstalled:
+//
+// Checks to see if the correct version is installed
+//
+//////////////////////////////////////////////////////////////////
+Silverlight.isInstalled = function(version)
+{
+    var isVersionSupported=false;
+    var container = null;
+    
+    try 
+    {
+        var control = null;
+        
+        try
+        {
+            control = new ActiveXObject('AgControl.AgControl');
+            if ( version == null )
+            {
+                isVersionSupported = true;
+            }
+            else if ( control.IsVersionSupported(version) )
+            {
+                isVersionSupported = true;
+            }
+            control = null;
+        }
+        catch (e)
+        {
+            var plugin = navigator.plugins["Silverlight Plug-In"] ;
+            if ( plugin )
+            {
+                if ( version === null )
+                {
+                    isVersionSupported = true;
+                }
+                else
+                {
+                    var actualVer = plugin.description;
+                    if ( actualVer === "1.0.30226.2")
+                        actualVer = "2.0.30226.2";
+                    var actualVerArray =actualVer.split(".");
+                    while ( actualVerArray.length > 3)
+                    {
+                        actualVerArray.pop();
+                    }
+                    while ( actualVerArray.length < 4)
+                    {
+                        actualVerArray.push(0);
+                    }
+                    var reqVerArray = version.split(".");
+                    while ( reqVerArray.length > 4)
+                    {
+                        reqVerArray.pop();
+                    }
+                    
+                    var requiredVersionPart ;
+                    var actualVersionPart
+                    var index = 0;
+                    
+                    
+                    do
+                    {
+                        requiredVersionPart = parseInt(reqVerArray[index]);
+                        actualVersionPart = parseInt(actualVerArray[index]);
+                        index++;
+                    }
+                    while (index < reqVerArray.length && requiredVersionPart === actualVersionPart);
+                    
+                    if ( requiredVersionPart <= actualVersionPart && !isNaN(requiredVersionPart) )
+                    {
+                        isVersionSupported = true;
+                    }
+                }
+            }
+        }
+    }
+    catch (e) 
+    {
+        isVersionSupported = false;
+    }
+    if (container) 
+    {
+        document.body.removeChild(container);
+    }
+    
+    return isVersionSupported;
+}
+//////////////////////////////////////////////////////////////////
+//
+// WaitForInstallCompletion:
+//
+// Occasionally checks for Silverlight installation status. If it
+// detects that Silverlight has been installed then it calls
+// Silverlight.onSilverlightInstalled();. This is only supported
+// if Silverlight was not previously installed on this computer.
+//
+//////////////////////////////////////////////////////////////////
+Silverlight.WaitForInstallCompletion = function()
+{
+    if ( ! Silverlight.isBrowserRestartRequired && Silverlight.onSilverlightInstalled )
+    {
+        try
+        {
+            navigator.plugins.refresh();
+        }
+        catch(e)
+        {
+        }
+        if ( Silverlight.isInstalled(null) )
+        {
+            Silverlight.onSilverlightInstalled();
+        }
+        else
+        {
+              setTimeout(Silverlight.WaitForInstallCompletion, 3000);
+        }    
+    }
+}
+//////////////////////////////////////////////////////////////////
+//
+// __startup:
+//
+// Performs startup tasks
+//////////////////////////////////////////////////////////////////
+Silverlight.__startup = function()
+{
+    Silverlight.isBrowserRestartRequired = Silverlight.isInstalled(null);
+    if ( !Silverlight.isBrowserRestartRequired)
+    {
+        Silverlight.WaitForInstallCompletion();
+    }
+    if (window.removeEventListener) { 
+       window.removeEventListener('load', Silverlight.__startup , false);
+    }
+    else { 
+        window.detachEvent('onload', Silverlight.__startup );
+    }
+}
+
+if (window.addEventListener) 
+{
+    window.addEventListener('load', Silverlight.__startup , false);
+}
+else 
+{
+    window.attachEvent('onload', Silverlight.__startup );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// createObject:
+//
+// Inserts a Silverlight <object> tag or installation experience into the HTML
+// DOM based on the current installed state of Silverlight. 
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+Silverlight.createObject = function(source, parentElement, id, properties, events, initParams, userContext)
+{
+    var slPluginHelper = new Object();
+    var slProperties = properties;
+    var slEvents = events;
+    
+    slPluginHelper.version = slProperties.version;
+    slProperties.source = source;    
+    slPluginHelper.alt = slProperties.alt;
+    
+    //rename properties to their tag property names. For bacwards compatibility
+    //with Silverlight.js version 1.0
+    if ( initParams )
+        slProperties.initParams = initParams;
+    if ( slProperties.isWindowless && !slProperties.windowless)
+        slProperties.windowless = slProperties.isWindowless;
+    if ( slProperties.framerate && !slProperties.maxFramerate)
+        slProperties.maxFramerate = slProperties.framerate;
+    if ( id && !slProperties.id)
+        slProperties.id = id;
+    
+    // remove elements which are not to be added to the instantiation tag
+    delete slProperties.ignoreBrowserVer;
+    delete slProperties.inplaceInstallPrompt;
+    delete slProperties.version;
+    delete slProperties.isWindowless;
+    delete slProperties.framerate;
+    delete slProperties.data;
+    delete slProperties.src;
+    delete slProperties.alt;
+
+
+    // detect that the correct version of Silverlight is installed, else display install
+
+    if (Silverlight.isInstalled(slPluginHelper.version))
+    {
+        //move unknown events to the slProperties array
+        for (var name in slEvents)
+        {
+            if ( slEvents[name])
+            {
+                if ( name == "onLoad" && typeof slEvents[name] == "function" && slEvents[name].length != 1 )
+                {
+                    var onLoadHandler = slEvents[name];
+                    slEvents[name]=function (sender){ return onLoadHandler(document.getElementById(id), userContext, sender)};
+                }
+                var handlerName = Silverlight.__getHandlerName(slEvents[name]);
+                if ( handlerName != null )
+                {
+                    slProperties[name] = handlerName;
+                    slEvents[name] = null;
+                }
+                else
+                {
+                    throw "typeof events."+name+" must be 'function' or 'string'";
+                }
+            }
+        }
+        slPluginHTML = Silverlight.buildHTML(slProperties);
+    }
+    //The control could not be instantiated. Show the installation prompt
+    else 
+    {
+        slPluginHTML = Silverlight.buildPromptHTML(slPluginHelper);
+    }
+
+    // insert or return the HTML
+    if(parentElement)
+    {
+        parentElement.innerHTML = slPluginHTML;
+    }
+    else
+    {
+        return slPluginHTML;
+    }
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//  buildHTML:
+//
+//  create HTML that instantiates the control
+//
+///////////////////////////////////////////////////////////////////////////////
+Silverlight.buildHTML = function( slProperties)
+{
+    var htmlBuilder = [];
+
+    htmlBuilder.push('<object type=\"application/x-silverlight\" data="data:application/x-silverlight,"');
+    if ( slProperties.id != null )
+    {
+        htmlBuilder.push(' id="' + slProperties.id + '"');
+    }
+    if ( slProperties.width != null )
+    {
+        htmlBuilder.push(' width="' + slProperties.width+ '"');
+    }
+    if ( slProperties.height != null )
+    {
+        htmlBuilder.push(' height="' + slProperties.height + '"');
+    }
+    htmlBuilder.push(' >');
+    
+    delete slProperties.id;
+    delete slProperties.width;
+    delete slProperties.height;
+    
+    for (var name in slProperties)
+    {
+        if (slProperties[name])
+        {
+            htmlBuilder.push('<param name="'+Silverlight.HtmlAttributeEncode(name)+'" value="'+Silverlight.HtmlAttributeEncode(slProperties[name])+'" />');
+        }
+    }
+    htmlBuilder.push('<\/object>');
+    return htmlBuilder.join('');
+}
+
+
+
+//////////////////////////////////////////////////////////////////
+//
+// createObjectEx:
+//
+// takes a single parameter of all createObject 
+// parameters enclosed in {}
+//
+//////////////////////////////////////////////////////////////////
+
+Silverlight.createObjectEx = function(params)
+{
+    var parameters = params;
+    var html = Silverlight.createObject(parameters.source, parameters.parentElement, parameters.id, parameters.properties, parameters.events, parameters.initParams, parameters.context);
+    if (parameters.parentElement == null)
+    {
+        return html;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//
+// buildPromptHTML
+//
+// Builds the HTML to prompt the user to download and install Silverlight
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+Silverlight.buildPromptHTML = function(slPluginHelper)
+{
+    var slPluginHTML = "";
+    var urlRoot = Silverlight.fwlinkRoot;
+    var shortVer = slPluginHelper.version ;
+    if ( slPluginHelper.alt )
+    {
+        slPluginHTML = slPluginHelper.alt;
+    }
+    else
+    {
+        if (! shortVer )
+        {
+            shortVer="";
+        }
+        slPluginHTML = "<a href='javascript:Silverlight.getSilverlight(\"{1}\");' style='text-decoration: none;'><img src='{2}' alt='Get Microsoft Silverlight' style='border-style: none'/></a>";
+        slPluginHTML = slPluginHTML.replace('{1}', shortVer );
+        slPluginHTML = slPluginHTML.replace('{2}', urlRoot + '108181');
+    }
+    
+    return slPluginHTML;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//
+// getSilverlight:
+//
+// Navigates the browser to the appropriate Silverlight installer
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+Silverlight.getSilverlight = function(version)
+{
+    if (Silverlight.onGetSilverlight )
+    {
+        Silverlight.onGetSilverlight();
+    }
+    
+    var shortVer = "";
+    var reqVerArray = String(version).split(".");
+    if (reqVerArray.length > 1)
+    {
+        var majorNum = parseInt(reqVerArray[0] );
+        if ( isNaN(majorNum) || majorNum < 2 )
+        {
+            shortVer = "1.0";
+        }
+        else
+        {
+            shortVer = reqVerArray[0]+'.'+reqVerArray[1];
+        }
+    }
+    
+    var verArg = "";
+    
+    if (shortVer.match(/^\d+\056\d+$/) )
+    {
+        verArg = "&v="+shortVer;
+    }
+    
+    Silverlight.followFWLink("114576" + verArg);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//
+// followFWLink:
+//
+// Navigates to a url based on fwlinkid
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+Silverlight.followFWLink = function(linkid)
+{
+    top.location=Silverlight.fwlinkRoot+String(linkid);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//
+// HtmlAttributeEncode:
+//
+// Encodes special characters in input strings as charcodes
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+Silverlight.HtmlAttributeEncode = function( strInput )
+{
+      var c;
+      var retVal = '';
+
+    if(strInput == null)
+      {
+          return null;
+    }
+      
+      for(var cnt = 0; cnt < strInput.length; cnt++)
+      {
+            c = strInput.charCodeAt(cnt);
+
+            if (( ( c > 96 ) && ( c < 123 ) ) ||
+                  ( ( c > 64 ) && ( c < 91 ) ) ||
+                  ( ( c > 43 ) && ( c < 58 ) && (c!=47)) ||
+                  ( c == 95 ))
+            {
+                  retVal = retVal + String.fromCharCode(c);
+            }
+            else
+            {
+                  retVal = retVal + '&#' + c + ';';
+            }
+      }
+      
+      return retVal;
+}
+///////////////////////////////////////////////////////////////////////////////
+//
+//  default_error_handler:
+//
+//  Default error handling function 
+//
+///////////////////////////////////////////////////////////////////////////////
+
+Silverlight.default_error_handler = function (sender, args)
+{
+    var iErrorCode;
+    var errorType = args.ErrorType;
+
+    iErrorCode = args.ErrorCode;
+
+    var errMsg = "\nSilverlight error message     \n" ;
+
+    errMsg += "ErrorCode: "+ iErrorCode + "\n";
+
+
+    errMsg += "ErrorType: " + errorType + "       \n";
+    errMsg += "Message: " + args.ErrorMessage + "     \n";
+
+    if (errorType == "ParserError")
+    {
+        errMsg += "XamlFile: " + args.xamlFile + "     \n";
+        errMsg += "Line: " + args.lineNumber + "     \n";
+        errMsg += "Position: " + args.charPosition + "     \n";
+    }
+    else if (errorType == "RuntimeError")
+    {
+        if (args.lineNumber != 0)
+        {
+            errMsg += "Line: " + args.lineNumber + "     \n";
+            errMsg += "Position: " +  args.charPosition + "     \n";
+        }
+        errMsg += "MethodName: " + args.methodName + "     \n";
+    }
+    alert (errMsg);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//
+// __cleanup:
+//
+// Releases event handler resources when the page is unloaded
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+Silverlight.__cleanup = function ()
+{
+    for (var i = Silverlight._silverlightCount - 1; i >= 0; i--) {
+        window['__slEvent' + i] = null;
+    }
+    Silverlight._silverlightCount = 0;
+    if (window.removeEventListener) { 
+       window.removeEventListener('unload', Silverlight.__cleanup , false);
+    }
+    else { 
+        window.detachEvent('onunload', Silverlight.__cleanup );
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//
+// __getHandlerName:
+//
+// Generates named event handlers for delegates.
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+Silverlight.__getHandlerName = function (handler)
+{
+    var handlerName = "";
+    if ( typeof handler == "string")
+    {
+        handlerName = handler;
+    }
+    else if ( typeof handler == "function" )
+    {
+        if (Silverlight._silverlightCount == 0)
+        {
+            if (window.addEventListener) 
+            {
+                window.addEventListener('onunload', Silverlight.__cleanup , false);
+            }
+            else 
+            {
+                window.attachEvent('onunload', Silverlight.__cleanup );
+            }
+        }
+        var count = Silverlight._silverlightCount++;
+        handlerName = "__slEvent"+count;
+        
+        window[handlerName]=handler;
+    }
+    else
+    {
+        handlerName = null;
+    }
+    return handlerName;
+}
