@@ -126,9 +126,6 @@ jeroenwijering.Player.prototype = {
 			case 'VOLUME':
 				this.controller.setVolume(prm);
 				break;
-			case 'FULLSCREEN':
-				this.controller.setFullscreen();
-				break;
 		}
 	}
 }
@@ -292,7 +289,7 @@ jeroenwijering.View.prototype = {
 			pct < 10 ? pct = "0"+pct: pct = ""+pct;
 			snd.findName("BufferText").Text = pct;
 		}
-		this.delegate('BUFFER',Array(pct));
+		this.delegate('BUFFER',[pct]);
 	},
 
 	onFullscreen: function(fss) {
@@ -338,7 +335,7 @@ jeroenwijering.View.prototype = {
 		var snd = this.configuration['sender'];
 		var max = snd.findName("TimeSlider").Width;
 		snd.findName("DownloadProgress").Width = Math.round(max*pct/100);
-		this.delegate('LOAD',Array(pct));
+		this.delegate('LOAD',[pct]);
 	},
 
 	onMute: function(mut) {
@@ -395,7 +392,7 @@ jeroenwijering.View.prototype = {
 				playerStatusChange(old.toUpperCase(),stt.toUpperCase());
 			}
 		} catch (err) {}
-		this.delegate('STATE',Array(old,stt));
+		this.delegate('STATE',[old,stt]);
 	},
 
 	onTime: function(elp,dur) {
@@ -413,13 +410,13 @@ jeroenwijering.View.prototype = {
 		} else  { 
 			snd.findName("TimeSymbol").Visibility = "Collapsed";
 		}
-		this.delegate('TIME',Array(elp,dur));
+		this.delegate('TIME',[elp,dur]);
 	},
 
 	onVolume: function(pct) {
 		var snd = this.configuration['sender'];
 		snd.findName("VolumeHighlight").Width = Math.round(pct/5);
-		this.delegate('VOLUME',Array(pct));
+		this.delegate('VOLUME',[pct]);
 	},
 
 	assignColorsClicks: function() {
