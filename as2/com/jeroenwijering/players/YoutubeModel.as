@@ -81,6 +81,7 @@ class com.jeroenwijering.players.YoutubeModel extends AbstractModel {
 			} else {
 				currentURL = feeder.feed[currentItem]["file"];
 				ytplayer.loadVideoById(getID(currentURL),pos);
+				ytplayer.unMute(); 
 				ytplayer.setVolume(config['volume']);
 				sendUpdate("load",0);
 				sendUpdate("size",320,240);
