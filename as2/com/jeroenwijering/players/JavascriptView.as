@@ -35,7 +35,9 @@ class com.jeroenwijering.players.JavascriptView extends AbstractView {
 	function JavascriptView(ctr:AbstractController,cfg:Object,fed:Object) {
 		super(ctr,cfg,fed);
 		if(ExternalInterface.available) {
-			ExternalInterface.addCallback("sendEvent",this,sendEvent);
+			try { 
+				ExternalInterface.addCallback("sendEvent",this,sendEvent);
+			} catch(err) {}
 		}
 	};
 

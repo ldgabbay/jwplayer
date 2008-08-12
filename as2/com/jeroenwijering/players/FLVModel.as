@@ -93,8 +93,8 @@ class com.jeroenwijering.players.FLVModel extends AbstractModel {
 		if (pos != undefined) { currentPosition = pos; }
 		if(pos < 1) {
 			pos = 0; 
-		} else if (pos > feeder.feed[currentItem]["duration"] - 1) { 
-			pos = feeder.feed[currentItem]["duration"] - 1; 
+		} else if (pos > feeder.feed[currentItem]["duration"]-1) {
+			pos = feeder.feed[currentItem]["duration"]-1; 
 		}
 		if (flvType=="RTMP" && feeder.feed[currentItem]["id"] != currentURL) {
 			connectObject.connect(feeder.feed[currentItem]["file"]);
@@ -200,7 +200,11 @@ class com.jeroenwijering.players.FLVModel extends AbstractModel {
 
 	/** Pause the video that's currently playing. **/
 	private function setPause(pos:Number) {
-		if(pos < 1) { pos = 0; }
+		if(pos < 1) {
+			pos = 0; 
+		} else if (pos > feeder.feed[currentItem]["duration"]-1) {
+			pos = feeder.feed[currentItem]["duration"]-1; 
+		}
 		clearInterval(positionInterval);
 		if(pos != undefined) {
 			currentPosition = pos;

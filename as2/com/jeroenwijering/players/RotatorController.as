@@ -104,12 +104,10 @@ class com.jeroenwijering.players.RotatorController extends AbstractController{
 
 	/** Play a new item. **/
 	private function setPlayitem(itm:Number) {
-		if(itm != currentItem) {
-			sendChange("stop");
-			itm > feeder.feed.length-1 ? itm = feeder.feed.length-1: null;
-			currentItem = itm;
-			sendChange("item",itm);
-		}
+		sendChange("stop");
+		itm > feeder.feed.length-1 ? itm = feeder.feed.length-1: null;
+		currentItem = itm;
+		sendChange("item",itm);
 		if(feeder.feed[itm]["start"] == undefined) {
 			sendChange("start",0);
 		} else {
@@ -131,10 +129,10 @@ class com.jeroenwijering.players.RotatorController extends AbstractController{
 
 
 	/** Determine what to do if an item is completed. **/
-	private function setComplete() { 
+	private function setComplete() {
 		itemsPlayed++;
 		if(config["repeat"]=="false" || (config["repeat"] == "list"
-		 	&& itemsPlayed >= feeder.feed.length)) {
+			&& currentItem == feeder.feed.length-1)) {
 			sendChange("pause",0);
 			isPlaying = false;
 			itemsPlayed = 0;
@@ -165,6 +163,17 @@ class com.jeroenwijering.players.RotatorController extends AbstractController{
 		}
 		playerSO.data.useaudio = config["useaudio"];
 		playerSO.flush();
+	};
+
+
+	/** Fullscreen switch function. **/
+	private function setFullscreen() {
+		if(Stage["displayState"] == "normal" && config["usefullscreen"] == "true") {
+			Stage["displayState"] = "fullScreen";
+		} else if (Stage["displayState"] == "fullScreen" && 
+			config["usefullscreen"] == "true") {
+			Stage["displayState"] = "normal";
+		}
 	};
 
 

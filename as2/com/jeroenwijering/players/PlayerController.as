@@ -52,8 +52,8 @@ class com.jeroenwijering.players.PlayerController extends AbstractController {
 			config["clip"].controlbar.au.icn._alpha = 40;
 		}
 		if(config["autostart"] == "false") {
-			sendChange("pause",feeder.feed[currentItem]['start']);
 			isPlaying = false;
+			sendChange("pause",feeder.feed[currentItem]['start']);
 		} else {
 			sendChange("start",feeder.feed[currentItem]['start']);
 			isPlaying = true;

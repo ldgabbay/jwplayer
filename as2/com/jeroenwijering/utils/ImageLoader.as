@@ -76,17 +76,24 @@ class com.jeroenwijering.utils.ImageLoader {
 
 	/** Scale the image while maintaining aspectratio **/
 	private function scaleImage(tgt:MovieClip):Void {
+		if(Stage["displayState"] == "fullScreen") {
+			var tgw = Stage.width;
+			var tgh = Stage.height;
+		} else { 
+			var tgw = targetWidth;
+			var tgh = targetHeight;
+		}
 		targetClip._xscale = targetClip._yscale = 100;
 		var tcf = tgt._currentframe;
 		tgt.gotoAndStop(1);
 		sourceWidth = tgt._width;
 		sourceHeight = tgt._height;
 		sourceLength = tgt._totalframes/20;
-		var xsr = targetWidth/sourceWidth;
-		var ysr = targetHeight/sourceHeight;
+		var xsr = tgw/sourceWidth;
+		var ysr = tgh/sourceHeight;
 		if (overStretch == "fit" || Math.abs(xsr-ysr) < 0.1) {
-			tgt._width = targetWidth;
-			tgt._height = targetHeight;
+			tgt._width = tgw;
+			tgt._height = tgh;
 		} else if ((overStretch == "true" && xsr > ysr) || 
 			(overStretch == "false" && xsr < ysr)) { 
 			tgt._xscale = tgt._yscale = xsr*100;
@@ -96,8 +103,8 @@ class com.jeroenwijering.utils.ImageLoader {
 			tgt._xscale = tgt._yscale = ysr*100;
 		}
 		if(targetWidth != undefined) {
-			tgt._x = targetWidth/2 - tgt._width/2;
-			tgt._y = targetHeight/2 - tgt._height/2;
+			tgt._x = tgw/2 - tgt._width/2;
+			tgt._y = tgh/2 - tgt._height/2;
 		}
 		tgt.gotoAndPlay(tcf);
 		onMetaData();

@@ -9,7 +9,7 @@
 import com.jeroenwijering.players.*;
 
 
-class com.jeroenwijering.players.ImageRotator extends AbstractPlayer { 
+class com.jeroenwijering.players.ImageRotator extends AbstractPlayer {
 
 
 	/** Array with all config values **/
@@ -42,6 +42,7 @@ class com.jeroenwijering.players.ImageRotator extends AbstractPlayer {
 		repeat:"true",
 		rotatetime:5,
 		shuffle:"true",
+		usefullscreen:'true',
 		volume:80,
 
 		enablejs:"false",
@@ -50,7 +51,7 @@ class com.jeroenwijering.players.ImageRotator extends AbstractPlayer {
 		linktarget:"_self",
 		useaudio:"true",
 
-		abouttxt:"JW Image Rotator 3.16",
+		abouttxt:"JW Image Rotator 3.17",
 		aboutlnk:"http://www.jeroenwijering.com/?about=JW_Image_Rotator"
 	};
 

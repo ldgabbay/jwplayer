@@ -84,7 +84,7 @@ class com.jeroenwijering.players.AbstractView {
 
 	/** Send event to the controller. **/
 	private function sendEvent(typ:String,prm:Number) {
-		controller.getEvent(typ,prm); 
+		controller.getEvent(typ,prm);
 	};
 
 

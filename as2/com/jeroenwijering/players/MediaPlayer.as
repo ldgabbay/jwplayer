@@ -21,7 +21,7 @@ class com.jeroenwijering.players.MediaPlayer extends AbstractPlayer {
 		controlbar:20,
 		displayheight:undefined,
 		displaywidth:undefined,
-		searchbar:'true',
+		searchbar:'false',
 
 		file:undefined,
 		fallback:undefined,
@@ -77,7 +77,7 @@ class com.jeroenwijering.players.MediaPlayer extends AbstractPlayer {
 		usemute:'false',
 		usekeys:'true',
 
-		abouttxt:'JW Player 3.16',
+		abouttxt:'JW Player 3.17',
 		aboutlnk:'http://www.jeroenwijering.com/?about=JW_FLV_Media_Player'
 	};
 

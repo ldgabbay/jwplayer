@@ -41,14 +41,18 @@ class com.jeroenwijering.players.RotatorView extends AbstractView {
 		"lines",
 		"slowfade"
 	);
+	/** Dimensions of the display **/
+	private var dims:Array;
 
 
 	/** Constructor **/
 	function RotatorView(ctr:AbstractController,cfg:Object,fed:Object) { 
 		super(ctr,cfg,fed);
+		dims = new Array(config['width'],config['height']);
 		setColorsClicks();
 		if(config["shownavigation"] == "true") {
 			Mouse.addListener(this);
+			Stage.addListener(this);
 		}
 	};
 
@@ -57,13 +61,13 @@ class com.jeroenwijering.players.RotatorView extends AbstractView {
 	private function setColorsClicks() {
 		var ref = this;
 		var tgt:MovieClip = config["clip"];
-		tgt.button._width = config["width"];
-		tgt.button._height = config["height"];
+		tgt.button._width = dims[0];
+		tgt.button._height = dims[1];
 		if(config['overstretch']=='true' || config['overstretch']=='fit') {
 			tgt.img1.bg._visible = tgt.img2.bg._visible = false;
 		} else {
-			tgt.img1.bg._width = tgt.img2.bg._width = config["width"];
-			tgt.img1.bg._height = tgt.img2.bg._height = config["height"];
+			tgt.img1.bg._width = tgt.img2.bg._width = dims[0];
+			tgt.img1.bg._height = tgt.img2.bg._height = dims[1];
 			tgt.img1.col = new Color(tgt.img1.bg);
 			tgt.img1.col.setRGB(config["screencolor"]);
 			tgt.img2.col = new Color(tgt.img2.bg);
@@ -85,12 +89,12 @@ class com.jeroenwijering.players.RotatorView extends AbstractView {
 		tgt.activity.swapDepths(5);
 		tgt.navigation.swapDepths(6);
 		tgt.logo.swapDepths(7);
-		tgt.playicon._x=tgt.activity._x = Math.round(config["width"]/2);
-		tgt.playicon._y=tgt.activity._y = Math.round(config["height"]/2);
+		tgt.playicon._x=tgt.activity._x = Math.round(dims[0]/2);
+		tgt.playicon._y=tgt.activity._y = Math.round(dims[1]/2);
 		if(config["logo"] != undefined) {
 			var lll = new ImageLoader(tgt.logo,"none");
 			lll.onLoadFinished = function() {
-				ref.config['clip'].logo._x = ref.config["displaywidth"] -
+				ref.config['clip'].logo._x = ref.dims[0] -
 					ref.config['clip'].logo._width -10;
 				ref.config['clip'].logo._y = 10;
 			};
@@ -98,8 +102,8 @@ class com.jeroenwijering.players.RotatorView extends AbstractView {
 		}
 		tgt = config["clip"].navigation;
 		if (config["shownavigation"] == "true") {
-			tgt._y = config["height"] - 40;
-			tgt._x = config["width"]/2 - 50;
+			tgt._y = dims[1] - 40;
+			tgt._x = dims[0]/2 - 50;
 			tgt.prevBtn.col1 = new Color(tgt.prevBtn.bck);
 			tgt.prevBtn.col1.setRGB(config["backcolor"]);
 			tgt.prevBtn.col2 = new Color(tgt.prevBtn.icn);
@@ -198,8 +202,39 @@ class com.jeroenwijering.players.RotatorView extends AbstractView {
 			} else {
 				tgt.audioBtn._x = 0;
 				tgt.audioBtn._visible = false;
-			}	
-			tgt._x = Math.round(config["width"]/2 - tgt._width/2);
+			}
+			
+			if(Stage["displayState"] == "normal" && config["usefullscreen"] == "true") {
+				tgt.fullscreenBtn.col1 = new Color(tgt.fullscreenBtn.bck);
+				tgt.fullscreenBtn.col2 = new Color(tgt.fullscreenBtn.icnOn);
+				tgt.fullscreenBtn.col3 = new Color(tgt.fullscreenBtn.icnOff);
+				tgt.fullscreenBtn.col1.setRGB(config["backcolor"]);
+				tgt.fullscreenBtn.col2.setRGB(config["frontcolor"]);
+				tgt.fullscreenBtn.col3.setRGB(config["frontcolor"]);
+				tgt.fullscreenBtn.onRollOver = function() {
+					this.col2.setRGB(ref.config["lightcolor"]);
+					this.col3.setRGB(ref.config["lightcolor"]);
+				};
+				tgt.fullscreenBtn.onRollOut = function() {
+					this.col2.setRGB(ref.config["frontcolor"]);
+					this.col3.setRGB(ref.config["frontcolor"]);
+				};
+				tgt.fullscreenBtn.onRelease = function() {
+					ref.sendEvent("fullscreen");
+					this.col2.setRGB(ref.config["frontcolor"]);
+					this.col3.setRGB(ref.config["frontcolor"]);
+				};
+				tgt.fullscreenBtn.icnOff._visible = false;
+				if(feeder.audio == true) {
+					tgt.fullscreenBtn._x = len*6 + 130;
+				} else {
+					tgt.fullscreenBtn._x = len*6 + 104;
+				}
+			} else {
+				tgt.fullscreenBtn._x = 0;
+				tgt.fullscreenBtn._visible = false;
+			}
+			tgt._x = Math.round(dims[0]/2 - tgt._width/2);
 		} else {
 			tgt._visible = false;
 		}
@@ -267,9 +302,9 @@ class com.jeroenwijering.players.RotatorView extends AbstractView {
 		} else if (dir == 1) {
 			clp._y = 0;
 		} else if (dir == 2) {
-			clp._x = config['width'] - upClip._width;
+			clp._x = dims[0] - upClip._width;
 		} else {
-			clp._y = config['height'] - upClip._height;
+			clp._y = dims[1] - upClip._height;
 		}
 		clp.onEnterFrame = function() {
 			if(dir == 0) {
@@ -371,16 +406,16 @@ class com.jeroenwijering.players.RotatorView extends AbstractView {
 		upClip._alpha = 100;
 		config["clip"].attachMovie("blocksMask","mask",3);
 		var msk:MovieClip = config["clip"].mask;
-		if (config["width"] > config["height"]) {
-			msk._width = msk._height = config["width"];
+		if (dims[0] > dims[1]) {
+			msk._width = msk._height = dims[0];
 		} else {
-			msk._width = msk._height = config["height"];
+			msk._width = msk._height = dims[1];
 		}
 		msk._rotation = random(4)*90;
-		msk._rotation == 90 ? msk._x = config["width"]: null;
-		msk._rotation == 180 ? msk._x = config["width"]: null;
-		msk._rotation == 180 ? msk._y = config["height"]: null;
-		msk._rotation == -90 ? msk._y = config["height"]: null;
+		msk._rotation == 90 ? msk._x = dims[0]: null;
+		msk._rotation == 180 ? msk._x = dims[0]: null;
+		msk._rotation == 180 ? msk._y = dims[1]: null;
+		msk._rotation == -90 ? msk._y = dims[1]: null;
 		upClip.setMask(msk);
 		playClip(msk);
 	}; 
@@ -392,16 +427,16 @@ class com.jeroenwijering.players.RotatorView extends AbstractView {
 		config["clip"].attachMovie("bubblesMask","mask",3);
 		var msk:MovieClip = config["clip"].mask;
 		upClip.setMask(msk);
-		if (config["width"] > config["height"]) {
-			msk._width = msk._height = config["width"];
-			msk._y = config["height"]/2 - msk._height/2;
+		if (dims[0] > dims[1]) {
+			msk._width = msk._height = dims[0];
+			msk._y = dims[1]/2 - msk._height/2;
 		} else {
-			msk._width = msk._height = config["height"];
-			msk._x = config["width"]/2- msk._width/2;
+			msk._width = msk._height = dims[1];
+			msk._x = dims[0]/2- msk._width/2;
 		}
 		if(random(2) == 1) { 
 			msk._xscale = -msk._xscale; 
-			msk._x += config['width']; 
+			msk._x += dims[0]; 
 		}
 		playClip(msk);
 	};
@@ -413,13 +448,13 @@ class com.jeroenwijering.players.RotatorView extends AbstractView {
 		config["clip"].attachMovie("circlesMask","mask",3);
 		var msk:MovieClip = config["clip"].mask;
 		upClip.setMask(msk);
-		if (config["width"] > config["height"]) {
-			msk._width = msk._height = config["width"];
+		if (dims[0] > dims[1]) {
+			msk._width = msk._height = dims[0];
 		} else {
-			msk._width = msk._height = config["height"];
+			msk._width = msk._height = dims[1];
 		}
-		msk._x = config["width"]/2;
-		msk._y = config["height"]/2;
+		msk._x = dims[0]/2;
+		msk._y = dims[1]/2;
 		playClip(msk,10);
 	};
 
@@ -450,8 +485,8 @@ class com.jeroenwijering.players.RotatorView extends AbstractView {
 		config["clip"].attachMovie("fluidsMask","mask",3);
 		var msk:MovieClip = config["clip"].mask;
 		upClip.setMask(msk);
-		msk._width = config["width"];
-		msk._height = config["height"];
+		msk._width = dims[0];
+		msk._height = dims[1];
 		playClip(msk);
 	};
 
@@ -462,8 +497,8 @@ class com.jeroenwijering.players.RotatorView extends AbstractView {
 		config["clip"].attachMovie("linesMask","mask",3);
 		var msk:MovieClip = config["clip"].mask;
 		upClip.setMask(msk);
-		msk._width = config["width"];
-		msk._height = config["height"];
+		msk._width = dims[0];
+		msk._height = dims[1];
 		playClip(msk);
 	};
 
@@ -511,6 +546,34 @@ class com.jeroenwijering.players.RotatorView extends AbstractView {
 		clearInterval(hideInt);
 		if(!config["clip"].navigation.hitTest(_root._xmouse,_root._ymouse)) {
 			hideInt = setInterval(this,"hideBar",500);
+		}
+	};
+
+
+	/** Catches fullscreen escape  **/
+	public function onFullScreen(fs:Boolean) {
+		if(fs == false) {
+			dims = new Array(config['width'],config['height']);
+		} else {
+			dims = new Array(Stage.width,Stage.height);
+		}
+		config["clip"].navigation.fullscreenBtn.icnOn._visible = !fs;
+		config["clip"].navigation.fullscreenBtn.icnOff._visible = fs;
+		setDimensions();
+		sendEvent('playitem',currentItem);
+	};
+
+	/** Resize after a fullscreen enter/leave **/
+	private function setDimensions() {
+		var tgt:MovieClip = config["clip"];
+		tgt.button._width = tgt.img1.bg._width = tgt.img2.bg._width = dims[0];
+		tgt.button._height = tgt.img1.bg._height = tgt.img2.bg._height = dims[1];
+		tgt.playicon._x = tgt.activity._x = Math.round(dims[0]/2);
+		tgt.playicon._y = tgt.activity._y = Math.round(dims[1]/2);
+		tgt.logo._x = dims[0] - tgt.logo._width -10;
+		if (config["shownavigation"] == "true") {
+			tgt.navigation._y = dims[1] - 40;
+			tgt.navigation._x = Math.round(dims[0]/2-tgt.navigation._width/2);
 		}
 	};
 
