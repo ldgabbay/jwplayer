@@ -4,8 +4,10 @@
 package com.jeroenwijering.player {
 
 
+import com.carlcalderon.arthropod.Debug;
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.player.*;
+import com.jeroenwijering.utils.Strings;
 import flash.display.MovieClip;
 import flash.events.*;
 import flash.external.ExternalInterface;
@@ -22,8 +24,10 @@ public class View extends AbstractView {
 
 	/** Object with all configuration parameters **/
 	private var _config:Object;
+	/** Reference to all stage graphics. **/
+	private var _skin:MovieClip;
 	/** Object that load the skin and plugins. **/
-	private var loader:SWFLoader;
+	private var loader:SPLoader;
 	/** Controller of the MVC cycle. **/
 	private var controller:Controller;
 	/** Model of the MVC cycle. **/
@@ -35,54 +39,56 @@ public class View extends AbstractView {
 
 
 	/** Constructor, save references and subscribe to events. **/
-	public function View(cfg:Object,ldr:SWFLoader,ctr:Controller,mdl:Model):void {
+	public function View(cfg:Object,skn:MovieClip,ctr:Controller,mdl:Model,ldr:SPLoader):void {
+		Security.allowDomain("*");
 		_config = cfg;
 		_config['client'] = 'FLASH '+Capabilities.version;
+		_skin = skn;
+		if(_config['resizing']) {
+			_skin.stage.scaleMode = "noScale";
+			_skin.stage.align = "TL";
+			_skin.stage.addEventListener(Event.RESIZE,resizeHandler);
+		}
 		loader = ldr;
-		skin.stage.scaleMode = "noScale";
-		skin.stage.align = "TL";
-		skin.stage.addEventListener(Event.RESIZE,resizeSetter);
-		_config['controlbarsize'] = skin['controlbar'].height;
 		controller = ctr;
 		model = mdl;
-		menuSet();
-		if(ExternalInterface.available && loader.skin.loaderInfo.url.indexOf('http') == 0) {
+		setListening();
+		if(ExternalInterface.available && _skin.loaderInfo.url.indexOf('http') == 0) {
 			listeners = new Array();
-			setListening();
+			setJavascript();
 			setTimeout(playerReady,50);
-			try {
-				if(ExternalInterface.objectID) {
-					_config['id'] = ExternalInterface.objectID;
-				}
-				ExternalInterface.addCallback("getConfig",getConfig);
-				ExternalInterface.addCallback("getPlaylist",getPlaylist);
-				ExternalInterface.addCallback("addControllerListener",addJSControllerListener);
-				ExternalInterface.addCallback("addModelListener",addJSModelListener);
-				ExternalInterface.addCallback("addViewListener",addJSViewListener);
-				ExternalInterface.addCallback("sendEvent",sendEvent);
-				ExternalInterface.addCallback("loadPlugin",loadPlugin);
-			} catch (err:Error) {}
-		} else if (Capabilities.playerType == 'External') {
-			setListening();
+		}
+		if(config['file']) {
+			setTimeout(sendEvent,200,ViewEvent.LOAD,config);
 		}
 	};
 
 
 	/**  Getters for the config parameters, skinning parameters and playlist. **/
 	override public function get config():Object { return _config; };
-	private function getConfig():Object { return _config; };
 	override public function get playlist():Array { return controller.playlist; };
-	private function getPlaylist():Array { return controller.playlist; };
-	override public function get skin():MovieClip { return loader.skin; };
+	override public function get skin():MovieClip { return _skin; };
 
 
-	/** jump to the about page. **/
-	private function aboutSetter(evt:ContextMenuEvent):void {
-		navigateToURL(new URLRequest(config['aboutlink']),'_blank');
+	/** 
+	* Javascript getters for the config and playlist. 
+	* Since parameters with alphanumerical characters tend to crash AS <> JS, they are removed.
+	**/
+	private function getConfig():Object {
+		var cfg:Object = new Object();
+		for(var itm:String in _config) { 
+			if(itm.indexOf('.') == -1) { 
+				cfg[itm] = _config[itm];
+			}
+		}
+		return cfg; 
+	};
+	private function getPlaylist():Array { 
+		return controller.playlist; 
 	};
 
 
-	/**  Subscribers to the controller and model. **/
+	/**  Subscribers to the controller, model and view. **/
 	override public function addControllerListener(typ:String,fcn:Function):void {
 		controller.addEventListener(typ.toUpperCase(),fcn);
 	};
@@ -108,126 +114,72 @@ public class View extends AbstractView {
 
 	/** Send event to listeners and tracers. **/
 	private function forward(tgt:String,typ:String,dat:Object):void {
-		var prm = '';
-		for (var i in dat) { prm += i+':'+dat[i]+','; }
+		var prm:String = '';
+		for (var i:String in dat) { prm += i+':'+dat[i]+','; }
 		if(prm.length > 0) {
 			prm = '('+prm.substr(0,prm.length-1)+')';
 		}
-		if(Capabilities.playerType == 'External') {
-			trace(tgt+': '+typ+' '+prm);
+		if(config['tracecall'] == 'arthropod') {
+			var obj:Object = {CONTROLLER:'0xFF6666',VIEW:'0x66FF66',MODEL:'0x6666FF'};
+			Debug.log(typ+' '+prm,obj[tgt]);
 		} else if(config['tracecall']) { 
 			ExternalInterface.call(config['tracecall'],tgt+': '+typ+' '+prm);
+		} else {
+			trace(tgt+': '+typ+' '+prm);
 		}
 		if(!dat) { dat = new Object(); }
 	 	dat.id = ExternalInterface.objectID;
 		dat.client = config['client'];
 		dat.version = config['version'];
-		for each (var itm in listeners) {
-			if(itm['target'] == tgt && itm['type'] == typ) {
-				ExternalInterface.call(itm['callee'],dat);
+		for (var itm:String in listeners) {
+			if(listeners[itm]['target'] == tgt && listeners[itm]['type'] == typ) {
+				ExternalInterface.call(listeners[itm]['callee'],dat);
 			}
 		}
 	};
 
 
-	/** Toggle the fullscreen mode. **/
-	private function fullscreenSetter(evt:ContextMenuEvent):void { sendEvent('fullscreen'); };
-
-
-	/** Add a plugin to the player from javascript. **/
-	private function loadPlugin(pgi:String,prm:Object=null):void {
+	/** 
+	* Load a plugin into the player at runtime.
+	*
+	* @prm pgi	The name of the plugin to load.
+	* @prm str	A string of additional flashvars (separated by & and = signs).
+	* 
+	* @return	Boolean true if succeeded.
+	**/
+	public function loadPlugin(pgi:String,str:String=null):Boolean {
+		if(str != null && str != '') {
+			var ar1:Array = str.split('&');
+			for(var i:String in ar1) {
+				var ar2:Array = ar1[i].split('=');
+				_config[ar2[0]] = Strings.serialize(ar2[1]); }
+		}
 		loader.loadPlugins(pgi);
-		if(prm) {
-			for(var itm in prm) { _config[itm] = prm[itm]; }
-		}
-	};
-
-
-	/** Add a custom menu item. **/
-	private function menuAdd(itm:ContextMenuItem,hdl:Function):void {
-		itm.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,hdl);
-		itm.separatorBefore = true;
-		context.customItems.push(itm);
-	};
-
-
-	/** Set the rightclick menu. **/
-	private function menuSet():void {
-		context = new ContextMenu();
-		context.hideBuiltInItems();
-		skin.contextMenu = context;
-		addControllerListener(ControllerEvent.QUALITY,qualityHandler);
-		var qua = new ContextMenuItem('Switch to low quality');
-		if(config['quality'] == false) {
-			qua = new ContextMenuItem('Switch to high quality');
-		}
-		menuAdd(qua,qualitySetter);
-		try {
-			if(skin.stage['displayState']) {
-				addControllerListener(ControllerEvent.RESIZE,resizeHandler);
-				var fsm = new ContextMenuItem('Switch to fullscreen');
-				menuAdd(fsm,fullscreenSetter);
-			}
-		} catch (err:Error) {}
-		var abt = new ContextMenuItem('About JW Player '+config['version']+'...');
-		if(config['abouttext']) {
-			abt = new ContextMenuItem(config['abouttext']+'...');
-		}
-		menuAdd(abt,aboutSetter);
+		return true;
 	};
 
 
 	/** Send a call to javascript that the player is ready. **/
 	private function playerReady():void {
-		var dat = {
-			id:config['id'],
-			client:config['client'],
-			version:config['version']
-		};
-		try {
-			ExternalInterface.call("playerReady",dat);
-		} catch (err:Error) {}
-	};
-
-
-	/** Toggle the smoothing mode. **/
-	private function qualityHandler(evt:ControllerEvent):void {
-		if(evt.data.state == true) {
-			context.customItems[0].caption = "Switch to low quality";
-		} else {
-			context.customItems[0].caption = "Switch to high quality";
+		if(ExternalInterface.available) {
+			var dat:Object = {id:config['id'],client:config['client'],version:config['version']};
+			try {
+				ExternalInterface.call("playerReady",dat);
+			} catch (err:Error) {}
 		}
 	};
 
 
-	/** Toggle the smoothing mode. **/
-	private function qualitySetter(evt:ContextMenuEvent):void { sendEvent('quality'); };
-
-
-	/** Set the fullscreen menubutton. **/
-	private function resizeHandler(evt:ControllerEvent):void {
-		if(evt.data.fullscreen == false) { 
-			context.customItems[1].caption = "Switch to fullscreen";
-		} else {
-			context.customItems[1].caption = "Return to normal screen";
-		}
-	};
-
-
-	/** Forward a resizing of the stage. **/
-	private function resizeSetter(evt:Event=undefined):void {
-		var dat = {
-			height:skin.stage.stageHeight,
-			width:skin.stage.stageWidth
-		};
-		dispatchEvent(new ViewEvent(ViewEvent.RESIZE,dat));
+	/** Send a redraw request when the stage is resized. **/
+	private function resizeHandler(evt:Event=undefined):void {
+		dispatchEvent(new ViewEvent(ViewEvent.REDRAW));
 	};
 
 
 	/**  Dispatch events. **/
 	override public function sendEvent(typ:String,prm:Object=undefined):void {
 		typ = typ.toUpperCase();
-		var dat = new Object();
+		var dat:Object = new Object();
 		switch(typ) {
 			case 'TRACE':
 				dat['message'] = prm;
@@ -271,8 +223,26 @@ public class View extends AbstractView {
 	private function setView(evt:ViewEvent):void { forward('VIEW',evt.type,evt.data); };
 
 
+	/** Setup javascript API. **/
+	private function setJavascript() {
+		try {
+			if(ExternalInterface.objectID) {
+				_config['id'] = ExternalInterface.objectID;
+			}
+			ExternalInterface.addCallback("getConfig",getConfig);
+			ExternalInterface.addCallback("getPlaylist",getPlaylist);
+			ExternalInterface.addCallback("addControllerListener",addJSControllerListener);
+			ExternalInterface.addCallback("addModelListener",addJSModelListener);
+			ExternalInterface.addCallback("addViewListener",addJSViewListener);
+			ExternalInterface.addCallback("sendEvent",sendEvent);
+			ExternalInterface.addCallback("loadPlugin",loadPlugin);
+		} catch (err:Error) {}
+	};
+
+
 	/** Setup listeners to all events for tracing / javascript. **/
 	private function setListening():void {
+		if(config['tracecall'] == 'arthropod') { Debug.clear(); }
 		addControllerListener(ControllerEvent.ERROR,setController);
 		addControllerListener(ControllerEvent.ITEM,setController);
 		addControllerListener(ControllerEvent.MUTE,setController);
@@ -298,7 +268,7 @@ public class View extends AbstractView {
 		addViewListener(ViewEvent.PLAY,setView);
 		addViewListener(ViewEvent.PREV,setView);
 		addViewListener(ViewEvent.QUALITY,setView);
-		addViewListener(ViewEvent.RESIZE,setView);
+		addViewListener(ViewEvent.REDRAW,setView);
 		addViewListener(ViewEvent.SEEK,setView);
 		addViewListener(ViewEvent.STOP,setView);
 		addViewListener(ViewEvent.TRACE,setView);

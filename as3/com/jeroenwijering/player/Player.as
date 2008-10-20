@@ -4,6 +4,7 @@
 package com.jeroenwijering.player {
 
 
+import com.jeroenwijering.events.*;
 import com.jeroenwijering.player.*;
 import com.jeroenwijering.plugins.*;
 import com.jeroenwijering.utils.Configger;
@@ -14,15 +15,17 @@ import flash.events.Event;
 public class Player extends MovieClip {
 
 
-	/** A list with all default configuration values. Change to hard-code your prefs. **/
-	private var defaults:Object = {
+	/** All configuration values. Change them to hard-code your preferences. **/
+	public var config:Object = {
 		author:undefined,
 		description:undefined,
+		date:undefined,
 		duration:0,
 		file:undefined,
 		image:undefined,
 		link:undefined,
 		start:0,
+		tags:undefined,
 		title:undefined,
 		type:undefined,
 
@@ -34,95 +37,117 @@ public class Player extends MovieClip {
 		controlbar:'bottom',
 		controlbarsize:20,
 		height:300,
-		logo:undefined,
 		playlist:'none',
 		playlistsize:180,
 		skin:undefined,
 		width:400,
 
 		autostart:false,
-		bufferlength:0.1,
+		bufferlength:1,
 		displayclick:'play',
+		icons:true,
 		item:0,
+		logo:undefined,
 		mute:false,
 		quality:true,
 		repeat:'none',
+		resizing:true,
 		shuffle:false,
 		state:'IDLE',
 		stretching:'uniform',
-		volume:80,
+		volume:90,
 
 		abouttext:undefined,
 		aboutlink:"http://www.jeroenwijering.com/?item=JW_FLV_Player",
 		client:undefined,
 		id:undefined,
 		linktarget:'_blank',
-		margins:'0,0,0,0',
 		plugins:undefined,
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.1.60'
+		version:'4.2.88'
 	};
+	/** Reference to all stage graphics. **/
+	public var skin:MovieClip;
 	/** Object that loads all configuration variables. **/
-	private var configger:Configger;
+	protected var configger:Configger;
 	/** Object that load the skin and plugins. **/
-	private var loader:SWFLoader;
+	protected var loader:SPLoader;
 	/** Reference to the Controller of the MVC cycle. **/
-	private var controller:Controller;
+	protected var controller:Controller;
 	/** Reference to the model of the MVC cycle. **/
-	private var model:Model;
-	/** Reference to the View of the MVC cycle. **/
-	private var _view:View;
+	protected var model:Model;
+	/** Reference to the View of the MVC cycle, which defines all API calls. **/
+	public var view:View;
 
 
-	/** Constructor; Loads config parameters. **/
+	/**
+	* Constructor; initializes and starts the player.
+	*
+	* ADDED_TO_STAGE is needed when the player is loaded in Flex/Flash.
+	* Otherwise the external flashvars and the stage aren't available yet.
+	**/
 	public function Player():void {
 		visible = false;
-		configger = new Configger(this);
-		configger.addEventListener(Event.COMPLETE,configHandler);
-		configger.load(defaults);
+		skin = this['player'];
+		addEventListener(Event.ADDED_TO_STAGE,loadConfig);
 	};
 
 
-	/** Config loading completed; now load skin. **/
-	private function configHandler(evt:Event):void {
-		loader = new SWFLoader(this);
-		loader.addEventListener(Event.COMPLETE,skinHandler);
-		loader.loadSkin(configger.config['skin']);
+	/** When added to stage, the player loads configuration settings. **/
+	protected function loadConfig(evt:Event=null):void { 
+		configger = new Configger(this);
+		configger.addEventListener(Event.COMPLETE,loadSkin);
+		configger.load(config);
+	};
+
+
+	/** Config loading completed; now load the skin. **/
+	protected function loadSkin(evt:Event=null):void {
+		loader = new SPLoader(this);
+		loader.addEventListener(SPLoaderEvent.SKIN,loadMVC);
+		loader.loadSkin(config['skin']);
 	};
 
 
 	/** Skin loading completed, now load MVC. **/
-	private function skinHandler(evt:Event):void {
-		controller = new Controller(configger.config,loader.skin);
-		model = new Model(configger.config,loader.skin,controller);
-		_view = new View(configger.config,loader,controller,model);
-		controller.start(model,_view);
-		visible = true;
-		addPlugins();
-	};
-
-
-	/** MVC inited; now add plugins. **/
-	private function addPlugins() {
-		if(loader.skin['captions']) { new Captions().initializePlugin(view); }
-		if(loader.skin['controlbar']) { new Controlbar().initializePlugin(view); }
-		if(loader.skin['display']) { new Display().initializePlugin(view); }
-		if(loader.skin['playlist']) { new Playlist().initializePlugin(view); }
-		loader.loadPlugins(configger.config['plugins']);
+	protected function loadMVC(evt:SPLoaderEvent=null):void {
+		controller = new Controller(config,skin);
+		model = new Model(config,skin,controller);
+		view = new View(config,skin,controller,model,loader);
+		controller.start(model,view);
+		loadPlugins();
 	};
 
 
 	/** 
-	* Reference to the view, so actionscript applications can access the API. 
-	* 
-	* @return	A reference to the view, which has access points for config, playlist, listeners and events.
+	* MVC inited; now load plugins.
+	*
+	* Built-in plugins are instantiated here. External plugins are loaded.
+	* The controlbar is inited last, so it is show on top of all plugins.
 	**/
-	public function get view():View {
-		return _view;
+	protected function loadPlugins():void {
+		new Rightclick().initializePlugin(view);
+		new Display().initializePlugin(view);
+		new Playlist().initializePlugin(view);
+		loader.addEventListener(SPLoaderEvent.PLUGINS,startPlayer);
+		loader.loadPlugins(config['plugins']);
+		new Controlbar().initializePlugin(view);
 	};
 
+
+	/**
+	* Everything is now loaded. The player is shown and the file is loaded (when there).
+	* 
+	* The View will send a PlayerReady event to all plugins and javascript.
+	* The player broadcasts a READY event here itself to actionscript.
+	**/
+	protected function startPlayer(evt:SPLoaderEvent=null) {
+		loader.removeEventListener(SPLoaderEvent.PLUGINS,startPlayer);
+		dispatchEvent(new PlayerEvent(PlayerEvent.READY));
+		visible = true;
+	};
 
 }
 

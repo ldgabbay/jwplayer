@@ -1,5 +1,5 @@
 /**
-* Object that catches calls invoked by NetStream / NetConnection.
+* Object that catches and forwards calls invoked by NetStream / NetConnection.
 **/
 package com.jeroenwijering.utils {
 
@@ -18,7 +18,8 @@ public class NetClient {
 
 
 	/** Forward calls to callback **/
-	private function forward(dat:Object):void {
+	private function forward(dat:Object,typ:String):void {
+		dat['type'] = typ;
 		callback.onData(dat);
 	};
 
@@ -32,90 +33,72 @@ public class NetClient {
 	/** Receiving the bandwidth check result. **/
 	public function onBWDone(... rest):void {
 		if (rest.length > 0) {
-			var dat = {type:'bandwidth',bandwidth:rest[0]};
-			forward(dat);
+			forward({bandwidth:rest[0]},'bandwidth');
 		}
 	};
 
 
-	/** Handler for captionate events. **/
+	/** Captionate caption handler. **/
 	public function onCaption(cps:String,spk:Number):void {
-		var dat = {type:'caption',captions:cps,speaker:spk};
-		forward(dat);
+		forward({captions:cps,speaker:spk},'caption');
 	};
 
 
-	/** Handler for captionate events. **/
+	/** Captionate metadata handler. **/
 	public function onCaptionInfo(obj:Object):void {
-		var dat = {type:'captioninfo'};
-		for(var i in obj) { dat[i] = obj[i]; }
-		forward(dat);
+		forward(obj,'captioninfo');
 	};
 
 
-	/** Handler for captionate events. **/
+	/** Cuepoint handler. **/
 	public function onCuePoint(obj:Object):void {
-		var dat = {type:'cuepoint'};
-		for(var i in obj) { dat[i] = obj[i]; }
-		forward(dat);
+		forward(obj,'cuepoint');
 	};
 
 
-	/** Some Limelight crap. **/
+	/** CDN subscription handler. **/
 	public function onFCSubscribe(obj:Object):void {
-		var dat = {type:'fcsubscribe'};
-		for(var i in obj) { dat[i] = obj[i]; }
-		forward(dat);
+		forward(obj,'fcsubscribe');
 	};
 
 
-	/** Get image data from netstream. **/
+	/** Image data (iTunes-style) handler. **/
 	public function onImageData(obj:Object):void {
-		var dat = {type:'imagedata'};
-		forward(obj);
+		forward(obj,'imagedata');
 	};
 
 
-	/** Handler for LaasstSecond call. **/
+	/** Lastsecond call handler. **/
 	public function onLastSecond(obj:Object):void {
-		var dat = {type:'lastsecond'};
-		forward(dat);
+		forward(obj,'lastsecond');
 	};
 
 
 	/** Get metadata information from netstream class. **/
 	public function onMetaData(obj:Object):void {
-		var dat = {type:'metadata'};
-		for(var i in obj) { dat[i] = obj[i]; }
-		if((dat.videocodecid || dat.videodatarate) && !dat.width) {
-			dat.width = 320;
-			dat.height = 240;
-		}
-		forward(dat);
+		forward(obj,'metadata');
 	};
 
 
 	/** Receive NetStream playback codes. **/
 	public function onPlayStatus(dat:Object):void {
 		if(dat.code == "NetStream.Play.Complete") {
-			var dat = {type:'complete'};
-			forward(dat);
+			forward(dat,'complete');
+		} else { 
+			forward(dat,'playstatus');
 		}
 	};
 
 
-	/** RTMP Sample callback. **/
+	/** RTMP Sample handler (what is this for?). **/
 	public function RtmpSampleAccess(obj:Object):void {
-		var dat = {type:'rtmpsampleaccess'};
-		forward(dat);
+		forward(obj,'rtmpsampleaccess');
 	};
 
 
-	/** Get textdata from netstream. **/
+	/** Textdata handler (MP4 text tracks). **/
 	public function onTextData(obj:Object):void {
-		var dat = {type:'textdata'};
-		for(var i in obj) { dat[i] = obj[i]; }
-		forward(dat);
+		forward(obj,'textdata');
 	};
 
 

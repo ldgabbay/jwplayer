@@ -19,8 +19,8 @@ public class Draw {
 	* @param tgt	Displayobject to clear.
 	**/
 	public static function clear(tgt:Sprite):void {
-		var len = tgt.numChildren;
-		for(var i=0; i<len; i++) {
+		var len:Number = tgt.numChildren;
+		for(var i:Number=0; i<len; i++) {
 			tgt.removeChildAt(0);
 		}
 		tgt.scaleX = tgt.scaleY = 1;
@@ -37,13 +37,14 @@ public class Draw {
 	**/
 	public static function clone(tgt:MovieClip,adc:Boolean=false):MovieClip {
 		var cls:Class = Object(tgt).constructor;
-		var dup = new cls();
+		var dup:MovieClip = new cls();
 		dup.transform = tgt.transform;
 		dup.filters = tgt.filters;
 		dup.cacheAsBitmap = tgt.cacheAsBitmap;
 		dup.opaqueBackground = tgt.opaqueBackground;
 		if(adc == true) {
-			tgt.parent.addChild(dup);
+			var idx = tgt.parent.getChildIndex(tgt);
+			tgt.parent.addChildAt(dup,idx+1);
 		}
 	    return dup;
 	};
@@ -60,10 +61,10 @@ public class Draw {
 	* @param yps	Y offset of the rectangle, defaults to 0.
 	**/
 	public static function rect(tgt:Sprite,col:String,wid:Number,hei:Number,xps:Number=0,yps:Number=0,alp:Number=1):Sprite {
-		var rct = new Sprite();
+		var rct:Sprite = new Sprite();
 		rct.x = xps;
 		rct.y = yps;
-		rct.graphics.beginFill(col,alp);
+		rct.graphics.beginFill(uint(col),alp);
 		rct.graphics.drawRect(0,0,wid,hei);
 		tgt.addChild(rct);
 		return rct;
@@ -84,8 +85,8 @@ public class Draw {
 	* @return		A reference to the textfield.
 	**/
 	public static function text(tgt:Sprite,col:String,xps:Number,yps:Number,txt:String,ats:String='left',siz:Number=12,fnt:String='Arial'):TextField {
-		var tfd = new TextField();
-		var fmt = new TextFormat();
+		var tfd:TextField = new TextField();
+		var fmt:TextFormat = new TextFormat();
 		tfd.autoSize = ats;
 		tfd.selectable = false;
 		fmt.font = fnt;

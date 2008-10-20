@@ -6,8 +6,7 @@ package com.jeroenwijering.plugins {
 
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.utils.*;
-import flash.display.Loader;
-import flash.display.MovieClip;
+import flash.display.*;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.ColorTransform;
@@ -67,12 +66,12 @@ public class Playlist implements PluginInterface {
 		clip.slider.addEventListener(MouseEvent.MOUSE_OVER,soverHandler);
 		clip.slider.addEventListener(MouseEvent.MOUSE_OUT,soutHandler);
 		clip.slider.addEventListener(MouseEvent.MOUSE_WHEEL,wheelHandler);
-		clip.visible = false;
+		clip.slider.visible = false;
 		buttons = new Array();
-		try { 
+		try {
 			image = new Array(clip.list.button.image.width,clip.list.button.image.height);
 		} catch (err:Error) {}
-		setColors();
+		if(clip.list.button['back']) { setColors(); }
 		playlistHandler();
 		resizeHandler();
 	};
@@ -81,8 +80,10 @@ public class Playlist implements PluginInterface {
 	/** Setup all buttons in the playlist **/
 	private function buildList(clr:Boolean):void {
 		if(!view.playlist) { return; }
-		var wid = clip.back.width;
-		var hei = clip.back.height;
+		var wid:Number = clip.back.width;
+		var hei:Number = clip.back.height;
+		clip.masker.height = hei;
+		clip.masker.width = wid;
 		proportion = view.playlist.length*buttonheight/hei;
 		if (proportion > 1.01) {
 			wid -=clip.slider.width;
@@ -90,26 +91,23 @@ public class Playlist implements PluginInterface {
 		} else {
 			clip.slider.visible = false;
 		}
-		clip.masker.height = hei;
-		clip.masker.width = wid;
 		if(clr) {
-			clip.list.y = 0;
-			for(var j=0; j<buttons.length; j++) {
+			clip.list.y = clip.masker.y;
+			for(var j:Number=0; j<buttons.length; j++) {
 				clip.list.removeChild(buttons[j].c);
 			}
 			buttons = new Array();
-			clip.visible= true;
 		} else { 
-			if(proportion > 1) { scrollCheck(); }
+			if(proportion > 1) { scrollEase(); }
 		}
-		for(var i=0; i<view.playlist.length; i++) {
+		for(var i:Number=0; i<view.playlist.length; i++) {
 			if(clr) {
-				var btn = Draw.clone(clip.list.button,true);
-				var stc = new Stacker(btn);
+				var btn:MovieClip = Draw.clone(clip.list.button,true);
+				var stc:Stacker = new Stacker(btn);
 				btn.y = i*buttonheight;
 				btn.buttonMode = true;
 				btn.mouseChildren =false;
-				btn.name = i;
+				btn.name = i.toString();
 				buttons.push({c:btn,s:stc});
 				setContents(i);
 			}
@@ -120,10 +118,10 @@ public class Playlist implements PluginInterface {
 
 	/** Setup the scrollbar component **/
 	private function buildSlider():void {
-		var scr = clip.slider;
+		var scr:MovieClip = clip.slider;
 		scr.visible = true;
 		scr.x = clip.back.width-scr.width;
-		var dif = clip.back.height-scr.height;
+		var dif:Number = clip.back.height-scr.height-scr.y;
 		scr.back.height += dif;
 		scr.rail.height += dif;
 		scr.icon.height = Math.round(scr.rail.height/proportion);
@@ -132,25 +130,38 @@ public class Playlist implements PluginInterface {
 
 	/** Handle a click on a button. **/
 	private function clickHandler(evt:MouseEvent):void {
+		trace(evt.target.name);
 		view.sendEvent('item',Number(evt.target.name));
 	};
 
 
 	/** Switch the currently active item */
 	private function itemHandler(evt:ControllerEvent):void {
-		var idx = view.config['item'];
-		if(buttons[idx]) {
-			if(buttons[idx].c['back']) {
-				buttons[idx].c['back'].visible = true;
-				if(!isNaN(active)) {
-					buttons[active].c['back'].visible = false;
-				}
-			} else {
-				buttons[idx].c.gotoAndPlay('active');
-				if(!isNaN(active)) {
-					buttons[active].c.gotoAndPlay('out');
+		var idx:Number = view.config['item'];
+		clearInterval(scrollInterval);
+		if (proportion > 1.01) {
+			scrollInterval = setInterval(scrollEase,50,idx*buttonheight/proportion,-idx*buttonheight+clip.masker.y);
+		}
+		if(light) {
+			for (var itm:String in view.playlist[idx]) {
+				if(buttons[idx].c[itm]) {
+					buttons[idx].c[itm].textColor = light.color;
 				}
 			}
+		}
+		if(back) {
+			buttons[idx].c['back'].transform.colorTransform = back;
+		}
+		buttons[idx].c.gotoAndPlay('active');
+		if(!isNaN(active)) {
+			if(front) {
+				for (var act:String in view.playlist[active]) {
+					if(buttons[active].c[act]) {
+						buttons[active].c[act].textColor = front.color;
+					}
+				}
+			}
+			buttons[active].c.gotoAndPlay('out');
 		}
 		active = idx;
 	};
@@ -158,36 +169,42 @@ public class Playlist implements PluginInterface {
 
 	/** Loading of image completed; resume loading **/
 	private function loaderHandler(evt:Event):void {
-		var ldr = Loader(evt.target.loader);
-		Stretcher.stretch(ldr,image[0],image[1],Stretcher.EXACTFIT);
+		var ldr:Loader = Loader(evt.target.loader);
+		Stretcher.stretch(ldr,image[0],image[1],Stretcher.FILL);
 	};
 
 
 	/** Handle a button rollover. **/
 	private function overHandler(evt:MouseEvent):void {
-		var idx = Number(evt.target.name);
-		if(light) { 
-			for (var itm in view.playlist[idx]) {
-				if(buttons[idx].c[itm]) { 
-					buttons[idx].c[itm].textColor = light.color;
+		var idx:Number = Number(evt.target.name);
+		if(front) {
+			for (var itm:String in view.playlist[idx]) {
+				if(buttons[idx].c[itm]) {
+					buttons[idx].c[itm].textColor = back.color;
 				}
 			}
-		} else { 
-			buttons[idx].c.gotoAndPlay('over');
+			buttons[idx].c['back'].transform.colorTransform = light;
 		}
+		buttons[idx].c.gotoAndPlay('over');
 	};
 
 
 	/** Handle a button rollover. **/
 	private function outHandler(evt:MouseEvent):void {
-		var idx = Number(evt.target.name);
-		if(light) {
-			for (var itm in view.playlist[idx]) {
-				if(buttons[idx].c[itm]) { 
-					buttons[idx].c[itm].textColor = front.color;
+		var idx:Number = Number(evt.target.name);
+		if(front) {
+			for (var itm:String in view.playlist[idx]) {
+				if(buttons[idx].c[itm]) {
+					if(idx == active) {
+						buttons[idx].c[itm].textColor = light.color;
+					} else { 
+						buttons[idx].c[itm].textColor = front.color;
+					}
 				}
 			}
-		} else if(idx == active) {
+			buttons[idx].c['back'].transform.colorTransform = back;
+		}
+		if(idx == active) {
 			buttons[idx].c.gotoAndPlay('active');
 		} else { 
 			buttons[idx].c.gotoAndPlay('out');
@@ -198,8 +215,9 @@ public class Playlist implements PluginInterface {
 	/** New playlist loaded: rebuild the playclip. **/
 	private function playlistHandler(evt:ControllerEvent=null):void {
 		active = undefined;
+		buildList(true);
 		if(view.config['playlist'] != 'none') {
-			buildList(true);
+			clip.visible = true;
 		}
 	};
 
@@ -212,6 +230,7 @@ public class Playlist implements PluginInterface {
 			clip.back.width = view.config['playlistsize'];
 			clip.back.height = view.config['height'];;
 			buildList(false);
+			clip.visible = true;
 		} else if (view.config['playlist'] == 'bottom') {
 			clip.x = 0;
 			clip.y = view.config['height'];
@@ -220,41 +239,46 @@ public class Playlist implements PluginInterface {
 			}
 			clip.back.height = view.config['playlistsize'];
 			clip.back.width = view.config['width'];
+			clip.visible = true;
 			buildList(false);
 		} else if (view.config['playlist'] == 'over') {
 			clip.x = clip.y = 0;
 			clip.back.width = view.config['width'];
 			clip.back.height = view.config['height'];
 			buildList(false);
+			clip.visible = true;
 		} else {
 			clip.visible = false;
+			buildList(false);
 		}
 	};
 
 
 	/** Make sure the playlist is not out of range. **/
-	private function scrollCheck():void {
-		var scr = clip.slider;
+	private function scrollEase(ips:Number=-1,cps:Number=-1):void {
+		var scr:MovieClip = clip.slider;
+		if(ips != -1) {
+			scr.icon.y = Math.round(ips-(ips-scr.icon.y)/1.5);
+			clip.list.y = Math.round((cps - (cps-clip.list.y)/1.5));
+		}
 		if(clip.list.y > 0 || scr.icon.y < scr.rail.y) {
-			clip.list.y = 0;
+			clip.list.y = clip.masker.y;
 			scr.icon.y = scr.rail.y;
 		} else if (clip.list.y < clip.masker.height-clip.list.height ||
 			scr.icon.y > scr.rail.y+scr.rail.height-scr.icon.height) {
 			scr.icon.y = scr.rail.y+scr.rail.height-scr.icon.height;
-			clip.list.y = clip.masker.height-clip.list.height;
+			clip.list.y = clip.masker.y+clip.masker.height-clip.list.height;
 		}
 	};
 
 
 	/** Scrolling handler. **/
 	private function scrollHandler():void {
-		var scr = clip.slider;
-		var yps = scr.mouseY;
-		var ips = yps - scr.icon.height/2;
-		var cps = clip.masker.y+clip.masker.height/2-proportion*yps;
-		scr.icon.y = Math.round(ips-(ips-scr.icon.y)/1.5);
-		clip.list.y = Math.round((cps - (cps-clip.list.y)/1.5));
-		scrollCheck();
+		var scr:MovieClip = clip.slider;
+		var yps:Number = scr.mouseY-scr.rail.y;
+		var ips:Number = yps - scr.icon.height/2;
+		var cps:Number = clip.masker.y+clip.masker.height/2-proportion*yps;
+		scrollEase(ips,cps);
 	};
 
 
@@ -264,6 +288,7 @@ public class Playlist implements PluginInterface {
 			back = new ColorTransform();
 			back.color = uint('0x'+view.config['backcolor'].substr(-6));
 			clip.back.transform.colorTransform = back;
+			clip.slider.back.transform.colorTransform = back;
 		}
 		if(view.config['frontcolor']) {
 			front = new ColorTransform();
@@ -272,23 +297,25 @@ public class Playlist implements PluginInterface {
 				clip.slider.icon.transform.colorTransform = front;
 				clip.slider.rail.transform.colorTransform = front;
 			} catch (err:Error) {}
-		}
-		if(view.config['lightcolor']) {
-			light = new ColorTransform();
-			light.color = uint('0x'+view.config['lightcolor'].substr(-6));
+			if(view.config['lightcolor']) {
+				light = new ColorTransform();
+				light.color = uint('0x'+view.config['lightcolor'].substr(-6));
+			} else { 
+				light = front;
+			}
 		}
 	};
 
 
 	/** Setup button elements **/
 	private function setContents(idx:Number):void {
-		for (var itm in view.playlist[idx]) {
+		for (var itm:String in view.playlist[idx]) {
 			if(!buttons[idx].c[itm]) {
 				continue;
 			} else if(itm == 'image') {
-				var img = buttons[idx].c.image;
-				var msk = Draw.rect(buttons[idx].c,'0xFF0000',img.width,img.height,img.x,img.y);
-				var ldr = new Loader();
+				var img:MovieClip = buttons[idx].c.image;
+				var msk:Sprite = Draw.rect(buttons[idx].c,'0xFF0000',img.width,img.height,img.x,img.y);
+				var ldr:Loader = new Loader();
 				img.mask = msk;
 				img.addChild(ldr);
 				ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
@@ -311,11 +338,8 @@ public class Playlist implements PluginInterface {
 				}
 			}
 		}
-		if(buttons[idx].c['back']) {
-			if(light) {
-				buttons[idx].c['back'].transform.colorTransform = light;
-			}
-			buttons[idx].c['back'].visible = false;
+		if(back) {
+			buttons[idx].c['back'].transform.colorTransform = back;
 		}
 		if(!view.playlist[idx]['image'] && buttons[idx].c['image']) {
 			buttons[idx].c['image'].visible = false;
@@ -344,7 +368,7 @@ public class Playlist implements PluginInterface {
 
 	/** Highlight the icon on rollover. **/
 	private function soverHandler(evt:MouseEvent):void {
-		if(light) {
+		if(front) {
 			clip.slider.icon.transform.colorTransform = light;
 		} else { 
 			clip.slider.icon.gotoAndPlay('over');

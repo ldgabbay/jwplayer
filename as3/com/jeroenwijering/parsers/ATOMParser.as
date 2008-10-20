@@ -14,15 +14,16 @@ public class ATOMParser extends ObjectParser {
 
 	/** Parse an RSS playlist for feeditems. **/
 	public static function parse(dat:XML):Array {
-		var arr = new Array();
-		var itm = new Object();
-		for each (var i in dat.children()) {
+		var arr:Array = new Array();
+		var itm:Object = new Object();
+		for each (var i:XML in dat.children()) {
 			if (i.localName() == 'entry') {
 				itm = ATOMParser.parseItem(i);
 			}
 			if(itm['type'] != undefined) {
 				arr.push(itm);
 			}
+			itm = {};
 		}
 		return arr;
 	};
@@ -31,7 +32,7 @@ public class ATOMParser extends ObjectParser {
 	/** Translate ATOM item to playlist item. **/
 	public static function parseItem(obj:XML):Object {
 		var itm =  new Object();
-		for each (var i in obj.children()) {
+		for each (var i:XML in obj.children()) {
 			switch(i.localName()) {
 				case 'author':
 					itm['author'] = i.children()[0].text().toString();
@@ -45,7 +46,15 @@ public class ATOMParser extends ObjectParser {
 				case 'link':
 					if(i.@rel == 'alternate') {
 						itm['link'] = i.@href.toString();
+					} else {
+						var pt1:RegExp = /^(.+)#(.+)$/g;
+						var pt2:RegExp = /^(.+)\.(.+)$/g;
+						var nam:String = i.@rel.toString().replace(pt1,"$2").replace(pt2,'$2');
+						itm[nam] = i.@href.toString();
 					}
+					break;
+				case 'published':
+					itm['date'] = i.text().toString();
 					break;
 				case 'group':
 					itm = MediaParser.parseGroup(i,itm);
@@ -53,7 +62,7 @@ public class ATOMParser extends ObjectParser {
 			}
 		}
 		itm = MediaParser.parseGroup(obj,itm);
-		return ObjectParser.detect(itm);
+		return ObjectParser.complete(itm);
 	};
 
 

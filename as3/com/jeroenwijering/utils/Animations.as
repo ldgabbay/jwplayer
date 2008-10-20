@@ -64,7 +64,7 @@ public class Animations {
 
 	/** The ease enterframe function. **/
 	private static function easeHandler(evt:Event):void {
-		var tgt = MovieClip(evt.target);
+		var tgt:MovieClip = MovieClip(evt.target);
 		if(Math.abs(tgt.x - tgt.xps) < 1 && Math.abs(tgt.y - tgt.yps) < 1) {
 			tgt.removeEventListener(Event.ENTER_FRAME,easeHandler);
 			tgt.x = tgt.xps;
@@ -93,8 +93,8 @@ public class Animations {
 
 	/** The write enterframe function. **/
 	private static function writeHandler(evt:Event):void {
-		var tgt = MovieClip(evt.target);
-		var dif = Math.floor((tgt.str.length-tgt.tf.text.length)/tgt.spd);
+		var tgt:MovieClip = MovieClip(evt.target);
+		var dif:Number = Math.floor((tgt.str.length-tgt.tf.text.length)/tgt.spd);
 		tgt.tf.text = tgt.str.substr(0,tgt.str.length-dif);
 		if(tgt.tf.text == tgt.str) {
 			tgt.tf.htmlText = tgt.str;

@@ -13,15 +13,16 @@ public class XSPFParser extends ObjectParser {
 
 	/** Parse an XSPF playlist for feeditems. **/
 	public static function parse(dat:XML):Array {
-		var arr = new Array();
-		var itm = new Object();
-		for each (var i in dat.children()) {
+		var arr:Array = new Array();
+		var itm:Object = new Object();
+		for each (var i:XML in dat.children()) {
 			if (i.localName().toLowerCase() == 'tracklist') {
-				for each (var j in i.children()) {
+				for each (var j:XML in i.children()) {
 					itm = XSPFParser.parseItem(j);
 					if(itm['type'] != undefined) {
 						arr.push(itm);
 					}
+					itm = {};
 				}
 			}
 		}
@@ -31,8 +32,8 @@ public class XSPFParser extends ObjectParser {
 
 	/** Translate XSPF item to playlist item. **/
 	public static function parseItem(obj:XML):Object {
-		var itm =  new Object();
-		for each (var i in obj.children()) {
+		var itm:Object =  new Object();
+		for each (var i:XML in obj.children()) {
 			if(!i.localName()) { break; }
 			switch(i.localName().toLowerCase()) {
 				case 'location':
@@ -61,7 +62,7 @@ public class XSPFParser extends ObjectParser {
 					break;
 			}
 		}
-		return ObjectParser.detect(itm);
+		return ObjectParser.complete(itm);
 	};
 
 

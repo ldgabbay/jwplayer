@@ -1,5 +1,10 @@
 ﻿/**
-* Wrapper for playback of progressively downloaded video.
+* Wrapper for playback of video streamed over RTMP.
+* 
+* All playback functionalities are cross-server (FMS, Wowza, Red5), with the exception of:
+* - The SecureToken functionality (Wowza).
+* - The FCSubscribe functionality (Limelight/Akamai FMS).
+* - getStreamLength / checkBandwidth / getReferrer / getPageUrl (FMS3).
 **/
 package com.jeroenwijering.models {
 
@@ -8,7 +13,7 @@ import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.ModelInterface;
 import com.jeroenwijering.player.Model;
 import com.jeroenwijering.utils.NetClient;
-import com.jeroenwijering.utils.TEA;
+import com.meychi.ascript.TEA;
 import flash.display.DisplayObject;
 import flash.events.*;
 import flash.media.*;
@@ -31,10 +36,8 @@ public class RTMPModel implements ModelInterface {
 	private var transform:SoundTransform;
 	/** Interval ID for the time. **/
 	private var timeinterval:Number;
-	/** Timeout ID for cleaning up idle streams. **/
+	/** Timeout ID for live stream subscription pings. **/
 	private var timeout:Number;
-	/** Metadata received switch. **/
-	private var metadata:Boolean;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -76,6 +79,7 @@ public class RTMPModel implements ModelInterface {
 
 	/** Load content. **/
 	public function load():void {
+		model.mediaHandler(video);
 		connection.connect(model.config['streamer']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
@@ -89,14 +93,10 @@ public class RTMPModel implements ModelInterface {
 
 	/** Get metadata information from netstream class. **/
 	public function onData(dat:Object):void {
-		if(dat.type == 'metadata' && !metadata) {
-			metadata = true;
+		if(dat.type == 'metadata') {
 			if(dat.width) {
 				video.width = dat.width;
 				video.height = dat.height;
-				model.mediaHandler(video);
-			} else {
-				model.mediaHandler();
 			}
 			if(model.playlist[model.config['item']]['start'] > 0) {
 				seek(model.playlist[model.config['item']]['start']);
@@ -104,11 +104,14 @@ public class RTMPModel implements ModelInterface {
 		} else if(dat.type == 'complete') {
 			clearInterval(timeinterval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
-		} else if(dat.type == 'fcsubscribe' && dat.code == 'NetStream.Play.Start') {
-			setStream();
+		} else if(dat.type == 'fcsubscribe') {
+			if(dat.code == "NetStream.Play.StreamNotFound" ) {
+				stop();
+				model.sendEvent(ModelEvent.ERROR,{message:"Subscription failed: "+model.playlist[model.config['item']]['file']});
+			}else if(dat.code == "NetStream.Play.Start") {
+				setStream();
+			}
 			clearInterval(timeout);
-		} else if(dat.type == 'bandwidth') {
-			setStream('?bw='+dat.bandwidth);
 		}
 		model.sendEvent(ModelEvent.META,dat);
 	};
@@ -158,7 +161,7 @@ public class RTMPModel implements ModelInterface {
 
 
 	/** Set streaming object **/
-	public function setStream(que:String=""):void {
+	public function setStream():void {
 		var url = getID(model.playlist[model.config['item']]['file']);
 		stream = new NetStream(connection);
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
@@ -168,7 +171,14 @@ public class RTMPModel implements ModelInterface {
 		stream.client = new NetClient(this);
 		video.attachNetStream(stream);
 		stream.soundTransform = transform;
-		stream.play(url+que);
+		stream.play(url);
+		var res:Responder = new Responder(streamlengthHandler);
+		var rs2:Responder = new Responder(referrerHandler);
+		var rs3:Responder = new Responder(pageURLHandler);
+		connection.call("getStreamLength",res,url);
+		connection.call("getReferrer",rs2,url);
+		connection.call("getPageUrl",rs3,url);
+		connection.call("checkBandwidth",null);
 		clearInterval(timeinterval);
 		timeinterval = setInterval(timeHandler,100);
 	};
@@ -181,11 +191,11 @@ public class RTMPModel implements ModelInterface {
 				connection.call("secureTokenResponse",null,
 					TEA.decrypt(evt.info.secureToken,model.config['token']));
 			}
-			// connection.call("checkBandwidth",null);
-			// For FMS3 bandwidth checking, uncomment the line above and comment the one below.
-			setStream();
-			// If you use Limelight/Akamai: comment the line above and uncomment the one below.
-			// timeout = setInterval(subscribe,2000,model.playlist[model.config['item']]['file']);
+			if(model.config['subscribe']) {
+				timeout = setInterval(subscribe,2000,model.playlist[model.config['item']]['file']);
+			} else {
+				setStream();
+			}
 		} else if(evt.info.code == "NetStream.Seek.Notify") {
 			clearInterval(timeinterval);
 			timeinterval = setInterval(timeHandler,100);
@@ -203,11 +213,28 @@ public class RTMPModel implements ModelInterface {
 
 	/** Destroy the stream. **/
 	public function stop():void {
-		metadata = false;
 		clearInterval(timeinterval);
 		connection.close();
 		if(stream) { stream.close(); }
 		video.attachNetStream(null);
+	};
+
+
+	/** Get the streamlength returned from the connection. **/
+	private function streamlengthHandler(len:Number):void {
+		onData({type:'streamlength',duration:len});
+	};
+
+
+	/** Get the streamlength returned from the connection. **/
+	private function referrerHandler(ref:String):void {
+		onData({type:'referrer',url:ref});
+	};
+
+
+	/** Get the streamlength returned from the connection. **/
+	private function pageURLHandler(url:String):void {
+		onData({type:'pageurl',url:url});
 	};
 
 
@@ -225,14 +252,10 @@ public class RTMPModel implements ModelInterface {
 		if(bfr < 100 && pos < Math.abs(dur-stream.bufferTime-1)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
 			if(model.config['state'] != ModelStates.BUFFERING) {
+				connection.call("checkBandwidth",null);
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			}
 		} else if (model.config['state'] == ModelStates.BUFFERING) {
-			if(!metadata) { 
-				video.width = 320;
-				video.height = 240;
-				model.mediaHandler(video);
-			}
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
 		if(dur > 0) {

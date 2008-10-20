@@ -69,6 +69,7 @@ public class VideoModel implements ModelInterface {
 
 	/** Load content. **/
 	public function load():void {
+		model.mediaHandler(video);
 		stream.play(model.playlist[model.config['item']]['file']);
 		loadinterval = setInterval(loadHandler,100);
 		timeinterval = setInterval(timeHandler,100);
@@ -100,9 +101,6 @@ public class VideoModel implements ModelInterface {
 			if(dat.width) {
 				video.width = dat.width;
 				video.height = dat.height;
-				model.mediaHandler(video);
-			} else {
-				model.mediaHandler();
 			}
 			if(model.playlist[model.config['item']]['start'] > 0) {
 				seek(model.playlist[model.config['item']]['start']);
@@ -180,15 +178,10 @@ public class VideoModel implements ModelInterface {
 		var dur = model.playlist[model.config['item']]['duration'];
 		if(bfr < 100 && pos < Math.abs(dur-stream.bufferTime*2)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
-			if(model.config['state'] != ModelStates.BUFFERING && bfr < 50) {
+			if(model.config['state'] != ModelStates.BUFFERING && bfr < 10) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			}
 		} else if (model.config['state'] == ModelStates.BUFFERING) {
-			if(!metadata) { 
-				video.width = 320;
-				video.height = 240;
-				model.mediaHandler(video);
-			}
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
 		if(dur > 0) {

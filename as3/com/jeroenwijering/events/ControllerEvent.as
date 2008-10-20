@@ -1,5 +1,7 @@
 /**
-* Event types fired by the Controller.
+* Definitions for all event types fired by the Controller.
+*
+* Import this class into your project/plugin for strong-typed api references.
 **/
 package com.jeroenwijering.events {
 
@@ -10,7 +12,7 @@ import flash.events.Event;
 public class ControllerEvent extends Event {
 
 
-	/** Identifiers for the accepted event types. **/
+	/** Definitions for all event types. **/
 	public static var ERROR:String = "ERROR";
 	public static var ITEM:String = "ITEM";
 	public static var MUTE:String = "MUTE";
@@ -26,7 +28,7 @@ public class ControllerEvent extends Event {
 
 
 	/**
-	* Constructor; sets the event type and inserts the new value.
+	* Constructor; sets the event type and inserts the data value.
 	*
 	* @param typ	The type of event.
 	* @param dat	An object with all associated data.
@@ -36,7 +38,8 @@ public class ControllerEvent extends Event {
 		_data = dat;
 	};
 
-	/** Returns the modified playlist **/
+
+	/** Returns the data associated with the event. **/
 	public function get data():Object {
 		return _data;
 	};

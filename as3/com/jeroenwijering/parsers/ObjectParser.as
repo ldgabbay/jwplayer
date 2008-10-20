@@ -10,11 +10,10 @@ import com.jeroenwijering.utils.Strings;
 public class ObjectParser {
 
 
-	/** All supported feeditem element defaults. **/
+	/** All supported feeditem elements. **/
 	protected static var ELEMENTS:Object = {
-		'audio':undefined,
 		'author':undefined,
-		'captions':undefined,
+		'date':undefined,
 		'description':undefined,
 		'duration':0,
 		'file':undefined,
@@ -22,6 +21,7 @@ public class ObjectParser {
 		'link':undefined,
 		'title':undefined,
 		'start':0,
+		'tags':undefined,
 		'type':undefined
 	};
 	/** Idenifier of all supported mediatypes. **/
@@ -51,6 +51,7 @@ public class ObjectParser {
 		'mp4':'video',
 		'png':'image',
 		'rbs':'sound',
+		'sdp':'video',
 		'swf':'image',
 		'vp6':'video'
 	};
@@ -67,6 +68,7 @@ public class ObjectParser {
 		'audio/x-m4a':'video',
 		'image/gif':'image',
 		'image/jpeg':'image',
+		'image/jpg':'image',
 		'image/png':'image',
 		'video/flv':'video',
 		'video/3gpp':'video',
@@ -79,24 +81,35 @@ public class ObjectParser {
 	};
 
 
-	/** Translate a generic object to feeditem. **/
+	/** 
+	* Parse a generic object into a playlist item.
+	* 
+	* @param obj	A plain object with key:value pairs.
+	* @return 		A playlist item (plain object with title,file,image,etc. entries)
+	**/
 	public static function parse(obj:Object):Object {
 		var itm = new Object();
-		for(var i in ObjectParser.ELEMENTS) {
+		for(var i:String in ObjectParser.ELEMENTS) {
 			if(obj[i] != undefined) {
-				itm[i] = Strings.serialize(obj[i],ObjectParser.ELEMENTS[i]);
+				itm[i] = Strings.serialize(obj[i]);
 			}
 		}
-		return ObjectParser.detect(itm);
+		return ObjectParser.complete(itm);
 	};
 
 
-	/** Detect the mediatype of a playlistitem and save to its type var. **/
-	public static function detect(itm:Object,str:Boolean=false):Object {
-		if(itm['type']) { itm['type'] = itm['type'].toLowerCase(); }
+	/** 
+	* Complete a playlistitem object: add the correct mediatype and set a 0 duration/start.
+	* 
+	* @param itm	A playlist item (plain object with title,file,image,etc. entries)
+	* @return 		A playlist item (plain object with title,file,image,etc. entries)
+	**/
+	public static function complete(itm:Object):Object {
+		if(itm['type']) { 
+			itm['type'] = itm['type'].toLowerCase(); 
+		}
 		if(itm['file'] == undefined) {
 			delete itm['type'];
-			return itm;
 		} else if(ObjectParser.TYPES[itm['type']] != undefined) {
 			// assume the developer knows what he does...
 		} else if(ObjectParser.EXTENSIONS[itm['type']] != undefined) {
@@ -108,7 +121,7 @@ public class ObjectParser {
 			itm['type'] = ObjectParser.MIMETYPES[itm['type']];
 		} else {
 			itm['type'] = undefined;
-			for (var i in ObjectParser.EXTENSIONS) {
+			for (var i:String in ObjectParser.EXTENSIONS) {
 				if (itm['file'] && itm['file'].substr(-3).toLowerCase() == i) {
 					itm['type'] = ObjectParser.EXTENSIONS[i];
 					break;

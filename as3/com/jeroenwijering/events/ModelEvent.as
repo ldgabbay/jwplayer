@@ -1,5 +1,7 @@
 /**
-* Event types fired by the Model.
+* Definitions for all event types fired by the Model.
+*
+* Import this class into your project/plugin for strong-typed api references.
 **/
 package com.jeroenwijering.events {
 
@@ -10,7 +12,7 @@ import flash.events.Event;
 public class ModelEvent extends Event {
 
 
-	/** Identifier for buffer change event. **/
+	/** Definitions for all event types. **/
 	public static var BUFFER:String = "BUFFER";
 	public static var ERROR:String = "ERROR";
 	public static var LOADED:String = "LOADED";
@@ -33,7 +35,7 @@ public class ModelEvent extends Event {
 	};
 
 
-	/** Returns the associated data. **/
+	/** Returns the data associated with the event. **/
 	public function get data():Object {
 		return _data;
 	};

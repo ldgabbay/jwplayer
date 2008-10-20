@@ -38,10 +38,8 @@ public class Controller extends EventDispatcher {
 		playlister = new Playlister();
 		playlister.addEventListener(Event.COMPLETE,playlistHandler);
 		playlister.addEventListener(ErrorEvent.ERROR,errorHandler);
-		resizeHandler(new ViewEvent(ViewEvent.RESIZE,{
-			width:skin.stage.stageWidth,
-			height:skin.stage.stageHeight
-		}));
+		config['controlbarsize'] = skin.controlbar.height;
+		redrawHandler();
 	};
 
 
@@ -61,17 +59,10 @@ public class Controller extends EventDispatcher {
 		view.addEventListener(ViewEvent.PLAY,playHandler);
 		view.addEventListener(ViewEvent.PREV,prevHandler);
 		view.addEventListener(ViewEvent.QUALITY,qualityHandler);
-		view.addEventListener(ViewEvent.RESIZE,resizeHandler);
+		view.addEventListener(ViewEvent.REDRAW,redrawHandler);
 		view.addEventListener(ViewEvent.SEEK,seekHandler);
 		view.addEventListener(ViewEvent.STOP,stopHandler);
 		view.addEventListener(ViewEvent.VOLUME,volumeHandler);
-		resizeHandler(new ViewEvent(ViewEvent.RESIZE, {
-			width:skin.stage.stageWidth,
-			height:skin.stage.stageHeight
-		}));
-		if(config['file']) { 
-			playlister.load(config);
-		}
 	};
 
 
@@ -104,7 +95,7 @@ public class Controller extends EventDispatcher {
 
 	/** Jump to a userdefined item in the playlist. **/
 	private function itemHandler(evt:ViewEvent):void {
-		var itm = evt.data.index;
+		var itm:Number = evt.data.index;
 		if (itm < 0) {
 			playItem(0);
 		} else if (itm > playlist.length-1) { 
@@ -117,12 +108,10 @@ public class Controller extends EventDispatcher {
 
 	/** Jump to the link of a playlistitem. **/
 	private function linkHandler(evt:ViewEvent):void {
-		var itm = evt.data.index;
-		if (itm  == undefined) {
-			itm = config['item'];
-		}
-		var lnk = playlist[itm]['link'];
-		if(lnk != undefined) {
+		var itm:Number = config['item'];
+		if(evt.data.index) { itm = evt.data.index; }
+		var lnk:String = playlist[itm]['link'];
+		if(lnk != null) {
 			navigateToURL(new URLRequest(lnk),config['linktarget']);
 		}
 	};
@@ -143,7 +132,7 @@ public class Controller extends EventDispatcher {
 	/** Update playlist item duration. **/
 	private function metaHandler(evt:ModelEvent):void {
 		if(evt.data.duration) {
-			var dur = Math.round(evt.data.duration*10)/10
+			var dur:Number = Math.round(evt.data.duration*10)/10
 			playlister.update(config['item'],'duration',dur);
 		}
 	};
@@ -241,25 +230,24 @@ public class Controller extends EventDispatcher {
 		} else {
 			config['quality'] = !config['quality'];
 		}
-		fullscreenrect();
 		dispatchEvent(new ControllerEvent(ControllerEvent.QUALITY,{state:config['quality']}));
 	};
 
 
 	/** Forward a resizing of the stage. **/
-	private function resizeHandler(evt:ViewEvent):void {
-		var mgn = config['margins'].split(',');
-		var dat = {
-			height:evt.data.height-mgn[0],
-			width:evt.data.width-mgn[1],
-			fullscreen:false
-		};
+	private function redrawHandler(evt:ViewEvent=null):void {
+		var dat:Object = new Object();
 		try { 
-			var dps = skin.stage['displayState'];
+			var dps:String = skin.stage['displayState'];
 		} catch (err:Error) {}
 		if(dps == 'fullScreen') {
 			dat.fullscreen = true;
-		} else {
+			dat.width = skin.stage.stageWidth;
+			dat.height = skin.stage.stageHeight;
+		} else if(config['resizing']) {
+			dat.fullscreen = false;
+			dat.width = skin.stage.stageWidth;
+			dat.height = skin.stage.stageHeight;
 			if(config['controlbar'] == 'bottom') {
 				dat.height -= config['controlbarsize'];
 			}
@@ -268,9 +256,13 @@ public class Controller extends EventDispatcher {
 			} else if(config['playlist'] == 'bottom') {
 				dat.height -= config['playlistsize'];
 			}
+		} else { 
+			dat.fullscreen = false;
+			dat.width = config['width'];
+			dat.height = config['height'];
 		}
-		config['height'] = dat.height;
 		config['width'] = dat.width;
+		config['height'] = dat.height;
 		dispatchEvent(new ControllerEvent(ControllerEvent.RESIZE,dat));
 	};
 
@@ -278,7 +270,7 @@ public class Controller extends EventDispatcher {
 	/** Seek to a specific part in a mediafile. **/
 	private function seekHandler(evt:ViewEvent):void {
 		if(config['state'] != ModelStates.IDLE && playlist[config['item']]['duration'] > 0) {
-			var pos = evt.data.position;
+			var pos:Number = evt.data.position;
 			if(pos < 2) { 
 				pos = 0;
 			} else if (pos > playlist[config['item']]['duration']-2) { 
@@ -313,7 +305,7 @@ public class Controller extends EventDispatcher {
 
 	/** Save new state of the mute switch and send volume. **/
 	private function volumeHandler(evt:ViewEvent):void {
-		var vol = evt.data.percentage;
+		var vol:Number = evt.data.percentage;
 		if (vol < 1) {
 			muteHandler(new ViewEvent(ViewEvent.MUTE,{state:true}));
 		} else if (!isNaN(vol) && vol < 101) {

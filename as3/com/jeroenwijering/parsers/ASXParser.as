@@ -13,13 +13,14 @@ public class ASXParser extends ObjectParser {
 
 	/** Parse an ASX playlist for feeditems. **/
 	public static function parse(dat:XML):Array {
-		var arr = new Array();
-		var itm = new Object();
-		for each (var i in dat.children()) {
+		var arr:Array = new Array();
+		var itm:Object = new Object();
+		for each (var i:XML in dat.children()) {
 			itm = ASXParser.parseItem(i);
 			if(itm['type'] != undefined) {
 				arr.push(itm);
 			}
+			itm = {};
 		}
 		return arr;
 	};
@@ -27,8 +28,8 @@ public class ASXParser extends ObjectParser {
 
 	/** Translate ASX item to playlist item. **/
 	public static function parseItem(obj:XML):Object {
-		var itm =  new Object();
-		for each (var i in obj.children()) {
+		var itm:Object =  new Object();
+		for each (var i:XML in obj.children()) {
 			if(!i.localName()) { break; }
 			switch(i.localName().toLowerCase()) {
 				case 'ref':
@@ -57,7 +58,7 @@ public class ASXParser extends ObjectParser {
 					break;
 			}
 		}
-		return ObjectParser.detect(itm);
+		return ObjectParser.complete(itm);
 	};
 
 

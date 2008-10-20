@@ -1,5 +1,7 @@
 /**
-* Wrapper for playback of camera input; more for testing than actually useful.
+* This model implements the built-in webcam funcionality of the Flash Player.
+* The webcam stream is shown in the display (nice for testing).
+* If an rtmp server is provided in the 'streamer' flashvar, the stream will be published.
 **/
 package com.jeroenwijering.models {
 

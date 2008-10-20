@@ -7,10 +7,8 @@
 * Chris Veness, Movable Type Ltd: www.movable-type.co.uk
 * Algorithm: David Wheeler & Roger Needham, Cambridge University Computer Lab
 * See http://www.movable-type.co.uk/scripts/TEAblock.html
-*
-* JW took the liberty of renaming this so all JW Player utils are in one package..
-*/
-package com.jeroenwijering.utils {
+**/
+package com.meychi.ascript {
 
 
 public class TEA {

@@ -28,6 +28,7 @@ function loadHandler() {
 		ytPlayer.addEventListener("onStateChange", onPlayerStateChange);
 		ytPlayer.addEventListener("onError", onPlayerError);
 		ytPlayer.setSize(320,240);
+		ytPlayer.unMute();
 	}
 };
 function byteHandler() {
@@ -75,29 +76,20 @@ function onPlayerError(erc:Number) {
 };
 
 
-
 // Directive forwards
 _as3_to_as2.pauseVideo = function() { ytPlayer.pauseVideo(); };
 _as3_to_as2.playVideo = function() { ytPlayer.playVideo(); };
-_as3_to_as2.stopVideo = function(){ 
-	ytPlayer.stopVideo();
-	clearInterval(byteInterval);
-};
+_as3_to_as2.stopVideo = function(){ ytPlayer.stopVideo(); clearInterval(byteInterval); };
 _as3_to_as2.loadVideoById = function(id,pos) { ytPlayer.loadVideoById(id,pos); };
-_as3_to_as2.setVolume = function(vol) {  
-	ytPlayer.unMute(); 
-	ytPlayer.setVolume(vol); 
-};
+_as3_to_as2.setVolume = function(vol) { ytPlayer.setVolume(vol); };
 _as3_to_as2.seekTo = function(pos) { ytPlayer.seekTo(pos,true); };
 _as3_to_as2.setSize = function(wid,hei) { ytPlayer.setSize(wid,hei); };
-
 
 
 // Initialization
 _as3_to_as2.connect("_AS3_to_AS2");
 ytPlayerLoaderListener = {}; 
-ytPlayerLoaderListener.onLoadInit = function() {
-	loadInterval = setInterval(loadHandler,200);
-};
+ytPlayerLoaderListener.onLoadInit = function() { loadInterval = setInterval(loadHandler,200); };
 ytPlayerLoader.addListener(ytPlayerLoaderListener);
 ytPlayerLoader.loadClip(ytLocation,ytPlayer);
+

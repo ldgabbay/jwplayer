@@ -24,7 +24,7 @@ public class Randomizer {
 		original = new Array();
 		todo = new Array();
 		done = new Array();
-		for(var i=0; i<len; i++) {
+		for(var i:Number=0; i<len; i++) {
 			original.push(i);
 		}
 	};
@@ -33,12 +33,12 @@ public class Randomizer {
 	/** Returns a random number below the length given. **/
 	public function pick():Number {
 		if(todo.length == 0) {
-			for(var k=0; k<original.length; k++) {
+			for(var k:Number=0; k<original.length; k++) {
 				todo.push(k);
 			}
 		}
-		var ran = Math.floor(Math.random()*todo.length);
-		var idx = todo[ran];
+		var ran:Number = Math.floor(Math.random()*todo.length);
+		var idx:Number = todo[ran];
 		done.push(todo.splice(ran,1)[0]);
 		return idx;
 	};

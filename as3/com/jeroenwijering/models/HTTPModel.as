@@ -1,5 +1,5 @@
 ﻿/**
-* Wrapper for playback of progressively downloaded video.
+* Wrapper for playback of http 'streaming' video.
 **/
 package com.jeroenwijering.models {
 
@@ -15,7 +15,6 @@ import flash.media.Video;
 import flash.net.*;
 import flash.utils.clearInterval;
 import flash.utils.setInterval;
-import flash.utils.Timer;
 
 
 public class HTTPModel implements ModelInterface {
@@ -45,8 +44,6 @@ public class HTTPModel implements ModelInterface {
 	private var h264:Boolean;
 	/** Byteposition to which the file has been loaded. **/
 	private var loaded:Number;
-	/** Timer for checking bandwidth **/
-	private var timer:Timer
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -102,6 +99,7 @@ public class HTTPModel implements ModelInterface {
 
 	/** Load content. **/
 	public function load():void {
+		model.mediaHandler(video);
 		if(stream.bytesLoaded != stream.bytesTotal) {
 			stream.close();
 		}
@@ -122,8 +120,8 @@ public class HTTPModel implements ModelInterface {
 		url += '&id='+model.config['id'];
 		url += '&client='+encodeURI(model.config['client']);
 		url += '&version='+encodeURI(model.config['version']);
+		url += '&width='+model.config['width'];
 		if(getToken()) { url += '&token='+getToken(); }
-		trace(url);
 		stream.play(url);
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);
@@ -135,11 +133,6 @@ public class HTTPModel implements ModelInterface {
 
 	/** Interval for the loading progress **/
 	private function loadHandler():void {
-		if(!timer) { 
-			timer = new Timer(2000,1);
-            timer.addEventListener("timer", timerHandler);
-            timer.start();
-		}
 		loaded = stream.bytesLoaded;
 		var ttl = stream.bytesTotal;
 		if(loaded >= ttl && loaded > 0) {
@@ -161,9 +154,6 @@ public class HTTPModel implements ModelInterface {
 			if(dat.width) {
 				video.width = dat.width;
 				video.height = dat.height;
-				model.mediaHandler(video);
-			} else {
-				model.mediaHandler();
 			}
 			if(dat.seekpoints) {
 				h264 = true;
@@ -243,7 +233,7 @@ public class HTTPModel implements ModelInterface {
 			}
 		} else if(evt.info.code == "NetStream.Play.StreamNotFound") {
 			stop();
-			model.sendEvent(ModelEvent.ERROR,{message:"Video stream not found: " + 
+			model.sendEvent(ModelEvent.ERROR,{message:"Video stream not found: " +
 				model.playlist[model.config['item']]['file']});
 		} else { 
 			model.sendEvent(ModelEvent.META,{info:evt.info.code});
@@ -273,27 +263,15 @@ public class HTTPModel implements ModelInterface {
 		var dur = model.playlist[model.config['item']]['duration'];
 		if(bfr<100 && pos < Math.abs(dur-stream.bufferTime*2)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
-			if(model.config['state'] != ModelStates.BUFFERING  && bfr<50) {
+			if(model.config['state'] != ModelStates.BUFFERING  && bfr < 10) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			}
 		} else if (model.config['state'] == ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
-			if(!keyframes) {
-				video.width = 320;
-				video.height = 240;
-				model.mediaHandler(video);
-			}
 		}
 		if(dur > 0) {
 			model.sendEvent(ModelEvent.TIME,{position:pos,duration:dur});
 		}
-	};
-
-
-	/** Timer that checks bandwidth has completed. **/
-	public function timerHandler(event:TimerEvent):void {
-    	var bww = Math.round(stream.bytesLoaded*4/1024);
-		model.sendEvent(ModelEvent.META,{bandwidth:bww});
 	};
 
 

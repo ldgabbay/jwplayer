@@ -60,6 +60,25 @@ public class SoundModel implements ModelInterface {
 	};
 
 
+	/** Forward ID3 data from the sound. **/
+	private function id3Handler(evt:Event):void {
+		try {
+			var id3:ID3Info = sound.id3;
+			var obj = {
+				type:'id3',
+				album:id3.album,
+				artist:id3.artist,
+				comment:id3.comment,
+				genre:id3.genre,
+				songName:id3.songName,
+				track:id3.track,
+				year:id3.year
+			}
+			model.sendEvent(ModelEvent.META,obj);
+		} catch (err:Error) {}
+	};
+
+
 	/** Load the sound. **/
 	public function load():void {
 		position = model.playlist[model.config['item']]['start'];
@@ -67,8 +86,8 @@ public class SoundModel implements ModelInterface {
 		sound = new Sound();
 		sound.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		sound.addEventListener(ProgressEvent.PROGRESS,progressHandler);
+		sound.addEventListener(Event.ID3,id3Handler);
 		sound.load(new URLRequest(model.playlist[model.config['item']]['file']),context);
-		model.mediaHandler();
 		play();
 	};
 

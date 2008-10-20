@@ -1,5 +1,5 @@
 ﻿/**
-* Loads and manages a playlist. Can read ASX, RSS, SMIL & XSPF.
+* Loads and manages a playlist. Can read ASX, RSS (itunes & media extensions), SMIL & XSPF.
 **/
 package com.jeroenwijering.utils {
 
@@ -34,10 +34,10 @@ public class Playlister extends EventDispatcher {
 	/** Determine filetype and load file or list. **/
 	public function load(obj:Object):void {
 		if(typeof(obj) == 'string') {
-			var obj = {file:obj};
+			var obj:Object = {file:obj};
 		} 
 		if(obj['file']) {
-			var itm = ObjectParser.parse(obj);
+			var itm:Object = ObjectParser.parse(obj);
 			if (itm['type'] == undefined) {
 				try {
 					loader.load(new URLRequest(obj['file']));
@@ -50,11 +50,14 @@ public class Playlister extends EventDispatcher {
 			}
 		} else {
 			_playlist = new Array();
-			for each (var ent in obj) {
-				if(typeof(ent) == 'object' && ent['file']) { _playlist.push(ent); }
+			for each (var ent:Object in obj) {
+				ent = ObjectParser.parse(ent);
+				if(typeof(ent) == 'object' && ent['type']) {
+					_playlist.push(ent);
+				}
 			}
 			if(_playlist.length == 0) {
-				var str = 'No file found. Did you set the "file" flashvar?';
+				var str:String = 'No playeable file found.';
 				dispatchEvent(new ErrorEvent(ErrorEvent.ERROR,false,false,str));
 			} else { 
 				dispatchEvent(new Event(Event.COMPLETE));
@@ -72,13 +75,13 @@ public class Playlister extends EventDispatcher {
 	/** Translate the XML object to the feed array. **/
 	private function loaderHandler(evt:Event):void {
 		try {
-			var dat = XML(evt.target.data);
+			var dat:XML = XML(evt.target.data);
 		} catch (err:Error) {
-			var str = status+': This playlist is not a valid XML file.';
+			var str:String = status+': This playlist is not a valid XML file.';
 			dispatchEvent(new ErrorEvent(ErrorEvent.ERROR,false,false,str));
 			return;
 		}
-		var fmt = dat.localName().toLowerCase();
+		var fmt:String = dat.localName().toLowerCase();
 		if( fmt == 'rss') {
 			_playlist = RSSParser.parse(dat);
 		} else if (fmt == 'playlist') { 

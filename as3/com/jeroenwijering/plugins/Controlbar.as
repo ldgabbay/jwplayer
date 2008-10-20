@@ -1,5 +1,5 @@
 ﻿/**
-* Display a controlbar and direct the search externally.
+* Display a controlbar with transport buttons and sliders.
 **/
 package com.jeroenwijering.plugins {
 
@@ -29,7 +29,7 @@ public class Controlbar implements PluginInterface {
 	/** Timeout for hiding the bar. **/
 	private var hiding:Number;
 	/** When scrubbing, icon shouldn't be set. **/
-	private var scrubbing:Boolean;
+	private var scrubber:MovieClip;
 	/** Color object for frontcolor. **/
 	private var front:ColorTransform;
 	/** Color object for lightcolor. **/
@@ -92,10 +92,9 @@ public class Controlbar implements PluginInterface {
 
 	/** Handle mouse presses on sliders. **/
 	private function downHandler(evt:MouseEvent):void {
-		var tgt = evt.target;
-		var rct = new Rectangle(tgt.rail.x,tgt.icon.y,tgt.rail.width-tgt.icon.width,0);
-		tgt.icon.startDrag(true,rct);
-		scrubbing = true;
+		scrubber = MovieClip(evt.target);
+		var rct:Rectangle = new Rectangle(scrubber.rail.x,scrubber.icon.y,scrubber.rail.width-scrubber.icon.width,0);
+		scrubber.icon.startDrag(true,rct);
     	bar.stage.addEventListener(MouseEvent.MOUSE_UP,upHandler);
 	};
 
@@ -103,12 +102,14 @@ public class Controlbar implements PluginInterface {
 	/** Fix the timeline display. **/
 	private function fixTime():void {
 		try {
-			var scp = bar.timeSlider.scaleX;
+			var scp:Number = bar.timeSlider.scaleX;
 			bar.timeSlider.scaleX = 1;
 			bar.timeSlider.icon.x = scp*bar.timeSlider.icon.x;
 			bar.timeSlider.mark.x = scp*bar.timeSlider.mark.x;
 			bar.timeSlider.mark.width = scp*bar.timeSlider.mark.width;
 			bar.timeSlider.rail.width = scp*bar.timeSlider.rail.width;
+			bar.timeSlider.done.x = scp*bar.timeSlider.done.x;
+			bar.timeSlider.done.width = scp*bar.timeSlider.done.width;
 		} catch (err:Error) {}
 	};
 
@@ -132,21 +133,22 @@ public class Controlbar implements PluginInterface {
 		timeHandler();
 		stacker.rearrange();
 		fixTime();
+		loadedHandler(new ModelEvent(ModelEvent.LOADED,{loaded:0,total:0}))
 	};
 
 
 	/** Process bytesloaded updates given by the model. **/
 	private function loadedHandler(evt:ModelEvent=null):void {
-		var pc1 = 0;
+		var pc1:Number = 0;
 		if(evt && evt.data.total > 0) {
 			pc1 = evt.data.loaded/evt.data.total;
 		}
-		var pc2 = 0;
+		var pc2:Number = 0;
 		if(evt && evt.data.offset) {
 			pc2 = evt.data.offset/evt.data.total;
 		}
 		try {
-			var wid = bar.timeSlider.rail.width;
+			var wid:Number = bar.timeSlider.rail.width;
 			bar.timeSlider.mark.x = pc2*wid;
 			bar.timeSlider.mark.width = pc1*wid;
 		} catch (err:Error) {}
@@ -164,7 +166,7 @@ public class Controlbar implements PluginInterface {
 
 	/** Hide above controlbar again when move has timed out. **/
 	private function moveTimeout():void {
-		if((bar.mouseY<0 || bar.mouseY>bar.height)  && bar.alpha == 1) {
+		if((bar.mouseY<3 || bar.mouseY>bar.height-5)  && bar.alpha == 1) {
 			Animations.fade(bar,0);
 			Mouse.hide();
 		}
@@ -173,25 +175,31 @@ public class Controlbar implements PluginInterface {
 
 	/** Show a mute icon if playing. **/
 	private function muteHandler(evt:ControllerEvent=null):void {
-		try {
 			if(view.config['mute'] == true) {
-				bar.muteButton.visible = false;
-				bar.unmuteButton.visible = true;
-				bar.volumeSlider.mark.visible = false;
-				bar.volumeSlider.icon.x = bar.volumeSlider.rail.x;
+				try {
+					bar.muteButton.visible = false;
+					bar.unmuteButton.visible = true;
+				} catch (err:Error) {}
+				try {
+					bar.volumeSlider.mark.visible = false;
+					bar.volumeSlider.icon.x = bar.volumeSlider.rail.x;
+				} catch (err:Error) {}
 			} else {
-				bar.muteButton.visible = true;
-				bar.unmuteButton.visible = false;
-				bar.volumeSlider.mark.visible = true;
-				volumeHandler();
+				try {
+					bar.muteButton.visible = true;
+					bar.unmuteButton.visible = false;
+				} catch (err:Error) {}
+				try {
+					bar.volumeSlider.mark.visible = true;
+					volumeHandler();
+				} catch (err:Error) {}
 			}
-		} catch (err:Error) {}
 	};
 
 
 	/** Handle mouseouts from all buttons **/
 	private function outHandler(evt:MouseEvent):void {
-		if(front) { 
+		if(front) {
 			bar[evt.target.name]['icon'].transform.colorTransform = front;
 		} else {
 			bar[evt.target.name].gotoAndPlay('out');
@@ -201,7 +209,7 @@ public class Controlbar implements PluginInterface {
 
 	/** Handle clicks from all buttons **/
 	private function overHandler(evt:MouseEvent):void {
-		if(light) { 
+		if(front) {
 			bar[evt.target.name]['icon'].transform.colorTransform = light;
 		} else {
 			bar[evt.target.name].gotoAndPlay('over');
@@ -211,12 +219,13 @@ public class Controlbar implements PluginInterface {
 
 	/** Process resizing requests **/
 	private function resizeHandler(evt:ControllerEvent=null):void {
-		var wid = stacker.width;
+		var wid:Number = stacker.width;
 		if(view.config['controlbar'] == 'over' || (evt && evt.data.fullscreen == true)) {
 			bar.y = view.config['height'] - view.config['controlbarsize'] - margin;
 			bar.x = margin;
 			wid = view.config['width'] - 2*margin;
 			bar.back.alpha = 0.75;
+			bar.visible = true;
 		} else if(view.config['controlbar'] == 'bottom') {
 			bar.x = 0;
 			bar.back.alpha = 1;
@@ -225,6 +234,7 @@ public class Controlbar implements PluginInterface {
 			if(view.config['playlist'] == 'right') {
 				wid += view.config['playlistsize'];
 			}
+			bar.visible = true;
 		} else {
 			bar.visible = false;
 		}
@@ -256,7 +266,7 @@ public class Controlbar implements PluginInterface {
 
 	/** Clickhandler for all buttons. **/
 	private function setButtons():void {
-		for(var btn in BUTTONS) {
+		for(var btn:String in BUTTONS) {
 			if(bar[btn]) {
 				bar[btn].mouseChildren = false;
 				bar[btn].buttonMode = true;
@@ -265,7 +275,7 @@ public class Controlbar implements PluginInterface {
 				bar[btn].addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 			}
 		}
-		for(var sld in SLIDERS) {
+		for(var sld:String in SLIDERS) {
 			if(bar[sld]) {
 				bar[sld].mouseChildren = false;
 				bar[sld].buttonMode = true;
@@ -280,20 +290,20 @@ public class Controlbar implements PluginInterface {
 	/** Init the colors. **/
 	private function setColors():void {
 		if(view.config['backcolor']) { 
-			var clr = new ColorTransform();
-			clr.color = '0x'+view.config['backcolor'].substr(-6);
+			var clr:ColorTransform = new ColorTransform();
+			clr.color = uint('0x'+view.config['backcolor'].substr(-6));
 			bar.back.transform.colorTransform = clr;
 		}
 		if(view.config['frontcolor']) {
 			try {
 				front = new ColorTransform();
 				front.color = uint('0x'+view.config['frontcolor'].substr(-6));
-				for(var btn in BUTTONS) {
+				for(var btn:String in BUTTONS) {
 					if(bar[btn]) {
 						bar[btn]['icon'].transform.colorTransform = front;
 					}
 				}
-				for(var sld in SLIDERS) {
+				for(var sld:String in SLIDERS) {
 					if(bar[sld]) {
 						bar[sld]['icon'].transform.colorTransform = front;
 						bar[sld]['mark'].transform.colorTransform = front;
@@ -307,6 +317,14 @@ public class Controlbar implements PluginInterface {
 		if(view.config['lightcolor']) {
 			light = new ColorTransform();
 			light.color = uint('0x'+view.config['lightcolor'].substr(-6));
+		} else { 
+			light = front;
+		}
+		if(light) {
+			try {
+				bar['volumeSlider']['mark'].transform.colorTransform = light;
+				bar['timeSlider']['done'].transform.colorTransform = light;
+			} catch (err:Error) {}
 		}
 	};
 
@@ -317,7 +335,7 @@ public class Controlbar implements PluginInterface {
 		view.skin.removeEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
 		Mouse.show();
 		try {
-			var dps = bar.stage['displayState'];
+			var dps:String = bar.stage['displayState'];
 		} catch (err:Error) {}
 		switch(view.config['state']) { 
 			case ModelStates.PLAYING:
@@ -347,8 +365,8 @@ public class Controlbar implements PluginInterface {
 
 	/** Process time updates given by the model. **/
 	private function timeHandler(evt:ModelEvent=null):void {
-		var dur = 0;
-		var pos = 0;
+		var dur:Number = 0;
+		var pos:Number = 0;
 		if(evt) {
 			dur = evt.data.duration;
 			pos = evt.data.position;
@@ -356,23 +374,32 @@ public class Controlbar implements PluginInterface {
 			dur = view.playlist[view.config['item']]['duration'];
 			pos = view.playlist[view.config['item']]['start'];
 		}
-		var pct = pos/dur;
+		var pct:Number = pos/dur;
 		try {
 			bar.elapsedText.text = Strings.digits(pos);
 			bar.totalText.text = Strings.digits(dur);
 		} catch (err:Error) {}
 		try {
-			var tsl = bar.timeSlider;
-			var xps = Math.round(pct*(tsl.rail.width-tsl.icon.width));
+			var tsl:MovieClip = bar.timeSlider;
+			var xps:Number = Math.round(pct*(tsl.rail.width-tsl.icon.width));
 			if (dur > 0) {
 				bar.timeSlider.icon.visible = true;
 				bar.timeSlider.mark.visible = true;
-				if(scrubbing != true) {
+				if(!scrubber) {
 					bar.timeSlider.icon.x = xps;
+					var dld:Number = bar.timeSlider.mark.x;
+					if(xps > dld) {
+						bar.timeSlider.done.x = dld;
+						bar.timeSlider.done.width = xps-dld;
+						bar.timeSlider.done.visible = true;
+					} else { 
+						bar.timeSlider.done.visible = false;
+					}
 				}
 			} else {
 				bar.timeSlider.icon.visible = false;
 				bar.timeSlider.mark.visible = false;
+				bar.timeSlider.done.visible = false;
 			}
 		} catch (err:Error) {}
 	};
@@ -380,25 +407,24 @@ public class Controlbar implements PluginInterface {
 
 	/** Handle mouse releases on sliders. **/
 	private function upHandler(evt:MouseEvent):void {
-		var tgt = evt.target;
-		var mpl = 0;
-		tgt.icon.stopDrag();
-		scrubbing = false;
+		var mpl:Number = 0;
     	bar.stage.removeEventListener(MouseEvent.MOUSE_UP,upHandler);
-		if(tgt.name == 'timeSlider' && view.playlist.length) {
+		scrubber.icon.stopDrag();
+		if(scrubber.name == 'timeSlider' && view.playlist) {
 			mpl = view.playlist[view.config['item']]['duration'];
-		} else if(tgt.name == 'volumeSlider') { 
+		} else if(scrubber.name == 'volumeSlider') {
 			mpl = 100;
 		}
-		var pct = (tgt.icon.x-tgt.rail.x) / (tgt.rail.width-tgt.icon.width) * mpl;
-		view.sendEvent(SLIDERS[tgt.name],Math.round(pct));
+		var pct:Number = (scrubber.icon.x-scrubber.rail.x) / (scrubber.rail.width-scrubber.icon.width) * mpl;
+		view.sendEvent(SLIDERS[scrubber.name],Math.round(pct));
+		scrubber = undefined;
 	};
 
 
 	/** Reflect the new volume in the controlbar **/
 	private function volumeHandler(evt:ControllerEvent=null):void {
 		try { 
-			var vsl = bar.volumeSlider;
+			var vsl:MovieClip = bar.volumeSlider;
 			vsl.mark.width = view.config['volume']*(vsl.rail.width-vsl.icon.width/2)/100;
 			vsl.icon.x = vsl.mark.x + view.config['volume']*(vsl.rail.width-vsl.icon.width)/100;
 		} catch (err:Error) {}

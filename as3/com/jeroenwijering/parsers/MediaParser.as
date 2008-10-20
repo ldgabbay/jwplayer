@@ -12,7 +12,7 @@ public class MediaParser extends ObjectParser {
 
 	/** Parse an MRSS group. **/
 	public static function parseGroup(obj:XML,itm:Object):Object { 
-		for each (var i in obj.children()) {
+		for each (var i:XML in obj.children()) {
 			switch(i.localName()) {
 				case 'content':
 					if(!itm['file'] && ObjectParser.MIMETYPES[i.@type.toString()]) {
@@ -25,28 +25,26 @@ public class MediaParser extends ObjectParser {
 							itm['start'] = Strings.seconds(i.@start);
 						}
 					}
+					if(i.children().length() >0) {
+						itm = parseGroup(i,itm);
+					}
 					break;
 				case 'description':
 					itm['description'] = i.text().toString();
 					break;
 				case 'thumbnail':
-					if(!itm['image']) { 
-						itm['image'] = i.@url.toString();
-					}
+					itm['image'] = i.@url.toString();
 					break;
 				case 'credit':
 					itm['author'] = i.text().toString();
 					break;
-				case 'text':
-					if(i.@url) { 
-						itm['captions'] = i.@url.toString();
-					}
+				case 'keywords':
+					itm['tags'] = i.text().toString();
 					break;
 			}
 		}
 		return itm;
 	}
-
 
 
 }

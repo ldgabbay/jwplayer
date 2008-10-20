@@ -50,16 +50,16 @@ public class Display implements PluginInterface {
 		view = vie;
 		view.addControllerListener(ControllerEvent.ERROR,errorHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
+		view.addControllerListener(ControllerEvent.PLAYLIST,stateHandler);
 		view.addModelListener(ModelEvent.BUFFER,bufferHandler);
 		view.addModelListener(ModelEvent.ERROR,errorHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
-		view.addViewListener(ModelEvent.ERROR,errorHandler);
 		display = view.skin['display'];
 		display.media.mask = display.masker;
 		display.mouseChildren = false;
-		if(view.config['screencolor']) { 
-			var clr = new ColorTransform();
-			clr.color = '0x'+view.config['screencolor'].substr(-6);
+		if(view.config['screencolor']) {
+			var clr:ColorTransform = new ColorTransform();
+			clr.color = uint('0x'+view.config['screencolor'].substr(-6));
 			display.back.transform.colorTransform = clr;
 		}
 		if(view.config['displayclick'] != 'none') {
@@ -77,7 +77,7 @@ public class Display implements PluginInterface {
 
 	/** Receive buffer updates. **/
 	private function bufferHandler(evt:ModelEvent):void {
-		var pct = '';
+		var pct:String = '';
 		if(evt.data.percentage > 0) {
 			pct = Strings.zero(evt.data.percentage);
 		}
@@ -95,16 +95,18 @@ public class Display implements PluginInterface {
 
 	/** Receive and print errors. **/
 	private function errorHandler(evt:Object):void {
-		setIcon('errorIcon');
-		try { 
-			display.errorIcon.txt.text = evt.data.message;
-		} catch (err:Error) {}
+		if(view.config['icons'] == true) { 
+			try {
+				setIcon('errorIcon');
+				display.errorIcon.txt.text = evt.data.message;
+			} catch (err:Error) {}
+		}
 	};
 
 
 	/** Logo loaded; now position it. **/
 	private function logoHandler(evt:Event):void {
-		if(margins[0] > margins[2]) { 
+		if(margins[0] > margins[2]) {
 			display.logo.x = display.back.width- margins[2]-display.logo.width;
 		} else {
 			display.logo.x = margins[0];
@@ -119,23 +121,21 @@ public class Display implements PluginInterface {
 
 	/** Receive resizing requests **/
 	private function resizeHandler(evt:ControllerEvent=null):void {
-		var wid = view.config['width'];
-		var hei = view.config['height'];
-		if(hei > 0) { 
+		if(view.config['height'] > 0) { 
 			display.visible = true;
 		} else { 
 			display.visible = false;
 		}
-		display.back.width  = wid;
-		display.back.height = hei;
+		display.back.width  = view.config['width'];
+		display.back.height = view.config['height'];
 		try { 
-			display.masker.width = wid;
-			display.masker.height = hei;
+			display.masker.width = view.config['width'];
+			display.masker.height = view.config['height'];
 		} catch (err:Error) {}
-		for(var i in ICONS) {
+		for(var i:String in ICONS) {
 			try { 
-				display[ICONS[i]].x = Math.round(wid/2);
-				display[ICONS[i]].y = Math.round(hei/2);
+				display[ICONS[i]].x = Math.round(view.config['width']/2);
+				display[ICONS[i]].y = Math.round(view.config['height']/2);
 			} catch (err:Error) {}
 		}
 		if(view.config['logo']) {
@@ -146,7 +146,7 @@ public class Display implements PluginInterface {
 
 	/** Set a specific icon in the display. **/
 	private function setIcon(icn:String=undefined):void {
-		for(var i in ICONS) {
+		for(var i:String in ICONS) {
 			if(display[ICONS[i]]) { 
 				if(icn == ICONS[i]) {
 					display[ICONS[i]].visible = true; 
@@ -174,11 +174,11 @@ public class Display implements PluginInterface {
 
 
 	/** Handle a change in playback state. **/
-	private function stateHandler(evt:ModelEvent=null):void {
+	private function stateHandler(evt:Event=null):void {
 		state = view.config['state'];
 		if(state == ModelStates.PLAYING) {
 			setIcon();
-		} else if (state == ModelStates.BUFFERING) {
+		} else if (state == ModelStates.BUFFERING && view.config['icons'] == true) {
 			setIcon('bufferIcon');
 		} else {
 			switch(view.config.displayclick) {
@@ -186,7 +186,11 @@ public class Display implements PluginInterface {
 					setIcon();
 					break;
 				default:
-					setIcon(view.config.displayclick+'Icon');
+					if(view.config['icons'] == true && view.playlist) {
+						setIcon(view.config.displayclick+'Icon');
+					} else { 
+						setIcon();
+					}
 					break;
 			}
 		}

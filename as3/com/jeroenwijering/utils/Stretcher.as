@@ -29,8 +29,8 @@ public class Stretcher {
 	* @param typ	The stretching type.
 	**/
 	public static function stretch(clp:DisplayObject,wid:Number,hei:Number,typ:String='uniform'):void {
-		var xsc = wid/clp.width;
-		var ysc = hei/clp.height;
+		var xsc:Number = wid/clp.width;
+		var ysc:Number = hei/clp.height;
 		switch(typ.toLowerCase()) {
 			case 'exactfit':
 				clp.width = wid;

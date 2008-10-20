@@ -1,5 +1,7 @@
 /**
-* Event types fired by the View.
+* Definitions for all event types fired by the View.
+*
+* Import this class into your project/plugin folder for strong-typed api references.
 **/
 package com.jeroenwijering.events {
 
@@ -10,7 +12,7 @@ import flash.events.Event;
 public class ViewEvent extends Event {
 
 
-	/** Identifiers for the accepted event types. **/
+	/** Definitions for all event types. **/
 	public static var FULLSCREEN:String = "FULLSCREEN";
 	public static var ITEM:String = "ITEM";
 	public static var LINK:String = "LINK";
@@ -20,7 +22,7 @@ public class ViewEvent extends Event {
 	public static var PLAY:String = "PLAY";
 	public static var PREV:String = "PREV";
 	public static var QUALITY:String = "QUALITY";
-	public static var RESIZE:String = "RESIZE";
+	public static var REDRAW:String = "REDRAW";
 	public static var SEEK:String = "SEEK";
 	public static var STOP:String = "STOP";
 	public static var TRACE:String = "TRACE";
@@ -41,7 +43,7 @@ public class ViewEvent extends Event {
 	};
 
 
-	/** Returns the associated data. **/
+	/** Returns the data associated with the event. **/
 	public function get data():Object {
 		return _data;
 	};

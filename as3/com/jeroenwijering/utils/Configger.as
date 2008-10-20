@@ -19,25 +19,29 @@ public class Configger extends EventDispatcher {
 	/** Reference to a display object to get flashvars from. **/
 	private var reference:Sprite;
 	/** Reference to the config object. **/
-	public var config:Object;
+	private var config:Object;
 	/** XML loading object reference **/
 	private var loader:URLLoader;
 
 
-	/** Constructor; nothing fancy. **/
+	/** 
+	* Constructor.
+	* 
+	* @param ref	A reference Sprite; needed to access the flashvars.
+	**/
 	public function Configger(ref:Sprite):void {
 		reference = ref;
 	};
 
 
-	/** 
-	* Start the loading process. 
+	/**
+	* Start the variables loading process.
 	* 
 	* @param def	The config object to overwrite new data in.
 	**/
 	public function load(def:Object):void {
 		config = def;
-		var xml = reference.root.loaderInfo.parameters['config'];
+		var xml:String = reference.root.loaderInfo.parameters['config'];
 		if(xml) {
 			loadXML(Strings.decode(xml));
 		} else {
@@ -58,9 +62,9 @@ public class Configger extends EventDispatcher {
 
 	/** Parse the XML list **/
 	private function xmlHandler(evt:Event):void {
-		var dat = XML(evt.currentTarget.data);
-		var obj = new Object();
-		for each (var prp in dat.children()) {
+		var dat:XML = XML(evt.currentTarget.data);
+		var obj:Object = new Object();
+		for each (var prp:XML in dat.children()) {
 			obj[prp.name()] = prp.text();
 		}
 		compareWrite(obj)
@@ -75,15 +79,10 @@ public class Configger extends EventDispatcher {
 	};
 
 
-	/** Compare and save new items in config, preserving datatype. **/
+	/** Compare and save new items in config. **/
 	private function compareWrite(obj:Object):void {
-		for(var cfv in obj) {
-			var lfv = cfv.toLowerCase();
-			if(config[lfv] != undefined) {
-				config[lfv] = Strings.serialize(obj[lfv],config[cfv]);
-			} else { 
-				config[lfv] = obj[lfv];
-			}
+		for (var cfv:String in obj) {
+			config[cfv.toLowerCase()] = Strings.serialize(obj[cfv.toLowerCase()]);
 		}
 	};
 

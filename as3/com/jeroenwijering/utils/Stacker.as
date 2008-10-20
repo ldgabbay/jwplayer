@@ -6,6 +6,7 @@
 package com.jeroenwijering.utils {
 
 
+import flash.display.DisplayObject;
 import flash.display.MovieClip;
 
 
@@ -19,13 +20,13 @@ public class Stacker {
 	/** Original width of the clip. **/
 	private var _width:Number;
 	/** Latest width of the clip. **/
-	private var latest:Number;
+	private var latest:Number = 0;
 
 
 	/**
 	* Constructor.
 	*
-	* @param skn	The MovieClip to manage stacking of.
+	* @param clp	The MovieClip to manage.
 	**/
 	public function Stacker(clp:MovieClip):void {
 		clip = clp;
@@ -33,12 +34,12 @@ public class Stacker {
 	};
 
 
-	/** Analyze the MovieClip and save its children.  **/
+	/** Analyze the MovieClip and save its children. **/
 	private function analyze():void {
 		_width = clip.width;
 		stack = new Array();
-		for(var i=0; i<clip.numChildren; i++) {
-			var clp = clip.getChildAt(i);
+		for(var i:Number=0; i<clip.numChildren; i++) {
+			var clp:DisplayObject = clip.getChildAt(i);
 			stack.push({c:clp,x:clp.x,n:clp.name,w:clp.width});
 		}
 		stack.sortOn(['x','n'],[Array.NUMERIC,Array.CASEINSENSITIVE]);
@@ -47,9 +48,9 @@ public class Stacker {
 
 	/** Check if an child overlaps with others. **/
 	private function overlaps(idx:Number):Boolean {
-		var min = stack[idx].x;
-		var max = stack[idx].x+stack[idx].w;
-		for (var i in stack) {
+		var min:Number = stack[idx].x;
+		var max:Number = stack[idx].x+stack[idx].w;
+		for (var i:Number=0; i<stack.length; i++) {
 			if(i!=idx && stack[i].c.visible==true && stack[i].w < _width &&
 				stack[i].x < max && stack[i].x+stack[i].w > min) {
 				//trace(stack[idx].n+' overlaps with '+stack[i].n);
@@ -68,19 +69,21 @@ public class Stacker {
 	**/
 	public function rearrange(wid:Number=undefined):void {
 		if(wid) { latest = wid; }
-		var rdf = latest-width;
-		var ldf = 0;
+		var rdf:Number = latest-width;
+		var ldf:Number = 0;
 		// first run through the entire stack, closing the gaps.
-		for(var i=0; i<stack.length; i++) {
+		for(var i:Number=0; i<stack.length; i++) {
 			if(stack[i].x > width/2) {
 				stack[i].c.x = stack[i].x + rdf;
-				//trace(stack[i].n+': docked right');
 				if(stack[i].c.visible == false && overlaps(i) == false) {
-					rdf -= stack[i+1].x - stack[i].x;
+					if(i < (stack.length-1)) {
+						rdf -= stack[i].w+stack[i].x-stack[i-1].x-stack[i-1].w;
+					} else {
+						rdf -= stack[i].w+stack[i].x-stack[i-1].x-stack[i-1].w;
+					}
 				}
 			} else {
 				stack[i].c.x = stack[i].x-ldf;
-				//trace(stack[i].n+': docked left');
 				if(stack[i].c.visible == false && overlaps(i) == false) {
 					if(stack[i-1].w > width/3) {
 						ldf += stack[i].w + stack[i].x;
@@ -90,14 +93,13 @@ public class Stacker {
 				}
 			}
 			if(stack[i].w > width/3) {
-				//trace(stack[i].n+': stretched');
 				stack[i].c.width = stack[i].w+rdf+ldf;
 			}
 		}
 		// if gaps were closed, move all rightside stuff to fill the width.
-		var dif = latest-width-rdf;
+		var dif:Number = latest-width-rdf;
 		if(dif>0) {
-			for(var j=0; j<stack.length; j++) {
+			for(var j:Number=0; j<stack.length; j++) {
 				if(stack[j].x > width/2) {
 					stack[j].c.x += dif;
 				}
@@ -110,7 +112,7 @@ public class Stacker {
 
 
 	/** Getter for the original width of the MC. **/
-	public function get width():Number { 
+	public function get width():Number {
 		return _width;
 	};
 
