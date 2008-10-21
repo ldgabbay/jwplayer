@@ -38,6 +38,8 @@ public class RTMPModel implements ModelInterface {
 	private var timeinterval:Number;
 	/** Timeout ID for live stream subscription pings. **/
 	private var timeout:Number;
+	/** Metadata have been received. **/
+	private var metadata:Boolean;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -93,7 +95,7 @@ public class RTMPModel implements ModelInterface {
 
 	/** Get metadata information from netstream class. **/
 	public function onData(dat:Object):void {
-		if(dat.type == 'metadata') {
+		if(dat.type == 'metadata' && !metadata) {
 			if(dat.width) {
 				video.width = dat.width;
 				video.height = dat.height;
@@ -101,6 +103,7 @@ public class RTMPModel implements ModelInterface {
 			if(model.playlist[model.config['item']]['start'] > 0) {
 				seek(model.playlist[model.config['item']]['start']);
 			}
+			metadata = true;
 		} else if(dat.type == 'complete') {
 			clearInterval(timeinterval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
