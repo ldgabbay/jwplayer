@@ -177,7 +177,7 @@ public class Playlist implements PluginInterface {
 	/** Handle a button rollover. **/
 	private function overHandler(evt:MouseEvent):void {
 		var idx:Number = Number(evt.target.name);
-		if(front) {
+		if(front && back) {
 			for (var itm:String in view.playlist[idx]) {
 				if(buttons[idx].c[itm]) {
 					buttons[idx].c[itm].textColor = back.color;
@@ -192,7 +192,7 @@ public class Playlist implements PluginInterface {
 	/** Handle a button rollover. **/
 	private function outHandler(evt:MouseEvent):void {
 		var idx:Number = Number(evt.target.name);
-		if(front) {
+		if(front && back) {
 			for (var itm:String in view.playlist[idx]) {
 				if(buttons[idx].c[itm]) {
 					if(idx == active) {

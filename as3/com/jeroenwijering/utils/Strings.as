@@ -97,7 +97,7 @@ public class Strings {
 			return true;
 		} else if (val == 'false') {
 			return false;
-		} else if (isNaN(Number(val)) || val.length == 6) {
+		} else if (isNaN(Number(val)) || val.length > 5) {
 			return Strings.decode(val);
 		} else {
 			return Number(val);
