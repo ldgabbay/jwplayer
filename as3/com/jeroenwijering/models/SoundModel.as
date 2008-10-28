@@ -40,7 +40,7 @@ public class SoundModel implements ModelInterface {
 		model = mod;
 		transform = new SoundTransform();
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
-		context = new SoundLoaderContext(model.config['bufferlength']*1000);
+		context = new SoundLoaderContext(model.config['bufferlength']*1000,true);
 	};
 
 
