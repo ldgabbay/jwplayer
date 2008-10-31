@@ -119,7 +119,6 @@ public class Snapshot extends MovieClip implements PluginInterface {
 
 	/** Invoked when the save button is pressed; it'll show a 'save' dialog. **/
 	private function saveHandler(evt:MouseEvent) {
-		trace(view.playlist[view.config['item']]['image']);
 		var req:URLRequest = new URLRequest(view.playlist[view.config['item']]['image']);
 		var ref = new FileReference();
 		ref.download(req);

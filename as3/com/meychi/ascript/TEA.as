@@ -28,7 +28,6 @@ public class TEA {
 			sum += delta;
 			e = sum>>>2 & 3;
 			for (p = 0; p<n-1; p++) {
-				//trace("k:"+k.length+":"+(p&3^e));
 				y = v[p+1];
 				mx = (z>>>5^y<<2)+(y>>>3^z<<4)^(sum^y)+(k[p&3^e]^z);
 				z = v[p] += mx;

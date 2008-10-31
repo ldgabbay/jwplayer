@@ -53,7 +53,6 @@ public class ClickProxy extends MovieClip implements PluginInterface {
 			'mousex':evt.target.mouseX,
 			'mousey':evt.target.mouseY
 		};
-		trace(obj['position']+ ' - '+ obj['mousex']+'/'+obj['mousey']);
 		if(ExternalInterface.available && view.skin.loaderInfo.url.indexOf('http') == 0) {
 			try {
 				ExternalInterface.call(config['listener'],obj);

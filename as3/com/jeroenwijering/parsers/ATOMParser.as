@@ -9,21 +9,16 @@ import com.jeroenwijering.parsers.ObjectParser;
 import com.jeroenwijering.utils.Strings;
 
 
-public class ATOMParser extends ObjectParser {
+public class ATOMParser {
 
 
 	/** Parse an RSS playlist for feeditems. **/
 	public static function parse(dat:XML):Array {
 		var arr:Array = new Array();
-		var itm:Object = new Object();
 		for each (var i:XML in dat.children()) {
 			if (i.localName() == 'entry') {
-				itm = ATOMParser.parseItem(i);
+				arr.push(ATOMParser.parseItem(i));
 			}
-			if(itm['type'] != undefined) {
-				arr.push(itm);
-			}
-			itm = {};
 		}
 		return arr;
 	};
@@ -46,11 +41,6 @@ public class ATOMParser extends ObjectParser {
 				case 'link':
 					if(i.@rel == 'alternate') {
 						itm['link'] = i.@href.toString();
-					} else {
-						var pt1:RegExp = /^(.+)#(.+)$/g;
-						var pt2:RegExp = /^(.+)\.(.+)$/g;
-						var nam:String = i.@rel.toString().replace(pt1,"$2").replace(pt2,'$2');
-						itm[nam] = i.@href.toString();
 					}
 					break;
 				case 'published':
@@ -62,7 +52,7 @@ public class ATOMParser extends ObjectParser {
 			}
 		}
 		itm = MediaParser.parseGroup(obj,itm);
-		return ObjectParser.complete(itm);
+		return itm;
 	};
 
 

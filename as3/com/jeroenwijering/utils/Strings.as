@@ -8,7 +8,7 @@ public class Strings {
 
 
 	/** 
-	* URLDecode a string and filter "asfunction" occurences ( can be used for XSS exploits).
+	* Unescape a string and filter "asfunction" occurences ( can be used for XSS exploits).
 	* 
 	* @param str	The string to decode.
 	* @return 		The decoded string.
@@ -19,7 +19,6 @@ public class Strings {
 		} else {
 			return '';
 		}
-	
 	};
 
 
@@ -36,7 +35,7 @@ public class Strings {
 	};
 
 
-	/** 
+	/**
 	* Replace part of a string. The substring to replace can appear 0 to 99 times.
 	*
 	* @param str	The string that should be edited.
@@ -57,7 +56,7 @@ public class Strings {
 
 
 	/**
-	* Convert a time-representing string to a number. 
+	* Convert a time-representing string to a number.
 	* 
 	* @param str	The input string. Supported are 00:03:00.1 / 03:00.1 / 180.1s / 3.2m / 3.2h
 	* @return		The number of seconds.
@@ -105,10 +104,10 @@ public class Strings {
 	};
 
 
-	/** 
-	* Strip HTML tags and trim whitespace for a string.
+	/**
+	* Strip HTML tags and linebreaks off a string.
 	*
-	* @param str	The string to fix.
+	* @param str	The string to clean up.
 	* @return		The clean string.
 	**/
 	public static function strip(str:String):String {
@@ -134,7 +133,7 @@ public class Strings {
 	* @ return		A string representation with possible leading 0.
 	**/
 	public static function zero(nbr:Number):String {
-		if(nbr < 10) { 
+		if(nbr < 10) {
 			return '0'+nbr;
 		} else {
 			return ''+nbr;

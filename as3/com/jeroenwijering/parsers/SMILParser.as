@@ -8,21 +8,16 @@ import com.jeroenwijering.utils.Strings;
 import com.jeroenwijering.parsers.ObjectParser;
 
 
-public class SMILParser extends ObjectParser {
+public class SMILParser {
 
 
 	/** Parse an SMIL playlist for feeditems. **/
 	public static function parse(dat:XML):Array {
 		var arr:Array = new Array();
-		var itm:Object = new Object();
 		var elm:XML = dat.children()[1].children()[0];
 		if(elm.localName().toLowerCase() == 'seq') {
 			for each (var i:XML in elm.children()) {
-				itm = SMILParser.parseSeq(i);
-				if(itm['type'] != undefined) {
-					arr.push(itm);
-				}
-				itm = {};
+				arr.push(SMILParser.parseSeq(i));
 			}
 		} else {
 			arr.push(SMILParser.parsePar(elm));
@@ -46,7 +41,7 @@ public class SMILParser extends ObjectParser {
 			default:
 				break;
 		}
-		return ObjectParser.complete(itm);
+		return itm;
 	};
 
 
@@ -62,28 +57,17 @@ public class SMILParser extends ObjectParser {
 					itm['captions'] = i.@src.toString();
 					break;
 				case 'img':
+					itm['image'] = i.@src.toString();
+					if(itm['file']) {
+						break;
+					}
 				case 'video':
 				case 'audio':
-					itm[i.localName()] = i.@src.toString();
 					itm = SMILParser.parseAttributes(i,itm);
 					break;
 				default:
 					break;
 			}
-		}
-		if(itm['video']) {
-			itm['file'] = itm['video'];
-			delete itm['video'];
-		} else if (itm['audio']) {
-			itm['file'] = itm['audio'];
-			delete itm['audio'];
-		} else if(itm['img']) {
-			itm['file'] = itm['img'];
-			delete itm['audio'];
-		}
-		if (itm['img']) {
-			itm['image'] = itm['img'];
-			delete itm['img'];
 		}
 		return itm;
 	};
@@ -95,13 +79,17 @@ public class SMILParser extends ObjectParser {
 			var att:String = obj.attributes()[i].name().toString();
 			switch(att) {
 				case 'begin':
-					itm['start'] = Strings.seconds(obj.@begin);
+					itm['start'] = Strings.seconds(obj.@begin.toString());
 					break;
 				case 'src':
 					itm['file'] = obj.@src.toString();
+					itm['type'] = ObjectParser.extension(itm['file']);
+					break;
+				case 'type':
+					itm['type'] = ObjectParser.mimetype(obj.@type.toString());
 					break;
 				case 'dur':
-					itm['duration'] = Strings.seconds(obj.@dur);
+					itm['duration'] = Strings.seconds(obj.@dur.toString());
 					break;
 				case 'alt':
 					itm['description'] = obj.@alt.toString();

@@ -95,7 +95,6 @@ public class SoundProxy extends MovieClip implements PluginInterface {
 			'version':view.config['version']
 		};
 		obj['bands'] = calculateBands();
-		trace(obj['bands'][0]);
 		if(ExternalInterface.available && view.skin.loaderInfo.url.indexOf('http') == 0) {
 			try {
 				ExternalInterface.call(config['listener'],obj);

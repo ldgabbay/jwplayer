@@ -8,22 +8,34 @@ import com.jeroenwijering.parsers.ObjectParser;
 import com.jeroenwijering.utils.Strings;
 
 
-public class MediaParser extends ObjectParser {
+public class MediaParser {
 
-	/** Parse an MRSS group. **/
+
+	/**
+	* Parse an MRSS group (Yahoo MediaRSS extension).
+	* 
+	* @param obj	The entire MRSS XML object.
+	* @param itm	The playlistentry to amend the object to.
+	* @return		The playlistentry, amended with the MRSS info.
+	* @see			ATOMParser
+	* @see			RSSParser
+	**/
 	public static function parseGroup(obj:XML,itm:Object):Object { 
 		for each (var i:XML in obj.children()) {
 			switch(i.localName()) {
 				case 'content':
-					if(!itm['file'] && ObjectParser.MIMETYPES[i.@type.toString()]) {
+					if(!itm['file']) {
 						itm['file'] = i.@url.toString();
-						itm['type'] = i.@type.toString();
-						if(i.@duration) {
-							itm['duration'] = Strings.seconds(i.@duration);
-						}
-						if(i.@start) {
-							itm['start'] = Strings.seconds(i.@start);
-						}
+						itm['type'] = ObjectParser.extension(itm['file']);
+					}
+					if(i.@type) {
+						itm['type'] = ObjectParser.mimetype(i.@type.toString());
+					}
+					if(i.@duration) {
+						itm['duration'] = Strings.seconds(i.@duration.toString());
+					}
+					if(i.@start) {
+						itm['start'] = Strings.seconds(i.@start.toString());
 					}
 					if(i.children().length() >0) {
 						itm = parseGroup(i,itm);

@@ -56,10 +56,7 @@ public class View extends AbstractView {
 		if(ExternalInterface.available && _skin.loaderInfo.url.indexOf('http') == 0) {
 			listeners = new Array();
 			setJavascript();
-			setTimeout(playerReady,50);
-		}
-		if(config['file']) {
-			setTimeout(sendEvent,200,ViewEvent.LOAD,config);
+			setTimeout(playerReady,100);
 		}
 	};
 
@@ -122,10 +119,10 @@ public class View extends AbstractView {
 		if(config['tracecall'] == 'arthropod') {
 			var obj:Object = {CONTROLLER:'0xFF6666',VIEW:'0x66FF66',MODEL:'0x6666FF'};
 			Debug.log(typ+' '+prm,obj[tgt]);
-		} else if(config['tracecall']) { 
-			ExternalInterface.call(config['tracecall'],tgt+': '+typ+' '+prm);
-		} else {
+		} else if(config['tracecall'] == 'flash') {
 			trace(tgt+': '+typ+' '+prm);
+		} else if (config['tracecall']) {
+			ExternalInterface.call(config['tracecall'],tgt+': '+typ+' '+prm);
 		}
 		if(!dat) { dat = new Object(); }
 	 	dat.id = ExternalInterface.objectID;

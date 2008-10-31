@@ -38,7 +38,6 @@ public class Model extends EventDispatcher {
 	/** Constructor, save arrays and set currentItem. **/
 	public function Model(cfg:Object,skn:MovieClip,ctr:Controller):void {
 		config = cfg;
-		if(config['streamscript']) { config['streamer'] = config['streamscript']; }
 		skin = skn;
 		Draw.clear(skin.display.media);
 		controller = ctr;
@@ -52,34 +51,55 @@ public class Model extends EventDispatcher {
 		controller.addEventListener(ControllerEvent.STOP,stopHandler);
 		controller.addEventListener(ControllerEvent.VOLUME,volumeHandler);
 		thumb = new Loader();
-		thumb.contentLoaderInfo.addEventListener(Event.INIT,thumbHandler);
+		thumb.contentLoaderInfo.addEventListener(Event.COMPLETE,thumbHandler);
 		skin.display.addChildAt(thumb,skin.display.getChildIndex(skin.display.media));
 		models = new Object();
 	};
 
 
+	/** Select which model to use for playback of this item. **/
+	private function getModel(itm:Number):String {
+		if(playlist[itm]['streamer']) {
+			if(playlist[itm]['streamer'] == 'lighttpd') {
+				return 'http';
+			} else if(playlist[itm]['streamer'].substr(0,4) == 'rtmp') {
+				return 'rtmp';
+			} else {
+				return 'http';
+			}
+		}
+		if(playlist[itm]['file'].indexOf('youtube.com/watch') > -1 || playlist[itm]['file'].indexOf('youtube.com/v/') > -1) {
+			return 'youtube';
+		}
+		if(playlist[itm]['type']) { 
+			return playlist[itm]['type'];
+		}
+		return 'text';
+	};
+
+
 	/** Item change: switch the curently active model if there's a new URL **/
 	private function itemHandler(evt:ControllerEvent):void {
-		var typ:String = playlist[evt.data.index]['type'];
-		var url:String = playlist[evt.data.index]['file'];
-		if(models[typ] && typ == currentModel) {
-			if(url == currentURL && typ != 'rtmp') {
-				models[typ].seek(playlist[evt.data.index]['start']);
+		var mdl:String = getModel(config['item']);
+		var url:String = playlist[config['item']]['file'];
+		if(models[mdl] && mdl == currentModel) {
+			if(url == currentURL) {
+				models[mdl].seek(playlist[config['item']]['start']);
 			} else {
-				models[typ].stop();
+				models[mdl].stop();
 				currentURL = url;
-				models[typ].load();
+				models[mdl].load();
 			}
 		} else {
 			if(currentModel) {
 				models[currentModel].stop();
 			}
-			if(!models[typ]) {
-				loadModel(typ); 
+			if(!models[mdl]) {
+				loadModel(mdl); 
 			}
-			currentModel = typ;
+			currentModel = mdl;
 			currentURL = url;
-			models[typ].load();
+			models[mdl].load();
 		}
 		thumbLoader();
 	};
@@ -94,23 +114,20 @@ public class Model extends EventDispatcher {
 			case 'image':
 				models[typ] = new ImageModel(this);
 				break;
+			case 'rtmp':
+				models[typ] = new RTMPModel(this);
+				break;
 			case 'sound':
-				if(config['streamer'] && config['streamer'].substr(0,4) == 'rtmp') {
-					models[typ] = new RTMPModel(this);
-				} else { 
-					models[typ] = new SoundModel(this);
-				}
+				models[typ] = new SoundModel(this);
 				break;
 			case 'video':
-				if(config['streamer']) {
-					if(config['streamer'].substr(0,4) == 'rtmp') {
-						models[typ] = new RTMPModel(this);
-					} else {
-						models[typ] = new HTTPModel(this);
-					}
-				} else {
-					models[typ] = new VideoModel(this);
-				}
+				models[typ] = new VideoModel(this);
+				break;
+			case 'rtmp':
+				models[typ] = new RTMPModel(this);
+				break;
+			case 'http':
+				models[typ] = new HTTPModel(this);
 				break;
 			case 'youtube':
 				models[typ] = new YoutubeModel(this);
@@ -151,7 +168,7 @@ public class Model extends EventDispatcher {
 
 	/** Send an idle with new playlist. **/
 	private function playlistHandler(evt:ControllerEvent):void {
-		if(currentModel) { 
+		if(currentModel) {
 			stopHandler();
 		} else {
 			sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
@@ -171,7 +188,7 @@ public class Model extends EventDispatcher {
 	/** Resize the media and thumb. **/
 	private function resizeHandler(evt:ControllerEvent=null):void {
 		Stretcher.stretch(skin.display.media,config['width'],config['height'],config['stretching']);
-		if(thumb.width > 0) {
+		if(thumb.content && thumb.width > 0) {
 			Stretcher.stretch(thumb,config['width'],config['height'],config['stretching']);
 		}
 	};
@@ -246,7 +263,7 @@ public class Model extends EventDispatcher {
 	/** Load a thumb on stage. **/
 	private function thumbLoader():void {
 		var img:String = playlist[config['item']]['image'];
-		if(img != image) {
+		if(img && img != image) {
 			image = img;
 			thumb.load(new URLRequest(img));
 		}

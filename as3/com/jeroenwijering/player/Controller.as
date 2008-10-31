@@ -5,12 +5,16 @@ package com.jeroenwijering.player {
 
 
 import com.jeroenwijering.events.*;
+import com.jeroenwijering.parsers.*;
 import com.jeroenwijering.player.*;
-import com.jeroenwijering.utils.*;
+import com.jeroenwijering.utils.Configger;
+import com.jeroenwijering.utils.Randomizer;
 import flash.display.MovieClip;
 import flash.events.*;
 import flash.geom.Rectangle;
-import flash.net.*;
+import flash.net.navigateToURL;
+import flash.net.URLLoader;
+import flash.net.URLRequest;
 import flash.system.Capabilities;
 
 
@@ -21,30 +25,30 @@ public class Controller extends EventDispatcher {
 	private var config:Object;
 	/** Reference to the skin; for stage event subscription. **/
 	private var skin:MovieClip;
-	/** Object that manages the playlist. **/
-	private var playlister:Playlister;
+	/** Playlist of the player. **/
+	public var playlist:Array;
 	/** Reference to the player's model. **/
 	private var model:Model;
 	/** Reference to the player's view. **/
 	private var view:View;
+	/** Object that manages loading of XML playlists. **/
+	private var loader:URLLoader;
 	/** object that provides randomization. **/
 	private var randomizer:Randomizer;
-
 
 	/** Constructor, set up stage and playlist listeners. **/
 	public function Controller(cfg:Object,skn:MovieClip):void {
 		config = cfg;
 		skin = skn;
-		playlister = new Playlister();
-		playlister.addEventListener(Event.COMPLETE,playlistHandler);
-		playlister.addEventListener(ErrorEvent.ERROR,errorHandler);
-		config['controlbarsize'] = skin.controlbar.height;
-		redrawHandler();
+		loader = new URLLoader();
+		loader.addEventListener(Event.COMPLETE,loaderHandler);
+		loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,errorHandler);
+		loader.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 	};
 
 
 	/** Register view and model with controller, start loading playlist. **/
-	public function start(mdl:Model,vie:View):void {
+	public function closeMVC(mdl:Model,vie:View):void {
 		model= mdl;
 		model.addEventListener(ModelEvent.META,metaHandler);
 		model.addEventListener(ModelEvent.TIME,metaHandler);
@@ -86,7 +90,7 @@ public class Controller extends EventDispatcher {
 
 	/** Set the fullscreen rectangle **/
 	private function fullscreenrect():void {
-		try { 
+		try {
 			skin.stage["fullScreenSourceRect"] = new Rectangle(skin.x,skin.y,
 				Capabilities.screenResolutionX/2,Capabilities.screenResolutionY/2);
 		} catch (err:Error) {}
@@ -98,7 +102,7 @@ public class Controller extends EventDispatcher {
 		var itm:Number = evt.data.index;
 		if (itm < 0) {
 			playItem(0);
-		} else if (itm > playlist.length-1) { 
+		} else if (itm > playlist.length-1) {
 			playItem(playlist.length-1);
 		} else if (!isNaN(itm)) {
 			playItem(itm);
@@ -119,21 +123,63 @@ public class Controller extends EventDispatcher {
 
 	/** Load a new playlist. **/
 	private function loadHandler(evt:ViewEvent):void {
-		stopHandler();
-		try {
-			playlister.load(evt.data.object);
-		} catch (err:Error) {
-			dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,{message:err.message}));
+		if(config['state'] != 'IDLE') { stopHandler(); }
+		if(typeof(evt.data.object) == 'string') {
+			var obj:Object = {file:obj};
+		} 
+		if(evt.data.object['file']) {
+			var itm:Object = ObjectParser.parse(evt.data.object);
+			if (itm['type'] == undefined) {
+				loader.load(new URLRequest(evt.data.object['file']));
+				return;
+			} else {
+				playlistHandler(new Array(itm));
+			}
+		} else {
+			for each (var ent:Object in evt.data.object) {
+				ent = ObjectParser.parse(ent);
+			}
+			playlistHandler(evt.data.object);
 		}
 	};
 
+
+	/** Translate the XML object to the feed array. **/
+	private function loaderHandler(evt:Event):void {
+		try {
+			var dat:XML = XML(evt.target.data);
+			var fmt:String = dat.localName().toLowerCase();
+		} catch (err:Error) {
+			dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,'This playlist is not a valid XML file.'));
+			return;
+		}
+		switch (fmt) {
+			case 'rss':
+				playlistHandler(RSSParser.parse(dat));
+				break;
+			case 'playlist':
+				playlistHandler(XSPFParser.parse(dat));
+				break;
+			case 'asx':
+				playlistHandler(ASXParser.parse(dat));
+				break;
+			case 'smil':
+				playlistHandler(SMILParser.parse(dat));
+				break;
+			case 'feed':
+				playlistHandler(ATOMParser.parse(dat));
+				break;
+			default:
+				dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,'Unknown playlist format: '+fmt));
+				return;
+		}
+	};
 
 
 	/** Update playlist item duration. **/
 	private function metaHandler(evt:ModelEvent):void {
 		if(evt.data.duration) {
-			var dur:Number = Math.round(evt.data.duration*10)/10
-			playlister.update(config['item'],'duration',dur);
+			playlist[config['item']]['duration'] = evt.data.duration;
 		}
 	};
 
@@ -195,7 +241,13 @@ public class Controller extends EventDispatcher {
 
 
 	/** Manage loading of a new playlist. **/
-	private function playlistHandler(evt:Event):void {
+	private function playlistHandler(ply:Array):void {
+		for(var i:Number=0; i<ply.length; i++) {
+			if(!ply[i]['duration']) { ply[i]['duration'] = 0; }
+			if(!ply[i]['start']) { ply[i]['start'] = 0; }
+			if(!ply[i]['streamer']) { ply[i]['streamer'] = config['streamer']; }
+		}
+		playlist = ply;
 		if(config['shuffle'] == true) {
 			randomizer = new Randomizer(playlist.length);
 			config['item'] = randomizer.pick();
@@ -237,6 +289,7 @@ public class Controller extends EventDispatcher {
 	/** Forward a resizing of the stage. **/
 	private function redrawHandler(evt:ViewEvent=null):void {
 		var dat:Object = new Object();
+		config['controlbarsize'] = skin.controlbar.height;
 		try { 
 			var dps:String = skin.stage['displayState'];
 		} catch (err:Error) {}
@@ -313,14 +366,9 @@ public class Controller extends EventDispatcher {
 				muteHandler(new ViewEvent(ViewEvent.MUTE,{state:false}));
 			}
 			config['volume'] = vol;
+			Configger.saveCookie('volume',vol);
 			dispatchEvent(new ControllerEvent(ControllerEvent.VOLUME,{percentage:vol}));
 		}
-	}; 
-
-
-	/** Getter for the playlist. **/
-	public function get playlist():Array {
-		return playlister.playlist;
 	};
 
 

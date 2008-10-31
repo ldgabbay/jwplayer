@@ -8,19 +8,16 @@ import com.jeroenwijering.utils.Strings;
 import com.jeroenwijering.parsers.ObjectParser;
 
 
-public class ASXParser extends ObjectParser {
+public class ASXParser {
 
 
 	/** Parse an ASX playlist for feeditems. **/
 	public static function parse(dat:XML):Array {
 		var arr:Array = new Array();
-		var itm:Object = new Object();
 		for each (var i:XML in dat.children()) {
-			itm = ASXParser.parseItem(i);
-			if(itm['type'] != undefined) {
-				arr.push(itm);
+			if (i.localName() == 'entry') {
+				arr.push(ASXParser.parseItem(i));
 			}
-			itm = {};
 		}
 		return arr;
 	};
@@ -34,6 +31,7 @@ public class ASXParser extends ObjectParser {
 			switch(i.localName().toLowerCase()) {
 				case 'ref':
 					itm['file'] = i.@href.toString();
+					itm['typ'] = ObjectParser.extension(itm['file']);
 					break;
 				case 'title':
 					itm['title'] = i.text().toString();
@@ -48,17 +46,17 @@ public class ASXParser extends ObjectParser {
 					itm['author'] = i.text().toString();
 					break;
 				case 'duration':
-					itm['duration'] = Strings.seconds(i.@value);
+					itm['duration'] = Strings.seconds(i.@value.toString());
 					break;
 				case 'starttime':
-					itm['start'] = Strings.seconds(i.@value);
+					itm['start'] = Strings.seconds(i.@value.toString());
 					break;
 				case 'param':
 					itm[i.@name] = i.@value.toString();
 					break;
 			}
 		}
-		return ObjectParser.complete(itm);
+		return itm;
 	};
 
 

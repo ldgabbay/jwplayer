@@ -71,7 +71,7 @@ public class VideoModel implements ModelInterface {
 	public function load():void {
 		model.mediaHandler(video);
 		stream.play(model.playlist[model.config['item']]['file']);
-		loadinterval = setInterval(loadHandler,100);
+		loadinterval = setInterval(loadHandler,200);
 		timeinterval = setInterval(timeHandler,100);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
@@ -176,7 +176,7 @@ public class VideoModel implements ModelInterface {
 		var bfr = Math.round(stream.bufferLength/stream.bufferTime*100);
 		var pos = Math.round(stream.time*10)/10;
 		var dur = model.playlist[model.config['item']]['duration'];
-		if(bfr < 100 && pos < Math.abs(dur-stream.bufferTime*2)) {
+		if(bfr < 95 && pos < Math.abs(dur-stream.bufferTime*2)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
 			if(model.config['state'] != ModelStates.BUFFERING && bfr < 10) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});

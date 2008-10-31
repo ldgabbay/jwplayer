@@ -66,7 +66,7 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.3.91'
+		version:'4.3.94'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -116,7 +116,7 @@ public class Player extends MovieClip {
 		controller = new Controller(config,skin);
 		model = new Model(config,skin,controller);
 		view = new View(config,skin,controller,model,loader);
-		controller.start(model,view);
+		controller.closeMVC(model,view);
 		loadPlugins();
 	};
 
@@ -145,7 +145,9 @@ public class Player extends MovieClip {
 	**/
 	protected function startPlayer(evt:SPLoaderEvent=null) {
 		loader.removeEventListener(SPLoaderEvent.PLUGINS,startPlayer);
+		view.sendEvent(ViewEvent.REDRAW);
 		dispatchEvent(new PlayerEvent(PlayerEvent.READY));
+		if(config['file']) { view.sendEvent(ViewEvent.LOAD,config); }
 		visible = true;
 	};
 

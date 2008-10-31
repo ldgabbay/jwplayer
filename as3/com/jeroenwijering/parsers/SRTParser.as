@@ -14,8 +14,7 @@ public class SRTParser {
 	* Parse the captions textblob into an array.
 	*
 	* @param dat	The loaded captions text, which must be in SubRip (.srt) format.
-	* @return		An array with captions.
-	* 				Each caption is an object with 'begin', 'end' and 'text' parameters.
+	* @return		An array with captions. Each caption is an object with 'begin', 'end' and 'text' parameters.
 	**/
 	public static function parseCaptions(dat:String):Array {
 		var arr:Array = new Array();

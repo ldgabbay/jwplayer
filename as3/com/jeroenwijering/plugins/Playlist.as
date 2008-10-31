@@ -130,7 +130,6 @@ public class Playlist implements PluginInterface {
 
 	/** Handle a click on a button. **/
 	private function clickHandler(evt:MouseEvent):void {
-		trace(evt.target.name);
 		view.sendEvent('item',Number(evt.target.name));
 	};
 
@@ -387,7 +386,8 @@ public class Playlist implements PluginInterface {
 	private function stateHandler(evt:ModelEvent):void {
 		if(view.config['playlist'] == 'over') {
 			if(evt.data.newstate == ModelStates.PLAYING || 
-				evt.data.newstate == ModelStates.BUFFERING) {
+				evt.data.newstate == ModelStates.BUFFERING ||
+				evt.data.newstate == ModelStates.PAUSED) {
 				Animations.fade(clip,0);
 			} else {
 				Animations.fade(clip,1);

@@ -40,6 +40,8 @@ public class HTTPModel implements ModelInterface {
 	private var offset:Number;
 	/** Offset timeposition for lighttpd streaming. **/
 	private var timeoffset:Number;
+	/** switch for first metadata run **/
+	private var metadata:Boolean;
 	/** switch for h264 streaming **/
 	private var h264:Boolean;
 	/** Byteposition to which the file has been loaded. **/
@@ -104,17 +106,18 @@ public class HTTPModel implements ModelInterface {
 			stream.close();
 		}
 		var url = model.playlist[model.config['item']]['file'];
-		if(model.config["streamer"] == "lighttpd") {
+		var str = model.playlist[model.config['item']]['streamer'];
+		if(str == "lighttpd") {
 			if(h264) {
 				url +='?start='+timeoffset;
 			} else {
 				url += '?start='+offset;
 			}
 		} else {
-			if(model.config["streamer"].indexOf('?') > -1) { 
-				url = model.config["streamer"]+"&file="+url+'&start='+offset;
+			if(str.indexOf('?') > -1) { 
+				url = str+"&file="+url+'&start='+offset;
 			} else {
-				url = model.config["streamer"]+"?file="+url+'&start='+offset;
+				url = str+"?file="+url+'&start='+offset;
 			}
 		}
 		url += '&id='+model.config['id'];
@@ -125,7 +128,7 @@ public class HTTPModel implements ModelInterface {
 		stream.play(url);
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);
-		loadinterval = setInterval(loadHandler,100);
+		loadinterval = setInterval(loadHandler,200);
 		timeinterval = setInterval(timeHandler,100);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
@@ -150,12 +153,12 @@ public class HTTPModel implements ModelInterface {
 
 	/** Get metadata information from netstream class. **/
 	public function onData(dat:Object):void {
-		if(dat.type == 'metadata' && !h264) {
-			if(dat.width) {
+		if(dat.type == 'metadata') {
+			if(dat.width && !metadata) {
 				video.width = dat.width;
 				video.height = dat.height;
 			}
-			if(dat.seekpoints) {
+			if(dat.seekpoints && !h264) {
 				h264 = true;
 				keyframes = new Object();
 				keyframes.times = new Array();
@@ -167,13 +170,12 @@ public class HTTPModel implements ModelInterface {
 			} else if(dat.keyframes) {
 				keyframes = dat.keyframes;
 			}
-			if(model.playlist[model.config['item']]['start'] > 0) {
+			if(model.playlist[model.config['item']]['start'] > 0 && !metadata) {
 				seek(model.playlist[model.config['item']]['start']);
 			}
-			model.sendEvent(ModelEvent.META,dat);
-		} else if(dat.type != 'metadata') {
-			model.sendEvent(ModelEvent.META,dat);
+			metadata = true;
 		}
+		model.sendEvent(ModelEvent.META,dat);
 	};
 
 
@@ -193,7 +195,7 @@ public class HTTPModel implements ModelInterface {
 	};
 
 
-	/** Change the smoothing mode. **/
+	/** Seek to a specific second. **/
 	public function seek(pos:Number):void {
 		clearInterval(timeinterval);
 		var off = getOffset(pos);
@@ -261,7 +263,7 @@ public class HTTPModel implements ModelInterface {
 		var pos = Math.round(stream.time*10)/10;
 		if (h264) { pos += timeoffset; }
 		var dur = model.playlist[model.config['item']]['duration'];
-		if(bfr<100 && pos < Math.abs(dur-stream.bufferTime*2)) {
+		if(bfr<95 && pos < Math.abs(dur-stream.bufferTime*2)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
 			if(model.config['state'] != ModelStates.BUFFERING  && bfr < 10) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});

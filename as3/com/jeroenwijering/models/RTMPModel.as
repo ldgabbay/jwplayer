@@ -65,7 +65,7 @@ public class RTMPModel implements ModelInterface {
 	};
 
 
-	/** xtract the current Stream from an RTMP URL **/
+	/** Extract the correct rtmp syntax from the file string. **/
 	private function getID(url:String):String {
 		if(url.substr(-4) == '.mp3') {
 			url = 'mp3:'+url.substr(0,url.length-4);
@@ -82,7 +82,7 @@ public class RTMPModel implements ModelInterface {
 	/** Load content. **/
 	public function load():void {
 		model.mediaHandler(video);
-		connection.connect(model.config['streamer']);
+		connection.connect(model.playlist[model.config['item']]['streamer']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
@@ -176,11 +176,7 @@ public class RTMPModel implements ModelInterface {
 		stream.soundTransform = transform;
 		stream.play(url);
 		var res:Responder = new Responder(streamlengthHandler);
-		var rs2:Responder = new Responder(referrerHandler);
-		var rs3:Responder = new Responder(pageURLHandler);
 		connection.call("getStreamLength",res,url);
-		connection.call("getReferrer",rs2,url);
-		connection.call("getPageUrl",rs3,url);
 		connection.call("checkBandwidth",null);
 		clearInterval(timeinterval);
 		timeinterval = setInterval(timeHandler,100);
@@ -189,27 +185,35 @@ public class RTMPModel implements ModelInterface {
 
 	/** Receive NetStream status updates. **/
 	private function statusHandler(evt:NetStatusEvent):void {
-		if(evt.info.code == "NetConnection.Connect.Success") {
-			if (evt.info.secureToken != undefined) {
-				connection.call("secureTokenResponse",null,
-					TEA.decrypt(evt.info.secureToken,model.config['token']));
-			}
-			if(model.config['subscribe']) {
-				timeout = setInterval(subscribe,2000,model.playlist[model.config['item']]['file']);
-			} else {
-				setStream();
-			}
-		} else if(evt.info.code == "NetStream.Seek.Notify") {
-			clearInterval(timeinterval);
-			timeinterval = setInterval(timeHandler,100);
-		} else if(evt.info.code == "NetStream.Play.StreamNotFound" || 
-			evt.info.code == "NetConnection.Connect.Rejected" || 
-			evt.info.code == "NetConnection.Connect.Failed") {
-			stop();
-			model.sendEvent(ModelEvent.ERROR,{message:"Stream not found: "+
-				model.playlist[model.config['item']]['file']});
-		} else { 
-			model.sendEvent(ModelEvent.META,{info:evt.info.code});
+		switch (evt.info.code) { 
+			case 'NetConnection.Connect.Success':
+				if(evt.info.secureToken != undefined) {
+					connection.call("secureTokenResponse",null,TEA.decrypt(evt.info.secureToken,model.config['token']));
+				}
+				if(model.config['subscribe']) {
+					timeout = setInterval(subscribe,2000,model.playlist[model.config['item']]['file']);
+				} else {
+					setStream();
+				}
+				break;
+			case  'NetStream.Seek.Notify':
+				clearInterval(timeinterval);
+				timeinterval = setInterval(timeHandler,100);
+				break;
+			case 'NetConnection.Connect.Rejected':
+				if(evt.info.ex.code == 302) {
+					model.playlist[model.config['item']]['streamer'] = evt.info.ex.redirect;
+					connection.connect(model.playlist[model.config['item']]['streamer']);
+					break;
+				}
+			case 'NetStream.Play.StreamNotFound':
+			case 'NetConnection.Connect.Failed':
+				stop();
+				model.sendEvent(ModelEvent.ERROR,{message:"Stream not found: "+model.playlist[model.config['item']]['file']});
+				break;
+			default:
+				model.sendEvent(ModelEvent.META,{info:evt.info.code});
+				break;
 		}
 	};
 
@@ -229,18 +233,6 @@ public class RTMPModel implements ModelInterface {
 	};
 
 
-	/** Get the streamlength returned from the connection. **/
-	private function referrerHandler(ref:String):void {
-		onData({type:'referrer',url:ref});
-	};
-
-
-	/** Get the streamlength returned from the connection. **/
-	private function pageURLHandler(url:String):void {
-		onData({type:'pageurl',url:url});
-	};
-
-
 	/** Akamai & Limelight subscribes. **/
 	private function subscribe(nme:String):void {
 		connection.call("FCSubscribe",null,nme);
@@ -252,7 +244,7 @@ public class RTMPModel implements ModelInterface {
 		var bfr = Math.round(stream.bufferLength/stream.bufferTime*100);
 		var pos = Math.round(stream.time*10)/10;
 		var dur = model.playlist[model.config['item']]['duration'];
-		if(bfr < 100 && pos < Math.abs(dur-stream.bufferTime-1)) {
+		if(bfr < 95 && pos < Math.abs(dur-stream.bufferTime-1)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
 			if(model.config['state'] != ModelStates.BUFFERING) {
 				connection.call("checkBandwidth",null);

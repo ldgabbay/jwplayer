@@ -14,6 +14,8 @@ import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.ColorTransform;
 import flash.net.URLRequest;
+import flash.utils.clearTimeout;
+import flash.utils.setTimeout;
 
 
 public class Display implements PluginInterface {
@@ -39,6 +41,8 @@ public class Display implements PluginInterface {
 		'fullscreenIcon',
 		'nextIcon'
 	);
+	/** ID for the buffer showing tiomeout. **/
+	private var timeout:Number;
 
 
 	/** Constructor; add all needed listeners. **/
@@ -176,10 +180,12 @@ public class Display implements PluginInterface {
 	/** Handle a change in playback state. **/
 	private function stateHandler(evt:Event=null):void {
 		state = view.config['state'];
+		clearTimeout(timeout);
 		if(state == ModelStates.PLAYING) {
 			setIcon();
 		} else if (state == ModelStates.BUFFERING && view.config['icons'] == true) {
-			setIcon('bufferIcon');
+			setIcon();
+			timeout = setTimeout(setIcon,2500,'bufferIcon');
 		} else {
 			switch(view.config.displayclick) {
 				case 'none':

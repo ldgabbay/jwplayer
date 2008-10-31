@@ -10,8 +10,8 @@ import com.jeroenwijering.utils.Strings;
 public class ObjectParser {
 
 
-	/** All supported feeditem elements. **/
-	protected static var ELEMENTS:Object = {
+	/** Supported elements for a playlistentry. **/
+	private static var ELEMENTS:Object = {
 		'author':undefined,
 		'date':undefined,
 		'description':undefined,
@@ -21,20 +21,12 @@ public class ObjectParser {
 		'link':undefined,
 		'title':undefined,
 		'start':0,
+		'streamer':undefined,
 		'tags':undefined,
 		'type':undefined
 	};
-	/** Idenifier of all supported mediatypes. **/
-	protected static var TYPES:Object = {
-		'camera':'',
-		'image':'',
-		'rtmp':'',
-		'sound':'',
-		'video':'',
-		'youtube':''
-	};
 	/** File extensions of all supported mediatypes. **/
-	protected static var EXTENSIONS:Object = {
+	private static var EXTENSIONS:Object = {
 		'3g2':'video',
 		'3gp':'video',
 		'aac':'video',
@@ -56,7 +48,7 @@ public class ObjectParser {
 		'vp6':'video'
 	};
 	/** Mimetypes of all supported mediafiles. **/
-	protected static var MIMETYPES:Object = {
+	private static var MIMETYPES:Object = {
 		'application/x-fcs':'rtmp',
 		'application/x-shockwave-flash':'image',
 		'audio/aac':'video',
@@ -81,7 +73,7 @@ public class ObjectParser {
 	};
 
 
-	/** 
+	/**
 	* Parse a generic object into a playlist item.
 	* 
 	* @param obj	A plain object with key:value pairs.
@@ -94,43 +86,40 @@ public class ObjectParser {
 				itm[i] = Strings.serialize(obj[i]);
 			}
 		}
-		return ObjectParser.complete(itm);
+		if(!itm['type']) {
+			itm['type'] = ObjectParser.extension(itm['file']);
+		}
+		return itm;
 	};
 
 
 	/** 
-	* Complete a playlistitem object: add the correct mediatype and set a 0 duration/start.
+	* Return the model type of the file based upon the extension.
 	* 
-	* @param itm	A playlist item (plain object with title,file,image,etc. entries)
-	* @return 		A playlist item (plain object with title,file,image,etc. entries)
+	* @param fil	The file url.
+	* @return		The model type.
 	**/
-	public static function complete(itm:Object):Object {
-		if(itm['type']) { 
-			itm['type'] = itm['type'].toLowerCase(); 
+	public static function extension(fil:String):String {
+		var ext:String = fil.substr(-3);
+		return ObjectParser.EXTENSIONS[ext];
+	};
+
+
+	/** 
+	* Return the model type of the file based upon the mimetype.
+	* 
+	* @param fil	The file url.
+	* @return		The model type.
+	**/
+	public static function mimetype(mtp:String):String {
+		var typ:String = ObjectParser.MIMETYPES[mtp];
+		if(!typ) {
+			typ = ObjectParser.EXTENSIONS[mtp];
 		}
-		if(itm['file'] == undefined) {
-			delete itm['type'];
-		} else if(ObjectParser.TYPES[itm['type']] != undefined) {
-			// assume the developer knows what he does...
-		} else if(ObjectParser.EXTENSIONS[itm['type']] != undefined) {
-			itm['type'] = ObjectParser.EXTENSIONS[itm['type']];
-		} else if(itm['file'].indexOf('youtube.com/watch') > -1 ||
-			itm['file'].indexOf('youtube.com/v/') > -1) {
-			itm['type'] = 'youtube';
-		} else if(ObjectParser.MIMETYPES[itm['type']] != undefined) {
-			itm['type'] = ObjectParser.MIMETYPES[itm['type']];
-		} else {
-			itm['type'] = undefined;
-			for (var i:String in ObjectParser.EXTENSIONS) {
-				if (itm['file'] && itm['file'].substr(-3).toLowerCase() == i) {
-					itm['type'] = ObjectParser.EXTENSIONS[i];
-					break;
-				}
-			}
+		if(!typ) {
+			typ = mtp;
 		}
-		if(!itm['duration']) { itm['duration'] = 0; }
-		if(!itm['start']) { itm['start'] = 0; }
-		return itm;
+		return typ;
 	};
 
 

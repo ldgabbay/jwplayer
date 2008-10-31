@@ -8,21 +8,16 @@ import com.jeroenwijering.utils.Strings;
 import com.jeroenwijering.parsers.ObjectParser;
 
 
-public class XSPFParser extends ObjectParser {
+public class XSPFParser {
 
 
 	/** Parse an XSPF playlist for feeditems. **/
 	public static function parse(dat:XML):Array {
 		var arr:Array = new Array();
-		var itm:Object = new Object();
 		for each (var i:XML in dat.children()) {
 			if (i.localName().toLowerCase() == 'tracklist') {
 				for each (var j:XML in i.children()) {
-					itm = XSPFParser.parseItem(j);
-					if(itm['type'] != undefined) {
-						arr.push(itm);
-					}
-					itm = {};
+					arr.push(XSPFParser.parseItem(j));
 				}
 			}
 		}
@@ -38,6 +33,7 @@ public class XSPFParser extends ObjectParser {
 			switch(i.localName().toLowerCase()) {
 				case 'location':
 					itm['file'] = i.text().toString();
+					itm['type'] = ObjectParser.extension(itm['file']);
 					break;
 				case 'title':
 					itm['title'] = i.text().toString();
@@ -62,7 +58,7 @@ public class XSPFParser extends ObjectParser {
 					break;
 			}
 		}
-		return ObjectParser.complete(itm);
+		return itm;
 	};
 
 

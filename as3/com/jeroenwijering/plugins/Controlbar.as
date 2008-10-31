@@ -251,13 +251,6 @@ public class Controlbar implements PluginInterface {
 				}
 			} 
 		} catch (err:Error) {}
-		try {
-			if (wid < 250) {
-				bar.elapsedText.visible = bar.totalText.visible = false;
-			} else { 
-				bar.elapsedText.visible = bar.totalText.visible = true;
-			}
-		} catch (err:Error) {}
 		stacker.rearrange(wid);
 		stateHandler();
 		fixTime();
