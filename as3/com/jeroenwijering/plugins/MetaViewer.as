@@ -7,6 +7,7 @@ package com.jeroenwijering.plugins {
 
 
 import com.jeroenwijering.events.*;
+import com.jeroenwijering.utils.Scrollbar;
 import flash.display.MovieClip;
 import flash.events.MouseEvent;
 
@@ -18,6 +19,8 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 	private var view:AbstractView;
 	/** Reference to the graphics. **/
 	private var clip:MovieClip;
+	/** Scrollbar clip for the metadata. **/
+	private var scrollbar:Scrollbar;
 	/** initialize call for backward compatibility. **/
 	public var initialize:Function = initializePlugin;
 
@@ -32,8 +35,10 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.META,metaHandler);
 		view.skin['metadata'] ? clip = view.skin['metadata']: clip = this['metadata'];
-		resizeHandler();
 		clip.visible = false;
+		clip.md.mask = clip.ms;
+		clip.md.tf.autoSize = "left";
+		scrollbar = new Scrollbar(clip.md,clip.ms);
 		clip.xx.mouseChildren = false;
 		clip.xx.buttonMode = true;
 		clip.xx.addEventListener(MouseEvent.CLICK,clickHandler);
@@ -69,8 +74,9 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 						break;
 				}
 			}
-			clip.tf.text = str;
+			clip.md.tf.text = str;
 			clip.visible = true;
+			scrollbar.draw();
 		}
 	};
 
@@ -79,9 +85,10 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 	private function resizeHandler(evt:ControllerEvent=undefined) {
 		clip.bg.width = view.config['width'];
 		clip.bg.height = view.config['height'];
-		clip.tf.width = view.config['width']-40;
-		clip.tf.height = view.config['height']-50;
-		clip.xx.x = view.config['width']-40;
+		clip.md.tf.width = clip.ms.width = view.config['width']-50;
+		clip.ms.height = view.config['height']-60;
+		clip.xx.x = view.config['width']-35;
+		scrollbar.draw();
 	};
 
 

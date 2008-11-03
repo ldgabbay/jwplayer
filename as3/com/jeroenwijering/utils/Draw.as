@@ -64,7 +64,7 @@ public class Draw {
 		var rct:Sprite = new Sprite();
 		rct.x = xps;
 		rct.y = yps;
-		rct.graphics.beginFill(uint(col),alp);
+		rct.graphics.beginFill(uint('0x'+col),alp);
 		rct.graphics.drawRect(0,0,wid,hei);
 		tgt.addChild(rct);
 		return rct;
