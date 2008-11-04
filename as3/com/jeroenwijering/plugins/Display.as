@@ -185,7 +185,7 @@ public class Display implements PluginInterface {
 			setIcon();
 		} else if (state == ModelStates.BUFFERING && view.config['icons'] == true) {
 			setIcon();
-			timeout = setTimeout(setIcon,2500,'bufferIcon');
+			timeout = setTimeout(setIcon,1500,'bufferIcon');
 		} else {
 			switch(view.config.displayclick) {
 				case 'none':

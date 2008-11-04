@@ -11,8 +11,6 @@ import flash.events.Event;
 public class Animations {
 
 
-
-
 	/**
 	* Fade function for MovieClip.
 	*

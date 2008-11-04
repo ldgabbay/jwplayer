@@ -12,6 +12,7 @@ import flash.display.*;
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.net.URLRequest;
+import flash.system.LoaderContext;
 
 
 public class Model extends EventDispatcher {
@@ -265,7 +266,7 @@ public class Model extends EventDispatcher {
 		var img:String = playlist[config['item']]['image'];
 		if(img && img != image) {
 			image = img;
-			thumb.load(new URLRequest(img));
+			thumb.load(new URLRequest(img),new LoaderContext(true));
 		}
 	};
 

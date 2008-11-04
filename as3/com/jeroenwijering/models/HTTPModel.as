@@ -81,7 +81,7 @@ public class HTTPModel implements ModelInterface {
 	/** Return a keyframe byteoffset or timeoffset. **/
 	private function getOffset(pos:Number,tme:Boolean=false):Number {
 		for (var i=0; i< keyframes.times.length; i++) {
-			if((keyframes.times[i] <= pos) && (keyframes.times[i+1] >= pos || !keyframes.times[i+1])) {
+			if(keyframes.times[i] <= pos && keyframes.times[i+1] >= pos) {
 				if(tme == true) {
 					return keyframes.times[i];
 				} else { 
@@ -141,7 +141,7 @@ public class HTTPModel implements ModelInterface {
 		if(loaded >= ttl && loaded > 0) {
 			clearInterval(loadinterval);
 		}
-		model.sendEvent(ModelEvent.LOADED,{loaded:loaded,total:ttl+offset,offset:offset});
+		//model.sendEvent(ModelEvent.LOADED,{loaded:loaded,total:ttl+offset,offset:offset});
 	};
 
 
@@ -154,10 +154,6 @@ public class HTTPModel implements ModelInterface {
 	/** Get metadata information from netstream class. **/
 	public function onData(dat:Object):void {
 		if(dat.type == 'metadata') {
-			if(dat.width && !metadata) {
-				video.width = dat.width;
-				video.height = dat.height;
-			}
 			if(dat.seekpoints && !h264) {
 				h264 = true;
 				keyframes = new Object();
@@ -170,12 +166,20 @@ public class HTTPModel implements ModelInterface {
 			} else if(dat.keyframes) {
 				keyframes = dat.keyframes;
 			}
-			if(model.playlist[model.config['item']]['start'] > 0 && !metadata) {
-				seek(model.playlist[model.config['item']]['start']);
+			if(!metadata) {
+				if(dat.width) {
+					video.width = dat.width;
+					video.height = dat.height;
+				}
+				model.sendEvent(ModelEvent.META,dat);
+				if(model.playlist[model.config['item']]['start'] > 0 && !metadata) {
+					seek(model.playlist[model.config['item']]['start']);
+				}
+				metadata = true;
 			}
-			metadata = true;
+		} else {
+			model.sendEvent(ModelEvent.META,dat);
 		}
-		model.sendEvent(ModelEvent.META,dat);
 	};
 
 

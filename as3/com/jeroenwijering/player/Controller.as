@@ -91,8 +91,14 @@ public class Controller extends EventDispatcher {
 	/** Set the fullscreen rectangle **/
 	private function fullscreenrect():void {
 		try {
-			skin.stage["fullScreenSourceRect"] = new Rectangle(skin.x,skin.y,
-				Capabilities.screenResolutionX/2,Capabilities.screenResolutionY/2);
+			var srx:Number = Capabilities.screenResolutionX;
+			var asr:Number = srx/Capabilities.screenResolutionY;
+			var wid:Number = playlist[config['item']]['width'];
+			if(wid && wid > srx/2) {
+				skin.stage["fullScreenSourceRect"] = new Rectangle(skin.x,skin.y,wid,Math.round(wid/asr));
+			} else {
+				skin.stage["fullScreenSourceRect"] = new Rectangle(skin.x,skin.y,srx/2,Capabilities.screenResolutionY/2);
+			}
 		} catch (err:Error) {}
 	};
 
@@ -181,6 +187,10 @@ public class Controller extends EventDispatcher {
 		if(evt.data.duration) {
 			playlist[config['item']]['duration'] = evt.data.duration;
 		}
+		if(evt.data.width) {
+			playlist[config['item']]['width'] = evt.data.width;
+			playlist[config['item']]['height'] = evt.data.height;
+		}
 	};
 
 
@@ -195,6 +205,7 @@ public class Controller extends EventDispatcher {
 		} else {
 			config['mute'] = !config['mute'];
 		}
+		Configger.saveCookie('mute',config['mute']);
 		dispatchEvent(new ControllerEvent(ControllerEvent.MUTE,{state:config['mute']}));
 	};
 
@@ -282,6 +293,7 @@ public class Controller extends EventDispatcher {
 		} else {
 			config['quality'] = !config['quality'];
 		}
+		Configger.saveCookie('quality',config['quality']);
 		dispatchEvent(new ControllerEvent(ControllerEvent.QUALITY,{state:config['quality']}));
 	};
 
@@ -366,7 +378,7 @@ public class Controller extends EventDispatcher {
 				muteHandler(new ViewEvent(ViewEvent.MUTE,{state:false}));
 			}
 			config['volume'] = vol;
-			Configger.saveCookie('volume',vol);
+			Configger.saveCookie('volume',config['volume']);
 			dispatchEvent(new ControllerEvent(ControllerEvent.VOLUME,{percentage:vol}));
 		}
 	};
