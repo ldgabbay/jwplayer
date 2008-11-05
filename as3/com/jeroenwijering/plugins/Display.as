@@ -66,6 +66,15 @@ public class Display implements PluginInterface {
 			clr.color = uint('0x'+view.config['screencolor'].substr(-6));
 			display.back.transform.colorTransform = clr;
 		}
+		if(view.config['screenalpha']) {
+			if(view.config['screenalpha'] < 1) {
+				display.back.alpha = view.config['screenalpha'];
+			} else if(view.config['screenalpha'] <= 100)  {
+				display.back.alpha = Number(view.config['screenalpha'])/100;
+			} else {
+				display.back.alpha = 1;
+			}
+		}
 		if(view.config['displayclick'] != 'none') {
 			display.addEventListener(MouseEvent.CLICK,clickHandler);
 			display.buttonMode = true;

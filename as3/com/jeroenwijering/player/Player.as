@@ -33,6 +33,7 @@ public class Player extends MovieClip {
 		frontcolor:undefined,
 		lightcolor:undefined,
 		screencolor:undefined,
+		screenalpha:undefined,
 
 		controlbar:'bottom',
 		controlbarsize:20,
@@ -66,7 +67,7 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.3.99'
+		version:'4.3.100'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
