@@ -103,6 +103,34 @@ public class Controller extends EventDispatcher {
 	};
 
 
+	/** Return the type of specific playlistitem (the Model to play it with) **/
+	public function getType(itm:Object):String {
+		// no file, nothing to play
+		if(!itm['file']) {
+			return null;
+		}
+		var ext:String = ObjectParser.EXTENSIONS[itm['file'].substr(-3).toLowerCase()];
+		// string matches on the file
+		if(itm['file'].indexOf('youtube.com/') > -1) {
+			return 'youtube';
+		}
+		// recognized mimetype/extension and streamer
+		if((itm['type'] || ext) && itm['streamer']) {
+			if(itm['streamer'].substr(0,4) == 'rtmp') {
+				return 'rtmp';
+			} else {
+				return 'http';
+			}
+		}
+		// recognized mimetype
+		if(itm['type']) {
+			return itm['type'];
+		}
+		//  recognized extension
+		return ext;
+	};
+
+
 	/** Jump to a userdefined item in the playlist. **/
 	private function itemHandler(evt:ViewEvent):void {
 		var itm:Number = evt.data.index;
@@ -129,23 +157,28 @@ public class Controller extends EventDispatcher {
 
 	/** Load a new playlist. **/
 	private function loadHandler(evt:ViewEvent):void {
-		if(config['state'] != 'IDLE') { stopHandler(); }
+		if(config['state'] != 'IDLE') {
+			stopHandler();
+		}
+		var obj:Object;
 		if(typeof(evt.data.object) == 'string') {
-			var obj:Object = {file:obj};
-		} 
-		if(evt.data.object['file']) {
-			var itm:Object = ObjectParser.parse(evt.data.object);
-			if (itm['type'] == undefined) {
-				loader.load(new URLRequest(evt.data.object['file']));
+			obj = {file:evt.data.object};
+		} else {
+			obj = evt.data.object;
+		}
+		if(obj['file']) {
+			if(getType(obj) == null) {
+				loader.load(new URLRequest(obj['file']));
 				return;
 			} else {
-				playlistHandler(new Array(itm));
+				playlistHandler(new Array(ObjectParser.parse(obj)));
 			}
 		} else {
-			for each (var ent:Object in evt.data.object) {
-				ent = ObjectParser.parse(ent);
+			var arr:Array = new Array();
+			for each(var itm:Object in obj) {
+				arr.push(ObjectParser.parse(obj));
 			}
-			playlistHandler(evt.data.object);
+			playlistHandler(arr);
 		}
 	};
 
@@ -251,14 +284,24 @@ public class Controller extends EventDispatcher {
 	};
 
 
-	/** Manage loading of a new playlist. **/
+	/** Check new playlist for playeable files and setup randomizing/autostart. **/
 	private function playlistHandler(ply:Array):void {
-		for(var i:Number=0; i<ply.length; i++) {
-			if(!ply[i]['duration']) { ply[i]['duration'] = 0; }
-			if(!ply[i]['start']) { ply[i]['start'] = 0; }
-			if(!ply[i]['streamer']) { ply[i]['streamer'] = config['streamer']; }
+		for(var i:Number=ply.length-1; i>-1; i--) {
+			if(!ply[i]['streamer']) {
+				ply[i]['streamer'] = config['streamer'];
+			}
+			if(getType(ply[i])) {
+				ply[i]['type'] = getType(ply[i]);
+			} else {
+				ply.splice(i,1);
+			}
 		}
-		playlist = ply;
+		if(ply.length > 0) {
+			playlist = ply;
+		} else {
+			dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,'No valid filetypes found in this playlist'));
+			return;
+		}
 		if(config['shuffle'] == true) {
 			randomizer = new Randomizer(playlist.length);
 			config['item'] = randomizer.pick();

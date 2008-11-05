@@ -83,10 +83,9 @@ public class SMILParser {
 					break;
 				case 'src':
 					itm['file'] = obj.@src.toString();
-					itm['type'] = ObjectParser.extension(itm['file']);
 					break;
 				case 'type':
-					itm['type'] = ObjectParser.mimetype(obj.@type.toString());
+					itm['type'] = ObjectParser.MIMETYPES[obj.@type.toString()];
 					break;
 				case 'dur':
 					itm['duration'] = Strings.seconds(obj.@dur.toString());

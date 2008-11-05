@@ -26,7 +26,7 @@ public class ObjectParser {
 		'type':undefined
 	};
 	/** File extensions of all supported mediatypes. **/
-	private static var EXTENSIONS:Object = {
+	public static var EXTENSIONS:Object = {
 		'3g2':'video',
 		'3gp':'video',
 		'aac':'video',
@@ -48,7 +48,7 @@ public class ObjectParser {
 		'vp6':'video'
 	};
 	/** Mimetypes of all supported mediafiles. **/
-	private static var MIMETYPES:Object = {
+	public static var MIMETYPES:Object = {
 		'application/x-fcs':'rtmp',
 		'application/x-shockwave-flash':'image',
 		'audio/aac':'video',
@@ -77,49 +77,18 @@ public class ObjectParser {
 	* Parse a generic object into a playlist item.
 	* 
 	* @param obj	A plain object with key:value pairs.
-	* @return 		A playlist item (plain object with title,file,image,etc. entries)
+	* @return 		A playlist item ({title,file,image,etc.})
 	**/
 	public static function parse(obj:Object):Object {
 		var itm = new Object();
 		for(var i:String in ObjectParser.ELEMENTS) {
 			if(obj[i] != undefined) {
 				itm[i] = Strings.serialize(obj[i]);
+			} else if(typeof(ObjectParser.ELEMENTS[i]) == "number") {
+				itm[i] = 0;
 			}
 		}
-		if(!itm['type']) {
-			itm['type'] = ObjectParser.extension(itm['file']);
-		}
 		return itm;
-	};
-
-
-	/** 
-	* Return the model type of the file based upon the extension.
-	* 
-	* @param fil	The file url.
-	* @return		The model type.
-	**/
-	public static function extension(fil:String):String {
-		var ext:String = fil.substr(-3);
-		return ObjectParser.EXTENSIONS[ext];
-	};
-
-
-	/** 
-	* Return the model type of the file based upon the mimetype.
-	* 
-	* @param fil	The file url.
-	* @return		The model type.
-	**/
-	public static function mimetype(mtp:String):String {
-		var typ:String = ObjectParser.MIMETYPES[mtp];
-		if(!typ) {
-			typ = ObjectParser.EXTENSIONS[mtp];
-		}
-		if(!typ) {
-			typ = mtp;
-		}
-		return typ;
 	};
 
 

@@ -13,6 +13,7 @@ import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.net.URLRequest;
 import flash.system.LoaderContext;
+import flash.utils.getDefinitionByName;
 
 
 public class Model extends EventDispatcher {
@@ -58,59 +59,41 @@ public class Model extends EventDispatcher {
 	};
 
 
-	/** Select which model to use for playback of this item. **/
-	private function getModel(itm:Number):String {
-		if(playlist[itm]['streamer']) {
-			if(playlist[itm]['streamer'] == 'lighttpd') {
-				return 'http';
-			} else if(playlist[itm]['streamer'].substr(0,4) == 'rtmp') {
-				return 'rtmp';
-			} else {
-				return 'http';
-			}
-		}
-		if(playlist[itm]['file'].indexOf('youtube.com/watch') > -1 || playlist[itm]['file'].indexOf('youtube.com/v/') > -1) {
-			return 'youtube';
-		}
-		if(playlist[itm]['type']) { 
-			return playlist[itm]['type'];
-		}
-		return 'text';
-	};
-
-
 	/** Item change: switch the curently active model if there's a new URL **/
 	private function itemHandler(evt:ControllerEvent):void {
-		var mdl:String = getModel(config['item']);
+		var typ:String = playlist[config['item']]['type'];
 		var url:String = playlist[config['item']]['file'];
-		if(models[mdl] && mdl == currentModel) {
+		if(models[typ] && typ == currentModel) {
 			if(url == currentURL) {
-				models[mdl].seek(playlist[config['item']]['start']);
+				models[typ].seek(playlist[config['item']]['start']);
 			} else {
-				models[mdl].stop();
+				models[typ].stop();
 				currentURL = url;
-				models[mdl].load();
+				models[typ].load();
 			}
 		} else {
 			if(currentModel) {
 				models[currentModel].stop();
 			}
-			if(!models[mdl]) {
-				loadModel(mdl); 
+			if(!models[typ]) {
+				loadModel(typ); 
 			}
-			currentModel = mdl;
+			currentModel = typ;
 			currentURL = url;
-			models[mdl].load();
+			models[typ].load();
 		}
 		thumbLoader();
 	};
 
 
-	/** Setup a new model. **/
+	/** Initialize a new model. **/
 	private function loadModel(typ:String):void {
 		switch(typ) {
 			case 'camera':
 				models[typ] = new CameraModel(this);
+				break;
+			case 'http':
+				models[typ] = new HTTPModel(this);
 				break;
 			case 'image':
 				models[typ] = new ImageModel(this);
@@ -123,12 +106,6 @@ public class Model extends EventDispatcher {
 				break;
 			case 'video':
 				models[typ] = new VideoModel(this);
-				break;
-			case 'rtmp':
-				models[typ] = new RTMPModel(this);
-				break;
-			case 'http':
-				models[typ] = new HTTPModel(this);
 				break;
 			case 'youtube':
 				models[typ] = new YoutubeModel(this);

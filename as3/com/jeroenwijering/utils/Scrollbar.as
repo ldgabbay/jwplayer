@@ -1,5 +1,5 @@
 /**
-* This draws a simple scrollbar next to a clip/mask combination.
+* This draws a simple scrollbar next to a textfield/mask combination.
 **/
 package com.jeroenwijering.utils {
 
@@ -7,6 +7,7 @@ package com.jeroenwijering.utils {
 import com.jeroenwijering.utils.Draw;
 import flash.display.Sprite;
 import flash.events.MouseEvent;
+import flash.text.TextField;
 import flash.utils.clearInterval;
 import flash.utils.setInterval;
 
@@ -14,9 +15,9 @@ import flash.utils.setInterval;
 public class Scrollbar {
 
 
-	/** Clip that has to be scrolled. **/
-	private var clip:Sprite;
-	/** Mask for the scrolleable clip. **/
+	/** Textfield that has to be scrolled. **/
+	private var field:TextField;
+	/** Mask for the scrolleable field. **/
 	private var mask:Sprite;
 	/** Clip in which the scrollbar is drawn. **/
 	private var scrollbar:Sprite;
@@ -24,7 +25,7 @@ public class Scrollbar {
 	private var icon:Sprite;
 	/** Color of the scrollbar. **/
 	private var color:String;
-	/** Proportion between the clip and mask. **/
+	/** Proportion between the field and mask. **/
 	private var proportion:Number;
 	/** Interval ID for smooth scrolling. **/
 	private var interval:Number;
@@ -33,17 +34,17 @@ public class Scrollbar {
 	/**
 	* Constructor; initializes the scrollbar parameters.
 	*
-	* @param clp	The clip that has to be scrolled.
-	* @param msk	The clip to use as mask for the scrolleable clip.
+	* @param fld	The field that has to be scrolled.
+	* @param msk	The field to use as mask for the scrolleable field.
 	* @param icl	The color of the icon of the scrollbar (the part that moves).
 	* @param rcl	The color of the rail of the scrollbar (the background).
 	**/
-	public function Scrollbar(clp:Sprite,msk:Sprite,clr:String="000000"):void {
-		clip = clp;
+	public function Scrollbar(fld:TextField,msk:Sprite,clr:String="000000"):void {
+		field = fld;
 		mask = msk;
 		color = clr;
 		scrollbar = new Sprite();
-		clip.parent.addChild(scrollbar);
+		field.parent.addChild(scrollbar);
 		scrollbar.mouseChildren = false;
 		scrollbar.buttonMode = true;
 	};
@@ -54,10 +55,10 @@ public class Scrollbar {
 	**/
 	public function draw():void {
 		Draw.clear(scrollbar);
-		clip.y = mask.y;
+		field.y = mask.y;
 		scrollbar.x = mask.x+mask.width;
 		scrollbar.y = mask.y;
-		proportion = mask.height/clip.height;
+		proportion = mask.height/field.height;
 		if(proportion < 1) {
 			scrollbar.visible = true;
 			scrollbar.addEventListener(MouseEvent.MOUSE_DOWN,downHandler);
@@ -74,14 +75,14 @@ public class Scrollbar {
 	/** The mouse is pressed over the scrollbar. **/
 	private function downHandler(evt:MouseEvent):void {
 		interval = setInterval(scroll,25);
-		clip.stage.addEventListener(MouseEvent.MOUSE_UP,upHandler);
+		mask.stage.addEventListener(MouseEvent.MOUSE_UP,upHandler);
 	};
 
 
 	/** The mouse has been released after a scrollbarpress. **/
 	private function upHandler(evt:MouseEvent):void {
 		clearInterval(interval);
-		clip.stage.removeEventListener(MouseEvent.MOUSE_UP,upHandler);
+		mask.stage.removeEventListener(MouseEvent.MOUSE_UP,upHandler);
 	};
 
 
@@ -90,13 +91,13 @@ public class Scrollbar {
 		var mps:Number = scrollbar.mouseY;
 		if(mps < icon.height/2) {
 			icon.y = 0;
-			clip.y = mask.y;
+			field.y = mask.y;
 		} else if (mps > scrollbar.height - icon.height/2) {
 			icon.y = scrollbar.height-icon.height;
-			clip.y = mask.y + mask.height - clip.height;
+			field.y = mask.y + mask.height - field.height;
 		} else {
 			icon.y = mps - icon.height/2;
-			clip.y = mask.y + mask.height/2 - mps/proportion;
+			field.y = mask.y + mask.height/2 - mps/proportion;
 		}
 	};
 

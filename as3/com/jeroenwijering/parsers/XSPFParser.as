@@ -5,7 +5,6 @@ package com.jeroenwijering.parsers {
 
 
 import com.jeroenwijering.utils.Strings;
-import com.jeroenwijering.parsers.ObjectParser;
 
 
 public class XSPFParser {
@@ -33,7 +32,6 @@ public class XSPFParser {
 			switch(i.localName().toLowerCase()) {
 				case 'location':
 					itm['file'] = i.text().toString();
-					itm['type'] = ObjectParser.extension(itm['file']);
 					break;
 				case 'title':
 					itm['title'] = i.text().toString();

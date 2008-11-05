@@ -5,7 +5,6 @@ package com.jeroenwijering.parsers {
 
 
 import com.jeroenwijering.utils.Strings;
-import com.jeroenwijering.parsers.ObjectParser;
 
 
 public class ASXParser {
@@ -31,7 +30,6 @@ public class ASXParser {
 			switch(i.localName().toLowerCase()) {
 				case 'ref':
 					itm['file'] = i.@href.toString();
-					itm['typ'] = ObjectParser.extension(itm['file']);
 					break;
 				case 'title':
 					itm['title'] = i.text().toString();

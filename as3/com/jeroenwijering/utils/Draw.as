@@ -59,6 +59,8 @@ public class Draw {
 	* @param hei	Height of the rectangle.
 	* @param xps	X offset of the rectangle, defaults to 0.
 	* @param yps	Y offset of the rectangle, defaults to 0.
+	* @param alp	Alpha value of the rectangle, defaults to 0.
+	* @return		A reference to the newly drawn rectangle.
 	**/
 	public static function rect(tgt:Sprite,col:String,wid:Number,hei:Number,xps:Number=0,yps:Number=0,alp:Number=1):Sprite {
 		var rct:Sprite = new Sprite();
@@ -75,27 +77,35 @@ public class Draw {
 	* Draw a textfield on stage.
 	*
 	* @param tgt	Displayobject to add the textfield to.
-	* @param col	Color of the text.
-	* @param xps	X offset of the rectangle.
-	* @param yps	Y offset of the rectangle.
 	* @param txt	Text string to print.
-	* @param ats	Textfield autosize direction, defaults to left.
+	* @param col	Color of the text.
 	* @param siz	Font size, defaults to 12.
+	* @param fnt	Font family, defaults to 'Arial'.
+	* @param mtl	Is the textfeld multilined, defaults to false.
+	* @param wid	If a textfield is multilined, this is the width.
+	* @param xps	X offset of the textfield,defaults to 0.
+	* @param yps	Y offset of the textfield, defaults to 0.
 	*
 	* @return		A reference to the textfield.
 	**/
-	public static function text(tgt:Sprite,col:String,xps:Number,yps:Number,txt:String,ats:String='left',siz:Number=12,fnt:String='Arial'):TextField {
+	public static function text(tgt:Sprite,txt:String,col:String,siz:Number=12,fnt:String='Arial',
+		mtl:Boolean=false,wid:Number=100,xps:Number=0,yps:Number=0):TextField {
 		var tfd:TextField = new TextField();
 		var fmt:TextFormat = new TextFormat();
-		tfd.autoSize = ats;
+		tfd.autoSize = 'left';
 		tfd.selectable = false;
+		if(mtl) { 
+			tfd.width = wid;
+			tfd.multiline = true;
+			tfd.wordWrap = true;
+		}
+		tfd.x = xps;
+		tfd.y = yps;
 		fmt.font = fnt;
-		fmt.color = col;
+		fmt.color = uint('0x'+col);
 		fmt.size = siz;
 		fmt.underline = false;
 		tfd.defaultTextFormat = fmt;
-		tfd.x = xps;
-		tfd.y = yps;
 		tfd.text = txt;
 		tgt.addChild(tfd);
 		return tfd;

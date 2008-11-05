@@ -38,7 +38,7 @@ public class RSSParser {
 					break;
 				case 'enclosure':
 					itm['file'] = i.@url.toString();
-					itm['type'] = i.@type.toString();
+					itm['type'] = ObjectParser.MIMETYPES[i.@type.toString()];
 					break;
 				case 'title':
 					itm['title'] = i.text().toString();

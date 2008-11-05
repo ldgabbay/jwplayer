@@ -4,7 +4,7 @@
 * All playback functionalities are cross-server (FMS, Wowza, Red5), with the exception of:
 * - The SecureToken functionality (Wowza).
 * - The FCSubscribe functionality (Limelight/Akamai FMS).
-* - getStreamLength / checkBandwidth / getReferrer / getPageUrl (FMS3).
+* - getStreamLength / checkBandwidth (FMS3).
 **/
 package com.jeroenwijering.models {
 

@@ -26,10 +26,9 @@ public class MediaParser {
 				case 'content':
 					if(!itm['file']) {
 						itm['file'] = i.@url.toString();
-						itm['type'] = ObjectParser.extension(itm['file']);
 					}
 					if(i.@type) {
-						itm['type'] = ObjectParser.mimetype(i.@type.toString());
+						itm['type'] = ObjectParser.MIMETYPES[i.@type.toString()];
 					}
 					if(i.@duration) {
 						itm['duration'] = Strings.seconds(i.@duration.toString());

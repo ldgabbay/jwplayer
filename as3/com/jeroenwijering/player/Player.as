@@ -18,7 +18,7 @@ public class Player extends MovieClip {
 	/** All configuration values. Change them to hard-code your preferences. **/
 	public var config:Object = {
 		author:undefined,
-		description:undefined,
+		description:undefined, 
 		date:undefined,
 		duration:0,
 		file:undefined,
@@ -66,7 +66,7 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.3.94'
+		version:'4.3.99'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -138,17 +138,19 @@ public class Player extends MovieClip {
 
 
 	/**
-	* Everything is now loaded. The player is shown and the file is loaded (when there).
-	* 
-	* The View will send a PlayerReady event to all plugins and javascript.
-	* The player broadcasts a READY event here itself to actionscript.
+	* Everything is now loaded. The Player is redrawn, shown and the file is loaded.
+	*
+	* The Player broadcasts a READY event here to actionscript.
+	* The View will send a separate PlayerReady event to javascript.
 	**/
 	protected function startPlayer(evt:SPLoaderEvent=null) {
 		loader.removeEventListener(SPLoaderEvent.PLUGINS,startPlayer);
 		view.sendEvent(ViewEvent.REDRAW);
-		dispatchEvent(new PlayerEvent(PlayerEvent.READY));
-		if(config['file']) { view.sendEvent(ViewEvent.LOAD,config); }
 		visible = true;
+		dispatchEvent(new PlayerEvent(PlayerEvent.READY));
+		if(config['file']) {
+			view.sendEvent(ViewEvent.LOAD,config);
+		}
 	};
 
 }
