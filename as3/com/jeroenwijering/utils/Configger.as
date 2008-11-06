@@ -1,4 +1,4 @@
-/**
+﻿/**
 * Loads application configuration data (from xml, cookies and flashvars).
 **/
 package com.jeroenwijering.utils {
@@ -94,7 +94,7 @@ public class Configger extends EventDispatcher {
 	/** Compare and save new items in config. **/
 	private function compareWrite(obj:Object):void {
 		for (var cfv:String in obj) {
-			config[cfv.toLowerCase()] = Strings.serialize(obj[cfv.toLowerCase()]);
+			config[cfv.toLowerCase()] = Strings.serialize(obj[cfv]);
 		}
 	};
 
