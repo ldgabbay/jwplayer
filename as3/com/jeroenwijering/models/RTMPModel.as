@@ -72,7 +72,7 @@ public class RTMPModel implements ModelInterface {
 		} else if(url.substr(-4) == '.mp4' || url.substr(-4) == '.mov' || 
 			url.substr(-4) == '.aac' || url.substr(-4) == '.m4a') {
 			url = 'mp4:'+url.substr(0,url.length-4);
-		} else if (url.substr(-4) == '.flv'){
+		} else if (url.substr(-4) == '.flv') {
 			url = url.substr(0,url.length-4);
 		}
 		return url;
@@ -81,6 +81,7 @@ public class RTMPModel implements ModelInterface {
 
 	/** Load content. **/
 	public function load():void {
+		video.clear();
 		model.mediaHandler(video);
 		connection.connect(model.playlist[model.config['item']]['streamer']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
@@ -191,7 +192,7 @@ public class RTMPModel implements ModelInterface {
 					connection.call("secureTokenResponse",null,TEA.decrypt(evt.info.secureToken,model.config['token']));
 				}
 				if(model.config['subscribe']) {
-					timeout = setInterval(subscribe,2000,model.playlist[model.config['item']]['file']);
+					timeout = setInterval(subscribe,2000,getID(model.playlist[model.config['item']]['file']));
 				} else {
 					setStream();
 				}
@@ -253,9 +254,7 @@ public class RTMPModel implements ModelInterface {
 		} else if (model.config['state'] == ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(dur > 0) {
-			model.sendEvent(ModelEvent.TIME,{position:pos,duration:dur});
-		}
+		model.sendEvent(ModelEvent.TIME,{position:pos});
 	};
 
 

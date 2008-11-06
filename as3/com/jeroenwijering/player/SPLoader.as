@@ -25,7 +25,7 @@ public class SPLoader extends EventDispatcher {
 	/** SWF loader reference **/
 	private var loader:Loader;
 	/** Base directory for the plugins. **/
-	private var basedir:String = 'http://plugins.longtailvideo.com/';
+	private var basedir:String;
 	/** Number of plugns that are done loading. **/
 	private var done:Number;
 
@@ -35,8 +35,9 @@ public class SPLoader extends EventDispatcher {
 	*
 	* @param ply	The player instance.
 	**/
-	public function SPLoader(ply:MovieClip):void {
+	public function SPLoader(ply:MovieClip,bdr:String):void {
 		player = ply;
+		basedir = bdr;
 	};
 
 

@@ -18,7 +18,7 @@ public class Draw {
 	*
 	* @param tgt	Displayobject to clear.
 	**/
-	public static function clear(tgt:Sprite):void {
+	public static function clear(tgt:DisplayObjectContainer):void {
 		var len:Number = tgt.numChildren;
 		for(var i:Number=0; i<len; i++) {
 			tgt.removeChildAt(0);

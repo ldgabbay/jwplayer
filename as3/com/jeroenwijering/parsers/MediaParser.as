@@ -52,6 +52,9 @@ public class MediaParser {
 				case 'keywords':
 					itm['tags'] = i.text().toString();
 					break;
+				case 'meta':
+					itm[i.@type.toString()] = i.text().toString();
+					break;
 			}
 		}
 		return itm;

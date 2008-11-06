@@ -69,6 +69,7 @@ public class VideoModel implements ModelInterface {
 
 	/** Load content. **/
 	public function load():void {
+		video.clear();
 		model.mediaHandler(video);
 		stream.play(model.playlist[model.config['item']]['file']);
 		loadinterval = setInterval(loadHandler,200);
@@ -184,9 +185,7 @@ public class VideoModel implements ModelInterface {
 		} else if (model.config['state'] == ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(dur > 0) {
-			model.sendEvent(ModelEvent.TIME,{position:pos,duration:dur});
-		}
+		model.sendEvent(ModelEvent.TIME,{position:pos});
 	};
 
 

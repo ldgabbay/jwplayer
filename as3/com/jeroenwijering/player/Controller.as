@@ -104,29 +104,29 @@ public class Controller extends EventDispatcher {
 
 
 	/** Return the type of specific playlistitem (the Model to play it with) **/
-	public function getType(itm:Object):String {
-		// no file, nothing to play
+	private function getModelType(itm:Object):String {
+		// no file, so nothing to play
 		if(!itm['file']) {
 			return null;
 		}
 		var ext:String = ObjectParser.EXTENSIONS[itm['file'].substr(-3).toLowerCase()];
 		// string matches on the file
-		if(itm['file'].indexOf('youtube.com/') > -1) {
+		if(itm['file'].indexOf('youtube.com/w') > -1 || itm['file'].indexOf('youtube.com/v') > -1) {
 			return 'youtube';
 		}
 		// recognized mimetype/extension and streamer
-		if((itm['type'] || ext) && itm['streamer']) {
+		if((itm['type'] == 'video' || ext) && itm['streamer']) {
 			if(itm['streamer'].substr(0,4) == 'rtmp') {
 				return 'rtmp';
 			} else {
 				return 'http';
 			}
 		}
-		// recognized mimetype
+		// user-defined type or recognized mimetypes
 		if(itm['type']) {
 			return itm['type'];
 		}
-		//  recognized extension
+		// extension is returned (can be null)
 		return ext;
 	};
 
@@ -167,7 +167,7 @@ public class Controller extends EventDispatcher {
 			obj = evt.data.object;
 		}
 		if(obj['file']) {
-			if(getType(obj) == null) {
+			if(getModelType(obj) == null) {
 				loader.load(new URLRequest(obj['file']));
 				return;
 			} else {
@@ -217,7 +217,7 @@ public class Controller extends EventDispatcher {
 
 	/** Update playlist item duration. **/
 	private function metaHandler(evt:ModelEvent):void {
-		if(evt.data.duration) {
+		if(evt.data.duration > 0 && playlist[config['item']]['duration'] == 0) {
 			playlist[config['item']]['duration'] = evt.data.duration;
 		}
 		if(evt.data.width) {
@@ -287,14 +287,11 @@ public class Controller extends EventDispatcher {
 	/** Check new playlist for playeable files and setup randomizing/autostart. **/
 	private function playlistHandler(ply:Array):void {
 		for(var i:Number=ply.length-1; i>-1; i--) {
-			if(!ply[i]['streamer']) {
-				ply[i]['streamer'] = config['streamer'];
-			}
-			if(getType(ply[i])) {
-				ply[i]['type'] = getType(ply[i]);
-			} else {
-				ply.splice(i,1);
-			}
+			if(!ply[i]['streamer']) { ply[i]['streamer'] = config['streamer']; }
+			if(!ply[i]['duration']) { ply[i]['duration'] = 0; }
+			if(!ply[i]['start']) { ply[i]['start'] = 0; }
+			ply[i]['type'] = getModelType(ply[i]);
+			if(!ply[i]['type']) { ply.splice(i,1); }
 		}
 		if(ply.length > 0) {
 			playlist = ply;

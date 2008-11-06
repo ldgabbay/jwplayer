@@ -169,7 +169,7 @@ public class YoutubeModel implements ModelInterface {
 
 	/** Catch Youtube position changes **/
 	public function onTimeChange(pos:Number,dur:Number):void {
-		model.sendEvent(ModelEvent.TIME,{position:pos,duration:dur});
+		model.sendEvent(ModelEvent.TIME,{position:pos});
 		if(!metasent) {
 			model.sendEvent(ModelEvent.META,{width:320,height:240,duration:dur});
 			metasent = true;

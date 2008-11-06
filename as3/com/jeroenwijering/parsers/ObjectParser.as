@@ -1,5 +1,5 @@
 /**
-* Process a feeditem before adding to the feed.
+* This is the most basic parser for playlist entries. It only strips noexisting elements.
 **/
 package com.jeroenwijering.parsers {
 
@@ -49,7 +49,7 @@ public class ObjectParser {
 	};
 	/** Mimetypes of all supported mediafiles. **/
 	public static var MIMETYPES:Object = {
-		'application/x-fcs':'rtmp',
+		'application/x-fcs':'video',
 		'application/x-shockwave-flash':'image',
 		'audio/aac':'video',
 		'audio/m4a':'video',
@@ -84,8 +84,6 @@ public class ObjectParser {
 		for(var i:String in ObjectParser.ELEMENTS) {
 			if(obj[i] != undefined) {
 				itm[i] = Strings.serialize(obj[i]);
-			} else if(typeof(ObjectParser.ELEMENTS[i]) == "number") {
-				itm[i] = 0;
 			}
 		}
 		return itm;

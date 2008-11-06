@@ -53,8 +53,8 @@ public class Model extends EventDispatcher {
 		controller.addEventListener(ControllerEvent.STOP,stopHandler);
 		controller.addEventListener(ControllerEvent.VOLUME,volumeHandler);
 		thumb = new Loader();
-		thumb.contentLoaderInfo.addEventListener(Event.COMPLETE,thumbHandler);
-		skin.display.addChildAt(thumb,skin.display.getChildIndex(skin.display.media));
+		thumb.contentLoaderInfo.addEventListener(Event.COMPLETE,resizeHandler);
+		skin.display.addChildAt(thumb,skin.display.getChildIndex(skin.display.media)+1);
 		models = new Object();
 	};
 
@@ -63,7 +63,7 @@ public class Model extends EventDispatcher {
 	private function itemHandler(evt:ControllerEvent):void {
 		var typ:String = playlist[config['item']]['type'];
 		var url:String = playlist[config['item']]['file'];
-		if(models[typ] && typ == currentModel) {
+		if(typ == currentModel) {
 			if(url == currentURL) {
 				models[typ].seek(playlist[config['item']]['start']);
 			} else {
@@ -76,11 +76,16 @@ public class Model extends EventDispatcher {
 				models[currentModel].stop();
 			}
 			if(!models[typ]) {
-				loadModel(typ); 
+				loadModel(typ);
 			}
-			currentModel = typ;
-			currentURL = url;
-			models[typ].load();
+			if(models[typ]) { 
+				currentModel = typ;
+				currentURL = url;
+				models[typ].load();
+			} else {
+				sendEvent(ModelEvent.ERROR,{message:''});
+				
+			}
 		}
 		thumbLoader();
 	};
@@ -124,10 +129,12 @@ public class Model extends EventDispatcher {
 
 	/** Load the configuration array. **/
 	private function muteHandler(evt:ControllerEvent):void {
-		if(currentModel && evt.data.state == true) {
-			models[currentModel].volume(0); 
-		} else if(currentModel && evt.data.state == false) {
-			models[currentModel].volume(config['volume']);
+		if(currentModel) {
+			if(evt.data.state == true) {
+				models[currentModel].volume(0);
+			} else {
+				models[currentModel].volume(config['volume']);
+			}
 		}
 	};
 
@@ -146,11 +153,6 @@ public class Model extends EventDispatcher {
 
 	/** Send an idle with new playlist. **/
 	private function playlistHandler(evt:ControllerEvent):void {
-		if(currentModel) {
-			stopHandler();
-		} else {
-			sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
-		}
 		thumbLoader();
 	};
 
@@ -164,9 +166,9 @@ public class Model extends EventDispatcher {
 
 
 	/** Resize the media and thumb. **/
-	private function resizeHandler(evt:ControllerEvent=null):void {
+	private function resizeHandler(evt:Event=null):void {
 		Stretcher.stretch(skin.display.media,config['width'],config['height'],config['stretching']);
-		if(thumb.content && thumb.width > 0) {
+		if(thumb.content) {
 			Stretcher.stretch(thumb,config['width'],config['height'],config['stretching']);
 		}
 	};
@@ -192,49 +194,48 @@ public class Model extends EventDispatcher {
 
 	/**  Dispatch events. State switch is saved. **/
 	public function sendEvent(typ:String,dat:Object):void {
-		if(typ == ModelEvent.STATE && dat.newstate != config['state']) {
-			switch(dat.newstate) {
-				case ModelStates.IDLE:
-				case ModelStates.COMPLETED:
-					sendEvent(ModelEvent.TIME,{
-						position:playlist[config['item']]['start'],
-						duration:playlist[config['item']]['duration']
-					});
-					thumb.visible = true;
-					skin.display.media.visible = false;
-					break;
-				case ModelStates.BUFFERING:
-				case ModelStates.PLAYING:
-					var ext:String = playlist[config['item']]['file'].substr(-3);
-					if(ext != 'aac' && ext != 'mp3' && ext != 'm4a') {
-						thumb.visible = false;
-						skin.display.media.visible = true;
-					} else { 
+		switch(typ) { 
+			case ModelEvent.STATE:
+				dat['oldstate'] = config['state'];
+				config['state'] = dat.newstate;
+				dispatchEvent(new ModelEvent(typ,dat));
+				switch(dat['newstate']) {
+					case ModelStates.IDLE:
+					case ModelStates.COMPLETED:
 						thumb.visible = true;
 						skin.display.media.visible = false;
-					}
-					break;
-				default:
-					break;
-			}
-			dat.oldstate = config['state'];
-			config['state'] = dat.newstate;
-			dispatchEvent(new ModelEvent(typ,dat));
-		} else if (typ != ModelEvent.STATE) {
-			dispatchEvent(new ModelEvent(typ,dat));
+						sendEvent(ModelEvent.TIME,{
+							position:playlist[config['item']]['start'],
+							duration:playlist[config['item']]['duration']
+						});
+						break;
+					case ModelStates.PLAYING:
+						var ext:String = playlist[config['item']]['file'].substr(-3);
+						if(ext != 'aac' && ext != 'mp3' && ext != 'm4a') {
+							thumb.visible = false;
+							skin.display.media.visible = true;
+						} else { 
+							thumb.visible = true;
+							skin.display.media.visible = false;
+						}
+						break;
+				}
+				break;
+			case ModelEvent.TIME:
+				dat['duration'] = playlist[config['item']]['duration'];
+				if(dat['duration'] > 0 && dat['duration'] < dat['position']) {
+					models[currentModel].pause();
+					sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+				} else {
+					dispatchEvent(new ModelEvent(typ,dat));
+				}
+				break;
+			case ModelEvent.META:
+				if(dat.width) { resizeHandler(); }
+			default:
+				dispatchEvent(new ModelEvent(typ,dat));
+				break;
 		}
-		if(typ == ModelEvent.META && dat.width) {
-			resizeHandler();
-		}
-	};
-
-
-	/** Load a thumb on stage. **/
-	private function thumbHandler(evt:Event):void {
-		try {
-			Bitmap(thumb.content).smoothing = true;
-		} catch (err:Error) {}
-		resizeHandler();
 	};
 
 

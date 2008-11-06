@@ -75,6 +75,7 @@ public class ImageModel implements ModelInterface {
 	/** Show or hide the camera. **/
 	public function pause():void {
 		clearInterval(interval);
+		flash.media.SoundMixer.stopAll();
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
 	};
 
@@ -117,14 +118,7 @@ public class ImageModel implements ModelInterface {
 	/** Interval function that countdowns the time. **/
 	private function timeInterval():void {
 		position = Math.round(position*10+1)/10;
-		var dur = model.playlist[model.config['item']]['duration'];
-		if(position >= dur && dur>0) {
-			clearInterval(interval);
-			flash.media.SoundMixer.stopAll();
-			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
-		} else if (dur>0) {
-			model.sendEvent(ModelEvent.TIME,{position:position,duration:dur});
-		}
+		model.sendEvent(ModelEvent.TIME,{position:position});
 	};
 
 

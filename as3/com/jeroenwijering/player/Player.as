@@ -1,4 +1,4 @@
-﻿/**
+/**
 * Player that crunches through all media formats Flash can read.
 **/
 package com.jeroenwijering.player {
@@ -33,7 +33,6 @@ public class Player extends MovieClip {
 		frontcolor:undefined,
 		lightcolor:undefined,
 		screencolor:undefined,
-		screenalpha:undefined,
 
 		controlbar:'bottom',
 		controlbarsize:20,
@@ -67,20 +66,22 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.3.100'
+		version:'4.3.101'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
+	/** Reference to the View of the MVC cycle, which defines all API calls. **/
+	public var view:View;
 	/** Object that loads all configuration variables. **/
 	protected var configger:Configger;
+	/** Base directory from which all plugins are loaded. **/
+	protected var basedir:String = "http://plugins.longtailvideo.com/";
 	/** Object that load the skin and plugins. **/
 	protected var loader:SPLoader;
 	/** Reference to the Controller of the MVC cycle. **/
 	protected var controller:Controller;
 	/** Reference to the model of the MVC cycle. **/
 	protected var model:Model;
-	/** Reference to the View of the MVC cycle, which defines all API calls. **/
-	public var view:View;
 
 
 	/**
@@ -106,7 +107,7 @@ public class Player extends MovieClip {
 
 	/** Config loading completed; now load the skin. **/
 	protected function loadSkin(evt:Event=null):void {
-		loader = new SPLoader(this);
+		loader = new SPLoader(this,basedir);
 		loader.addEventListener(SPLoaderEvent.SKIN,loadMVC);
 		loader.loadSkin(config['skin']);
 	};

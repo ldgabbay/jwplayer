@@ -146,15 +146,7 @@ public class CameraModel implements ModelInterface {
 	/** Interval function that countdowns the time. **/
 	private function timeInterval():void {
 		position = Math.round(position*10+1)/10;
-		var dur = model.playlist[model.config['item']]['duration'];
-		if(dur > 0) {
-			if(position >= dur) {
-				clearInterval(interval);
-				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
-			} else {
-				model.sendEvent(ModelEvent.TIME,{position:position,duration:dur});
-			}
-		}
+		model.sendEvent(ModelEvent.TIME,{position:position});
 	};
 
 

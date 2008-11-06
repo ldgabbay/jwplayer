@@ -31,8 +31,6 @@ public class SoundModel implements ModelInterface {
 	private var interval:Number;
 	/** Current position. **/
 	private var position:Number;
-	/** Estimated duration. **/
-	private var duration:Number;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -47,8 +45,6 @@ public class SoundModel implements ModelInterface {
 	/** Sound completed; send event. **/
 	private function completeHandler(evt:Event):void {
 		clearInterval(interval);
-		position = model.playlist[model.config['item']]['start']; 
-		model.sendEvent(ModelEvent.TIME,{position:position,duration:duration});
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 	};
 
@@ -82,13 +78,19 @@ public class SoundModel implements ModelInterface {
 	/** Load the sound. **/
 	public function load():void {
 		position = model.playlist[model.config['item']]['start'];
-		duration = model.playlist[model.config['item']]['duration'];
 		sound = new Sound();
 		sound.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		sound.addEventListener(ProgressEvent.PROGRESS,progressHandler);
+		sound.addEventListener(Event.COMPLETE,loadedHandler);
 		sound.addEventListener(Event.ID3,id3Handler);
 		sound.load(new URLRequest(model.playlist[model.config['item']]['file']),context);
 		play();
+	};
+
+
+	/** Sound has been loaded, so the final duration is known. **/
+	private function loadedHandler(evt:Event):void {
+		model.sendEvent(ModelEvent.META,{duration:Math.round(sound.length/100)/10});
 	};
 
 
@@ -135,33 +137,24 @@ public class SoundModel implements ModelInterface {
 	public function stop():void {
 		clearInterval(interval);
 		if(channel) { channel.stop(); }
-		try {
-			sound.close();
-		} catch (err:Error) {}
+		try { sound.close(); } catch (err:Error) {}
 	};
 
 
 	/** Interval for the position progress **/
 	private function timeHandler():void {
 		position = Math.round(channel.position/100)/10;
-		var dur = Math.round(sound.length*sound.bytesTotal/sound.bytesLoaded/100)/10;
 		if(sound.isBuffering == true && sound.bytesTotal > sound.bytesLoaded) {
 			if(model.config['state'] != ModelStates.BUFFERING) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			} else {
-				var pct = Math.floor(sound.length/(channel.position+model.config['bufferlength']*1000)*100);
-					model.sendEvent(ModelEvent.BUFFER,{percentage:pct});
+				var pct:Number = Math.floor(sound.length/(channel.position+model.config['bufferlength']*1000)*100);
+				model.sendEvent(ModelEvent.BUFFER,{percentage:pct});
 			}
 		} else if (model.config['state'] == ModelStates.BUFFERING && sound.isBuffering == false) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(dur > position) {
-			model.sendEvent(ModelEvent.TIME,{position:position,duration:dur});
-		}
-		if(dur != duration && !isNaN(dur)) {
-			duration = dur;
-			model.sendEvent(ModelEvent.META,{duration:duration});
-		}
+		model.sendEvent(ModelEvent.TIME,{position:position});
 	};
 
 

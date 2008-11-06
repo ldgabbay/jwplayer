@@ -101,6 +101,7 @@ public class HTTPModel implements ModelInterface {
 
 	/** Load content. **/
 	public function load():void {
+		video.clear();
 		model.mediaHandler(video);
 		if(stream.bytesLoaded != stream.bytesTotal) {
 			stream.close();
@@ -275,9 +276,7 @@ public class HTTPModel implements ModelInterface {
 		} else if (model.config['state'] == ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(dur > 0) {
-			model.sendEvent(ModelEvent.TIME,{position:pos,duration:dur});
-		}
+		model.sendEvent(ModelEvent.TIME,{position:pos});
 	};
 
 
