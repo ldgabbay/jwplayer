@@ -176,7 +176,7 @@ public class Controller extends EventDispatcher {
 		} else {
 			var arr:Array = new Array();
 			for each(var itm:Object in obj) {
-				arr.push(ObjectParser.parse(obj));
+				arr.push(ObjectParser.parse(itm));
 			}
 			playlistHandler(arr);
 		}
@@ -296,7 +296,7 @@ public class Controller extends EventDispatcher {
 		if(ply.length > 0) {
 			playlist = ply;
 		} else {
-			dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,'No valid filetypes found in this playlist'));
+			dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,{message:'No valid filetypes found in this playlist'}));
 			return;
 		}
 		if(config['shuffle'] == true) {

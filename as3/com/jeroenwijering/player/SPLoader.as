@@ -80,12 +80,12 @@ public class SPLoader extends EventDispatcher {
 		var ldr:Loader = new Loader();
 		if(skn) {
 			ldr.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,skinError);
-			ldr.contentLoaderInfo.addEventListener(Event.INIT,skinHandler);
+			ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,skinHandler);
 		} else {
 			player.skin.addChild(ldr);
 			ldr.visible = false;
 			ldr.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,pluginError);
-			ldr.contentLoaderInfo.addEventListener(Event.INIT,pluginHandler);
+			ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,pluginHandler);
 		}
 		if(player.loaderInfo.url.indexOf('http') == 0) {
 			var ctx:LoaderContext = new LoaderContext(true,ApplicationDomain.currentDomain,
@@ -115,7 +115,7 @@ public class SPLoader extends EventDispatcher {
 
 	/** Plugin loading completed; add to stage and populate. **/
 	private function pluginHandler(evt:Event):void {
-		try { 
+		try {
 			evt.target.content.initializePlugin(player.view);
 			evt.target.loader.visible = true;
 		} catch(err:Error) { 

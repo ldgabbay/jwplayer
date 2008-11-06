@@ -162,10 +162,10 @@ public class VideoModel implements ModelInterface {
 
 	/** Destroy the video. **/
 	public function stop():void {
+		stream.pause();
 		if(stream.bytesLoaded != stream.bytesTotal) {
 			stream.close();
 		}
-		stream.pause();
 		metadata = false;
 		clearInterval(loadinterval);
 		clearInterval(timeinterval);

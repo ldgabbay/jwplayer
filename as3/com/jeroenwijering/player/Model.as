@@ -27,14 +27,12 @@ public class Model extends EventDispatcher {
 	private var controller:Controller;
 	/** The list with all active models. **/
 	private var models:Object;
-	/** Currently active model. **/
-	private var currentModel:String;
-	/** Currently active mediafile. **/
-	private var currentURL:String;
 	/** Loader for the preview image. **/
 	private var thumb:Loader;
 	/** Save the current image to prevent overloading. **/
 	private var image:String;
+	/** Currently active model. **/
+	private var currentModel:String;
 
 
 	/** Constructor, save arrays and set currentItem. **/
@@ -62,30 +60,17 @@ public class Model extends EventDispatcher {
 	/** Item change: switch the curently active model if there's a new URL **/
 	private function itemHandler(evt:ControllerEvent):void {
 		var typ:String = playlist[config['item']]['type'];
-		var url:String = playlist[config['item']]['file'];
-		if(typ == currentModel) {
-			if(url == currentURL) {
-				models[typ].seek(playlist[config['item']]['start']);
-			} else {
-				models[typ].stop();
-				currentURL = url;
-				models[typ].load();
-			}
+		if(currentModel) {
+			models[currentModel].stop();
+		}
+		if(!models[typ]) {
+			loadModel(typ);
+		}
+		if(models[typ]) {
+			currentModel = typ;
+			models[typ].load();
 		} else {
-			if(currentModel) {
-				models[currentModel].stop();
-			}
-			if(!models[typ]) {
-				loadModel(typ);
-			}
-			if(models[typ]) { 
-				currentModel = typ;
-				currentURL = url;
-				models[typ].load();
-			} else {
-				sendEvent(ModelEvent.ERROR,{message:''});
-				
-			}
+			sendEvent(ModelEvent.ERROR,{message:'No suiteable model found for playback.'});
 		}
 		thumbLoader();
 	};
@@ -184,7 +169,6 @@ public class Model extends EventDispatcher {
 
 	/** Load the configuration array. **/
 	private function stopHandler(evt:ControllerEvent=undefined):void {
-		currentURL = undefined;
 		if(currentModel) {
 			models[currentModel].stop();
 		}
@@ -204,10 +188,7 @@ public class Model extends EventDispatcher {
 					case ModelStates.COMPLETED:
 						thumb.visible = true;
 						skin.display.media.visible = false;
-						sendEvent(ModelEvent.TIME,{
-							position:playlist[config['item']]['start'],
-							duration:playlist[config['item']]['duration']
-						});
+						sendEvent(ModelEvent.TIME,{position:0,duration:playlist[config['item']]['duration']});
 						break;
 					case ModelStates.PLAYING:
 						var ext:String = playlist[config['item']]['file'].substr(-3);

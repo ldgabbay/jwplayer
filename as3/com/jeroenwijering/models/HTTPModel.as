@@ -255,6 +255,7 @@ public class HTTPModel implements ModelInterface {
 		offset = timeoffset = 0;
 		h264 = false;
 		keyframes = undefined;
+		metadata = false;
 		if(stream.bytesLoaded != stream.bytesTotal) {
 			stream.close();
 		}
