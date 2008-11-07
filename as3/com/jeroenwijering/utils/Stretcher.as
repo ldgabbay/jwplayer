@@ -27,10 +27,8 @@ public class Stretcher {
 	* @param wid	The target width.
 	* @param hei	The target height.
 	* @param typ	The stretching type.
-	* @param x		The horizontal position to place clp 
-	* @param y		The vertical position to place clp 
  * 	**/
-	public static function stretch(clp:DisplayObject,wid:Number,hei:Number,typ:String='uniform',x:Number=NaN,y:Number=NaN):void {
+	public static function stretch(clp:DisplayObject,wid:Number,hei:Number,typ:String='uniform'):void {
 		var xsc:Number = wid/clp.width;
 		var ysc:Number = hei/clp.height;
 		switch(typ.toLowerCase()) {
@@ -59,8 +57,8 @@ public class Stretcher {
 				}
 				break;
 		}
-		clp.x = (isNaN(x) ? x : Math.round(wid/2 - clp.width/2));
-		clp.y = (isNaN(y) ? y : Math.round(hei/2 - clp.height/2));
+		clp.x = Math.round(wid/2 - clp.width/2);
+		clp.y = Math.round(hei/2 - clp.height/2);
 		clp.width = Math.ceil(clp.width);
 		clp.height = Math.ceil(clp.height);
 	};
