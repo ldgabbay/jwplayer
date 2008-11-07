@@ -6,8 +6,8 @@
 package com.jeroenwijering.events {
 
 
-import flash.events.EventDispatcher;
 import flash.display.MovieClip;
+import flash.events.EventDispatcher;
 
 
 public class AbstractView extends EventDispatcher {
@@ -65,6 +65,21 @@ public class AbstractView extends EventDispatcher {
 	**/
 	public function sendEvent(typ:String,prm:Object=undefined):void { };
 
+	/**
+	* Find a plugin name among the player's loaded plugins.
+	*
+	* @param plg	The plugin to find.
+	**/
+	public function getPluginName(plg:Object):String { return ""; };
+
+	/**
+	* Get configuration variables specific to a plugin.
+	*
+	* @param plg	The plugin whose configuration to return.
+	**/
+	public function getPluginConfig(plgname:Object):Object { return {}; };
+
+	
 
 }
 

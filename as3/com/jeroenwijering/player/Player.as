@@ -58,7 +58,9 @@ public class Player extends MovieClip {
 		state:'IDLE',
 		stretching:'uniform',
 		volume:90,
-
+		
+		plugins:undefined,
+		
 		abouttext:undefined,
 		aboutlink:"http://www.jeroenwijering.com/?item=JW_FLV_Player",
 		client:undefined,
@@ -67,7 +69,7 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.3.104'
+		version:'4.3.108'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;

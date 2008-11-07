@@ -341,11 +341,11 @@ public class Controller extends EventDispatcher {
 	/** Forward a resizing of the stage. **/
 	private function redrawHandler(evt:ViewEvent=null):void {
 		var dat:Object = {fullscreen: false};
-		var plugins:String = "";
-		config['controlbar.size'] = skin.controlbar.height;
+
 		try { 
 			var dps:String = skin.stage['displayState'];
 		} catch (err:Error) {}
+
 		if(dps == 'fullScreen') {
 			dat.fullscreen = true;
 			config['width'] = skin.stage.stageWidth;
@@ -353,14 +353,15 @@ public class Controller extends EventDispatcher {
 		} else if(config['resizing']) {
 			config['width'] = skin.stage.stageWidth;
 			config['height'] = skin.stage.stageHeight;
-
-			if(config['controlbar']) { config['controlbar.position'] = config['controlbar']; }
-
-			if(config['playlist']) { config['playlist.position'] = config['playlist']; }
-			if(config['playlistsize']) { config['playlist.size'] = config['playlistsize']; }
-
-			layoutPlugins();
 		} 
+
+		config['controlbar.size'] = skin.controlbar.height;
+		if(config['controlbar']) { config['controlbar.position'] = config['controlbar']; }
+		if(config['playlist']) { config['playlist.position'] = config['playlist']; }
+		if(config['playlistsize']) { config['playlist.size'] = config['playlistsize']; }
+
+		layoutPlugins();
+		
 		dat.width = config['width'];
 		dat.height = config['height'];
 		dispatchEvent(new ControllerEvent(ControllerEvent.RESIZE,dat));

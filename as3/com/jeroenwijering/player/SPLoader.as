@@ -1,4 +1,4 @@
-/**
+﻿/**
 * Loads external SWF skins and plugins.
 **/
 
@@ -8,6 +8,7 @@ package com.jeroenwijering.player {
 
 import com.jeroenwijering.events.SPLoaderEvent;
 import com.jeroenwijering.utils.Draw;
+
 import flash.display.Loader;
 import flash.display.MovieClip;
 import flash.events.Event;
@@ -28,6 +29,8 @@ public class SPLoader extends EventDispatcher {
 	private var basedir:String;
 	/** Number of plugns that are done loading. **/
 	private var done:Number;
+	/** Reference to all of the plugin movieClips **/
+	private var pluginObjects:Object;
 
 
 	/**
@@ -38,6 +41,7 @@ public class SPLoader extends EventDispatcher {
 	public function SPLoader(ply:MovieClip,bdr:String):void {
 		player = ply;
 		basedir = bdr;
+		pluginObjects = {};
 	};
 
 
@@ -76,17 +80,19 @@ public class SPLoader extends EventDispatcher {
 
 	/** Load a particular SWF file. **/
 	public function loadSWF(str:String,skn:Boolean):void {
-		if(str.substr(-4) != '.swf') { str += '.swf'; }
+		if(str.substr(-4) == '.swf') { str = str.substr(0, str.length-4); }
 		var ldr:Loader = new Loader();
 		if(skn) {
 			ldr.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,skinError);
 			ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,skinHandler);
 		} else {
 			player.skin.addChild(ldr);
+			pluginObjects[str] = ldr;
 			ldr.visible = false;
 			ldr.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,pluginError);
 			ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,pluginHandler);
 		}
+		str += '.swf';
 		if(player.loaderInfo.url.indexOf('http') == 0) {
 			var ctx:LoaderContext = new LoaderContext(true,ApplicationDomain.currentDomain,
 				SecurityDomain.currentDomain);
@@ -116,6 +122,11 @@ public class SPLoader extends EventDispatcher {
 	/** Plugin loading completed; add to stage and populate. **/
 	private function pluginHandler(evt:Event):void {
 		try {
+			for(var s:String in pluginObjects) {
+				if(pluginObjects[s] == evt.target.loader) {
+					pluginObjects[s] = evt.target.content;
+				}
+			}
 			evt.target.content.initializePlugin(player.view);
 			evt.target.loader.visible = true;
 		} catch(err:Error) { 
@@ -156,6 +167,13 @@ public class SPLoader extends EventDispatcher {
 		}
 	};
 
+	/** Find a plugin name among the player's loaded plugins **/
+	public function getPluginName(plg:Object):String {
+		for(var s:String in pluginObjects) {
+			if(pluginObjects[s] == plg) { return s; }
+		}
+		return "";
+	}
 
 }
 
