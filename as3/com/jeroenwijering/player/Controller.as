@@ -6,15 +6,15 @@ package com.jeroenwijering.player {
 
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.parsers.*;
-import com.jeroenwijering.player.*;
 import com.jeroenwijering.utils.Configger;
 import com.jeroenwijering.utils.Randomizer;
+
 import flash.display.MovieClip;
 import flash.events.*;
 import flash.geom.Rectangle;
-import flash.net.navigateToURL;
 import flash.net.URLLoader;
 import flash.net.URLRequest;
+import flash.net.navigateToURL;
 import flash.system.Capabilities;
 
 
@@ -340,36 +340,100 @@ public class Controller extends EventDispatcher {
 
 	/** Forward a resizing of the stage. **/
 	private function redrawHandler(evt:ViewEvent=null):void {
-		var dat:Object = new Object();
-		config['controlbarsize'] = skin.controlbar.height;
+		var dat:Object = {fullscreen: false};
+		var plugins:String = "";
+		config['controlbar.size'] = skin.controlbar.height;
 		try { 
 			var dps:String = skin.stage['displayState'];
 		} catch (err:Error) {}
 		if(dps == 'fullScreen') {
 			dat.fullscreen = true;
-			dat.width = skin.stage.stageWidth;
-			dat.height = skin.stage.stageHeight;
+			config['width'] = skin.stage.stageWidth;
+			config['height'] = skin.stage.stageHeight;
 		} else if(config['resizing']) {
-			dat.fullscreen = false;
-			dat.width = skin.stage.stageWidth;
-			dat.height = skin.stage.stageHeight;
-			if(config['controlbar'] == 'bottom') {
-				dat.height -= config['controlbarsize'];
-			}
-			if(config['playlist'] == 'right') {
-				dat.width -= config['playlistsize'];
-			} else if(config['playlist'] == 'bottom') {
-				dat.height -= config['playlistsize'];
-			}
-		} else { 
-			dat.fullscreen = false;
-			dat.width = config['width'];
-			dat.height = config['height'];
-		}
-		config['width'] = dat.width;
-		config['height'] = dat.height;
+			config['width'] = skin.stage.stageWidth;
+			config['height'] = skin.stage.stageHeight;
+
+			if(config['controlbar']) { config['controlbar.position'] = config['controlbar']; }
+
+			if(config['playlist']) { config['playlist.position'] = config['playlist']; }
+			if(config['playlistsize']) { config['playlist.size'] = config['playlistsize']; }
+
+			layoutPlugins();
+		} 
+		dat.width = config['width'];
+		dat.height = config['height'];
 		dispatchEvent(new ControllerEvent(ControllerEvent.RESIZE,dat));
 	};
+
+	/** Set the size and position for each plugin in config. 
+	 *  It's up to each plugin to resize itself accordingly. 
+	 **/
+	private function layoutPlugins():void {
+		var displayCoord:Object = { x: 0, y:0, width:Number(config['width']), height:Number(config['height']) };
+	
+		var plugins:Array = [];
+		var overlays:Array = [];
+		
+		if(config.hasOwnProperty('plugins')) {
+			plugins = String(config['plugins']).split(',');
+		}
+		
+		for(var i:Number = plugins.length-1; i >= 0; i--) {
+			var plg:String = plugins[i];
+			
+			if(config.hasOwnProperty(plg + '.position') && config.hasOwnProperty(plg + '.size')) {
+				var plgSize:Number = Number(config[plg+'.size']);
+				switch(String(config[plg+'.position']).toLowerCase()) {
+					case "left":
+						config[plg+'.x'] = displayCoord.x;
+						config[plg+'.y'] = displayCoord.y;
+						config[plg+'.width'] = plgSize;
+						config[plg+'.height'] = displayCoord.height;
+						displayCoord.x += plgSize;
+						displayCoord.width -= plgSize;
+						break;
+					case "top":
+						config[plg+'.x'] = displayCoord.x;
+						config[plg+'.y'] = displayCoord.y;
+						config[plg+'.width'] = displayCoord.width;
+						config[plg+'.height'] = plgSize;
+						displayCoord.y += plgSize;
+						displayCoord.height -= plgSize;
+						break;
+					case "right":
+						config[plg+'.x'] = displayCoord.x + displayCoord.width - plgSize;
+						config[plg+'.y'] = displayCoord.y;
+						config[plg+'.width'] = plgSize;
+						config[plg+'.height'] = displayCoord.height;
+						displayCoord.width -= plgSize;
+						break;
+					case "bottom":
+						config[plg+'.x'] = displayCoord.x;
+						config[plg+'.y'] = displayCoord.y + displayCoord.height - plgSize;
+						config[plg+'.width'] = displayCoord.width;
+						config[plg+'.height'] = plgSize;
+						displayCoord.height -= plgSize;
+						break;
+					default:
+						overlays.push(plg);
+				}
+			} else {
+				overlays.push(plg);
+			}
+		}
+		
+		for(var x:Number=0; x<overlays.length; x++) {
+			config[overlays[x]+'.x'] = displayCoord.x;
+			config[overlays[x]+'.y'] = displayCoord.y;
+			config[overlays[x]+'.width'] = displayCoord.width;
+			config[overlays[x]+'.height'] = displayCoord.height;
+		}
+		
+		for(var s:String in displayCoord) {
+			config[s] = displayCoord[s];
+		}
+	}
 
 
 	/** Seek to a specific part in a mediafile. **/

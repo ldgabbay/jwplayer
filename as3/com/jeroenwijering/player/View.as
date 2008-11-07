@@ -6,16 +6,13 @@ package com.jeroenwijering.player {
 
 import com.carlcalderon.arthropod.Debug;
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.player.*;
 import com.jeroenwijering.utils.Strings;
+
 import flash.display.MovieClip;
 import flash.events.*;
 import flash.external.ExternalInterface;
-import flash.net.URLRequest;
-import flash.net.navigateToURL;
 import flash.system.*;
 import flash.ui.ContextMenu;
-import flash.ui.ContextMenuItem;
 import flash.utils.setTimeout;
 
 
@@ -152,6 +149,10 @@ public class View extends AbstractView {
 				_config[ar2[0]] = Strings.serialize(ar2[1]); }
 		}
 		loader.loadPlugins(pgi);
+		
+		if(!_config['plugins']) { _config['plugins'] = pgi; }
+		else { _config['plugins'] += ',' + pgi; }
+		
 		return true;
 	};
 

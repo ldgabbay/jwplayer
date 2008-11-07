@@ -215,7 +215,7 @@ public class Playlist implements PluginInterface {
 	private function playlistHandler(evt:ControllerEvent=null):void {
 		active = undefined;
 		buildList(true);
-		if(view.config['playlist'] != 'none') {
+		if(view.config['playlist.position'] != 'none') {
 			clip.visible = true;
 		}
 	};
@@ -223,27 +223,11 @@ public class Playlist implements PluginInterface {
 
 	/** Process resizing requests **/
 	private function resizeHandler(evt:ControllerEvent=null):void {
-		if(view.config['playlist'] == 'right') {
-			clip.x = view.config['width'];
-			clip.y = 0;
-			clip.back.width = view.config['playlistsize'];
-			clip.back.height = view.config['height'];;
-			buildList(false);
-			clip.visible = true;
-		} else if (view.config['playlist'] == 'bottom') {
-			clip.x = 0;
-			clip.y = view.config['height'];
-			if (view.config['controlbar'] == 'bottom') {
-				clip.y += view.config['controlbarsize'];
-			}
-			clip.back.height = view.config['playlistsize'];
-			clip.back.width = view.config['width'];
-			clip.visible = true;
-			buildList(false);
-		} else if (view.config['playlist'] == 'over') {
-			clip.x = clip.y = 0;
-			clip.back.width = view.config['width'];
-			clip.back.height = view.config['height'];
+		if(view.config['playlist.position'] && view.config['playlist.position'] != 'none') {
+			clip.x = view.config['playlist.x'];
+			clip.y = view.config['playlist.y'];
+			clip.back.width = view.config['playlist.width'];
+			clip.back.height = view.config['playlist.height'];;
 			buildList(false);
 			clip.visible = true;
 		} else {
@@ -384,7 +368,7 @@ public class Playlist implements PluginInterface {
 
 	/** Process state changes **/
 	private function stateHandler(evt:ModelEvent):void {
-		if(view.config['playlist'] == 'over') {
+		if(view.config['playlist.position'] == 'over') {
 			if(evt.data.newstate == ModelStates.PLAYING || 
 				evt.data.newstate == ModelStates.BUFFERING ||
 				evt.data.newstate == ModelStates.PAUSED) {

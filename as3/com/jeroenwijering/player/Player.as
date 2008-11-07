@@ -1,13 +1,13 @@
-/**
+﻿/**
 * Player that crunches through all media formats Flash can read.
 **/
 package com.jeroenwijering.player {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.player.*;
 import com.jeroenwijering.plugins.*;
 import com.jeroenwijering.utils.Configger;
+
 import flash.display.MovieClip;
 import flash.events.Event;
 
@@ -34,13 +34,15 @@ public class Player extends MovieClip {
 		lightcolor:undefined,
 		screencolor:undefined,
 
-		controlbar:'bottom',
-		controlbarsize:20,
+		'controlbar.position':'bottom',
+		'controlbar.size':20,
 		height:300,
-		playlist:'none',
-		playlistsize:180,
+		'playlist.position':'none',
+		'playlist.size':180,
 		skin:undefined,
 		width:400,
+		x:0,
+		y:0,
 
 		autostart:false,
 		bufferlength:1,
@@ -62,11 +64,10 @@ public class Player extends MovieClip {
 		client:undefined,
 		id:undefined,
 		linktarget:'_blank',
-		plugins:undefined,
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.3.103'
+		version:'4.3.104'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -128,13 +129,26 @@ public class Player extends MovieClip {
 	*
 	* Built-in plugins are instantiated here. External plugins are loaded.
 	* The controlbar is inited last, so it is show on top of all plugins.
+	* controlbar and playlist are added to config['plugins'], but only after external plugins are loaded.  
 	**/
 	protected function loadPlugins():void {
 		new Rightclick().initializePlugin(view);
 		new Display().initializePlugin(view);
 		new Playlist().initializePlugin(view);
+		
+		var toLoad:String = config['plugins'];
+		if(config['controlbar.position']) { 
+			if(config['plugins']) { config['plugins'] +=  ',controlbar'; }
+			else { config['plugins'] = 'controlbar'; }
+		}
+		if(config['playlist.position']) { 
+			if(config['plugins']) { config['plugins'] +=  ',playlist'; }
+			else { config['plugins'] = 'playlist'; }
+		}
+		
 		loader.addEventListener(SPLoaderEvent.PLUGINS,startPlayer);
-		loader.loadPlugins(config['plugins']);
+		loader.loadPlugins(toLoad);
+		
 		new Controlbar().initializePlugin(view);
 	};
 

@@ -220,20 +220,17 @@ public class Controlbar implements PluginInterface {
 	/** Process resizing requests **/
 	private function resizeHandler(evt:ControllerEvent=null):void {
 		var wid:Number = stacker.width;
-		if(view.config['controlbar'] == 'over' || (evt && evt.data.fullscreen == true)) {
-			bar.y = view.config['height'] - view.config['controlbarsize'] - margin;
+		if(view.config['controlbar.position'] == 'over' || (evt && evt.data.fullscreen == true)) {
+			bar.y = view.config['height'] - view.config['controlbar.size'] - margin;
 			bar.x = margin;
 			wid = view.config['width'] - 2*margin;
 			bar.back.alpha = 0.75;
 			bar.visible = true;
-		} else if(view.config['controlbar'] == 'bottom') {
-			bar.x = 0;
+		} else if(view.config.hasOwnProperty('controlbar.position') && view.config['controlbar.position'] != 'none') {
+			bar.x = view.config['controlbar.x'];
+			bar.y = view.config['controlbar.y'];
+			wid = view.config['controlbar.width'];
 			bar.back.alpha = 1;
-			wid = view.config['width'];
-			bar.y = view.config['height'];
-			if(view.config['playlist'] == 'right') {
-				wid += view.config['playlistsize'];
-			}
 			bar.visible = true;
 		} else {
 			bar.visible = false;
@@ -349,7 +346,7 @@ public class Controlbar implements PluginInterface {
 					bar.playButton.visible = true;
 					bar.pauseButton.visible = false;
 				} catch (err:Error) {}
-				if(view.config['controlbar'] == 'over' || dps == 'fullScreen') {
+				if(view.config['controlbar.position'] == 'over' || dps == 'fullScreen') {
 					Animations.fade(bar,1);
 				}
 		}

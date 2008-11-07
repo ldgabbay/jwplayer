@@ -136,6 +136,8 @@ public class Display implements PluginInterface {
 	private function resizeHandler(evt:ControllerEvent=null):void {
 		if(view.config['height'] > 0) { 
 			display.visible = true;
+			display.x = view.config['x'];
+			display.y = view.config['y'];
 		} else { 
 			display.visible = false;
 		}
