@@ -378,10 +378,13 @@ public class Controller extends EventDispatcher {
 	
 		var plugins:Array = [];
 		var overlays:Array = [];
-		
+
 		if(config.hasOwnProperty('plugins')) {
 			plugins = String(config['plugins']).split(',');
 		}
+		
+		if(config['playlist.position']) { plugins.splice(0, 0, 'playlist'); }
+		if(config['controlbar.position']) { plugins.splice(0, 0, 'controlbar'); }
 		
 		for(var i:Number = plugins.length-1; i >= 0; i--) {
 			var plg:String = plugins[i];

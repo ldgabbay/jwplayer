@@ -69,7 +69,7 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.3.110'
+		version:'4.3.111'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -138,18 +138,8 @@ public class Player extends MovieClip {
 		new Display().initializePlugin(view);
 		new Playlist().initializePlugin(view);
 		
-		var toLoad:String = config['plugins'];
-		if(config['controlbar.position']) { 
-			if(config['plugins']) { config['plugins'] +=  ',controlbar'; }
-			else { config['plugins'] = 'controlbar'; }
-		}
-		if(config['playlist.position']) { 
-			if(config['plugins']) { config['plugins'] +=  ',playlist'; }
-			else { config['plugins'] = 'playlist'; }
-		}
-		
 		loader.addEventListener(SPLoaderEvent.PLUGINS,startPlayer);
-		loader.loadPlugins(toLoad);
+		loader.loadPlugins(config['plugins']);
 		
 		new Controlbar().initializePlugin(view);
 	};
