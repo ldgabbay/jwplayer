@@ -23,6 +23,7 @@ public class ControllerEvent extends Event {
 	public static var SEEK:String = "SEEK";
 	public static var STOP:String = "STOP";
 	public static var VOLUME:String = "VOLUME";
+	public static var BUTTON:String = "BUTTON";
 	/** The data associated with the event. **/
 	private var _data:Object;
 

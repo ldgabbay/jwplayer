@@ -6,13 +6,15 @@ package com.jeroenwijering.plugins {
 
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.utils.*;
-import flash.display.MovieClip;
+
+import flash.display.*;
 import flash.events.MouseEvent;
 import flash.geom.ColorTransform;
 import flash.geom.Rectangle;
-import flash.utils.setTimeout;
-import flash.utils.clearTimeout;
+import flash.net.URLRequest;
 import flash.ui.Mouse;
+import flash.utils.clearTimeout;
+import flash.utils.setTimeout;
 
 
 public class Controlbar implements PluginInterface {
@@ -53,6 +55,9 @@ public class Controlbar implements PluginInterface {
 		volumeSlider:'VOLUME'
 	}
 
+	/** Button next to which custom buttons are added **/
+	private var insertNextTo:MovieClip = null;
+	
 
 	/** Constructor. **/
 	public function Controlbar():void {};
@@ -69,7 +74,13 @@ public class Controlbar implements PluginInterface {
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.MUTE,muteHandler);
 		view.addControllerListener(ControllerEvent.VOLUME,volumeHandler);
+		view.addControllerListener(ControllerEvent.BUTTON,buttonHandler);
 		bar = view.skin['controlbar'];
+		
+		if(bar.hasOwnProperty('blankButton')) {
+			bar.blankButton.visible = false;
+		}
+		
 		margin = bar.x;
 		stacker = new Stacker(bar);
 		setButtons();
@@ -420,7 +431,42 @@ public class Controlbar implements PluginInterface {
 		} catch (err:Error) {}
 	};
 
+	/** Add a new button to the controlbar **/
+	private function buttonHandler(evt:ControllerEvent=null):void {
+		if(!insertNextTo) { insertNextTo = bar['linkButton']; }
+		if(bar.hasOwnProperty('blankButton')) {
+			try { 
+				var newButton:MovieClip = Draw.clone(bar['blankButton']);
+				newButton.name = evt.data.buttonname;
+				newButton.visible = true;
 
+				var newIcon = null;
+				
+				if(evt.data.icon is String) {
+					newIcon = new Loader();
+					newIcon.load(new URLRequest(evt.data.icon));
+				} else if(evt.data.icon is Sprite) {
+					newIcon = evt.data.icon as Sprite;
+				}
+				
+				if(newIcon) {
+					newIcon.x = newButton['icon'].x;
+					newIcon.y = newButton['icon'].y;
+					newIcon.name = 'icon';
+					newButton.removeChild(newButton['icon']);
+					newButton.addChild(newIcon);
+				}
+				
+				newButton.addEventListener(MouseEvent.CLICK, evt.data.clickhandler);
+
+				bar.addChild(newButton);
+
+				stacker.insert(newButton, insertNextTo);
+				insertNextTo = newButton;
+
+			} catch (err:Error) {}
+		}
+	};
 };
 
 

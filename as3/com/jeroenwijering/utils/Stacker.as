@@ -1,4 +1,4 @@
-/**
+﻿/**
 * Parses children of a MovieClip and docks them to the left & right.
 **/
 
@@ -116,6 +116,18 @@ public class Stacker {
 		return _width;
 	};
 
+	public function insert(insrt:MovieClip,next:MovieClip):void {
+		var found:Number = -1;
+		for(var i:Number=0; i<stack.length && found < 0; i++) {
+			if(stack[i].c == next) {
+				stack.splice(i, 0, {c:insrt,x:stack[i].x-insrt.width,n:insrt.name,w:insrt.width});
+				found = i;
+				break;
+			}
+		}
+		rearrange();
+		
+	} 
 
 }
 

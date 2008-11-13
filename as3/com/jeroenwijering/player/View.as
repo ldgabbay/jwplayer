@@ -201,6 +201,9 @@ public class View extends AbstractView {
 			case 'VOLUME':
 				dat['percentage'] = prm;
 				break;
+			case 'BUTTON':
+				dat = prm;
+				break;
 			default:
 				if(prm!=null && prm != '') {
 					if(prm == true || prm == 'true') {

@@ -27,6 +27,7 @@ public class ViewEvent extends Event {
 	public static var STOP:String = "STOP";
 	public static var TRACE:String = "TRACE";
 	public static var VOLUME:String = "VOLUME";
+	public static var BUTTON:String = "BUTTON";
 	/** The data associated with the event. **/
 	private var _data:Object;
 

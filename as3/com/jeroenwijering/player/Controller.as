@@ -67,6 +67,7 @@ public class Controller extends EventDispatcher {
 		view.addEventListener(ViewEvent.SEEK,seekHandler);
 		view.addEventListener(ViewEvent.STOP,stopHandler);
 		view.addEventListener(ViewEvent.VOLUME,volumeHandler);
+		view.addEventListener(ViewEvent.BUTTON,buttonHandler);
 	};
 
 
@@ -488,6 +489,17 @@ public class Controller extends EventDispatcher {
 			Configger.saveCookie('volume',config['volume']);
 			dispatchEvent(new ControllerEvent(ControllerEvent.VOLUME,{percentage:vol}));
 		}
+	};
+
+	/** Add new button to the control bar. **/
+	private function buttonHandler(evt:ViewEvent):void {
+		var dat:Object = {icon:null,clickhandler:null,buttonname:""};
+		try {
+			dat['icon'] = evt.data['icon'];
+			dat['clickhandler'] = evt.data['clickhandler'];
+			dat['buttonname'] = String(evt.data['buttonname']);
+		} catch(e:Error) {}
+		dispatchEvent(new ControllerEvent(ControllerEvent.BUTTON,dat));
 	};
 
 
