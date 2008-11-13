@@ -178,7 +178,7 @@ public class Playlist implements PluginInterface {
 		var idx:Number = Number(evt.target.name);
 		if(front && back) {
 			for (var itm:String in view.playlist[idx]) {
-				if(buttons[idx].c[itm]) {
+				if(buttons[idx].c[itm] && typeof(buttons[idx].c[itm]) == "object") {
 					buttons[idx].c[itm].textColor = back.color;
 				}
 			}
@@ -193,7 +193,7 @@ public class Playlist implements PluginInterface {
 		var idx:Number = Number(evt.target.name);
 		if(front && back) {
 			for (var itm:String in view.playlist[idx]) {
-				if(buttons[idx].c[itm]) {
+				if(buttons[idx].c[itm] && typeof(buttons[idx].c[itm]) == "object") {
 					if(idx == active) {
 						buttons[idx].c[itm].textColor = light.color;
 					} else { 

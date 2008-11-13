@@ -113,6 +113,8 @@ public class Controller extends EventDispatcher {
 		// string matches on the file
 		if(itm['file'].indexOf('youtube.com/w') > -1 || itm['file'].indexOf('youtube.com/v') > -1) {
 			return 'youtube';
+		} else if (itm['file'].indexOf('services.brightcove.com') > -1) { 
+			return 'brightcove';
 		}
 		// recognized mimetype/extension and streamer
 		if((itm['type'] == 'video' || ext) && itm['streamer']) {

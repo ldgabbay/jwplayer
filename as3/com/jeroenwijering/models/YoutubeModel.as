@@ -24,6 +24,8 @@ public class YoutubeModel implements ModelInterface {
 	private var model:Model;
 	/** Loader for loading the YouTube proxy **/
 	private var loader:Loader;
+	/** 'Unique' string to use for proxy connection. **/
+	private var unique:String;
 	/** Connection towards the YT proxy. **/
 	private var outgoing:LocalConnection;
 	/** connection from the YT proxy. **/
@@ -39,6 +41,7 @@ public class YoutubeModel implements ModelInterface {
 	/** Setup YouTube connections and load proxy. **/
 	public function YoutubeModel(mod:Model):void {
 		model = mod;
+		unique = Math.random().toString().substr(2);
 		outgoing = new LocalConnection();
 		outgoing.allowDomain('*');
 		outgoing.allowInsecureDomain('*');
@@ -48,17 +51,12 @@ public class YoutubeModel implements ModelInterface {
 		inbound.allowInsecureDomain('*');
 		inbound.addEventListener(StatusEvent.STATUS,onLocalConnectionStatusChange);
 		inbound.client = this;
-		try { 
-			inbound.connect("_AS2_to_AS3");
-			connected = true;
-		} catch (err:Error) {
-			stop();
-			model.sendEvent(ModelEvent.ERROR,{message:"Cannot connect to Youtube. Only one YouTube connection per computer can be made!"});
-		}
+		inbound.connect('AS2_'+unique);
+		connected = true;
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		var url = model.skin.loaderInfo.url;
-		var ytb = url.substr(0,url.lastIndexOf('/')+1)+'yt.swf';
+		var ytb = url.substr(0,url.lastIndexOf('/')+1)+'yt.swf?unique='+unique;
 		loader.load(new URLRequest(ytb));
 	};
 
@@ -94,7 +92,7 @@ public class YoutubeModel implements ModelInterface {
 			if(outgoing) {
 				var gid = getID(model.playlist[model.config['item']]['file']);
 				var stt = model.playlist[model.config['item']]['start'];
-				outgoing.send("_AS3_to_AS2","loadVideoById",gid,stt);
+				outgoing.send('AS3_'+unique,"loadVideoById",gid,stt);
 				model.mediaHandler(loader);
 			}
 		}
@@ -103,20 +101,20 @@ public class YoutubeModel implements ModelInterface {
 
 	/** Pause the YouTube movie. **/
 	public function pause():void {
-		outgoing.send("_AS3_to_AS2","pauseVideo");
+		outgoing.send('AS3_'+unique,"pauseVideo");
 	};
 
 
 
 	/** Play or pause the video. **/
 	public function play():void {
-		outgoing.send("_AS3_to_AS2","playVideo");
+		outgoing.send('AS3_'+unique,"playVideo");
 	};
 
 
 	/** SWF loaded; add it to the tree **/
 	public function onSwfLoadComplete():void {
-		outgoing.send("_AS3_to_AS2","setSize",320,240);
+		outgoing.send('AS3_'+unique,"setSize",320,240);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		if(loading) { load(); }
 	};
@@ -183,21 +181,21 @@ public class YoutubeModel implements ModelInterface {
 
 	/** Seek to position. **/
 	public function seek(pos:Number):void {
-		outgoing.send("_AS3_to_AS2","seekTo",pos);
+		outgoing.send('AS3_'+unique,"seekTo",pos);
 		play();
 	};
 
 
 	/** Destroy the youtube video. **/
 	public function stop():void {
-		outgoing.send("_AS3_to_AS2","stopVideo");
+		outgoing.send('AS3_'+unique,"stopVideo");
 	};
 
 
 
 	/** Set the volume level. **/
 	public function volume(pct:Number):void {
-		outgoing.send("_AS3_to_AS2","setVolume",pct);
+		outgoing.send('AS3_'+unique,"setVolume",pct);
 	};
 
 

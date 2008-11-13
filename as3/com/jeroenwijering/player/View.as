@@ -272,12 +272,14 @@ public class View extends AbstractView {
 		addViewListener(ViewEvent.TRACE,setView);
 		addViewListener(ViewEvent.VOLUME,setView);
 	};
-	
+
+
 	/** Find a plugin name among the player's loaded plugins **/
 	override public function getPluginName(plg:Object):String {
 		return loader.getPluginName(plg);
-	}
-	
+	};
+
+
 	/** Get configuration variables specific to a plugin. **/
 	override public function getPluginConfig(plg:Object):Object {
 		var toReturn:Object = {};
@@ -288,7 +290,7 @@ public class View extends AbstractView {
 			}
 		}
 		return toReturn;
-	}
+	};
 
 
 }

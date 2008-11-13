@@ -69,7 +69,7 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.3.108'
+		version:'4.3.109'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -131,7 +131,7 @@ public class Player extends MovieClip {
 	*
 	* Built-in plugins are instantiated here. External plugins are loaded.
 	* The controlbar is inited last, so it is show on top of all plugins.
-	* controlbar and playlist are added to config['plugins'], but only after external plugins are loaded.  
+	* controlbar and playlist are added to config['plugins'], but only after external plugins are loaded.
 	**/
 	protected function loadPlugins():void {
 		new Rightclick().initializePlugin(view);

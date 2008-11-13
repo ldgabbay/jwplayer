@@ -79,6 +79,9 @@ public class Model extends EventDispatcher {
 	/** Initialize a new model. **/
 	private function loadModel(typ:String):void {
 		switch(typ) {
+			case 'brightcove':
+				models[typ] = new BrightcoveModel(this);
+				break;
 			case 'camera':
 				models[typ] = new CameraModel(this);
 				break;
@@ -210,6 +213,12 @@ public class Model extends EventDispatcher {
 				} else {
 					dispatchEvent(new ModelEvent(typ,dat));
 				}
+				break;
+			
+			case ModelEvent.ERROR:
+				models[currentModel].stop();
+				sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
+				dispatchEvent(new ModelEvent(typ,dat));
 				break;
 			case ModelEvent.META:
 				if(dat.width) { resizeHandler(); }

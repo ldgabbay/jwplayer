@@ -67,15 +67,16 @@ public class RTMPModel implements ModelInterface {
 
 	/** Extract the correct rtmp syntax from the file string. **/
 	private function getID(url:String):String {
-		if(url.substr(-4) == '.mp3') {
-			url = 'mp3:'+url.substr(0,url.length-4);
-		} else if(url.substr(-4) == '.mp4' || url.substr(-4) == '.mov' || 
-			url.substr(-4) == '.aac' || url.substr(-4) == '.m4a') {
-			url = 'mp4:'+url.substr(0,url.length-4);
-		} else if (url.substr(-4) == '.flv') {
-			url = url.substr(0,url.length-4);
+		var ext:String = url.substr(-4);
+		if(ext == '.mp3') {
+			return 'mp3:'+url.substr(0,url.length-4);
+		} else if(ext == '.mp4' || ext == '.mov' || ext == '.aac' || ext == '.m4a') {
+			return 'mp4:'+url;
+		} else if (ext == '.flv') {
+			return url.substr(0,url.length-4);
+		} else {
+			return url;
 		}
-		return url;
 	};
 
 
@@ -110,7 +111,6 @@ public class RTMPModel implements ModelInterface {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		} else if(dat.type == 'fcsubscribe') {
 			if(dat.code == "NetStream.Play.StreamNotFound" ) {
-				stop();
 				model.sendEvent(ModelEvent.ERROR,{message:"Subscription failed: "+model.playlist[model.config['item']]['file']});
 			}else if(dat.code == "NetStream.Play.Start") {
 				setStream();
@@ -209,7 +209,6 @@ public class RTMPModel implements ModelInterface {
 				}
 			case 'NetStream.Play.StreamNotFound':
 			case 'NetConnection.Connect.Failed':
-				stop();
 				model.sendEvent(ModelEvent.ERROR,{message:"Stream not found: "+model.playlist[model.config['item']]['file']});
 				break;
 			default:

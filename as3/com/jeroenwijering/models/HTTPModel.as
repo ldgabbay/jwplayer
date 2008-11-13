@@ -80,6 +80,7 @@ public class HTTPModel implements ModelInterface {
 
 	/** Return a keyframe byteoffset or timeoffset. **/
 	private function getOffset(pos:Number,tme:Boolean=false):Number {
+		if(!keyframes) { return 0; }
 		for (var i=0; i< keyframes.times.length; i++) {
 			if(keyframes.times[i] <= pos && keyframes.times[i+1] >= pos) {
 				if(tme == true) {

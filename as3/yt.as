@@ -12,6 +12,7 @@ var _as3_to_as2:LocalConnection = new LocalConnection();
 var _as2_to_as3:LocalConnection = new LocalConnection();
 _as3_to_as2.allowDomain('*');
 _as2_to_as3.allowDomain('*');
+var connection:String;
 var loadInterval:Number;
 var byteInterval:Number;
 var timeInterval:Number;
@@ -21,9 +22,9 @@ var position:Number;
 
 
 // Interval handlers
-function loadHandler() { 
+function loadHandler() {
 	if (ytPlayer.isPlayerLoaded()) {
-		_as2_to_as3.send("_AS2_to_AS3","onSwfLoadComplete");
+		_as2_to_as3.send('AS2_'+unique,"onSwfLoadComplete");
 		clearInterval(loadInterval);
 		ytPlayer.addEventListener("onStateChange", onPlayerStateChange);
 		ytPlayer.addEventListener("onError", onPlayerError);
@@ -37,7 +38,7 @@ function byteHandler() {
 	var off =  ytPlayer.getVideoStartBytes();
 	if(ttl > 10 && btl != loaded) {
 		loaded = btl;
-		_as2_to_as3.send("_AS2_to_AS3","onLoadChange",btl,ttl,off);
+		_as2_to_as3.send('AS2_'+unique,"onLoadChange",btl,ttl,off);
 		if(btl+off >= ttl) {
 			clearInterval(byteInterval);
 		}
@@ -50,7 +51,7 @@ function timeHandler() {
 		if(pos == position && dur-pos < 10) {
 			onPlayerStateChange(0);
 		} else {
-			_as2_to_as3.send("_AS2_to_AS3","onTimeChange",pos,dur);
+			_as2_to_as3.send('AS2_'+unique,"onTimeChange",pos,dur);
 		}
 	}
 	position = pos;
@@ -68,10 +69,10 @@ function onPlayerStateChange(stt:Number) {
 		byteInterval = setInterval(byteHandler,200);
 		timeInterval = setInterval(timeHandler,200);
 	}
-	_as2_to_as3.send("_AS2_to_AS3","onStateChange",stt);
+	_as2_to_as3.send('AS2_'+unique,"onStateChange",stt);
 }; 
 function onPlayerError(erc:Number) {
-	_as2_to_as3.send("_AS2_to_AS3","onError",stt);
+	_as2_to_as3.send('AS2_'+unique,"onError",stt);
 	clearInterval(timeInterval);
 };
 
@@ -87,7 +88,9 @@ _as3_to_as2.setSize = function(wid,hei) { ytPlayer.setSize(wid,hei); };
 
 
 // Initialization
-_as3_to_as2.connect("_AS3_to_AS2");
+unique;
+trace(unique);
+_as3_to_as2.connect('AS3_'+unique);
 ytPlayerLoaderListener = {}; 
 ytPlayerLoaderListener.onLoadInit = function() { loadInterval = setInterval(loadHandler,200); };
 ytPlayerLoader.addListener(ytPlayerLoaderListener);
