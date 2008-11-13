@@ -363,7 +363,7 @@ public class Controller extends EventDispatcher {
 		if(config['playlist']) { config['playlist.position'] = config['playlist']; }
 		if(config['playlistsize']) { config['playlist.size'] = config['playlistsize']; }
 
-		layoutPlugins();
+		layoutPlugins(dat.fullscreen);
 		
 		dat.width = config['width'];
 		dat.height = config['height'];
@@ -373,7 +373,7 @@ public class Controller extends EventDispatcher {
 	/** Set the size and position for each plugin in config. 
 	 *  It's up to each plugin to resize itself accordingly. 
 	 **/
-	private function layoutPlugins():void {
+	private function layoutPlugins(fullscreen:Boolean=false):void {
 		var displayCoord:Object = { x: 0, y:0, width:Number(config['width']), height:Number(config['height']) };
 	
 		var plugins:Array = [];
@@ -384,7 +384,8 @@ public class Controller extends EventDispatcher {
 		}
 		
 		if(config['playlist.position']) { plugins.splice(0, 0, 'playlist'); }
-		if(config['controlbar.position']) { plugins.splice(0, 0, 'controlbar'); }
+		
+		if(!fullscreen && config['controlbar.position']) { plugins.splice(0, 0, 'controlbar'); }
 		
 		for(var i:Number = plugins.length-1; i >= 0; i--) {
 			var plg:String = plugins[i];
@@ -466,9 +467,12 @@ public class Controller extends EventDispatcher {
 	/** Manage playback state changes. **/
 	private function stateHandler(evt:ModelEvent):void {
 		if(evt.data.newstate == ModelStates.COMPLETED && (config['repeat'] == 'always' ||
+			config['repeat'] == 'single' ||
 			(config['repeat'] == 'list' && config['shuffle'] == true && randomizer.length > 0) || 
 			(config['repeat'] == 'list' && config['shuffle'] == false && config['item'] < playlist.length-1))) {
-			if(config['shuffle'] == true) {
+			if(config['repeat'] == 'single') {
+				playItem(config['item']);
+			} else if(config['shuffle'] == true) {
 				playItem(randomizer.pick());
 			} else if(config['item'] == playlist.length-1) {
 				playItem(0);
