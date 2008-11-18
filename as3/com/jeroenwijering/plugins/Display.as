@@ -60,7 +60,6 @@ public class Display implements PluginInterface {
 		view.addModelListener(ModelEvent.STATE,stateHandler);
 		display = view.skin['display'];
 		display.media.mask = display.masker;
-		display.mouseChildren = false;
 		if(view.config['screencolor']) {
 			var clr:ColorTransform = new ColorTransform();
 			clr.color = uint('0x'+view.config['screencolor'].substr(-6));
@@ -78,6 +77,7 @@ public class Display implements PluginInterface {
 		if(view.config['displayclick'] != 'none') {
 			display.addEventListener(MouseEvent.CLICK,clickHandler);
 			display.buttonMode = true;
+			display.mouseChildren = false;
 		}
 		try {
 			Draw.clear(display.logo);

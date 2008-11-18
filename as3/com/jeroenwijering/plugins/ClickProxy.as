@@ -73,8 +73,8 @@ public class ClickProxy extends MovieClip implements PluginInterface {
 		clip.buttonMode = true;
 		clip.mouseChildren = false;
 		for(var str:String in config) {
-			if(view.config['soundproxy.'+str]) {
-				config[str] = view.config['soundproxy.'+str];
+			if(view.config['clickproxy.'+str]) {
+				config[str] = view.config['clickproxy.'+str];
 			}
 		}
 		resizeHandler();

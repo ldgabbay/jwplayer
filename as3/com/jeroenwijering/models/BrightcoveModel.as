@@ -13,6 +13,7 @@ import flash.display.*;
 import flash.net.URLRequest;
 import flash.events.*;
 import flash.system.*;
+import flash.utils.*;
 
 
 public class BrightcoveModel implements ModelInterface {
@@ -22,24 +23,27 @@ public class BrightcoveModel implements ModelInterface {
 	private var model:Model;
 	/** Loader for loading the Brightcove player. **/
 	private var loader:Loader;
-	/** Reference to the Brightcove player. **/
-	private var bcPlayer:Object;
+	/** Reference to the Brightcove VideoPlayer. **/
+	private var videoplayer:Object;
+	/** Interval ID for checking if the player is loaded. **/
+	private var interval;
 
 
 	/** Load Brightcove player. **/
 	public function BrightcoveModel(mod:Model):void {
 		model = mod;
-		Security.allowDomain("http://admin.brightcove.com");
+		Security.allowDomain("*");
 		var url = model.config['file'] + '?isVid=1';
 		url += "&cdnURL="+escape("http://admin.brightcove.com");
 		url += "&servicesURL="+escape("http://services.brightcove.com/services");
 		url += "&playerWidth="+model.config["width"];
 		url += "&playerHeight="+model.config["height"];
-		url = 'http://c.brightcove.com/services/viewer/federated_f9/1896802254?isVid=1&isUI=1&flashID=null&playerWidth=650&playerHeight=630&publisherID=979525218&playerID=1896802254';
+		url = 'http://c.brightcove.com/services/viewer/federated_f9/2069232001?isVid=1&playerWidth=400&playerHeight=280&playerID=2069232001';
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
-		loader.load(new URLRequest(url),new LoaderContext(true,ApplicationDomain.currentDomain));
+		var ctx:LoaderContext = new LoaderContext(false,ApplicationDomain.currentDomain);
+		loader.load(new URLRequest(url),ctx);
 	};
 
 
@@ -50,7 +54,7 @@ public class BrightcoveModel implements ModelInterface {
 
 
 	/** Extract the video ID from a Brightcove URL **/
-	private function getID(url:String):String { 
+	private function getID(url:String):String {
 		return '';
 	};
 
@@ -61,32 +65,23 @@ public class BrightcoveModel implements ModelInterface {
 
 
 	private function loaderHandler(evt:Event):void {
-		var pLoaderInfo:LoaderInfo = evt.target as LoaderInfo;
-		var pLoader:Loader = pLoaderInfo.loader;
-		var pPlayer:Sprite = evt.target.content as Sprite;
-		if (bcPlayer && pPlayer != bcPlayer) {
-			if (bcPlayer.parent) {
-				bcPlayer.parent.removeChild(bcPlayer);
-			}
+		interval = setInterval(checkPlayer,100);
+	};
+
+
+	private function checkPlayer():void {
+		var exp:Object = Object(loader.content).getModule('experience');
+		var vpl:Object = Object(loader.content).getModule('videoPlayer');
+		if(vpl && exp) {
+			videoplayer = vpl;
+			exp.addEventListener('templateReady',templateReady);
+			clearInterval(interval);
 		}
-		bcPlayer = pPlayer;
-		model.mediaHandler(bcPlayer as Sprite);
-		if (model.skin.display.contains(pLoader)) model.skin.display.removeChild(pLoader);
 	};
 
-
-	private function createPlayer(config:Object):void {
-	};
-
-
-	public function onTemplateLoaded():void {
-		trace('template loaded!');
-	};
-
-
-	public function getModule(pModule:String):Object {
-		// return Object(bcPlayer).getModule(pModule);
-		return '';
+	private function templateReady(evt:Event) {
+		model.mediaHandler(loader.content);
+		videoplayer.loadVideo(model.config['file']);
 	};
 
 
