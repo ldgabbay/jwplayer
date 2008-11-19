@@ -63,7 +63,7 @@ public class Stacker {
 
 
 	/** 
-	* Rearrange the contents of the clip. 
+	* Rearrange the contents of the clip.
 	*
 	* @param wid	The target width of the clip.
 	**/
@@ -116,6 +116,7 @@ public class Stacker {
 		return _width;
 	};
 
+
 	public function insert(insrt:MovieClip,next:MovieClip):void {
 		var found:Number = -1;
 		for(var i:Number=0; i<stack.length && found < 0; i++) {
@@ -126,8 +127,8 @@ public class Stacker {
 			}
 		}
 		rearrange();
-		
-	} 
+	} ;
+
 
 }
 

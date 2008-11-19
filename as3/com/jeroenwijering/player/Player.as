@@ -47,6 +47,7 @@ public class Player extends MovieClip {
 		autostart:false,
 		bufferlength:1,
 		displayclick:'play',
+		fullscreen:false,
 		icons:true,
 		item:0,
 		logo:undefined,
@@ -59,17 +60,16 @@ public class Player extends MovieClip {
 		stretching:'uniform',
 		volume:90,
 		
-		plugins:undefined,
-		
 		abouttext:undefined,
 		aboutlink:"http://www.jeroenwijering.com/?item=JW_FLV_Player",
 		client:undefined,
 		id:undefined,
 		linktarget:'_blank',
+		plugins:undefined,
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.3.113'
+		version:'4.3.114'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -126,22 +126,14 @@ public class Player extends MovieClip {
 	};
 
 
-	/** 
-	* MVC inited; now load plugins.
-	*
-	* Built-in plugins are instantiated here. External plugins are loaded.
-	* The controlbar is inited last, so it is show on top of all plugins.
-	* controlbar and playlist are added to config['plugins'], but only after external plugins are loaded.
-	**/
+	/** MVC inited; now init builtin plugins and load external ones. **/
 	protected function loadPlugins():void {
 		new Rightclick().initializePlugin(view);
 		new Display().initializePlugin(view);
 		new Playlist().initializePlugin(view);
-		
+		new Controlbar().initializePlugin(view);
 		loader.addEventListener(SPLoaderEvent.PLUGINS,startPlayer);
 		loader.loadPlugins(config['plugins']);
-		
-		new Controlbar().initializePlugin(view);
 	};
 
 

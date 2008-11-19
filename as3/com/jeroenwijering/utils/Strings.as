@@ -92,7 +92,9 @@ public class Strings {
 	* @return		The original value in the correct primitive type.
 	**/
 	public static function serialize(val:String):Object {
-		if (val == 'true') {
+		if(val == null) {
+			return null;
+		} else if (val == 'true') {
 			return true;
 		} else if (val == 'false') {
 			return false;

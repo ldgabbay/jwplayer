@@ -36,6 +36,7 @@ public class Controller extends EventDispatcher {
 	/** object that provides randomization. **/
 	private var randomizer:Randomizer;
 
+
 	/** Constructor, set up stage and playlist listeners. **/
 	public function Controller(cfg:Object,skn:MovieClip):void {
 		config = cfg;
@@ -67,9 +68,7 @@ public class Controller extends EventDispatcher {
 		view.addEventListener(ViewEvent.SEEK,seekHandler);
 		view.addEventListener(ViewEvent.STOP,stopHandler);
 		view.addEventListener(ViewEvent.VOLUME,volumeHandler);
-		view.addEventListener(ViewEvent.BUTTON,buttonHandler);
 	};
-
 
 
 	/** Catch errors dispatched by the playlister. **/
@@ -155,6 +154,7 @@ public class Controller extends EventDispatcher {
 		if(lnk != null) {
 			navigateToURL(new URLRequest(lnk),config['linktarget']);
 		}
+		playHandler(new ViewEvent(ViewEvent.PLAY,{state:false}));
 	};
 
 
@@ -343,47 +343,45 @@ public class Controller extends EventDispatcher {
 
 	/** Forward a resizing of the stage. **/
 	private function redrawHandler(evt:ViewEvent=null):void {
-		var dat:Object = {fullscreen: false};
-
 		try { 
 			var dps:String = skin.stage['displayState'];
 		} catch (err:Error) {}
-
 		if(dps == 'fullScreen') {
-			dat.fullscreen = true;
+			config['fullscreen'] = true;
 			config['width'] = skin.stage.stageWidth;
 			config['height'] = skin.stage.stageHeight;
 		} else if(config['resizing']) {
+			config['fullscreen'] = false;
 			config['width'] = skin.stage.stageWidth;
 			config['height'] = skin.stage.stageHeight;
-		} 
-
-		config['controlbar.size'] = skin.controlbar.height;
-		if(config['controlbar']) { config['controlbar.position'] = config['controlbar']; }
-		if(config['playlist']) { config['playlist.position'] = config['playlist']; }
-		if(config['playlistsize']) { config['playlist.size'] = config['playlistsize']; }
-
-		layoutPlugins(dat.fullscreen);
-		
-		dat.width = config['width'];
-		dat.height = config['height'];
-		dispatchEvent(new ControllerEvent(ControllerEvent.RESIZE,dat));
+		} else {
+			config['fullscreen'] = false;
+		}
+		layoutPlugins();
+		dispatchEvent(new ControllerEvent(ControllerEvent.RESIZE,{
+			fullscreen:config['fullscreen'],
+			width:config['width'],
+			height:config['height']
+		}));
 	};
+
 
 	/** Set the size and position for each plugin in config. 
 	 *  It's up to each plugin to resize itself accordingly. 
 	 **/
 	private function layoutPlugins(fullscreen:Boolean=false):void {
-		var displayCoord:Object = { x: 0, y:0, width:Number(config['width']), height:Number(config['height']) };
-	
+		config['controlbar.size'] = skin.controlbar.height;
+		if(config['controlbar']) { config['controlbar.position'] = config['controlbar']; }
+		if(config['playlist']) { config['playlist.position'] = config['playlist']; }
+		if(config['playlistsize']) { config['playlist.size'] = config['playlistsize']; }
+		var displayCoord:Object = {x:config['x'],y:config['y'],width:config['width'],height:config['height'] };
 		var plugins:Array = [];
 		var overlays:Array = [];
-
 		if(config.hasOwnProperty('plugins')) {
 			plugins = String(config['plugins']).split(',');
 		}
 		
-		if(config['playlist.position']) { plugins.splice(0, 0, 'playlist'); }
+		if(!fullscreen && config['playlist.position']) { plugins.splice(0, 0, 'playlist'); }
 		
 		if(!fullscreen && config['controlbar.position']) { plugins.splice(0, 0, 'controlbar'); }
 		
@@ -496,17 +494,6 @@ public class Controller extends EventDispatcher {
 			Configger.saveCookie('volume',config['volume']);
 			dispatchEvent(new ControllerEvent(ControllerEvent.VOLUME,{percentage:vol}));
 		}
-	};
-
-	/** Add new button to the control bar. **/
-	private function buttonHandler(evt:ViewEvent):void {
-		var dat:Object = {icon:null,clickhandler:null,buttonname:""};
-		try {
-			dat['icon'] = evt.data['icon'];
-			dat['clickhandler'] = evt.data['clickhandler'];
-			dat['buttonname'] = String(evt.data['buttonname']);
-		} catch(e:Error) {}
-		dispatchEvent(new ControllerEvent(ControllerEvent.BUTTON,dat));
 	};
 
 

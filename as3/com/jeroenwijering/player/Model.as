@@ -191,7 +191,9 @@ public class Model extends EventDispatcher {
 					case ModelStates.COMPLETED:
 						thumb.visible = true;
 						skin.display.media.visible = false;
-						sendEvent(ModelEvent.TIME,{position:0,duration:playlist[config['item']]['duration']});
+						if(playlist) {
+							sendEvent(ModelEvent.TIME,{position:0,duration:playlist[config['item']]['duration']});
+						}
 						break;
 					case ModelStates.PLAYING:
 						var ext:String = playlist[config['item']]['file'].substr(-3);

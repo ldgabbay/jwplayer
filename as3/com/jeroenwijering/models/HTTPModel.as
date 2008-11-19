@@ -44,8 +44,6 @@ public class HTTPModel implements ModelInterface {
 	private var metadata:Boolean;
 	/** switch for h264 streaming **/
 	private var h264:Boolean;
-	/** Byteposition to which the file has been loaded. **/
-	private var loaded:Number;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -128,9 +126,9 @@ public class HTTPModel implements ModelInterface {
 		url += '&width='+model.config['width'];
 		if(getToken()) { url += '&token='+getToken(); }
 		stream.play(url);
-		clearInterval(loadinterval);
+		//clearInterval(loadinterval);
+		//loadinterval = setInterval(loadHandler,200);
 		clearInterval(timeinterval);
-		loadinterval = setInterval(loadHandler,200);
 		timeinterval = setInterval(timeHandler,100);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
@@ -138,12 +136,12 @@ public class HTTPModel implements ModelInterface {
 
 	/** Interval for the loading progress **/
 	private function loadHandler():void {
-		loaded = stream.bytesLoaded;
-		var ttl = stream.bytesTotal;
-		if(loaded >= ttl && loaded > 0) {
+		var ldd:Number = stream.bytesLoaded;
+		var ttl:Number = stream.bytesTotal;
+		if(ldd >= ttl && ldd > 0) {
 			clearInterval(loadinterval);
 		}
-		//model.sendEvent(ModelEvent.LOADED,{loaded:loaded,total:ttl+offset,offset:offset});
+		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl+offset,offset:offset});
 	};
 
 
@@ -205,7 +203,7 @@ public class HTTPModel implements ModelInterface {
 	public function seek(pos:Number):void {
 		clearInterval(timeinterval);
 		var off = getOffset(pos);
-		if(off < offset || off > offset+loaded) {
+		if(off < offset || off > offset+stream.bytesLoaded) {
 			offset = off;
 			timeoffset = getOffset(pos,true);
 			load();
@@ -268,7 +266,7 @@ public class HTTPModel implements ModelInterface {
 	private function timeHandler():void {
 		var bfr = Math.round(stream.bufferLength/stream.bufferTime*100);
 		var pos = Math.round(stream.time*10)/10;
-		if (h264) { pos += timeoffset; }
+		if (h264 || pos == 0) { pos += timeoffset; }
 		var dur = model.playlist[model.config['item']]['duration'];
 		if(bfr<95 && pos < Math.abs(dur-stream.bufferTime*2)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});

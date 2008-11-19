@@ -188,6 +188,7 @@ public class YoutubeModel implements ModelInterface {
 
 	/** Destroy the youtube video. **/
 	public function stop():void {
+		metasent = false;
 		outgoing.send('AS3_'+unique,"stopVideo");
 	};
 

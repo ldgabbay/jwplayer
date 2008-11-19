@@ -74,11 +74,9 @@ public class Display implements PluginInterface {
 				display.back.alpha = 1;
 			}
 		}
-		if(view.config['displayclick'] != 'none') {
-			display.addEventListener(MouseEvent.CLICK,clickHandler);
-			display.buttonMode = true;
-			display.mouseChildren = false;
-		}
+		display.addEventListener(MouseEvent.CLICK,clickHandler);
+		display.buttonMode = true;
+		display.mouseChildren = false;
 		try {
 			Draw.clear(display.logo);
 			if(view.config['logo']) { setLogo(); }
@@ -102,13 +100,17 @@ public class Display implements PluginInterface {
 
 	/** Process a click on the display. **/
 	private function clickHandler(evt:MouseEvent):void {
-		view.sendEvent(view.config['displayclick']);
+		if(view.config['state'] == ModelStates.IDLE) { 
+			view.sendEvent('PLAY');
+		} else { 
+			view.sendEvent(view.config['displayclick']);
+		}
 	};
 
 
 	/** Receive and print errors. **/
 	private function errorHandler(evt:Object):void {
-		if(view.config['icons'] == true) { 
+		if(view.config['icons'] == true) {
 			try {
 				setIcon('errorIcon');
 				display.errorIcon.txt.text = evt.data.message;
@@ -118,7 +120,7 @@ public class Display implements PluginInterface {
 
 
 	/** Logo loaded; now position it. **/
-	private function logoHandler(evt:Event):void {
+	private function logoHandler(evt:Event=null):void {
 		if(margins[0] > margins[2]) {
 			display.logo.x = display.back.width- margins[2]-display.logo.width;
 		} else {
@@ -134,7 +136,7 @@ public class Display implements PluginInterface {
 
 	/** Receive resizing requests **/
 	private function resizeHandler(evt:ControllerEvent=null):void {
-		if(view.config['height'] > 0) { 
+		if(view.config['height'] > 0) {
 			display.visible = true;
 			display.x = view.config['x'];
 			display.y = view.config['y'];
@@ -143,7 +145,7 @@ public class Display implements PluginInterface {
 		}
 		display.back.width  = view.config['width'];
 		display.back.height = view.config['height'];
-		try { 
+		try {
 			display.masker.width = view.config['width'];
 			display.masker.height = view.config['height'];
 		} catch (err:Error) {}
@@ -154,7 +156,7 @@ public class Display implements PluginInterface {
 			} catch (err:Error) {}
 		}
 		if(view.config['logo']) {
-			logoHandler(new Event(Event.COMPLETE));
+			logoHandler();
 		}
 	};
 
@@ -163,7 +165,7 @@ public class Display implements PluginInterface {
 	private function setIcon(icn:String=undefined):void {
 		for(var i:String in ICONS) {
 			if(display[ICONS[i]]) { 
-				if(icn == ICONS[i]) {
+				if(icn == ICONS[i] && view.config['icons'] == true) {
 					display[ICONS[i]].visible = true; 
 				} else {
 					display[ICONS[i]].visible = false; 
@@ -190,26 +192,25 @@ public class Display implements PluginInterface {
 
 	/** Handle a change in playback state. **/
 	private function stateHandler(evt:Event=null):void {
-		state = view.config['state'];
 		clearTimeout(timeout);
-		if(state == ModelStates.PLAYING) {
-			setIcon();
-		} else if (state == ModelStates.BUFFERING && view.config['icons'] == true) {
-			setIcon();
-			timeout = setTimeout(setIcon,1500,'bufferIcon');
-		} else {
-			switch(view.config.displayclick) {
-				case 'none':
+		switch (view.config['state']) {
+			case ModelStates.PLAYING:
+				setIcon();
+				break;
+			case ModelStates.BUFFERING:
+				setIcon();
+				timeout = setTimeout(setIcon,1500,'bufferIcon');
+				break;
+			case ModelStates.IDLE:
+				if(view.config.displayclick == 'none' || !view.playlist) {
 					setIcon();
-					break;
-				default:
-					if(view.config['icons'] == true && view.playlist) {
-						setIcon(view.config.displayclick+'Icon');
-					} else { 
-						setIcon();
-					}
-					break;
-			}
+				} else { 
+					setIcon('playIcon');
+				}
+				break;
+			default:
+				setIcon(view.config.displayclick+'Icon');
+				break;
 		}
 	};
 

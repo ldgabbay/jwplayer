@@ -79,7 +79,6 @@ public class AbstractView extends EventDispatcher {
 	**/
 	public function getPluginConfig(plgname:Object):Object { return {}; };
 
-	
 
 }
 

@@ -223,13 +223,17 @@ public class Playlist implements PluginInterface {
 
 	/** Process resizing requests **/
 	private function resizeHandler(evt:ControllerEvent=null):void {
-		if(view.config['playlist.position'] && view.config['playlist.position'] != 'none') {
+		if(view.config['playlist.position'] != 'none' && view.config['fullscreen'] == false) {
 			clip.x = view.config['playlist.x'];
 			clip.y = view.config['playlist.y'];
 			clip.back.width = view.config['playlist.width'];
-			clip.back.height = view.config['playlist.height'];;
+			clip.back.height = view.config['playlist.height'];
 			buildList(false);
-			clip.visible = true;
+			if(view.config['playlist.position'] == 'over') {
+				stateHandler();
+			} else { 
+				clip.visible = true;
+			}
 		} else {
 			clip.visible = false;
 			buildList(false);
@@ -296,13 +300,15 @@ public class Playlist implements PluginInterface {
 			if(!buttons[idx].c[itm]) {
 				continue;
 			} else if(itm == 'image') {
-				var img:MovieClip = buttons[idx].c.image;
-				var msk:Sprite = Draw.rect(buttons[idx].c,'0xFF0000',img.width,img.height,img.x,img.y);
-				var ldr:Loader = new Loader();
-				img.mask = msk;
-				img.addChild(ldr);
-				ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
-				ldr.load(new URLRequest(view.playlist[idx]['image']));
+				if(view.playlist[idx]['image']) {
+					var img:MovieClip = buttons[idx].c.image;
+					var msk:Sprite = Draw.rect(buttons[idx].c,'0xFF0000',img.width,img.height,img.x,img.y);
+					var ldr:Loader = new Loader();
+					img.mask = msk;
+					img.addChild(ldr);
+					ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
+					ldr.load(new URLRequest(view.playlist[idx]['image']));
+				}
 			} else if(itm == 'duration') {
 				if(view.playlist[idx][itm] > 0) {
 					buttons[idx].c[itm].text = Strings.digits(view.playlist[idx][itm]);
@@ -321,11 +327,11 @@ public class Playlist implements PluginInterface {
 				}
 			}
 		}
+		if(buttons[idx].c['image'] && !view.playlist[idx]['image']) {
+			buttons[idx].c['image'].visible = false;
+		}
 		if(back) {
 			buttons[idx].c['back'].transform.colorTransform = back;
-		}
-		if(!view.playlist[idx]['image'] && buttons[idx].c['image']) {
-			buttons[idx].c['image'].visible = false;
 		}
 	};
 
@@ -367,11 +373,11 @@ public class Playlist implements PluginInterface {
 
 
 	/** Process state changes **/
-	private function stateHandler(evt:ModelEvent):void {
+	private function stateHandler(evt:ModelEvent=null):void {
 		if(view.config['playlist.position'] == 'over') {
-			if(evt.data.newstate == ModelStates.PLAYING || 
-				evt.data.newstate == ModelStates.BUFFERING ||
-				evt.data.newstate == ModelStates.PAUSED) {
+			if(view.config['state'] == ModelStates.PLAYING ||
+				view.config['state'] == ModelStates.BUFFERING ||
+				view.config['state'] == ModelStates.PAUSED) {
 				Animations.fade(clip,0);
 			} else {
 				Animations.fade(clip,1);

@@ -52,8 +52,7 @@ public class View extends AbstractView {
 		setListening();
 		if(ExternalInterface.available && _skin.loaderInfo.url.indexOf('http') == 0) {
 			listeners = new Array();
-			setJavascript();
-			setTimeout(playerReady,100);
+			setTimeout(javascriptReady,100);
 		}
 	};
 
@@ -122,7 +121,7 @@ public class View extends AbstractView {
 			ExternalInterface.call(config['tracecall'],tgt+': '+typ+' '+prm);
 		}
 		if(!dat) { dat = new Object(); }
-	 	dat.id = ExternalInterface.objectID;
+	 	dat.id = config['id'];
 		dat.client = config['client'];
 		dat.version = config['version'];
 		for (var itm:String in listeners) {
@@ -130,6 +129,25 @@ public class View extends AbstractView {
 				ExternalInterface.call(listeners[itm]['callee'],dat);
 			}
 		}
+	};
+
+
+	/** Add callbacks and send a call to javascript that the player is ready. **/
+	private function javascriptReady():void {
+		if(ExternalInterface.objectID) {
+			_config['id'] = ExternalInterface.objectID;
+		}
+		var dat:Object = {id:config['id'],client:config['client'],version:config['version']};
+		try {
+			ExternalInterface.addCallback("getConfig",getConfig);
+			ExternalInterface.addCallback("getPlaylist",getPlaylist);
+			ExternalInterface.addCallback("addControllerListener",addJSControllerListener);
+			ExternalInterface.addCallback("addModelListener",addJSModelListener);
+			ExternalInterface.addCallback("addViewListener",addJSViewListener);
+			ExternalInterface.addCallback("sendEvent",sendEvent);
+			ExternalInterface.addCallback("loadPlugin",loadPlugin);
+			ExternalInterface.call("playerReady",dat);
+		} catch (err:Error) { }
 	};
 
 
@@ -157,17 +175,6 @@ public class View extends AbstractView {
 	};
 
 
-	/** Send a call to javascript that the player is ready. **/
-	private function playerReady():void {
-		if(ExternalInterface.available) {
-			var dat:Object = {id:config['id'],client:config['client'],version:config['version']};
-			try {
-				ExternalInterface.call("playerReady",dat);
-			} catch (err:Error) {}
-		}
-	};
-
-
 	/** Send a redraw request when the stage is resized. **/
 	private function resizeHandler(evt:Event=undefined):void {
 		dispatchEvent(new ViewEvent(ViewEvent.REDRAW));
@@ -179,8 +186,13 @@ public class View extends AbstractView {
 		typ = typ.toUpperCase();
 		var dat:Object = new Object();
 		switch(typ) {
-			case 'TRACE':
-				dat['message'] = prm;
+			case 'BUTTON':
+				dat = prm;
+				break;
+			case 'ITEM':
+				if (prm > -1) {
+					dat['index'] = prm;
+				}
 				break;
 			case 'LINK':
 				if (prm != null) {
@@ -190,19 +202,14 @@ public class View extends AbstractView {
 			case 'LOAD':
 				dat['object'] = prm;
 				break;
-			case 'ITEM':
-				if (prm > -1) {
-					dat['index'] = prm;
-				}
-				break;
 			case 'SEEK':
 				dat['position'] = prm;
 				break;
+			case 'TRACE':
+				dat['message'] = prm;
+				break;
 			case 'VOLUME':
 				dat['percentage'] = prm;
-				break;
-			case 'BUTTON':
-				dat = prm;
 				break;
 			default:
 				if(prm!=null && prm != '') {
@@ -214,6 +221,7 @@ public class View extends AbstractView {
 				}
 				break;
 		}
+		trace(typ);
 		dispatchEvent(new ViewEvent(typ,dat));
 	};
 
@@ -222,23 +230,6 @@ public class View extends AbstractView {
 	private function setController(evt:ControllerEvent):void { forward('CONTROLLER',evt.type,evt.data); };
 	private function setModel(evt:ModelEvent):void { forward('MODEL',evt.type,evt.data); };
 	private function setView(evt:ViewEvent):void { forward('VIEW',evt.type,evt.data); };
-
-
-	/** Setup javascript API. **/
-	private function setJavascript() {
-		try {
-			if(ExternalInterface.objectID) {
-				_config['id'] = ExternalInterface.objectID;
-			}
-			ExternalInterface.addCallback("getConfig",getConfig);
-			ExternalInterface.addCallback("getPlaylist",getPlaylist);
-			ExternalInterface.addCallback("addControllerListener",addJSControllerListener);
-			ExternalInterface.addCallback("addModelListener",addJSModelListener);
-			ExternalInterface.addCallback("addViewListener",addJSViewListener);
-			ExternalInterface.addCallback("sendEvent",sendEvent);
-			ExternalInterface.addCallback("loadPlugin",loadPlugin);
-		} catch (err:Error) {}
-	};
 
 
 	/** Setup listeners to all events for tracing / javascript. **/

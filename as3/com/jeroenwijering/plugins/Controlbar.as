@@ -55,9 +55,10 @@ public class Controlbar implements PluginInterface {
 		volumeSlider:'VOLUME'
 	}
 
+
 	/** Button next to which custom buttons are added **/
 	private var insertNextTo:MovieClip = null;
-	
+
 
 	/** Constructor. **/
 	public function Controlbar():void {};
@@ -74,13 +75,12 @@ public class Controlbar implements PluginInterface {
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.MUTE,muteHandler);
 		view.addControllerListener(ControllerEvent.VOLUME,volumeHandler);
-		view.addControllerListener(ControllerEvent.BUTTON,buttonHandler);
 		bar = view.skin['controlbar'];
-		
-		if(bar.hasOwnProperty('blankButton')) {
-			bar.blankButton.visible = false;
+		if(bar['blankButton']) {
+			insertNextTo = bar['linkButton'];
+			bar['blankButton'].visible = false;
+			view.addViewListener(ViewEvent.BUTTON,buttonHandler);
 		}
-		
 		margin = bar.x;
 		stacker = new Stacker(bar);
 		setButtons();
@@ -92,6 +92,22 @@ public class Controlbar implements PluginInterface {
 		timeHandler();
 		stateHandler();
 		resizeHandler();
+	};
+
+
+	/** Add a new button to the controlbar **/
+	private function buttonHandler(evt:ViewEvent=null):void {
+		try {
+			var newButton:MovieClip = Draw.clone(bar['blankButton']);
+			newButton.name = evt.data.name;
+			Draw.clear(newButton.icon);
+			newButton.visible = true;
+			newButton.icon.addChild(evt.data.icon);
+			newButton.addEventListener(MouseEvent.CLICK, evt.data.handler);
+			bar.addChild(newButton);
+			stacker.insert(newButton,insertNextTo);
+			insertNextTo = newButton;
+		} catch (err:Error) {}
 	};
 
 
@@ -210,7 +226,7 @@ public class Controlbar implements PluginInterface {
 
 	/** Handle mouseouts from all buttons **/
 	private function outHandler(evt:MouseEvent):void {
-		if(front) {
+		if(front && bar[evt.target.name]['icon']) {
 			bar[evt.target.name]['icon'].transform.colorTransform = front;
 		} else {
 			bar[evt.target.name].gotoAndPlay('out');
@@ -220,7 +236,7 @@ public class Controlbar implements PluginInterface {
 
 	/** Handle clicks from all buttons **/
 	private function overHandler(evt:MouseEvent):void {
-		if(front) {
+		if(front && bar[evt.target.name]['icon']) {
 			bar[evt.target.name]['icon'].transform.colorTransform = light;
 		} else {
 			bar[evt.target.name].gotoAndPlay('over');
@@ -231,7 +247,7 @@ public class Controlbar implements PluginInterface {
 	/** Process resizing requests **/
 	private function resizeHandler(evt:ControllerEvent=null):void {
 		var wid:Number = stacker.width;
-		if(view.config['controlbar.position'] == 'over' || (evt && evt.data.fullscreen == true)) {
+		if(view.config['controlbar.position'] == 'over' || view.config['fullscreen'] == true) {
 			bar.y = view.config['height'] - view.config['controlbar.size'] - margin;
 			bar.x = margin;
 			wid = view.config['width'] - 2*margin;
@@ -431,42 +447,7 @@ public class Controlbar implements PluginInterface {
 		} catch (err:Error) {}
 	};
 
-	/** Add a new button to the controlbar **/
-	private function buttonHandler(evt:ControllerEvent=null):void {
-		if(!insertNextTo) { insertNextTo = bar['linkButton']; }
-		if(bar.hasOwnProperty('blankButton')) {
-			try { 
-				var newButton:MovieClip = Draw.clone(bar['blankButton']);
-				newButton.name = evt.data.buttonname;
-				newButton.visible = true;
 
-				var newIcon = null;
-				
-				if(evt.data.icon is String) {
-					newIcon = new Loader();
-					newIcon.load(new URLRequest(evt.data.icon));
-				} else if(evt.data.icon is Sprite) {
-					newIcon = evt.data.icon as Sprite;
-				}
-				
-				if(newIcon) {
-					newIcon.x = newButton['icon'].x;
-					newIcon.y = newButton['icon'].y;
-					newIcon.name = 'icon';
-					newButton.removeChild(newButton['icon']);
-					newButton.addChild(newIcon);
-				}
-				
-				newButton.addEventListener(MouseEvent.CLICK, evt.data.clickhandler);
-
-				bar.addChild(newButton);
-
-				stacker.insert(newButton, insertNextTo);
-				insertNextTo = newButton;
-
-			} catch (err:Error) {}
-		}
-	};
 };
 
 

@@ -33,12 +33,7 @@ public class BrightcoveModel implements ModelInterface {
 	public function BrightcoveModel(mod:Model):void {
 		model = mod;
 		Security.allowDomain("*");
-		var url = model.config['file'] + '?isVid=1';
-		url += "&cdnURL="+escape("http://admin.brightcove.com");
-		url += "&servicesURL="+escape("http://services.brightcove.com/services");
-		url += "&playerWidth="+model.config["width"];
-		url += "&playerHeight="+model.config["height"];
-		url = 'http://c.brightcove.com/services/viewer/federated_f9/2069232001?isVid=1&playerWidth=400&playerHeight=280&playerID=2069232001';
+		var url = 'http://c.brightcove.com/services/viewer/federated_f9/2219255001?isVid=1&playerWidth=400&playerHeight=280&playerID=2219255001&publisherID=1078685629&playertag=umg.synd.singingfool';
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
