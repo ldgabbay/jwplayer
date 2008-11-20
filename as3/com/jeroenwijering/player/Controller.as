@@ -23,8 +23,10 @@ public class Controller extends EventDispatcher {
 
 	/** Configuration object **/
 	private var config:Object;
-	/** Reference to the skin; for stage event subscription. **/
+	/** Reference to the skin (for stage access). **/
 	private var skin:MovieClip;
+	/** Reference to the SPLoader (for layouting plugins). **/
+	private var sploader:SPLoader;
 	/** Playlist of the player. **/
 	public var playlist:Array;
 	/** Reference to the player's model. **/
@@ -38,9 +40,10 @@ public class Controller extends EventDispatcher {
 
 
 	/** Constructor, set up stage and playlist listeners. **/
-	public function Controller(cfg:Object,skn:MovieClip):void {
+	public function Controller(cfg:Object,skn:MovieClip,ldr:SPLoader):void {
 		config = cfg;
 		skin = skn;
+		sploader = ldr;
 		loader = new URLLoader();
 		loader.addEventListener(Event.COMPLETE,loaderHandler);
 		loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,errorHandler);
@@ -113,8 +116,6 @@ public class Controller extends EventDispatcher {
 		// string matches on the file
 		if(itm['file'].indexOf('youtube.com/w') > -1 || itm['file'].indexOf('youtube.com/v') > -1) {
 			return 'youtube';
-		} else if (itm['file'].indexOf('services.brightcove.com') > -1) { 
-			return 'brightcove';
 		}
 		// recognized mimetype/extension and streamer
 		if((itm['type'] == 'video' || ext) && itm['streamer']) {
@@ -350,96 +351,19 @@ public class Controller extends EventDispatcher {
 			config['fullscreen'] = true;
 			config['width'] = skin.stage.stageWidth;
 			config['height'] = skin.stage.stageHeight;
+			sploader.layoutFullscreen();
 		} else if(config['resizing']) {
 			config['fullscreen'] = false;
 			config['width'] = skin.stage.stageWidth;
 			config['height'] = skin.stage.stageHeight;
+			sploader.layoutNormal();
 		} else {
 			config['fullscreen'] = false;
+			sploader.layoutNormal();
 		}
-		layoutPlugins();
 		dispatchEvent(new ControllerEvent(ControllerEvent.RESIZE,{
-			fullscreen:config['fullscreen'],
-			width:config['width'],
-			height:config['height']
-		}));
+			fullscreen:config['fullscreen'],width:config['width'],height:config['height']}));
 	};
-
-
-	/** Set the size and position for each plugin in config. 
-	 *  It's up to each plugin to resize itself accordingly. 
-	 **/
-	private function layoutPlugins(fullscreen:Boolean=false):void {
-		config['controlbar.size'] = skin.controlbar.height;
-		if(config['controlbar']) { config['controlbar.position'] = config['controlbar']; }
-		if(config['playlist']) { config['playlist.position'] = config['playlist']; }
-		if(config['playlistsize']) { config['playlist.size'] = config['playlistsize']; }
-		var displayCoord:Object = {x:config['x'],y:config['y'],width:config['width'],height:config['height'] };
-		var plugins:Array = [];
-		var overlays:Array = [];
-		if(config.hasOwnProperty('plugins')) {
-			plugins = String(config['plugins']).split(',');
-		}
-		
-		if(!fullscreen && config['playlist.position']) { plugins.splice(0, 0, 'playlist'); }
-		
-		if(!fullscreen && config['controlbar.position']) { plugins.splice(0, 0, 'controlbar'); }
-		
-		for(var i:Number = plugins.length-1; i >= 0; i--) {
-			var plg:String = plugins[i];
-			
-			if(config.hasOwnProperty(plg + '.position') && config.hasOwnProperty(plg + '.size')) {
-				var plgSize:Number = Number(config[plg+'.size']);
-				switch(String(config[plg+'.position']).toLowerCase()) {
-					case "left":
-						config[plg+'.x'] = displayCoord.x;
-						config[plg+'.y'] = displayCoord.y;
-						config[plg+'.width'] = plgSize;
-						config[plg+'.height'] = displayCoord.height;
-						displayCoord.x += plgSize;
-						displayCoord.width -= plgSize;
-						break;
-					case "top":
-						config[plg+'.x'] = displayCoord.x;
-						config[plg+'.y'] = displayCoord.y;
-						config[plg+'.width'] = displayCoord.width;
-						config[plg+'.height'] = plgSize;
-						displayCoord.y += plgSize;
-						displayCoord.height -= plgSize;
-						break;
-					case "right":
-						config[plg+'.x'] = displayCoord.x + displayCoord.width - plgSize;
-						config[plg+'.y'] = displayCoord.y;
-						config[plg+'.width'] = plgSize;
-						config[plg+'.height'] = displayCoord.height;
-						displayCoord.width -= plgSize;
-						break;
-					case "bottom":
-						config[plg+'.x'] = displayCoord.x;
-						config[plg+'.y'] = displayCoord.y + displayCoord.height - plgSize;
-						config[plg+'.width'] = displayCoord.width;
-						config[plg+'.height'] = plgSize;
-						displayCoord.height -= plgSize;
-						break;
-					default:
-						overlays.push(plg);
-				}
-			} else {
-				overlays.push(plg);
-			}
-		}
-		
-		for(var x:Number=0; x<overlays.length; x++) {
-			config[overlays[x]+'.x'] = displayCoord.x;
-			config[overlays[x]+'.y'] = displayCoord.y;
-			config[overlays[x]+'.width'] = displayCoord.width;
-			config[overlays[x]+'.height'] = displayCoord.height;
-		}
-		
-		for(var s:String in displayCoord) {
-			config[s] = displayCoord[s];
-		}
-	}
 
 
 	/** Seek to a specific part in a mediafile. **/

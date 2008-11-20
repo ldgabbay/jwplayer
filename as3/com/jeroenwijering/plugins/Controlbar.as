@@ -24,8 +24,8 @@ public class Controlbar implements PluginInterface {
 	private var view:AbstractView;
 	/** Reference to the controlbar **/
 	private var bar:MovieClip;
-	/** Fullscreen controlbar margin. **/
-	private var margin:Number;
+	/** List with configuration settings. **/
+	private var config:Object;
 	/** A list with all controls. **/
 	private var stacker:Stacker;
 	/** Timeout for hiding the bar. **/
@@ -67,6 +67,7 @@ public class Controlbar implements PluginInterface {
 	/** Initialize from view. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
+		config = view.getPluginConfig(this);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.LOADED,loadedHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
@@ -79,9 +80,7 @@ public class Controlbar implements PluginInterface {
 		if(bar['blankButton']) {
 			insertNextTo = bar['linkButton'];
 			bar['blankButton'].visible = false;
-			view.addViewListener(ViewEvent.BUTTON,buttonHandler);
 		}
-		margin = bar.x;
 		stacker = new Stacker(bar);
 		setButtons();
 		setColors();
@@ -91,19 +90,24 @@ public class Controlbar implements PluginInterface {
 		loadedHandler();
 		timeHandler();
 		stateHandler();
-		resizeHandler();
 	};
 
 
-	/** Add a new button to the controlbar **/
-	private function buttonHandler(evt:ViewEvent=null):void {
+	/** 
+	* Add a new button to the controlbar.
+	*
+	* @param icon		A graphic to show as icon
+	* @param name		Name of the button
+	* @param handler	The function to call when clicking the button.
+	**/
+	public function addButton(icon:DisplayObject,name:String,handler:Function):void {
 		try {
 			var newButton:MovieClip = Draw.clone(bar['blankButton']);
-			newButton.name = evt.data.name;
+			newButton.name = name;
 			Draw.clear(newButton.icon);
 			newButton.visible = true;
-			newButton.icon.addChild(evt.data.icon);
-			newButton.addEventListener(MouseEvent.CLICK, evt.data.handler);
+			newButton.icon.addChild(icon);
+			newButton.addEventListener(MouseEvent.CLICK, handler);
 			bar.addChild(newButton);
 			stacker.insert(newButton,insertNextTo);
 			insertNextTo = newButton;
@@ -246,34 +250,30 @@ public class Controlbar implements PluginInterface {
 
 	/** Process resizing requests **/
 	private function resizeHandler(evt:ControllerEvent=null):void {
-		var wid:Number = stacker.width;
-		if(view.config['controlbar.position'] == 'over' || view.config['fullscreen'] == true) {
-			bar.y = view.config['height'] - view.config['controlbar.size'] - margin;
-			bar.x = margin;
-			wid = view.config['width'] - 2*margin;
+		var wid:Number = config['width'];
+		bar.x = config['x'];
+		bar.y = config['y'];
+		bar.visible = config['visible'];
+		if(config['position'] == 'over' || view.config['fullscreen'] == true) {
+			bar.x = config['margin'];
+			bar.y = config['y'] + config['height'] - config['margin'] - config['size'];
+			wid = config['width'] - 2*config['margin'];
 			bar.back.alpha = 0.75;
-			bar.visible = true;
-		} else if(view.config.hasOwnProperty('controlbar.position') && view.config['controlbar.position'] != 'none') {
-			bar.x = view.config['controlbar.x'];
-			bar.y = view.config['controlbar.y'];
-			wid = view.config['controlbar.width'];
+		} else if(config['position'] != 'none') {
 			bar.back.alpha = 1;
-			bar.visible = true;
-		} else {
-			bar.visible = false;
 		}
 		try { 
 			bar.fullscreenButton.visible = false;
 			bar.normalscreenButton.visible = false;
 			if(bar.stage['displayState']) {
-				if(evt && evt.data.fullscreen == true) {
+				if(view.config['fullscreen']) {
 					bar.fullscreenButton.visible = false;
 					bar.normalscreenButton.visible = true;
 				} else {
 					bar.fullscreenButton.visible = true;
 					bar.normalscreenButton.visible = false;
 				}
-			} 
+			}
 		} catch (err:Error) {}
 		stacker.rearrange(wid);
 		stateHandler();

@@ -27,6 +27,8 @@ public class Display implements PluginInterface {
 	private var display:MovieClip;
 	/** Loader object for loading a logo. **/
 	private var loader:Loader;
+	/** Configuration vars for this plugin. **/
+	private var config:Object;
 	/** The margins of the logo. **/
 	private var margins:Array;
 	/** The latest playback state **/
@@ -52,6 +54,7 @@ public class Display implements PluginInterface {
 	/** Initialize the plugin. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
+		config = view.getPluginConfig(this);
 		view.addControllerListener(ControllerEvent.ERROR,errorHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addControllerListener(ControllerEvent.PLAYLIST,stateHandler);
@@ -65,14 +68,10 @@ public class Display implements PluginInterface {
 			clr.color = uint('0x'+view.config['screencolor'].substr(-6));
 			display.back.transform.colorTransform = clr;
 		}
-		if(view.config['screenalpha']) {
-			if(view.config['screenalpha'] < 1) {
-				display.back.alpha = view.config['screenalpha'];
-			} else if(view.config['screenalpha'] <= 100)  {
-				display.back.alpha = Number(view.config['screenalpha'])/100;
-			} else {
-				display.back.alpha = 1;
-			}
+		if(view.config['screenalpha'] < 1) {
+			display.back.alpha = view.config['screenalpha'];
+		} else if(view.config['screenalpha'] < 100)  {
+			display.back.alpha = Number(view.config['screenalpha'])/100;
 		}
 		display.addEventListener(MouseEvent.CLICK,clickHandler);
 		display.buttonMode = true;
@@ -82,7 +81,6 @@ public class Display implements PluginInterface {
 			if(view.config['logo']) { setLogo(); }
 		} catch (err:Error) {}
 		stateHandler();
-		resizeHandler();
 	};
 
 
@@ -136,23 +134,23 @@ public class Display implements PluginInterface {
 
 	/** Receive resizing requests **/
 	private function resizeHandler(evt:ControllerEvent=null):void {
-		if(view.config['height'] > 0) {
+		display.x = config['x'];
+		display.y = config['y'];
+		if(config['height'] > 0) {
 			display.visible = true;
-			display.x = view.config['x'];
-			display.y = view.config['y'];
 		} else { 
 			display.visible = false;
 		}
-		display.back.width  = view.config['width'];
-		display.back.height = view.config['height'];
+		display.back.width  = config['width'];
+		display.back.height = config['height'];
 		try {
-			display.masker.width = view.config['width'];
-			display.masker.height = view.config['height'];
+			display.masker.width = config['width'];
+			display.masker.height = config['height'];
 		} catch (err:Error) {}
 		for(var i:String in ICONS) {
 			try { 
-				display[ICONS[i]].x = Math.round(view.config['width']/2);
-				display[ICONS[i]].y = Math.round(view.config['height']/2);
+				display[ICONS[i]].x = Math.round(config['width']/2);
+				display[ICONS[i]].y = Math.round(config['height']/2);
 			} catch (err:Error) {}
 		}
 		if(view.config['logo']) {
@@ -198,8 +196,12 @@ public class Display implements PluginInterface {
 				setIcon();
 				break;
 			case ModelStates.BUFFERING:
-				setIcon();
-				timeout = setTimeout(setIcon,1500,'bufferIcon');
+				if(evt && evt['data']['oldstate'] == ModelStates.PLAYING) {
+					setIcon();
+					timeout = setTimeout(setIcon,1500,'bufferIcon');
+				} else {
+					setIcon('bufferIcon');
+				}
 				break;
 			case ModelStates.IDLE:
 				if(view.config.displayclick == 'none' || !view.playlist) {

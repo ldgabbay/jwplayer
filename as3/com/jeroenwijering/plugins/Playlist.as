@@ -23,6 +23,8 @@ public class Playlist implements PluginInterface {
 	private var view:AbstractView;
 	/** Reference to the playlist MC. **/
 	private var clip:MovieClip;
+	/** List with configuration settings. **/
+	private var config:Object;
 	/** Array with all button instances **/
 	private var buttons:Array;
 	/** Height of a button (to calculate scrolling) **/
@@ -49,6 +51,7 @@ public class Playlist implements PluginInterface {
 	/** Initialize the communication with the player. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
+		config = view.getPluginConfig(this);
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.PLAYLIST,playlistHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
@@ -73,7 +76,6 @@ public class Playlist implements PluginInterface {
 		} catch (err:Error) {}
 		if(clip.list.button['back']) { setColors(); }
 		playlistHandler();
-		resizeHandler();
 	};
 
 
@@ -223,20 +225,15 @@ public class Playlist implements PluginInterface {
 
 	/** Process resizing requests **/
 	private function resizeHandler(evt:ControllerEvent=null):void {
-		if(view.config['playlist.position'] != 'none' && view.config['fullscreen'] == false) {
-			clip.x = view.config['playlist.x'];
-			clip.y = view.config['playlist.y'];
-			clip.back.width = view.config['playlist.width'];
-			clip.back.height = view.config['playlist.height'];
-			buildList(false);
-			if(view.config['playlist.position'] == 'over') {
-				stateHandler();
-			} else { 
-				clip.visible = true;
-			}
-		} else {
-			clip.visible = false;
-			buildList(false);
+		clip.x = config['x'];
+		clip.y = config['y'];
+		clip.back.width = config['width'];
+		clip.back.height = config['height'];
+		buildList(false);
+		if(config['position'] == 'over') {
+			stateHandler();
+		} else { 
+			clip.visible = config['visible'];
 		}
 	};
 
@@ -374,7 +371,7 @@ public class Playlist implements PluginInterface {
 
 	/** Process state changes **/
 	private function stateHandler(evt:ModelEvent=null):void {
-		if(view.config['playlist.position'] == 'over') {
+		if(config['position'] == 'over') {
 			if(view.config['state'] == ModelStates.PLAYING ||
 				view.config['state'] == ModelStates.BUFFERING ||
 				view.config['state'] == ModelStates.PAUSED) {

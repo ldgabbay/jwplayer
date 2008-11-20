@@ -33,16 +33,14 @@ public class Player extends MovieClip {
 		frontcolor:undefined,
 		lightcolor:undefined,
 		screencolor:undefined,
+		screenalpha:100,
 
-		'controlbar.position':'bottom',
-		'controlbar.size':20,
+		controlbar:'bottom',
 		height:300,
-		'playlist.position':'none',
-		'playlist.size':180,
+		playlist:'none',
+		playlistsize:180,
 		skin:undefined,
 		width:400,
-		x:0,
-		y:0,
 
 		autostart:false,
 		bufferlength:1,
@@ -69,30 +67,25 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.3.114'
+		version:'4.3.116'
 	};
+	/** Base directory from which all plugins are loaded. **/
+	public var basedir:String = "http://plugins.longtailvideo.com/";
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
 	/** Reference to the View of the MVC cycle, which defines all API calls. **/
 	public var view:View;
 	/** Object that loads all configuration variables. **/
 	protected var configger:Configger;
-	/** Base directory from which all plugins are loaded. **/
-	protected var basedir:String = "http://plugins.longtailvideo.com/";
 	/** Object that load the skin and plugins. **/
-	protected var loader:SPLoader;
+	protected var sploader:SPLoader;
 	/** Reference to the Controller of the MVC cycle. **/
 	protected var controller:Controller;
 	/** Reference to the model of the MVC cycle. **/
 	protected var model:Model;
 
 
-	/**
-	* Constructor; initializes and starts the player.
-	*
-	* ADDED_TO_STAGE is needed when the player is loaded in Flex/Flash.
-	* Otherwise the external flashvars and the stage aren't available yet.
-	**/
+	/** Constructor; hides player and waits until it is added to the stage. **/
 	public function Player():void {
 		visible = false;
 		skin = this['player'];
@@ -108,43 +101,42 @@ public class Player extends MovieClip {
 	};
 
 
-	/** Config loading completed; now load the skin. **/
+	/** When config is loaded, the player laods the skin. **/
 	protected function loadSkin(evt:Event=null):void {
-		loader = new SPLoader(this,basedir);
-		loader.addEventListener(SPLoaderEvent.SKIN,loadMVC);
-		loader.loadSkin(config['skin']);
+		sploader = new SPLoader(this);
+		sploader.addEventListener(SPLoaderEvent.SKIN,loadMVC);
+		sploader.loadSkin();
 	};
 
 
-	/** Skin loading completed, now load MVC. **/
+	/** When the skin is loaded, the model/view/controller are inited. **/
 	protected function loadMVC(evt:SPLoaderEvent=null):void {
-		controller = new Controller(config,skin);
+		controller = new Controller(config,skin,sploader);
 		model = new Model(config,skin,controller);
-		view = new View(config,skin,controller,model,loader);
+		view = new View(config,skin,sploader,controller,model);
 		controller.closeMVC(model,view);
 		loadPlugins();
 	};
 
 
-	/** MVC inited; now init builtin plugins and load external ones. **/
+	/** MVC inited; now init built-in plugins and load external ones. **/
 	protected function loadPlugins():void {
-		new Rightclick().initializePlugin(view);
-		new Display().initializePlugin(view);
-		new Playlist().initializePlugin(view);
-		new Controlbar().initializePlugin(view);
-		loader.addEventListener(SPLoaderEvent.PLUGINS,startPlayer);
-		loader.loadPlugins(config['plugins']);
+		sploader.addPlugin(new Display(),'display');
+		sploader.addPlugin(new Rightclick(),'rightclick');
+		sploader.addPlugin(new Controlbar(),'controlbar');
+		sploader.addPlugin(new Playlist(),'playlist');
+		sploader.addEventListener(SPLoaderEvent.PLUGINS,startPlayer);
+		sploader.loadPlugins();
 	};
 
 
 	/**
-	* Everything is now loaded. The Player is redrawn, shown and the file is loaded.
+	* Everything is now ready. The Player is redrawn, shown and the file is loaded.
 	*
 	* The Player broadcasts a READY event here to actionscript.
-	* The View will send a separate PlayerReady event to javascript.
+	* The View will send an asynchroneous PlayerReady event to javascript.
 	**/
 	protected function startPlayer(evt:SPLoaderEvent=null) {
-		loader.removeEventListener(SPLoaderEvent.PLUGINS,startPlayer);
 		view.sendEvent(ViewEvent.REDRAW);
 		visible = true;
 		dispatchEvent(new PlayerEvent(PlayerEvent.READY));
@@ -152,6 +144,7 @@ public class Player extends MovieClip {
 			view.sendEvent(ViewEvent.LOAD,config);
 		}
 	};
+
 
 }
 

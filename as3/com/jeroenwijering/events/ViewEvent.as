@@ -13,7 +13,6 @@ public class ViewEvent extends Event {
 
 
 	/** Definitions for all event types. **/
-	public static var BUTTON:String = "BUTTON";
 	public static var FULLSCREEN:String = "FULLSCREEN";
 	public static var ITEM:String = "ITEM";
 	public static var LINK:String = "LINK";

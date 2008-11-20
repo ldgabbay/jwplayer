@@ -24,7 +24,7 @@ public class View extends AbstractView {
 	/** Reference to all stage graphics. **/
 	private var _skin:MovieClip;
 	/** Object that load the skin and plugins. **/
-	private var loader:SPLoader;
+	private var sploader:SPLoader;
 	/** Controller of the MVC cycle. **/
 	private var controller:Controller;
 	/** Model of the MVC cycle. **/
@@ -36,7 +36,7 @@ public class View extends AbstractView {
 
 
 	/** Constructor, save references and subscribe to events. **/
-	public function View(cfg:Object,skn:MovieClip,ctr:Controller,mdl:Model,ldr:SPLoader):void {
+	public function View(cfg:Object,skn:MovieClip,ldr:SPLoader,ctr:Controller,mdl:Model):void {
 		Security.allowDomain("*");
 		_config = cfg;
 		_config['client'] = 'FLASH '+Capabilities.version;
@@ -46,7 +46,7 @@ public class View extends AbstractView {
 			_skin.stage.align = "TL";
 			_skin.stage.addEventListener(Event.RESIZE,resizeHandler);
 		}
-		loader = ldr;
+		sploader = ldr;
 		controller = ctr;
 		model = mdl;
 		setListening();
@@ -61,24 +61,6 @@ public class View extends AbstractView {
 	override public function get config():Object { return _config; };
 	override public function get playlist():Array { return controller.playlist; };
 	override public function get skin():MovieClip { return _skin; };
-
-
-	/** 
-	* Javascript getters for the config and playlist. 
-	* Since parameters with alphanumerical characters tend to crash AS <> JS, they are removed.
-	**/
-	private function getConfig():Object {
-		var cfg:Object = new Object();
-		for(var itm:String in _config) { 
-			if(itm.indexOf('.') == -1) { 
-				cfg[itm] = _config[itm];
-			}
-		}
-		return cfg; 
-	};
-	private function getPlaylist():Array { 
-		return controller.playlist; 
-	};
 
 
 	/**  Subscribers to the controller, model and view. **/
@@ -132,6 +114,46 @@ public class View extends AbstractView {
 	};
 
 
+	/** Javascript getters for the config, pluginconfig and playlist. **/
+	private function getConfig():Object {
+		var cfg:Object = new Object();
+		for(var s:String in _config) {
+			if(s.indexOf('.') == -1) {
+				cfg[s] = _config[s];
+			}
+		}
+		return cfg;
+	};
+	private function getJSPluginConfig(nam:String):Object {
+		var obj:Object = {};
+		var pgi:Object = sploader.getPlugin(nam);
+		if(pgi) { 
+			var cfg:Object = sploader.getPluginConfig(obj);
+			for(var s:String in cfg) {
+				if(cfg[s] != 'reference' && s.indexOf('.') == -1) { 
+					obj[s] = cfg[s];
+				}
+			}
+		}
+		return obj;
+	};
+	private function getPlaylist():Array { 
+		return controller.playlist; 
+	};
+
+
+	/** Get a reference to a specific plugin. **/
+	override public function getPlugin(nam:String):Object {
+		return sploader.getPlugin(nam);
+	};
+
+
+	/** Get configuration variables specific to a plugin. **/
+	override public function getPluginConfig(plg:Object):Object {
+		return sploader.getPluginConfig(plg);
+	};
+
+
 	/** Add callbacks and send a call to javascript that the player is ready. **/
 	private function javascriptReady():void {
 		if(ExternalInterface.objectID) {
@@ -139,38 +161,22 @@ public class View extends AbstractView {
 		}
 		var dat:Object = {id:config['id'],client:config['client'],version:config['version']};
 		try {
-			ExternalInterface.addCallback("getConfig",getConfig);
-			ExternalInterface.addCallback("getPlaylist",getPlaylist);
 			ExternalInterface.addCallback("addControllerListener",addJSControllerListener);
 			ExternalInterface.addCallback("addModelListener",addJSModelListener);
 			ExternalInterface.addCallback("addViewListener",addJSViewListener);
-			ExternalInterface.addCallback("sendEvent",sendEvent);
+			ExternalInterface.addCallback("getConfig",getConfig);
+			ExternalInterface.addCallback("getPlaylist",getPlaylist);
+			ExternalInterface.addCallback("getPluginConfig",getJSPluginConfig);
 			ExternalInterface.addCallback("loadPlugin",loadPlugin);
+			ExternalInterface.addCallback("sendEvent",sendEvent);
 			ExternalInterface.call("playerReady",dat);
 		} catch (err:Error) { }
 	};
 
 
-	/** 
-	* Load a plugin into the player at runtime.
-	*
-	* @prm pgi	The name of the plugin to load.
-	* @prm str	A string of additional flashvars (separated by & and = signs).
-	* 
-	* @return	Boolean true if succeeded.
-	**/
-	public function loadPlugin(pgi:String,str:String=null):Boolean {
-		if(str != null && str != '') {
-			var ar1:Array = str.split('&');
-			for(var i:String in ar1) {
-				var ar2:Array = ar1[i].split('=');
-				_config[ar2[0]] = Strings.serialize(ar2[1]); }
-		}
-		loader.loadPlugins(pgi);
-		
-		if(!_config['plugins']) { _config['plugins'] = pgi; }
-		else { _config['plugins'] += ',' + pgi; }
-		
+	/** Load a plugin into the player at runtime. **/
+	override public function loadPlugin(url:String,vrs:String=null):Boolean {
+		sploader.loadPlugin(url,vrs);
 		return true;
 	};
 
@@ -186,9 +192,6 @@ public class View extends AbstractView {
 		typ = typ.toUpperCase();
 		var dat:Object = new Object();
 		switch(typ) {
-			case 'BUTTON':
-				dat = prm;
-				break;
 			case 'ITEM':
 				if (prm > -1) {
 					dat['index'] = prm;
@@ -221,7 +224,6 @@ public class View extends AbstractView {
 				}
 				break;
 		}
-		trace(typ);
 		dispatchEvent(new ViewEvent(typ,dat));
 	};
 
@@ -265,25 +267,6 @@ public class View extends AbstractView {
 		addViewListener(ViewEvent.STOP,setView);
 		addViewListener(ViewEvent.TRACE,setView);
 		addViewListener(ViewEvent.VOLUME,setView);
-	};
-
-
-	/** Find a plugin name among the player's loaded plugins **/
-	override public function getPluginName(plg:Object):String {
-		return loader.getPluginName(plg);
-	};
-
-
-	/** Get configuration variables specific to a plugin. **/
-	override public function getPluginConfig(plg:Object):Object {
-		var toReturn:Object = {};
-		var plgname = getPluginName(plg);
-		for(var s:String in _config) {
-			if(s.indexOf(plgname+".") == 0) {
-				toReturn[s.substring(s.indexOf('.')+1, s.length)] = _config[s];
-			}
-		}
-		return toReturn;
 	};
 
 

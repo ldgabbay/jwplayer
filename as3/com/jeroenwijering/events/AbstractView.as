@@ -19,7 +19,7 @@ public class AbstractView extends EventDispatcher {
 
 	/**  Getter for config, the hashmap with configuration settings. **/
 	public function get config():Object { return new Object(); };
-	/** Getter for playlist, an array of hashmaps (file,link,image,etc) for each entry. **/
+	/** Getter for playlist, an array of hashmaps (file,link,image,etc) for each playlistentry. **/
 	public function get playlist():Array { return new Array(); };
 	/** Getter for skin, the on-stage player graphics. **/ 
 	public function get skin():MovieClip { return new MovieClip(); };
@@ -57,6 +57,39 @@ public class AbstractView extends EventDispatcher {
 
 
 	/**
+	* Get a reference to a specific plugin.
+	*
+	* @param nam	The name of the plugin to return.
+	* @return		A reference to the plugin itself. Public methods can be directly called on this.
+	* @see 			SPLoader
+	**/
+	public function getPlugin(nam:String):Object { return {}; };
+
+
+	/**
+	* Get configuration variables specific to a plugin.
+	*
+	* @param plg	The plugin whose configuration to return.
+	* @return		An object with config variables, much like the global config object.
+	* @see 			SPLoader
+	**/
+	public function getPluginConfig(plg:Object):Object { return {}; };
+
+
+	/**
+	* Load a plugin into the player at runtime.
+	*
+	* @prm url	The url of the plugin to load.
+	* @prm vrs	A string of flashvars for the plugin 
+	*			(separated by & and = signs, no 'pluginname.' variable needed).
+	* @return	Boolean true if succeeded.
+	**/
+	public function loadPlugin(url:String,vrs:String=null):Boolean {
+		return true;
+	};
+
+
+	/**
 	* Dispatch an event. The event will be serialized and fired by the View.
 	*
 	* @param typ	The specific event to fire to.
@@ -64,20 +97,6 @@ public class AbstractView extends EventDispatcher {
 	* @see 			ViewEvent
 	**/
 	public function sendEvent(typ:String,prm:Object=undefined):void { };
-
-	/**
-	* Find a plugin name among the player's loaded plugins.
-	*
-	* @param plg	The plugin to find.
-	**/
-	public function getPluginName(plg:Object):String { return ""; };
-
-	/**
-	* Get configuration variables specific to a plugin.
-	*
-	* @param plg	The plugin whose configuration to return.
-	**/
-	public function getPluginConfig(plgname:Object):Object { return {}; };
 
 
 }
