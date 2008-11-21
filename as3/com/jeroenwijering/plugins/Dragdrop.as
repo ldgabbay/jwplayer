@@ -51,7 +51,7 @@ public class Dragdrop extends MovieClip implements PluginInterface {
 	/** When dropping a file, see if it can be read. **/
 	private function dropHandler(evt:NativeDragEvent):void {
 		var arr:Array = new Array();
-		var files:Array = Array(evt.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT));
+		var files:Array = evt.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT) as Array;
 		for(var i:int = 0; i < files.length; ++i) {
 			var f:File = File(files[i]);
 			arr.push({file:f.url,title:f.name});
@@ -64,6 +64,7 @@ public class Dragdrop extends MovieClip implements PluginInterface {
 	private function exitHandler(evt:NativeDragEvent):void {
 		clip.area.visible = false;
 	};
+
 
 	/** Hide the help text on play. **/
 	private function playlistHandler(evt:ControllerEvent=undefined) {

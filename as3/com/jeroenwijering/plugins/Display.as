@@ -138,7 +138,7 @@ public class Display implements PluginInterface {
 		display.y = config['y'];
 		if(config['height'] > 0) {
 			display.visible = true;
-		} else { 
+		} else {
 			display.visible = false;
 		}
 		display.back.width  = config['width'];

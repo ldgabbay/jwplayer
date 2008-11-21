@@ -37,7 +37,7 @@ public class View extends AbstractView {
 
 	/** Constructor, save references and subscribe to events. **/
 	public function View(cfg:Object,skn:MovieClip,ldr:SPLoader,ctr:Controller,mdl:Model):void {
-		Security.allowDomain("*");
+		try { Security.allowDomain("*"); } catch(err:Error) {}
 		_config = cfg;
 		_config['client'] = 'FLASH '+Capabilities.version;
 		_skin = skn;
@@ -45,6 +45,8 @@ public class View extends AbstractView {
 			_skin.stage.scaleMode = "noScale";
 			_skin.stage.align = "TL";
 			_skin.stage.addEventListener(Event.RESIZE,resizeHandler);
+		} else {
+			_skin.stage.addEventListener(FullScreenEvent.FULL_SCREEN,resizeHandler);
 		}
 		sploader = ldr;
 		controller = ctr;
@@ -170,7 +172,7 @@ public class View extends AbstractView {
 			ExternalInterface.addCallback("loadPlugin",loadPlugin);
 			ExternalInterface.addCallback("sendEvent",sendEvent);
 			ExternalInterface.call("playerReady",dat);
-		} catch (err:Error) { }
+		} catch (err:Error) {}
 	};
 
 

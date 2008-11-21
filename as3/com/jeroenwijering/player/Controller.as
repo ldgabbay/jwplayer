@@ -85,7 +85,7 @@ public class Controller extends EventDispatcher {
 		if(skin.stage['displayState'] == 'fullScreen') {
 			skin.stage['displayState'] = 'normal';
 		} else {
-			fullscreenrect();
+			try { fullscreenrect(); } catch (err:Error) {}
 			skin.stage['displayState'] = 'fullScreen';
 		}
 	};
@@ -93,16 +93,16 @@ public class Controller extends EventDispatcher {
 
 	/** Set the fullscreen rectangle **/
 	private function fullscreenrect():void {
+		var srx:Number = Capabilities.screenResolutionX;
+		var asr:Number = srx/Capabilities.screenResolutionY;
 		try {
-			var srx:Number = Capabilities.screenResolutionX;
-			var asr:Number = srx/Capabilities.screenResolutionY;
 			var wid:Number = playlist[config['item']]['width'];
-			if(wid && wid > srx/2) {
-				skin.stage["fullScreenSourceRect"] = new Rectangle(skin.x,skin.y,wid,Math.round(wid/asr));
-			} else {
-				skin.stage["fullScreenSourceRect"] = new Rectangle(skin.x,skin.y,srx/2,Capabilities.screenResolutionY/2);
-			}
 		} catch (err:Error) {}
+		if(wid && wid > srx/2) {
+			skin.stage["fullScreenSourceRect"] = new Rectangle(skin.x,skin.y,wid,Math.round(wid/asr));
+		} else {
+			skin.stage["fullScreenSourceRect"] = new Rectangle(skin.x,skin.y,srx/2,Capabilities.screenResolutionY/2);
+		}
 	};
 
 
@@ -342,22 +342,19 @@ public class Controller extends EventDispatcher {
 	};
 
 
-	/** Forward a resizing of the stage. **/
+	/** Manage a resizing of the stage. **/
 	private function redrawHandler(evt:ViewEvent=null):void {
 		try { 
 			var dps:String = skin.stage['displayState'];
 		} catch (err:Error) {}
 		if(dps == 'fullScreen') {
 			config['fullscreen'] = true;
-			config['width'] = skin.stage.stageWidth;
-			config['height'] = skin.stage.stageHeight;
 			sploader.layoutFullscreen();
-		} else if(config['resizing']) {
-			config['fullscreen'] = false;
-			config['width'] = skin.stage.stageWidth;
-			config['height'] = skin.stage.stageHeight;
-			sploader.layoutNormal();
 		} else {
+			if(config['resizing']) {
+				config['width'] = skin.stage.stageWidth;
+				config['height'] = skin.stage.stageHeight;
+			}
 			config['fullscreen'] = false;
 			sploader.layoutNormal();
 		}

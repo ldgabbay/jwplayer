@@ -112,7 +112,7 @@ public class Player extends MovieClip {
 	/** When the skin is loaded, the model/view/controller are inited. **/
 	protected function loadMVC(evt:SPLoaderEvent=null):void {
 		controller = new Controller(config,skin,sploader);
-		model = new Model(config,skin,controller);
+		model = new Model(config,skin,sploader,controller);
 		view = new View(config,skin,sploader,controller,model);
 		controller.closeMVC(model,view);
 		loadPlugins();

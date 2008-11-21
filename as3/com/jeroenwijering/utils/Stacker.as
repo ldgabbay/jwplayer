@@ -93,7 +93,7 @@ public class Stacker {
 				}
 			}
 			if(stack[i].w > width/3) {
-				stack[i].c.width = stack[i].w+rdf+ldf;
+				stack[i].c.width = Math.abs(stack[i].w+rdf+ldf);
 			}
 		}
 		// if gaps were closed, move all rightside stuff to fill the width.

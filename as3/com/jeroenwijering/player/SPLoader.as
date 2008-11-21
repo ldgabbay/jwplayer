@@ -228,8 +228,10 @@ public class SPLoader extends EventDispatcher {
 			plugins[overs[j]]['height'] = bounds.height;
 			plugins[overs[j]]['visible'] = true;
 		}
-		player.config['width'] = bounds.width;
-		player.config['height'] = bounds.height;
+		if(player.config['resizing']) {
+			player.config['width'] = bounds.width;
+			player.config['height'] = bounds.height;
+		}
 	};
 
 
@@ -239,8 +241,8 @@ public class SPLoader extends EventDispatcher {
 			if (plugins[i]['position'] == 'over' || plugins[i]['name'] == 'controlbar') {
 				plugins[i]['x'] = 0;
 				plugins[i]['y'] = 0;
-				plugins[i]['width'] = player.config['width'];
-				plugins[i]['height'] = player.config['height'];
+				plugins[i]['width'] = player.skin.stage.stageWidth;
+				plugins[i]['height'] = player.skin.stage.stageHeight;
 				plugins[i]['visible'] = true;
 			} else {
 				plugins[i]['visible'] = false;

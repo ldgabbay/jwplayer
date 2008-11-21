@@ -28,10 +28,10 @@ public class Desktop extends Player {
 
 	/** MVC inited; now load plugins. **/
 	override protected function loadPlugins():void {
-		new Rightclick().initializePlugin(view);
-		new Display().initializePlugin(view);
-		new Controlbar().initializePlugin(view);
-		new Dragdrop().initializePlugin(view);
+		sploader.addPlugin(new Display(),'display');
+		sploader.addPlugin(new Rightclick(),'rightclick');
+		sploader.addPlugin(new Controlbar(),'controlbar');
+		sploader.addPlugin(new Dragdrop(),'dragdrop');
 		startPlayer();
 	};
 

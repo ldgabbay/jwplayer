@@ -23,6 +23,8 @@ public class Model extends EventDispatcher {
 	public var config:Object;
 	/** Reference to the skin MovieClip. **/
 	public var skin:MovieClip;
+	/** Object with all display variables. **/
+	private var sploader:SPLoader;
 	/** Reference to the player's controller. **/
 	private var controller:Controller;
 	/** The list with all active models. **/
@@ -36,9 +38,10 @@ public class Model extends EventDispatcher {
 
 
 	/** Constructor, save arrays and set currentItem. **/
-	public function Model(cfg:Object,skn:MovieClip,ctr:Controller):void {
+	public function Model(cfg:Object,skn:MovieClip,ldr:SPLoader,ctr:Controller):void {
 		config = cfg;
 		skin = skn;
+		sploader = ldr;
 		Draw.clear(skin.display.media);
 		controller = ctr;
 		controller.addEventListener(ControllerEvent.ITEM,itemHandler);
@@ -155,9 +158,10 @@ public class Model extends EventDispatcher {
 
 	/** Resize the media and thumb. **/
 	private function resizeHandler(evt:Event=null):void {
-		Stretcher.stretch(skin.display.media,config['width'],config['height'],config['stretching']);
+		var cfg:Object = sploader.getPluginConfig(sploader.getPlugin('display'));
+		Stretcher.stretch(skin.display.media,cfg['width'],cfg['height'],config['stretching']);
 		if(thumb.content) {
-			Stretcher.stretch(thumb,config['width'],config['height'],config['stretching']);
+			Stretcher.stretch(thumb,cfg['width'],cfg['height'],config['stretching']);
 		}
 	};
 
