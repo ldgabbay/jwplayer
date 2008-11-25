@@ -64,7 +64,7 @@ public class Player extends MovieClip {
 		id:undefined,
 		linktarget:'_blank',
 		plugins:undefined,
-		streamer:undefined,
+		streamer:'lighttpd',
 		token:undefined,
 		tracecall:undefined,
 		version:'4.3.116'

@@ -146,7 +146,9 @@ public class Playlist implements PluginInterface {
 		if(light) {
 			for (var itm:String in view.playlist[idx]) {
 				if(buttons[idx].c[itm]) {
-					buttons[idx].c[itm].textColor = light.color;
+					try { 
+						buttons[idx].c[itm].textColor = light.color;
+					} catch (err:Error) {}
 				}
 			}
 		}
@@ -158,7 +160,9 @@ public class Playlist implements PluginInterface {
 			if(front) {
 				for (var act:String in view.playlist[active]) {
 					if(buttons[active].c[act]) {
-						buttons[active].c[act].textColor = front.color;
+						try { 
+							buttons[active].c[act].textColor = front.color;
+						} catch (err:Error) {}
 					}
 				}
 			}

@@ -339,8 +339,8 @@ public class Controlbar implements PluginInterface {
 		}
 		if(light) {
 			try {
-				bar['volumeSlider']['mark'].transform.colorTransform = light;
 				bar['timeSlider']['done'].transform.colorTransform = light;
+				bar['volumeSlider']['mark'].transform.colorTransform = light;
 			} catch (err:Error) {}
 		}
 	};

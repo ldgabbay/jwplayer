@@ -77,6 +77,7 @@ public class BrightcoveModel implements ModelInterface {
 	private function templateReady(evt:Event) {
 		model.mediaHandler(loader.content);
 		videoplayer.loadVideo(model.config['file']);
+		Object(loader.content).getModule("content").getVideoAsynch('USUV70703570', "referenceId");
 	};
 
 

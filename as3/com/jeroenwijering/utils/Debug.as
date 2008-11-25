@@ -20,7 +20,7 @@
 * @since 0.72
 */
 
-package com.carlcalderon.arthropod {
+package com.jeroenwijering.utils {
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;

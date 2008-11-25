@@ -4,8 +4,8 @@
 package com.jeroenwijering.player {
 
 
-import com.carlcalderon.arthropod.Debug;
 import com.jeroenwijering.events.*;
+import com.jeroenwijering.utils.Debug;
 import com.jeroenwijering.utils.Strings;
 
 import flash.display.MovieClip;

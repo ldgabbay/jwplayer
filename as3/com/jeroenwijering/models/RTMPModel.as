@@ -13,7 +13,8 @@ import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.ModelInterface;
 import com.jeroenwijering.player.Model;
 import com.jeroenwijering.utils.NetClient;
-import com.meychi.ascript.TEA;
+import com.jeroenwijering.utils.TEA;
+
 import flash.display.DisplayObject;
 import flash.events.*;
 import flash.media.*;

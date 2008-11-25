@@ -6,6 +6,7 @@ package com.jeroenwijering.player {
 
 import com.jeroenwijering.player.*;
 import com.jeroenwijering.plugins.*;
+
 import flash.display.MovieClip;
 import flash.events.Event;
 

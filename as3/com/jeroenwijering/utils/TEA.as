@@ -8,7 +8,7 @@
 * Algorithm: David Wheeler & Roger Needham, Cambridge University Computer Lab
 * See http://www.movable-type.co.uk/scripts/TEAblock.html
 **/
-package com.meychi.ascript {
+package com.jeroenwijering.utils {
 
 
 public class TEA {
