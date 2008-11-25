@@ -55,7 +55,6 @@ public class Controller extends EventDispatcher {
 	public function closeMVC(mdl:Model,vie:View):void {
 		model= mdl;
 		model.addEventListener(ModelEvent.META,metaHandler);
-		model.addEventListener(ModelEvent.TIME,metaHandler);
 		model.addEventListener(ModelEvent.STATE,stateHandler);
 		view = vie;
 		view.addEventListener(ViewEvent.FULLSCREEN,fullscreenHandler);

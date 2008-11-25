@@ -54,10 +54,8 @@ public class Controlbar implements PluginInterface {
 		timeSlider:'SEEK',
 		volumeSlider:'VOLUME'
 	}
-
-
-	/** Button next to which custom buttons are added **/
-	private var insertNextTo:MovieClip = null;
+	/** The button to clone for all custom buttons. **/
+	private var clonee:MovieClip;
 
 
 	/** Constructor. **/
@@ -77,10 +75,6 @@ public class Controlbar implements PluginInterface {
 		view.addControllerListener(ControllerEvent.MUTE,muteHandler);
 		view.addControllerListener(ControllerEvent.VOLUME,volumeHandler);
 		bar = view.skin['controlbar'];
-		if(bar['blankButton']) {
-			insertNextTo = bar['linkButton'];
-			bar['blankButton'].visible = false;
-		}
 		stacker = new Stacker(bar);
 		setButtons();
 		setColors();
@@ -102,16 +96,20 @@ public class Controlbar implements PluginInterface {
 	**/
 	public function addButton(icon:DisplayObject,name:String,handler:Function):void {
 		try {
-			var newButton:MovieClip = Draw.clone(bar['blankButton']);
-			newButton.name = name;
-			Draw.clear(newButton.icon);
-			newButton.visible = true;
-			newButton.icon.addChild(icon);
-			newButton.addEventListener(MouseEvent.CLICK, handler);
-			bar.addChild(newButton);
-			stacker.insert(newButton,insertNextTo);
-			insertNextTo = newButton;
-		} catch (err:Error) {}
+			var btn:MovieClip = Draw.clone(bar['linkButton']);
+			btn.name = name+'Button';
+			btn.visible = true;
+			bar.addChild(btn);
+			var off:Number = Math.round((btn.height-icon.height)/2);
+			Draw.clear(btn.icon);
+			btn.addChild(icon);
+			icon.x = icon.y = off;
+			btn.back.width = icon.width+2*off;
+			btn.buttonMode = true;
+			btn.mouseChildren = false;
+			btn.addEventListener(MouseEvent.CLICK,handler);
+			stacker.insert(btn,bar['linkButton']);
+		} catch (err:Error) { trace(err); }
 	};
 
 

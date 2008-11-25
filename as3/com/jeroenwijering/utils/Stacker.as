@@ -85,14 +85,14 @@ public class Stacker {
 			} else {
 				stack[i].c.x = stack[i].x-ldf;
 				if(stack[i].c.visible == false && overlaps(i) == false) {
-					if(stack[i-1].w > width/3) {
+					if(stack[i-1].w > width/4) {
 						ldf += stack[i].w + stack[i].x;
 					} else { 
 						ldf += stack[i].w+stack[i].x-stack[i-1].x-stack[i-1].w;
 					}
 				}
 			}
-			if(stack[i].w > width/3) {
+			if(stack[i].w > width/4) {
 				stack[i].c.width = Math.abs(stack[i].w+rdf+ldf);
 			}
 		}
@@ -103,7 +103,7 @@ public class Stacker {
 				if(stack[j].x > width/2) {
 					stack[j].c.x += dif;
 				}
-				if(stack[j].w > width/3 && stack[j].w < width) {
+				if(stack[j].w > width/4 && stack[j].w < width) {
 					stack[j].c.width += dif;
 				}
 			}
@@ -117,15 +117,20 @@ public class Stacker {
 	};
 
 
-	public function insert(insrt:MovieClip,next:MovieClip):void {
-		var found:Number = -1;
-		for(var i:Number=0; i<stack.length && found < 0; i++) {
-			if(stack[i].c == next) {
-				stack.splice(i, 0, {c:insrt,x:stack[i].x-insrt.width,n:insrt.name,w:insrt.width});
-				found = i;
-				break;
+	public function insert(clp:MovieClip,nxt:MovieClip):void {
+		var fnd:Number = 0;
+		for(var j:Number=0; j<stack.length; j++) {
+			if(stack[j].w >= _width) {
+				stack[j].w += clp.width;
+			}
+			if(stack[j].c == nxt && !fnd) {
+				fnd = j;
+				stack.splice(j,0,{c:clp,x:stack[j].x,n:clp.name,w:clp.width});
+			} else if (fnd) {
+				stack[j].x += clp.width;
 			}
 		}
+		_width += clp.width;
 		rearrange();
 	} ;
 

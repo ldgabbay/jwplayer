@@ -126,19 +126,23 @@ public class View extends AbstractView {
 		}
 		return cfg;
 	};
-	private function getJSPluginConfig(nam:String):Object {
+
+
+	public function getJSPluginConfig(nam:String):Object {
 		var obj:Object = {};
 		var pgi:Object = sploader.getPlugin(nam);
 		if(pgi) { 
-			var cfg:Object = sploader.getPluginConfig(obj);
+			var cfg:Object = sploader.getPluginConfig(pgi);
 			for(var s:String in cfg) {
-				if(cfg[s] != 'reference' && s.indexOf('.') == -1) { 
+				if(s != 'reference' && s.indexOf('.') == -1) {
 					obj[s] = cfg[s];
 				}
 			}
 		}
 		return obj;
 	};
+
+
 	private function getPlaylist():Array { 
 		return controller.playlist; 
 	};

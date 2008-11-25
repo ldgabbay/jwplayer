@@ -62,6 +62,17 @@ public class Accessibility extends MovieClip implements PluginInterface {
 	private function hideCaptions(stt:Boolean) {
 		config['hide'] = !stt;
 		clip.visible = config['hide'];
+		if(config['hide']) { 
+			captionsIcon.alpha = 1;
+		} else { 
+			captionsIcon.alpha = 0.3;
+		}
+	};
+
+
+	/** Clicking the  hide button. **/
+	private function hideClick(evt:MouseEvent) {
+		hideCaptions(config['hide']);
 	};
 
 
@@ -88,6 +99,16 @@ public class Accessibility extends MovieClip implements PluginInterface {
 		format = new TextFormat(null,config['fontsize']);
 		hideCaptions(config['hide'])
 		muteAudio(config['mute']);
+		try {
+			if(config['audio']) {
+				view.getPlugin('controlbar').addButton(audioIcon,'audio',muteClick);
+			}
+			if(config['captions']) {
+				view.getPlugin('controlbar').addButton(captionsIcon,'captions',hideClick);
+			}
+		} catch (erro:Error) { 
+			audioIcon.visible = captionsIcon.visible = false;
+		}
 	};
 
 
@@ -140,6 +161,17 @@ public class Accessibility extends MovieClip implements PluginInterface {
 	private function muteAudio(stt:Boolean) {
 		config['mute'] = stt;
 		setVolume();
+		if(config['mute']) {
+			audioIcon.alpha = 0.3;
+		} else { 
+			audioIcon.alpha = 1;
+		}
+	};
+
+
+	/** Clicking the  hide button. **/
+	private function muteClick(evt:MouseEvent) {
+		muteAudio(!config['mute']);
 	};
 
 
@@ -211,8 +243,7 @@ public class Accessibility extends MovieClip implements PluginInterface {
 		}
 		if(cur != current) { setCaption(cur); }
 		// and sync up the audio (only if needed).
-		if(channel && view.config['state'] == ModelStates.PLAYING && 
-			Math.abs(pos-channel.position/1000) > 1) {
+		if(channel && view.config['state'] == ModelStates.PLAYING && Math.abs(pos-channel.position/1000) > 0.5) {
 			channel.stop();
 			channel = sound.play(pos*1000);
 			setVolume();

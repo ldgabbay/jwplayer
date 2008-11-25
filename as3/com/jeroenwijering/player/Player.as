@@ -33,7 +33,6 @@ public class Player extends MovieClip {
 		frontcolor:undefined,
 		lightcolor:undefined,
 		screencolor:undefined,
-		screenalpha:100,
 
 		controlbar:'bottom',
 		height:300,
@@ -64,13 +63,13 @@ public class Player extends MovieClip {
 		id:undefined,
 		linktarget:'_blank',
 		plugins:undefined,
-		streamer:'lighttpd',
+		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.3.116'
+		version:'4.3.120'
 	};
 	/** Base directory from which all plugins are loaded. **/
-	public var basedir:String = "http://plugins.longtailvideo.com/";
+	public var basedir:String = "http://www.jeroenwijering.com/upload/";
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
 	/** Reference to the View of the MVC cycle, which defines all API calls. **/

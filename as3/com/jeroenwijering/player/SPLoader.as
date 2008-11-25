@@ -160,7 +160,7 @@ public class SPLoader extends EventDispatcher {
 	private function pluginHandler(evt:Event):void {
 		try {
 			var idx:Number = evt.target.url.lastIndexOf('/');
-			var nam:String = evt.target.url.substr(idx+1,evt.target.url.indexOf('.swf.')-3);
+			var nam:String = evt.target.url.substring(idx+1,evt.target.url.length-4);
 			addPlugin(evt.target.content,nam);
 			evt.target.loader.visible = true;
 		} catch(err:Error) { 

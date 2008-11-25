@@ -126,8 +126,10 @@ public class HTTPModel implements ModelInterface {
 		url += '&width='+model.config['width'];
 		if(getToken()) { url += '&token='+getToken(); }
 		stream.play(url);
-		//clearInterval(loadinterval);
-		//loadinterval = setInterval(loadHandler,200);
+		if(str != 'lighttpd') {
+			clearInterval(loadinterval);
+			loadinterval = setInterval(loadHandler,200);
+		}
 		clearInterval(timeinterval);
 		timeinterval = setInterval(timeHandler,100);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
