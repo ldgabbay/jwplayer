@@ -82,9 +82,6 @@ public class Model extends EventDispatcher {
 	/** Initialize a new model. **/
 	private function loadModel(typ:String):void {
 		switch(typ) {
-			case 'brightcove':
-				models[typ] = new BrightcoveModel(this);
-				break;
 			case 'camera':
 				models[typ] = new CameraModel(this);
 				break;
