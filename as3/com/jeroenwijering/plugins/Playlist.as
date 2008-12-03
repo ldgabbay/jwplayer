@@ -221,9 +221,7 @@ public class Playlist implements PluginInterface {
 	private function playlistHandler(evt:ControllerEvent=null):void {
 		active = undefined;
 		buildList(true);
-		if(view.config['playlist.position'] != 'none') {
-			clip.visible = true;
-		}
+		resizeHandler();
 	};
 
 

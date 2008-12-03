@@ -126,7 +126,11 @@ public class Controller extends EventDispatcher {
 		}
 		// user-defined type or recognized mimetypes
 		if(itm['type']) {
-			return itm['type'];
+			if(ObjectParser.EXTENSIONS[itm['type']]) {
+				return ObjectParser.EXTENSIONS[itm['type']];
+			} else { 
+				return itm['type'];
+			}
 		}
 		// extension is returned (can be null)
 		return ext;

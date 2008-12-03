@@ -40,6 +40,11 @@ public class ATOMParser {
 				case 'link':
 					if(i.@rel == 'alternate') {
 						itm['link'] = i.@href.toString();
+					} else if (i.@rel == 'enclosure') {
+						itm['file'] = i.@href.toString();
+						if(i.@type) {
+							itm['type'] = ObjectParser.MIMETYPES[i.@type.toString()];
+						}
 					}
 					break;
 				case 'published':

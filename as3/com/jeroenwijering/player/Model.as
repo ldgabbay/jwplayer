@@ -197,7 +197,7 @@ public class Model extends EventDispatcher {
 						}
 						break;
 					case ModelStates.PLAYING:
-						var ext:String = playlist[config['item']]['file'].substr(-3);
+						var ext:String = playlist[config['item']]['file'].substr(-3).toLowerCase();
 						if(ext != 'aac' && ext != 'mp3' && ext != 'm4a') {
 							thumb.visible = false;
 							skin.display.media.visible = true;

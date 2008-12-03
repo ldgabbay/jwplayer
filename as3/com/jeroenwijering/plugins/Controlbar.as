@@ -90,26 +90,32 @@ public class Controlbar implements PluginInterface {
 	/** 
 	* Add a new button to the controlbar.
 	*
-	* @param icon		A graphic to show as icon
-	* @param name		Name of the button
-	* @param handler	The function to call when clicking the button.
+	* @param icn	A graphic to show as icon
+	* @param nam	Name of the button
+	* @param hdl	The function to call when clicking the button.
 	**/
-	public function addButton(icon:DisplayObject,name:String,handler:Function):void {
-		try {
+	public function addButton(icn:DisplayObject,nam:String,hdl:Function):void {
+		if(bar['linkButton'].back) {
 			var btn:MovieClip = Draw.clone(bar['linkButton']);
-			btn.name = name+'Button';
+			btn.name = nam+'Button';
 			btn.visible = true;
 			bar.addChild(btn);
-			var off:Number = Math.round((btn.height-icon.height)/2);
+			var off:Number = Math.round((btn.height-icn.height)/2);
 			Draw.clear(btn.icon);
-			btn.addChild(icon);
-			icon.x = icon.y = off;
-			btn.back.width = icon.width+2*off;
+			btn.icon.addChild(icn);
+			icn.x = icn.y = 0;
+			btn.icon.x = btn.icon.y = off;
+			btn.back.width = icn.width+2*off;
 			btn.buttonMode = true;
 			btn.mouseChildren = false;
-			btn.addEventListener(MouseEvent.CLICK,handler);
+			btn.addEventListener(MouseEvent.CLICK,hdl);
+			if(front) {
+				btn.icon.transform.colorTransform = front;
+				btn.addEventListener(MouseEvent.MOUSE_OVER,overHandler);
+				btn.addEventListener(MouseEvent.MOUSE_OUT,outHandler);
+			}
 			stacker.insert(btn,bar['linkButton']);
-		} catch (err:Error) { trace(err); }
+		}
 	};
 
 
@@ -228,20 +234,20 @@ public class Controlbar implements PluginInterface {
 
 	/** Handle mouseouts from all buttons **/
 	private function outHandler(evt:MouseEvent):void {
-		if(front && bar[evt.target.name]['icon']) {
-			bar[evt.target.name]['icon'].transform.colorTransform = front;
+		if(front && evt.target['icon']) {
+			evt.target['icon'].transform.colorTransform = front;
 		} else {
-			bar[evt.target.name].gotoAndPlay('out');
+			evt.target.gotoAndPlay('out');
 		}
 	};
 
 
 	/** Handle clicks from all buttons **/
 	private function overHandler(evt:MouseEvent):void {
-		if(front && bar[evt.target.name]['icon']) {
-			bar[evt.target.name]['icon'].transform.colorTransform = light;
+		if(front && evt.target['icon']) {
+			evt.target['icon'].transform.colorTransform = light;
 		} else {
-			bar[evt.target.name].gotoAndPlay('over');
+			evt.target.gotoAndPlay('over');
 		}
 	};
 
@@ -304,7 +310,7 @@ public class Controlbar implements PluginInterface {
 
 	/** Init the colors. **/
 	private function setColors():void {
-		if(view.config['backcolor']) { 
+		if(view.config['backcolor'] && bar['playButton'].icon) { 
 			var clr:ColorTransform = new ColorTransform();
 			clr.color = uint('0x'+view.config['backcolor'].substr(-6));
 			bar.back.transform.colorTransform = clr;
@@ -348,14 +354,13 @@ public class Controlbar implements PluginInterface {
 	private function stateHandler(evt:ModelEvent=undefined):void {
 		clearTimeout(hiding);
 		view.skin.removeEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
-		Mouse.show();
 		try {
 			var dps:String = bar.stage['displayState'];
 		} catch (err:Error) {}
-		switch(view.config['state']) { 
+		switch(view.config['state']) {
 			case ModelStates.PLAYING:
 			case ModelStates.BUFFERING:
-				try { 
+				try {
 					bar.playButton.visible = false;
 					bar.pauseButton.visible = true;
 				} catch (err:Error) {}
@@ -371,7 +376,8 @@ public class Controlbar implements PluginInterface {
 					bar.playButton.visible = true;
 					bar.pauseButton.visible = false;
 				} catch (err:Error) {}
-				if(view.config['controlbar.position'] == 'over' || dps == 'fullScreen') {
+				if(view.config['controlbar'] == 'over' || dps == 'fullScreen') {
+					Mouse.show();
 					Animations.fade(bar,1);
 				}
 		}

@@ -43,6 +43,7 @@ public class SPLoader extends EventDispatcher {
 	public function addPlugin(pgi:Object,nam:String) {
 		var obj:Object = {reference:pgi,name:nam,position:'over',size:50};
 		// hack for the playlist/controlbar flashvars
+		player.skin.setChildIndex(player.skin.controlbar,player.skin.numChildren-1);
 		if(nam == 'controlbar') {
 			obj['position'] = player.config['controlbar'];
 			obj['size'] = player.skin.controlbar.height;
@@ -52,8 +53,8 @@ public class SPLoader extends EventDispatcher {
 			obj['size'] = player.config['playlistsize'];
 		}
 		for(var str:String in player.config) {
-			if(player.config[nam+'.'+str]) {
-				obj[str] = player.config[nam+'.'+str];
+			if (str.indexOf(nam + ".") == 0) {
+				obj[str.substring(nam.length + 1)] = player.config[str];
 			}
 		}
 		plugins.push(obj);
@@ -160,7 +161,11 @@ public class SPLoader extends EventDispatcher {
 	private function pluginHandler(evt:Event):void {
 		try {
 			var idx:Number = evt.target.url.lastIndexOf('/');
-			var nam:String = evt.target.url.substring(idx+1,evt.target.url.length-4);
+			var end:Number = evt.target.url.length-4;
+			if(evt.target.url.indexOf('-',end-5) > -1) { 
+				end = evt.target.url.indexOf('-',end-5);
+			}
+			var nam:String = evt.target.url.substring(idx+1,end);
 			addPlugin(evt.target.content,nam);
 			evt.target.loader.visible = true;
 		} catch(err:Error) { 
@@ -247,6 +252,10 @@ public class SPLoader extends EventDispatcher {
 			} else {
 				plugins[i]['visible'] = false;
 			}
+		}
+		if(player.config['resizing']) {
+			player.config['width'] = player.skin.stage.stageWidth;
+			player.config['height'] = player.skin.stage.stageHeight;
 		}
 	};
 

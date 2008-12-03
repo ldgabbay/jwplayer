@@ -232,6 +232,7 @@ public class Accessibility extends MovieClip implements PluginInterface {
 
 	/** Check timing of the player to sync captions. **/
 	private function timeHandler(evt:ModelEvent):void {
+		if(!captions) { return; }
 		var cur:Number = -1;
 		var pos:Number = evt.data.position;
 		// sync up the captions (only if needed).

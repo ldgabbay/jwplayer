@@ -73,9 +73,11 @@ public class Display implements PluginInterface {
 		} else if(view.config['screenalpha'] < 100)  {
 			display.back.alpha = Number(view.config['screenalpha'])/100;
 		}
-		display.addEventListener(MouseEvent.CLICK,clickHandler);
-		display.buttonMode = true;
-		display.mouseChildren = false;
+		if(view.config['displayclick'] != 'none') {
+			display.addEventListener(MouseEvent.CLICK,clickHandler);
+			display.buttonMode = true;
+			display.mouseChildren = false;
+		}
 		try {
 			Draw.clear(display.logo);
 			if(view.config['logo']) { setLogo(); }
