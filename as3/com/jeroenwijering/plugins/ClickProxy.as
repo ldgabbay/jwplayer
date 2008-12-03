@@ -11,6 +11,7 @@
 * - position (this is the playback position of the video)
 * - mousex (this is the x position of the mouse in the display)
 * - mousey (this is the y position of the mouse in the display)
+* - state (this is the playbackstate of the video)
 *
 **/
 package com.jeroenwijering.plugins {
@@ -51,7 +52,8 @@ public class ClickProxy extends MovieClip implements PluginInterface {
 			'version':view.config['version'],
 			'position':position,
 			'mousex':evt.target.mouseX,
-			'mousey':evt.target.mouseY
+			'mousey':evt.target.mouseY,
+			'state':view.config['state']
 		};
 		if(ExternalInterface.available && view.skin.loaderInfo.url.indexOf('http') == 0) {
 			try {
@@ -64,12 +66,11 @@ public class ClickProxy extends MovieClip implements PluginInterface {
 	/** The initialize call is invoked by the player View. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
+		view.config['icons'] = false;
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
-		view.addModelListener(ModelEvent.STATE,stateHandler);
 		view.addModelListener(ModelEvent.TIME,timeHandler);
 		clip = this.area;
 		clip.addEventListener(MouseEvent.CLICK,clickHandler);
-		clip.visible = false;
 		clip.buttonMode = true;
 		clip.mouseChildren = false;
 		for(var str:String in config) {
@@ -77,7 +78,6 @@ public class ClickProxy extends MovieClip implements PluginInterface {
 				config[str] = view.config['clickproxy.'+str];
 			}
 		}
-		resizeHandler();
 	};
 
 
@@ -85,19 +85,6 @@ public class ClickProxy extends MovieClip implements PluginInterface {
 	private function resizeHandler(evt:ControllerEvent=undefined) {
 		clip.back.width = view.config['width'];
 		clip.back.height = view.config['height'];
-	};
-
-
-	/** Only show the area when playing. **/
-	private function stateHandler(evt:ModelEvent) { 
-		switch(evt.data.newstate) {
-			case ModelStates.PLAYING:
-				clip.visible = true;
-				break;
-			default:
-				clip.visible = false;
-				break;
-		}
 	};
 
 

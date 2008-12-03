@@ -8,7 +8,7 @@
 * This corresponds to the number of entries in the 'bands' array in the object sent to the listener.
 * 
 * 2. soundproxy.interval
-* This is the resolution in milliseconds with which the sounddata is sent to javascript. Default is 50 (twenty times/second).
+* This is the resolution in milliseconds with which the sounddata is sent to javascript. Default is 100 (ten times/second).
 *
 * 3. soundproxy.listener
 * This is the javascript function that receives the sounddata info. Default is "soundListener".
@@ -44,7 +44,7 @@ public class SoundProxy extends MovieClip implements PluginInterface {
 	/** Configuration values of the plugin. **/
 	private var config:Object = {
 		bands:1,
-		interval:50,
+		interval:100,
 		listener:'soundListener'
 	};
 	/** ID of the sample sending interval. **/
