@@ -149,6 +149,12 @@ public class Controlbar implements PluginInterface {
 	};
 
 
+	/** Hide the controlbar **/
+	public function hide(stt:Boolean):void { 
+		bar.visible = !stt;
+	};
+
+
 	/** Handle a change in the current item **/
 	private function itemHandler(evt:ControllerEvent=null):void {
 		try {

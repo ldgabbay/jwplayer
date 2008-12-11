@@ -6,8 +6,11 @@
 * This plugin only works for single files. Two flashvars are available:
 * 
 * - hd.file: the HD file that one can toggle to.
-* - hd.state is the state of the HD toggle (true/false). 
+* - hd.state is the state of the HD toggle (true/false).
 *   Use it to force HD on or off through flashvars, regardless of a users' HD cookie settings.
+*
+* This plugin also showcases the addition of controlbar buttons, introduced in 4.3.
+* It'll silently fail (no button, no error) for < 4.3 players or nonsupporting skins.
 **/
 package com.jeroenwijering.plugins {
 
@@ -22,14 +25,9 @@ public class HD extends MovieClip implements PluginInterface {
 
 
 	/** List with configuration settings. **/
-	private var config:Object = {
-		file:undefined,
-		state:false
-	};
+	private var config:Object;
 	/** Reference to the View of the player. **/
 	private var view:AbstractView;
-	/** initialize call for backward compatibility. **/
-	public var initialize:Function = initializePlugin;
 	/** reference to the original file. **/
 	private var original:String;
 
@@ -40,7 +38,11 @@ public class HD extends MovieClip implements PluginInterface {
 
 	/** Quality is clicked, so change the video. **/
 	private function clickHandler(evt:MouseEvent=null):void {
-		config['state'] = !config['state'];
+		if(config['state']) { 
+			config['state'] = false;
+		} else { 
+			config['state'] = true;
+		}
 		view.config['autostart'] = true;
 		reLoad();
 		setButton();
@@ -54,22 +56,27 @@ public class HD extends MovieClip implements PluginInterface {
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
 		view.addControllerListener(ControllerEvent.PLAYLIST,playlistHandler);
-		for(var str:String in config) {
-			if(view.config['hd.'+str]) {
-				config[str] = view.config['hd.'+str];
+		try {
+			config = view.getPluginConfig(this);
+		} catch(err:Error) {
+			config = {
+				file:view.config['hd.file'],
+				state:view.config['hd.state']
 			}
 		}
 		setButton();
-		try { 
+		try {
 			view.getPlugin('controlbar').addButton(icon,'hd',clickHandler);
-		} catch (err:Error) { icon.visible = false; }
+		} catch (err:Error) {
+			icon.visible = false;
+		}
 	};
 
 
 	/** The first playlistload is caught to save the original videos. **/
 	private function playlistHandler(evt:ControllerEvent=undefined):void {
 		if(!original) {
-			original = view.playlist[0]['file']
+			original = view.playlist[0]['file'];
 			if(config['state'] == true) { reLoad(); }
 		}
 	};

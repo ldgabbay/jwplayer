@@ -1,5 +1,6 @@
 ﻿/**
-* Display a searchbar and direct the search externally.
+* Print a playlist onscreen
+* =========================
 **/
 package com.jeroenwijering.plugins {
 

@@ -1,7 +1,9 @@
 /**
-* This plugin prints the metadata enclosed in videos or mp3s on screen.
+* Print the metadata enclosed in files onscreen
+* =============================================
 *
-* @todo 	Add a scrollbar when the metadata doesn't fit in the display.
+* This plugin use the ".position" and ".size" positioning introduced in 4.3.
+* For < 4.3, it'll fail gracefully by showing the viewer on top of the display.
 **/
 package com.jeroenwijering.plugins {
 
@@ -26,7 +28,15 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 
 
 	/** Constructor; nothing going on. **/
-	public function MetaViewer() {};
+	public function MetaViewer() {
+		clip = this['metadata'];
+		clip.tf.mask = clip.ms;
+		clip.tf.autoSize = "left";
+		clip.xx.mouseChildren = false;
+		clip.xx.buttonMode = true;
+		clip.xx.addEventListener(MouseEvent.CLICK,clickHandler);
+		scrollbar = new Scrollbar(clip.tf,clip.ms);
+	};
 
 
 	/** The initialize call is invoked by the player View. **/
@@ -34,14 +44,7 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 		view = vie;
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.META,metaHandler);
-		view.skin['metadata'] ? clip = view.skin['metadata']: clip = this['metadata'];
-		clip.visible = false;
-		clip.md.mask = clip.ms;
-		clip.md.tf.autoSize = "left";
-		scrollbar = new Scrollbar(clip.md,clip.ms);
-		clip.xx.mouseChildren = false;
-		clip.xx.buttonMode = true;
-		clip.xx.addEventListener(MouseEvent.CLICK,clickHandler);
+		resizeHandler();
 	};
 
 
@@ -74,7 +77,7 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 						break;
 				}
 			}
-			clip.md.tf.text = str;
+			clip.tf.text = str;
 			clip.visible = true;
 			scrollbar.draw();
 		}
@@ -83,11 +86,23 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 
 	/** Handle a resize. **/
 	private function resizeHandler(evt:ControllerEvent=undefined) {
-		clip.bg.width = view.config['width'];
-		clip.bg.height = view.config['height'];
-		clip.md.tf.width = clip.ms.width = view.config['width']-50;
-		clip.ms.height = view.config['height']-60;
-		clip.xx.x = view.config['width']-35;
+		var wid:Number = view.config['width'];
+		var hei:Number = view.config['height'];
+		try {
+			var cfg = view.getPluginConfig(this);
+			clip.x = cfg['x'];
+			clip.y = cfg['y'];
+			wid = cfg['width'];
+			hei = cfg['height'];
+			if(cfg['position'] != 'over') {
+				clip.xx.visible = false;
+			}
+		} catch(err:Error) {}
+		clip.bg.width = wid;
+		clip.bg.height = hei;
+		clip.tf.width = clip.ms.width = wid-50;
+		clip.ms.height = hei-60;
+		clip.xx.x = wid-35;
 		scrollbar.draw();
 	};
 

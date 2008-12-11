@@ -79,8 +79,12 @@ public class Display implements PluginInterface {
 			display.mouseChildren = false;
 		}
 		try {
-			Draw.clear(display.logo);
-			if(view.config['logo']) { setLogo(); }
+			if(display.logo.width == 10) { 
+				Draw.clear(display.logo); 
+				if(view.config['logo']) { setLogo(); }
+			} else { 
+				logoHandler();
+			}
 		} catch (err:Error) {}
 		stateHandler();
 	};

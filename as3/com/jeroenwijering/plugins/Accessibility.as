@@ -27,7 +27,7 @@ public class Accessibility extends MovieClip implements PluginInterface {
 	private var config:Object = {
 		audio:undefined,
 		captions:undefined,
-		fontsize:13,
+		fontsize:15,
 		hide:false,
 		listener:undefined,
 		mute:false,
@@ -63,9 +63,9 @@ public class Accessibility extends MovieClip implements PluginInterface {
 		config['hide'] = !stt;
 		clip.visible = config['hide'];
 		if(config['hide']) { 
-			captionsIcon.alpha = 1;
+			clip.captionsIcon.alpha = 1;
 		} else { 
-			captionsIcon.alpha = 0.3;
+			clip.captionsIcon.alpha = 0.3;
 		}
 	};
 
@@ -101,13 +101,13 @@ public class Accessibility extends MovieClip implements PluginInterface {
 		muteAudio(config['mute']);
 		try {
 			if(config['audio']) {
-				view.getPlugin('controlbar').addButton(audioIcon,'audio',muteClick);
+				view.getPlugin('controlbar').addButton(clip.audioIcon,'audio',muteClick);
 			}
 			if(config['captions']) {
-				view.getPlugin('controlbar').addButton(captionsIcon,'captions',hideClick);
+				view.getPlugin('controlbar').addButton(clip.captionsIcon,'captions',hideClick);
 			}
 		} catch (erro:Error) { 
-			audioIcon.visible = captionsIcon.visible = false;
+			clip.audioIcon.visible = clip.captionsIcon.visible = false;
 		}
 	};
 
@@ -162,9 +162,9 @@ public class Accessibility extends MovieClip implements PluginInterface {
 		config['mute'] = stt;
 		setVolume();
 		if(config['mute']) {
-			audioIcon.alpha = 0.3;
+			clip.audioIcon.alpha = 0.3;
 		} else { 
-			audioIcon.alpha = 1;
+			clip.audioIcon.alpha = 1;
 		}
 	};
 

@@ -41,7 +41,7 @@ public class SPLoader extends EventDispatcher {
 
 	/** Add an already inited plugin to the list. **/
 	public function addPlugin(pgi:Object,nam:String) {
-		var obj:Object = {reference:pgi,name:nam,position:'over',size:50};
+		var obj:Object = {reference:pgi,name:nam,position:'over',size:100};
 		// hack for the playlist/controlbar flashvars
 		player.skin.setChildIndex(player.skin.controlbar,player.skin.numChildren-1);
 		if(nam == 'controlbar') {

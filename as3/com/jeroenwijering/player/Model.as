@@ -173,6 +173,7 @@ public class Model extends EventDispatcher {
 
 	/** Load the configuration array. **/
 	private function stopHandler(evt:ControllerEvent=undefined):void {
+		image = undefined;
 		if(currentModel) {
 			models[currentModel].stop();
 		}

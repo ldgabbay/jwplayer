@@ -62,12 +62,13 @@ public class Revolt extends MovieClip implements PluginInterface {
 		var pic:Bitmap = new Bitmap(gfx);
 		pic.smoothing = true;
 		clip.addChild(pic);
+		resizeHandler();
 	};
 
 
 	/** Compute a new soundspectrum bitmap. **/
 	private function compute(ev:Event):void {
-		SoundMixer.computeSpectrum(ba,preset.fourier);
+		SoundMixer.computeSpectrum(ba,preset.fourier,0);
 		var soundArray:Array = new Array();
 		for (var i:uint = 0; i < 512; i++) {
 			soundArray.push(ba.readFloat());
@@ -94,8 +95,16 @@ public class Revolt extends MovieClip implements PluginInterface {
 
 	/** Resize the visualizer to the display. **/
 	private function resizeHandler(evt:ControllerEvent=null) {
-		clip.width = view.config['width'];
-		clip.height = view.config['height'];
+		try { 
+			var obj = view.getPluginConfig(this);
+			clip.x = obj['x'];
+			clip.y = obj['y'];
+			clip.width = obj['width'];
+			clip.height = obj['height'];
+		} catch (err:Error) {
+			clip.width = view.config['width'];
+			clip.height = view.config['height'];
+		}
 	};
 
 
