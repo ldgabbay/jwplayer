@@ -185,13 +185,18 @@ public class View extends AbstractView {
 	public function playerReady() {
 		if(ExternalInterface.available && _skin.loaderInfo.url.indexOf('http') == 0 && ready != true) {
 			ready = true;
-			var dat:Object = {id:config['id'],client:config['client'],version:config['version']};
-			try {
-				ExternalInterface.call("playerReady",dat);
-			} catch (err:Error) {}
+			setTimeout(playerReadyPing,50);
 		}
 	};
 
+
+	/** The timeout on this ping is needed for IE - it'll not get the playerReady call. **/
+	private function playerReadyPing() {
+		var dat:Object = {id:config['id'],client:config['client'],version:config['version']};
+		try {
+			ExternalInterface.call("playerReady",dat);
+		} catch (err:Error) {}
+	}
 
 
 	/** Send a redraw request when the stage is resized. **/
