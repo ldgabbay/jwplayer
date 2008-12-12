@@ -1,9 +1,13 @@
 /**
+* Clickproxy plugin
+* =================
+*
 * This plugin sends mouse click information to javascript when a user clicks on a playing video.
-* Use it to build interactive video style applications in javascript.The plugin has one flashvar:
+* Use it to build interactive video applications in javascript.The plugin has one flashvar:
 * 
 * 1. clickproxy.listener
 * This is the javascript function that receives the mouseclick info. Default is "clickListener".
+* 
 * The function receives an object with the following variables:
 * - id (id of the player in the javascript DOM)
 * - version (version of the player, e.g. 4.2.90)
@@ -13,6 +17,11 @@
 * - mousey (this is the y position of the mouse in the display)
 * - state (this is the playbackstate of the video)
 *
+* Some nice examples from Lars Nyboe Andersen can be found here:
+* - http://home5.inet.tele.dk/nyboe/flash/mediaplayer4/clickproxy/clickproxy_mux.html
+* - http://home5.inet.tele.dk/nyboe/flash/mediaplayer4/JW_FLV_Media_Player_Piano/
+*
+* The full source code can be found at http://developer.longtailvideo.com/trac/browser/plugins/clickproxy-1.0
 **/
 package com.jeroenwijering.plugins {
 
