@@ -184,13 +184,14 @@ public class View extends AbstractView {
 	/** Send a ready ping to javascript. **/
 	public function playerReady() {
 		if(ExternalInterface.available && _skin.loaderInfo.url.indexOf('http') == 0 && ready != true) {
+			ready = true;
 			var dat:Object = {id:config['id'],client:config['client'],version:config['version']};
 			try {
 				ExternalInterface.call("playerReady",dat);
-				ready = true;
 			} catch (err:Error) {}
 		}
 	};
+
 
 
 	/** Send a redraw request when the stage is resized. **/
