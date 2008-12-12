@@ -33,6 +33,8 @@ public class View extends AbstractView {
 	private var context:ContextMenu;
 	/** A list with all javascript listeners. **/
 	private var listeners:Array;
+	/** Player is ready **/
+	private var ready:Boolean;
 
 
 	/** Constructor, save references and subscribe to events. **/
@@ -113,7 +115,7 @@ public class View extends AbstractView {
 			Debug.log(typ+' '+prm,obj[tgt]);
 		} else if(config['tracecall'] == 'flash') {
 			trace(tgt+': '+typ+' '+prm);
-		} else if (config['tracecall']) {
+		} else if (config['tracecall'] && ready) {
 			ExternalInterface.call(config['tracecall'],tgt+': '+typ+' '+prm);
 		}
 		if(!dat) { dat = new Object(); }
@@ -181,10 +183,11 @@ public class View extends AbstractView {
 
 	/** Send a ready ping to javascript. **/
 	public function playerReady() {
-		if(ExternalInterface.available && _skin.loaderInfo.url.indexOf('http') == 0) {
+		if(ExternalInterface.available && _skin.loaderInfo.url.indexOf('http') == 0 && ready != true) {
 			var dat:Object = {id:config['id'],client:config['client'],version:config['version']};
 			try {
 				ExternalInterface.call("playerReady",dat);
+				ready = true;
 			} catch (err:Error) {}
 		}
 	};
