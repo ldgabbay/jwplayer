@@ -54,7 +54,19 @@ public class View extends AbstractView {
 		setListening();
 		if(ExternalInterface.available && _skin.loaderInfo.url.indexOf('http') == 0) {
 			listeners = new Array();
-			setTimeout(javascriptReady,100);
+			if(ExternalInterface.objectID) {
+				_config['id'] = ExternalInterface.objectID;
+			}
+			try {
+				ExternalInterface.addCallback("addControllerListener",addJSControllerListener);
+				ExternalInterface.addCallback("addModelListener",addJSModelListener);
+				ExternalInterface.addCallback("addViewListener",addJSViewListener);
+				ExternalInterface.addCallback("getConfig",getConfig);
+				ExternalInterface.addCallback("getPlaylist",getPlaylist);
+				ExternalInterface.addCallback("getPluginConfig",getJSPluginConfig);
+				ExternalInterface.addCallback("loadPlugin",loadPlugin);
+				ExternalInterface.addCallback("sendEvent",sendEvent);
+			} catch (err:Error) {}
 		}
 	};
 
@@ -160,30 +172,21 @@ public class View extends AbstractView {
 	};
 
 
-	/** Add callbacks and send a call to javascript that the player is ready. **/
-	private function javascriptReady():void {
-		if(ExternalInterface.objectID) {
-			_config['id'] = ExternalInterface.objectID;
-		}
-		var dat:Object = {id:config['id'],client:config['client'],version:config['version']};
-		try {
-			ExternalInterface.addCallback("addControllerListener",addJSControllerListener);
-			ExternalInterface.addCallback("addModelListener",addJSModelListener);
-			ExternalInterface.addCallback("addViewListener",addJSViewListener);
-			ExternalInterface.addCallback("getConfig",getConfig);
-			ExternalInterface.addCallback("getPlaylist",getPlaylist);
-			ExternalInterface.addCallback("getPluginConfig",getJSPluginConfig);
-			ExternalInterface.addCallback("loadPlugin",loadPlugin);
-			ExternalInterface.addCallback("sendEvent",sendEvent);
-			ExternalInterface.call("playerReady",dat);
-		} catch (err:Error) {}
-	};
-
-
 	/** Load a plugin into the player at runtime. **/
 	override public function loadPlugin(url:String,vrs:String=null):Boolean {
 		sploader.loadPlugin(url,vrs);
 		return true;
+	};
+
+
+	/** Send a ready ping to javascript. **/
+	public function playerReady() {
+		if(ExternalInterface.available && _skin.loaderInfo.url.indexOf('http') == 0) {
+			var dat:Object = {id:config['id'],client:config['client'],version:config['version']};
+			try {
+				ExternalInterface.call("playerReady",dat);
+			} catch (err:Error) {}
+		}
 	};
 
 

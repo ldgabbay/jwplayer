@@ -288,6 +288,7 @@ public class Controlbar implements PluginInterface {
 		stacker.rearrange(wid);
 		stateHandler();
 		fixTime();
+		Mouse.show();
 	};
 
 
