@@ -1,5 +1,5 @@
 /**
-* Plugins that handles drag&drop over the display in AIR applications.
+* Plugin that handles drag&drop over the display in AIR applications.
 **/
 package com.jeroenwijering.plugins {
 

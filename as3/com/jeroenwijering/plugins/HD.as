@@ -1,18 +1,5 @@
 /**
-* HD Plugin
-* =========
-* 
-* Implements an HD toggle. An icon on the controlbar is shown to do the toggle, and the latest value is saved as a cookie. 
-* This plugin only works for single videos, not for playlists. Two flashvars are available:
-* 
-*  - hd.file    the HD file that one can toggle to. Example: "http://developer.longtailvideo.com/files/bunny.mov"
-*  - hd.state   the state of the HD toggle (true/false). Only use this when you want to override a users' cookie value 
-*               (e.g. force the HD to be always off by default to save bandwidth).
-* 
-* The insertion of the controlbar button will only work on 4.3+ players. It'll silently fail (no button, no error) 
-* for previous versions of the player ór when using an older skin (a skin needs to have a linkButton.back clip).
-* 
-* The source code for this plugin can be found at http://developer.longtailvideo.com/trac/browser/plugins/hd-1.0
+* Implements an HD toggle, accessible through a controlbar button.
 **/
 package com.jeroenwijering.plugins {
 

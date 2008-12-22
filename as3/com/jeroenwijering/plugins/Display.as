@@ -1,5 +1,5 @@
 ﻿/**
-* Interface for all display elements.
+* Plugin that displays the actual mediafiles, overlay icons and the logo.
 **/
 package com.jeroenwijering.plugins {
 

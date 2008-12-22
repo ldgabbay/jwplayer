@@ -22,13 +22,18 @@ public class YouSearch extends MovieClip implements PluginInterface {
 	private var clip:MovieClip;
 
 
-	/** Constructor; sets the graphics. **/
+	/** Constructor; links the graphics. **/
 	public function YouSearch():void {
 		clip = this;
+		clip.search.addEventListener(MouseEvent.CLICK,clickHandler);
+		clip.query.addEventListener(FocusEvent.FOCUS_IN,focusHandler);
+		clip.query.addEventListener(KeyboardEvent.KEY_DOWN,keyHandler);
+		clip.search.buttonMode = true;
+		clip.search.mouseChildren = false;
 	};
 
 
-	/** Start the search. **/
+	/** Start a search. **/
 	private function clickHandler(evt:MouseEvent=null):void {
 		var que:String = encodeURI(clip.query.text);
 		if(que.length > 3) { 
@@ -40,7 +45,7 @@ public class YouSearch extends MovieClip implements PluginInterface {
 
 	/** Clear the field on focus. **/
 	private function focusHandler(evt:FocusEvent):void {
-		if(clip.query.text == '...') { 
+		if(clip.query.text == '...') {
 			clip.query.text = '';
 		}
 	};
@@ -55,21 +60,16 @@ public class YouSearch extends MovieClip implements PluginInterface {
 	/** The initialize call is invoked by the player View. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
-		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
-		clip.search.addEventListener(MouseEvent.CLICK,clickHandler);
-		clip.query.addEventListener(FocusEvent.FOCUS_IN,focusHandler);
-		clip.query.addEventListener(KeyboardEvent.KEY_DOWN,keyHandler);
-		clip.search.buttonMode = true;
-		clip.search.mouseChildren = false;
+		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
+		resizeHandler();
 		try {
 			view.getPlugin('controlbar').addButton(icon,'yousearch',buttonHandler);
 		} catch (err:Error) { icon.visible = false; }
-		resizeHandler();
 	};
 
 
-	/** Start the search on enter. **/
+	/** Start the search when pressing the enter key. **/
 	private function keyHandler(evt:KeyboardEvent):void {
 		if(evt.charCode == 13) { 
 			clickHandler();
@@ -95,7 +95,7 @@ public class YouSearch extends MovieClip implements PluginInterface {
 	};
 
 
-	/** Close on video completed. **/
+	/** Show the searchbox on video completed. **/
 	private function stateHandler(evt:ModelEvent):void { 
 		switch(evt.data.newstate) {
 			case ModelStates.BUFFERING:

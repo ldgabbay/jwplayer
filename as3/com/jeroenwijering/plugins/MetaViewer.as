@@ -1,18 +1,5 @@
 /**
-* MetaViewer plugin
-* =================
-*
-* Prints the metadata enclosed in videos onscreen, which is useful for metadata checking. Works for FLV and MP4.
-* This plugin uses the ".position" and ".size" variables introduced in 4.3:
-* 
-* - metaviewer.position    Position of the plugin, can be "left", "right", "top" or "bottom". Default is "over".
-* - metaviewer.size        Size of the plugin in pixels. When placed "left" or "right", it is the width and 
-*                          when placed "top" or "bottom" it is the height of the plugin. When set to "over", 
-*                          the dimensions of the display are always used.
-* 
-* For < 4.3 players, the plugin will always show on top of the display.
-*
-* The plugin source code can be found at: http://developer.longtailvideo.com/trac/browser/plugins/metaviewer-1.0
+* Prints the metadata enclosed in videos onscreen, which is useful for metadata checking. 
 **/
 package com.jeroenwijering.plugins {
 

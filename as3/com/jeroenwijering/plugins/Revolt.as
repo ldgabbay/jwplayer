@@ -1,12 +1,6 @@
 ﻿/**
-* Revolt plugin
-* =============
-* 
-* This plugin renders some cool visualizations in the display, great for audio playback. It has no flashvars.
+* This plugin renders some cool visualizations in the display, great for audio playback.
 * All visualization code is developed by Antti Kupila (www.anttikupila.com).
-* 
-* The plugin contains 6 presets, and developers with actionscript experience can easily add new presets.
-* Source code of the plugin can be found at http://developer.longtailvideo.com/trac/browser/plugins/revolt-1.0
 **/
 
 package com.jeroenwijering.plugins {

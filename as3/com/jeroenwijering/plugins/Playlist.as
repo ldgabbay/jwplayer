@@ -1,6 +1,5 @@
 ﻿/**
-* Print a playlist onscreen
-* =========================
+* Print a graphical playlist, plus a scrollbar if the items don't fit.
 **/
 package com.jeroenwijering.plugins {
 

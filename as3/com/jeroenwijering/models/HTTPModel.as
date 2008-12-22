@@ -126,10 +126,8 @@ public class HTTPModel implements ModelInterface {
 		url += '&width='+model.config['width'];
 		if(getToken()) { url += '&token='+getToken(); }
 		stream.play(url);
-		if(str != 'lighttpd') {
-			clearInterval(loadinterval);
-			loadinterval = setInterval(loadHandler,200);
-		}
+		clearInterval(loadinterval);
+		loadinterval = setInterval(loadHandler,200);
 		clearInterval(timeinterval);
 		timeinterval = setInterval(timeHandler,100);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
@@ -140,10 +138,14 @@ public class HTTPModel implements ModelInterface {
 	private function loadHandler():void {
 		var ldd:Number = stream.bytesLoaded;
 		var ttl:Number = stream.bytesTotal;
+		var off:Number = offset;
 		if(ldd >= ttl && ldd > 0) {
 			clearInterval(loadinterval);
 		}
-		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl+offset,offset:offset});
+		if(model.playlist[model.config['item']]['streamer'] == "lighttpd") {
+			off = 0;
+		}
+		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl+offset,offset:off});
 	};
 
 

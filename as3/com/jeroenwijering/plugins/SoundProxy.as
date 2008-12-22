@@ -1,33 +1,5 @@
-/**
-* Soundproxy plugin
-* =================
-* 
+/** 
 * This plugin sends realtime sound spectrum information to javascript.
-* Use it to build equalizer / visualizer applications in javascript that react on the player.
-* The plugin has three flashvars:
-* 
-* 1. soundproxy.bands
-* This is the number of frequency bands the proxy sends to javascript. Default is 1 (only one band).
-* This corresponds to the number of entries in the 'bands' array in the object sent to the listener.
-* 
-* 2. soundproxy.interval
-* This is the resolution in milliseconds with which the sounddata is sent to javascript. Default is 100 (ten times/second).
-*
-* 3. soundproxy.listener
-* This is the javascript function that receives the sounddata info. Default is "soundListener".
-* The listener receives an object with the following variables:
-* - id (id of the player in the javascript DOM)
-* - version (version of the player, e.g. 4.2.90)
-* - client (plugin client, e.g. FLASH WIN 9.0.124
-* - bands (this is an array with values from -1 to 1, corresponding to the amplitude of the frequency bands)
-*
-* When playing a video from another domain than the player, security restrictions prevent the plugin from parsing the sounddata.
-* Either place player + video at the same domain or make sure the video domain has a crossdomain.xml file.
-*
-* Here's a couple of cool demos from Lars Nyboe Andersen:
-* http://home5.inet.tele.dk/nyboe/flash/lab/externalSoundInterface/soundproxy_index.html
-*
-* The source code for this plugin can be found at http://developer.longtailvideo.com/trac/browser/plugins/soundproxy-1.0
 **/
 package com.jeroenwijering.plugins {
 

@@ -54,22 +54,7 @@ public class View extends AbstractView {
 		controller = ctr;
 		model = mdl;
 		setListening();
-		if(ExternalInterface.available && _skin.loaderInfo.url.indexOf('http') == 0) {
-			listeners = new Array();
-			if(ExternalInterface.objectID) {
-				_config['id'] = ExternalInterface.objectID;
-			}
-			try {
-				ExternalInterface.addCallback("addControllerListener",addJSControllerListener);
-				ExternalInterface.addCallback("addModelListener",addJSModelListener);
-				ExternalInterface.addCallback("addViewListener",addJSViewListener);
-				ExternalInterface.addCallback("getConfig",getConfig);
-				ExternalInterface.addCallback("getPlaylist",getPlaylist);
-				ExternalInterface.addCallback("getPluginConfig",getJSPluginConfig);
-				ExternalInterface.addCallback("loadPlugin",loadPlugin);
-				ExternalInterface.addCallback("sendEvent",sendEvent);
-			} catch (err:Error) {}
-		}
+		listeners = new Array();
 	};
 
 
@@ -192,9 +177,23 @@ public class View extends AbstractView {
 
 	/** The timeout on this ping is needed for IE - it'll not get the playerReady call. **/
 	private function playerReadyPing() {
-		var dat:Object = {id:config['id'],client:config['client'],version:config['version']};
 		try {
-			ExternalInterface.call("playerReady",dat);
+			if(ExternalInterface.objectID) {
+				_config['id'] = ExternalInterface.objectID;
+			}
+			ExternalInterface.addCallback("addControllerListener",addJSControllerListener);
+			ExternalInterface.addCallback("addModelListener",addJSModelListener);
+			ExternalInterface.addCallback("addViewListener",addJSViewListener);
+			ExternalInterface.addCallback("getConfig",getConfig);
+			ExternalInterface.addCallback("getPlaylist",getPlaylist);
+			ExternalInterface.addCallback("getPluginConfig",getJSPluginConfig);
+			ExternalInterface.addCallback("loadPlugin",loadPlugin);
+			ExternalInterface.addCallback("sendEvent",sendEvent);
+			ExternalInterface.call("playerReady",{
+				id:config['id'],
+				client:config['client'],
+				version:config['version']
+			});
 		} catch (err:Error) {}
 	}
 

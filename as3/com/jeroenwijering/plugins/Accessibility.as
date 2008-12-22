@@ -1,26 +1,5 @@
 /**
-* Accessibility plugin
-* ====================
-* 
 * Plugin for playing closed captions and a closed audiodescription with a video.
-* For the 4.3 player or higher, the plugin will place buttons in the controlbar to toggle captions/audio on or off. 
-* The plugin has three variables for the captions part and three for the audio part:
-*
-* - "accessibility.captions": Location of the TimedText or SRT XML file to display.
-*                             an example file is http://developer.longtailvideo.com/files/corrie.xml
-* - "accessibility.hide":     Set this to "true" to turn off the captions by default.
-* - "accessibility.fontsize": Size of the captions font. Default is 15.
-* 
-* - "accessibility:audio":    Location of the audiodescription MP3 to play.
-*                             An example file is http://developer.longtailvideo.com/files/corrie.mp3
-* - "accessibility.mute":     Set this to "true" to turn off the audiodescription by default.
-* - "accessibility.volume":   Volume of the captions. Default is 50. Set this bigger/smaller to boost/soften the volume.
-* 
-* You can also set captions or audio through a playlist, through the meta-elements named "captions" and "audio".
-* Set these for every playlistentry that has accessibility files. For an overview of meta elements, visit:
-* http://developer.longtailvideo.com/trac/wiki/FlashFormats#Playlistformats
-*
-* The source code for this plugin can be found at http://developer.longtailvideo.com/trac/browser/plugins/accessibility-1.0
 **/
 package com.jeroenwijering.plugins {
 

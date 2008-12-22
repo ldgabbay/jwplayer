@@ -66,8 +66,7 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		ready:false,
-		version:'4.3.131'
+		version:'4.3.132'
 	};
 	/** Base directory from which all plugins are loaded. **/
 	public var basedir:String = "http://plugins.longtailvideo.com/";
@@ -139,7 +138,6 @@ public class Player extends MovieClip {
 	protected function startPlayer(evt:SPLoaderEvent=null) {
 		view.sendEvent(ViewEvent.REDRAW);
 		visible = true;
-		config['ready'] = true;
 		dispatchEvent(new PlayerEvent(PlayerEvent.READY));
 		view.playerReady();
 		if(config['file']) {
