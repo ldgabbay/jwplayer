@@ -19,10 +19,10 @@ public class ObjectParser {
 		'file':undefined,
 		'image':undefined,
 		'link':undefined,
-		'title':undefined,
 		'start':0,
 		'streamer':undefined,
 		'tags':undefined,
+		'title':undefined,
 		'type':undefined
 	};
 	/** File extensions of all supported mediatypes. **/
@@ -46,30 +46,6 @@ public class ObjectParser {
 		'sdp':'video',
 		'swf':'image',
 		'vp6':'video'
-	};
-	/** Mimetypes of all supported mediafiles. **/
-	public static var MIMETYPES:Object = {
-		'application/x-fcs':'video',
-		'application/x-shockwave-flash':'image',
-		'audio/aac':'video',
-		'audio/m4a':'video',
-		'audio/mp4':'video',
-		'audio/mp3':'sound',
-		'audio/mpeg':'sound',
-		'audio/x-3gpp':'video',
-		'audio/x-m4a':'video',
-		'image/gif':'image',
-		'image/jpeg':'image',
-		'image/jpg':'image',
-		'image/png':'image',
-		'video/flv':'video',
-		'video/3gpp':'video',
-		'video/h264':'video',
-		'video/mp4':'video',
-		'video/x-3gpp':'video',
-		'video/x-flv':'video',
-		'video/x-m4v':'video',
-		'video/x-mp4':'video'
 	};
 
 

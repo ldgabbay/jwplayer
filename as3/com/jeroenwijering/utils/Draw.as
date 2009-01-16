@@ -28,16 +28,16 @@ public class Draw {
 
 
 	/** 
-	* Clone a displayobject.
+	* Clone a sprite / movieclip.
 	*
-	* @param tgt	Displayobject to clone.
+	* @param tgt	Sprite to clone.
 	* @param adc	Add as child to the parent displayobject.
 	*
 	* @return		The clone; not yet added to the displaystack.
 	**/
-	public static function clone(tgt:MovieClip,adc:Boolean=false):MovieClip {
+	public static function clone(tgt:Sprite,adc:Boolean=false):MovieClip {
 		var cls:Class = Object(tgt).constructor;
-		var dup:MovieClip = new cls();
+		var dup = new cls();
 		dup.transform = tgt.transform;
 		dup.filters = tgt.filters;
 		dup.cacheAsBitmap = tgt.cacheAsBitmap;
@@ -49,8 +49,22 @@ public class Draw {
 	    return dup;
 	};
 
-
 	/** 
+	* Try positioning a certain displayobject.
+	*
+	* @param obj	The displayobject to position.
+	* @param xps	New x position of the object.
+	* @param yps	New y position of the object.
+	**/
+	public static function pos(obj:DisplayObject,xps:Number,yps:Number):void {
+		try {
+			obj.x = Math.round(xps);
+			obj.y = Math.round(yps);
+		} catch (err:Error) {}
+	};
+
+
+	/**
 	* Draw a rectangle on stage.
 	*
 	* @param tgt	Displayobject to add the rectangle to.
@@ -74,6 +88,35 @@ public class Draw {
 
 
 	/** 
+	* Try setting a certain property of a displayobject. 
+	*
+	* @param obj	The displayobject to update.
+	* @param prp	The property to update.
+	* @param val	The new value of the property.
+	**/
+	public static function set(obj:DisplayObject,prp:String,val:Object) {
+		try {
+			obj[prp] = val;
+		} catch (err:Error) {}
+	};
+
+
+	/**
+	* Try resizing a certain displayobject.
+	*
+	* @param obj	The displayobject to resize.
+	* @param wid	New width of the object.
+	* @param hei	New height of the object.
+	**/
+	public static function size(obj:DisplayObject,wid:Number,hei:Number):void {
+		try {
+			obj.width = Math.round(wid);
+			obj.height = Math.round(hei);
+		} catch (err:Error) {}
+	};
+
+
+	/** 
 	* Draw a textfield on stage.
 	*
 	* @param tgt	Displayobject to add the textfield to.
@@ -85,11 +128,12 @@ public class Draw {
 	* @param wid	If a textfield is multilined, this is the width.
 	* @param xps	X offset of the textfield,defaults to 0.
 	* @param yps	Y offset of the textfield, defaults to 0.
+	* @param ats	Autosize text alignment.
 	*
 	* @return		A reference to the textfield.
 	**/
 	public static function text(tgt:Sprite,txt:String,col:String,siz:Number=12,fnt:String='Arial',
-		mtl:Boolean=false,wid:Number=100,xps:Number=0,yps:Number=0):TextField {
+		mtl:Boolean=false,wid:Number=100,xps:Number=0,yps:Number=0,ats:String="left"):TextField {
 		var tfd:TextField = new TextField();
 		var fmt:TextFormat = new TextFormat();
 		tfd.autoSize = 'left';
@@ -98,6 +142,8 @@ public class Draw {
 			tfd.width = wid;
 			tfd.multiline = true;
 			tfd.wordWrap = true;
+		} else { 
+			tfd.autoSize = ats;
 		}
 		tfd.x = xps;
 		tfd.y = yps;

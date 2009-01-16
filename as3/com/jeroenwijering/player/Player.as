@@ -18,7 +18,7 @@ public class Player extends MovieClip {
 	/** All configuration values. Change them to hard-code your preferences. **/
 	public var config:Object = {
 		author:undefined,
-		description:undefined, 
+		description:undefined,
 		date:undefined,
 		duration:0,
 		file:undefined,
@@ -49,14 +49,14 @@ public class Player extends MovieClip {
 		item:0,
 		logo:undefined,
 		mute:false,
-		quality:true,
 		repeat:'none',
 		resizing:true,
 		shuffle:false,
+		smoothing:true,
 		state:'IDLE',
 		stretching:'uniform',
 		volume:90,
-		
+
 		abouttext:undefined,
 		aboutlink:"http://www.longtailvideo.com/players/jw-flv-player/",
 		client:undefined,
@@ -66,10 +66,10 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.3.132'
+		version:'4.4.135'
 	};
 	/** Base directory from which all plugins are loaded. **/
-	public var basedir:String = "http://plugins.longtailvideo.com/";
+	public var basedir:String = 'http://plugins.longtailvideo.com/';
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
 	/** Reference to the View of the MVC cycle, defining all API calls. **/

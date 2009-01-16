@@ -40,7 +40,7 @@ public class SPLoader extends EventDispatcher {
 
 
 	/** Add an already inited plugin to the list. **/
-	public function addPlugin(pgi:Object,nam:String) {
+	public function addPlugin(pgi:Object,nam:String):void {
 		var obj:Object = {reference:pgi,name:nam,position:'over',size:180,x:0,y:0,width:400,height:300};
 		// hack for the playlist/controlbar flashvars
 		player.skin.setChildIndex(player.skin.controlbar,player.skin.numChildren-1);
@@ -52,11 +52,17 @@ public class SPLoader extends EventDispatcher {
 			obj['position'] = player.config['playlist'];
 			obj['size'] = player.config['playlistsize'];
 		}
+		try {
+			for(var org:String in pgi.config) {
+				obj[org] = pgi.config[org];
+			}
+		} catch (err:Error) {}
 		for(var str:String in player.config) {
 			if (str.indexOf(nam + ".") == 0) {
 				obj[str.substring(nam.length + 1)] = player.config[str];
 			}
 		}
+		try { pgi.config = obj; } catch (err:Error) {}
 		plugins.push(obj);
 		pgi.initializePlugin(player.view);
 	};

@@ -1,5 +1,5 @@
 ﻿/**
-* Wrap all media API's and manage playback.
+* Wraps all media APIs (all models) and manages thumbnail display.
 **/
 package com.jeroenwijering.player {
 
@@ -8,12 +8,11 @@ import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.*;
 import com.jeroenwijering.player.*;
 import com.jeroenwijering.utils.*;
+
 import flash.display.*;
-import flash.events.Event;
-import flash.events.EventDispatcher;
+import flash.events.*;
 import flash.net.URLRequest;
 import flash.system.LoaderContext;
-import flash.utils.getDefinitionByName;
 
 
 public class Model extends EventDispatcher {
@@ -31,51 +30,53 @@ public class Model extends EventDispatcher {
 	private var models:Object;
 	/** Loader for the preview image. **/
 	private var thumb:Loader;
-	/** Save the current image to prevent overloading. **/
+	/** Save the currently playing playlist item. **/
+	private var item:Object;
+	/** Save the current image url to prevent duplicate loading. **/
 	private var image:String;
-	/** Currently active model. **/
-	private var currentModel:String;
 
 
-	/** Constructor, save arrays and set currentItem. **/
+	/** Constructor, save references, setup listeners and  init thumbloader. **/
 	public function Model(cfg:Object,skn:MovieClip,ldr:SPLoader,ctr:Controller):void {
 		config = cfg;
 		skin = skn;
 		sploader = ldr;
-		Draw.clear(skin.display.media);
 		controller = ctr;
 		controller.addEventListener(ControllerEvent.ITEM,itemHandler);
 		controller.addEventListener(ControllerEvent.MUTE,muteHandler);
 		controller.addEventListener(ControllerEvent.PLAY,playHandler);
 		controller.addEventListener(ControllerEvent.PLAYLIST,playlistHandler);
-		controller.addEventListener(ControllerEvent.QUALITY,qualityHandler);
 		controller.addEventListener(ControllerEvent.RESIZE,resizeHandler);
 		controller.addEventListener(ControllerEvent.SEEK,seekHandler);
 		controller.addEventListener(ControllerEvent.STOP,stopHandler);
 		controller.addEventListener(ControllerEvent.VOLUME,volumeHandler);
 		thumb = new Loader();
-		thumb.contentLoaderInfo.addEventListener(Event.COMPLETE,resizeHandler);
+		thumb.contentLoaderInfo.addEventListener(Event.COMPLETE,thumbHandler);
+		Draw.clear(skin.display.media);
 		skin.display.addChildAt(thumb,skin.display.getChildIndex(skin.display.media)+1);
+		skin.display.media.visible = false;
 		models = new Object();
 	};
 
 
-	/** Item change: switch the curently active model if there's a new URL **/
+	/** Item change: stop the old model and start the new one. **/
 	private function itemHandler(evt:ControllerEvent):void {
-		var typ:String = playlist[config['item']]['type'];
-		if(currentModel) {
-			models[currentModel].stop();
+		if(item) {
+			models[item['type']].stop();
 		}
-		if(!models[typ]) {
-			loadModel(typ);
+		item = controller.playlist[config['item']];
+		if(!models[item['type']]) {
+			loadModel(item['type']);
 		}
-		if(models[typ]) {
-			currentModel = typ;
-			models[typ].load();
+		if(models[item['type']]) {
+			models[item['type']].load(item);
 		} else {
-			sendEvent(ModelEvent.ERROR,{message:'No suiteable model found for playback.'});
+			sendEvent(ModelEvent.ERROR,{message:'No suiteable model found for playback of this file.'});
 		}
-		thumbLoader();
+		if(item['image'] && item['image'] != image) {
+			image = item['image'];
+			thumb.load(new URLRequest(item['image']),new LoaderContext(true));
+		}
 	};
 
 
@@ -90,6 +91,12 @@ public class Model extends EventDispatcher {
 				break;
 			case 'image':
 				models[typ] = new ImageModel(this);
+				break;
+			case 'lighttpd':
+				models[typ] = new LighttpdModel(this);
+				break;
+			case 'nginx':
+				models[typ] = new NginxModel(this);
 				break;
 			case 'rtmp':
 				models[typ] = new RTMPModel(this);
@@ -107,48 +114,48 @@ public class Model extends EventDispatcher {
 	};
 
 
-	/** Place a loaded mediafile on stage **/
-	public function mediaHandler(chd:DisplayObject=undefined):void {
+	/** 
+	* Place the mediafile fro the current model on stage.
+	* 
+	* @param obj	The displayobject (MovieClip/Video/Loader) to display.
+	**/
+	public function mediaHandler(obj:DisplayObject=undefined):void {
 		Draw.clear(skin.display.media);
-		skin.display.media.addChild(chd);
+		skin.display.media.addChild(obj);
 		resizeHandler();
 	};
 
 
-	/** Load the configuration array. **/
+	/** Make the current model toggle its mute state. **/
 	private function muteHandler(evt:ControllerEvent):void {
-		if(currentModel) {
+		if(item) {
 			if(evt.data.state == true) {
-				models[currentModel].volume(0);
+				models[item['type']].volume(0);
 			} else {
-				models[currentModel].volume(config['volume']);
+				models[item['type']].volume(config['volume']);
 			}
 		}
 	};
 
 
-	/** Togge the playback state. **/
+	/** Make the current model play or pause. **/
 	private function playHandler(evt:ControllerEvent):void {
-		if(currentModel) {
+		if(item) {
 			if(evt.data.state == true) {
-				models[currentModel].play();
+				models[item['type']].play();
 			} else { 
-				models[currentModel].pause();
+				models[item['type']].pause();
 			}
 		}
 	};
 
 
-	/** Send an idle with new playlist. **/
+	/** Load a new thumbnail. **/
 	private function playlistHandler(evt:ControllerEvent):void {
-		thumbLoader();
-	};
-
-
-	/** Toggle the playback quality. **/
-	private function qualityHandler(evt:ControllerEvent):void {
-		if(currentModel) {
-			models[currentModel].quality(evt.data.state);
+		var img:String = controller.playlist[config['item']]['image'];
+		if(img && img != image) {
+			image = img;
+			thumb.load(new URLRequest(img),new LoaderContext(true));
 		}
 	};
 
@@ -157,31 +164,36 @@ public class Model extends EventDispatcher {
 	private function resizeHandler(evt:Event=null):void {
 		var cfg:Object = sploader.getPluginConfig(sploader.getPlugin('display'));
 		Stretcher.stretch(skin.display.media,cfg['width'],cfg['height'],config['stretching']);
-		if(thumb.content) {
+		if(thumb.width > 10) {
 			Stretcher.stretch(thumb,cfg['width'],cfg['height'],config['stretching']);
 		}
 	};
 
 
-	/** Seek inside a file. **/
+	/** Make the current model seek. **/
 	private function seekHandler(evt:ControllerEvent):void {
-		if(currentModel) {
-			models[currentModel].seek(evt.data.position);
+		if(item) {
+			models[item['type']].seek(evt.data.position);
 		}
 	};
 
 
-	/** Load the configuration array. **/
+	/** Make the current model stop and show the thumb. **/
 	private function stopHandler(evt:ControllerEvent=undefined):void {
-		image = undefined;
-		if(currentModel) {
-			models[currentModel].stop();
+		if(item) {
+			models[item['type']].stop();
 		}
-		sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
 
-	/**  Dispatch events. State switch is saved. **/
+	/**  
+	* Dispatch events to the View/ Controller.
+	* When switching states, the thumbnail is shown/hidden.
+	* 
+	* @param typ	The eventtype to dispatch.
+	* @param dat	An object with data to send along.
+	* @see 			ModelEvent
+	**/
 	public function sendEvent(typ:String,dat:Object):void {
 		switch(typ) { 
 			case ModelEvent.STATE:
@@ -190,15 +202,14 @@ public class Model extends EventDispatcher {
 				dispatchEvent(new ModelEvent(typ,dat));
 				switch(dat['newstate']) {
 					case ModelStates.IDLE:
+						sendEvent(ModelEvent.LOADED,{loaded:0,offset:0,total:0});
 					case ModelStates.COMPLETED:
 						thumb.visible = true;
 						skin.display.media.visible = false;
-						if(playlist) {
-							sendEvent(ModelEvent.TIME,{position:0,duration:playlist[config['item']]['duration']});
-						}
+						sendEvent(ModelEvent.TIME,{position:0,duration:item['duration']});
 						break;
 					case ModelStates.PLAYING:
-						var ext:String = playlist[config['item']]['file'].substr(-3).toLowerCase();
+						var ext:String = item['file'].substr(-3).toLowerCase();
 						if(ext != 'aac' && ext != 'mp3' && ext != 'm4a') {
 							thumb.visible = false;
 							skin.display.media.visible = true;
@@ -209,21 +220,6 @@ public class Model extends EventDispatcher {
 						break;
 				}
 				break;
-			case ModelEvent.TIME:
-				dat['duration'] = playlist[config['item']]['duration'];
-				if(dat['duration'] > 0 && dat['duration'] < dat['position']) {
-					models[currentModel].pause();
-					sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
-				} else {
-					dispatchEvent(new ModelEvent(typ,dat));
-				}
-				break;
-			
-			case ModelEvent.ERROR:
-				models[currentModel].stop();
-				sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
-				dispatchEvent(new ModelEvent(typ,dat));
-				break;
 			case ModelEvent.META:
 				if(dat.width) { resizeHandler(); }
 			default:
@@ -233,27 +229,20 @@ public class Model extends EventDispatcher {
 	};
 
 
-	/** Load a thumb on stage. **/
-	private function thumbLoader():void {
-		var img:String = playlist[config['item']]['image'];
-		if(img && img != image) {
-			image = img;
-			thumb.load(new URLRequest(img),new LoaderContext(true));
-		}
+	/** Thumb loaded, try to antialias it before resizing. **/
+	private function thumbHandler(evt:Event) {
+		try {
+			Bitmap(thumb.content).smoothing = true;
+		} catch (err:Error) {}
+		resizeHandler();
 	};
 
 
-	/** Load the configuration array. **/
+	/** Make the current model change volume. **/
 	private function volumeHandler(evt:ControllerEvent):void {
-		if(currentModel) {
-			models[currentModel].volume(evt.data.percentage);
+		if(item) {
+			models[item['type']].volume(evt.data.percentage);
 		}
-	};
-
-
-	/** Getter for the playlist **/
-	public function get playlist():Array {
-		return controller.playlist;
 	};
 
 

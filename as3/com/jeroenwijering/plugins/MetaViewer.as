@@ -13,14 +13,18 @@ import flash.events.MouseEvent;
 public class MetaViewer extends MovieClip implements PluginInterface {
 
 
+	/** Object with configuration values. **/
+	public var config:Object;
 	/** Reference to the View of the player. **/
 	private var view:AbstractView;
 	/** Reference to the graphics. **/
 	private var clip:MovieClip;
 	/** Scrollbar clip for the metadata. **/
 	private var scrollbar:Scrollbar;
-	/** initialize call for backward compatibility. **/
-	public var initialize:Function = initializePlugin;
+	/** Formatted metadata string. **/
+	private var metastring:String = "No metadata received yet."
+	/** Formatted seekpoints string. **/
+	private var seekstring:String = "No seekpoints received yet.";
 
 
 	/** Constructor; nothing going on. **/
@@ -28,30 +32,25 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 		clip = this['metadata'];
 		clip.tf.mask = clip.ms;
 		clip.tf.autoSize = "left";
-		clip.xx.mouseChildren = false;
-		clip.xx.buttonMode = true;
-		clip.xx.addEventListener(MouseEvent.CLICK,clickHandler);
+		clip.close.mouseChildren = clip.seek.mouseChildren = clip.meta.mouseChildren = false;
+		clip.close.buttonMode = clip.seek.buttonMode = clip.meta.buttonMode = true;
+		clip.close.addEventListener(MouseEvent.CLICK,closeHandler);
+		clip.seek.addEventListener(MouseEvent.CLICK,seekHandler);
+		clip.meta.addEventListener(MouseEvent.CLICK,metaHandler);
 		scrollbar = new Scrollbar(clip.tf,clip.ms);
 	};
 
 
-	/** The initialize call is invoked by the player View. **/
-	public function initializePlugin(vie:AbstractView):void {
-		view = vie;
-		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
-		view.addModelListener(ModelEvent.META,metaHandler);
-		resizeHandler();
+	/** When clicking the x, the viewer is closed. **/
+	private function closeHandler(evt:MouseEvent) {
+		clip.visible = false;
 	};
 
 
-	/** When clicking the x, the viewer is closed. **/
-	private function clickHandler(evt:MouseEvent) { clip.visible = false; };
-
-
 	/** Print the metadata in a list. **/
-	private function metaHandler(evt:ModelEvent) {
+	private function dataHandler(evt:ModelEvent) {
 		if(evt.data.type == 'metadata' || evt.data.type == 'id3') {
-			var str:String = '';
+			var arr:Array = new Array();
 			for (var itm:String in evt.data) {
 				switch(itm) {
 					case 'type':
@@ -60,23 +59,50 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 					case 'client':
 						break;
 					case 'keyframes':
-						str += '» '+itm+': '+evt.data[itm]['times'].length+' entries\n';
+						seekstring = '';
+						arr.push('» '+itm+': '+evt.data[itm]['times'].length+' entries');
+						for (var i:Number=0; i<evt.data[itm]['times'].length; i++) {
+							seekstring += '» '+evt.data[itm]['times'][i]+'s - '+evt.data[itm]['filepositions'][i]+'b\n';
+						}
 						break;
 					case 'seekpoints':
+						seekstring = '';
+						for (var j:Number=0; j<evt.data[itm].length; j++) {
+							seekstring += '» '+evt.data[itm][j]['time']+'s - '+evt.data[itm][j]['offset']+'b\n';
+						}
 					case 'trackinfo':
-						str += '» '+itm+': '+evt.data[itm].length+' entries\n';
+						arr.push('» '+itm+': '+evt.data[itm].length+' entries');
 						break;
 					default:
 						if(evt.data[itm] != '') {
-							str += '» '+itm+': '+evt.data[itm]+'\n';
+							arr.push('» '+itm+': '+evt.data[itm]);
 						}
 						break;
 				}
 			}
-			clip.tf.text = str;
-			clip.visible = true;
-			scrollbar.draw();
+			arr.sort();
+			metastring = arr.join('\n');
+			metaHandler();
+			resizeHandler();
 		}
+	};
+
+
+	/** The initialize call is invoked by the player View. **/
+	public function initializePlugin(vie:AbstractView):void {
+		view = vie;
+		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
+		view.addModelListener(ModelEvent.META,dataHandler);
+		resizeHandler();
+	};
+
+
+	/** When clicking the x, the viewer is closed. **/
+	private function metaHandler(evt:MouseEvent=null) { 
+		clip.tf.text = metastring;
+		clip.meta.alpha = 1;
+		clip.seek.alpha = 0.3;
+		scrollbar.draw();
 	};
 
 
@@ -84,21 +110,30 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 	private function resizeHandler(evt:ControllerEvent=undefined) {
 		var wid:Number = view.config['width'];
 		var hei:Number = view.config['height'];
-		try {
-			var cfg = view.getPluginConfig(this);
-			clip.x = cfg['x'];
-			clip.y = cfg['y'];
-			wid = cfg['width'];
-			hei = cfg['height'];
-			if(cfg['position'] != 'over') {
-				clip.xx.visible = false;
+		if(config['width']) {
+			clip.x = config['x'];
+			clip.y = config['y'];
+			wid = config['width'];
+			hei = config['height'];
+			if(config['position'] != 'over') {
+				clip.close.visible = false;
 			}
-		} catch(err:Error) {}
+			clip.visible = config['visible'];
+		}
 		clip.bg.width = wid;
 		clip.bg.height = hei;
 		clip.tf.width = clip.ms.width = wid-50;
 		clip.ms.height = hei-60;
-		clip.xx.x = wid-35;
+		clip.close.x = wid-35;
+		scrollbar.draw();
+	};
+
+
+	/** When clicking the x, the viewer is closed. **/
+	private function seekHandler(evt:MouseEvent) { 
+		clip.tf.text = seekstring;
+		clip.meta.alpha = 0.3;
+		clip.seek.alpha = 1;
 		scrollbar.draw();
 	};
 

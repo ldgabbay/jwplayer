@@ -7,6 +7,7 @@ package com.jeroenwijering.plugins {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.utils.*;
 
+import flash.accessibility.*;
 import flash.display.*;
 import flash.events.MouseEvent;
 import flash.geom.ColorTransform;
@@ -25,7 +26,7 @@ public class Controlbar implements PluginInterface {
 	/** Reference to the controlbar **/
 	private var bar:MovieClip;
 	/** List with configuration settings. **/
-	private var config:Object;
+	public var config:Object;
 	/** A list with all controls. **/
 	private var stacker:Stacker;
 	/** Timeout for hiding the bar. **/
@@ -49,7 +50,7 @@ public class Controlbar implements PluginInterface {
 		muteButton:'MUTE',
 		unmuteButton:'MUTE'
 	};
-	/** The actions for all sliders **/ 
+	/** The actions for all sliders **/
 	private var SLIDERS = {
 		timeSlider:'SEEK',
 		volumeSlider:'VOLUME'
@@ -65,7 +66,6 @@ public class Controlbar implements PluginInterface {
 	/** Initialize from view. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
-		config = view.getPluginConfig(this);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.LOADED,loadedHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
@@ -79,11 +79,11 @@ public class Controlbar implements PluginInterface {
 		setButtons();
 		setColors();
 		itemHandler();
-		muteHandler();
-		volumeHandler();
 		loadedHandler();
-		timeHandler();
+		muteHandler();
 		stateHandler();
+		timeHandler();
+		volumeHandler();
 	};
 
 
@@ -96,9 +96,14 @@ public class Controlbar implements PluginInterface {
 	**/
 	public function addButton(icn:DisplayObject,nam:String,hdl:Function):void {
 		if(bar['linkButton'].back) {
-			var btn:MovieClip = Draw.clone(bar['linkButton']);
+			var btn = Draw.clone(bar['linkButton']);
 			btn.name = nam+'Button';
 			btn.visible = true;
+			btn.tabEnabled = true;
+			btn.tabIndex = 6;
+			var acs:AccessibilityProperties = new AccessibilityProperties();
+			acs.name = nam+'Button';
+			btn.accessibilityProperties = acs;
 			bar.addChild(btn);
 			var off:Number = Math.round((btn.height-icn.height)/2);
 			Draw.clear(btn.icon);
@@ -158,7 +163,7 @@ public class Controlbar implements PluginInterface {
 	/** Handle a change in the current item **/
 	private function itemHandler(evt:ControllerEvent=null):void {
 		try {
-			if(view.playlist && view.playlist.length > 1) {
+			if(view.playlist && view.playlist.length > 1 && view.config['playlist'] != 'none') {
 				bar.prevButton.visible = bar.nextButton.visible = true;
 			} else {
 				bar.prevButton.visible = bar.nextButton.visible = false;
@@ -192,6 +197,7 @@ public class Controlbar implements PluginInterface {
 			var wid:Number = bar.timeSlider.rail.width;
 			bar.timeSlider.mark.x = pc2*wid;
 			bar.timeSlider.mark.width = pc1*wid;
+			var icw:Number = bar.timeSlider.icon.x + bar.timeSlider.icon.width;
 		} catch (err:Error) {}
 	};
 
@@ -265,7 +271,7 @@ public class Controlbar implements PluginInterface {
 		bar.y = config['y'];
 		bar.visible = config['visible'];
 		if(config['position'] == 'over' || view.config['fullscreen'] == true) {
-			bar.x = config['margin'];
+			bar.x = config['x'] + config['margin'];
 			bar.y = config['y'] + config['height'] - config['margin'] - config['size'];
 			wid = config['width'] - 2*config['margin'];
 			bar.back.alpha = 0.75;
@@ -317,7 +323,7 @@ public class Controlbar implements PluginInterface {
 
 	/** Init the colors. **/
 	private function setColors():void {
-		if(view.config['backcolor'] && bar['playButton'].icon) { 
+		if(view.config['backcolor'] && bar['playButton'].icon) {
 			var clr:ColorTransform = new ColorTransform();
 			clr.color = uint('0x'+view.config['backcolor'].substr(-6));
 			bar.back.transform.colorTransform = clr;
@@ -400,7 +406,7 @@ public class Controlbar implements PluginInterface {
 			pos = evt.data.position;
 		} else if(view.playlist) {
 			dur = view.playlist[view.config['item']]['duration'];
-			pos = view.playlist[view.config['item']]['start'];
+			pos = 0;
 		}
 		var pct:Number = pos/dur;
 		try {
@@ -413,16 +419,10 @@ public class Controlbar implements PluginInterface {
 			if (dur > 0) {
 				bar.timeSlider.icon.visible = true;
 				bar.timeSlider.mark.visible = true;
+				bar.timeSlider.done.visible = true;
 				if(!scrubber) {
 					bar.timeSlider.icon.x = xps;
-					var dld:Number = bar.timeSlider.mark.x;
-					if(xps > dld) {
-						bar.timeSlider.done.x = dld;
-						bar.timeSlider.done.width = xps-dld;
-						bar.timeSlider.done.visible = true;
-					} else { 
-						bar.timeSlider.done.visible = false;
-					}
+					bar.timeSlider.done.width = xps;
 				}
 			} else {
 				bar.timeSlider.icon.visible = false;
@@ -451,7 +451,7 @@ public class Controlbar implements PluginInterface {
 
 	/** Reflect the new volume in the controlbar **/
 	private function volumeHandler(evt:ControllerEvent=null):void {
-		try { 
+		try {
 			var vsl:MovieClip = bar.volumeSlider;
 			vsl.mark.width = view.config['volume']*(vsl.rail.width-vsl.icon.width/2)/100;
 			vsl.icon.x = vsl.mark.x + view.config['volume']*(vsl.rail.width-vsl.icon.width)/100;

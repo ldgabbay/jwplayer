@@ -65,7 +65,6 @@ public class Controller extends EventDispatcher {
 		view.addEventListener(ViewEvent.NEXT,nextHandler);
 		view.addEventListener(ViewEvent.PLAY,playHandler);
 		view.addEventListener(ViewEvent.PREV,prevHandler);
-		view.addEventListener(ViewEvent.QUALITY,qualityHandler);
 		view.addEventListener(ViewEvent.REDRAW,redrawHandler);
 		view.addEventListener(ViewEvent.SEEK,seekHandler);
 		view.addEventListener(ViewEvent.STOP,stopHandler);
@@ -107,35 +106,23 @@ public class Controller extends EventDispatcher {
 
 	/** Return the type of specific playlistitem (the Model to play it with) **/
 	private function getModelType(itm:Object):String {
-		// no file, so nothing to play
 		if(!itm['file']) {
 			return null;
-		}
-		var ext:String = ObjectParser.EXTENSIONS[itm['file'].substr(-3).toLowerCase()];
-		// string matches on the file
-		if(itm['file'].indexOf('youtube.com/w') > -1 || itm['file'].indexOf('youtube.com/v') > -1) {
-			return 'youtube';
-		} else if(itm['file'].indexOf('.brightcove.com') > -1) {
-			return 'brightcove';
-		}
-		// recognized mimetype/extension and streamer
-		if((itm['type'] == 'video' || ext) && itm['streamer']) {
+		} else if(itm['type']) {
+			return itm['type'];
+		} else if (itm['streamer']) {
 			if(itm['streamer'].substr(0,4) == 'rtmp') {
 				return 'rtmp';
-			} else {
+			} else if(itm['streamer'].substr(0,4) == 'http') {
 				return 'http';
+			} else {
+				return itm['streamer'];
 			}
+		} else if(itm['file'].indexOf('youtube.com/w') > -1 || itm['file'].indexOf('youtube.com/v') > -1) {
+			return 'youtube';
+		} else { 
+			 return ObjectParser.EXTENSIONS[itm['file'].substr(-3).toLowerCase()];
 		}
-		// user-defined type or recognized mimetypes
-		if(itm['type']) {
-			if(ObjectParser.EXTENSIONS[itm['type']]) {
-				return ObjectParser.EXTENSIONS[itm['type']];
-			} else { 
-				return itm['type'];
-			}
-		}
-		// extension is returned (can be null)
-		return ext;
 	};
 
 
@@ -198,7 +185,7 @@ public class Controller extends EventDispatcher {
 			var dat:XML = XML(evt.target.data);
 			var fmt:String = dat.localName().toLowerCase();
 		} catch (err:Error) {
-			dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,'This playlist is not a valid XML file.'));
+			dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,{message:'This playlist is not a valid XML file.'}));
 			return;
 		}
 		switch (fmt) {
@@ -218,7 +205,7 @@ public class Controller extends EventDispatcher {
 				playlistHandler(ATOMParser.parse(dat));
 				break;
 			default:
-				dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,'Unknown playlist format: '+fmt));
+				dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,{message:'Unknown playlist format: '+fmt}));
 				return;
 		}
 	};
@@ -226,7 +213,7 @@ public class Controller extends EventDispatcher {
 
 	/** Update playlist item duration. **/
 	private function metaHandler(evt:ModelEvent):void {
-		if(evt.data.duration > 0 && playlist[config['item']]['duration'] == 0) {
+		if(evt.data.duration && playlist[config['item']]['duration'] == 0) {
 			playlist[config['item']]['duration'] = evt.data.duration;
 		}
 		if(evt.data.width) {
@@ -270,7 +257,7 @@ public class Controller extends EventDispatcher {
 			if(evt.data.state != false && config['state'] == ModelStates.PAUSED) {
 				dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:true}));
 			} else if (evt.data.state != false && config['state'] == ModelStates.COMPLETED) {
-				dispatchEvent(new ControllerEvent(ControllerEvent.SEEK,{position:playlist[config['item']]['start']}));
+				dispatchEvent(new ControllerEvent(ControllerEvent.SEEK,{position:0}));
 			} else if(evt.data.state != false && config['state'] == ModelStates.IDLE) {
 				playItem();
 			} else if (evt.data.state != true &&
@@ -283,10 +270,7 @@ public class Controller extends EventDispatcher {
 
 	/** Direct the model to play a new item. **/
 	private function playItem(nbr:Number=undefined):void {
-		if(nbr > -1) {
-			if(playlist[nbr]['file'] == playlist[config['item']]['file']) {
-				playlist[nbr]['duration'] = playlist[config['item']]['duration'];
-			}
+		if(!isNaN(nbr)) {
 			config['item'] = nbr;
 		}
 		dispatchEvent(new ControllerEvent(ControllerEvent.ITEM,{index:config['item']}));
@@ -296,9 +280,9 @@ public class Controller extends EventDispatcher {
 	/** Check new playlist for playeable files and setup randomizing/autostart. **/
 	private function playlistHandler(ply:Array):void {
 		for(var i:Number=ply.length-1; i>-1; i--) {
-			if(!ply[i]['streamer']) { ply[i]['streamer'] = config['streamer']; }
 			if(!ply[i]['duration']) { ply[i]['duration'] = 0; }
 			if(!ply[i]['start']) { ply[i]['start'] = 0; }
+			if(!ply[i]['streamer']) { ply[i]['streamer'] = config['streamer']; }
 			ply[i]['type'] = getModelType(ply[i]);
 			if(!ply[i]['type']) { ply.splice(i,1); }
 		}
@@ -328,22 +312,6 @@ public class Controller extends EventDispatcher {
 		} else { 
 			playItem(config['item']-1);
 		}
-	};
-
-
-	/** Switch playback quality. **/
-	private function qualityHandler(evt:ViewEvent=null):void {
-		if(evt.data.state != undefined) {
-			if(evt.data.state == config['quality']) {
-				return;
-			} else { 
-				config['quality'] = evt.data.state;
-			}
-		} else {
-			config['quality'] = !config['quality'];
-		}
-		Configger.saveCookie('quality',config['quality']);
-		dispatchEvent(new ControllerEvent(ControllerEvent.QUALITY,{state:config['quality']}));
 	};
 
 

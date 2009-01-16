@@ -20,9 +20,8 @@ import flash.text.*;
 public class Accessibility extends MovieClip implements PluginInterface {
 
 
-
 	/** List with configuration settings. **/
-	private var config:Object = {
+	public var config:Object = {
 		audio:undefined,
 		captions:undefined,
 		fontsize:15,
@@ -49,7 +48,6 @@ public class Accessibility extends MovieClip implements PluginInterface {
 	private var channel:SoundChannel;
 
 
-
 	public function Accessibility():void {
 		loader = new URLLoader();
 		loader.addEventListener(Event.COMPLETE,loaderHandler);
@@ -57,8 +55,8 @@ public class Accessibility extends MovieClip implements PluginInterface {
 
 
 	/** Show/hide the captions **/
-	public function hideCaptions(stt:Boolean) {
-		config['hide'] = !stt;
+	public function hide(stt:Boolean) {
+		config['hide'] = stt;
 		clip.visible = config['hide'];
 		if(config['hide']) { 
 			clip.captionsIcon.alpha = 1;
@@ -70,43 +68,31 @@ public class Accessibility extends MovieClip implements PluginInterface {
 
 	/** Clicking the  hide button. **/
 	private function hideClick(evt:MouseEvent) {
-		hideCaptions(config['hide']);
+		hide(!config['hide']);
 	};
 
 
 	/** Initing the plugin. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
-		if(view.skin['accessibility']) {
-			clip =  view.skin['accessibility'];
-		} else { 
-			clip = this['accessibility'];
-		}
-		loadVars();
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.TIME,timeHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
-		if(ExternalInterface.available && view.skin.loaderInfo.url.indexOf('http') == 0) {
-			try {
-				ExternalInterface.addCallback("hideCaptions",hideCaptions);
-				ExternalInterface.addCallback("muteAudio",muteAudio);
-			} catch (err:Error) {}
-		}
+		clip = this['accessibility'];
 		clip.tf.autoSize = TextFieldAutoSize.CENTER;
 		format = new TextFormat(null,config['fontsize']);
-		hideCaptions(config['hide'])
-		muteAudio(config['mute']);
+		hide(config['hide']);
+		mute(config['mute']);
 		try {
-			if(config['audio']) {
-				view.getPlugin('controlbar').addButton(clip.audioIcon,'audio',muteClick);
-			}
-			if(config['captions']) {
-				view.getPlugin('controlbar').addButton(clip.captionsIcon,'captions',hideClick);
-			}
+			setButtons();
 		} catch (erro:Error) { 
-			clip.audioIcon.visible = clip.captionsIcon.visible = false;
+				clip.audioIcon.visible = clip.captionsIcon.visible = false;
 		}
+		try {
+			ExternalInterface.addCallback("hideCaptions",hide);
+			ExternalInterface.addCallback("muteAudio",mute);
+		} catch (err:Error) {}
 	};
 
 
@@ -142,21 +128,8 @@ public class Accessibility extends MovieClip implements PluginInterface {
 	};
 
 
-
-	/** Load variables from the main config. **/
-	private function loadVars() {
-		config['audio'] = view.config['audio'];
-		config['captions'] = view.config['captions'];
-		for(var str:String in config) {
-			if(view.config['accessibility.'+str]) {
-				config[str] = view.config['accessibility.'+str];
-			}
-		}
-	}
-
-
 	/** Mute/unmute the audiodesc. **/
-	private function muteAudio(stt:Boolean) {
+	public function mute(stt:Boolean) {
 		config['mute'] = stt;
 		setVolume();
 		if(config['mute']) {
@@ -169,7 +142,7 @@ public class Accessibility extends MovieClip implements PluginInterface {
 
 	/** Clicking the  hide button. **/
 	private function muteClick(evt:MouseEvent) {
-		muteAudio(!config['mute']);
+		mute(!config['mute']);
 	};
 
 
@@ -182,10 +155,24 @@ public class Accessibility extends MovieClip implements PluginInterface {
 
 
 	/** Set the audidescription volume level. **/
-	public function setAudio():void {
+	private function setAudio():void {
 		sound = new Sound(new URLRequest(config['audio']));
 		channel = sound.play();
 		setVolume();
+	};
+
+	/** Set buttons in the controlbar **/ 
+	private function setButtons():void {
+		if(config['captions']) {
+			view.getPlugin('controlbar').addButton(clip.captionsIcon,'captions',hideClick);
+		} else { 
+			clip.captionsIcon.visible = false;
+		}
+		if(config['audio']) {
+			view.getPlugin('controlbar').addButton(clip.audioIcon,'audio',muteClick);
+		} else {
+			clip.audioIcon.visible = false;
+		}
 	};
 
 

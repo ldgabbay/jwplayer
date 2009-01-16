@@ -1,27 +1,23 @@
 ﻿/**
-* Wrapper for load and playback of Youtube videos.
+* Wrapper for load and playback of Youtube videos through their API.
 **/
 package com.jeroenwijering.models {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.models.ModelInterface;
+import com.jeroenwijering.models.BasicModel;
 import com.jeroenwijering.player.Model;
-import flash.display.Sprite;
+
 import flash.display.Loader;
-import flash.net.URLRequest;
 import flash.events.*;
 import flash.net.LocalConnection;
-import flash.utils.setInterval;
-import flash.utils.setTimeout;
-import flash.utils.clearInterval;
+import flash.net.URLRequest;
+import flash.system.Security;
 
 
-public class YoutubeModel implements ModelInterface {
+public class YoutubeModel extends BasicModel {
 
 
-	/** Reference to the Model **/
-	private var model:Model;
 	/** Loader for loading the YouTube proxy **/
 	private var loader:Loader;
 	/** 'Unique' string to use for proxy connection. **/
@@ -40,8 +36,17 @@ public class YoutubeModel implements ModelInterface {
 
 	/** Setup YouTube connections and load proxy. **/
 	public function YoutubeModel(mod:Model):void {
-		model = mod;
-		unique = Math.random().toString().substr(2);
+		super(mod);
+		Security.allowDomain('*');
+		var url:String = model.skin.loaderInfo.url;
+		var ytb:String = 'yt.swf';
+		if(url.indexOf('http://') == 0) {
+			unique = Math.random().toString().substr(2);
+			var str:String = url.substr(0,url.indexOf('.swf'));
+			ytb = str.substr(0,str.lastIndexOf('/')+1)+'yt.swf?unique='+unique;
+		} else {
+			unique = '1';
+		}
 		outgoing = new LocalConnection();
 		outgoing.allowDomain('*');
 		outgoing.allowInsecureDomain('*');
@@ -55,14 +60,13 @@ public class YoutubeModel implements ModelInterface {
 		connected = true;
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
-		var url = model.skin.loaderInfo.url;
-		var ytb = url.substr(0,url.lastIndexOf('/')+1)+'yt.swf?unique='+unique;
 		loader.load(new URLRequest(ytb));
 	};
 
 
 	/** Catch load errors. **/
 	private function errorHandler(evt:ErrorEvent):void {
+		stop();
 		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
 	};
 
@@ -85,14 +89,14 @@ public class YoutubeModel implements ModelInterface {
 
 
 	/** Load the YouTube movie. **/
-	public function load():void {
+	override public function load(itm:Object):void {
+		super.load(itm);
 		if(connected) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			loading = true;
 			if(outgoing) {
-				var gid = getID(model.playlist[model.config['item']]['file']);
-				var stt = model.playlist[model.config['item']]['start'];
-				outgoing.send('AS3_'+unique,"loadVideoById",gid,stt);
+				var gid = getID(item['file']);
+				outgoing.send('AS3_'+unique,"loadVideoById",gid,0);
 				model.mediaHandler(loader);
 			}
 		}
@@ -100,14 +104,14 @@ public class YoutubeModel implements ModelInterface {
 
 
 	/** Pause the YouTube movie. **/
-	public function pause():void {
+	override public function pause():void {
 		outgoing.send('AS3_'+unique,"pauseVideo");
 	};
 
 
 
 	/** Play or pause the video. **/
-	public function play():void {
+	override public function play():void {
 		outgoing.send('AS3_'+unique,"playVideo");
 	};
 
@@ -116,7 +120,7 @@ public class YoutubeModel implements ModelInterface {
 	public function onSwfLoadComplete():void {
 		outgoing.send('AS3_'+unique,"setSize",320,240);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
-		if(loading) { load(); }
+		if(loading) { load(item); }
 	};
 
 
@@ -128,8 +132,7 @@ public class YoutubeModel implements ModelInterface {
 
 	/** Catch youtube errors. **/
 	public function onError(erc:String):void {
-		var fil = model.playlist[model.config['item']]['file'];
-		model.sendEvent(ModelEvent.ERROR,{message:"YouTube error (video not found?):\n"+fil});
+		model.sendEvent(ModelEvent.ERROR,{message:"YouTube error (video not found?):\n"+item['file']});
 		stop();
 	};
 
@@ -167,7 +170,7 @@ public class YoutubeModel implements ModelInterface {
 
 	/** Catch Youtube position changes **/
 	public function onTimeChange(pos:Number,dur:Number):void {
-		model.sendEvent(ModelEvent.TIME,{position:pos});
+		model.sendEvent(ModelEvent.TIME,{position:pos,duration:dur});
 		if(!metasent) {
 			model.sendEvent(ModelEvent.META,{width:320,height:240,duration:dur});
 			metasent = true;
@@ -175,27 +178,24 @@ public class YoutubeModel implements ModelInterface {
 	};
 
 
-	/** Toggle quality (perhaps access the H264 versions later?). **/
-	public function quality(stt:Boolean):void {};
-
-
 	/** Seek to position. **/
-	public function seek(pos:Number):void {
+	override public function seek(pos:Number):void {
 		outgoing.send('AS3_'+unique,"seekTo",pos);
 		play();
 	};
 
 
 	/** Destroy the youtube video. **/
-	public function stop():void {
+	override public function stop():void {
 		metasent = false;
 		outgoing.send('AS3_'+unique,"stopVideo");
+		super.stop();
 	};
 
 
 
 	/** Set the volume level. **/
-	public function volume(pct:Number):void {
+	override public function volume(pct:Number):void {
 		outgoing.send('AS3_'+unique,"setVolume",pct);
 	};
 

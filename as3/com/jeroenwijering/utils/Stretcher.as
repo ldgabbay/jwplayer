@@ -46,6 +46,8 @@ public class Stretcher {
 				}
 				break;
 			case 'none':
+				clp.scaleX = 1;
+				clp.scaleY = 1;
 				break;
 			case 'uniform':
 				if(xsc > ysc) {

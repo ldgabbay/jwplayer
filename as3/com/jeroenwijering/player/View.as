@@ -5,8 +5,7 @@ package com.jeroenwijering.player {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.utils.Debug;
-import com.jeroenwijering.utils.Strings;
+import com.jeroenwijering.utils.*;
 
 import flash.display.MovieClip;
 import flash.events.*;
@@ -142,8 +141,8 @@ public class View extends AbstractView {
 	};
 
 
-	private function getPlaylist():Array { 
-		return controller.playlist; 
+	private function getPlaylist():Array {
+		return controller.playlist;
 	};
 
 
@@ -259,7 +258,6 @@ public class View extends AbstractView {
 		addControllerListener(ControllerEvent.MUTE,setController);
 		addControllerListener(ControllerEvent.PLAY,setController);
 		addControllerListener(ControllerEvent.PLAYLIST,setController);
-		addControllerListener(ControllerEvent.QUALITY,setController);
 		addControllerListener(ControllerEvent.RESIZE,setController);
 		addControllerListener(ControllerEvent.SEEK,setController);
 		addControllerListener(ControllerEvent.STOP,setController);
@@ -278,7 +276,6 @@ public class View extends AbstractView {
 		addViewListener(ViewEvent.NEXT,setView);
 		addViewListener(ViewEvent.PLAY,setView);
 		addViewListener(ViewEvent.PREV,setView);
-		addViewListener(ViewEvent.QUALITY,setView);
 		addViewListener(ViewEvent.REDRAW,setView);
 		addViewListener(ViewEvent.SEEK,setView);
 		addViewListener(ViewEvent.STOP,setView);

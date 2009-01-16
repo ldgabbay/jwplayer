@@ -20,21 +20,18 @@ public class MediaParser {
 	* @see			ATOMParser
 	* @see			RSSParser
 	**/
-	public static function parseGroup(obj:XML,itm:Object):Object { 
+	public static function parseGroup(obj:XML,itm:Object):Object {
 		for each (var i:XML in obj.children()) {
 			switch(i.localName()) {
 				case 'content':
-					if(!itm['file']) {
+				if( !itm['file']) {
 						itm['file'] = i.@url.toString();
-					}
-					if(i.@type) {
-						itm['type'] = ObjectParser.MIMETYPES[i.@type.toString()];
-					}
-					if(i.@duration) {
-						itm['duration'] = Strings.seconds(i.@duration.toString());
 					}
 					if(i.@start) {
 						itm['start'] = Strings.seconds(i.@start.toString());
+					}
+					if(i.@duration) {
+						itm['duration'] = Strings.seconds(i.@duration.toString());
 					}
 					if(i.children().length() >0) {
 						itm = parseGroup(i,itm);

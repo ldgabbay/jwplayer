@@ -16,19 +16,16 @@ import flash.utils.setInterval;
 public class SoundProxy extends MovieClip implements PluginInterface {
 
 
-	/** initialize call for 4.0 backward compatibility. **/
-	public var initialize:Function = initializePlugin;
 	/** Reference to the View of the player. **/
 	private var view:AbstractView;
 	/** Configuration values of the plugin. **/
-	private var config:Object = {
+	public var config:Object = {
 		bands:1,
 		interval:100,
 		listener:'soundListener'
 	};
 	/** ID of the sample sending interval. **/
 	private var interval:Number;
-
 
 
 	/** Constructor; nothing going on. **/
@@ -58,11 +55,6 @@ public class SoundProxy extends MovieClip implements PluginInterface {
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
 		view.addModelListener(ModelEvent.STATE,stateHandler);
-		for(var str:String in config) {
-			if(view.config['soundproxy.'+str]) {
-				config[str] = view.config['soundproxy.'+str];
-			}
-		}
 	};
 
 

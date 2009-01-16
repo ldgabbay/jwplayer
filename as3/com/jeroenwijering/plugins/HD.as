@@ -14,7 +14,7 @@ public class HD extends MovieClip implements PluginInterface {
 
 
 	/** List with configuration settings. **/
-	private var config:Object;
+	public var config:Object;
 	/** Reference to the View of the player. **/
 	private var view:AbstractView;
 	/** reference to the original file. **/
@@ -25,9 +25,9 @@ public class HD extends MovieClip implements PluginInterface {
 	public function HD():void {};
 
 
-	/** Quality is clicked, so change the video. **/
+	/** HD button is clicked, so change the video. **/
 	private function clickHandler(evt:MouseEvent=null):void {
-		if(config['state']) { 
+		if(config['state']) {
 			config['state'] = false;
 		} else { 
 			config['state'] = true;
@@ -46,19 +46,15 @@ public class HD extends MovieClip implements PluginInterface {
 		view = vie;
 		view.addControllerListener(ControllerEvent.PLAYLIST,playlistHandler);
 		try {
-			config = view.getPluginConfig(this);
-		} catch(err:Error) {
-			config = {
-				file:view.config['hd.file'],
-				state:view.config['hd.state']
-			}
-		}
-		setButton();
-		try {
 			view.getPlugin('controlbar').addButton(icon,'hd',clickHandler);
 		} catch (err:Error) {
 			icon.visible = false;
 		}
+		if(config['state'] == true) {
+			original = view.config['file'];
+			view.config['file'] = config['file'];
+		}
+		setButton();
 	};
 
 
@@ -71,15 +67,21 @@ public class HD extends MovieClip implements PluginInterface {
 	};
 
 
-	/** Reload the playlist with either the HD or default videos. **/
+	/** Reload the playlist with either the HD or default video. **/
 	private function reLoad():void {
-		var ply = view.playlist;
+		var fil:String;
+		var ply:Array = view.playlist;
 		if(config['state'] == true) {
-			ply[0]['file'] = config['file'];
+			fil = config['file'];
 		} else {
-			ply[0]['file'] = original;
+			fil = original;
 		}
-		view.sendEvent('LOAD',ply);
+		if(ply.length == 1) { 
+			ply[0]['file'] = fil;
+			view.sendEvent('LOAD',ply);
+		} else { 
+			view.sendEvent('LOAD',fil);
+		}
 	};
 
 
@@ -90,7 +92,7 @@ public class HD extends MovieClip implements PluginInterface {
 		} else {
 			icon.alpha = 0.3;
 		}
-	}
+	};
 
 
 }

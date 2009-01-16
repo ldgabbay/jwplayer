@@ -1,291 +1,278 @@
 ﻿/**
-* Wrapper for playback of http 'streaming' video.
+* Manages playback of http streaming flv.
 **/
 package com.jeroenwijering.models {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.models.ModelInterface;
+import com.jeroenwijering.models.BasicModel;
 import com.jeroenwijering.player.Model;
 import com.jeroenwijering.utils.NetClient;
+
 import flash.events.*;
-import flash.display.DisplayObject;
-import flash.media.SoundTransform;
-import flash.media.Video;
+import flash.media.*;
 import flash.net.*;
-import flash.utils.clearInterval;
-import flash.utils.setInterval;
+import flash.utils.*;
 
 
-public class HTTPModel implements ModelInterface {
+public class HTTPModel extends BasicModel {
 
 
-	/** reference to the model. **/
-	private var model:Model;
-	/** Video object to be instantiated. **/
-	private var video:Video;
 	/** NetConnection object for setup of the video stream. **/
-	private var connection:NetConnection;
+	protected var connection:NetConnection;
 	/** NetStream instance that handles the stream IO. **/
-	private var stream:NetStream;
+	protected var stream:NetStream;
+	/** Video object to be instantiated. **/
+	protected var video:Video;
 	/** Sound control object. **/
-	private var transform:SoundTransform;
-	/** Interval ID for the time. **/
-	private var timeinterval:Number;
+	protected var transform:SoundTransform;
 	/** Interval ID for the loading. **/
-	private var loadinterval:Number;
+	protected var loadinterval:Number;
+	/** Save whether metadata has already been sent. **/
+	protected var meta:Boolean;
 	/** Object with keyframe times and positions. **/
-	private var keyframes:Object;
-	/** Offset byteposition to start streaming. **/
-	private var offset:Number;
-	/** Offset timeposition for lighttpd streaming. **/
-	private var timeoffset:Number;
-	/** switch for first metadata run **/
-	private var metadata:Boolean;
-	/** switch for h264 streaming **/
-	private var h264:Boolean;
+	protected var keyframes:Object;
+	/** Offset in bytes of the last seek. **/
+	protected var byteoffset:Number;
+	/** Offset in seconds of the last seek. **/
+	protected var timeoffset:Number;
+	/** Boolean for mp4 / flv streaming. **/
+	protected var mp4:Boolean;
 
 
 	/** Constructor; sets up the connection and display. **/
 	public function HTTPModel(mod:Model):void {
-		model = mod;
+		super(mod);
 		connection = new NetConnection();
-		connection.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
-		connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR,errorHandler);
-		connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
 		connection.connect(null);
 		stream = new NetStream(connection);
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		stream.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
-		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,metaHandler);
+		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
 		stream.bufferTime = model.config['bufferlength'];
 		stream.client = new NetClient(this);
 		video = new Video(320,240);
+		video.smoothing = model.config['smoothing'];
 		video.attachNetStream(stream);
 		transform = new SoundTransform();
-		stream.soundTransform = transform;
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
-		quality(model.config['quality']);
-		offset = timeoffset = 0;
+		byteoffset = timeoffset = 0;
+	};
+
+
+	/** Convert seekpoints to keyframes. **/
+	protected function convertSeekpoints(dat:Object):Object {
+		var kfr:Object = new Object();
+		kfr.times = new Array();
+		kfr.filepositions = new Array();
+		for (var j in dat) {
+			kfr.times[j] = Number(dat[j]['time']);
+			kfr.filepositions[j] = Number(dat[j]['offset']);
+		}
+		return kfr;
 	};
 
 
 	/** Catch security errors. **/
-	private function errorHandler(evt:ErrorEvent):void {
+	protected function errorHandler(evt:ErrorEvent):void {
+		stop();
 		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
 	};
 
 
 	/** Return a keyframe byteoffset or timeoffset. **/
-	private function getOffset(pos:Number,tme:Boolean=false):Number {
-		if(!keyframes) { return 0; }
-		for (var i=0; i< keyframes.times.length; i++) {
+	protected function getOffset(pos:Number,tme:Boolean=false):Number {
+		if(!keyframes) {
+			return 0;
+		}
+		for (var i:Number=0; i < keyframes.times.length - 1; i++) {
 			if(keyframes.times[i] <= pos && keyframes.times[i+1] >= pos) {
-				if(tme == true) {
-					return keyframes.times[i];
-				} else { 
-					return keyframes.filepositions[i];
-				}
+				break;
 			}
 		}
-		return 0;
+		if(tme == true) {
+			return keyframes.times[i];
+		} else { 
+			return keyframes.filepositions[i];
+		}
 	};
 
 
 	/** Returns a key to add to the stream. **/
-	private function getToken():String {
+	protected function getToken():String {
 		return model.config['token'];
 	};
 
 
+	/** Create the video request URL. **/
+	protected function getURL():String {
+		var url:String = item['streamer'];
+		if(url.indexOf('?') > -1) {
+			url += "&file="+item['file'];
+		} else {
+			url += "?file="+item['file'];
+		}
+		if(byteoffset > 0) {
+			url += '&start='+byteoffset;
+		}
+		if(getToken()) {
+			url += '&token='+getToken();
+		}
+		return url;
+	};
+
+
 	/** Load content. **/
-	public function load():void {
-		video.clear();
-		model.mediaHandler(video);
-		if(stream.bytesLoaded != stream.bytesTotal) {
+	override public function load(itm:Object):void {
+		super.load(itm);
+		if(stream) {
 			stream.close();
 		}
-		var url = model.playlist[model.config['item']]['file'];
-		var str = model.playlist[model.config['item']]['streamer'];
-		if(str == "lighttpd") {
-			if(h264) {
-				url +='?start='+timeoffset;
-			} else {
-				url += '?start='+offset;
-			}
-		} else {
-			if(str.indexOf('?') > -1) { 
-				url = str+"&file="+url+'&start='+offset;
-			} else {
-				url = str+"?file="+url+'&start='+offset;
-			}
-		}
-		url += '&id='+model.config['id'];
-		url += '&client='+encodeURI(model.config['client']);
-		url += '&version='+encodeURI(model.config['version']);
-		url += '&width='+model.config['width'];
-		if(getToken()) { url += '&token='+getToken(); }
-		stream.play(url);
+		model.mediaHandler(video);
+		stream.play(getURL());
+		clearInterval(interval);
+		interval = setInterval(positionInterval,100);
 		clearInterval(loadinterval);
 		loadinterval = setInterval(loadHandler,200);
-		clearInterval(timeinterval);
-		timeinterval = setInterval(timeHandler,100);
-		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
 
 	/** Interval for the loading progress **/
-	private function loadHandler():void {
+	protected function loadHandler():void {
 		var ldd:Number = stream.bytesLoaded;
-		var ttl:Number = stream.bytesTotal;
-		var off:Number = offset;
-		if(ldd >= ttl && ldd > 0) {
+		var ttl:Number = stream.bytesTotal + byteoffset;
+		var off:Number = byteoffset;
+		if(meta) {
+			ttl = getOffset(item['start']+item['duration']) - getOffset(item['start']);
+			off = Math.max(0,byteoffset-getOffset(item['start']));
+		}
+		if(ldd+off >= ttl && ldd > 0) {
+			model.sendEvent(ModelEvent.LOADED,{loaded:ttl-off,total:ttl,offset:off});
 			clearInterval(loadinterval);
+		} else {
+			model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl,offset:off});
 		}
-		if(model.playlist[model.config['item']]['streamer'] == "lighttpd") {
-			off = 0;
-		}
-		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl+offset,offset:off});
-	};
-
-
-	/** Catch noncritical errors. **/
-	private function metaHandler(evt:ErrorEvent):void {
-		model.sendEvent(ModelEvent.META,{error:evt.text});
 	};
 
 
 	/** Get metadata information from netstream class. **/
 	public function onData(dat:Object):void {
-		if(dat.type == 'metadata') {
-			if(dat.seekpoints && !h264) {
-				h264 = true;
-				keyframes = new Object();
-				keyframes.times = new Array();
-				keyframes.filepositions = new Array();
-				for (var j in dat.seekpoints) {
-					keyframes.times[j] = Number(dat.seekpoints[j]['time']);
-					keyframes.filepositions[j] = Number(dat.seekpoints[j]['offset']);
-				}
-			} else if(dat.keyframes) {
+		if(dat.width) {
+			video.width = dat.width;
+			video.height = dat.height;
+		}
+		if(dat.duration) { 
+			dat.duration -= item['start'];
+		}
+		if(dat['type'] == 'metadata' && !meta) {
+			meta = true;
+			if(dat.seekpoints) {
+				mp4 = true;
+				keyframes = convertSeekpoints(dat.seekpoints);
+			} else {
+				mp4 = false;
 				keyframes = dat.keyframes;
 			}
-			if(!metadata) {
-				if(dat.width) {
-					video.width = dat.width;
-					video.height = dat.height;
-				}
-				model.sendEvent(ModelEvent.META,dat);
-				if(model.playlist[model.config['item']]['start'] > 0 && !metadata) {
-					seek(model.playlist[model.config['item']]['start']);
-				}
-				metadata = true;
+			if(item['start'] > 0) {
+				seek(0);
 			}
-		} else {
-			model.sendEvent(ModelEvent.META,dat);
 		}
+		model.sendEvent(ModelEvent.META,dat);
 	};
 
 
 	/** Pause playback. **/
-	public function pause():void {
-		clearInterval(timeinterval);
+	override public function pause():void {
+		super.pause();
 		stream.pause();
-		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
 	};
 
 
 	/** Resume playing. **/
-	public function play():void {
+	override public function play():void {
+		super.play();
 		stream.resume();
-		timeinterval = setInterval(timeHandler,100);
-		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 	};
 
 
-	/** Seek to a specific second. **/
-	public function seek(pos:Number):void {
-		clearInterval(timeinterval);
-		var off = getOffset(pos);
-		if(off < offset || off > offset+stream.bytesLoaded) {
-			offset = off;
-			timeoffset = getOffset(pos,true);
-			load();
-		} else {
-			if(h264) {
-				stream.seek(pos-timeoffset);
-			} else { 
-				stream.seek(pos)
+	/** Interval for the position progress **/
+	override protected function positionInterval():void {
+		var pos:Number = Math.round(stream.time*10)/10;
+		if (mp4) { 
+			pos += timeoffset;
+		}
+		var bfr:Number = Math.round(stream.bufferLength/stream.bufferTime*100);
+		if(bfr < 95 && pos < Math.abs(item['duration']-stream.bufferTime-1)) {
+			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
+			if(model.config['state'] != ModelStates.BUFFERING && bfr < 25) {
+				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			}
-			play();
+		} else if (bfr > 95 && model.config['state'] != ModelStates.PLAYING) {
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
+		}
+		if(pos-item['start'] < item['duration']) {
+			if(pos > 0) {
+				position = Math.max(0,Math.round((pos-item['start'])*10)/10);
+				model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
+			}
+		} else if (item['duration'] > 0) {
+			pause();
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}
 	};
 
 
-	/** Change the smoothing mode. **/
-	public function quality(qua:Boolean):void {
-		if(qua == true) { 
-			video.smoothing = true;
-			video.deblocking = 3;
-		} else { 
-			video.smoothing = false;
-			video.deblocking = 1;
+	/** Seek to a specific second. **/
+	override public function seek(pos:Number):void {
+		var off = getOffset(pos+item['start']);
+		if(off < byteoffset || off > byteoffset+stream.bytesLoaded) {
+			timeoffset = getOffset(pos+item['start'],true);
+			byteoffset = off;
+			load(item);
+		} else {
+			super.seek(pos);
+			if(mp4) { 
+				stream.seek(position-timeoffset);
+			} else {
+				stream.seek(position);
+			}
 		}
 	};
 
 
 	/** Receive NetStream status updates. **/
-	private function statusHandler(evt:NetStatusEvent):void {
-		if(evt.info.code == "NetStream.Play.Stop") {
-			if(model.config['state'] != ModelStates.COMPLETED) { 
-				clearInterval(timeinterval);
-				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
-			}
-		} else if(evt.info.code == "NetStream.Play.StreamNotFound") {
-			stop();
-			model.sendEvent(ModelEvent.ERROR,{message:"Video stream not found: " +
-				model.playlist[model.config['item']]['file']});
-		} else { 
-			model.sendEvent(ModelEvent.META,{info:evt.info.code});
+	protected function statusHandler(evt:NetStatusEvent):void {
+		switch (evt.info.code) {
+			case "NetStream.Play.Stop":
+				if(model.config['state'] != ModelStates.COMPLETED) {
+					clearInterval(interval);
+					model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+				}
+				break;
+			case "NetStream.Play.StreamNotFound":
+				stop();
+				model.sendEvent(ModelEvent.ERROR,{message:'Video not found: '+item['file']});
+				break;
+			default:
+				model.sendEvent(ModelEvent.META,{info:evt.info.code});
+				break;
 		}
 	};
 
 
 	/** Destroy the HTTP stream. **/
-	public function stop():void {
+	override public function stop():void {
+		super.stop();
+		stream.close();
 		clearInterval(loadinterval);
-		clearInterval(timeinterval);
-		offset = timeoffset = 0;
-		h264 = false;
+		byteoffset = timeoffset = 0;
 		keyframes = undefined;
-		metadata = false;
-		if(stream.bytesLoaded != stream.bytesTotal) {
-			stream.close();
-		}
-		stream.pause();
-	};
-
-
-	/** Interval for the position progress **/
-	private function timeHandler():void {
-		var bfr = Math.round(stream.bufferLength/stream.bufferTime*100);
-		var pos = Math.round(stream.time*10)/10;
-		if (h264 || pos == 0) { pos += timeoffset; }
-		var dur = model.playlist[model.config['item']]['duration'];
-		if(bfr<95 && pos < Math.abs(dur-stream.bufferTime*2)) {
-			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
-			if(model.config['state'] != ModelStates.BUFFERING  && bfr < 10) {
-				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-			}
-		} else if (model.config['state'] == ModelStates.BUFFERING) {
-			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
-		}
-		model.sendEvent(ModelEvent.TIME,{position:pos});
+		meta = false;
 	};
 
 
 	/** Set the volume level. **/
-	public function volume(vol:Number):void {
+	override public function volume(vol:Number):void {
 		transform.volume = vol/100;
 		stream.soundTransform = transform;
 	};

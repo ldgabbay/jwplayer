@@ -19,12 +19,12 @@ import flash.utils.clearInterval;
 public class Playlist implements PluginInterface {
 
 
+	/** List with configuration settings. **/
+	public var config:Object;
 	/** Reference to the view. **/
 	private var view:AbstractView;
 	/** Reference to the playlist MC. **/
 	private var clip:MovieClip;
-	/** List with configuration settings. **/
-	private var config:Object;
 	/** Array with all button instances **/
 	private var buttons:Array;
 	/** Height of a button (to calculate scrolling) **/
@@ -51,7 +51,6 @@ public class Playlist implements PluginInterface {
 	/** Initialize the communication with the player. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
-		config = view.getPluginConfig(this);
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.PLAYLIST,playlistHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
@@ -299,7 +298,7 @@ public class Playlist implements PluginInterface {
 			if(!buttons[idx].c[itm]) {
 				continue;
 			} else if(itm == 'image') {
-				if(view.playlist[idx]['image']) {
+				if(view.playlist[idx]['image'] && config['thumbs'] != false) {
 					var img:MovieClip = buttons[idx].c.image;
 					var msk:Sprite = Draw.rect(buttons[idx].c,'0xFF0000',img.width,img.height,img.x,img.y);
 					var ldr:Loader = new Loader();
@@ -326,7 +325,7 @@ public class Playlist implements PluginInterface {
 				}
 			}
 		}
-		if(buttons[idx].c['image'] && !view.playlist[idx]['image']) {
+		if(buttons[idx].c['image'] && (!view.playlist[idx]['image'] || config['thumbs'] == false)) {
 			buttons[idx].c['image'].visible = false;
 		}
 		if(back) {

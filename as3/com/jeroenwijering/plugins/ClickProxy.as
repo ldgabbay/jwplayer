@@ -14,7 +14,7 @@ public class ClickProxy extends MovieClip implements PluginInterface {
 
 
 	/** Configuration values of the plugin. **/
-	private var config:Object = {
+	public var config:Object = {
 		listener:'clickListener'
 	};
 	/** Reference to the View of the player. **/
@@ -60,16 +60,12 @@ public class ClickProxy extends MovieClip implements PluginInterface {
 		clip.addEventListener(MouseEvent.CLICK,clickHandler);
 		clip.buttonMode = true;
 		clip.mouseChildren = false;
-		for(var str:String in config) {
-			if(view.config['clickproxy.'+str]) {
-				config[str] = view.config['clickproxy.'+str];
-			}
-		}
+		resizeHandler();
 	};
 
 
 	/** Resize the area. **/
-	private function resizeHandler(evt:ControllerEvent=undefined) {
+	private function resizeHandler(evt:ControllerEvent=null) {
 		clip.back.width = view.config['width'];
 		clip.back.height = view.config['height'];
 	};
