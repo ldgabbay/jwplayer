@@ -117,6 +117,8 @@ public class Player extends MovieClip {
 		controller.closeMVC(model,view);
 		loadModels();
 		loadPlugins();
+		sploader.addEventListener(SPLoaderEvent.PLUGINS,startPlayer);
+		sploader.loadPlugins();
 	};
 
 
@@ -140,8 +142,6 @@ public class Player extends MovieClip {
 		sploader.addPlugin(new Rightclick(),'rightclick');
 		sploader.addPlugin(new Controlbar(),'controlbar');
 		sploader.addPlugin(new Playlist(),'playlist');
-		sploader.addEventListener(SPLoaderEvent.PLUGINS,startPlayer);
-		sploader.loadPlugins();
 	};
 
 
