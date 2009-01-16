@@ -5,6 +5,7 @@ package com.jeroenwijering.player {
 
 
 import com.jeroenwijering.events.*;
+import com.jeroenwijering.models.*;
 import com.jeroenwijering.plugins.*;
 import com.jeroenwijering.utils.Configger;
 
@@ -114,11 +115,26 @@ public class Player extends MovieClip {
 		model = new Model(config,skin,sploader,controller);
 		view = new View(config,skin,sploader,controller,model);
 		controller.closeMVC(model,view);
+		loadModels();
 		loadPlugins();
 	};
 
 
-	/** MVC inited; now init built-in plugins and load external ones. **/
+	/** Initialize all playback models. **/
+	protected function loadModels():void {
+		model.loadModel(new CameraModel(model),'camera');
+		model.loadModel(new HTTPModel(model),'http');
+		model.loadModel(new ImageModel(model),'image');
+		model.loadModel(new LighttpdModel(model),'lighttpd');
+		model.loadModel(new NginxModel(model),'nginx');
+		model.loadModel(new RTMPModel(model),'rtmp');
+		model.loadModel(new SoundModel(model),'sound');
+		model.loadModel(new VideoModel(model),'video');
+		model.loadModel(new YoutubeModel(model),'youtube');
+	};
+
+
+	/** Init built-in plugins and load external ones. **/
 	protected function loadPlugins():void {
 		sploader.addPlugin(new Display(),'display');
 		sploader.addPlugin(new Rightclick(),'rightclick');

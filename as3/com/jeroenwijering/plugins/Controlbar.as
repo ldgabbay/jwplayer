@@ -163,7 +163,7 @@ public class Controlbar implements PluginInterface {
 	/** Handle a change in the current item **/
 	private function itemHandler(evt:ControllerEvent=null):void {
 		try {
-			if(view.playlist && view.playlist.length > 1 && view.config['playlist'] != 'none') {
+			if(view.playlist && view.playlist.length > 1 && view.config['playlist'] == 'none') {
 				bar.prevButton.visible = bar.nextButton.visible = true;
 			} else {
 				bar.prevButton.visible = bar.nextButton.visible = false;

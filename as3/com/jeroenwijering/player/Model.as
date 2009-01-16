@@ -5,7 +5,7 @@ package com.jeroenwijering.player {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.models.*;
+import com.jeroenwijering.models.BasicModel;
 import com.jeroenwijering.player.*;
 import com.jeroenwijering.utils.*;
 
@@ -65,9 +65,6 @@ public class Model extends EventDispatcher {
 			models[item['type']].stop();
 		}
 		item = controller.playlist[config['item']];
-		if(!models[item['type']]) {
-			loadModel(item['type']);
-		}
 		if(models[item['type']]) {
 			models[item['type']].load(item);
 		} else {
@@ -80,37 +77,9 @@ public class Model extends EventDispatcher {
 	};
 
 
-	/** Initialize a new model. **/
-	private function loadModel(typ:String):void {
-		switch(typ) {
-			case 'camera':
-				models[typ] = new CameraModel(this);
-				break;
-			case 'http':
-				models[typ] = new HTTPModel(this);
-				break;
-			case 'image':
-				models[typ] = new ImageModel(this);
-				break;
-			case 'lighttpd':
-				models[typ] = new LighttpdModel(this);
-				break;
-			case 'nginx':
-				models[typ] = new NginxModel(this);
-				break;
-			case 'rtmp':
-				models[typ] = new RTMPModel(this);
-				break;
-			case 'sound':
-				models[typ] = new SoundModel(this);
-				break;
-			case 'video':
-				models[typ] = new VideoModel(this);
-				break;
-			case 'youtube':
-				models[typ] = new YoutubeModel(this);
-				break;
-		}
+	/** Load a new playback model. **/
+	public function loadModel(mdl:BasicModel,typ:String):void {
+		models[typ] = mdl;
 	};
 
 
