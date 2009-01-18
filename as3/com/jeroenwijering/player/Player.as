@@ -94,7 +94,7 @@ public class Player extends MovieClip {
 
 
 	/** When added to stage, the player loads configuration settings. **/
-	protected function loadConfig(evt:Event=null):void { 
+	protected function loadConfig(evt:Event=null):void {
 		configger = new Configger(this);
 		configger.addEventListener(Event.COMPLETE,loadSkin);
 		configger.load(config);

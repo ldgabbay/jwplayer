@@ -178,8 +178,9 @@ public class Model extends EventDispatcher {
 						sendEvent(ModelEvent.TIME,{position:0,duration:item['duration']});
 						break;
 					case ModelStates.PLAYING:
-						var ext:String = item['file'].substr(-3).toLowerCase();
-						if(ext != 'aac' && ext != 'mp3' && ext != 'm4a') {
+						if(item['file'].indexOf('m4a') == -1
+							&& item['file'].indexOf('mp3') == -1
+							&& item['file'].indexOf('aac') == -1) {
 							thumb.visible = false;
 							skin.display.media.visible = true;
 						} else { 

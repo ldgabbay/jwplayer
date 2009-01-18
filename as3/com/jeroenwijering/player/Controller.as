@@ -105,12 +105,12 @@ public class Controller extends EventDispatcher {
 
 
 	/** Return the type of specific playlistitem (the Model to play it with) **/
-	private function getModelType(itm:Object):String {
+	private function getModelType(itm:Object,sub:Boolean):String {
 		if(!itm['file']) {
 			return null;
 		} else if(itm['type']) {
 			return itm['type'];
-		} else if (itm['streamer']) {
+		} else if (itm['streamer'] && sub) {
 			if(itm['streamer'].substr(0,4) == 'rtmp') {
 				return 'rtmp';
 			} else if(itm['streamer'].substr(0,4) == 'http') {
@@ -163,7 +163,7 @@ public class Controller extends EventDispatcher {
 			obj = evt.data.object;
 		}
 		if(obj['file']) {
-			if(getModelType(obj) == null) {
+			if(getModelType(obj,false) == null) {
 				loader.load(new URLRequest(obj['file']));
 				return;
 			} else {
@@ -283,7 +283,7 @@ public class Controller extends EventDispatcher {
 			if(!ply[i]['duration']) { ply[i]['duration'] = 0; }
 			if(!ply[i]['start']) { ply[i]['start'] = 0; }
 			if(!ply[i]['streamer']) { ply[i]['streamer'] = config['streamer']; }
-			ply[i]['type'] = getModelType(ply[i]);
+			ply[i]['type'] = getModelType(ply[i],true);
 			if(!ply[i]['type']) { ply.splice(i,1); }
 		}
 		if(ply.length > 0) {
