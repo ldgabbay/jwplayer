@@ -142,7 +142,7 @@ public class SPLoader extends EventDispatcher {
 		str += '.swf';
 		if(player.loaderInfo.url.indexOf('http') == 0) {
 			var ctx:LoaderContext = new LoaderContext(true,ApplicationDomain.currentDomain,SecurityDomain.currentDomain);
-			if(skn) {
+			if(skn || str.indexOf('/') > -1) {
 				ldr.load(new URLRequest(str),ctx);
 			} else {
 				ldr.load(new URLRequest(player.basedir+str),ctx);

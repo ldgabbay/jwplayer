@@ -48,7 +48,12 @@ public class Accessibility extends MovieClip implements PluginInterface {
 	private var channel:SoundChannel;
 
 
-	public function Accessibility():void {
+	public function Accessibility(clp:MovieClip=null):void {
+		if(clp) { 
+			clip = clp;
+		} else {
+			clip = this['accessibility'];
+		}
 		loader = new URLLoader();
 		loader.addEventListener(Event.COMPLETE,loaderHandler);
 	};
@@ -79,7 +84,6 @@ public class Accessibility extends MovieClip implements PluginInterface {
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.TIME,timeHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
-		clip = this['accessibility'];
 		clip.tf.autoSize = TextFieldAutoSize.CENTER;
 		format = new TextFormat(null,config['fontsize']);
 		hide(config['hide']);
