@@ -7,6 +7,8 @@ package com.jeroenwijering.plugins {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.parsers.SRTParser;
 import com.jeroenwijering.parsers.TTParser;
+import com.jeroenwijering.utils.Configger;
+
 import flash.display.MovieClip;
 import flash.events.Event;
 import flash.events.MouseEvent;
@@ -60,8 +62,9 @@ public class Accessibility extends MovieClip implements PluginInterface {
 
 
 	/** Show/hide the captions **/
-	public function hide(stt:Boolean) {
+	public function hide(stt:Boolean):void {
 		config['hide'] = stt;
+		Configger.saveCookie('accessibility.hide',config['hide']);
 		clip.visible = config['hide'];
 		if(config['hide']) { 
 			clip.captionsIcon.alpha = 1;
@@ -72,7 +75,7 @@ public class Accessibility extends MovieClip implements PluginInterface {
 
 
 	/** Clicking the  hide button. **/
-	private function hideClick(evt:MouseEvent) {
+	private function hideClick(evt:MouseEvent=null):void {
 		hide(!config['hide']);
 	};
 
@@ -86,6 +89,8 @@ public class Accessibility extends MovieClip implements PluginInterface {
 		view.addModelListener(ModelEvent.STATE,stateHandler);
 		clip.tf.autoSize = TextFieldAutoSize.CENTER;
 		format = new TextFormat(null,config['fontsize']);
+		if(view.config['audio']) { config['audio'] = view.config['audio']; }
+		if(view.config['captions']) { config['captions'] = view.config['captions']; }
 		hide(config['hide']);
 		mute(config['mute']);
 		try {
@@ -94,8 +99,8 @@ public class Accessibility extends MovieClip implements PluginInterface {
 				clip.audioIcon.visible = clip.captionsIcon.visible = false;
 		}
 		try {
-			ExternalInterface.addCallback("hideCaptions",hide);
-			ExternalInterface.addCallback("muteAudio",mute);
+			ExternalInterface.addCallback("hideCaptions",hideClick);
+			ExternalInterface.addCallback("muteAudio",muteClick);
 		} catch (err:Error) {}
 	};
 
@@ -133,8 +138,9 @@ public class Accessibility extends MovieClip implements PluginInterface {
 
 
 	/** Mute/unmute the audiodesc. **/
-	public function mute(stt:Boolean) {
+	public function mute(stt:Boolean):void {
 		config['mute'] = stt;
+		Configger.saveCookie('accessibility.mute',config['mute']);
 		setVolume();
 		if(config['mute']) {
 			clip.audioIcon.alpha = 0.3;
@@ -145,7 +151,7 @@ public class Accessibility extends MovieClip implements PluginInterface {
 
 
 	/** Clicking the  hide button. **/
-	private function muteClick(evt:MouseEvent) {
+	private function muteClick(evt:MouseEvent=null):void {
 		mute(!config['mute']);
 	};
 
@@ -221,7 +227,9 @@ public class Accessibility extends MovieClip implements PluginInterface {
 
 	/** Check timing of the player to sync captions. **/
 	private function timeHandler(evt:ModelEvent):void {
-		if(!captions) { return; }
+		if(captions.length == 0) {
+			return; 
+		}
 		var cur:Number = -1;
 		var pos:Number = evt.data.position;
 		// sync up the captions (only if needed).

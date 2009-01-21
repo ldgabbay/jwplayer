@@ -33,7 +33,7 @@ public class SRTParser {
 		var obj:Object = new Object();
 		var arr:Array = dat.split("\r\n");
 		if(arr.length == 1) { arr = dat.split("\n"); }
-		try { 
+		try {
 			var idx:Number = arr[1].indexOf(' --> ');
 			obj['begin'] = Strings.seconds(arr[1].substr(0,idx));
 			obj['end'] = Strings.seconds(arr[1].substr(idx+5));

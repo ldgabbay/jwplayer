@@ -32,6 +32,8 @@ public class YoutubeModel extends BasicModel {
 	private var loading:Boolean;
 	/** Save the connection state. **/
 	private var connected:Boolean;
+	/** URL of a custom youtube swf. **/
+	private var location:String;
 
 
 	/** Setup YouTube connections and load proxy. **/
@@ -39,13 +41,13 @@ public class YoutubeModel extends BasicModel {
 		super(mod);
 		Security.allowDomain('*');
 		var url:String = model.skin.loaderInfo.url;
-		var ytb:String = 'yt.swf';
 		if(url.indexOf('http://') == 0) {
 			unique = Math.random().toString().substr(2);
 			var str:String = url.substr(0,url.indexOf('.swf'));
-			ytb = str.substr(0,str.lastIndexOf('/')+1)+'yt.swf?unique='+unique;
+			location = str.substr(0,str.lastIndexOf('/')+1)+'yt.swf?unique='+unique;
 		} else {
 			unique = '1';
+			location = 'yt.swf';
 		}
 		outgoing = new LocalConnection();
 		outgoing.allowDomain('*');
@@ -57,10 +59,8 @@ public class YoutubeModel extends BasicModel {
 		inbound.addEventListener(StatusEvent.STATUS,onLocalConnectionStatusChange);
 		inbound.client = this;
 		inbound.connect('AS2_'+unique);
-		connected = true;
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
-		loader.load(new URLRequest(ytb));
 	};
 
 
@@ -91,14 +91,16 @@ public class YoutubeModel extends BasicModel {
 	/** Load the YouTube movie. **/
 	override public function load(itm:Object):void {
 		super.load(itm);
+		loading = true;
 		if(connected) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-			loading = true;
 			if(outgoing) {
 				var gid = getID(item['file']);
 				outgoing.send('AS3_'+unique,"loadVideoById",gid,0);
 				model.mediaHandler(loader);
 			}
+		} else { 
+			loader.load(new URLRequest(location));
 		}
 	};
 
@@ -121,6 +123,7 @@ public class YoutubeModel extends BasicModel {
 		outgoing.send('AS3_'+unique,"setSize",320,240);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		if(loading) { load(item); }
+		connected = true;
 	};
 
 

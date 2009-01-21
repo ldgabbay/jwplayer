@@ -89,7 +89,9 @@ public class BasicModel {
 	/** Stop playing and loading the item. **/
 	public function stop():void {
 		clearInterval(interval);
-		position = item['start'];
+		if(item) { 
+			position = item['start'];
+		}
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 

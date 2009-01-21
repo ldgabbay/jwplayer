@@ -7,12 +7,13 @@ package com.jeroenwijering.plugins {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.utils.Configger;
 
+import flash.display.MovieClip;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.ui.ContextMenuItem;
 
 
-public class HD implements PluginInterface {
+public class HD extends MovieClip implements PluginInterface {
 
 
 	/** List with configuration settings. **/
