@@ -149,6 +149,7 @@ public class Model extends EventDispatcher {
 
 	/** Make the current model stop and show the thumb. **/
 	private function stopHandler(evt:ControllerEvent=undefined):void {
+		image = undefined;
 		if(item) {
 			models[item['type']].stop();
 		}

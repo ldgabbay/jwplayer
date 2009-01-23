@@ -377,7 +377,7 @@ public class Controlbar implements PluginInterface {
 					bar.playButton.visible = false;
 					bar.pauseButton.visible = true;
 				} catch (err:Error) {}
-				if(view.config['controlbar'] == 'over' || dps == 'fullScreen') {
+				if(config['position'] == 'over' || dps == 'fullScreen') {
 					hiding = setTimeout(moveTimeout,1000);
 					view.skin.addEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
 				} else {
@@ -389,7 +389,7 @@ public class Controlbar implements PluginInterface {
 					bar.playButton.visible = true;
 					bar.pauseButton.visible = false;
 				} catch (err:Error) {}
-				if(view.config['controlbar'] == 'over' || dps == 'fullScreen') {
+				if(config['position'] == 'over' || dps == 'fullScreen') {
 					Mouse.show();
 					Animations.fade(bar,1);
 				}

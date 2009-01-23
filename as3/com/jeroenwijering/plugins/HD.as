@@ -88,6 +88,7 @@ public class HD extends MovieClip implements PluginInterface {
 	/** The initialize call is invoked by the player View. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
+		if(!config['file']) { return; }
 		try {
 			view.getPlugin('controlbar').addButton(icon,'hd',clickHandler);
 			context = new ContextMenuItem('Toggle HD quality...');
