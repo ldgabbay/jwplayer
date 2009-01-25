@@ -11,10 +11,8 @@ import com.jeroenwijering.utils.Randomizer;
 
 import flash.display.MovieClip;
 import flash.events.*;
-import flash.geom.Rectangle;
-import flash.net.URLLoader;
-import flash.net.URLRequest;
-import flash.net.navigateToURL;
+import flash.geom.*;
+import flash.net.*;
 import flash.system.Capabilities;
 
 
@@ -93,13 +91,14 @@ public class Controller extends EventDispatcher {
 	private function fullscreenrect():void {
 		var srx:Number = Capabilities.screenResolutionX;
 		var asr:Number = srx/Capabilities.screenResolutionY;
+		var pnt:Point = skin.parent.localToGlobal(new Point(skin.x,skin.y));
 		try {
 			var wid:Number = playlist[config['item']]['width'];
 		} catch (err:Error) {}
 		if(wid && wid > srx/2) {
-			skin.stage["fullScreenSourceRect"] = new Rectangle(skin.x,skin.y,wid,Math.round(wid/asr));
+			skin.stage["fullScreenSourceRect"] = new Rectangle(pnt.x,pnt.y,wid,Math.round(wid/asr));
 		} else {
-			skin.stage["fullScreenSourceRect"] = new Rectangle(skin.x,skin.y,srx/2,Capabilities.screenResolutionY/2);
+			skin.stage["fullScreenSourceRect"] = new Rectangle(pnt.x,pnt.y,srx/2,Capabilities.screenResolutionY/2);
 		}
 	};
 

@@ -176,7 +176,6 @@ public class RTMPModel extends BasicModel {
 				}
 				break;
 			case 'NetStream.Failed':
-				model.sendEvent(ModelEvent.META,{info:evt.info.code});
 			case 'NetStream.Play.StreamNotFound':
 				stop();
 				model.sendEvent(ModelEvent.ERROR,{message:"Stream not found: "+item['file']});
@@ -185,10 +184,8 @@ public class RTMPModel extends BasicModel {
 				stop();
 				model.sendEvent(ModelEvent.ERROR,{message:"Server not found: "+item['streamer']});
 				break;
-			default:
-				model.sendEvent(ModelEvent.META,{info:evt.info.code});
-				break;
 		}
+		model.sendEvent(ModelEvent.META,{info:evt.info.code});
 	};
 
 

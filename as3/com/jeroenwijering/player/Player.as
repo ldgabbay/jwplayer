@@ -66,8 +66,8 @@ public class Player extends MovieClip {
 		plugins:undefined,
 		streamer:undefined,
 		token:undefined,
-		tracecall:undefined,
-		version:'4.4.139'
+		tracecall:'arthropod',
+		version:'4.4.141'
 	};
 	/** Base directory from which all plugins are loaded. **/
 	public var basedir:String = 'http://plugins.longtailvideo.com/';
