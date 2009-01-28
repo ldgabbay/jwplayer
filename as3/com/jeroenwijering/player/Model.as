@@ -178,6 +178,10 @@ public class Model extends EventDispatcher {
 						skin.display.media.visible = false;
 						sendEvent(ModelEvent.TIME,{position:0,duration:item['duration']});
 						break;
+					case ModelStates.BUFFERING:
+						if(dat['oldstate'] == ModelStates.IDLE) {
+							break;
+						}
 					case ModelStates.PLAYING:
 						if(item['file'].indexOf('m4a') == -1
 							&& item['file'].indexOf('mp3') == -1

@@ -50,7 +50,7 @@ public class Player extends MovieClip {
 		item:0,
 		logo:undefined,
 		mute:false,
-		repeat:'none',
+		repeat:'list',
 		resizing:true,
 		shuffle:false,
 		smoothing:true,
