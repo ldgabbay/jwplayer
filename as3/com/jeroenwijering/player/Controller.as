@@ -117,6 +117,7 @@ public class Controller extends EventDispatcher {
 			} else {
 				return itm['streamer'];
 			}
+		// this is a small hack to enable youtube playlists to work by default.
 		} else if(itm['file'].indexOf('youtube.com/w') > -1 || itm['file'].indexOf('youtube.com/v') > -1) {
 			return 'youtube';
 		} else { 

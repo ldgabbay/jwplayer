@@ -73,13 +73,6 @@ public class Configger extends EventDispatcher {
 			obj[prp.name()] = prp.text();
 		}
 		compareWrite(obj);
-		loadCookies();
-	};
-
-
-	/** Load configuration data from flashcookie. **/
-	private function loadCookies() {
-		compareWrite(Configger.cookie.data);
 		loadFlashvars();
 	};
 
@@ -87,6 +80,13 @@ public class Configger extends EventDispatcher {
 	/** Set config variables or load them from flashvars. **/
 	private function loadFlashvars():void {
 		compareWrite(reference.root.loaderInfo.parameters);
+		loadCookies();
+	};
+
+
+	/** Load configuration data from flashcookie. **/
+	private function loadCookies() {
+		compareWrite(Configger.cookie.data);
 		dispatchEvent(new Event(Event.COMPLETE));
 	};
 

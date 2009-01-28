@@ -20,15 +20,32 @@
 
 
 
-	<div id="container"><a href="http://www.macromedia.com/go/getflashplayer">Get the Flash Player</a> to see this player.</div>
+
+	<!-- START OF THE PLAYER EMBEDDING TO COPY-PASTE -->
+
 	<script type="text/javascript" src="swfobject.js"></script>
 	<script type="text/javascript">
-		var s1 = new SWFObject("player.swf","ply","328","200","9","#FFFFFF");
-		s1.addParam("allowfullscreen","true");
-		s1.addParam("allowscriptaccess","always");
-		s1.addParam("flashvars","file=video.flv&image=preview.jpg");
-		s1.write("container");
+		swfobject.registerObject("player", "9.0.0", "expressInstall.swf");
 	</script>
+
+	<object id="player" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" name="player" width="328" height="200">
+		<param name="movie" value="player.swf" />
+		<param name="allowfullscreen" value="true" />
+		<param name="allowscriptaccess" value="always" />
+		<param name="wmode" value="opaque" />
+		<param name="flashvars" value="file=video.flv&image=preview.jpg" />
+		<object type="application/x-shockwave-flash" data="player.swf" width="328" height="200">
+			<param name="movie" value="player.swf" />
+			<param name="allowfullscreen" value="true" />
+			<param name="allowscriptaccess" value="always" />
+			<param name="wmode" value="opaque" />
+			<param name="flashvars" value="file=video.flv&image=preview.jpg" />
+			<p><a href="http://get.adobe.com/flashplayer">Get Flash</a> to see this player.</p>
+		</object>
+	</object>
+
+	<!-- END OF THE PLAYER EMBEDDING -->
+
 
 
 
