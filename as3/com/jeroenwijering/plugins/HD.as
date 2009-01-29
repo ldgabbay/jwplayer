@@ -18,8 +18,9 @@ public class HD extends MovieClip implements PluginInterface {
 
 	/** List with configuration settings. **/
 	public var config:Object = {
-		state:undefined,
-		bitrate:2000
+		bitrate:1500,
+		file:undefined,
+		state:undefined
 	};
 	/** Reference to the clip on stage. **/
 	private var icon:Sprite;
