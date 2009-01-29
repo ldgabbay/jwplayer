@@ -37,9 +37,6 @@ public class LighttpdModel extends HTTPModel {
 		url += '&client='+encodeURI(model.config['client']);
 		url += '&version='+encodeURI(model.config['version']);
 		url += '&width='+model.config['width'];
-		if(getToken()) {
-			url += '&token='+getToken();
-		}
 		return url;
 	};
 

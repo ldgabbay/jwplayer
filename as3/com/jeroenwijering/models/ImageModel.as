@@ -57,6 +57,13 @@ public class ImageModel extends BasicModel {
 	};
 
 
+	/** Interval function that pings the position. **/
+	override protected function positionInterval():void {
+		position += 0.1;
+		super.positionInterval();
+	};
+
+
 	/** Send load progress to player. **/
 	private function progressHandler(evt:ProgressEvent):void {
 		var pct = Math.round(evt.bytesLoaded/evt.bytesTotal*100);

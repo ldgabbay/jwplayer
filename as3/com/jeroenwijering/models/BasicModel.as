@@ -42,7 +42,7 @@ public class BasicModel {
 	**/
 	public function load(itm:Object):void {
 		item = itm;
-		position = item['start'];
+		position = 0;
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 	};
@@ -64,9 +64,8 @@ public class BasicModel {
 
 	/** Interval function that pings the position. **/
 	protected function positionInterval():void {
-		position = Math.round(position*10+1)/10;
-		if(position-item['start'] < item['duration']) {
-			model.sendEvent(ModelEvent.TIME,{position:position-item['start'],duration:item['duration']});
+		if(position < item['duration']) {
+			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
 		} else if (item['duration'] > 0) {
 			pause();
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
@@ -81,7 +80,7 @@ public class BasicModel {
 	**/
 	public function seek(pos:Number):void {
 		clearInterval(interval);
-		position = item['start'] + pos;
+		position = pos;
 		play();
 	};
 
@@ -89,9 +88,7 @@ public class BasicModel {
 	/** Stop playing and loading the item. **/
 	public function stop():void {
 		clearInterval(interval);
-		if(item) { 
-			position = item['start'];
-		}
+		position = 0;
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 

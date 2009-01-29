@@ -28,6 +28,8 @@ public class VideoModel extends BasicModel {
 	protected var transform:SoundTransform;
 	/** Interval ID for the loading. **/
 	protected var loadinterval:Number;
+	/** Load offset for bandwidth checking. **/
+	protected var loadtimer:Number;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -74,6 +76,20 @@ public class VideoModel extends BasicModel {
 		if(ldd == ttl && ldd > 0) {
 			clearInterval(loadinterval);
 		}
+		if(!loadtimer) {
+			loadtimer = setTimeout(loadTimeout,3000);
+		}
+	};
+
+
+	/** timeout for checking the bitrate. **/
+	protected function loadTimeout():void {
+		var obj:Object = new Object();
+		obj['bandwidth'] = Math.round(stream.bytesLoaded/1024/3*8);
+		if(item['duration']) {
+			obj['bitrate'] = Math.round(stream.bytesTotal/1024*8/item['duration']);
+		}
+		model.sendEvent('META',obj);
 	};
 
 
@@ -82,9 +98,6 @@ public class VideoModel extends BasicModel {
 		if(dat.width) {
 			video.width = dat.width;
 			video.height = dat.height;
-		}
-		if(dat.duration) { 
-			dat.duration -= item['start'];
 		}
 		model.sendEvent(ModelEvent.META,dat);
 	};
@@ -116,13 +129,7 @@ public class VideoModel extends BasicModel {
 		} else if (bfr > 95 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(position-item['start'] < item['duration']) {
-			var pos:Number = Math.max(0,Math.round((position-item['start'])*10)/10);
-			model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration']});
-		} else if (item['duration'] > 0) {
-			pause();
-			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
-		}
+		super.positionInterval();
 	};
 
 
@@ -155,6 +162,7 @@ public class VideoModel extends BasicModel {
 	override public function stop():void {
 		stream.close();
 		clearInterval(loadinterval);
+		loadtimer = undefined;
 		super.stop();
 	};
 

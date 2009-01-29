@@ -28,9 +28,6 @@ public class NginxModel extends HTTPModel {
 		} else {
 			url += '?start='+byteoffset;
 		}
-		if(getToken()) {
-			url += '&token='+getToken();
-		}
 		return url;
 	};
 

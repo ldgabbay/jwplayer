@@ -38,6 +38,8 @@ public class HTTPModel extends BasicModel {
 	protected var timeoffset:Number;
 	/** Boolean for mp4 / flv streaming. **/
 	protected var mp4:Boolean;
+	/** Load offset for bandwidth checking. **/
+	protected var loadtimer:Number;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -98,12 +100,6 @@ public class HTTPModel extends BasicModel {
 	};
 
 
-	/** Returns a key to add to the stream. **/
-	protected function getToken():String {
-		return model.config['token'];
-	};
-
-
 	/** Create the video request URL. **/
 	protected function getURL():String {
 		var url:String = item['streamer'];
@@ -114,9 +110,6 @@ public class HTTPModel extends BasicModel {
 		}
 		if(byteoffset > 0) {
 			url += '&start='+byteoffset;
-		}
-		if(getToken()) {
-			url += '&token='+getToken();
 		}
 		return url;
 	};
@@ -142,16 +135,24 @@ public class HTTPModel extends BasicModel {
 		var ldd:Number = stream.bytesLoaded;
 		var ttl:Number = stream.bytesTotal + byteoffset;
 		var off:Number = byteoffset;
-		if(meta) {
-			ttl = getOffset(item['start']+item['duration']) - getOffset(item['start']);
-			off = Math.max(0,byteoffset-getOffset(item['start']));
-		}
+		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl,offset:off});
 		if(ldd+off >= ttl && ldd > 0) {
-			model.sendEvent(ModelEvent.LOADED,{loaded:ttl-off,total:ttl,offset:off});
 			clearInterval(loadinterval);
-		} else {
-			model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl,offset:off});
 		}
+		if(!loadtimer) {
+			loadtimer = setTimeout(loadTimeout,3000);
+		}
+	};
+
+
+	/** timeout for checking the bitrate. **/
+	protected function loadTimeout():void {
+		var obj:Object = new Object();
+		obj['bandwidth'] = Math.round(stream.bytesLoaded/1024/3*8);
+		if(item['duration']) {
+			obj['bitrate'] = Math.round(stream.bytesTotal/1024*8/item['duration']);
+		}
+		model.sendEvent('META',obj);
 	};
 
 
@@ -160,9 +161,6 @@ public class HTTPModel extends BasicModel {
 		if(dat.width) {
 			video.width = dat.width;
 			video.height = dat.height;
-		}
-		if(dat.duration) { 
-			dat.duration -= item['start'];
 		}
 		if(dat['type'] == 'metadata' && !meta) {
 			meta = true;
@@ -174,7 +172,7 @@ public class HTTPModel extends BasicModel {
 				keyframes = dat.keyframes;
 			}
 			if(item['start'] > 0) {
-				seek(0);
+				seek(item['start']);
 			}
 		}
 		model.sendEvent(ModelEvent.META,dat);
@@ -197,12 +195,12 @@ public class HTTPModel extends BasicModel {
 
 	/** Interval for the position progress **/
 	override protected function positionInterval():void {
-		var pos:Number = Math.round(stream.time*10)/10;
+		position = Math.round(stream.time*10)/10;
 		if (mp4) { 
-			pos += timeoffset;
+			position += timeoffset;
 		}
 		var bfr:Number = Math.round(stream.bufferLength/stream.bufferTime*100);
-		if(bfr < 95 && pos < Math.abs(item['duration']-stream.bufferTime-1)) {
+		if(bfr < 95 && position < Math.abs(item['duration']-stream.bufferTime-1)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
 			if(model.config['state'] != ModelStates.BUFFERING && bfr < 25) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
@@ -210,28 +208,20 @@ public class HTTPModel extends BasicModel {
 		} else if (bfr > 95 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(pos-item['start'] < item['duration']) {
-			if(pos > 0) {
-				position = Math.max(0,Math.round((pos-item['start'])*10)/10);
-				model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
-			}
-		} else if (item['duration'] > 0) {
-			pause();
-			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
-		}
+		super.positionInterval();
 	};
 
 
 	/** Seek to a specific second. **/
 	override public function seek(pos:Number):void {
-		var off = getOffset(pos+item['start']);
+		var off:Number = getOffset(pos);
 		if(off < byteoffset || off > byteoffset+stream.bytesLoaded) {
-			timeoffset = getOffset(pos+item['start'],true);
+			timeoffset = getOffset(pos,true);
 			byteoffset = off;
 			load(item);
 		} else {
 			super.seek(pos);
-			if(mp4) { 
+			if(mp4) {
 				stream.seek(position-timeoffset);
 			} else {
 				stream.seek(position);

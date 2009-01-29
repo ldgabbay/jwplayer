@@ -26,6 +26,7 @@ public class Player extends MovieClip {
 		image:undefined,
 		link:undefined,
 		start:0,
+		streamer:undefined,
 		tags:undefined,
 		title:undefined,
 		type:undefined,
@@ -64,10 +65,9 @@ public class Player extends MovieClip {
 		id:undefined,
 		linktarget:'_blank',
 		plugins:undefined,
-		streamer:undefined,
 		token:undefined,
 		tracecall:'arthropod',
-		version:'4.4.143'
+		version:'4.4.148'
 	};
 	/** Base directory from which all plugins are loaded. **/
 	public var basedir:String = 'http://plugins.longtailvideo.com/';
@@ -128,7 +128,7 @@ public class Player extends MovieClip {
 		model.loadModel(new HTTPModel(model),'http');
 		model.loadModel(new ImageModel(model),'image');
 		model.loadModel(new LighttpdModel(model),'lighttpd');
-		model.loadModel(new NginxModel(model),'nginx');
+		// model.loadModel(new NginxModel(model),'nginx');
 		model.loadModel(new RTMPModel(model),'rtmp');
 		model.loadModel(new SoundModel(model),'sound');
 		model.loadModel(new VideoModel(model),'video');

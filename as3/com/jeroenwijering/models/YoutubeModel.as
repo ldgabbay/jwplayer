@@ -58,7 +58,6 @@ public class YoutubeModel extends BasicModel {
 		inbound.allowInsecureDomain('*');
 		inbound.addEventListener(StatusEvent.STATUS,onLocalConnectionStatusChange);
 		inbound.client = this;
-		inbound.connect('AS2_'+unique);
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 	};
@@ -99,7 +98,8 @@ public class YoutubeModel extends BasicModel {
 				outgoing.send('AS3_'+unique,"loadVideoById",gid,0);
 				model.mediaHandler(loader);
 			}
-		} else { 
+		} else {
+			inbound.connect('AS2_'+unique);
 			loader.load(new URLRequest(location));
 		}
 	};

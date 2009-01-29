@@ -31,6 +31,8 @@ public class RTMPModel extends BasicModel {
 	protected var stream:NetStream;
 	/** Sound control object. **/
 	protected var transform:SoundTransform;
+	/** Save that the video has been started. **/
+	protected var started:Boolean;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -85,9 +87,6 @@ public class RTMPModel extends BasicModel {
 			video.width = dat.width;
 			video.height = dat.height;
 		}
-		if(dat.duration) { 
-			dat.duration -= item['start'];
-		} 
 		if(dat.type == 'complete') {
 			clearInterval(interval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
@@ -122,12 +121,7 @@ public class RTMPModel extends BasicModel {
 		} else if (bfr > 95 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(position < item['duration']) {
-			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
-		} else if (item['duration'] > 0) {
-			pause();
-			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
-		}
+		super.positionInterval();
 	};
 
 
@@ -149,11 +143,7 @@ public class RTMPModel extends BasicModel {
 		video.attachNetStream(stream);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		interval = setInterval(positionInterval,100);
-		if(item['start'] > 0) {
-			stream.play(getID(item['file']),item['start']);
-		} else {
-			stream.play(getID(item['file']));
-		}
+		stream.play(getID(item['file']));
 	};
 
 
@@ -168,6 +158,12 @@ public class RTMPModel extends BasicModel {
 				if(evt.info.secureToken != undefined) {
 					connection.call("secureTokenResponse",null,TEA.decrypt(evt.info.secureToken,model.config['token']));
 				}
+				break;
+			case  'NetStream.Play.Start':
+				if(item['start'] > 0 && !started) {
+					seek(item['start']);
+				}
+				started = true;
 				break;
 			case  'NetStream.Seek.Notify':
 				clearInterval(interval);
@@ -200,12 +196,13 @@ public class RTMPModel extends BasicModel {
 		}
 		connection.close();
 		super.stop();
+		started = false;
 	};
 
 
 	/** Get the streamlength returned from the connection. **/
 	private function streamlengthHandler(len:Number):void {
-		onData({type:'streamlength',duration:len-item['start']});
+		onData({type:'streamlength',duration:len});
 	};
 
 

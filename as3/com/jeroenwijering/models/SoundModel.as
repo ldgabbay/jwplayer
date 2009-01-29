@@ -75,16 +75,12 @@ public class SoundModel extends BasicModel {
 		sound = new Sound();
 		sound.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		sound.addEventListener(ProgressEvent.PROGRESS,progressHandler);
-		sound.addEventListener(Event.COMPLETE,loadedHandler);
 		sound.addEventListener(Event.ID3,id3Handler);
 		sound.load(new URLRequest(item['file']),context);
 		play();
-	};
-
-
-	/** Sound has been loaded, so the final duration is known. **/
-	private function loadedHandler(evt:Event):void {
-		model.sendEvent(ModelEvent.META,{duration:sound.length/1000-item['start']});
+		if(item['start'] > 0) {
+			seek(item['start']);
+		}
 	};
 
 
@@ -116,12 +112,7 @@ public class SoundModel extends BasicModel {
 		} else if (model.config['state'] == ModelStates.BUFFERING && sound.isBuffering == false) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(position-item['start'] < item['duration']) {
-			model.sendEvent(ModelEvent.TIME,{position:position-item['start'],duration:item['duration']});
-		} else if(item['duration'] > 0) {
-			pause();
-			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
-		}
+		super.positionInterval();
 	};
 
 
@@ -130,6 +121,9 @@ public class SoundModel extends BasicModel {
 		var ldd = evt.bytesLoaded;
 		var ttl = evt.bytesTotal;
 		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl});
+		if(ldd/ttl > 0.1 && item['duration'] == 0) {
+			model.sendEvent(ModelEvent.META,{duration:sound.length/1000/ldd*ttl});
+		}
 	};
 
 

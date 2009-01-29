@@ -62,6 +62,13 @@ public class CameraModel extends BasicModel {
 	};
 
 
+	/** Interval function that pings the position. **/
+	override protected function positionInterval():void {
+		position += 0.1;
+		super.positionInterval();
+	};
+
+
 	/** Destroy the videocamera. **/
 	override public function stop():void {
 		video.attachCamera(null);
