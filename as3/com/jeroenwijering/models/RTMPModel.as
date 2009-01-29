@@ -90,6 +90,8 @@ public class RTMPModel extends BasicModel {
 		if(dat.type == 'complete') {
 			clearInterval(interval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+		} else  if(dat.type == 'close') {
+			stop();
 		}
 		model.sendEvent(ModelEvent.META,dat);
 	};

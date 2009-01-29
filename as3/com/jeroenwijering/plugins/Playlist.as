@@ -51,11 +51,15 @@ public class Playlist implements PluginInterface {
 	/** Initialize the communication with the player. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
+		clip = view.skin['playlist'];
+		if(config['position'] == 'none') {
+			clip.visible = false;
+			return;
+		}
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.PLAYLIST,playlistHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
-		clip = view.skin['playlist'];
 		buttonheight = clip.list.button.height;
 		clip.list.button.visible = false;
 		clip.list.mask = clip.masker;

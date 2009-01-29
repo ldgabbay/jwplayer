@@ -138,7 +138,7 @@ public class HD extends MovieClip implements PluginInterface {
 			config['state'] = true;
 			if(evt.data.bandwidth < config['bitrate']) {
 				clickHandler();
-				view.sendEvent(ViewEvent.TRACE,"HD: Insufficient badwidth, autoswitching to normal quality.");
+				view.sendEvent(ViewEvent.TRACE,"HD: Insufficient bandwidth, autoswitching to normal quality.");
 			} else { 
 				view.sendEvent(ViewEvent.TRACE,"HD: Bandwidth OK, sticking with HD quality.");
 			}

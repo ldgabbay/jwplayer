@@ -409,6 +409,7 @@ public class Controlbar implements PluginInterface {
 			pos = 0;
 		}
 		var pct:Number = pos/dur;
+		if(isNaN(pct)) { pct = 1; }
 		try {
 			bar.elapsedText.text = Strings.digits(pos);
 			bar.totalText.text = Strings.digits(dur);
@@ -429,7 +430,9 @@ public class Controlbar implements PluginInterface {
 				bar.timeSlider.mark.visible = false;
 				bar.timeSlider.done.visible = false;
 			}
-		} catch (err:Error) {}
+		} catch (err:Error) {
+			trace(err);
+		}
 	};
 
 

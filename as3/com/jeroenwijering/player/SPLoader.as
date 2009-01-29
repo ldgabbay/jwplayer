@@ -249,7 +249,8 @@ public class SPLoader extends EventDispatcher {
 	/** Layout all plugins in case of a fullscreen resize. **/
 	public function layoutFullscreen() {
 		for(var i:Number=0; i<plugins.length; i++) {
-			if (plugins[i]['position'] == 'over' || plugins[i]['name'] == 'controlbar') {
+			if (plugins[i]['position'] == 'over' || 
+				plugins[i]['name'] == 'controlbar' && plugins[i]['position'] != 'none') {
 				plugins[i]['x'] = 0;
 				plugins[i]['y'] = 0;
 				plugins[i]['width'] = player.skin.stage.stageWidth;

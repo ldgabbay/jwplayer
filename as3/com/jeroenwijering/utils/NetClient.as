@@ -17,6 +17,12 @@ public class NetClient {
 	};
 
 
+	/** Checking the available bandwidth. **/
+	public function close(... rest):void {
+		forward({close:true},'close');
+	};
+
+
 	/** Forward calls to callback **/
 	private function forward(dat:Object,typ:String):void {
 		dat['type'] = typ;

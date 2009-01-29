@@ -66,8 +66,8 @@ public class Player extends MovieClip {
 		linktarget:'_blank',
 		plugins:undefined,
 		token:undefined,
-		tracecall:'arthropod',
-		version:'4.4.148'
+		tracecall:undefined,
+		version:'4.4.151'
 	};
 	/** Base directory from which all plugins are loaded. **/
 	public var basedir:String = 'http://plugins.longtailvideo.com/';
@@ -128,7 +128,7 @@ public class Player extends MovieClip {
 		model.loadModel(new HTTPModel(model),'http');
 		model.loadModel(new ImageModel(model),'image');
 		model.loadModel(new LighttpdModel(model),'lighttpd');
-		// model.loadModel(new NginxModel(model),'nginx');
+		model.loadModel(new NginxModel(model),'nginx');
 		model.loadModel(new RTMPModel(model),'rtmp');
 		model.loadModel(new SoundModel(model),'sound');
 		model.loadModel(new VideoModel(model),'video');
@@ -142,6 +142,7 @@ public class Player extends MovieClip {
 		sploader.addPlugin(new Rightclick(),'rightclick');
 		sploader.addPlugin(new Controlbar(),'controlbar');
 		sploader.addPlugin(new Playlist(),'playlist');
+		sploader.addPlugin(new HD(),'hd');
 	};
 
 
