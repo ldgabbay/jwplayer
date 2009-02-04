@@ -11,7 +11,7 @@ import com.jeroenwijering.player.Model;
 import flash.events.*;
 import flash.media.*;
 import flash.net.URLRequest;
-import flash.utils.clearInterval;
+import flash.utils.*;
 
 
 public class SoundModel extends BasicModel {
@@ -25,6 +25,8 @@ public class SoundModel extends BasicModel {
 	private var channel:SoundChannel;
 	/** Sound context object. **/
 	private var context:SoundLoaderContext;
+	/** Interval for loading progress. **/
+	private var loadinterval;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -74,12 +76,26 @@ public class SoundModel extends BasicModel {
 		super.load(itm);
 		sound = new Sound();
 		sound.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
-		sound.addEventListener(ProgressEvent.PROGRESS,progressHandler);
 		sound.addEventListener(Event.ID3,id3Handler);
 		sound.load(new URLRequest(item['file']),context);
 		play();
 		if(item['start'] > 0) {
 			seek(item['start']);
+		}
+		loadinterval = setInterval(loadHandler,200);
+	};
+
+
+	/** Interval for the loading progress **/
+	private function loadHandler():void {
+		var ldd = sound.bytesLoaded;
+		var ttl = sound.bytesTotal;
+		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl});
+		if(ldd/ttl > 0.1 && item['duration'] == 0) {
+			model.sendEvent(ModelEvent.META,{duration:sound.length/1000/ldd*ttl});
+		}
+		if(ldd == ttl && ldd > 0) {
+			clearInterval(loadinterval);
 		}
 	};
 
@@ -116,17 +132,6 @@ public class SoundModel extends BasicModel {
 	};
 
 
-	/** Interval for the loading progress **/
-	private function progressHandler(evt:ProgressEvent):void {
-		var ldd = evt.bytesLoaded;
-		var ttl = evt.bytesTotal;
-		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl});
-		if(ldd/ttl > 0.1 && item['duration'] == 0) {
-			model.sendEvent(ModelEvent.META,{duration:sound.length/1000/ldd*ttl});
-		}
-	};
-
-
 	/** Seek in the sound. **/
 	override public function seek(pos:Number):void {
 		channel.stop();
@@ -139,6 +144,7 @@ public class SoundModel extends BasicModel {
 		if(channel) { channel.stop(); }
 		try { sound.close(); } catch (err:Error) {}
 		super.stop();
+		clearInterval(loadinterval);
 	};
 
 

@@ -45,7 +45,7 @@ public class Randomizer {
 
 
 	/** Return the number of items still in the buffer. **/
-	public function get length():Number { 
+	public function get length():Number {
 		return todo.length;
 	}
 

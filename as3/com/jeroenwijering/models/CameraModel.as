@@ -64,7 +64,7 @@ public class CameraModel extends BasicModel {
 
 	/** Interval function that pings the position. **/
 	override protected function positionInterval():void {
-		position += 0.1;
+		position = Math.round(position*10+1)/10;
 		super.positionInterval();
 	};
 

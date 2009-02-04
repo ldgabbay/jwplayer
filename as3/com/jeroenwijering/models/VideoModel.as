@@ -160,7 +160,11 @@ public class VideoModel extends BasicModel {
 
 	/** Destroy the video. **/
 	override public function stop():void {
-		stream.close();
+		if(stream.bytesLoaded < stream.bytesTotal) {
+			stream.close();
+		} else { 
+			stream.pause();
+		}
 		clearInterval(loadinterval);
 		loadtimer = undefined;
 		super.stop();

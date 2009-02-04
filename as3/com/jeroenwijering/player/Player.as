@@ -67,7 +67,7 @@ public class Player extends MovieClip {
 		plugins:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.4.151'
+		version:'4.4.153'
 	};
 	/** Base directory from which all plugins are loaded. **/
 	public var basedir:String = 'http://plugins.longtailvideo.com/';
@@ -142,7 +142,6 @@ public class Player extends MovieClip {
 		sploader.addPlugin(new Rightclick(),'rightclick');
 		sploader.addPlugin(new Controlbar(),'controlbar');
 		sploader.addPlugin(new Playlist(),'playlist');
-		sploader.addPlugin(new HD(),'hd');
 	};
 
 

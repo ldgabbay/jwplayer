@@ -215,16 +215,16 @@ public class HTTPModel extends BasicModel {
 	/** Seek to a specific second. **/
 	override public function seek(pos:Number):void {
 		var off:Number = getOffset(pos);
-		if(off < byteoffset || off > byteoffset+stream.bytesLoaded) {
+		if(off < byteoffset || off >= byteoffset+stream.bytesLoaded) {
 			timeoffset = getOffset(pos,true);
 			byteoffset = off;
 			load(item);
 		} else {
 			super.seek(pos);
 			if(mp4) {
-				stream.seek(position-timeoffset);
+				stream.seek(getOffset(position-timeoffset,true));
 			} else {
-				stream.seek(position);
+				stream.seek(getOffset(position,true));
 			}
 		}
 	};
@@ -253,7 +253,11 @@ public class HTTPModel extends BasicModel {
 	/** Destroy the HTTP stream. **/
 	override public function stop():void {
 		super.stop();
-		stream.close();
+		if(stream.bytesLoaded < stream.bytesTotal) {
+			stream.close();
+		} else { 
+			stream.pause();
+		}
 		clearInterval(loadinterval);
 		byteoffset = timeoffset = 0;
 		keyframes = undefined;

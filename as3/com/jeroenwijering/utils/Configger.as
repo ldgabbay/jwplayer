@@ -48,7 +48,7 @@ public class Configger extends EventDispatcher {
 		if(xml) {
 			loadXML(Strings.decode(xml));
 		} else {
-			loadCookies();
+			loadFlashvars();
 		}
 	};
 
@@ -60,7 +60,7 @@ public class Configger extends EventDispatcher {
 		try {
 			loader.load(new URLRequest(url));
 		} catch (err:Error) {
-			loadCookies();
+			loadFlashvars();
 		}
 	};
 

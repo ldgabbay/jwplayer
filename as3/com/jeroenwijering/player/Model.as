@@ -70,9 +70,14 @@ public class Model extends EventDispatcher {
 		} else {
 			sendEvent(ModelEvent.ERROR,{message:'No suiteable model found for playback of this file.'});
 		}
-		if(item['image'] && item['image'] != image) {
-			image = item['image'];
-			thumb.load(new URLRequest(item['image']),new LoaderContext(true));
+		if(item['image']) {
+			if(item['image'] != image) {
+				image = item['image'];
+				thumb.load(new URLRequest(item['image']),new LoaderContext(true));
+			}
+		} else if (image) {
+			image = undefined;
+			thumb.unload();
 		}
 	};
 
@@ -149,7 +154,6 @@ public class Model extends EventDispatcher {
 
 	/** Make the current model stop and show the thumb. **/
 	private function stopHandler(evt:ControllerEvent=undefined):void {
-		image = undefined;
 		if(item) {
 			models[item['type']].stop();
 		}
@@ -169,7 +173,6 @@ public class Model extends EventDispatcher {
 			case ModelEvent.STATE:
 				dat['oldstate'] = config['state'];
 				config['state'] = dat.newstate;
-				dispatchEvent(new ModelEvent(typ,dat));
 				switch(dat['newstate']) {
 					case ModelStates.IDLE:
 						sendEvent(ModelEvent.LOADED,{loaded:0,offset:0,total:0});
@@ -179,9 +182,6 @@ public class Model extends EventDispatcher {
 						sendEvent(ModelEvent.TIME,{position:0,duration:item['duration']});
 						break;
 					case ModelStates.BUFFERING:
-						if(dat['oldstate'] == ModelStates.IDLE) {
-							break;
-						}
 					case ModelStates.PLAYING:
 						if(item['file'].indexOf('m4a') == -1
 							&& item['file'].indexOf('mp3') == -1
@@ -194,6 +194,7 @@ public class Model extends EventDispatcher {
 						}
 						break;
 				}
+				dispatchEvent(new ModelEvent(typ,dat));
 				break;
 			case ModelEvent.META:
 				if(dat.width) { resizeHandler(); }

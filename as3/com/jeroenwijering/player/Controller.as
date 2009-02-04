@@ -240,8 +240,8 @@ public class Controller extends EventDispatcher {
 
 
 	/** Jump to the next item in the playlist. **/
-	private function nextHandler(evt:ViewEvent):void {
-		if(playlist && config['shuffle'] == true) { 
+	private function nextHandler(evt:ViewEvent=null):void {
+		if(playlist && config['shuffle'] == true) {
 			playItem(randomizer.pick());
 		} else if (playlist && config['item'] == playlist.length-1) {
 			playItem(0);
@@ -358,18 +358,24 @@ public class Controller extends EventDispatcher {
 
 	/** Manage playback state changes. **/
 	private function stateHandler(evt:ModelEvent):void {
-		if(evt.data.newstate == ModelStates.COMPLETED && (config['repeat'] == 'always' ||
-			config['repeat'] == 'single' ||
-			(config['repeat'] == 'list' && config['shuffle'] == true && randomizer.length > 0) || 
-			(config['repeat'] == 'list' && config['shuffle'] == false && config['item'] < playlist.length-1))) {
-			if(config['repeat'] == 'single') {
-				playItem(config['item']);
-			} else if(config['shuffle'] == true) {
-				playItem(randomizer.pick());
-			} else if(config['item'] == playlist.length-1) {
-				playItem(0);
-			} else {
-				playItem(config['item']+1);
+		if(evt.data.newstate == ModelStates.COMPLETED) {
+			switch (config['repeat']) {
+				case 'single':
+					playHandler(new ViewEvent(ViewEvent.PLAY,{state:true}));
+					break;
+				case 'always':
+					if(playlist.length == 1) {
+						playHandler(new ViewEvent(ViewEvent.PLAY,{state:true}));
+					} else { 
+						nextHandler();
+					}
+					break;
+				case 'list':
+					if((config['shuffle'] == true && randomizer.length > 0) ||
+						(config['shuffle'] == false && config['item'] < playlist.length-1)) {
+						nextHandler();
+					}
+					break;
 			}
 		}
 	};
