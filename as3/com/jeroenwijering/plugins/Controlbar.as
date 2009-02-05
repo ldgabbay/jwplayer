@@ -430,9 +430,7 @@ public class Controlbar implements PluginInterface {
 				bar.timeSlider.mark.visible = false;
 				bar.timeSlider.done.visible = false;
 			}
-		} catch (err:Error) {
-			trace(err);
-		}
+		} catch (err:Error) {}
 	};
 
 

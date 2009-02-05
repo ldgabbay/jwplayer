@@ -66,7 +66,7 @@ public class BasicModel {
 	protected function positionInterval():void {
 		if(position < item['duration']) {
 			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
-		} else if (item['duration'] > 0) {
+		} else if (item['duration'] > 0 && model.config['respectduration']) {
 			pause();
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}

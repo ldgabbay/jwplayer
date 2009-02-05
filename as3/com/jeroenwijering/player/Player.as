@@ -51,8 +51,9 @@ public class Player extends MovieClip {
 		item:0,
 		logo:undefined,
 		mute:false,
-		repeat:'list',
+		repeat:'none',
 		resizing:true,
+		respectduration:false,
 		shuffle:false,
 		smoothing:true,
 		state:'IDLE',
@@ -67,7 +68,7 @@ public class Player extends MovieClip {
 		plugins:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.4.153'
+		version:'4.4.155'
 	};
 	/** Base directory from which all plugins are loaded. **/
 	public var basedir:String = 'http://plugins.longtailvideo.com/';

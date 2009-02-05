@@ -40,6 +40,8 @@ public class HTTPModel extends BasicModel {
 	protected var mp4:Boolean;
 	/** Load offset for bandwidth checking. **/
 	protected var loadtimer:Number;
+	/** Variable that takes reloading into account (since it takes some time before stream.time is restarted) **/
+	protected var iterator:Number;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -118,11 +120,13 @@ public class HTTPModel extends BasicModel {
 	/** Load content. **/
 	override public function load(itm:Object):void {
 		super.load(itm);
-		if(stream) {
+		position = timeoffset;
+		if(stream.bytesLoaded + byteoffset < stream.bytesTotal) {
 			stream.close();
 		}
 		model.mediaHandler(video);
 		stream.play(getURL());
+		iterator = 0;
 		clearInterval(interval);
 		interval = setInterval(positionInterval,100);
 		clearInterval(loadinterval);
@@ -195,9 +199,12 @@ public class HTTPModel extends BasicModel {
 
 	/** Interval for the position progress **/
 	override protected function positionInterval():void {
-		position = Math.round(stream.time*10)/10;
-		if (mp4) { 
-			position += timeoffset;
+		iterator++;
+		if(iterator > 10) {
+			position = Math.round(stream.time*10)/10;
+			if (mp4) {
+				position += timeoffset;
+			}
 		}
 		var bfr:Number = Math.round(stream.bufferLength/stream.bufferTime*100);
 		if(bfr < 95 && position < Math.abs(item['duration']-stream.bufferTime-1)) {
@@ -216,7 +223,7 @@ public class HTTPModel extends BasicModel {
 	override public function seek(pos:Number):void {
 		var off:Number = getOffset(pos);
 		if(off < byteoffset || off >= byteoffset+stream.bytesLoaded) {
-			timeoffset = getOffset(pos,true);
+			timeoffset = position = getOffset(pos,true);
 			byteoffset = off;
 			load(item);
 		} else {
@@ -243,17 +250,15 @@ public class HTTPModel extends BasicModel {
 				stop();
 				model.sendEvent(ModelEvent.ERROR,{message:'Video not found: '+item['file']});
 				break;
-			default:
-				model.sendEvent(ModelEvent.META,{info:evt.info.code});
-				break;
 		}
+		model.sendEvent(ModelEvent.META,{info:evt.info.code});
 	};
 
 
 	/** Destroy the HTTP stream. **/
 	override public function stop():void {
 		super.stop();
-		if(stream.bytesLoaded < stream.bytesTotal) {
+		if(stream.bytesLoaded+byteoffset < stream.bytesTotal) {
 			stream.close();
 		} else { 
 			stream.pause();
