@@ -83,14 +83,18 @@ public class Accessibility extends MovieClip implements PluginInterface {
 	/** Initing the plugin. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
+		if(view.config['audio']) { config['audio'] = view.config['audio']; }
+		if(view.config['captions']) { config['captions'] = view.config['captions']; }
+		if(!config['captions'] && !config['audio']) {
+			clip.visible = false;
+			return;
+		}
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.TIME,timeHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
 		clip.tf.autoSize = TextFieldAutoSize.CENTER;
 		format = new TextFormat(null,config['fontsize']);
-		if(view.config['audio']) { config['audio'] = view.config['audio']; }
-		if(view.config['captions']) { config['captions'] = view.config['captions']; }
 		hide(config['hide']);
 		mute(config['mute']);
 		try {
@@ -171,7 +175,7 @@ public class Accessibility extends MovieClip implements PluginInterface {
 		setVolume();
 	};
 
-	/** Set buttons in the controlbar **/ 
+	/** Set buttons in the controlbar **/
 	private function setButtons():void {
 		if(config['captions']) {
 			view.getPlugin('controlbar').addButton(clip.captionsIcon,'captions',hideClick);
@@ -227,20 +231,19 @@ public class Accessibility extends MovieClip implements PluginInterface {
 
 	/** Check timing of the player to sync captions. **/
 	private function timeHandler(evt:ModelEvent):void {
-		if(captions.length == 0) {
-			return; 
-		}
 		var cur:Number = -1;
 		var pos:Number = evt.data.position;
-		// sync up the captions (only if needed).
+		// sync up the captions if needed.
 		for(var i:Number=0; i<captions.length; i++) {
 			if(captions[i]['begin'] < pos && captions[i]['end'] > pos) {
 				cur = i;
 				break;
 			}
 		}
-		if(cur != current) { setCaption(cur); }
-		// and sync up the audio (only if needed).
+		if(cur > -1 && cur != current) {
+			setCaption(cur);
+		}
+		// sync up the audio if needed.
 		if(channel && view.config['state'] == ModelStates.PLAYING && Math.abs(pos-channel.position/1000) > 0.5) {
 			channel.stop();
 			channel = sound.play(pos*1000);
