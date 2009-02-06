@@ -420,11 +420,11 @@ public class Controlbar implements PluginInterface {
 			if (dur > 0) {
 				bar.timeSlider.icon.visible = true;
 				bar.timeSlider.mark.visible = true;
-				bar.timeSlider.done.visible = true;
 				if(!scrubber) {
 					bar.timeSlider.icon.x = xps;
 					bar.timeSlider.done.width = xps;
 				}
+				bar.timeSlider.done.visible = true;
 			} else {
 				bar.timeSlider.icon.visible = false;
 				bar.timeSlider.mark.visible = false;

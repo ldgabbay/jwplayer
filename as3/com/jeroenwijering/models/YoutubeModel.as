@@ -57,6 +57,7 @@ public class YoutubeModel extends BasicModel {
 		inbound.allowDomain('*');
 		inbound.allowInsecureDomain('*');
 		inbound.addEventListener(StatusEvent.STATUS,onLocalConnectionStatusChange);
+		//inbound.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
 		inbound.client = this;
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
@@ -122,8 +123,8 @@ public class YoutubeModel extends BasicModel {
 	public function onSwfLoadComplete():void {
 		outgoing.send('AS3_'+unique,"setSize",320,240);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
-		if(loading) { load(item); }
 		connected = true;
+		if(loading) { load(item); }
 	};
 
 

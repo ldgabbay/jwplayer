@@ -26,7 +26,7 @@ public class Accessibility extends MovieClip implements PluginInterface {
 	public var config:Object = {
 		audio:undefined,
 		captions:undefined,
-		fontsize:15,
+		fontsize:14,
 		hide:false,
 		listener:undefined,
 		mute:false,
