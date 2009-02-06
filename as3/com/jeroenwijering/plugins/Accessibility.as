@@ -240,7 +240,8 @@ public class Accessibility extends MovieClip implements PluginInterface {
 				break;
 			}
 		}
-		if(cur > -1 && cur != current) {
+		trace(cur);
+		if(cur != current) {
 			setCaption(cur);
 		}
 		// sync up the audio if needed.

@@ -150,10 +150,10 @@ public class HD extends MovieClip implements PluginInterface {
 	private function setUI() {
 		if(config['state'] == false) {
 			icon.alpha = 0.3;
-			context.caption = 'HD video is off...';
+			context.caption = 'HD quality is off...';
 		} else {
 			icon.alpha = 1;
-			context.caption = 'HD video is on...';
+			context.caption = 'HD quality is on...';
 		}
 	};
 
