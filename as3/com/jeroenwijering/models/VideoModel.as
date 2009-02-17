@@ -62,8 +62,9 @@ public class VideoModel extends BasicModel {
 	override public function load(itm:Object):void {
 		super.load(itm);
 		model.mediaHandler(video);
-		sendEvent('META',{file:item['file']});
+model.sendEvent('META',{file:item['file']});
 		stream.play(item['file']);
+model.sendEvent('META',{stream:stream});
 		interval = setInterval(positionInterval,100);
 		loadinterval = setInterval(loadHandler,200);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});

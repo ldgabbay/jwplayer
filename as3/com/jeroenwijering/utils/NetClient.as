@@ -26,7 +26,9 @@ public class NetClient {
 	/** Forward calls to callback **/
 	private function forward(dat:Object,typ:String):void {
 		dat['type'] = typ;
-		callback.onData(dat);
+		var out:Object = new Object();
+		for (var i in dat) { out[i] = dat[i]; }
+		callback.onData(out);
 	};
 
 
@@ -65,6 +67,19 @@ public class NetClient {
 	/** CDN subscription handler. **/
 	public function onFCSubscribe(obj:Object):void {
 		forward(obj,'fcsubscribe');
+	};
+
+
+	/** Get headerdata information from netstream class. **/
+	public function onHeaderData(obj:Object):void {
+		var dat:Object = new Object();
+		var pat:String = "-";
+		var rep:String = "_";
+		for (var i:String in obj) {
+			var j:String = i.replace("-", "_");
+			dat[j] = obj[i];
+		}
+		forward(dat,'headerdata');
 	};
 
 
