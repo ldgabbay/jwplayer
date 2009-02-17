@@ -67,6 +67,7 @@ public class Model extends EventDispatcher {
 
 	/** Item change: stop the old model and start the new one. **/
 	private function itemHandler(evt:ControllerEvent):void {
+		sendEvent('META',{model:'item called!'});
 		if(item) {
 			models[item['type']].stop();
 		}
