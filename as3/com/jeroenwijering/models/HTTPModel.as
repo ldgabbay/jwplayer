@@ -131,6 +131,7 @@ public class HTTPModel extends BasicModel {
 		interval = setInterval(positionInterval,100);
 		clearInterval(loadinterval);
 		loadinterval = setInterval(loadHandler,200);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
 

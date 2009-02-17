@@ -78,6 +78,7 @@ public class RTMPModel extends BasicModel {
 		super.load(itm);
 		model.mediaHandler(video);
 		connection.connect(item['streamer']);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
 

@@ -51,7 +51,7 @@ public class Player extends MovieClip {
 		logo:undefined,
 		mute:false,
 		regexp:undefined,
-		repeat:'always',
+		repeat:'none',
 		resizing:true,
 		respectduration:false,
 		shuffle:false,

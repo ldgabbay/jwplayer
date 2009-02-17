@@ -62,9 +62,11 @@ public class VideoModel extends BasicModel {
 	override public function load(itm:Object):void {
 		super.load(itm);
 		model.mediaHandler(video);
+		sendEvent('META',{file:item['file']});
 		stream.play(item['file']);
 		interval = setInterval(positionInterval,100);
 		loadinterval = setInterval(loadHandler,200);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
 
@@ -105,15 +107,15 @@ public class VideoModel extends BasicModel {
 
 	/** Pause playback. **/
 	override public function pause():void {
-		super.pause();
 		stream.pause();
+		super.pause();
 	};
 
 
 	/** Resume playing. **/
 	override public function play():void {
-		super.play();
 		stream.resume();
+		super.play();
 	};
 
 

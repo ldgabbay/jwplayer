@@ -83,6 +83,7 @@ public class SoundModel extends BasicModel {
 			seek(item['start']);
 		}
 		loadinterval = setInterval(loadHandler,200);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
 

@@ -36,6 +36,7 @@ public class ImageModel extends BasicModel {
 	override public function load(itm:Object):void {
 		super.load(itm);
 		loader.load(new URLRequest(item['file']),new LoaderContext(true));
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
 

@@ -120,9 +120,13 @@ public class Controlbar implements PluginInterface {
 	/** Handle mouse presses on sliders. **/
 	private function downHandler(evt:MouseEvent):void {
 		scrubber = MovieClip(evt.target);
-		var rct:Rectangle = new Rectangle(scrubber.rail.x,scrubber.icon.y,scrubber.rail.width-scrubber.icon.width,0);
-		scrubber.icon.startDrag(true,rct);
-    	clip.stage.addEventListener(MouseEvent.MOUSE_UP,upHandler);
+		if(blocking != true || scrubber.name == 'volumeSlider') {
+			var rct:Rectangle = new Rectangle(scrubber.rail.x,scrubber.icon.y,scrubber.rail.width-scrubber.icon.width,0);
+			scrubber.icon.startDrag(true,rct);
+    		clip.stage.addEventListener(MouseEvent.MOUSE_UP,upHandler);
+		} else { 
+			scrubber = undefined;
+		}
 	};
 
 
@@ -421,7 +425,7 @@ public class Controlbar implements PluginInterface {
 		try {
 			var tsl:MovieClip = clip.timeSlider;
 			var xps:Number = Math.round(pct*(tsl.rail.width-tsl.icon.width));
-			if (dur > 0 && blocking != true) {
+			if (dur > 0) {
 				clip.timeSlider.icon.visible = true;
 				clip.timeSlider.mark.visible = true;
 				if(!scrubber) {
@@ -445,7 +449,6 @@ public class Controlbar implements PluginInterface {
 		scrubber.icon.stopDrag();
 		if(scrubber.name == 'timeSlider' && view.playlist) {
 			mpl = view.playlist[view.config['item']]['duration'];
-			if(blocking == true) { return; }
 		} else if(scrubber.name == 'volumeSlider') {
 			mpl = 100;
 		}

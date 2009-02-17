@@ -43,7 +43,6 @@ public class BasicModel {
 	public function load(itm:Object):void {
 		item = itm;
 		position = 0;
-		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 	};
 

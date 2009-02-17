@@ -70,6 +70,7 @@ public class Model extends EventDispatcher {
 		if(item) {
 			models[item['type']].stop();
 		}
+sendEvent('META',{type:item['type']});
 		item = controller.playlist[config['item']];
 		if(models[item['type']]) {
 			models[item['type']].load(item);
