@@ -6,19 +6,21 @@ package com.jeroenwijering.plugins {
 
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.utils.Scrollbar;
+
 import flash.display.MovieClip;
 import flash.events.MouseEvent;
+import flash.text.TextField;
 
 
 public class MetaViewer extends MovieClip implements PluginInterface {
 
 
+	/** Reference to the graphics. **/
+	public var clip:MovieClip;
 	/** Object with configuration values. **/
 	public var config:Object;
 	/** Reference to the View of the player. **/
 	private var view:AbstractView;
-	/** Reference to the graphics. **/
-	private var clip:MovieClip;
 	/** Scrollbar clip for the metadata. **/
 	private var scrollbar:Scrollbar;
 	/** Formatted metadata string. **/
@@ -29,15 +31,7 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 
 	/** Constructor; nothing going on. **/
 	public function MetaViewer() {
-		clip = this['metadata'];
-		clip.tf.mask = clip.ms;
-		clip.tf.autoSize = "left";
-		clip.close.mouseChildren = clip.seek.mouseChildren = clip.meta.mouseChildren = false;
-		clip.close.buttonMode = clip.seek.buttonMode = clip.meta.buttonMode = true;
-		clip.close.addEventListener(MouseEvent.CLICK,closeHandler);
-		clip.seek.addEventListener(MouseEvent.CLICK,seekHandler);
-		clip.meta.addEventListener(MouseEvent.CLICK,metaHandler);
-		scrollbar = new Scrollbar(clip.tf,clip.ms);
+		clip = this;
 	};
 
 
@@ -93,6 +87,14 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 		view = vie;
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.META,dataHandler);
+		clip.tf.mask = clip.ms;
+		clip.tf.autoSize = "left";
+		clip.close.mouseChildren = clip.seek.mouseChildren = clip.meta.mouseChildren = false;
+		clip.close.buttonMode = clip.seek.buttonMode = clip.meta.buttonMode = true;
+		clip.close.addEventListener(MouseEvent.CLICK,closeHandler);
+		clip.seek.addEventListener(MouseEvent.CLICK,seekHandler);
+		clip.meta.addEventListener(MouseEvent.CLICK,metaHandler);
+		scrollbar = new Scrollbar(clip.tf,clip.ms);
 		resizeHandler();
 	};
 

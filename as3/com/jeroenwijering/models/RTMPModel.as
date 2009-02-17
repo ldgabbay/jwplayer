@@ -145,6 +145,7 @@ public class RTMPModel extends BasicModel {
 		video.attachNetStream(stream);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		interval = setInterval(positionInterval,100);
+		trace(getID(item['file']));
 		stream.play(getID(item['file']));
 	};
 

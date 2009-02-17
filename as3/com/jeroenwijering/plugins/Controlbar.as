@@ -21,15 +21,15 @@ import flash.utils.setTimeout;
 public class Controlbar implements PluginInterface {
 
 
-	/** Reference to the view. **/
-	private var view:AbstractView;
-	/** Reference to the controlbar **/
-	private var bar:MovieClip;
 	/** List with configuration settings. **/
 	public var config:Object;
+	/** Reference to the controlbar clip. **/
+	public var clip:MovieClip;
+	/** Reference to the view. **/
+	private var view:AbstractView;
 	/** A list with all controls. **/
 	private var stacker:Stacker;
-	/** Timeout for hiding the bar. **/
+	/** Timeout for hiding the clip. **/
 	private var hiding:Number;
 	/** When scrubbing, icon shouldn't be set. **/
 	private var scrubber:MovieClip;
@@ -57,46 +57,23 @@ public class Controlbar implements PluginInterface {
 	}
 	/** The button to clone for all custom buttons. **/
 	private var clonee:MovieClip;
+	/** Saving the block state of the controlbar. **/
+	private var blocking:Boolean;
 
 
 	/** Constructor. **/
 	public function Controlbar():void {};
 
-
-	/** Initialize from view. **/
-	public function initializePlugin(vie:AbstractView):void {
-		view = vie;
-		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
-		view.addModelListener(ModelEvent.LOADED,loadedHandler);
-		view.addModelListener(ModelEvent.STATE,stateHandler);
-		view.addModelListener(ModelEvent.TIME,timeHandler);
-		view.addControllerListener(ControllerEvent.PLAYLIST,itemHandler);
-		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
-		view.addControllerListener(ControllerEvent.MUTE,muteHandler);
-		view.addControllerListener(ControllerEvent.VOLUME,volumeHandler);
-		bar = view.skin['controlbar'];
-		stacker = new Stacker(bar);
-		setButtons();
-		setColors();
-		itemHandler();
-		loadedHandler();
-		muteHandler();
-		stateHandler();
-		timeHandler();
-		volumeHandler();
-	};
-
-
 	/** 
-	* Add a new button to the controlbar.
+	* Add a new button to the controlclip.
 	*
 	* @param icn	A graphic to show as icon
 	* @param nam	Name of the button
 	* @param hdl	The function to call when clicking the button.
 	**/
 	public function addButton(icn:DisplayObject,nam:String,hdl:Function):void {
-		if(bar['linkButton'].back) {
-			var btn = Draw.clone(bar['linkButton']);
+		if(clip['linkButton'].back) {
+			var btn = Draw.clone(clip['linkButton']);
 			btn.name = nam+'Button';
 			btn.visible = true;
 			btn.tabEnabled = true;
@@ -104,7 +81,7 @@ public class Controlbar implements PluginInterface {
 			var acs:AccessibilityProperties = new AccessibilityProperties();
 			acs.name = nam+'Button';
 			btn.accessibilityProperties = acs;
-			bar.addChild(btn);
+			clip.addChild(btn);
 			var off:Number = Math.round((btn.height-icn.height)/2);
 			Draw.clear(btn.icon);
 			btn.icon.addChild(icn);
@@ -119,14 +96,24 @@ public class Controlbar implements PluginInterface {
 				btn.addEventListener(MouseEvent.MOUSE_OVER,overHandler);
 				btn.addEventListener(MouseEvent.MOUSE_OUT,outHandler);
 			}
-			stacker.insert(btn,bar['linkButton']);
+			stacker.insert(btn,clip['linkButton']);
 		}
+	};
+
+
+	/** Hide the controlbar **/
+	public function block(stt:Boolean):void {
+		blocking = stt;
+		timeHandler();
 	};
 
 
 	/** Handle clicks from all buttons. **/
 	private function clickHandler(evt:MouseEvent):void {
-		view.sendEvent(BUTTONS[evt.target.name]);
+		var act:String = BUTTONS[evt.target.name];
+		if(blocking != true || act == "FULLSCREEN" || act == "MUTE") {
+			view.sendEvent(act);
+		}
 	};
 
 
@@ -135,28 +122,45 @@ public class Controlbar implements PluginInterface {
 		scrubber = MovieClip(evt.target);
 		var rct:Rectangle = new Rectangle(scrubber.rail.x,scrubber.icon.y,scrubber.rail.width-scrubber.icon.width,0);
 		scrubber.icon.startDrag(true,rct);
-    	bar.stage.addEventListener(MouseEvent.MOUSE_UP,upHandler);
+    	clip.stage.addEventListener(MouseEvent.MOUSE_UP,upHandler);
 	};
 
 
 	/** Fix the timeline display. **/
 	private function fixTime():void {
 		try {
-			var scp:Number = bar.timeSlider.scaleX;
-			bar.timeSlider.scaleX = 1;
-			bar.timeSlider.icon.x = scp*bar.timeSlider.icon.x;
-			bar.timeSlider.mark.x = scp*bar.timeSlider.mark.x;
-			bar.timeSlider.mark.width = scp*bar.timeSlider.mark.width;
-			bar.timeSlider.rail.width = scp*bar.timeSlider.rail.width;
-			bar.timeSlider.done.x = scp*bar.timeSlider.done.x;
-			bar.timeSlider.done.width = scp*bar.timeSlider.done.width;
+			var scp:Number = clip.timeSlider.scaleX;
+			clip.timeSlider.scaleX = 1;
+			clip.timeSlider.icon.x = scp*clip.timeSlider.icon.x;
+			clip.timeSlider.mark.x = scp*clip.timeSlider.mark.x;
+			clip.timeSlider.mark.width = scp*clip.timeSlider.mark.width;
+			clip.timeSlider.rail.width = scp*clip.timeSlider.rail.width;
+			clip.timeSlider.done.x = scp*clip.timeSlider.done.x;
+			clip.timeSlider.done.width = scp*clip.timeSlider.done.width;
 		} catch (err:Error) {}
 	};
 
 
-	/** Hide the controlbar **/
-	public function hide(stt:Boolean):void { 
-		bar.visible = !stt;
+	/** Initialize from view. **/
+	public function initializePlugin(vie:AbstractView):void {
+		view = vie;
+		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
+		view.addModelListener(ModelEvent.LOADED,loadedHandler);
+		view.addModelListener(ModelEvent.STATE,stateHandler);
+		view.addModelListener(ModelEvent.TIME,timeHandler);
+		view.addControllerListener(ControllerEvent.PLAYLIST,itemHandler);
+		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
+		view.addControllerListener(ControllerEvent.MUTE,muteHandler);
+		view.addControllerListener(ControllerEvent.VOLUME,volumeHandler);
+		stacker = new Stacker(clip);
+		setButtons();
+		setColors();
+		itemHandler();
+		loadedHandler();
+		muteHandler();
+		stateHandler();
+		timeHandler();
+		volumeHandler();
 	};
 
 
@@ -164,16 +168,16 @@ public class Controlbar implements PluginInterface {
 	private function itemHandler(evt:ControllerEvent=null):void {
 		try {
 			if(view.playlist && view.playlist.length > 1 && view.config['playlist'] == 'none') {
-				bar.prevButton.visible = bar.nextButton.visible = true;
+				clip.prevButton.visible = clip.nextButton.visible = true;
 			} else {
-				bar.prevButton.visible = bar.nextButton.visible = false;
+				clip.prevButton.visible = clip.nextButton.visible = false;
 			}
 		} catch (err:Error) {}
 		try {
 			if(view.playlist && view.playlist[view.config['item']]['link']) {
-				bar.linkButton.visible = true;
+				clip.linkButton.visible = true;
 			} else { 
-				bar.linkButton.visible = false;
+				clip.linkButton.visible = false;
 			}
 		} catch (err:Error) {}
 		timeHandler();
@@ -194,17 +198,17 @@ public class Controlbar implements PluginInterface {
 			pc2 = evt.data.offset/evt.data.total;
 		}
 		try {
-			var wid:Number = bar.timeSlider.rail.width;
-			bar.timeSlider.mark.x = pc2*wid;
-			bar.timeSlider.mark.width = pc1*wid;
-			var icw:Number = bar.timeSlider.icon.x + bar.timeSlider.icon.width;
+			var wid:Number = clip.timeSlider.rail.width;
+			clip.timeSlider.mark.x = pc2*wid;
+			clip.timeSlider.mark.width = pc1*wid;
+			var icw:Number = clip.timeSlider.icon.x + clip.timeSlider.icon.width;
 		} catch (err:Error) {}
 	};
 
 
 	/** Show above controlbar on mousemove. **/
 	private function moveHandler(evt:MouseEvent=null):void {
-		if(bar.alpha == 0) { Animations.fade(bar,1); }
+		if(clip.alpha == 0) { Animations.fade(clip,1); }
 		clearTimeout(hiding);
 		hiding = setTimeout(moveTimeout,1000);
 		Mouse.show();
@@ -213,8 +217,8 @@ public class Controlbar implements PluginInterface {
 
 	/** Hide above controlbar again when move has timed out. **/
 	private function moveTimeout():void {
-		if((bar.mouseY<3 || bar.mouseY>bar.height-5)  && bar.alpha == 1) {
-			Animations.fade(bar,0);
+		if((clip.mouseY<3 || clip.mouseY>clip.height-5)  && clip.alpha == 1) {
+			Animations.fade(clip,0);
 			Mouse.hide();
 		}
 	};
@@ -224,20 +228,20 @@ public class Controlbar implements PluginInterface {
 	private function muteHandler(evt:ControllerEvent=null):void {
 			if(view.config['mute'] == true) {
 				try {
-					bar.muteButton.visible = false;
-					bar.unmuteButton.visible = true;
+					clip.muteButton.visible = false;
+					clip.unmuteButton.visible = true;
 				} catch (err:Error) {}
 				try {
-					bar.volumeSlider.mark.visible = false;
-					bar.volumeSlider.icon.x = bar.volumeSlider.rail.x;
+					clip.volumeSlider.mark.visible = false;
+					clip.volumeSlider.icon.x = clip.volumeSlider.rail.x;
 				} catch (err:Error) {}
 			} else {
 				try {
-					bar.muteButton.visible = true;
-					bar.unmuteButton.visible = false;
+					clip.muteButton.visible = true;
+					clip.unmuteButton.visible = false;
 				} catch (err:Error) {}
 				try {
-					bar.volumeSlider.mark.visible = true;
+					clip.volumeSlider.mark.visible = true;
 					volumeHandler();
 				} catch (err:Error) {}
 			}
@@ -267,27 +271,27 @@ public class Controlbar implements PluginInterface {
 	/** Process resizing requests **/
 	private function resizeHandler(evt:ControllerEvent=null):void {
 		var wid:Number = config['width'];
-		bar.x = config['x'];
-		bar.y = config['y'];
-		bar.visible = config['visible'];
+		clip.x = config['x'];
+		clip.y = config['y'];
+		clip.visible = config['visible'];
 		if(config['position'] == 'over' || view.config['fullscreen'] == true) {
-			bar.x = config['x'] + config['margin'];
-			bar.y = config['y'] + config['height'] - config['margin'] - config['size'];
+			clip.x = config['x'] + config['margin'];
+			clip.y = config['y'] + config['height'] - config['margin'] - config['size'];
 			wid = config['width'] - 2*config['margin'];
-			bar.back.alpha = 0.75;
+			clip.back.alpha = 0.75;
 		} else if(config['position'] != 'none') {
-			bar.back.alpha = 1;
+			clip.back.alpha = 1;
 		}
 		try { 
-			bar.fullscreenButton.visible = false;
-			bar.normalscreenButton.visible = false;
-			if(bar.stage['displayState']) {
+			clip.fullscreenButton.visible = false;
+			clip.normalscreenButton.visible = false;
+			if(clip.stage['displayState']) {
 				if(view.config['fullscreen']) {
-					bar.fullscreenButton.visible = false;
-					bar.normalscreenButton.visible = true;
+					clip.fullscreenButton.visible = false;
+					clip.normalscreenButton.visible = true;
 				} else {
-					bar.fullscreenButton.visible = true;
-					bar.normalscreenButton.visible = false;
+					clip.fullscreenButton.visible = true;
+					clip.normalscreenButton.visible = false;
 				}
 			}
 		} catch (err:Error) {}
@@ -301,21 +305,21 @@ public class Controlbar implements PluginInterface {
 	/** Clickhandler for all buttons. **/
 	private function setButtons():void {
 		for(var btn:String in BUTTONS) {
-			if(bar[btn]) {
-				bar[btn].mouseChildren = false;
-				bar[btn].buttonMode = true;
-				bar[btn].addEventListener(MouseEvent.CLICK, clickHandler);
-				bar[btn].addEventListener(MouseEvent.MOUSE_OVER, overHandler);
-				bar[btn].addEventListener(MouseEvent.MOUSE_OUT, outHandler);
+			if(clip[btn]) {
+				clip[btn].mouseChildren = false;
+				clip[btn].buttonMode = true;
+				clip[btn].addEventListener(MouseEvent.CLICK, clickHandler);
+				clip[btn].addEventListener(MouseEvent.MOUSE_OVER, overHandler);
+				clip[btn].addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 			}
 		}
 		for(var sld:String in SLIDERS) {
-			if(bar[sld]) {
-				bar[sld].mouseChildren = false;
-				bar[sld].buttonMode = true;
-				bar[sld].addEventListener(MouseEvent.MOUSE_DOWN, downHandler);
-				bar[sld].addEventListener(MouseEvent.MOUSE_OVER, overHandler);
-				bar[sld].addEventListener(MouseEvent.MOUSE_OUT, outHandler);
+			if(clip[sld]) {
+				clip[sld].mouseChildren = false;
+				clip[sld].buttonMode = true;
+				clip[sld].addEventListener(MouseEvent.MOUSE_DOWN, downHandler);
+				clip[sld].addEventListener(MouseEvent.MOUSE_OVER, overHandler);
+				clip[sld].addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 			}
 		}
 	};
@@ -323,29 +327,29 @@ public class Controlbar implements PluginInterface {
 
 	/** Init the colors. **/
 	private function setColors():void {
-		if(view.config['backcolor'] && bar['playButton'].icon) {
+		if(view.config['backcolor'] && clip['playButton'].icon) {
 			var clr:ColorTransform = new ColorTransform();
 			clr.color = uint('0x'+view.config['backcolor'].substr(-6));
-			bar.back.transform.colorTransform = clr;
+			clip.back.transform.colorTransform = clr;
 		}
 		if(view.config['frontcolor']) {
 			try {
 				front = new ColorTransform();
 				front.color = uint('0x'+view.config['frontcolor'].substr(-6));
 				for(var btn:String in BUTTONS) {
-					if(bar[btn]) {
-						bar[btn]['icon'].transform.colorTransform = front;
+					if(clip[btn]) {
+						clip[btn]['icon'].transform.colorTransform = front;
 					}
 				}
 				for(var sld:String in SLIDERS) {
-					if(bar[sld]) {
-						bar[sld]['icon'].transform.colorTransform = front;
-						bar[sld]['mark'].transform.colorTransform = front;
-						bar[sld]['rail'].transform.colorTransform = front;
+					if(clip[sld]) {
+						clip[sld]['icon'].transform.colorTransform = front;
+						clip[sld]['mark'].transform.colorTransform = front;
+						clip[sld]['rail'].transform.colorTransform = front;
 					}
 				}
-				bar.elapsedText.textColor = front.color;
-				bar.totalText.textColor = front.color;
+				clip.elapsedText.textColor = front.color;
+				clip.totalText.textColor = front.color;
 			} catch (err:Error) {}
 		}
 		if(view.config['lightcolor']) {
@@ -356,8 +360,8 @@ public class Controlbar implements PluginInterface {
 		}
 		if(light) {
 			try {
-				bar['timeSlider']['done'].transform.colorTransform = light;
-				bar['volumeSlider']['mark'].transform.colorTransform = light;
+				clip['timeSlider']['done'].transform.colorTransform = light;
+				clip['volumeSlider']['mark'].transform.colorTransform = light;
 			} catch (err:Error) {}
 		}
 	};
@@ -368,30 +372,30 @@ public class Controlbar implements PluginInterface {
 		clearTimeout(hiding);
 		view.skin.removeEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
 		try {
-			var dps:String = bar.stage['displayState'];
+			var dps:String = clip.stage['displayState'];
 		} catch (err:Error) {}
 		switch(view.config['state']) {
 			case ModelStates.PLAYING:
 			case ModelStates.BUFFERING:
 				try {
-					bar.playButton.visible = false;
-					bar.pauseButton.visible = true;
+					clip.playButton.visible = false;
+					clip.pauseButton.visible = true;
 				} catch (err:Error) {}
 				if(config['position'] == 'over' || dps == 'fullScreen') {
 					hiding = setTimeout(moveTimeout,1000);
 					view.skin.addEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
 				} else {
-					Animations.fade(bar,1);
+					Animations.fade(clip,1);
 				}
 				break;
 			default:
 				try {
-					bar.playButton.visible = true;
-					bar.pauseButton.visible = false;
+					clip.playButton.visible = true;
+					clip.pauseButton.visible = false;
 				} catch (err:Error) {}
 				if(config['position'] == 'over' || dps == 'fullScreen') {
 					Mouse.show();
-					Animations.fade(bar,1);
+					Animations.fade(clip,1);
 				}
 		}
 	};
@@ -411,24 +415,24 @@ public class Controlbar implements PluginInterface {
 		var pct:Number = pos/dur;
 		if(isNaN(pct)) { pct = 1; }
 		try {
-			bar.elapsedText.text = Strings.digits(pos);
-			bar.totalText.text = Strings.digits(dur);
+			clip.elapsedText.text = Strings.digits(pos);
+			clip.totalText.text = Strings.digits(dur);
 		} catch (err:Error) {}
 		try {
-			var tsl:MovieClip = bar.timeSlider;
+			var tsl:MovieClip = clip.timeSlider;
 			var xps:Number = Math.round(pct*(tsl.rail.width-tsl.icon.width));
-			if (dur > 0) {
-				bar.timeSlider.icon.visible = true;
-				bar.timeSlider.mark.visible = true;
+			if (dur > 0 && blocking != true) {
+				clip.timeSlider.icon.visible = true;
+				clip.timeSlider.mark.visible = true;
 				if(!scrubber) {
-					bar.timeSlider.icon.x = xps;
-					bar.timeSlider.done.width = xps;
+					clip.timeSlider.icon.x = xps;
+					clip.timeSlider.done.width = xps;
 				}
-				bar.timeSlider.done.visible = true;
+				clip.timeSlider.done.visible = true;
 			} else {
-				bar.timeSlider.icon.visible = false;
-				bar.timeSlider.mark.visible = false;
-				bar.timeSlider.done.visible = false;
+				clip.timeSlider.icon.visible = false;
+				clip.timeSlider.mark.visible = false;
+				clip.timeSlider.done.visible = false;
 			}
 		} catch (err:Error) {}
 	};
@@ -437,10 +441,11 @@ public class Controlbar implements PluginInterface {
 	/** Handle mouse releases on sliders. **/
 	private function upHandler(evt:MouseEvent):void {
 		var mpl:Number = 0;
-    	bar.stage.removeEventListener(MouseEvent.MOUSE_UP,upHandler);
+    	clip.stage.removeEventListener(MouseEvent.MOUSE_UP,upHandler);
 		scrubber.icon.stopDrag();
 		if(scrubber.name == 'timeSlider' && view.playlist) {
 			mpl = view.playlist[view.config['item']]['duration'];
+			if(blocking == true) { return; }
 		} else if(scrubber.name == 'volumeSlider') {
 			mpl = 100;
 		}
@@ -453,7 +458,7 @@ public class Controlbar implements PluginInterface {
 	/** Reflect the new volume in the controlbar **/
 	private function volumeHandler(evt:ControllerEvent=null):void {
 		try {
-			var vsl:MovieClip = bar.volumeSlider;
+			var vsl:MovieClip = clip.volumeSlider;
 			vsl.mark.width = view.config['volume']*(vsl.rail.width-vsl.icon.width/2)/100;
 			vsl.icon.x = vsl.mark.x + view.config['volume']*(vsl.rail.width-vsl.icon.width)/100;
 		} catch (err:Error) {}

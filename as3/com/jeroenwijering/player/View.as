@@ -126,21 +126,7 @@ public class View extends AbstractView {
 	};
 
 
-	public function getJSPluginConfig(nam:String):Object {
-		var obj:Object = {};
-		var pgi:Object = sploader.getPlugin(nam);
-		if(pgi) { 
-			var cfg:Object = sploader.getPluginConfig(pgi);
-			for(var s:String in cfg) {
-				if(s != 'reference' && s.indexOf('.') == -1) {
-					obj[s] = cfg[s];
-				}
-			}
-		}
-		return obj;
-	};
-
-
+	/** Return the current playlist. **/
 	private function getPlaylist():Array {
 		return controller.playlist;
 	};
@@ -151,10 +137,9 @@ public class View extends AbstractView {
 		return sploader.getPlugin(nam);
 	};
 
-
-	/** Get configuration variables specific to a plugin. **/
-	override public function getPluginConfig(plg:Object):Object {
-		return sploader.getPluginConfig(plg);
+	/** Return the config object of a specific plugin. **/
+	public function getPluginConfig(nam:String):Object {
+		return getPlugin(nam).config;
 	};
 
 
@@ -177,29 +162,72 @@ public class View extends AbstractView {
 	/** The timeout on this ping is needed for IE - it'll not get the playerReady call. **/
 	private function playerReadyPing() {
 		try {
-			if(ExternalInterface.objectID) {
+			if(ExternalInterface.objectID && !_config['id']) {
 				_config['id'] = ExternalInterface.objectID;
 			}
-			ExternalInterface.addCallback("addControllerListener",addJSControllerListener);
-			ExternalInterface.addCallback("addModelListener",addJSModelListener);
-			ExternalInterface.addCallback("addViewListener",addJSViewListener);
-			ExternalInterface.addCallback("getConfig",getConfig);
-			ExternalInterface.addCallback("getPlaylist",getPlaylist);
-			ExternalInterface.addCallback("getPluginConfig",getJSPluginConfig);
-			ExternalInterface.addCallback("loadPlugin",loadPlugin);
-			ExternalInterface.addCallback("sendEvent",sendEvent);
-			ExternalInterface.call("playerReady",{
-				id:config['id'],
-				client:config['client'],
-				version:config['version']
-			});
+			if(_config['id']) {
+				ExternalInterface.addCallback("addControllerListener",addJSControllerListener);
+				ExternalInterface.addCallback("addModelListener",addJSModelListener);
+				ExternalInterface.addCallback("addViewListener",addJSViewListener);
+				ExternalInterface.addCallback("removeControllerListener",removeJSControllerListener);
+				ExternalInterface.addCallback("removeModelListener",removeJSModelListener);
+				ExternalInterface.addCallback("removeViewListener",removeJSViewListener);
+				ExternalInterface.addCallback("getConfig",getConfig);
+				ExternalInterface.addCallback("getPlaylist",getPlaylist);
+				ExternalInterface.addCallback("getPluginConfig",getPluginConfig);
+				ExternalInterface.addCallback("loadPlugin",loadPlugin);
+				ExternalInterface.addCallback("sendEvent",sendEvent);
+				ExternalInterface.call("playerReady",{
+					id:config['id'],
+					client:config['client'],
+					version:config['version']
+				});
+			}
 		} catch (err:Error) {}
 	}
+
+
+	/**  Unsubscribers to the controller, model and view. **/
+	override public function removeControllerListener(typ:String,fcn:Function):void {
+		controller.removeEventListener(typ.toUpperCase(),fcn);
+	};
+	private function removeJSControllerListener(typ:String,fcn:String):Boolean {
+		removeJSListener('CONTROLLER',typ.toUpperCase(),fcn);
+		return true;
+	};
+	override public function removeModelListener(typ:String,fcn:Function):void {
+		model.removeEventListener(typ.toUpperCase(),fcn);
+	};
+	private function removeJSModelListener(typ:String,fcn:String):Boolean {
+		removeJSListener('MODEL',typ.toUpperCase(),fcn);
+		return true;
+	};
+	override public function removeViewListener(typ:String,fcn:Function):void {
+		this.removeEventListener(typ.toUpperCase(),fcn);
+	};
+	private function removeJSViewListener(typ:String,fcn:String):Boolean {
+		removeJSListener('VIEW',typ.toUpperCase(),fcn);
+		return true;
+	};
+	private function removeJSListener(tgt:String,typ:String,fcn:String):void { 
+		for(var i:Number=0; i<listeners.length; i++) {
+			if(listeners[i]['target'] == tgt && listeners[i]['type'] == typ && listeners[i]['callee'] == fcn) {
+				listeners.splice(i,1);
+				return;
+			}
+		}
+	};
 
 
 	/** Send a redraw request when the stage is resized. **/
 	private function resizeHandler(evt:Event=undefined):void {
 		dispatchEvent(new ViewEvent(ViewEvent.REDRAW));
+	};
+
+
+	/** Let a plugin save a cookie fo subsequent loads. **/
+	override public function saveCookie(prm:String,val:Object):void {
+		Configger.saveCookie(prm,val);
 	};
 
 

@@ -18,7 +18,6 @@ public class ControllerEvent extends Event {
 	public static var MUTE:String = "MUTE";
 	public static var PLAY:String = "PLAY";
 	public static var PLAYLIST:String = "PLAYLIST";
-	public static var QUALITY:String = "QUALITY";
 	public static var RESIZE:String = "RESIZE";
 	public static var SEEK:String = "SEEK";
 	public static var STOP:String = "STOP";

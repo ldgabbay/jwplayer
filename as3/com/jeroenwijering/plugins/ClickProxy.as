@@ -5,6 +5,7 @@ package com.jeroenwijering.plugins {
 
 
 import com.jeroenwijering.events.*;
+
 import flash.display.MovieClip;
 import flash.events.MouseEvent;
 import flash.external.ExternalInterface;
@@ -17,18 +18,20 @@ public class ClickProxy extends MovieClip implements PluginInterface {
 	public var config:Object = {
 		listener:'clickListener'
 	};
+	/** Reference to the graphics. **/
+	public var clip:MovieClip;
 	/** Reference to the View of the player. **/
 	private var view:AbstractView;
-	/** Reference to the graphics. **/
-	private var clip:MovieClip;
-	/** initialize call for backward compatibility. **/
-	public var initialize:Function = initializePlugin;
+	/** Rectangle that serves as hitarea. **/
+	private var rectangle:MovieClip;
 	/** Playback position of the video. **/
 	private var position:Number;
 
 
 	/** Constructor; nothing going on. **/
-	public function ClickProxy() {};
+	public function ClickProxy() {
+		clip = this;
+	};
 
 
 	/** Start the search. **/
@@ -42,7 +45,7 @@ public class ClickProxy extends MovieClip implements PluginInterface {
 			'mousey':evt.target.mouseY,
 			'state':view.config['state']
 		};
-		if(ExternalInterface.available && view.skin.loaderInfo.url.indexOf('http') == 0) {
+		if(ExternalInterface.available && view.clip.loaderInfo.url.indexOf('http') == 0) {
 			try {
 				ExternalInterface.call(config['listener'],obj);
 			} catch (err:Error) {}
@@ -56,23 +59,26 @@ public class ClickProxy extends MovieClip implements PluginInterface {
 		view.config['icons'] = false;
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.TIME,timeHandler);
-		clip = this.area;
-		clip.addEventListener(MouseEvent.CLICK,clickHandler);
-		clip.buttonMode = true;
-		clip.mouseChildren = false;
+		rectangle = new MovieClip();
+		rectangle.graphics.beginFill(0x000000,0);
+		rectangle.graphics.drawRect(0,0,100,100);
+		clip.addChild(rectangle);
+		rectangle.addEventListener(MouseEvent.CLICK,clickHandler);
+		rectangle.buttonMode = true;
+		rectangle.mouseChildren = false;
 		resizeHandler();
 	};
 
 
 	/** Resize the area. **/
 	private function resizeHandler(evt:ControllerEvent=null) {
-		clip.back.width = view.config['width'];
-		clip.back.height = view.config['height'];
+		rectangle.width = view.config['width'];
+		rectangle.height = view.config['height'];
 	};
 
 
 	/** Save playback position updates. **/
-	private function timeHandler(evt:ModelEvent) { 
+	private function timeHandler(evt:ModelEvent) {
 		position = evt.data.position;
 	};
 

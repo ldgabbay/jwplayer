@@ -77,7 +77,7 @@ public class Rightclick implements PluginInterface {
 
 	/** Toggle the fullscreen mode. **/
 	private function fullscreenHandler(evt:ContextMenuEvent):void { 
-		view.sendEvent('fullscreen');
+		view.sendEvent(ViewEvent.FULLSCREEN);
 	};
 
 
@@ -92,7 +92,7 @@ public class Rightclick implements PluginInterface {
 		idx == arr.length-1 ? idx = 0: idx++;
 		view.config['stretching'] = arr[idx];
 		stretching.caption = 'Stretching is '+view.config['stretching']+'...';
-		view.sendEvent('redraw');
+		view.sendEvent(ViewEvent.REDRAW);
 	};
 
 

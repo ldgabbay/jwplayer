@@ -14,20 +14,15 @@ import flash.text.TextField;
 public class Yousearch extends MovieClip implements PluginInterface {
 
 
+	/** Reference to the graphics. **/
+	public var clip:MovieClip;
 	/** Reference to the View of the player. **/
 	private var view:AbstractView;
-	/** Reference to the graphics. **/
-	private var clip:MovieClip;
 
 
-	/** Constructor; links the graphics. **/
+	/** Constructor. **/
 	public function Yousearch():void {
 		clip = this;
-		clip.search.addEventListener(MouseEvent.CLICK,clickHandler);
-		clip.query.addEventListener(FocusEvent.FOCUS_IN,focusHandler);
-		clip.query.addEventListener(KeyboardEvent.KEY_DOWN,keyHandler);
-		clip.search.buttonMode = true;
-		clip.search.mouseChildren = false;
 	};
 
 
@@ -60,6 +55,11 @@ public class Yousearch extends MovieClip implements PluginInterface {
 		view = vie;
 		view.addModelListener(ModelEvent.STATE,stateHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
+		clip.search.addEventListener(MouseEvent.CLICK,clickHandler);
+		clip.query.addEventListener(FocusEvent.FOCUS_IN,focusHandler);
+		clip.query.addEventListener(KeyboardEvent.KEY_DOWN,keyHandler);
+		clip.search.buttonMode = true;
+		clip.search.mouseChildren = false;
 		resizeHandler();
 		try {
 			view.getPlugin('controlbar').addButton(clip.icon,'yousearch',buttonHandler);
@@ -98,6 +98,7 @@ public class Yousearch extends MovieClip implements PluginInterface {
 		switch(evt.data.newstate) {
 			case ModelStates.BUFFERING:
 			case ModelStates.PLAYING:
+			case ModelStates.PAUSED:
 				showClip(false);
 				break;
 			default:

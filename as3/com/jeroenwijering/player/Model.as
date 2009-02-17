@@ -20,8 +20,8 @@ public class Model extends EventDispatcher {
 
 	/** Object with all configuration variables. **/
 	public var config:Object;
-	/** Reference to the skin MovieClip. **/
-	public var skin:MovieClip;
+	/** Reference to the display MovieClip. **/
+	public var display:MovieClip;
 	/** Object with all display variables. **/
 	private var sploader:SPLoader;
 	/** Reference to the player's controller. **/
@@ -39,7 +39,7 @@ public class Model extends EventDispatcher {
 	/** Constructor, save references, setup listeners and  init thumbloader. **/
 	public function Model(cfg:Object,skn:MovieClip,ldr:SPLoader,ctr:Controller):void {
 		config = cfg;
-		skin = skn;
+		display = MovieClip(skn.getChildByName('display'));
 		sploader = ldr;
 		controller = ctr;
 		controller.addEventListener(ControllerEvent.ITEM,itemHandler);
@@ -52,10 +52,16 @@ public class Model extends EventDispatcher {
 		controller.addEventListener(ControllerEvent.VOLUME,volumeHandler);
 		thumb = new Loader();
 		thumb.contentLoaderInfo.addEventListener(Event.COMPLETE,thumbHandler);
-		Draw.clear(skin.display.media);
-		skin.display.addChildAt(thumb,skin.display.getChildIndex(skin.display.media)+1);
-		skin.display.media.visible = false;
+		Draw.clear(display.media);
+		display.addChildAt(thumb,display.getChildIndex(display.media)+1);
+		display.media.visible = false;
 		models = new Object();
+	};
+
+
+	/** Load a new playback model. **/
+	public function addModel(mdl:BasicModel,typ:String):void {
+		models[typ] = mdl;
 	};
 
 
@@ -82,20 +88,14 @@ public class Model extends EventDispatcher {
 	};
 
 
-	/** Load a new playback model. **/
-	public function loadModel(mdl:BasicModel,typ:String):void {
-		models[typ] = mdl;
-	};
-
-
 	/** 
 	* Place the mediafile fro the current model on stage.
 	* 
 	* @param obj	The displayobject (MovieClip/Video/Loader) to display.
 	**/
 	public function mediaHandler(obj:DisplayObject=undefined):void {
-		Draw.clear(skin.display.media);
-		skin.display.media.addChild(obj);
+		Draw.clear(display.media);
+		display.media.addChild(obj);
 		resizeHandler();
 	};
 
@@ -136,10 +136,11 @@ public class Model extends EventDispatcher {
 
 	/** Resize the media and thumb. **/
 	private function resizeHandler(evt:Event=null):void {
-		var cfg:Object = sploader.getPluginConfig(sploader.getPlugin('display'));
-		Stretcher.stretch(skin.display.media,cfg['width'],cfg['height'],config['stretching']);
+		var wid:Number = sploader.getPlugin('display').config['width'];
+		var hei:Number = sploader.getPlugin('display').config['height'];
+		Stretcher.stretch(display.media,wid,hei,config['stretching']);
 		if(thumb.width > 10) {
-			Stretcher.stretch(thumb,cfg['width'],cfg['height'],config['stretching']);
+			Stretcher.stretch(thumb,wid,hei,config['stretching']);
 		}
 	};
 
@@ -178,7 +179,7 @@ public class Model extends EventDispatcher {
 						sendEvent(ModelEvent.LOADED,{loaded:0,offset:0,total:0});
 					case ModelStates.COMPLETED:
 						thumb.visible = true;
-						skin.display.media.visible = false;
+						display.media.visible = false;
 						sendEvent(ModelEvent.TIME,{position:0,duration:item['duration']});
 						break;
 					case ModelStates.BUFFERING:
@@ -187,10 +188,10 @@ public class Model extends EventDispatcher {
 							&& item['file'].indexOf('mp3') == -1
 							&& item['file'].indexOf('aac') == -1) {
 							thumb.visible = false;
-							skin.display.media.visible = true;
+							display.media.visible = true;
 						} else { 
 							thumb.visible = true;
-							skin.display.media.visible = false;
+							display.media.visible = false;
 						}
 						break;
 				}

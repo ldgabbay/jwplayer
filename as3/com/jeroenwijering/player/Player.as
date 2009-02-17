@@ -19,14 +19,13 @@ public class Player extends MovieClip {
 	/** All configuration values. Change them to hard-code your preferences. **/
 	public var config:Object = {
 		author:undefined,
-		description:undefined,
 		date:undefined,
+		description:undefined,
 		duration:0,
 		file:undefined,
 		image:undefined,
 		link:undefined,
 		start:0,
-		streamer:undefined,
 		tags:undefined,
 		title:undefined,
 		type:undefined,
@@ -51,7 +50,8 @@ public class Player extends MovieClip {
 		item:0,
 		logo:undefined,
 		mute:false,
-		repeat:'none',
+		regexp:undefined,
+		repeat:'always',
 		resizing:true,
 		respectduration:false,
 		shuffle:false,
@@ -66,12 +66,11 @@ public class Player extends MovieClip {
 		id:undefined,
 		linktarget:'_blank',
 		plugins:undefined,
+		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.4.157'
+		version:'4.4.160'
 	};
-	/** Base directory from which all plugins are loaded. **/
-	public var basedir:String = 'http://plugins.longtailvideo.com/';
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
 	/** Reference to the View of the MVC cycle, defining all API calls. **/
@@ -88,8 +87,10 @@ public class Player extends MovieClip {
 
 	/** Constructor; hides player and waits until it is added to the stage. **/
 	public function Player():void {
-		visible = false;
 		skin = this['player'];
+		for(var i:Number=0; i<skin.numChildren; i++) {
+			skin.getChildAt(i).visible = false;
+		}
 		addEventListener(Event.ADDED_TO_STAGE,loadConfig);
 	};
 
@@ -116,33 +117,37 @@ public class Player extends MovieClip {
 		model = new Model(config,skin,sploader,controller);
 		view = new View(config,skin,sploader,controller,model);
 		controller.closeMVC(model,view);
-		loadModels();
-		loadPlugins();
+		addModels();
+		addPlugins();
 		sploader.addEventListener(SPLoaderEvent.PLUGINS,startPlayer);
 		sploader.loadPlugins();
 	};
 
 
 	/** Initialize all playback models. **/
-	protected function loadModels():void {
-		model.loadModel(new CameraModel(model),'camera');
-		model.loadModel(new HTTPModel(model),'http');
-		model.loadModel(new ImageModel(model),'image');
-		model.loadModel(new LighttpdModel(model),'lighttpd');
-		model.loadModel(new NginxModel(model),'nginx');
-		model.loadModel(new RTMPModel(model),'rtmp');
-		model.loadModel(new SoundModel(model),'sound');
-		model.loadModel(new VideoModel(model),'video');
-		model.loadModel(new YoutubeModel(model),'youtube');
+	protected function addModels():void {
+		model.addModel(new CameraModel(model),'camera');
+		model.addModel(new HTTPModel(model),'http');
+		model.addModel(new ImageModel(model),'image');
+		model.addModel(new LighttpdModel(model),'lighttpd');
+		model.addModel(new NginxModel(model),'nginx');
+		model.addModel(new RTMPModel(model),'rtmp');
+		model.addModel(new SoundModel(model),'sound');
+		model.addModel(new VideoModel(model),'video');
+		model.addModel(new YoutubeModel(model),'youtube');
 	};
 
 
 	/** Init built-in plugins and load external ones. **/
-	protected function loadPlugins():void {
+	protected function addPlugins():void {
 		sploader.addPlugin(new Display(),'display');
 		sploader.addPlugin(new Rightclick(),'rightclick');
-		sploader.addPlugin(new Controlbar(),'controlbar');
-		sploader.addPlugin(new Playlist(),'playlist');
+		if(config['controlbar'] != 'none') {
+			sploader.addPlugin(new Controlbar(),'controlbar');
+		}
+		if(config['playlist'] != 'none') {
+			sploader.addPlugin(new Playlist(),'playlist');
+		}
 	};
 
 
@@ -154,7 +159,6 @@ public class Player extends MovieClip {
 	**/
 	protected function startPlayer(evt:SPLoaderEvent=null) {
 		view.sendEvent(ViewEvent.REDRAW);
-		visible = true;
 		dispatchEvent(new PlayerEvent(PlayerEvent.READY));
 		view.playerReady();
 		if(config['file']) {

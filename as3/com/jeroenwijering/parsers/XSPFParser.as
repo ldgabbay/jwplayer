@@ -4,6 +4,7 @@
 package com.jeroenwijering.parsers {
 
 
+import com.jeroenwijering.parsers.JWParser;
 import com.jeroenwijering.utils.Strings;
 
 
@@ -56,6 +57,7 @@ public class XSPFParser {
 					break;
 			}
 		}
+		itm = JWParser.parseEntry(obj,itm);
 		return itm;
 	};
 

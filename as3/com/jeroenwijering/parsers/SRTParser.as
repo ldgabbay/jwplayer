@@ -14,15 +14,19 @@ public class SRTParser {
 	* Parse the captions textblob into an array.
 	*
 	* @param dat	The loaded captions text, which must be in SubRip (.srt) format.
-	* @return		An array with captions. Each caption is an object with 'begin', 'end' and 'text' parameters.
+	* @return		An array with captions. Each caption is an object with 'begin' and 'text' parameters.
 	**/
 	public static function parseCaptions(dat:String):Array {
-		var arr:Array = new Array();
+		var arr:Array = new Array({begin:0,text:''});
 		var lst:Array = dat.split("\r\n\r\n");
 		if(lst.length == 1) { lst = dat.split("\n\n"); }
 		for(var i:Number=0; i<lst.length; i++) {
-				var obj:Object = SRTParser.parseCaption(lst[i]);
-			if(obj['end']) { arr.push(obj); }
+			var obj:Object = SRTParser.parseCaption(lst[i]);
+			arr.push(obj);
+			if(obj['end']) {
+				arr.push({begin:obj['end'],text:''});
+				delete obj['end'];
+			}
 		}
 		return arr;
 	};

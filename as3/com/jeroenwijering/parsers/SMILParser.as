@@ -4,8 +4,8 @@
 package com.jeroenwijering.parsers {
 
 
+import com.jeroenwijering.parsers.JWParser;
 import com.jeroenwijering.utils.Strings;
-import com.jeroenwijering.parsers.ObjectParser;
 
 
 public class SMILParser {
@@ -27,7 +27,7 @@ public class SMILParser {
 
 
 	/** Translate SMIL sequence item to playlistitem. **/
-	public static function parseSeq(obj:Object):Object {
+	public static function parseSeq(obj:XML):Object {
 		var itm:Object =  new Object();
 		switch (obj.localName().toLowerCase()) {
 			case 'par':
@@ -46,7 +46,7 @@ public class SMILParser {
 
 
 	/** Translate a SMIL par group to playlistitem **/
-	public static function parsePar(obj:Object):Object {
+	public static function parsePar(obj:XML):Object {
 		var itm:Object =  new Object();
 		for each (var i:XML in obj.children()) {
 			switch (i.localName()) {
@@ -69,6 +69,7 @@ public class SMILParser {
 					break;
 			}
 		}
+		itm = JWParser.parseEntry(obj,itm);
 		return itm;
 	};
 

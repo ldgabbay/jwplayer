@@ -21,10 +21,10 @@ public class Playlist implements PluginInterface {
 
 	/** List with configuration settings. **/
 	public var config:Object;
+	/** Reference to the playlist MC. **/
+	public var clip:MovieClip;
 	/** Reference to the view. **/
 	private var view:AbstractView;
-	/** Reference to the playlist MC. **/
-	private var clip:MovieClip;
 	/** Array with all button instances **/
 	private var buttons:Array;
 	/** Height of a button (to calculate scrolling) **/
@@ -51,11 +51,6 @@ public class Playlist implements PluginInterface {
 	/** Initialize the communication with the player. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
-		clip = view.skin['playlist'];
-		if(config['position'] == 'none') {
-			clip.visible = false;
-			return;
-		}
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.PLAYLIST,playlistHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
@@ -302,14 +297,19 @@ public class Playlist implements PluginInterface {
 			if(!buttons[idx].c[itm]) {
 				continue;
 			} else if(itm == 'image') {
-				if(view.playlist[idx]['image'] && config['thumbs'] != false) {
+				if(config['thumbs'] != false &&
+					(view.playlist[idx]['image'] || view.playlist[idx]['playlist.image'])) {
 					var img:MovieClip = buttons[idx].c.image;
 					var msk:Sprite = Draw.rect(buttons[idx].c,'0xFF0000',img.width,img.height,img.x,img.y);
 					var ldr:Loader = new Loader();
 					img.mask = msk;
 					img.addChild(ldr);
 					ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
-					ldr.load(new URLRequest(view.playlist[idx]['image']));
+					if(view.playlist[idx]['playlist.image']) {
+						ldr.load(new URLRequest(view.playlist[idx]['playlist.image']));
+					} else {
+						ldr.load(new URLRequest(view.playlist[idx]['image']));
+					}
 				}
 			} else if(itm == 'duration') {
 				if(view.playlist[idx][itm] > 0) {

@@ -283,6 +283,10 @@ public class Controller extends EventDispatcher {
 			if(!ply[i]['duration']) { ply[i]['duration'] = 0; }
 			if(!ply[i]['start']) { ply[i]['start'] = 0; }
 			if(!ply[i]['streamer']) { ply[i]['streamer'] = config['streamer']; }
+			if(config['regexp']) {
+				var arr:Array = config['regexp'].split('|');
+				ply[i]['file'] = ply[i]['file'].replace(RegExp(arr[0]),arr[1]);
+			}
 			ply[i]['type'] = getModelType(ply[i],true);
 			if(!ply[i]['type']) { ply.splice(i,1); }
 		}

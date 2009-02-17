@@ -29,7 +29,6 @@ function loadHandler() {
 		clearInterval(loadInterval);
 		ytPlayer.addEventListener("onStateChange", onPlayerStateChange);
 		ytPlayer.addEventListener("onError", onPlayerError);
-		ytPlayer.setSize(320,240);
 		ytPlayer.unMute();
 	}
 };

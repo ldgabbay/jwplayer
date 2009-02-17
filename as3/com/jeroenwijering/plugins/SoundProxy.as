@@ -16,20 +16,24 @@ import flash.utils.setInterval;
 public class SoundProxy extends MovieClip implements PluginInterface {
 
 
-	/** Reference to the View of the player. **/
-	private var view:AbstractView;
 	/** Configuration values of the plugin. **/
 	public var config:Object = {
 		bands:1,
 		interval:100,
 		listener:'soundListener'
 	};
+	/** Reference to the stage graphics. **/
+	public var clip:MovieClip;
+	/** Reference to the View of the player. **/
+	private var view:AbstractView;
 	/** ID of the sample sending interval. **/
 	private var interval:Number;
 
 
 	/** Constructor; nothing going on. **/
-	public function SoundProxy() {};
+	public function SoundProxy() {
+		clip = this;
+	};
 
 
 	/** Get an array with frequencyband-amplitudes. **/

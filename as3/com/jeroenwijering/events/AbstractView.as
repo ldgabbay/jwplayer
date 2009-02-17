@@ -26,27 +26,29 @@ public class AbstractView extends EventDispatcher {
 
 
 	/**
-	* Subscribe to events fired by the Controller (seek,load,resize,etc).
+	* *(Un)subscribe to events fired by the Controller (seek,load,resize,etc).
 	* 
 	* @param typ	The specific event to listen to.
 	* @param fcn	The function that will handle the event.
 	* @see 			ControllerEvent
 	**/
 	public function addControllerListener(typ:String,fcn:Function):void {};
+	public function removeControllerListener(typ:String,fcn:Function):void {};
 
 
 	/**
-	* Subscribe to events fired by the Model (time,state,meta,etc).
+	* (Un)subscribe to events fired by the Model (time,state,meta,etc).
 	* 
 	* @param typ	The specific event to listen to.
 	* @param fcn	The function that will handle the event.
 	* @see 			ModelEvent
 	**/
 	public function addModelListener(typ:String,fcn:Function):void {};
+	public function removeModelListener(typ:String,fcn:Function):void {};
 
 
 	/**
-	* Subscribe to events fired from the View (play,mute,stop,etc).
+	* (Un)subscribe to events fired from the View (play,mute,stop,etc).
 	* All events fired by plugins or the actionscript/javascript API flow through the View.
 	* 
 	* @param typ	The specific event to listen to.
@@ -54,6 +56,7 @@ public class AbstractView extends EventDispatcher {
 	* @see 			ViewEvent
 	**/
 	public function addViewListener(typ:String,fcn:Function):void {};
+	public function removeViewListener(typ:String,fcn:Function):void {};
 
 
 	/**
@@ -64,16 +67,6 @@ public class AbstractView extends EventDispatcher {
 	* @see 			SPLoader
 	**/
 	public function getPlugin(nam:String):Object { return {}; };
-
-
-	/**
-	* Get configuration variables specific to a plugin.
-	*
-	* @param plg	The plugin whose configuration to return.
-	* @return		An object with config variables, much like the global config object.
-	* @see 			SPLoader
-	**/
-	public function getPluginConfig(plg:Object):Object { return {}; };
 
 
 	/**
@@ -90,13 +83,23 @@ public class AbstractView extends EventDispatcher {
 
 
 	/**
+	* Save a cookie. This cookie is automatically picked up by the player on subsequent loads.
+	*
+	* @param typ	The name of the cookie.
+	* @param prm	The contents of the cookie.
+	* @see 			Configger
+	**/
+	public function saveCookie(prm:String,val:Object):void {};
+
+
+	/**
 	* Dispatch an event. The event will be serialized and fired by the View.
 	*
 	* @param typ	The specific event to fire to.
 	* @param prm	The accompanying parameter. Some events require one, others not.
 	* @see 			ViewEvent
 	**/
-	public function sendEvent(typ:String,prm:Object=undefined):void { };
+	public function sendEvent(typ:String,prm:Object=undefined):void {};
 
 
 }

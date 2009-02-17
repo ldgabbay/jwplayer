@@ -5,7 +5,6 @@ package com.jeroenwijering.plugins {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.utils.Configger;
 
 import flash.display.MovieClip;
 import flash.display.Sprite;
@@ -45,8 +44,8 @@ public class HD extends MovieClip implements PluginInterface {
 		view.config['autostart'] = true;
 		reLoad();
 		setUI();
-		try { 
-			Configger.saveCookie('hd.state',config['state']);
+		try {
+			view.saveCookie('hd.state',config['state']);
 		} catch (err:Error) {}
 	};
 
@@ -91,17 +90,11 @@ public class HD extends MovieClip implements PluginInterface {
 	/** The initialize call is invoked by the player View. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
-		if(!config['file']) {
-			return; 
-		} else {
-			original = view.config['file'];
-		}
+		original = view.config['file'];
 		try {
 			view.getPlugin('controlbar').addButton(icon,'hd',clickHandler);
 			view.getPlugin('rightclick').addItem(context,clickHandler);
-		} catch (err:Error) {
-			view.sendEvent(ViewEvent.TRACE,"HD: version 4.3 of the player is needed to show a button.");
-		}
+		} catch (err:Error) {}
 		if(config['state'] != false) {
 			view.config['file'] = config['file'];
 			if(config['state'] == undefined) {

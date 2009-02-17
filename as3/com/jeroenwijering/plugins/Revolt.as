@@ -27,14 +27,16 @@ public class Revolt extends MovieClip implements PluginInterface {
 		sound:false,
 		timeout:10
 	};
+	/** Clip in which the visuals are shown. **/
+	public var clip:MovieClip;
+	/** Clip in which the visuals are shown. **/
+	private var graphics:Sprite;
 	/** List of visualization presets. **/
 	private var presets:Array;
 	/** Randomizer for the preset. **/
 	private var randomizer:Randomizer;
 	/** Reference to the View of the player. **/
 	private var view:AbstractView;
-	/** Clip in which the visuals are shown. **/
-	private var clip:Sprite;
 	/** Matrix in which the bitmapdata is loaded. **/
 	private var bitmap:BitmapData;
 	/** Bytearray in which the bitmapdata is loaded. **/
@@ -47,6 +49,7 @@ public class Revolt extends MovieClip implements PluginInterface {
 
 	/** Setup all presets and the click. **/
 	public function Revolt() {
+		clip = this;
 		presets = new Array(
 			new LineFourier(),
 			new Explosion(),
@@ -69,15 +72,15 @@ public class Revolt extends MovieClip implements PluginInterface {
 			bitmap = new BitmapData(view.config['width'],view.config['height'],false,0x000000);
 		}
 		array = new ByteArray();
-		clip = new Sprite();
-		this.addChild(clip);
-		clip.addEventListener(MouseEvent.CLICK,clickHandler);
-		clip.buttonMode = true;
-		clip.mouseChildren = false;
-		clip.visible = false;
+		graphics = new Sprite();
+		clip.addChild(graphics);
+		graphics.addEventListener(MouseEvent.CLICK,clickHandler);
+		graphics.buttonMode = true;
+		graphics.mouseChildren = false;
+		graphics.visible = false;
 		var pic:Bitmap = new Bitmap(bitmap);
 		pic.smoothing = true;
-		clip.addChild(pic);
+		graphics.addChild(pic);
 		resizeHandler();
 		if(config['simple'] == true) { 
 			current = new LineNoFourier(view.config['lightcolor']);

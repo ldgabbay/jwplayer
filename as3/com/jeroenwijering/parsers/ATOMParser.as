@@ -4,6 +4,7 @@
 package com.jeroenwijering.parsers {
 
 
+import com.jeroenwijering.parsers.JWParser;
 import com.jeroenwijering.parsers.MediaParser;
 import com.jeroenwijering.utils.Strings;
 
@@ -52,6 +53,7 @@ public class ATOMParser {
 					break;
 			}
 		}
+		itm = JWParser.parseEntry(obj,itm);
 		itm = MediaParser.parseGroup(obj,itm);
 		return itm;
 	};

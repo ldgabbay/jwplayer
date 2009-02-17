@@ -4,8 +4,8 @@
 package com.jeroenwijering.parsers {
 
 
+import com.jeroenwijering.parsers.JWParser;
 import com.jeroenwijering.parsers.MediaParser;
-import com.jeroenwijering.parsers.ObjectParser;
 import com.jeroenwijering.utils.Strings;
 
 
@@ -65,6 +65,7 @@ public class RSSParser {
 					break;
 			}
 		}
+		itm = JWParser.parseEntry(obj,itm);
 		itm = MediaParser.parseGroup(obj,itm);
 		return itm;
 	};

@@ -22,8 +22,6 @@ public class Configger extends EventDispatcher {
 	private var config:Object;
 	/** XML loading object reference **/
 	private var loader:URLLoader;
-	/** Cookie object. **/
-	private static var cookie:SharedObject;
 
 
 	/**
@@ -33,7 +31,6 @@ public class Configger extends EventDispatcher {
 	**/
 	public function Configger(ref:Sprite):void {
 		reference = ref;
-		Configger.cookie = SharedObject.getLocal('com.jeroenwijering','/');
 	};
 
 
@@ -86,7 +83,8 @@ public class Configger extends EventDispatcher {
 
 	/** Load configuration data from flashcookie. **/
 	private function loadCookies() {
-		compareWrite(Configger.cookie.data);
+		var cookie:SharedObject = SharedObject.getLocal('com.jeroenwijering','/');
+		compareWrite(cookie.data);
 		dispatchEvent(new Event(Event.COMPLETE));
 	};
 
@@ -106,8 +104,9 @@ public class Configger extends EventDispatcher {
 	* @param val	The parameter value.
 	**/
 	public static function saveCookie(prm:String,val:Object) {
-		Configger.cookie.data[prm] = val;
-		Configger.cookie.flush();
+		var cookie:SharedObject = SharedObject.getLocal('com.jeroenwijering','/');
+		cookie.data[prm] = val;
+		cookie.flush();
 	};
 
 

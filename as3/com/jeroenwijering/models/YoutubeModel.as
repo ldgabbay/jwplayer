@@ -40,7 +40,7 @@ public class YoutubeModel extends BasicModel {
 	public function YoutubeModel(mod:Model):void {
 		super(mod);
 		Security.allowDomain('*');
-		var url:String = model.skin.loaderInfo.url;
+		var url:String = model.display.loaderInfo.url;
 		if(url.indexOf('http://') == 0) {
 			unique = Math.random().toString().substr(2);
 			var str:String = url.substr(0,url.indexOf('.swf'));
@@ -121,7 +121,7 @@ public class YoutubeModel extends BasicModel {
 
 	/** SWF loaded; add it to the tree **/
 	public function onSwfLoadComplete():void {
-		outgoing.send('AS3_'+unique,"setSize",320,240);
+		outgoing.send('AS3_'+unique,"setSize",400,300);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		connected = true;
 		if(loading) { load(item); }
