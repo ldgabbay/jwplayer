@@ -151,7 +151,6 @@ public class Captions extends MovieClip implements PluginInterface {
 	/** Check for captions with a new item. **/
 	private function itemHandler(evt:ControllerEvent=null):void {
 		current = 0;
-		captions = new Array();
 		var fil:String = view.playlist[view.config['item']]['captions.file'];
 		if(fil) { 
 			config['file'] = fil; 
@@ -168,7 +167,9 @@ public class Captions extends MovieClip implements PluginInterface {
 
 	/** Captions are loaded; now display them. **/
 	private function loaderHandler(evt:Event):void {
-		if(config['file'].substr(-3) == 'srt') {
+		var ext:String = config['file'].substr(-3);
+		captions = new Array();
+		if(ext == 'srt' || ext == 'txt') {
 			captions = SRTParser.parseCaptions(String(evt.target.data));
 		} else { 
 			captions = TTParser.parseCaptions(XML(evt.target.data));
@@ -200,14 +201,13 @@ public class Captions extends MovieClip implements PluginInterface {
 				return;
 			}
 		}
-
 	};
 
 
 	/** Check timing of the player to sync captions. **/
 	private function timeHandler(evt:ModelEvent):void {
 		var pos:Number = evt.data.position;
-		if(captions.length > 0 && (captions[current]['begin'] > pos || captions[current+1]['begin'] < pos)) {
+		if(captions && (captions[current]['begin'] > pos || captions[current+1]['begin'] < pos)) {
 			setCaption(pos);
 		}
 	};
