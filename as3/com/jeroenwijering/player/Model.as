@@ -5,7 +5,7 @@ package com.jeroenwijering.player {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.models.BasicModel;
+import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.player.*;
 import com.jeroenwijering.utils.*;
 
@@ -60,19 +60,17 @@ public class Model extends EventDispatcher {
 
 
 	/** Load a new playback model. **/
-	public function addModel(mdl:BasicModel,typ:String):void {
+	public function addModel(mdl:AbstractModel,typ:String):void {
 		models[typ] = mdl;
 	};
 
 
 	/** Item change: stop the old model and start the new one. **/
 	private function itemHandler(evt:ControllerEvent):void {
-		sendEvent('META',{model:'item called!'});
 		if(item) {
 			models[item['type']].stop();
 		}
 		item = controller.playlist[config['item']];
-		sendEvent('META',{type:item['type']});
 		if(models[item['type']]) {
 			models[item['type']].load(item);
 		} else {

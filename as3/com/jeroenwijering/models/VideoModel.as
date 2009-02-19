@@ -5,7 +5,7 @@ package com.jeroenwijering.models {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.models.BasicModel;
+import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.player.Model;
 import com.jeroenwijering.utils.NetClient;
 
@@ -15,7 +15,7 @@ import flash.net.*;
 import flash.utils.*;
 
 
-public class VideoModel extends BasicModel {
+public class VideoModel extends AbstractModel {
 
 
 	/** Video object to be instantiated. **/
@@ -26,6 +26,8 @@ public class VideoModel extends BasicModel {
 	protected var stream:NetStream;
 	/** Sound control object. **/
 	protected var transform:SoundTransform;
+	/** ID for the position interval. **/
+	protected var interval:Number;
 	/** Interval ID for the loading. **/
 	protected var loadinterval:Number;
 	/** Load offset for bandwidth checking. **/
@@ -60,11 +62,13 @@ public class VideoModel extends BasicModel {
 
 	/** Load content. **/
 	override public function load(itm:Object):void {
-		super.load(itm);
+		item = itm;
+		position = 0;
 		model.mediaHandler(video);
 		stream.play(item['file']);
 		interval = setInterval(positionInterval,100);
 		loadinterval = setInterval(loadHandler,200);
+		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
@@ -107,19 +111,21 @@ public class VideoModel extends BasicModel {
 	/** Pause playback. **/
 	override public function pause():void {
 		stream.pause();
-		super.pause();
+		clearInterval(interval);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
 	};
 
 
 	/** Resume playing. **/
 	override public function play():void {
 		stream.resume();
-		super.play();
+		interval = setInterval(positionInterval,100);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 	};
 
 
 	/** Interval for the position progress **/
-	override protected function positionInterval():void {
+	protected function positionInterval():void {
 		position = Math.round(stream.time*10)/10;
 		var bfr:Number = Math.round(stream.bufferLength/stream.bufferTime*100);
 		if(bfr < 95 && position < Math.abs(item['duration']-stream.bufferTime-1)) {
@@ -130,14 +136,21 @@ public class VideoModel extends BasicModel {
 		} else if (bfr > 95 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		super.positionInterval();
+		if(position < item['duration']) {
+			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
+		} else if (item['duration'] > 0 && model.config['respectduration']) {
+			pause();
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+		}
 	};
 
 
 	/** Seek to a new position. **/
 	override public function seek(pos:Number):void {
-		super.seek(pos);
+		position = pos;
+		clearInterval(interval);
 		stream.seek(position);
+		play();
 	};
 
 
@@ -166,9 +179,11 @@ public class VideoModel extends BasicModel {
 		} else { 
 			stream.pause();
 		}
-		clearInterval(loadinterval);
 		loadtimer = undefined;
-		super.stop();
+		clearInterval(loadinterval);
+		clearInterval(interval);
+		position = 0;
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
 

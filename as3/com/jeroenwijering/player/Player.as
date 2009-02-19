@@ -69,7 +69,7 @@ public class Player extends MovieClip {
 		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.4.162'
+		version:'4.4.163'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;

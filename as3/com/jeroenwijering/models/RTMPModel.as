@@ -9,7 +9,7 @@ package com.jeroenwijering.models {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.models.BasicModel;
+import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.player.Model;
 import com.jeroenwijering.utils.NetClient;
 import com.jeroenwijering.utils.TEA;
@@ -20,7 +20,7 @@ import flash.net.*;
 import flash.utils.*;
 
 
-public class RTMPModel extends BasicModel {
+public class RTMPModel extends AbstractModel {
 
 
 	/** Video object to be instantiated. **/
@@ -33,6 +33,8 @@ public class RTMPModel extends BasicModel {
 	protected var transform:SoundTransform;
 	/** Save that the video has been started. **/
 	protected var started:Boolean;
+	/** ID for the position interval. **/
+	protected var interval:Number;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -75,9 +77,11 @@ public class RTMPModel extends BasicModel {
 
 	/** Load content. **/
 	override public function load(itm:Object):void {
-		super.load(itm);
+		item = itm;
+		position = 0;
 		model.mediaHandler(video);
 		connection.connect(item['streamer']);
+		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
@@ -100,20 +104,22 @@ public class RTMPModel extends BasicModel {
 
 	/** Pause playback. **/
 	override public function pause():void {
-		super.pause();
 		stream.pause();
+		clearInterval(interval);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
 	};
 
 
 	/** Resume playing. **/
 	override public function play():void {
-		super.play();
 		stream.resume();
+		interval = setInterval(positionInterval,100);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 	};
 
 
 	/** Interval for the position progress. **/
-	override protected function positionInterval():void {
+	protected function positionInterval():void {
 		position = Math.round(stream.time*10)/10;
 		var bfr:Number = Math.round(stream.bufferLength/stream.bufferTime*100);
 		if(bfr < 95 && position < Math.abs(item['duration']-stream.bufferTime-1)) {
@@ -124,14 +130,21 @@ public class RTMPModel extends BasicModel {
 		} else if (bfr > 95 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		super.positionInterval();
+		if(position < item['duration']) {
+			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
+		} else if (item['duration'] > 0 && model.config['respectduration']) {
+			pause();
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+		}
 	};
 
 
 	/** Seek to a new position. **/
 	override public function seek(pos:Number):void {
-		super.seek(pos);
-		stream.seek(pos);
+		position = pos;
+		clearInterval(interval);
+		stream.seek(position);
+		play();
 	};
 
 
@@ -146,7 +159,6 @@ public class RTMPModel extends BasicModel {
 		video.attachNetStream(stream);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		interval = setInterval(positionInterval,100);
-		trace(getID(item['file']));
 		stream.play(getID(item['file']));
 	};
 
@@ -199,8 +211,10 @@ public class RTMPModel extends BasicModel {
 			stream.close();
 		}
 		connection.close();
-		super.stop();
 		started = false;
+		clearInterval(interval);
+		position = 0;
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
 

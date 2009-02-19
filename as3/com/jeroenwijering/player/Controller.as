@@ -8,6 +8,7 @@ import com.jeroenwijering.events.*;
 import com.jeroenwijering.parsers.*;
 import com.jeroenwijering.utils.Configger;
 import com.jeroenwijering.utils.Randomizer;
+import com.jeroenwijering.utils.Strings;
 
 import flash.display.MovieClip;
 import flash.events.*;
@@ -35,6 +36,28 @@ public class Controller extends EventDispatcher {
 	private var loader:URLLoader;
 	/** object that provides randomization. **/
 	private var randomizer:Randomizer;
+	/** File extensions of all supported mediatypes. **/
+	private var EXTENSIONS:Object = {
+		'3g2':'video',
+		'3gp':'video',
+		'aac':'video',
+		'f4b':'video',
+		'f4p':'video',
+		'f4v':'video',
+		'flv':'video',
+		'gif':'image',
+		'jpg':'image',
+		'm4a':'video',
+		'm4v':'video',
+		'mov':'video',
+		'mp3':'sound',
+		'mp4':'video',
+		'png':'image',
+		'rbs':'sound',
+		'sdp':'video',
+		'swf':'image',
+		'vp6':'video'
+	};
 
 
 	/** Constructor, set up stage and playlist listeners. **/
@@ -95,7 +118,9 @@ public class Controller extends EventDispatcher {
 		try {
 			var wid:Number = playlist[config['item']]['width'];
 		} catch (err:Error) {}
-		if(wid && wid > srx/2) {
+		if(wid && wid > srx) {
+			skin.stage["fullScreenSourceRect"] = new Rectangle(pnt.x,pnt.y,srx,Capabilities.screenResolutionY);
+		} else if(wid && wid > srx/2) {
 			skin.stage["fullScreenSourceRect"] = new Rectangle(pnt.x,pnt.y,wid,Math.round(wid/asr));
 		} else {
 			skin.stage["fullScreenSourceRect"] = new Rectangle(pnt.x,pnt.y,srx/2,Capabilities.screenResolutionY/2);
@@ -121,7 +146,7 @@ public class Controller extends EventDispatcher {
 		} else if(itm['file'].indexOf('youtube.com/w') > -1 || itm['file'].indexOf('youtube.com/v') > -1) {
 			return 'youtube';
 		} else { 
-			 return ObjectParser.EXTENSIONS[itm['file'].substr(-3).toLowerCase()];
+			 return EXTENSIONS[itm['file'].substr(-3).toLowerCase()];
 		}
 	};
 
@@ -167,12 +192,12 @@ public class Controller extends EventDispatcher {
 				loader.load(new URLRequest(obj['file']));
 				return;
 			} else {
-				playlistHandler(new Array(ObjectParser.parse(obj)));
+				playlistHandler(new Array(obj));
 			}
 		} else {
 			var arr:Array = new Array();
 			for each(var itm:Object in obj) {
-				arr.push(ObjectParser.parse(itm));
+				arr.push(itm);
 			}
 			playlistHandler(arr);
 		}
@@ -279,7 +304,7 @@ public class Controller extends EventDispatcher {
 
 	/** Check new playlist for playeable files and setup randomizing/autostart. **/
 	private function playlistHandler(ply:Array):void {
-		for(var i:Number=ply.length-1; i>-1; i--) {
+		for(var i:Number = ply.length-1; i > -1; i--) {
 			if(!ply[i]['duration']) { ply[i]['duration'] = 0; }
 			if(!ply[i]['start']) { ply[i]['start'] = 0; }
 			if(!ply[i]['streamer']) { ply[i]['streamer'] = config['streamer']; }
@@ -288,7 +313,7 @@ public class Controller extends EventDispatcher {
 				ply[i]['file'] = ply[i]['file'].replace(RegExp(arr[0]),arr[1]);
 			}
 			ply[i]['type'] = getModelType(ply[i],true);
-			if(!ply[i]['type']) { ply.splice(i,1); }
+			if(!ply[i]['type']) {ply.splice(i,1);}
 		}
 		if(ply.length > 0) {
 			playlist = ply;
@@ -344,10 +369,10 @@ public class Controller extends EventDispatcher {
 	private function seekHandler(evt:ViewEvent):void {
 		if(config['state'] != ModelStates.IDLE && playlist[config['item']]['duration'] > 0) {
 			var pos:Number = evt.data.position;
-			if(pos < 2) { 
+			if(pos < 1) { 
 				pos = 0;
-			} else if (pos > playlist[config['item']]['duration']-2) { 
-				pos = playlist[config['item']]['duration']-2;
+			} else if (pos > playlist[config['item']]['duration']-1) { 
+				pos = playlist[config['item']]['duration']-1;
 			}
 			dispatchEvent(new ControllerEvent(ControllerEvent.SEEK,{position:pos}));
 		}

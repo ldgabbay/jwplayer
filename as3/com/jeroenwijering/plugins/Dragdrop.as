@@ -5,7 +5,7 @@ package com.jeroenwijering.plugins {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.parsers.ObjectParser;
+
 import flash.desktop.Clipboard;
 import flash.desktop.ClipboardFormats;
 import flash.display.MovieClip;

@@ -49,7 +49,7 @@ public class TTParser {
 			begin:Strings.seconds(dat.@begin),
 			dur:Strings.seconds(dat.@dur),
 			end:Strings.seconds(dat.@end),
-			text:Strings.replace(dat.children().toString(),"\n","")
+			text:dat.children().toString().replace("\n","")
 		};
 		return obj;
 	};

@@ -36,33 +36,13 @@ public class Strings {
 
 
 	/**
-	* Replace part of a string. The substring to replace can appear 0 to 99 times.
-	*
-	* @param str	The string that should be edited.
-	* @param sub	The substring to search for.
-	* @param rep	The string the substring should be replaced with
-	* @return		The modified string.
-	**/
-	public static function replace(str:String,sub:String,rep:String):String {
-		var idx:Number = str.indexOf(sub);
-		var ite:Number = 0;
-		while (idx > -1) {
-			str = str.substr(0,str.indexOf(sub))+rep+str.substr(str.indexOf(sub)+sub.length);
-			idx = str.indexOf(sub,idx-sub.length+rep.length);
-			ite++;
-		}
-		return str;
-	};
-
-
-	/**
 	* Convert a time-representing string to a number.
 	* 
 	* @param str	The input string. Supported are 00:03:00.1 / 03:00.1 / 180.1s / 3.2m / 3.2h
 	* @return		The number of seconds.
 	**/
 	public static function seconds(str:String):Number {
-		str = Strings.replace(str,',','.');
+		str = str.replace(',','.');
 		var arr:Array = str.split(':');
 		var sec:Number = 0;
 		if (str.substr(-1) == 's') {

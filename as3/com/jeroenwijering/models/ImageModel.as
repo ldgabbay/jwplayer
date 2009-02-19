@@ -5,21 +5,23 @@ package com.jeroenwijering.models {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.models.BasicModel;
+import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.player.Model;
 
-import flash.display.Bitmap;
-import flash.display.Loader;
+import flash.display.*;
 import flash.events.*;
 import flash.net.URLRequest;
 import flash.system.LoaderContext;
+import flash.utils.*;
 
 
-public class ImageModel extends BasicModel {
+public class ImageModel extends AbstractModel {
 
 
 	/** Loader that loads the image. **/
 	private var loader:Loader;
+	/** ID for the position interval. **/
+	private var interval:Number;
 
 
 	/** Constructor; sets up listeners **/
@@ -34,9 +36,11 @@ public class ImageModel extends BasicModel {
 
 	/** load image into screen **/
 	override public function load(itm:Object):void {
-		super.load(itm);
+		item = itm;
+		position = 0;
 		loader.load(new URLRequest(item['file']),new LoaderContext(true));
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
+		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 	};
 
 
@@ -58,10 +62,29 @@ public class ImageModel extends BasicModel {
 	};
 
 
+	/** Pause playback of the item. **/
+	override public function pause():void {
+		clearInterval(interval);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
+	};
+
+
+	/** Resume playback of the item. **/
+	override public function play():void {
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
+		interval = setInterval(positionInterval,100);
+	};
+
+
 	/** Interval function that pings the position. **/
-	override protected function positionInterval():void {
+	protected function positionInterval():void {
 		position = Math.round(position*10+1)/10;
-		super.positionInterval();
+		if(position < item['duration']) {
+			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
+		} else if (item['duration'] > 0 && model.config['respectduration']) {
+			pause();
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+		}
 	};
 
 
@@ -72,6 +95,14 @@ public class ImageModel extends BasicModel {
 	};
 
 
+	/** Seek to a certain position in the item. **/
+	override public function seek(pos:Number):void {
+		clearInterval(interval);
+		position = pos;
+		play();
+	};
+
+
 	/** Stop the image interval. **/
 	override public function stop():void {
 		if(loader.contentLoaderInfo.bytesLoaded != loader.contentLoaderInfo.bytesTotal) {
@@ -79,7 +110,9 @@ public class ImageModel extends BasicModel {
 		} else {
 			loader.unload();
 		}
-		super.stop();
+		clearInterval(interval);
+		position = 0;
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
 

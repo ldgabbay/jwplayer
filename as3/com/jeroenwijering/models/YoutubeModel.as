@@ -5,7 +5,7 @@ package com.jeroenwijering.models {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.models.BasicModel;
+import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.player.Model;
 
 import flash.display.Loader;
@@ -15,7 +15,7 @@ import flash.net.URLRequest;
 import flash.system.Security;
 
 
-public class YoutubeModel extends BasicModel {
+public class YoutubeModel extends AbstractModel {
 
 
 	/** Loader for loading the YouTube proxy **/
@@ -90,15 +90,17 @@ public class YoutubeModel extends BasicModel {
 
 	/** Load the YouTube movie. **/
 	override public function load(itm:Object):void {
-		super.load(itm);
+		item = itm;
+		position = 0;
 		loading = true;
 		if(connected) {
-			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 			if(outgoing) {
 				var gid = getID(item['file']);
 				outgoing.send('AS3_'+unique,"loadVideoById",gid,0);
 				model.mediaHandler(loader);
 			}
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
+			model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 		} else {
 			inbound.connect('AS2_'+unique);
 			loader.load(new URLRequest(location));
@@ -109,6 +111,7 @@ public class YoutubeModel extends BasicModel {
 	/** Pause the YouTube movie. **/
 	override public function pause():void {
 		outgoing.send('AS3_'+unique,"pauseVideo");
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
 	};
 
 
@@ -116,6 +119,7 @@ public class YoutubeModel extends BasicModel {
 	/** Play or pause the video. **/
 	override public function play():void {
 		outgoing.send('AS3_'+unique,"playVideo");
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 	};
 
 
@@ -193,7 +197,8 @@ public class YoutubeModel extends BasicModel {
 	override public function stop():void {
 		metasent = false;
 		outgoing.send('AS3_'+unique,"stopVideo");
-		super.stop();
+		position = 0;
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
 

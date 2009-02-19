@@ -128,7 +128,18 @@ public class View extends AbstractView {
 
 	/** Return the current playlist. **/
 	private function getPlaylist():Array {
-		return controller.playlist;
+		var arr:Array = new Array();
+		var cfg:Object = new Object();
+		for(var i:Number=0; i<controller.playlist.length; i++) {
+			cfg = new Object();
+			for(var s:String in controller.playlist[i]) {
+				if(s.indexOf('.') == -1) {
+					cfg[s] = controller.playlist[i][s];
+				}
+			}
+			arr.push(cfg);
+		}
+		return arr;
 	};
 
 

@@ -294,7 +294,7 @@ public class Playlist implements PluginInterface {
 	/** Setup button elements **/
 	private function setContents(idx:Number):void {
 		for (var itm:String in view.playlist[idx]) {
-			if(!buttons[idx].c[itm]) {
+			if(!buttons[idx].c[itm] || !view.playlist[idx][itm]) {
 				continue;
 			} else if(itm == 'image') {
 				if(config['thumbs'] != false &&
@@ -319,14 +319,16 @@ public class Playlist implements PluginInterface {
 					}
 				}
 			} else {
-				if(itm == 'description') { 
-					buttons[idx].c[itm].htmlText = view.playlist[idx][itm];
-				} else { 
-					buttons[idx].c[itm].text = view.playlist[idx][itm];
-				}
-				if(front) {
-					buttons[idx].c[itm].textColor = front.color;
-				}
+				try { 
+					if(itm == 'description') {
+						buttons[idx].c[itm].htmlText = view.playlist[idx][itm];
+					} else {
+						buttons[idx].c[itm].text = view.playlist[idx][itm];
+					}
+					if(front) {
+						buttons[idx].c[itm].textColor = front.color;
+					}
+				} catch (e:Error) {}
 			}
 		}
 		if(buttons[idx].c['image'] && (!view.playlist[idx]['image'] || config['thumbs'] == false)) {

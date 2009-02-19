@@ -5,7 +5,7 @@ package com.jeroenwijering.models {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.models.BasicModel;
+import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.player.Model;
 import com.jeroenwijering.utils.NetClient;
 
@@ -15,7 +15,7 @@ import flash.net.*;
 import flash.utils.*;
 
 
-public class HTTPModel extends BasicModel {
+public class HTTPModel extends AbstractModel {
 
 
 	/** NetConnection object for setup of the video stream. **/
@@ -26,6 +26,8 @@ public class HTTPModel extends BasicModel {
 	protected var video:Video;
 	/** Sound control object. **/
 	protected var transform:SoundTransform;
+	/** ID for the position interval. **/
+	protected var interval:Number;
 	/** Interval ID for the loading. **/
 	protected var loadinterval:Number;
 	/** Save whether metadata has already been sent. **/
@@ -119,7 +121,7 @@ public class HTTPModel extends BasicModel {
 
 	/** Load content. **/
 	override public function load(itm:Object):void {
-		super.load(itm);
+		item = itm;
 		position = timeoffset;
 		if(stream.bytesLoaded + byteoffset < stream.bytesTotal) {
 			stream.close();
@@ -131,6 +133,7 @@ public class HTTPModel extends BasicModel {
 		interval = setInterval(positionInterval,100);
 		clearInterval(loadinterval);
 		loadinterval = setInterval(loadHandler,200);
+		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
@@ -186,20 +189,22 @@ public class HTTPModel extends BasicModel {
 
 	/** Pause playback. **/
 	override public function pause():void {
-		super.pause();
 		stream.pause();
+		clearInterval(interval);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
 	};
 
 
 	/** Resume playing. **/
 	override public function play():void {
-		super.play();
 		stream.resume();
+		interval = setInterval(positionInterval,100);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 	};
 
 
 	/** Interval for the position progress **/
-	override protected function positionInterval():void {
+	protected function positionInterval():void {
 		iterator++;
 		if(iterator > 10) {
 			position = Math.round(stream.time*10)/10;
@@ -216,24 +221,32 @@ public class HTTPModel extends BasicModel {
 		} else if (bfr > 95 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		super.positionInterval();
+		if(position < item['duration']) {
+			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
+		} else if (item['duration'] > 0 && model.config['respectduration']) {
+			pause();
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+		}
 	};
 
 
 	/** Seek to a specific second. **/
 	override public function seek(pos:Number):void {
 		var off:Number = getOffset(pos);
+		clearInterval(interval);
 		if(off < byteoffset || off >= byteoffset+stream.bytesLoaded) {
 			timeoffset = position = getOffset(pos,true);
 			byteoffset = off;
 			load(item);
 		} else {
-			super.seek(pos);
+			position = pos;
 			if(mp4) {
 				stream.seek(getOffset(position-timeoffset,true));
 			} else {
 				stream.seek(getOffset(position,true));
 			}
+			interval = setInterval(positionInterval,100);
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
 	};
 
@@ -258,16 +271,17 @@ public class HTTPModel extends BasicModel {
 
 	/** Destroy the HTTP stream. **/
 	override public function stop():void {
-		super.stop();
 		if(stream.bytesLoaded+byteoffset < stream.bytesTotal) {
 			stream.close();
 		} else { 
 			stream.pause();
 		}
+		clearInterval(interval);
 		clearInterval(loadinterval);
-		byteoffset = timeoffset = 0;
+		byteoffset = timeoffset = position = 0;
 		keyframes = undefined;
 		meta = false;
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
 

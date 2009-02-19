@@ -5,7 +5,7 @@ package com.jeroenwijering.models {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.models.BasicModel;
+import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.player.Model;
 
 import flash.events.*;
@@ -14,7 +14,7 @@ import flash.net.URLRequest;
 import flash.utils.*;
 
 
-public class SoundModel extends BasicModel {
+public class SoundModel extends AbstractModel {
 
 
 	/** sound object to be instantiated. **/
@@ -25,6 +25,8 @@ public class SoundModel extends BasicModel {
 	private var channel:SoundChannel;
 	/** Sound context object. **/
 	private var context:SoundLoaderContext;
+	/** ID for the position interval. **/
+	protected var interval:Number;
 	/** Interval for loading progress. **/
 	private var loadinterval;
 
@@ -73,7 +75,8 @@ public class SoundModel extends BasicModel {
 
 	/** Load the sound. **/
 	override public function load(itm:Object):void {
-		super.load(itm);
+		item = itm;
+		position = 0;
 		sound = new Sound();
 		sound.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		sound.addEventListener(Event.ID3,id3Handler);
@@ -84,6 +87,7 @@ public class SoundModel extends BasicModel {
 		}
 		loadinterval = setInterval(loadHandler,200);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
+		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 	};
 
 
@@ -103,21 +107,23 @@ public class SoundModel extends BasicModel {
 
 	/** Pause the sound. **/
 	override public function pause():void {
-		super.pause();
 		channel.stop();
+		clearInterval(interval);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
 	};
 
 
 	/** Play the sound. **/
 	override public function play():void {
-		super.play();
 		channel = sound.play(position*1000,0,transform);
 		channel.addEventListener(Event.SOUND_COMPLETE,completeHandler);
+		interval = setInterval(positionInterval,100);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 	};
 
 
 	/** Interval for the position progress **/
-	override protected function positionInterval():void {
+	protected function positionInterval():void {
 		position = Math.round(channel.position/100)/10;
 		if(sound.isBuffering == true && sound.bytesTotal > sound.bytesLoaded) {
 			if(model.config['state'] != ModelStates.BUFFERING) {
@@ -129,14 +135,21 @@ public class SoundModel extends BasicModel {
 		} else if (model.config['state'] == ModelStates.BUFFERING && sound.isBuffering == false) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		super.positionInterval();
+		if(position < item['duration']) {
+			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
+		} else if (item['duration'] > 0 && model.config['respectduration']) {
+			pause();
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+		}
 	};
 
 
 	/** Seek in the sound. **/
 	override public function seek(pos:Number):void {
+		position = pos;
+		clearInterval(interval);
 		channel.stop();
-		super.seek(pos);
+		play();
 	};
 
 
@@ -144,8 +157,10 @@ public class SoundModel extends BasicModel {
 	override public function stop():void {
 		if(channel) { channel.stop(); }
 		try { sound.close(); } catch (err:Error) {}
-		super.stop();
 		clearInterval(loadinterval);
+		clearInterval(interval);
+		position = 0;
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
 
