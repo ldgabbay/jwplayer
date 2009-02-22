@@ -111,6 +111,12 @@ public class NetClient {
 	};
 
 
+	/** Receiving the bandwidth check result. **/
+	public function onXMPData(... rest):void {
+		forward(rest[0],'xmp');
+	};
+
+
 	/** RTMP Sample handler (what is this for?). **/
 	public function RtmpSampleAccess(obj:Object):void {
 		forward(obj,'rtmpsampleaccess');
