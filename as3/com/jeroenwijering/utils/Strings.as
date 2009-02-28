@@ -29,9 +29,15 @@ public class Strings {
 	* @return		A MN:SS string.
 	**/
 	public static function digits(nbr:Number):String {
+		var hrs:Number = Math.floor(nbr/3600);
 		var min:Number = Math.floor(nbr/60);
 		var sec:Number = Math.floor(nbr%60);
-		return Strings.zero(min)+':'+Strings.zero(sec);
+		var str:String = Strings.zero(min)+':'+Strings.zero(sec);
+		if(hrs > 0)  {
+			min -= hrs*60;
+			str = Strings.zero(hrs)+':'+Strings.zero(min)+':'+Strings.zero(sec);
+		}
+		return str;
 	};
 
 

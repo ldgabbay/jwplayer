@@ -58,6 +58,21 @@ public class Controller extends EventDispatcher {
 		'swf':'image',
 		'vp6':'video'
 	};
+	/** Elements of config that are part of the playlist. **/
+	private var ELEMENTS:Object = {
+		author:undefined,
+		date:undefined,
+		description:undefined,
+		duration:0,
+		file:undefined,
+		image:undefined,
+		link:undefined,
+		start:0,
+		streamer:undefined,
+		tags:undefined,
+		title:undefined,
+		type:undefined
+	};
 
 
 	/** Constructor, set up stage and playlist listeners. **/
@@ -181,11 +196,13 @@ public class Controller extends EventDispatcher {
 		if(config['state'] != 'IDLE') {
 			stopHandler();
 		}
-		var obj:Object;
+		var obj:Object = new Object();
 		if(typeof(evt.data.object) == 'string') {
-			obj = {file:evt.data.object};
+			obj['file'] = evt.data.object;
 		} else {
-			obj = evt.data.object;
+			for(var itm:String in ELEMENTS) {
+				obj[itm] = Strings.serialize(evt.data.object[itm]);
+			}
 		}
 		if(obj['file']) {
 			if(getModelType(obj,false) == null) {
@@ -196,8 +213,8 @@ public class Controller extends EventDispatcher {
 			}
 		} else {
 			var arr:Array = new Array();
-			for each(var itm:Object in obj) {
-				arr.push(itm);
+			for each(var val:Object in obj) {
+				arr.push(val);
 			}
 			playlistHandler(arr);
 		}
@@ -308,8 +325,8 @@ public class Controller extends EventDispatcher {
 			if(!ply[i]['duration']) { ply[i]['duration'] = 0; }
 			if(!ply[i]['start']) { ply[i]['start'] = 0; }
 			if(!ply[i]['streamer']) { ply[i]['streamer'] = config['streamer']; }
-			if(config['regexp']) {
-				var arr:Array = config['regexp'].split('|');
+			if(config['replace']) {
+				var arr:Array = config['replace'].split('|');
 				ply[i]['file'] = ply[i]['file'].replace(RegExp(arr[0]),arr[1]);
 			}
 			ply[i]['type'] = getModelType(ply[i],true);
@@ -349,7 +366,7 @@ public class Controller extends EventDispatcher {
 		try { 
 			var dps:String = skin.stage['displayState'];
 		} catch (err:Error) {}
-		if(dps == 'fullScreen') {
+		if(dps == 'fullScreen' && config['resizing']) {
 			config['fullscreen'] = true;
 			sploader.layoutFullscreen();
 		} else {

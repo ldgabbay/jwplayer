@@ -181,7 +181,7 @@ public class SPLoader extends EventDispatcher {
 			if(evt.target.url.indexOf('-',end-5) > -1) { 
 				end = evt.target.url.indexOf('-',end-5);
 			}
-			var nam:String = evt.target.url.substring(idx+1,end);
+			var nam:String = evt.target.url.substring(idx+1,end).toLowerCase();
 			addPlugin(evt.target.content,nam,true);
 			evt.target.loader.visible = true;
 		} catch(err:Error) {}

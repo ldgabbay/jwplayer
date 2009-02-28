@@ -107,6 +107,9 @@ public class RTMPModel extends AbstractModel {
 		stream.pause();
 		clearInterval(interval);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
+		if(started && item['duration'] == 0) {
+			stop();
+		}
 	};
 
 
@@ -220,7 +223,9 @@ public class RTMPModel extends AbstractModel {
 
 	/** Get the streamlength returned from the connection. **/
 	private function streamlengthHandler(len:Number):void {
-		onData({type:'streamlength',duration:len});
+		if(len > 0) {
+			onData({type:'streamlength',duration:len});
+		}
 	};
 
 

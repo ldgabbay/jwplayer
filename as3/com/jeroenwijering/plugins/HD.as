@@ -29,6 +29,8 @@ public class HD extends MovieClip implements PluginInterface {
 	private var original:String;
 	/** contextmenu item. **/
 	private var context:ContextMenuItem;
+	/** Initial bitrate check. **/
+	private var checked:Boolean;
 
 
 	/** Constructor; nothing going on. **/
@@ -44,9 +46,6 @@ public class HD extends MovieClip implements PluginInterface {
 		view.config['autostart'] = true;
 		reLoad();
 		setUI();
-		try {
-			view.saveCookie('hd.state',config['state']);
-		} catch (err:Error) {}
 	};
 
 
@@ -90,17 +89,14 @@ public class HD extends MovieClip implements PluginInterface {
 	/** The initialize call is invoked by the player View. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
+		config['state'] = true;
 		original = view.config['file'];
+		view.config['file'] = config['file'];
 		try {
 			view.getPlugin('controlbar').addButton(icon,'hd',clickHandler);
 			view.getPlugin('rightclick').addItem(context,clickHandler);
 		} catch (err:Error) {}
-		if(config['state'] != false) {
-			view.config['file'] = config['file'];
-			if(config['state'] == undefined) {
-				view.addModelListener(ModelEvent.META,metaHandler);
-			}
-		}
+		view.addModelListener(ModelEvent.META,metaHandler);
 		setUI();
 	};
 
@@ -127,13 +123,10 @@ public class HD extends MovieClip implements PluginInterface {
 		if(evt.data.bitrate) {
 			config['bitrate'] = evt.data.bitrate;
 		}
-		if(evt.data.bandwidth && config['state'] == undefined) {
-			config['state'] = true;
+		if(evt.data.bandwidth && !checked) {
+			checked = true;
 			if(evt.data.bandwidth < config['bitrate']) {
 				clickHandler();
-				view.sendEvent(ViewEvent.TRACE,"HD: Insufficient bandwidth, autoswitching to normal quality.");
-			} else { 
-				view.sendEvent(ViewEvent.TRACE,"HD: Bandwidth OK, sticking with HD quality.");
 			}
 		}
 	};

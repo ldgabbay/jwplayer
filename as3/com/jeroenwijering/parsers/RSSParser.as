@@ -65,8 +65,8 @@ public class RSSParser {
 					break;
 			}
 		}
-		itm = JWParser.parseEntry(obj,itm);
 		itm = MediaParser.parseGroup(obj,itm);
+		itm = JWParser.parseEntry(obj,itm);
 		return itm;
 	};
 

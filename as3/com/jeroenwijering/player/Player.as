@@ -26,6 +26,7 @@ public class Player extends MovieClip {
 		image:undefined,
 		link:undefined,
 		start:0,
+		streamer:undefined,
 		tags:undefined,
 		title:undefined,
 		type:undefined,
@@ -50,7 +51,7 @@ public class Player extends MovieClip {
 		item:0,
 		logo:undefined,
 		mute:false,
-		regexp:undefined,
+		replace:undefined,
 		repeat:'none',
 		resizing:true,
 		respectduration:false,
@@ -66,10 +67,9 @@ public class Player extends MovieClip {
 		id:undefined,
 		linktarget:'_blank',
 		plugins:undefined,
-		streamer:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.4.163'
+		version:'4.4.166'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;

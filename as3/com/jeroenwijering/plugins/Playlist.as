@@ -73,7 +73,6 @@ public class Playlist implements PluginInterface {
 			image = new Array(clip.list.button.image.width,clip.list.button.image.height);
 		} catch (err:Error) {}
 		if(clip.list.button['back']) { setColors(); }
-		playlistHandler();
 	};
 
 
@@ -382,9 +381,9 @@ public class Playlist implements PluginInterface {
 			if(view.config['state'] == ModelStates.PLAYING ||
 				view.config['state'] == ModelStates.BUFFERING ||
 				view.config['state'] == ModelStates.PAUSED) {
-				Animations.fade(clip,0);
+				clip.visible = false;
 			} else {
-				Animations.fade(clip,1);
+				clip.visible = true;
 			}
 		}
 	};
