@@ -23,10 +23,10 @@ public class Captions extends MovieClip implements PluginInterface {
 
 	/** List with configuration settings. **/
 	public var config:Object = {
-		back:false,
+		back:true,
 		file:undefined,
-		size:14,
-		hide:false
+		fontsize:14,
+		state:true
 	};
 	/** Displayelement to load the captions into. **/
 	public var clip:MovieClip;
@@ -54,7 +54,8 @@ public class Captions extends MovieClip implements PluginInterface {
 
 	/** Clicking the  hide button. **/
 	private function clickHandler(evt:MouseEvent):void {
-		hide(!config['hide']);
+		hide(!config['state']);
+		view.saveCookie('captions.state',config['state']);
 	};
 
 
@@ -97,11 +98,11 @@ public class Captions extends MovieClip implements PluginInterface {
 
 	private function drawClip() {
 		var rct:MovieClip = new MovieClip();
-		rct.graphics.beginFill(0x000000,0.5);
+		rct.graphics.beginFill(0x000000,0.6);
 		rct.graphics.drawRect(0,0,400,60);
 		format = new TextFormat();
 		format.color = 0xFFFFFF;
-		format.size = config['size'];
+		format.size = config['fontsize'];
 		format.align = "center";
 		format.font = "_sans";
 		format.leading = 4;
@@ -125,10 +126,9 @@ public class Captions extends MovieClip implements PluginInterface {
 
 	/** Show/hide the captions **/
 	public function hide(stt:Boolean):void {
-		config['hide'] = stt;
-		view.saveCookie('captions.hide',config['hide']);
-		clip.visible = config['hide'];
-		if(config['hide']) { 
+		config['state'] = stt;
+		clip.visible = config['state'];
+		if(config['state']) { 
 			icon.alpha = 1;
 		} else { 
 			icon.alpha = 0.3;
@@ -142,18 +142,21 @@ public class Captions extends MovieClip implements PluginInterface {
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		view.addModelListener(ModelEvent.TIME,timeHandler);
+		view.addModelListener(ModelEvent.STATE,stateHandler);
 		drawButton();
 		drawClip();
-		hide(config['hide']);
+		clip.mouseEnabled = false;
+		clip.mouseChildren = false;
+		hide(config['state']);
 	};
 
 
 	/** Check for captions with a new item. **/
 	private function itemHandler(evt:ControllerEvent=null):void {
 		current = 0;
-		var fil:String = view.playlist[view.config['item']]['captions.file'];
-		if(fil) { 
-			config['file'] = fil; 
+		var fil:String = view.playlist[view.config['item']]['captions'];
+		if(fil) {
+			config['file'] = fil;
 		} else if (view.config['captions']) {
 			config['file'] = view.config['captions'];
 		}
@@ -184,7 +187,7 @@ public class Captions extends MovieClip implements PluginInterface {
 	private function resizeHandler(evt:ControllerEvent=undefined):void {
 		clip.width = view.config['width'];
 		clip.scaleY = clip.scaleX;
-		if(!config['back']) { 
+		if(!config['back']) {
 			field.y = 50 - field.height;
 		}
 		clip.y = view.config['height']-clip.height;
@@ -205,12 +208,23 @@ public class Captions extends MovieClip implements PluginInterface {
 
 
 	/** Check timing of the player to sync captions. **/
+	private function stateHandler(evt:ModelEvent):void {
+		if(view.config['state'] == ModelStates.PLAYING && config['state']) {
+			clip.visible = true;
+		} else { 
+			clip.visible = false;
+		}
+	};
+
+
+	/** Check timing of the player to sync captions. **/
 	private function timeHandler(evt:ModelEvent):void {
 		var pos:Number = evt.data.position;
 		if(captions && (captions[current]['begin'] > pos || captions[current+1]['begin'] < pos)) {
 			setCaption(pos);
 		}
 	};
+
 
 
 };

@@ -52,6 +52,7 @@ public class Model extends EventDispatcher {
 		controller.addEventListener(ControllerEvent.VOLUME,volumeHandler);
 		thumb = new Loader();
 		thumb.contentLoaderInfo.addEventListener(Event.COMPLETE,thumbHandler);
+		thumb.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,thumbHandler);
 		Draw.clear(display.media);
 		display.addChildAt(thumb,display.getChildIndex(display.media)+1);
 		display.media.visible = false;
@@ -138,7 +139,13 @@ public class Model extends EventDispatcher {
 	private function resizeHandler(evt:Event=null):void {
 		var wid:Number = sploader.getPlugin('display').config['width'];
 		var hei:Number = sploader.getPlugin('display').config['height'];
-		Stretcher.stretch(display.media,wid,hei,config['stretching']);
+		if(item && item['type'] == 'youtube') {
+			display.media.x = 0;
+			display.media.y = 0;
+			models[item['type']].resize(wid,hei);
+		} else {
+			Stretcher.stretch(display.media,wid,hei,config['stretching']);
+		}
 		if(thumb.width > 10) {
 			Stretcher.stretch(thumb,wid,hei,config['stretching']);
 		}

@@ -137,6 +137,7 @@ public class Display implements PluginInterface {
 			Draw.clear(clip.logo);
 			loader = new Loader();
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE,logoHandler);
+			loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,logoHandler);
 			clip.logo.addChild(loader);
 			loader.load(new URLRequest(view.config['logo']));
 		}

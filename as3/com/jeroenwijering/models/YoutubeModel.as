@@ -96,7 +96,7 @@ public class YoutubeModel extends AbstractModel {
 		if(connected) {
 			if(outgoing) {
 				var gid = getID(item['file']);
-				outgoing.send('AS3_'+unique,"loadVideoById",gid,0);
+				outgoing.send('AS3_'+unique,"loadVideoById",gid,item['start']);
 				model.mediaHandler(loader);
 			}
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
@@ -125,7 +125,7 @@ public class YoutubeModel extends AbstractModel {
 
 	/** SWF loaded; add it to the tree **/
 	public function onSwfLoadComplete():void {
-		outgoing.send('AS3_'+unique,"setSize",400,300);
+		//outgoing.send('AS3_'+unique,"setSize",400,300);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		connected = true;
 		if(loading) { load(item); }
@@ -183,6 +183,12 @@ public class YoutubeModel extends AbstractModel {
 			model.sendEvent(ModelEvent.META,{width:320,height:240,duration:dur});
 			metasent = true;
 		}
+	};
+
+
+	/** Resize the YT player. **/
+	public function resize(wid:Number,hei:Number) {
+		outgoing.send('AS3_'+unique,"setSize",wid,hei);
 	};
 
 

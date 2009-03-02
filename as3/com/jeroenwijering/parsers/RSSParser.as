@@ -33,9 +33,6 @@ public class RSSParser {
 		var itm:Object =  new Object();
 		for each (var i:XML in obj.children()) {
 			switch(i.localName()) {
-				case 'duration':
-					itm['duration'] = Strings.seconds(i.text().toString());
-					break;
 				case 'enclosure':
 					itm['file'] = i.@url.toString();
 					break;
@@ -45,26 +42,22 @@ public class RSSParser {
 				case 'pubDate':
 					itm['date'] = i.text().toString();
 					break;
-				case 'keywords':
-					itm['tags'] = i.text().toString();
-					break;
 				case 'description':
-					itm['description'] = i.text().toString();
-					break;
-				case 'summary':
 					itm['description'] = i.text().toString();
 					break;
 				case 'link':
 					itm['link'] = i.text().toString();
 					break;
-				case 'author':
-					itm['author'] = i.text().toString();
-					break;
-				case 'group':
-					itm = MediaParser.parseGroup(i,itm);
+				case 'category':
+					if(itm['tags']) {
+						itm['tags'] += i.text().toString();
+					} else { 
+						itm['tags'] = i.text().toString();
+					}
 					break;
 			}
 		}
+		itm = ItunesParser.parseEntry(obj,itm);
 		itm = MediaParser.parseGroup(obj,itm);
 		itm = JWParser.parseEntry(obj,itm);
 		return itm;

@@ -10,8 +10,13 @@ import com.jeroenwijering.utils.Strings;
 public class MediaParser {
 
 
+	/** Prefix for the JW Player namespace. **/
+	private static var PREFIX = 'media';
+
+
 	/**
-	* Parse an MRSS group (Yahoo MediaRSS extension).
+	* Parse a feeditem for Yahoo MediaRSS extensions.
+	* The 'content' and 'group' elements can nest other MediaRSS elements.
 	* 
 	* @param obj	The entire MRSS XML object.
 	* @param itm	The playlistentry to amend the object to.
@@ -21,36 +26,44 @@ public class MediaParser {
 	**/
 	public static function parseGroup(obj:XML,itm:Object):Object {
 		for each (var i:XML in obj.children()) {
-			switch(i.localName()) {
-				case 'content':
-				if( !itm['file']) {
+			if(i.namespace().prefix == MediaParser.PREFIX) {
+				switch(i.localName()) {
+					case 'content':
 						itm['file'] = i.@url.toString();
+						if(i.@duration) {
+							itm['duration'] = Strings.seconds(i.@duration.toString());
+						}
+						if(i.@start) {
+							itm['start'] = Strings.seconds(i.@start.toString());
+						}
+						if(i.children().length() > 0) {
+							itm = MediaParser.parseGroup(i,itm);
+						}
+						break;
+					case 'title':
+						itm['title'] = i.text().toString();
+						break;
+					case 'description':
+						itm['description'] = i.text().toString();
+						break;
+					case 'keywords':
+						itm['tags'] = i.text().toString();
+						break;
+					case 'thumbnail':
+						itm['image'] = i.@url.toString();
+						break;
+					case 'credit':
+						itm['author'] = i.text().toString();
+						break;
+					case 'player':
+						if(i.@url.indexOf('youtube.com') > 0) {
+							itm['file'] = i.@url.toString();
+						}
+						break;
+					case 'group':
+						itm = MediaParser.parseGroup(i,itm);
+						break;
 					}
-					if(i.@start) {
-						itm['start'] = Strings.seconds(i.@start.toString());
-					}
-					if(i.@duration) {
-						itm['duration'] = Strings.seconds(i.@duration.toString());
-					}
-					if(i.children().length() >0) {
-						itm = parseGroup(i,itm);
-					}
-					break;
-				case 'description':
-					itm['description'] = i.text().toString();
-					break;
-				case 'thumbnail':
-					itm['image'] = i.@url.toString();
-					break;
-				case 'credit':
-					itm['author'] = i.text().toString();
-					break;
-				case 'keywords':
-					itm['tags'] = i.text().toString();
-					break;
-				case 'meta':
-					itm[i.@type.toString()] = i.text().toString();
-					break;
 			}
 		}
 		return itm;

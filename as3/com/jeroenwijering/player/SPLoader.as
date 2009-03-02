@@ -49,7 +49,6 @@ public class SPLoader extends EventDispatcher {
 		var obj:Object = {reference:pgi,name:nam,position:'over',size:180,x:0,y:0,width:400,height:300};
 		// hack for the playlist/controlbar flashvars
 		var cbr:DisplayObject = skin.getChildByName('controlbar');
-		skin.setChildIndex(cbr,skin.numChildren-1);
 		if(nam == 'controlbar') {
 			obj['position'] = config['controlbar'];
 			obj['size'] = cbr.height;
@@ -78,7 +77,7 @@ public class SPLoader extends EventDispatcher {
 		} else {
 			clp = new MovieClip();
 			clp.name = nam;
-			skin.addChildAt(clp,skin.numChildren-2);
+			skin.addChildAt(clp,1);
 		}
 		// add plugin and initialize
 		plugins.push(obj);

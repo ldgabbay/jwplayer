@@ -171,7 +171,8 @@ public class Controlbar implements PluginInterface {
 	/** Handle a change in the current item **/
 	private function itemHandler(evt:ControllerEvent=null):void {
 		try {
-			if(view.playlist && view.playlist.length > 1 && view.config['playlist'] == 'none') {
+			if(view.playlist && view.playlist.length > 1 && 
+				(view.config['playlist'] == 'none' || view.config['playlist'] == 'over')) {
 				clip.prevButton.visible = clip.nextButton.visible = true;
 			} else {
 				clip.prevButton.visible = clip.nextButton.visible = false;
@@ -289,7 +290,7 @@ public class Controlbar implements PluginInterface {
 		try { 
 			clip.fullscreenButton.visible = false;
 			clip.normalscreenButton.visible = false;
-			if(clip.stage['displayState']) {
+			if(clip.stage['displayState'] && view.config['height'] > 40) {
 				if(view.config['fullscreen']) {
 					clip.fullscreenButton.visible = false;
 					clip.normalscreenButton.visible = true;

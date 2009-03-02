@@ -48,9 +48,6 @@ public class ATOMParser {
 				case 'published':
 					itm['date'] = i.text().toString();
 					break;
-				case 'group':
-					itm = MediaParser.parseGroup(i,itm);
-					break;
 			}
 		}
 		itm = MediaParser.parseGroup(obj,itm);

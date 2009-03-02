@@ -53,14 +53,14 @@ public class SMILParser {
 				case 'anchor':
 					itm['link'] = i.@href.toString();
 					break;
-				case 'textstream':
-					itm['captions'] = i.@src.toString();
-					break;
 				case 'img':
-					itm['image'] = i.@src.toString();
 					if(itm['file']) {
+						itm['image'] = i.@src.toString();
 						break;
+					} else {
+						itm = SMILParser.parseAttributes(i,itm);
 					}
+					break;
 				case 'video':
 				case 'audio':
 					itm = SMILParser.parseAttributes(i,itm);

@@ -157,7 +157,7 @@ public class Controller extends EventDispatcher {
 			} else {
 				return itm['streamer'];
 			}
-		// this is a small hack to enable youtube playlists to work by default.
+		// this is a small hack to enable youtube links to work by default.
 		} else if(itm['file'].indexOf('youtube.com/w') > -1 || itm['file'].indexOf('youtube.com/v') > -1) {
 			return 'youtube';
 		} else { 
@@ -324,13 +324,15 @@ public class Controller extends EventDispatcher {
 		for(var i:Number = ply.length-1; i > -1; i--) {
 			if(!ply[i]['duration']) { ply[i]['duration'] = 0; }
 			if(!ply[i]['start']) { ply[i]['start'] = 0; }
-			if(!ply[i]['streamer']) { ply[i]['streamer'] = config['streamer']; }
+			if(!ply[i]['streamer']) {
+				ply[i]['streamer'] = config['streamer'];
+			}
 			if(config['replace']) {
 				var arr:Array = config['replace'].split('|');
 				ply[i]['file'] = ply[i]['file'].replace(RegExp(arr[0]),arr[1]);
 			}
 			ply[i]['type'] = getModelType(ply[i],true);
-			if(!ply[i]['type']) {ply.splice(i,1);}
+			if(!ply[i]['type']) { ply.splice(i,1); }
 		}
 		if(ply.length > 0) {
 			playlist = ply;

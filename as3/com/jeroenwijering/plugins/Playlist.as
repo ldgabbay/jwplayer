@@ -6,9 +6,9 @@ package com.jeroenwijering.plugins {
 
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.utils.*;
+
 import flash.display.*;
-import flash.events.Event;
-import flash.events.MouseEvent;
+import flash.events.*;
 import flash.geom.ColorTransform;
 import flash.geom.Rectangle;
 import flash.net.URLRequest;
@@ -304,6 +304,7 @@ public class Playlist implements PluginInterface {
 					img.mask = msk;
 					img.addChild(ldr);
 					ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
+					ldr.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,loaderHandler);
 					if(view.playlist[idx]['playlist.image']) {
 						ldr.load(new URLRequest(view.playlist[idx]['playlist.image']));
 					} else {
