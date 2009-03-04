@@ -108,13 +108,14 @@ public class HTTPModel extends AbstractModel {
 	/** Create the video request URL. **/
 	protected function getURL():String {
 		var url:String = item['streamer'];
-		if(url.indexOf('?') > -1) {
-			url += "&file="+item['file'];
-		} else {
-			url += "?file="+item['file'];
+		var off:Number  = byteoffset;
+		if(mp4) {
+			off = timeoffset;
 		}
-		if(byteoffset > 0) {
-			url += '&start='+byteoffset;
+		if(url.indexOf('?') > -1) {
+			url += "&file="+item['file']+'&start='+off;
+		} else {
+			url += "?file="+item['file']+'&start='+off;
 		}
 		return url;
 	};

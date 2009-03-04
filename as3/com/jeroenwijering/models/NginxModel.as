@@ -23,10 +23,14 @@ public class NginxModel extends HTTPModel {
 	/** Create the video request URL. **/
 	override protected function getURL():String {
 		var url:String = item['file'];
+		var off:Number  = byteoffset;
+		if(mp4) {
+			off = timeoffset;
+		}
 		if(url.indexOf('?') > -1) {
-			url += '&start='+byteoffset;
+			url += '&start='+off;
 		} else {
-			url += '?start='+byteoffset;
+			url += '?start='+off;
 		}
 		return url;
 	};
