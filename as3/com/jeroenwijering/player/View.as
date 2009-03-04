@@ -38,7 +38,7 @@ public class View extends AbstractView {
 
 	/** Constructor, save references and subscribe to events. **/
 	public function View(cfg:Object,skn:MovieClip,ldr:SPLoader,ctr:Controller,mdl:Model):void {
-		try { Security.allowDomain("*"); } catch(err:Error) {}
+		Security.allowDomain("*");
 		_config = cfg;
 		_config['client'] = 'FLASH '+Capabilities.version;
 		_skin = skn;
@@ -118,7 +118,7 @@ public class View extends AbstractView {
 	private function getConfig():Object {
 		var cfg:Object = new Object();
 		for(var s:String in _config) {
-			if(s.indexOf('.') == -1) {
+			if(s.indexOf('.') == -1 && _config[s] != undefined) {
 				cfg[s] = _config[s];
 			}
 		}
@@ -142,15 +142,26 @@ public class View extends AbstractView {
 		return arr;
 	};
 
+	/** Return the config object of a specific plugin. **/
+	public function getPluginConfig(nam:String):Object {
+		var cfg:Object = new Object();
+		try {
+			var pgc = getPlugin(nam).config;
+		} catch (err:Error) {
+			return {error:'plugin not loaded'}
+		}
+		for(var s:String in pgc) {
+			if(pgc[s] is String || pgc[s] is Boolean || pgc[s] is Number) {
+				cfg[s] = pgc[s];
+			}
+		}
+		return cfg;
+	};
+
 
 	/** Get a reference to a specific plugin. **/
 	override public function getPlugin(nam:String):Object {
 		return sploader.getPlugin(nam);
-	};
-
-	/** Return the config object of a specific plugin. **/
-	public function getPluginConfig(nam:String):Object {
-		return getPlugin(nam).config;
 	};
 
 
@@ -233,12 +244,6 @@ public class View extends AbstractView {
 	/** Send a redraw request when the stage is resized. **/
 	private function resizeHandler(evt:Event=undefined):void {
 		dispatchEvent(new ViewEvent(ViewEvent.REDRAW));
-	};
-
-
-	/** Let a plugin save a cookie fo subsequent loads. **/
-	override public function saveCookie(prm:String,val:Object):void {
-		Configger.saveCookie(prm,val);
 	};
 
 

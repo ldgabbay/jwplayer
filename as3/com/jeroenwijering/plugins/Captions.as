@@ -10,11 +10,9 @@ import com.jeroenwijering.parsers.TTParser;
 import com.jeroenwijering.utils.Configger;
 
 import flash.display.MovieClip;
-import flash.events.Event;
-import flash.events.MouseEvent;
+import flash.events.*;
 import flash.filters.DropShadowFilter;
-import flash.net.URLLoader;
-import flash.net.URLRequest;
+import flash.net.*;
 import flash.text.*;
 
 
@@ -23,7 +21,7 @@ public class Captions extends MovieClip implements PluginInterface {
 
 	/** List with configuration settings. **/
 	public var config:Object = {
-		back:true,
+		back:false,
 		file:undefined,
 		fontsize:14,
 		state:true
@@ -46,7 +44,8 @@ public class Captions extends MovieClip implements PluginInterface {
 	private var current:Number;
 
 
-	public function Captions():void {
+	public function Captions() {
+		clip = this;
 		loader = new URLLoader();
 		loader.addEventListener(Event.COMPLETE,loaderHandler);
 	};
@@ -55,7 +54,9 @@ public class Captions extends MovieClip implements PluginInterface {
 	/** Clicking the  hide button. **/
 	private function clickHandler(evt:MouseEvent):void {
 		hide(!config['state']);
-		view.saveCookie('captions.state',config['state']);
+		var cke:SharedObject = SharedObject.getLocal('com.jeroenwijering','/');
+		cke.data['captions.state'] = stt;
+		cke.flush();
 	};
 
 
@@ -116,7 +117,7 @@ public class Captions extends MovieClip implements PluginInterface {
 		field.defaultTextFormat = format;
 		clip.addChild(rct);
 		clip.addChild(field);
-		if(!config['back']) {
+		if(config['back'] == false) {
 			rct.alpha = 0;
 			var ftr:DropShadowFilter = new DropShadowFilter(0,45,0,1,2,2,10,3);
 			field.filters = new Array(ftr);
@@ -159,9 +160,13 @@ public class Captions extends MovieClip implements PluginInterface {
 			config['file'] = fil;
 		} else if (view.config['captions']) {
 			config['file'] = view.config['captions'];
+		} else if (view.config['captions.file']) {
+			config['file'] = view.config['captions.file'];
 		}
 		try {
-			loader.load(new URLRequest(config['file']));
+			if(config['file']) {
+				loader.load(new URLRequest(config['file']));
+			}
 		} catch (err:Error) {
 			view.sendEvent('TRACE','Captions: '+err.message);
 		}
@@ -187,7 +192,7 @@ public class Captions extends MovieClip implements PluginInterface {
 	private function resizeHandler(evt:ControllerEvent=undefined):void {
 		clip.width = view.config['width'];
 		clip.scaleY = clip.scaleX;
-		if(!config['back']) {
+		if(config['back'] == false) {
 			field.y = 50 - field.height;
 		}
 		clip.y = view.config['height']-clip.height;
@@ -209,9 +214,10 @@ public class Captions extends MovieClip implements PluginInterface {
 
 	/** Check timing of the player to sync captions. **/
 	private function stateHandler(evt:ModelEvent):void {
-		if(view.config['state'] == ModelStates.PLAYING && config['state']) {
+		if((view.config['state'] == ModelStates.PLAYING ||
+		 	view.config['state'] == ModelStates.PAUSED) && config['state']) {
 			clip.visible = true;
-		} else { 
+		} else {
 			clip.visible = false;
 		}
 	};

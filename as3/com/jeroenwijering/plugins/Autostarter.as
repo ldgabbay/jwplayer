@@ -27,33 +27,30 @@ public class Autostarter extends MovieClip implements PluginInterface {
 
 	public function Autostarter():void {
 		clip = this;
-		cookie = SharedObject.getLocal('com.jeroenwijering','/');
 	};
 
 
 	/** Initing the plugin. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
-		if(!cookie.data['autostarter']) {
-			cookie.data['autostarter'] = {};
-		}
 		update();
 	};
 
 
 	/** Update the cookie and set autostart. **/
 	private function update():void {
-		var fil:Number = view.config['file'];
-		if(cookie.data['autostarter'][fil]) {
-			cookie.data['autostarter'][fil]++;
-			if(cookie.data['autostarter'][fil] > config['count']) {
-				view.config['autostarter'] = false;
+		var fil:String = view.config['file'];
+		cookie = SharedObject.getLocal('com.jeroenwijering.autostarter','/');
+		if(cookie.data[fil]) {
+			cookie.data[fil]++;
+			if(cookie.data[fil] > config['count']) {
+				view.config['autostart'] = false;
 			} else {
-				view.config['autostarter'] = true;
+				view.config['autostart'] = true;
 			}
 		} else { 
-			cookie.data['autostarter'][fil] = 1;
-			view.config['autostarter'] = true;
+			cookie.data[fil] = 1;
+			view.config['autostart'] = true;
 		}
 		cookie.flush();
 	};

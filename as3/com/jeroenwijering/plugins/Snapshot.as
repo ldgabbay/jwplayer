@@ -20,10 +20,10 @@ public class Snapshot extends MovieClip implements PluginInterface {
 
 	/** List with configuration settings. **/
 	public var config:Object = {
-		script:'http://www.jeroenwijering.com/test/snapshot/create.php',
-		snapshot:undefined,
-		timeout:5000
+		script:undefined
 	};
+	/** Reference to the snapshot. **/
+	private var snapshot:String;
 	/** Reference to the stage graphics. **/
 	public var clip:MovieClip;
 	/** Reference to the View of the player. **/
@@ -68,18 +68,23 @@ public class Snapshot extends MovieClip implements PluginInterface {
 
 	/** Handle a resize of the display. **/
 	private function resizeHandler(evt:ControllerEvent=null) {
-		clip.button.x = clip.back.x = config['x'];
-		clip.button.y = clip.back.y = config['y'];
-		clip.button.area.width = clip.back.width = config['width'];
-		clip.button.tf.width = config['width'] - 20;
+		if(config['width']) {
+			clip.x = config['x'];
+			clip.y = config['y'];
+			clip.button.area.width = clip.back.width = config['width'];
+			clip.button.tf.width = config['width'] - 20;
+		} else {
+			clip.button.area.width = clip.back.width = view.config['width'];
+			clip.button.tf.width = view.config['width'] - 20;
+		}
 	};
 
 
 	/** Invoked when the span button is clicked; it'll setup and send the servercall. **/
 	private function clickHandler(evt:MouseEvent) {
 		if(view.config['state'] == ModelStates.IDLE) {
-			if(config['snapshot']) {
-				navigateToURL(new URLRequest(config['snapshot']));
+			if(snapshot) {
+				navigateToURL(new URLRequest(snapshot));
 			} else {
 				view.sendEvent('PLAY','true');
 			}
@@ -88,9 +93,6 @@ public class Snapshot extends MovieClip implements PluginInterface {
 			clip.button.tf.htmlText = 'Rendering snapshot, please wait...';
 			sendBitmap();
 			view.sendEvent('STOP');
-			try {
-				view.getPlugin('controlbar').block(true);
-			} catch (err:Error) {}
 		}
 	};
 
@@ -98,7 +100,10 @@ public class Snapshot extends MovieClip implements PluginInterface {
 	/** Encode and send a bitmap of the video. **/
 	private function sendBitmap():void {
 		encoder = new JPGEncoder(90);
-		var req:URLRequest = new URLRequest(config['script']);
+		var req:URLRequest = new URLRequest(view.config['snapshot.script']);
+		if(config['script']) {
+			req = new URLRequest(config['script']);
+		}
 		bitmap.draw(view.skin.display.media);
 		var arr:ByteArray = encoder.encode(bitmap);
 		req.requestHeaders.push(new URLRequestHeader("Content-type","application/octet-stream"));
@@ -106,7 +111,7 @@ public class Snapshot extends MovieClip implements PluginInterface {
 		req.data = arr;
 		view.sendEvent(ViewEvent.TRACE,'taken a '+Math.round(arr.length/1024)+'kb JPG snapshot.');
 		loader = new URLLoader();
-		loader.addEventListener(Event.COMPLETE,timeoutHandler);
+		loader.addEventListener(Event.COMPLETE,loaderHandler);
 		loader.load(req);
 	};
 
@@ -123,12 +128,11 @@ public class Snapshot extends MovieClip implements PluginInterface {
 
 
 	/** Reload the video after a timeout. **/
-	private function timeoutHandler(evt:Event=null):void {
-		view.config['image'] = config['snapshot'] = String(loader.data);
+	private function loaderHandler(evt:Event):void {
+		view.config['image'] = snapshot = String(loader.data);
 		view.sendEvent('LOAD',view.config);
 		clip.button.area.visible = true;
 		clip.button.tf.htmlText = 'Snapshot ready; <u>click to download</u> or restart the video.';
-		view.getPlugin('controlbar').block(false);
 	};
 
 

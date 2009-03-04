@@ -18,7 +18,7 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 	/** Reference to the graphics. **/
 	public var clip:MovieClip;
 	/** Object with configuration values. **/
-	public var config:Object;
+	public var config:Object = {};
 	/** Reference to the View of the player. **/
 	private var view:AbstractView;
 	/** Scrollbar clip for the metadata. **/
@@ -33,13 +33,6 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 	public function MetaViewer() {
 		clip = this;
 	};
-
-
-	/** When clicking the x, the viewer is closed. **/
-	private function closeHandler(evt:MouseEvent) {
-		clip.visible = false;
-	};
-
 
 	/** Print the metadata in a list. **/
 	private function dataHandler(evt:ModelEvent) {
@@ -89,21 +82,19 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 		view.addModelListener(ModelEvent.META,dataHandler);
 		clip.tf.mask = clip.ms;
 		clip.tf.autoSize = "left";
-		clip.close.mouseChildren = clip.seek.mouseChildren = clip.meta.mouseChildren = false;
-		clip.close.buttonMode = clip.seek.buttonMode = clip.meta.buttonMode = true;
-		clip.close.addEventListener(MouseEvent.CLICK,closeHandler);
+		clip.seek.buttonMode = clip.meta.buttonMode = true;
 		clip.seek.addEventListener(MouseEvent.CLICK,seekHandler);
 		clip.meta.addEventListener(MouseEvent.CLICK,metaHandler);
-		scrollbar = new Scrollbar(clip.tf,clip.ms);
+		scrollbar = new Scrollbar(clip.tf,clip.ms,'CCCCCC');
 		resizeHandler();
 	};
 
 
-	/** When clicking the x, the viewer is closed. **/
+	/** Switching to metadata view. **/
 	private function metaHandler(evt:MouseEvent=null) { 
 		clip.tf.text = metastring;
 		clip.meta.alpha = 1;
-		clip.seek.alpha = 0.3;
+		clip.seek.alpha = 0.5;
 		scrollbar.draw();
 	};
 
@@ -117,24 +108,20 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 			clip.y = config['y'];
 			wid = config['width'];
 			hei = config['height'];
-			if(config['position'] != 'over') {
-				clip.close.visible = false;
-			}
-			clip.visible = config['visible'];
 		}
 		clip.bg.width = wid;
 		clip.bg.height = hei;
 		clip.tf.width = clip.ms.width = wid-50;
 		clip.ms.height = hei-60;
-		clip.close.x = wid-35;
+		clip.visible = true;
 		scrollbar.draw();
 	};
 
 
-	/** When clicking the x, the viewer is closed. **/
+	/** Switching to seekpoints. **/
 	private function seekHandler(evt:MouseEvent) { 
 		clip.tf.text = seekstring;
-		clip.meta.alpha = 0.3;
+		clip.meta.alpha = 0.5;
 		clip.seek.alpha = 1;
 		scrollbar.draw();
 	};

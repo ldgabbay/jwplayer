@@ -30,7 +30,7 @@ public class Revolt extends MovieClip implements PluginInterface {
 	/** Clip in which the visuals are shown. **/
 	public var clip:MovieClip;
 	/** Clip in which the visuals are shown. **/
-	private var graphics:Sprite;
+	private var visuals:Sprite;
 	/** List of visualization presets. **/
 	private var presets:Array;
 	/** Randomizer for the preset. **/
@@ -72,31 +72,26 @@ public class Revolt extends MovieClip implements PluginInterface {
 			bitmap = new BitmapData(view.config['width'],view.config['height'],false,0x000000);
 		}
 		array = new ByteArray();
-		graphics = new Sprite();
-		clip.addChild(graphics);
-		graphics.addEventListener(MouseEvent.CLICK,clickHandler);
-		graphics.buttonMode = true;
-		graphics.mouseChildren = false;
-		graphics.visible = false;
+		visuals = new Sprite();
+		clip.addChild(visuals);
+		visuals.addEventListener(MouseEvent.CLICK,clickHandler);
+		visuals.buttonMode = true;
+		visuals.mouseChildren = false;
 		var pic:Bitmap = new Bitmap(bitmap);
 		pic.smoothing = true;
-		graphics.addChild(pic);
-		resizeHandler();
+		visuals.addChild(pic);
 		if(config['simple'] == true) { 
 			current = new LineNoFourier(view.config['lightcolor']);
 		} else {
 			next();
 		}
+		resizeHandler();
 	};
 
 
 	/** When clicking, send an event for the simple setting, or switch visualizers. **/
-	private function clickHandler(evt:MouseEvent):void { 
-		if(config['simple']) { 
-			view.sendEvent(view.config['displayclick']);
-		} else {
-			next();
-		}
+	private function clickHandler(evt:MouseEvent):void {
+		view.sendEvent(view.config['displayclick']);
 	}
 
 
@@ -141,20 +136,15 @@ public class Revolt extends MovieClip implements PluginInterface {
 		removeEventListener(Event.ENTER_FRAME,compute);
 		clearTimeout(timeout);
 		switch(view.config['state']) {
-			case ModelStates.BUFFERING:
 			case ModelStates.PAUSED:
 			case ModelStates.PLAYING:
 				var typ = view.playlist[view.config['item']]['type'];
 				if(config['sound'] != true || typ != 'sound') {
 					addEventListener(Event.ENTER_FRAME,compute);
-					clip.visible = true;
 					if(config['simple'] != true) {
 						timeout = setTimeout(next,config['timeout']*1000);
 					}
 				}
-				break;
-			default:
-				clip.visible = false;
 				break;
 		}
 	};

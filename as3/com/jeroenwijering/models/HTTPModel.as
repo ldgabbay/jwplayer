@@ -56,6 +56,7 @@ public class HTTPModel extends AbstractModel {
 		stream.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
 		stream.bufferTime = model.config['bufferlength'];
+		stream.checkPolicyFile = true;
 		stream.client = new NetClient(this);
 		video = new Video(320,240);
 		video.smoothing = model.config['smoothing'];

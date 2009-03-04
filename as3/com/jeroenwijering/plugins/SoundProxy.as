@@ -19,7 +19,7 @@ public class SoundProxy extends MovieClip implements PluginInterface {
 	/** Configuration values of the plugin. **/
 	public var config:Object = {
 		bands:1,
-		interval:100,
+		interval:1000,
 		listener:'soundListener'
 	};
 	/** Reference to the stage graphics. **/
@@ -59,6 +59,9 @@ public class SoundProxy extends MovieClip implements PluginInterface {
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
 		view.addModelListener(ModelEvent.STATE,stateHandler);
+		if(view.config['soundproxy.listener']) {
+			config['listener'] = view.config['soundproxy.listener'];
+		}
 	};
 
 

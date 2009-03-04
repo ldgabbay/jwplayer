@@ -28,7 +28,7 @@ public class SPLoader extends EventDispatcher {
 	/** SWF loader reference **/
 	private var loader:Loader;
 	/** Number of plugns that are done loading. **/
-	private var done:Number;
+	private var done:Number = 0;
 	/** List with all the plugins. **/
 	private var plugins:Array;
 	/** Base directory from which plugins are loaded. **/
@@ -46,16 +46,16 @@ public class SPLoader extends EventDispatcher {
 
 	/** Add a plugin to the list. **/
 	public function addPlugin(pgi:Object,nam:String,ext:Boolean=false):void {
-		var obj:Object = {reference:pgi,name:nam,position:'over',size:180,x:0,y:0,width:400,height:300};
+		var obj:Object = { reference:pgi,name:nam,x:0,y:0,width:400,height:300};
 		// hack for the playlist/controlbar flashvars
 		var cbr:DisplayObject = skin.getChildByName('controlbar');
 		if(nam == 'controlbar') {
-			obj['position'] = config['controlbar'];
-			obj['size'] = cbr.height;
-			obj['margin'] = cbr.x;
+			config['controlbar.position'] = config['controlbar'];
+			config['controlbar.size'] = cbr.height;
+			config['controlbar.margin'] = cbr.x;
 		} else if (nam == 'playlist') {
-			obj['position'] = config['playlist'];
-			obj['size'] = config['playlistsize'];
+			config['playlist.position'] = config['playlist'];
+			config['playlist.size'] = config['playlistsize'];
 		}
 		// load config for plugin
 		try {
@@ -72,7 +72,8 @@ public class SPLoader extends EventDispatcher {
 		var clp:DisplayObject;
 		if(ext == true) { 
 			clp = DisplayObject(pgi);
-		} else if(skin.getChildByName(nam)) { 
+			skin.addChild(clp);
+		} else if(skin.getChildByName(nam)) {
 			clp = skin.getChildByName(nam);
 		} else {
 			clp = new MovieClip();
@@ -85,6 +86,7 @@ public class SPLoader extends EventDispatcher {
 			pgi.config = obj;
 			pgi.clip = clp; 
 		} catch (err:Error) {}
+		skin.setChildIndex(cbr,skin.numChildren-1);
 		pgi.initializePlugin(player.view);
 	};
 
@@ -106,7 +108,8 @@ public class SPLoader extends EventDispatcher {
 			var ar1:Array = str.split('&');
 			for(var i:String in ar1) {
 				var ar2:Array = ar1[i].split('=');
-				config[ar2[0]] = Strings.serialize(ar2[1]); }
+				config[ar2[0]] = Strings.serialize(ar2[1]); 
+			}
 		}
 		loadSWF(url,false);
 	};
@@ -144,8 +147,6 @@ public class SPLoader extends EventDispatcher {
 			ldr.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,skinError);
 			ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,skinHandler);
 		} else {
-			ldr.visible = false;
-			skin.addChild(ldr);
 			ldr.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,pluginError);
 			ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,pluginHandler);
 		}
@@ -187,6 +188,8 @@ public class SPLoader extends EventDispatcher {
 		done--;
 		if(done == 0) {
 			dispatchEvent(new SPLoaderEvent(SPLoaderEvent.PLUGINS));
+		} else if (done <0) {
+			player.view.sendEvent('REDRAW');
 		}
 	};
 
@@ -231,11 +234,11 @@ public class SPLoader extends EventDispatcher {
 					plugins[i]['visible'] = true;
 					bounds.height -= plugins[i]['size'];
 					break;
-				case "over":
-					overs.push(i);
+				case "none":
+					plugins[i]['visible'] = false;
 					break;
 				default:
-					plugins[i]['visible'] = false;
+					overs.push(i);
 					break;
 			}
 		}
@@ -256,7 +259,7 @@ public class SPLoader extends EventDispatcher {
 	/** Layout all plugins in case of a fullscreen resize. **/
 	public function layoutFullscreen() {
 		for(var i:Number=0; i<plugins.length; i++) {
-			if (plugins[i]['position'] == 'over' || 
+			if (plugins[i]['position'] == 'over' || plugins[i]['position'] == undefined || 
 				plugins[i]['name'] == 'controlbar' && plugins[i]['position'] != 'none') {
 				plugins[i]['x'] = 0;
 				plugins[i]['y'] = 0;

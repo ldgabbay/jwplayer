@@ -1,5 +1,5 @@
 /**
-* Plugin for playing closed captions and a closed audiodescription with a video.
+* Plugin for playing a closed audiodescription with a video.
 **/
 package com.jeroenwijering.plugins {
 
@@ -7,11 +7,9 @@ package com.jeroenwijering.plugins {
 import com.jeroenwijering.events.*;
 
 import flash.display.MovieClip;
-import flash.events.Event;
-import flash.events.MouseEvent;
+import flash.events.*;
 import flash.media.*;
-import flash.net.URLLoader;
-import flash.net.URLRequest;
+import flash.net.*;
 import flash.text.*;
 
 
@@ -21,7 +19,7 @@ public class Audiodescription extends MovieClip implements PluginInterface {
 	/** List with configuration settings. **/
 	public var config:Object = {
 		file:undefined,
-		mute:false,
+		state:true,
 		volume:90
 	}
 	/** Reference to the MVC view. **/
@@ -35,7 +33,9 @@ public class Audiodescription extends MovieClip implements PluginInterface {
 
 
 	/** Constructor; not much going on. **/
-	public function Audiodescription():void {};
+	public function Audiodescription():void {
+		clip = this;
+	};
 
 
 	/** Initing the plugin. **/
@@ -45,7 +45,7 @@ public class Audiodescription extends MovieClip implements PluginInterface {
 		view.addModelListener(ModelEvent.TIME,timeHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
 		drawButton();
-		mute(config['mute']);
+		setState(config['state']);
 	};
 
 
@@ -56,6 +56,8 @@ public class Audiodescription extends MovieClip implements PluginInterface {
 			config['audio'] = aud; 
 		} else if(view.config['audio']) {
 			config['file'] = view.config['audio'];
+		} else if(view.config['audiodescription.file']) {
+			config['file'] = view.config['audiodescription.file'];
 		}
 		if(config['file']) {
 			sound = new Sound(new URLRequest(config['file']));
@@ -65,22 +67,9 @@ public class Audiodescription extends MovieClip implements PluginInterface {
 	};
 
 
-	/** Mute/unmute the audiodesc. **/
-	public function mute(stt:Boolean):void {
-		config['mute'] = stt;
-		view.saveCookie('audiodescription.mute',config['mute']);
-		setVolume();
-		if(config['mute']) {
-			icon.alpha = 0.3;
-		} else { 
-			icon.alpha = 1;
-		}
-	};
-
-
 	/** Clicking the  hide button. **/
 	private function clickHandler(evt:MouseEvent):void {
-		mute(!config['mute']);
+		setState(!config['state']);
 	};
 
 
@@ -124,10 +113,25 @@ public class Audiodescription extends MovieClip implements PluginInterface {
 	};
 
 
+	/** Turn the audiodescription on/off. **/
+	public function setState(stt:Boolean):void {
+		config['state'] = stt;
+		var cke:SharedObject = SharedObject.getLocal('com.jeroenwijering','/');
+		cke.data['audiodescription.state'] = stt;
+		cke.flush();
+		setVolume();
+		if(stt) {
+			icon.alpha = 1;
+		} else { 
+			icon.alpha = 0.3;
+		}
+	};
+
+
 	/** Set the volume level. **/
 	private function setVolume():void {
 		var trf:SoundTransform = new SoundTransform(config['volume']/100);
-		if(config['mute']) { trf.volume = 0; }
+		if(!config['state']) { trf.volume = 0; }
 		if(channel) { channel.soundTransform = trf; }
 	};
 

@@ -1,0 +1,35 @@
+<plugin>
+	<title>Snapshot</title>
+	<filename>snapshot.swf</filename>
+	<version>1</version>
+	<compatibility>Compatible with 4.4</compatibility>
+	<author>LongTail Video</author>
+	<description><![CDATA[
+		This plugins renders a JPG snapshot from a video frame.
+		It sends the JPG to a serverside script for processing and displays the returning URL.
+		Here is a very basic example of such a (PHP) script. Note it doesn't take security into account!
+
+		<?php
+		if(isset ($GLOBALS["HTTP_RAW_POST_DATA"])) {
+			$im =  $GLOBALS["HTTP_RAW_POST_DATA"];
+			$rn = rand();
+			$fp = fopen('snapshots/'.$rn.'.jpg', 'wb');
+			fwrite($fp, $im);
+			fclose($fp);
+			echo 'http://www.myserver.com/snapshots/'.$rn.'.jpg';
+		}  else {
+			echo 'result=An error occured.';
+		}
+		?>]]>
+	</description>
+	<href>http://developer.longtailvideo.com/trac/browser/plugins/snapshot</href>
+
+	<flashvars>
+		<flashvar>
+			<name>script</name>
+			<default></default>
+			<description>The location of the serverside script (PHP,ASP,..) that processes the snapshot and returns its URL.</description>
+		</flashvar>
+	</flashvars>
+
+</plugin>

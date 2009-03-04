@@ -16,6 +16,8 @@ import flash.ui.ContextMenuItem;
 public class Rightclick implements PluginInterface {
 
 
+	/** Plugin configuration object. **/
+	public var config:Object = {};
 	/** Reference to the contextmenu. **/
 	private var context:ContextMenu;
 	/** Reference to the 'about' menuitem. **/

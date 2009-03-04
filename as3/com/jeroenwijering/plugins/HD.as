@@ -17,10 +17,11 @@ public class HD extends MovieClip implements PluginInterface {
 
 	/** List with configuration settings. **/
 	public var config:Object = {
-		bitrate:1500,
 		file:undefined,
 		state:undefined
 	};
+	/** Bitrate of the current video. **/
+	private var bitrate:Number = 1500;
 	/** Reference to the clip on stage. **/
 	private var icon:Sprite;
 	/** Reference to the View of the player. **/
@@ -91,13 +92,16 @@ public class HD extends MovieClip implements PluginInterface {
 		view = vie;
 		config['state'] = true;
 		original = view.config['file'];
+		if(view.config['hd.file']) {
+			config['file'] = view.config['hd.file'];
+		}
 		view.config['file'] = config['file'];
+		view.addModelListener(ModelEvent.META,metaHandler);
 		try {
 			view.getPlugin('controlbar').addButton(icon,'hd',clickHandler);
 			view.getPlugin('rightclick').addItem(context,clickHandler);
+			setUI();
 		} catch (err:Error) {}
-		view.addModelListener(ModelEvent.META,metaHandler);
-		setUI();
 	};
 
 
@@ -121,11 +125,11 @@ public class HD extends MovieClip implements PluginInterface {
 	/** check the metadata for bandwidth. **/ 
 	private function metaHandler(evt:ModelEvent):void {
 		if(evt.data.bitrate) {
-			config['bitrate'] = evt.data.bitrate;
+			bitrate = evt.data.bitrate;
 		}
 		if(evt.data.bandwidth && !checked) {
 			checked = true;
-			if(evt.data.bandwidth < config['bitrate']) {
+			if(evt.data.bandwidth < bitrate) {
 				clickHandler();
 			}
 		}

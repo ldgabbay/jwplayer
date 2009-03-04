@@ -20,7 +20,7 @@ public class Playlist implements PluginInterface {
 
 
 	/** List with configuration settings. **/
-	public var config:Object;
+	public var config:Object = {};
 	/** Reference to the playlist MC. **/
 	public var clip:MovieClip;
 	/** Reference to the view. **/
@@ -66,7 +66,6 @@ public class Playlist implements PluginInterface {
 		clip.slider.addEventListener(MouseEvent.MOUSE_DOWN,sdownHandler);
 		clip.slider.addEventListener(MouseEvent.MOUSE_OVER,soverHandler);
 		clip.slider.addEventListener(MouseEvent.MOUSE_OUT,soutHandler);
-		clip.slider.addEventListener(MouseEvent.MOUSE_WHEEL,wheelHandler);
 		clip.slider.visible = false;
 		buttons = new Array();
 		try {
@@ -230,8 +229,10 @@ public class Playlist implements PluginInterface {
 		clip.back.height = config['height'];
 		buildList(false);
 		if(config['position'] == 'over') {
+			clip.back.alpha = 0.7;
 			stateHandler();
-		} else { 
+		} else {
+			clip.back.alpha = 1;
 			clip.visible = config['visible'];
 		}
 	};
@@ -380,18 +381,14 @@ public class Playlist implements PluginInterface {
 	private function stateHandler(evt:ModelEvent=null):void {
 		if(config['position'] == 'over') {
 			if(view.config['state'] == ModelStates.PLAYING ||
-				view.config['state'] == ModelStates.BUFFERING ||
-				view.config['state'] == ModelStates.PAUSED) {
+				view.config['state'] == ModelStates.PAUSED ||
+				view.config['state'] == ModelStates.BUFFERING) {
 				clip.visible = false;
 			} else {
 				clip.visible = true;
 			}
 		}
 	};
-
-
-	/** Process mousewheel usage. **/
-	private function wheelHandler(evt:MouseEvent):void {};
 
 
 };

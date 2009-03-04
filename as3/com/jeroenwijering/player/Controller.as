@@ -201,7 +201,9 @@ public class Controller extends EventDispatcher {
 			obj['file'] = evt.data.object;
 		} else {
 			for(var itm:String in ELEMENTS) {
-				obj[itm] = Strings.serialize(evt.data.object[itm]);
+				if(evt.data.object[itm]) {
+					obj[itm] = Strings.serialize(evt.data.object[itm]);
+				}
 			}
 		}
 		if(obj['file']) {
@@ -324,7 +326,7 @@ public class Controller extends EventDispatcher {
 		for(var i:Number = ply.length-1; i > -1; i--) {
 			if(!ply[i]['duration']) { ply[i]['duration'] = 0; }
 			if(!ply[i]['start']) { ply[i]['start'] = 0; }
-			if(!ply[i]['streamer']) {
+			if(!ply[i]['streamer'] && config['streamer']) {
 				ply[i]['streamer'] = config['streamer'];
 			}
 			if(config['replace']) {

@@ -5,13 +5,12 @@ package com.jeroenwijering.plugins {
 
 
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.utils.Draw;
-import com.jeroenwijering.utils.Strings;
+import com.jeroenwijering.utils.*;
 
 import flash.display.*;
 import flash.events.*;
 import flash.geom.ColorTransform;
-import flash.net.URLRequest;
+import flash.net.*;
 import flash.utils.*;
 
 
@@ -19,7 +18,7 @@ public class Display implements PluginInterface {
 
 
 	/** Configuration vars for this plugin. **/
-	public var config:Object;
+	public var config:Object = {};
 	/** Reference to the skin MC. **/
 	public var clip:MovieClip;
 	/** Reference to the MVC view. **/
@@ -108,7 +107,7 @@ public class Display implements PluginInterface {
 
 
 	/** Logo loaded; now position it. **/
-	private function logoHandler(evt:Event=null):void {
+	private function loaderHandler(evt:Event=null):void {
 		if(margins[0] > margins[2]) {
 			clip.logo.x = clip.back.width- margins[2]-clip.logo.width;
 		} else {
@@ -136,8 +135,8 @@ public class Display implements PluginInterface {
 		if(view.config['logo']) {
 			Draw.clear(clip.logo);
 			loader = new Loader();
-			loader.contentLoaderInfo.addEventListener(Event.COMPLETE,logoHandler);
-			loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,logoHandler);
+			loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
+			loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,loaderHandler);
 			clip.logo.addChild(loader);
 			loader.load(new URLRequest(view.config['logo']));
 		}
@@ -158,8 +157,8 @@ public class Display implements PluginInterface {
 		for(var i:String in ICONS) {
 			Draw.pos(clip[ICONS[i]],config['width']/2,config['height']/2);
 		}
-		if(clip.logo) { 
-			logoHandler();
+		if(clip.logo) {
+			loaderHandler();
 		}
 	};
 

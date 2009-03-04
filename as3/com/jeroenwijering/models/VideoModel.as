@@ -40,6 +40,7 @@ public class VideoModel extends AbstractModel {
 		connection = new NetConnection();
 		connection.connect(null);
 		stream = new NetStream(connection);
+		stream.checkPolicyFile = true;
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		stream.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);

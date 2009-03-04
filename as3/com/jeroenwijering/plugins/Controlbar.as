@@ -22,7 +22,7 @@ public class Controlbar implements PluginInterface {
 
 
 	/** List with configuration settings. **/
-	public var config:Object;
+	public var config:Object = {};
 	/** Reference to the controlbar clip. **/
 	public var clip:MovieClip;
 	/** Reference to the view. **/

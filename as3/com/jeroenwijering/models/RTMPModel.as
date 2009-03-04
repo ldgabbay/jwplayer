@@ -154,6 +154,7 @@ public class RTMPModel extends AbstractModel {
 	/** Start the netstream object. **/
 	protected function setStream() {
 		stream = new NetStream(connection);
+		stream.checkPolicyFile = true;
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		stream.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);

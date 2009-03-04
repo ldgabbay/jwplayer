@@ -69,7 +69,7 @@ public class Player extends MovieClip {
 		plugins:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.4.166'
+		version:'4.4.170'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -126,15 +126,19 @@ public class Player extends MovieClip {
 
 	/** Initialize all playback models. **/
 	protected function addModels():void {
-		model.addModel(new CameraModel(model),'camera');
 		model.addModel(new HTTPModel(model),'http');
 		model.addModel(new ImageModel(model),'image');
-		model.addModel(new LighttpdModel(model),'lighttpd');
-		model.addModel(new NginxModel(model),'nginx');
 		model.addModel(new RTMPModel(model),'rtmp');
 		model.addModel(new SoundModel(model),'sound');
 		model.addModel(new VideoModel(model),'video');
 		model.addModel(new YoutubeModel(model),'youtube');
+
+		model.addModel(new CameraModel(model),'camera');
+		model.addModel(new LighttpdModel(model),'lighttpd');
+		model.addModel(new NginxModel(model),'nginx');
+		model.addModel(new BitgravityModel(model),'bitgravity');
+		model.addModel(new HighwindsModel(model),'highwinds');
+		model.addModel(new FLVSeekModel(model),'flvseek');
 	};
 
 
@@ -142,12 +146,8 @@ public class Player extends MovieClip {
 	protected function addPlugins():void {
 		sploader.addPlugin(new Display(),'display');
 		sploader.addPlugin(new Rightclick(),'rightclick');
-		if(config['controlbar'] != 'none') {
-			sploader.addPlugin(new Controlbar(),'controlbar');
-		}
-		if(config['playlist'] != 'none') {
-			sploader.addPlugin(new Playlist(),'playlist');
-		}
+		sploader.addPlugin(new Controlbar(),'controlbar');
+		sploader.addPlugin(new Playlist(),'playlist');
 	};
 
 

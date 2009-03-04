@@ -20,7 +20,7 @@ public class Dragdrop extends MovieClip implements PluginInterface {
 	/** Reference to the player view. **/
 	private var view:AbstractView;
 	/** Reference to the stage graphics **/
-	private var clip:MovieClip;
+	public var clip:MovieClip;
 
 
 	/** (Empty) constructor. **/
