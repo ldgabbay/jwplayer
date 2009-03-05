@@ -29,7 +29,9 @@ public class MediaParser {
 			if(i.namespace().prefix == MediaParser.PREFIX) {
 				switch(i.localName()) {
 					case 'content':
-						itm['file'] = i.@url.toString();
+						if(!ytp) {
+							itm['file'] = i.@url.toString();
+						}
 						if(i.@duration) {
 							itm['duration'] = Strings.seconds(i.@duration.toString());
 						}
@@ -57,6 +59,7 @@ public class MediaParser {
 						break;
 					case 'player':
 						if(i.@url.indexOf('youtube.com') > 0) {
+							var ytp:Boolean = true;
 							itm['file'] = i.@url.toString();
 						}
 						break;

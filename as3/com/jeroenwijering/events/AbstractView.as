@@ -83,16 +83,6 @@ public class AbstractView extends EventDispatcher {
 
 
 	/**
-	* Save a cookie. This cookie is automatically picked up by the player on subsequent loads.
-	*
-	* @param typ	The name of the cookie.
-	* @param prm	The contents of the cookie.
-	* @see 			Configger
-	**/
-	public function saveCookie(prm:String,val:Object):void {};
-
-
-	/**
 	* Dispatch an event. The event will be serialized and fired by the View.
 	*
 	* @param typ	The specific event to fire to.

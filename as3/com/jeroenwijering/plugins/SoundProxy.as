@@ -5,12 +5,11 @@ package com.jeroenwijering.plugins {
 
 
 import com.jeroenwijering.events.*;
+
 import flash.display.MovieClip;
 import flash.external.ExternalInterface;
 import flash.media.SoundMixer;
-import flash.utils.ByteArray;
-import flash.utils.clearInterval;
-import flash.utils.setInterval;
+import flash.utils.*;
 
 
 public class SoundProxy extends MovieClip implements PluginInterface {

@@ -86,6 +86,7 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 		clip.seek.addEventListener(MouseEvent.CLICK,seekHandler);
 		clip.meta.addEventListener(MouseEvent.CLICK,metaHandler);
 		scrollbar = new Scrollbar(clip.tf,clip.ms,'CCCCCC');
+		clip.visible = true;
 		resizeHandler();
 	};
 
@@ -108,12 +109,12 @@ public class MetaViewer extends MovieClip implements PluginInterface {
 			clip.y = config['y'];
 			wid = config['width'];
 			hei = config['height'];
+			clip.visible = config['visible'];
 		}
 		clip.bg.width = wid;
 		clip.bg.height = hei;
 		clip.tf.width = clip.ms.width = wid-50;
 		clip.ms.height = hei-60;
-		clip.visible = true;
 		scrollbar.draw();
 	};
 

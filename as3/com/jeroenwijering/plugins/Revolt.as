@@ -124,6 +124,7 @@ public class Revolt extends MovieClip implements PluginInterface {
 			clip.y = config['y'];
 			clip.width = config['width'];
 			clip.height = config['height'];
+			clip.visible = config['visible'];
 		} else {
 			clip.width = view.config['width'];
 			clip.height = view.config['height'];

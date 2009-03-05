@@ -7,7 +7,6 @@ package com.jeroenwijering.plugins {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.parsers.SRTParser;
 import com.jeroenwijering.parsers.TTParser;
-import com.jeroenwijering.utils.Configger;
 
 import flash.display.MovieClip;
 import flash.events.*;

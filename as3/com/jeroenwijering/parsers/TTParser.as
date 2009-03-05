@@ -32,7 +32,6 @@ public class TTParser {
 							} else if (obj['dur']) {
 								arr.push({begin:obj['begin']+obj['dur'],text:''});
 								delete obj['dur'];
-								
 							}
 						}
 					}

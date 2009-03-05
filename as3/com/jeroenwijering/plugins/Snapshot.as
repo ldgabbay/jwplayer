@@ -6,7 +6,6 @@ package com.jeroenwijering.plugins {
 
 import com.adobe.images.JPGEncoder;
 import com.jeroenwijering.events.*;
-import com.jeroenwijering.utils.Strings;
 
 import flash.display.*;
 import flash.events.*;
