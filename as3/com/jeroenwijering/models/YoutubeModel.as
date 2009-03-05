@@ -99,12 +99,12 @@ public class YoutubeModel extends AbstractModel {
 				outgoing.send('AS3_'+unique,"loadVideoById",gid,item['start']);
 				model.mediaHandler(loader);
 			}
-			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-			model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 		} else {
 			inbound.connect('AS2_'+unique);
 			loader.load(new URLRequest(location));
 		}
+		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
 
