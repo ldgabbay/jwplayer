@@ -142,21 +142,31 @@ public class View extends AbstractView {
 		return arr;
 	};
 
+
 	/** Return the config object of a specific plugin. **/
-	public function getPluginConfig(nam:String):Object {
-		var cfg:Object = new Object();
+	override public function getPluginConfig(nam:Object):Object {
+		return sploader.getPluginConfig(nam);
+	};
+
+
+	/** Return the config object of a specific plugin. **/
+	public function getJSPluginConfig(nam:String):Object {
 		try {
-			var pgc = getPlugin(nam).config;
+			var plg = getPlugin(nam);
+			var cfg:Object = getPluginConfig(plg);
 		} catch (err:Error) {
 			return {error:'plugin not loaded'}
 		}
-		for(var s:String in pgc) {
-			if(pgc[s] is String || pgc[s] is Boolean || pgc[s] is Number) {
-				cfg[s] = pgc[s];
+		var obj:Object = new Object();
+		for(var s:String in cfg) {
+			if(cfg[s] is String || cfg[s] is Boolean || cfg[s] is Number) {
+				obj[s] = cfg[s];
 			}
 		}
-		return cfg;
+		return obj;
 	};
+
+
 
 
 	/** Get a reference to a specific plugin. **/
@@ -196,7 +206,7 @@ public class View extends AbstractView {
 				ExternalInterface.addCallback("removeViewListener",removeJSViewListener);
 				ExternalInterface.addCallback("getConfig",getConfig);
 				ExternalInterface.addCallback("getPlaylist",getPlaylist);
-				ExternalInterface.addCallback("getPluginConfig",getPluginConfig);
+				ExternalInterface.addCallback("getPluginConfig",getJSPluginConfig);
 				ExternalInterface.addCallback("loadPlugin",loadPlugin);
 				ExternalInterface.addCallback("sendEvent",sendEvent);
 				ExternalInterface.call("playerReady",{

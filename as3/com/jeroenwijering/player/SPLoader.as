@@ -102,6 +102,17 @@ public class SPLoader extends EventDispatcher {
 	};
 
 
+	/** Return the configuration data of a specific plugin. **/
+	public function getPluginConfig(plg:Object):Object {
+		for(var i:Number=0; i<plugins.length; i++) {
+			if(plugins[i]['reference'] == plg) {
+				return plugins[i];
+			}
+		}
+		return null;
+	};
+
+
 	/** Load a single plugin into the stack (after initialization). **/
 	public function loadPlugin(url:String,str:String=null) {
 		if(str != null && str != '') {

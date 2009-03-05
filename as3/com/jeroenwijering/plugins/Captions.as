@@ -53,9 +53,6 @@ public class Captions extends MovieClip implements PluginInterface {
 	/** Clicking the  hide button. **/
 	private function clickHandler(evt:MouseEvent):void {
 		hide(!config['state']);
-		var cke:SharedObject = SharedObject.getLocal('com.jeroenwijering','/');
-		cke.data['captions.state'] = stt;
-		cke.flush();
 	};
 
 
@@ -133,6 +130,9 @@ public class Captions extends MovieClip implements PluginInterface {
 		} else { 
 			icon.alpha = 0.3;
 		}
+		var cke:SharedObject = SharedObject.getLocal('com.jeroenwijering','/');
+		cke.data['captions.state'] = stt;
+		cke.flush();
 	};
 
 

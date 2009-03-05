@@ -70,6 +70,16 @@ public class AbstractView extends EventDispatcher {
 
 
 	/**
+	* Get a reference to a specific plugin.
+	*
+	* @param obj	The plugin whose config we want.
+	* @return		The plugin config options, as a hashmap.
+	* @see 			SPLoader
+	**/
+	public function getPluginConfig(obj:Object):Object { return {}; };
+
+
+	/**
 	* Load a plugin into the player at runtime.
 	*
 	* @prm url	The url of the plugin to load.
