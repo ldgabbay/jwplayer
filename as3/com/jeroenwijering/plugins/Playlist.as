@@ -151,7 +151,7 @@ public class Playlist implements PluginInterface {
 		if(back) {
 			buttons[idx].c['back'].transform.colorTransform = back;
 		}
-		buttons[idx].c.gotoAndPlay('active');
+		buttons[idx].c.gotoAndStop('active');
 		if(!isNaN(active)) {
 			if(front) {
 				for (var act:String in view.playlist[active]) {
@@ -162,7 +162,7 @@ public class Playlist implements PluginInterface {
 					}
 				}
 			}
-			buttons[active].c.gotoAndPlay('out');
+			buttons[active].c.gotoAndStop('out');
 		}
 		active = idx;
 	};
@@ -186,7 +186,7 @@ public class Playlist implements PluginInterface {
 			}
 			buttons[idx].c['back'].transform.colorTransform = light;
 		}
-		buttons[idx].c.gotoAndPlay('over');
+		buttons[idx].c.gotoAndStop('over');
 	};
 
 
@@ -206,9 +206,9 @@ public class Playlist implements PluginInterface {
 			buttons[idx].c['back'].transform.colorTransform = back;
 		}
 		if(idx == active) {
-			buttons[idx].c.gotoAndPlay('active');
+			buttons[idx].c.gotoAndStop('active');
 		} else { 
-			buttons[idx].c.gotoAndPlay('out');
+			buttons[idx].c.gotoAndStop('out');
 		}
 	};
 
@@ -294,6 +294,7 @@ public class Playlist implements PluginInterface {
 	/** Setup button elements **/
 	private function setContents(idx:Number):void {
 		for (var itm:String in view.playlist[idx]) {
+			buttons[idx].c.gotoAndStop(0);
 			if(!buttons[idx].c[itm] || !view.playlist[idx][itm]) {
 				continue;
 			} else if(itm == 'image') {
@@ -305,7 +306,6 @@ public class Playlist implements PluginInterface {
 					img.mask = msk;
 					img.addChild(ldr);
 					ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
-					ldr.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,loaderHandler);
 					if(view.playlist[idx]['playlist.image']) {
 						ldr.load(new URLRequest(view.playlist[idx]['playlist.image']));
 					} else {
@@ -355,7 +355,7 @@ public class Playlist implements PluginInterface {
 		if(front) {
 			clip.slider.icon.transform.colorTransform = front;
 		} else { 
-			clip.slider.icon.gotoAndPlay('out');
+			clip.slider.icon.gotoAndStop('out');
 		}
 	};
 
@@ -365,7 +365,7 @@ public class Playlist implements PluginInterface {
 		if(front) {
 			clip.slider.icon.transform.colorTransform = light;
 		} else { 
-			clip.slider.icon.gotoAndPlay('over');
+			clip.slider.icon.gotoAndStop('over');
 		}
 	};
 
