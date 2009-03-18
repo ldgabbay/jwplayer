@@ -68,8 +68,8 @@ public class Player extends MovieClip {
 		linktarget:'_blank',
 		plugins:undefined,
 		token:undefined,
-		tracecall:undefined,
-		version:'4.4.174'
+		tracecall:'arthropod',
+		version:'4.4.177'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;

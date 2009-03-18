@@ -129,6 +129,14 @@ public class NetClient {
 	};
 
 
+	/** Receiving XMP data. **/
+	public function onXMPData(... rest):void {
+		trace(rest[0]);
+		if (rest.length > 0) {
+			forward(rest,'onxmpdate');
+		}
+	};
+
 };
 
 

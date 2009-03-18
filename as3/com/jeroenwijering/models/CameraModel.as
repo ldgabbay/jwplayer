@@ -36,7 +36,7 @@ public class CameraModel extends AbstractModel {
 		super(mod);
 		try {
 			camera = Camera.getCamera();
-			camera.setMode(320,240,2);
+			camera.setMode(320,240,10);
 			microphone = Microphone.getMicrophone();
 			video = new Video(320,240);
 			video.smoothing = model.config['smoothing'];
@@ -50,7 +50,7 @@ public class CameraModel extends AbstractModel {
 		position = 0;
 		if(camera) {
 			model.mediaHandler(video);
-			model.sendEvent(ModelEvent.META,{framerate:20,height:320,width:240});
+			model.sendEvent(ModelEvent.META,{framerate:10,height:320,width:240});
 			play();
 			if(item['streamer']) {
 				connection = new NetConnection();

@@ -140,12 +140,12 @@ public class Model extends EventDispatcher {
 		var wid:Number = sploader.getPlugin('display').config['width'];
 		var hei:Number = sploader.getPlugin('display').config['height'];
 		if(item && item['type'] == 'youtube') {
-			display.media.x = 0;
-			display.media.y = 0;
-			models[item['type']].resize(wid,hei);
-		} else {
-			Stretcher.stretch(display.media,wid,hei,config['stretching']);
+			var yth:Number = Math.round(wid/4*3);
+			models[item['type']].resize(wid,yth);
+			controller.playlist[config['item']]['width'] = wid;
+			controller.playlist[config['item']]['height'] = yth;
 		}
+		Stretcher.stretch(display.media,wid,hei,config['stretching']);
 		if(thumb.width > 10) {
 			Stretcher.stretch(thumb,wid,hei,config['stretching']);
 		}
