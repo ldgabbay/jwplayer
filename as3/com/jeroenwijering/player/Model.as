@@ -139,12 +139,6 @@ public class Model extends EventDispatcher {
 	private function resizeHandler(evt:Event=null):void {
 		var wid:Number = sploader.getPlugin('display').config['width'];
 		var hei:Number = sploader.getPlugin('display').config['height'];
-		if(item && item['type'] == 'youtube') {
-			var yth:Number = Math.round(wid/4*3);
-			models[item['type']].resize(wid,yth);
-			controller.playlist[config['item']]['width'] = wid;
-			controller.playlist[config['item']]['height'] = yth;
-		}
 		Stretcher.stretch(display.media,wid,hei,config['stretching']);
 		if(thumb.width > 10) {
 			Stretcher.stretch(thumb,wid,hei,config['stretching']);

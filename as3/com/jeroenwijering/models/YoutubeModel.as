@@ -96,6 +96,7 @@ public class YoutubeModel extends AbstractModel {
 		if(connected) {
 			if(outgoing) {
 				var gid = getID(item['file']);
+				resize(model.config['width'],model.config['width']/4*3);
 				outgoing.send('AS3_'+unique,"loadVideoById",gid,item['start']);
 				model.mediaHandler(loader);
 			}
