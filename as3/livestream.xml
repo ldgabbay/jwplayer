@@ -1,0 +1,38 @@
+<plugin>
+	<title>Livestream</title>
+	<filename>livestream.swf</filename>
+	<version>1</version>
+	<compatibility>Compatible with 4.3</compatibility>
+	<author>Bits on the Run</author>
+	<description>This plugin can automatically poll and kick in a livestream.</description>
+	<href>http://www.az.tv/</href>
+
+	<flashvars>
+		<flashvar>
+			<name>file</name>
+			<default>persconferentie.flv</default>
+			<description>Name of the FLV file to load.</description>
+		</flashvar>
+		<flashvar>
+			<name>image</name>
+			<default></default>
+			<description>Preview image associated with the live stream. It is shown when the live stream ends.</description>
+		</flashvar>
+		<flashvar>
+			<name>interval</name>
+			<default>15</default>
+			<description>Interval in seconds for polling if the livestream is there.</description>
+		</flashvar>
+		<flashvar>
+			<name>message</name>
+			<default>Checking for livestream...</default>
+			<description>Message to show when polling the livestream</description>
+		</flashvar>
+		<flashvar>
+			<name>streamer</name>
+			<default>rtmp://live-in.smpe.eu/az-on-demand</default>
+			<description>RTMP server to pull the stream from.</description>
+		</flashvar>
+	</flashvars>
+
+</plugin>

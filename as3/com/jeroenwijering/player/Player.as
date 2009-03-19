@@ -68,8 +68,8 @@ public class Player extends MovieClip {
 		linktarget:'_blank',
 		plugins:undefined,
 		token:undefined,
-		tracecall:'arthropod',
-		version:'4.4.177'
+		tracecall:undefined,
+		version:'4.4.182'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -91,7 +91,10 @@ public class Player extends MovieClip {
 		for(var i:Number=0; i<skin.numChildren; i++) {
 			skin.getChildAt(i).visible = false;
 		}
-		addEventListener(Event.ADDED_TO_STAGE,loadConfig);
+		// This event is useful for Flex, but not recognized by FP9.0.16
+		try {
+			addEventListener(Event.ADDED_TO_STAGE,loadConfig);
+		} catch(err:Error) { loadConfig(); }
 	};
 
 

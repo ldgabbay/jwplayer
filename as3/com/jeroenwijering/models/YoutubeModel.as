@@ -126,7 +126,6 @@ public class YoutubeModel extends AbstractModel {
 
 	/** SWF loaded; add it to the tree **/
 	public function onSwfLoadComplete():void {
-		//outgoing.send('AS3_'+unique,"setSize",400,300);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		connected = true;
 		if(loading) { load(item); }
