@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+	<title>JW Player plugin SDK</title>
+
+	<style type="text/css">
+		body { background-color: #fff; padding: 40px; color:#000; font: 13px/18px Arial, sans-serif; }
+		a,h1 { color: #7A2; }
+		h3 { padding-top: 40px; }
+		ul { margin:5px 0 15px 16px; padding:0; list-style-type:square; }
+	</style>
+
+</head>
+<body>
+
+	<h1>JW Player plugin SDK</h1>
+
+
+
+	<h3>Introduction</h3>
+	<p>Thanks for your interest in building plugins for the JW Player! This SDK aims to help you with that, by offering three tools:</p>
+	<ul>
+		<li>A couple of plugin templates you can use to quickstart your own plugin.</li>
+		<li>A testing page you can use to test your plugin with different player versions and settings.</li>
+		<li>A list of links to plugin-related resources on the JW Player wiki.</li>
+	</ul>
+	<p>Note that you need <a href="http://www.adobe.com/products/flash/">Adobe Flash</a> (CS3/CS4) for building your plugins.</p>
+
+
+
+	<h3>The plugin templates</h3>
+	<p>This SDK comes with a couple of simple plugin templates, each showcasing a specific interaction with the player. They are located in the <i>plugins</i> folder:</p>
+	<ul>
+		<li>The <i>Controlling</i> template shows how to control the player by sending events. It shows a simple <i>mute</i> button over the video.</li>
+		<li>The <i>Flashvars</i> template shows how to load flashvars to make it configurable. It offers a simple <i>message</i> flashvar that is printed in the display.</li>
+		<li>The <i>Listening</i> template shows how to listen to events of the player and respond to them. It prints  the playback <i>state</i> and <i>position</i> over the video.</li>
+		<li>The <i>Positioning</i> template shows how to position a plugin inside the player. It shows a red square over the area the plugin has claimed.</li>
+	</ul>
+	<p>The templates can be seen in action in the <a href="testing.html">testing page</a> of this SDK. (in the <i>example</i> dropdown box).</p>
+
+
+
+	<h3>The testing page</h3>
+	<p>The <a href="testing.html">testing page</a> contains a javascript application you can use to quickly test your plugin against various versions and configurations of the JW Player. You can select example tests, change the player / skin / plugins to load and change any flashvars (of both player and plugin).</p>
+
+	<p>Exactly which players, skins, plugins and examples to show can be set in the <a href="files/settings.js">files/settings.js</a> file. It is a javascript dictionary that is easy to understand and change, but be careful to correctly set commas and curly braces!</p>
+
+	<p>Next to the location of your plugin SWF file, the testing page also needs an XML file that describes your plugin. It is a simple xml format (<a href="plugins/flashvars.xml">example</a>) that contains an overview and the list of flashvars for your plugin. You also need to have this XML later on for <a href="http://www.longtailvideo.com/addons/submitregister.html">submitting your plugin</a> to LongTail Video.</p>
+
+
+
+	<h3>Links to resources</h3>
+	<p>The developer Wiki contains a wealth of resources for building plugins, including:</p>
+	<ul>
+		<li>The general <a href="http://developer.longtailvideo.com/trac/wiki/BuildingPlugins">plugin building tutorial</a>.</li>
+		<li>A hands-on tutorial that <a href="http://developer.longtailvideo.com/trac/wiki/YousearchTutorial">Rebuilds the Yousearch plugin</a>.</li>
+		<li>A tutorial about <a href="http://developer.longtailvideo.com/trac/wiki/CrossDomain">Flash security restrictions</a>. Read this if you want to load XML or other data across websites.</li>
+	</ul>
+	<ul>
+		<li>A reference of the <a href="http://developer.longtailvideo.com/trac/wiki/FlashAPI">API calls</a> plugins can use to interact with the player.</li>
+		<li>A reference of all <a href="http://developer.longtailvideo.com/trac/wiki/FlashEvents">events the player fires</a>. The <i>View</i> events are the ones your plugin can fire too.</li>
+		<li>A reference of the  <a href="http://developer.longtailvideo.com/trac/wiki/FlashOverview">architecture of the JW Player</a> (including the plugin loading and positioning/resizing).</li>
+	</ul>
+	<p>You can also directly download the source code of a string of plugins <a href="http://developer.longtailvideo.com/trac/browser/plugins">from the developer site</a>. Feel free to copy/paste code and/or create your own branch of any of these plugins!</p>
+
+
+
+	<h3>Submit your plugin</h3>
+	<p>If you're happy with the way your plugin works, you can <a href="http://www.longtailvideo.com/addons/submitregister.html">submit it to LongTail Video</a>. We'll do a quick sanity check of your plugin and then list it in <a href="http://www.longtailvideo.com/addons/">our addons section</a>. You can also ask for donations or sell licenses of your plugin through our site to make money. For more info about that, please <a href="http://www.longtailvideo.com/support/contact-us">contact us</a>.</p>
+
+</body>
+</html>
