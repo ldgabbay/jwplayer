@@ -151,6 +151,7 @@ public class Player extends MovieClip {
 		sploader.addPlugin(new Rightclick(),'rightclick');
 		sploader.addPlugin(new Controlbar(),'controlbar');
 		sploader.addPlugin(new Playlist(),'playlist');
+		sploader.addPlugin(new Watermark(),'watermark');
 	};
 
 
