@@ -152,7 +152,7 @@ public class Controller extends EventDispatcher {
 		} else if (itm['streamer'] && sub) {
 			if(itm['streamer'].substr(0,4) == 'rtmp') {
 				return 'rtmp';
-			} else if(itm['streamer'].substr(0,4) == 'http') {
+			} else if(itm['streamer'].indexOf('/') != -1) {
 				return 'http';
 			} else {
 				return itm['streamer'];
@@ -269,10 +269,10 @@ public class Controller extends EventDispatcher {
 
 	/** Save new state of the mute switch and send volume. **/
 	private function muteHandler(evt:ViewEvent):void {
-		if(evt.data.state) {
+		if(evt.data.state == true || evt.data.state == false) {
 			if(evt.data.state == config['mute']) {
 				return;
-			} else { 
+			} else {
 				config['mute'] = evt.data.state;
 			}
 		} else {
