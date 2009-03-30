@@ -27,7 +27,7 @@ public class MediaParser {
 	public static function parseGroup(obj:XML,itm:Object):Object {
 		for each (var i:XML in obj.children()) {
 			if(i.namespace().prefix == MediaParser.PREFIX) {
-				switch(i.localName()) {
+				switch(i.localName().toLowerCase()) {
 					case 'content':
 						if(!ytp) {
 							itm['file'] = i.@url.toString();

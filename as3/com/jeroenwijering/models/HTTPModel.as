@@ -42,7 +42,7 @@ public class HTTPModel extends AbstractModel {
 	protected var mp4:Boolean;
 	/** Load offset for bandwidth checking. **/
 	protected var loadtimer:Number;
-	/** Variable that takes reloading into account (since it takes some time before stream.time is restarted) **/
+	/** Variable that takes reloading into account. **/
 	protected var iterator:Number;
 
 

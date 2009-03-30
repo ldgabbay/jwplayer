@@ -263,14 +263,10 @@ public class View extends AbstractView {
 		var dat:Object = new Object();
 		switch(typ) {
 			case 'ITEM':
-				if (prm > -1) {
-					dat['index'] = prm;
-				}
+				dat['index'] = prm;
 				break;
 			case 'LINK':
-				if (prm != null) {
-					dat['index'] = prm;
-				}
+				dat['index'] = prm;
 				break;
 			case 'LOAD':
 				dat['object'] = prm;
@@ -278,19 +274,14 @@ public class View extends AbstractView {
 			case 'SEEK':
 				dat['position'] = prm;
 				break;
-			case 'TRACE':
-				dat['message'] = prm;
-				break;
 			case 'VOLUME':
 				dat['percentage'] = prm;
 				break;
 			default:
-				if(prm!=null && prm != '') {
-					if(prm == true || prm == 'true') {
-						dat['state'] = true;
-					} else if(prm == false || prm == 'false') {
-						dat['state'] = false;
-					}
+				if(prm == true || prm == 'true') {
+					dat['state'] = true;
+				} else if(prm == false || prm == 'false') {
+					dat['state'] = false;
 				}
 				break;
 		}

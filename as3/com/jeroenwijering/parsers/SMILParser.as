@@ -49,7 +49,7 @@ public class SMILParser {
 	public static function parsePar(obj:XML):Object {
 		var itm:Object =  new Object();
 		for each (var i:XML in obj.children()) {
-			switch (i.localName()) {
+			switch (i.localName().toLowerCase()) {
 				case 'anchor':
 					itm['link'] = i.@href.toString();
 					break;

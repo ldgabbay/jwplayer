@@ -69,7 +69,7 @@ public class Player extends MovieClip {
 		plugins:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.4.188'
+		version:'4.4.189'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -142,9 +142,11 @@ public class Player extends MovieClip {
 		model.addModel(new CameraModel(model),'camera');
 		model.addModel(new LighttpdModel(model),'lighttpd');
 		model.addModel(new NginxModel(model),'nginx');
+
 		model.addModel(new BitgravityModel(model),'bitgravity');
 		model.addModel(new HighwindsModel(model),'highwinds');
 		model.addModel(new FLVSeekModel(model),'flvseek');
+		model.addModel(new FCSubscribeModel(model),'fcsubscribe');
 	};
 
 

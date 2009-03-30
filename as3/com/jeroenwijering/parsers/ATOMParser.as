@@ -28,7 +28,7 @@ public class ATOMParser {
 	public static function parseItem(obj:XML):Object {
 		var itm =  new Object();
 		for each (var i:XML in obj.children()) {
-			switch(i.localName()) {
+			switch(i.localName().toLowerCase()) {
 				case 'author':
 					itm['author'] = i.children()[0].text().toString();
 					break;

@@ -61,7 +61,7 @@ public class RTMPModel extends AbstractModel {
 
 
 	/** Extract the correct rtmp syntax from the file string. **/
-	private function getID(url:String):String {
+	protected function getID(url:String):String {
 		var ext:String = url.substr(-4);
 		if(ext == '.mp3') {
 			return 'mp3:'+url.substr(0,url.length-4);
@@ -98,7 +98,9 @@ public class RTMPModel extends AbstractModel {
 		} else  if(dat.type == 'close') {
 			stop();
 		}
-		model.sendEvent(ModelEvent.META,dat);
+		if(model.config['ignoremeta'] != true) {
+			model.sendEvent(ModelEvent.META,dat);
+		}
 	};
 
 

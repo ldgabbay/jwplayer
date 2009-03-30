@@ -16,7 +16,7 @@ public class Sharing extends MovieClip implements PluginInterface {
 
 	/** List with configuration settings. **/
 	public var config:Object = {
-		embed:undefined,
+		embedcode:undefined,
 		link:undefined,
 		oncomplete:true
 	};
@@ -43,7 +43,7 @@ public class Sharing extends MovieClip implements PluginInterface {
 		view = vie;
 		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 		try {
-			view.getPlugin('controlbar').addButton(clip.icon,'hd',clickHandler);
+			view.getPlugin('controlbar').addButton(clip.icon,'share',clickHandler);
 		} catch (err:Error) {
 			clip.icon.visible = false;
 		}

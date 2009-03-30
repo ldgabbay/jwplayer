@@ -32,7 +32,7 @@ public class RSSParser {
 	public static function parseItem(obj:XML):Object {
 		var itm:Object =  new Object();
 		for each (var i:XML in obj.children()) {
-			switch(i.localName()) {
+			switch(i.localName().toLowerCase()) {
 				case 'enclosure':
 					itm['file'] = i.@url.toString();
 					break;

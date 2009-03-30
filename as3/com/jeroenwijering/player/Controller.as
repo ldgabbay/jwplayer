@@ -6,9 +6,7 @@ package com.jeroenwijering.player {
 
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.parsers.*;
-import com.jeroenwijering.utils.Configger;
-import com.jeroenwijering.utils.Randomizer;
-import com.jeroenwijering.utils.Strings;
+import com.jeroenwijering.utils.*;
 
 import flash.display.MovieClip;
 import flash.events.*;
@@ -197,9 +195,11 @@ public class Controller extends EventDispatcher {
 			stopHandler();
 		}
 		var obj:Object = new Object();
-		if(typeof(evt.data.object) == 'string') {
+		if(typeof(evt.data.object) == 'array') {
+			playlistHandler(evt.data.object);
+		} else if(typeof(evt.data.object) == 'string') {
 			obj['file'] = evt.data.object;
-		} else {
+		} else if (evt.data.object['file']) {
 			for(var itm:String in ELEMENTS) {
 				if(evt.data.object[itm]) {
 					obj[itm] = Strings.serialize(evt.data.object[itm]);
@@ -215,8 +215,8 @@ public class Controller extends EventDispatcher {
 			}
 		} else {
 			var arr:Array = new Array();
-			for each(var val:Object in obj) {
-				arr.push(val);
+			for each (var ent:Object in evt.data.object) {
+				arr.push(ent);
 			}
 			playlistHandler(arr);
 		}
@@ -345,7 +345,7 @@ public class Controller extends EventDispatcher {
 		if(config['shuffle'] == true) {
 			randomizer = new Randomizer(playlist.length);
 			config['item'] = randomizer.pick();
-		} else if (config['item'] > playlist.length) {
+		} else if (config['item'] >= playlist.length) {
 			config['item'] = playlist.length-1;
 		}
 		dispatchEvent(new ControllerEvent(ControllerEvent.PLAYLIST,{playlist:playlist}));
