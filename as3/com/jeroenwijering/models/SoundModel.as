@@ -36,7 +36,6 @@ public class SoundModel extends AbstractModel {
 		super(mod);
 		transform = new SoundTransform();
 		context = new SoundLoaderContext(model.config['bufferlength']*1000,true);
-		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 	};
 
 
@@ -86,6 +85,7 @@ public class SoundModel extends AbstractModel {
 			seek(item['start']);
 		}
 		loadinterval = setInterval(loadHandler,200);
+		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 	};

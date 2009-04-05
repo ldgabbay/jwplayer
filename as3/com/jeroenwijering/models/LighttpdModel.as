@@ -32,6 +32,9 @@ public class LighttpdModel extends HTTPModel {
 		} else {
 			url += '?start='+off;
 		}
+		if(model.config['token']) {
+			url += '&token='+model.config['token'];
+		}
 		url += '&id='+model.config['id'];
 		url += '&client='+encodeURI(model.config['client']);
 		url += '&version='+encodeURI(model.config['version']);

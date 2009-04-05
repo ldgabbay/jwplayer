@@ -50,7 +50,6 @@ public class VideoModel extends AbstractModel {
 		video.smoothing = model.config['smoothing'];
 		video.attachNetStream(stream);
 		transform = new SoundTransform();
-		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 	};
 
 
@@ -69,6 +68,7 @@ public class VideoModel extends AbstractModel {
 		stream.play(item['file']);
 		interval = setInterval(positionInterval,100);
 		loadinterval = setInterval(loadHandler,200);
+		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};

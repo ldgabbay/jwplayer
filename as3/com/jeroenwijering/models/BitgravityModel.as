@@ -20,10 +20,12 @@ public class BitgravityModel extends HTTPModel {
 	/** Create the video request URL. **/
 	override protected function getURL():String {
 		var url:String = item['file'];
-		if(url.indexOf('?') > 0) {
-			url += '&starttime='+timeoffset;
-		} else {
-			url += '?starttime='+timeoffset;
+		if(timeoffset > 0) {
+			if(url.indexOf('?') > 0) {
+				url += '&starttime='+timeoffset;
+			} else {
+				url += '?starttime='+timeoffset;
+			}
 		}
 		return url;
 	};

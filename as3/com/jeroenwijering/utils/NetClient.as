@@ -84,6 +84,12 @@ public class NetClient {
 
 
 	/** Image data (iTunes-style) handler. **/
+	public function onID3(... rest):void {
+		forward(rest[0],'id3');
+	};
+
+
+	/** Image data (iTunes-style) handler. **/
 	public function onImageData(obj:Object):void {
 		forward(obj,'imagedata');
 	};
@@ -108,6 +114,12 @@ public class NetClient {
 		} else { 
 			forward(dat,'playstatus');
 		}
+	};
+
+
+	/** Image data (iTunes-style) handler. **/
+	public function onSDES(... rest):void {
+		forward(rest[0],'sdes');
 	};
 
 

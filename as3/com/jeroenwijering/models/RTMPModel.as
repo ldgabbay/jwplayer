@@ -148,8 +148,12 @@ public class RTMPModel extends AbstractModel {
 	override public function seek(pos:Number):void {
 		position = pos;
 		clearInterval(interval);
+		if(model.config['state'] == ModelStates.PAUSED) {
+			stream.resume();
+		}
+		interval = setInterval(positionInterval,100);
+		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		stream.seek(position);
-		play();
 	};
 
 
@@ -173,13 +177,13 @@ public class RTMPModel extends AbstractModel {
 	protected function statusHandler(evt:NetStatusEvent):void {
 		switch (evt.info.code) {
 			case 'NetConnection.Connect.Success':
+				if(evt.info.secureToken != undefined) {
+					connection.call("secureTokenResponse",null,TEA.decrypt(evt.info.secureToken,model.config['token']));
+				}
 				setStream();
 				var res:Responder = new Responder(streamlengthHandler);
 				connection.call("getStreamLength",res,getID(item['file']));
 				connection.call("checkBandwidth",null);
-				if(evt.info.secureToken != undefined) {
-					connection.call("secureTokenResponse",null,TEA.decrypt(evt.info.secureToken,model.config['token']));
-				}
 				break;
 			case  'NetStream.Play.Start':
 				if(item['start'] > 0 && !started) {

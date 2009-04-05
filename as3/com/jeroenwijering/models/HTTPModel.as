@@ -62,7 +62,6 @@ public class HTTPModel extends AbstractModel {
 		video.smoothing = model.config['smoothing'];
 		video.attachNetStream(stream);
 		transform = new SoundTransform();
-		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		byteoffset = timeoffset = 0;
 	};
 
@@ -117,6 +116,9 @@ public class HTTPModel extends AbstractModel {
 		} else {
 			url += "?file="+item['file']+'&start='+off;
 		}
+		if(model.config['token']) {
+			url += '&token='+model.config['token'];
+		}
 		return url;
 	};
 
@@ -135,6 +137,7 @@ public class HTTPModel extends AbstractModel {
 		interval = setInterval(positionInterval,100);
 		clearInterval(loadinterval);
 		loadinterval = setInterval(loadHandler,200);
+		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
