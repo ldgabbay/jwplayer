@@ -7,6 +7,8 @@
 	<description><![CDATA[
 		This plugins renders a JPG snapshot from a video frame.
 		It sends the JPG to a serverside script for processing and displays the returning URL.
+		Note you MUST place a crossdomain.xml file on the server your videos are placed.
+
 		Here is a very basic example of such a (PHP) script. Note it doesn't take security into account!
 
 		<?php
