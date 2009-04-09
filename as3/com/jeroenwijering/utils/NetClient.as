@@ -117,7 +117,7 @@ public class NetClient {
 	};
 
 
-	/** Image data (iTunes-style) handler. **/
+	/** Quicktime broadcaster pixel. **/
 	public function onSDES(... rest):void {
 		forward(rest[0],'sdes');
 	};
@@ -130,8 +130,8 @@ public class NetClient {
 
 
 	/** RTMP Sample handler (what is this for?). **/
-	public function RtmpSampleAccess(obj:Object):void {
-		forward(obj,'rtmpsampleaccess');
+	public function RtmpSampleAccess(... rest):void {
+		forward(rest[0],'rtmpsampleaccess');
 	};
 
 

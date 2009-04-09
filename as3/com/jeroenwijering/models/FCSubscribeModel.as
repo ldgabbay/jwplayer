@@ -50,7 +50,7 @@ public class FCSubscribeModel extends RTMPModel {
 	override protected function statusHandler(evt:NetStatusEvent):void {
 		if (evt.info.code == 'NetConnection.Connect.Success') {
 			model.sendEvent(ModelEvent.META,{info:evt.info.code});
-			subscribe = setInterval(doSubscribe,3000,getID(item['file']));
+			subscribe = setInterval(doSubscribe,1000,getID(item['file']));
 		} else {
 			super.statusHandler(evt);
 		}

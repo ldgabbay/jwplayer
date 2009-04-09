@@ -22,9 +22,15 @@ public class BitgravityModel extends HTTPModel {
 		var url:String = item['file'];
 		if(timeoffset > 0) {
 			if(url.indexOf('?') > 0) {
-				url += '&starttime='+timeoffset;
+				url += '&';
 			} else {
-				url += '?starttime='+timeoffset;
+				url += '?';
+			}
+			if(mp4) { 
+				url += 'starttime='+timeoffset;
+			} else {
+				url += 'start='+byteoffset;
+			
 			}
 		}
 		return url;

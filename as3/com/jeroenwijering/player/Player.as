@@ -69,7 +69,7 @@ public class Player extends MovieClip {
 		plugins:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.4.198'
+		version:'4.4.202'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -102,7 +102,7 @@ public class Player extends MovieClip {
 	protected function loadConfig(evt:Event=null):void {
 		try {
 			removeEventListener(Event.ADDED_TO_STAGE,loadConfig);
-		} catch(err:Error) { loadConfig(); }
+		} catch(err:Error) {}
 		configger = new Configger(this);
 		configger.addEventListener(Event.COMPLETE,loadSkin);
 		configger.load(config);
