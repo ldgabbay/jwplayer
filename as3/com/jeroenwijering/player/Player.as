@@ -69,7 +69,7 @@ public class Player extends MovieClip {
 		plugins:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.4.202'
+		version:'4.4.204'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -157,6 +157,8 @@ public class Player extends MovieClip {
 		sploader.addPlugin(new Controlbar(),'controlbar');
 		sploader.addPlugin(new Playlist(),'playlist');
 		sploader.addPlugin(new Watermark(),'watermark');
+		//if(config['hd.file']) { sploader.addPlugin(new HD(),'hd'); }
+		//if(config['captions.file']) { sploader.addPlugin(new Captions(),'captions'); }
 	};
 
 

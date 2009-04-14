@@ -20,9 +20,10 @@ public class Livestream extends MovieClip implements PluginInterface {
 	public var config:Object = {
 		file:'persconferentie.flv',
 		image:undefined,
-		interval:30,
+		interval:15,
+		live:'rtmp://live-out.smpe.eu/az-live',
 		message:'Checking for livestream...',
-		streamer:'rtmp://live-in.smpe.eu/az-on-demand'
+		streamer:'rtmp://live-out.smpe.eu/az-on-demand'
 	};
 	/** Reference to the stage graphics. **/
 	public var clip:MovieClip;
@@ -32,27 +33,20 @@ public class Livestream extends MovieClip implements PluginInterface {
 	private var connection:NetConnection;
 	/** Netstream instance to check availability. **/
 	private var stream:NetStream;
-	/** URLLoader to connect to Highwinds. **/
-	private var loader:URLLoader;
+	/** Which try is this. **/
+	private var count:Number = 0;
 
 
 	public function Livestream():void {
 		clip = this;
 		connection = new NetConnection();
-		loader = new URLLoader();
-		loader.addEventListener(IOErrorEvent.IO_ERROR,loaderHandler);
-		loader.addEventListener(Event.COMPLETE,loaderHandler);
-	};
-
-
-	/** Check the SMIL for availability of the stream. **/
-	private function checkSmil():void {
 	};
 
 
 	/** Check the XML for a new application instance. **/
 	private function checkStream():void {
 		trace('checking');
+		count++;
 		connection.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		connection.client = new NetClient(this);
 		connection.connect(config['streamer']);
@@ -74,24 +68,10 @@ public class Livestream extends MovieClip implements PluginInterface {
 		if(view.config['tags'] == 'LIVESTREAM') {
 			view.config['icons'] = false;
 			view.config['repeat'] = 'always';
-			if(config['file'].indexOf('hwcdn.net') == -1) {
-				setTimeout(checkStream,2000);
-			} else {
-				loader.load(new URLRequest(config['file']));
-			}
+			setTimeout(checkStream,2000);
 			view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
 			clip.icon.txt.text = config['message'];
 		}
-	};
-
-
-	/** Parse a HW SMIL file to retrieve the stream locations. **/
-	private function loaderHandler(evt:Event):void {
-		var xml:XML = XML(evt.currentTarget.data);
-		trace(xml);
-		config['streamer'] = xml.children()[0].children()[0].@base.toString();
-		config['file'] = xml.children()[1].children()[0].@src.toString(); 
-		setTimeout(checkStream,2000);
 	};
 
 
@@ -99,14 +79,17 @@ public class Livestream extends MovieClip implements PluginInterface {
 	private function loadStream():void {
 		view.config['autostart'] = true;
 		view.config['repeat'] = 'none';
-		view.sendEvent('LOAD',{
+		var obj:Object = {
 			duration:0,
 			file:config['file'],
 			image:config['image'],
 			streamer:config['streamer'],
 			type:'rtmp'
-		});
-		view.addModelListener(ModelEvent.STATE,stateHandler);
+		}
+		if(config['live'] && count > 1) {
+			obj['streamer'] = config['live'];
+		}
+		view.sendEvent('LOAD',obj);
 	};
 
 
@@ -118,22 +101,6 @@ public class Livestream extends MovieClip implements PluginInterface {
 	private function resizeHandler(evt:ControllerEvent):void { 
 		clip.icon.x = config['x'] + config['width']/2;
 		clip.icon.y = config['y'] + config['height']/2;
-	};
-
-
-	/** If the livestream is completed, we stop, so the on-demand stream is there. **/
-	private function stateHandler(evt:ModelEvent) {
-		if(evt.data.newstate == ModelStates.COMPLETED) {
-			trace('reloading');
-			view.removeModelListener(ModelEvent.STATE,stateHandler);
-			view.sendEvent('LOAD',{
-				duration:0,
-				file:config['file'],
-				image:config['image'],
-				streamer:config['streamer'],
-				type:'rtmp'
-			});
-		}
 	};
 
 

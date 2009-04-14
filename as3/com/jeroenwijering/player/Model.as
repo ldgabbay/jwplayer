@@ -82,7 +82,7 @@ public class Model extends EventDispatcher {
 				image = item['image'];
 				thumb.load(new URLRequest(item['image']),new LoaderContext(true));
 			}
-		} else if (image) {
+		} else if(image) {
 			image = undefined;
 			thumb.unload();
 		}
@@ -171,37 +171,33 @@ public class Model extends EventDispatcher {
 	* @see 			ModelEvent
 	**/
 	public function sendEvent(typ:String,dat:Object):void {
-		switch(typ) { 
-			case ModelEvent.STATE:
-				dat['oldstate'] = config['state'];
-				config['state'] = dat.newstate;
-				switch(dat['newstate']) {
-					case ModelStates.IDLE:
-						sendEvent(ModelEvent.LOADED,{loaded:0,offset:0,total:0});
-					case ModelStates.COMPLETED:
+		if(typ == ModelEvent.STATE) {
+			dat['oldstate'] = config['state'];
+			config['state'] = dat.newstate;
+			switch(dat['newstate']) {
+				case ModelStates.IDLE:
+					sendEvent(ModelEvent.LOADED,{loaded:0,offset:0,total:0});
+				case ModelStates.COMPLETED:
+					thumb.visible = true;
+					display.media.visible = false;
+					sendEvent(ModelEvent.TIME,{position:0,duration:item['duration']});
+					break;
+				case ModelStates.PLAYING:
+					if(item['file'].indexOf('m4a') == -1
+						&& item['file'].indexOf('mp3') == -1
+						&& item['file'].indexOf('aac') == -1) {
+						thumb.visible = false;
+						display.media.visible = true;
+					} else { 
 						thumb.visible = true;
 						display.media.visible = false;
-						sendEvent(ModelEvent.TIME,{position:0,duration:item['duration']});
-						break;
-					case ModelStates.PLAYING:
-						if(item['file'].indexOf('m4a') == -1
-							&& item['file'].indexOf('mp3') == -1
-							&& item['file'].indexOf('aac') == -1) {
-							thumb.visible = false;
-							display.media.visible = true;
-						} else { 
-							thumb.visible = true;
-							display.media.visible = false;
-						}
-						break;
-				}
-				dispatchEvent(new ModelEvent(typ,dat));
-				break;
-			case ModelEvent.META:
-				if(dat.width) { resizeHandler(); }
-			default:
-				dispatchEvent(new ModelEvent(typ,dat));
-				break;
+					}
+					break;
+			}
+			dispatchEvent(new ModelEvent(typ,dat));
+		} else {
+			dispatchEvent(new ModelEvent(typ,dat));
+			if(dat.width) { resizeHandler(); }
 		}
 	};
 

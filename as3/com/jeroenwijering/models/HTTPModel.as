@@ -7,7 +7,7 @@ package com.jeroenwijering.models {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.player.Model;
-import com.jeroenwijering.utils.NetClient;
+import com.jeroenwijering.utils.*;
 
 import flash.events.*;
 import flash.media.*;
@@ -244,6 +244,9 @@ public class HTTPModel extends AbstractModel {
 			byteoffset = off;
 			load(item);
 		} else {
+			if(model.config['state'] == ModelStates.PAUSED) {
+				stream.resume();
+			}
 			position = pos;
 			if(mp4) {
 				stream.seek(getOffset(position-timeoffset,true));

@@ -35,6 +35,8 @@ public class RTMPModel extends AbstractModel {
 	protected var started:Boolean;
 	/** ID for the position interval. **/
 	protected var interval:Number;
+	/** Save that a file is unpublished. **/
+	protected var unpublished:Boolean;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -175,7 +177,7 @@ public class RTMPModel extends AbstractModel {
 
 	/** Receive NetStream status updates. **/
 	protected function statusHandler(evt:NetStatusEvent):void {
-		switch (evt.info.code) {
+		switch(evt.info.code) {
 			case 'NetConnection.Connect.Success':
 				if(evt.info.secureToken != undefined) {
 					connection.call("secureTokenResponse",null,TEA.decrypt(evt.info.secureToken,model.config['token']));
@@ -196,19 +198,27 @@ public class RTMPModel extends AbstractModel {
 				interval = setInterval(positionInterval,100);
 				break;
 			case 'NetConnection.Connect.Rejected':
-				if(evt.info.ex.code == 302) {
+				if(evt.info.ex && evt.info.ex.code == 302) {
 					item['streamer'] = evt.info.ex.redirect;
 					connection.connect(item['streamer']);
 				}
 				break;
 			case 'NetStream.Failed':
 			case 'NetStream.Play.StreamNotFound':
-				stop();
-				model.sendEvent(ModelEvent.ERROR,{message:"Stream not found: "+item['file']});
+				if(unpublished) {
+					onData({type:'complete'});
+					unpublished = false;
+				} else { 
+					stop();
+					model.sendEvent(ModelEvent.ERROR,{message:"Stream not found: "+item['file']});
+				}
 				break;
 			case 'NetConnection.Connect.Failed':
 				stop();
 				model.sendEvent(ModelEvent.ERROR,{message:"Server not found: "+item['streamer']});
+				break;
+			case 'NetStream.Play.UnpublishNotify':
+				unpublished = true;
 				break;
 		}
 		model.sendEvent(ModelEvent.META,{info:evt.info.code});
