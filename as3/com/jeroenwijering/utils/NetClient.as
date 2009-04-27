@@ -4,7 +4,7 @@
 package com.jeroenwijering.utils {
 
 
-public class NetClient {
+public dynamic class NetClient {
 
 
 	/** Function to callback all events to **/

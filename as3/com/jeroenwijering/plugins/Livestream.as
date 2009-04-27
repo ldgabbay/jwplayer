@@ -45,7 +45,6 @@ public class Livestream extends MovieClip implements PluginInterface {
 
 	/** Check the XML for a new application instance. **/
 	private function checkStream():void {
-		trace('checking');
 		count++;
 		connection.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		connection.client = new NetClient(this);
@@ -106,7 +105,6 @@ public class Livestream extends MovieClip implements PluginInterface {
 
 	/** Receive NetStream status updates. **/
 	private function statusHandler(evt:NetStatusEvent):void {
-		trace(evt.info.code);
 		switch(evt.info.code) {
 			case 'NetConnection.Connect.Success':
 				stream = new NetStream(connection);
