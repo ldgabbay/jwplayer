@@ -9,20 +9,20 @@ var settings = {
 	/** Available plugins (xml contains all info for flashvars). **/
 	plugins: {
 		controlling: {
-			swf:'plugins/controlling.swf',
-			xml:'plugins/controlling.xml',
+			swf:'plugins/controlling/controlling.swf',
+			xml:'plugins/controlling/controlling.xml',
 		},
 		flashvars: {
-			swf:'plugins/flashvars.swf',
-			xml:'plugins/flashvars.xml',
+			swf:'plugins/flashvars/flashvars.swf',
+			xml:'plugins/flashvars/flashvars.xml',
 		},
 		listening: {
-			swf:'plugins/listening.swf',
-			xml:'plugins/listening.xml',
+			swf:'plugins/listening/listening.swf',
+			xml:'plugins/listening/listening.xml',
 		},
 		positioning: {
-			swf:'plugins/positioning.swf',
-			xml:'plugins/positioning.xml',
+			swf:'plugins/positioning/positioning.swf',
+			xml:'plugins/positioning/positioning.xml',
 		}
 	},
 	/** Skins to embed in the testpage. **/
@@ -69,7 +69,7 @@ var settings = {
 			image:'files/bunny.jpg',
 			plugins:'controlling',
 			height:240,
-			width:500
+			width:400
 		},
 		'Flashvars plugin template': {
 			file:'../files/bunny.flv',
@@ -77,23 +77,23 @@ var settings = {
 			plugins:'flashvars',
 			'flashvars.message':'hello world!',
 			height:240,
-			width:500
+			width:400
 		},
 		'Listening plugin template': {
 			file:'../files/bunny.flv',
 			image:'files/bunny.jpg',
 			plugins:'listening',
 			height:240,
-			width:500
+			width:400
 		},
 		'Positioning plugin template': {
 			file:'../files/bunny.flv',
 			image:'files/bunny.jpg',
 			plugins:'positioning',
 			'positioning.position':'left',
-			'positioning.size':100,
+			'positioning.size':200,
 			height:240,
-			width:500
+			width:600
 		}
 	}
 }

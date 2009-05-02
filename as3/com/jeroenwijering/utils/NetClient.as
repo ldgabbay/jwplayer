@@ -27,7 +27,9 @@ public dynamic class NetClient {
 	private function forward(dat:Object,typ:String):void {
 		dat['type'] = typ;
 		var out:Object = new Object();
-		for (var i in dat) { out[i] = dat[i]; }
+		for (var i:Object in dat) { 
+			out[i] = dat[i]; 
+		}
 		callback.onData(out);
 	};
 

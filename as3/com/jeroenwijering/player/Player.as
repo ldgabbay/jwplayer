@@ -66,10 +66,9 @@ public class Player extends MovieClip {
 		client:undefined,
 		id:undefined,
 		linktarget:'_blank',
-		plugins:undefined,
 		token:undefined,
 		tracecall:undefined,
-		version:'4.5.205'
+		version:'4.5.207'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -139,14 +138,11 @@ public class Player extends MovieClip {
 		model.addModel(new VideoModel(model),'video');
 		model.addModel(new YoutubeModel(model),'youtube');
 
-		model.addModel(new CameraModel(model),'camera');
-		model.addModel(new LighttpdModel(model),'lighttpd');
-		model.addModel(new NginxModel(model),'nginx');
-
 		model.addModel(new BitgravityModel(model),'bitgravity');
-		model.addModel(new HighwindsModel(model),'highwinds');
-		model.addModel(new FLVSeekModel(model),'flvseek');
 		model.addModel(new FCSubscribeModel(model),'fcsubscribe');
+		model.addModel(new FLVSeekModel(model),'flvseek');
+		model.addModel(new HighwindsModel(model),'highwinds');
+		model.addModel(new LighttpdModel(model),'lighttpd');
 	};
 
 
@@ -157,8 +153,6 @@ public class Player extends MovieClip {
 		sploader.addPlugin(new Controlbar(),'controlbar');
 		sploader.addPlugin(new Playlist(),'playlist');
 		sploader.addPlugin(new Watermark(),'watermark');
-		//if(config['hd.file']) { sploader.addPlugin(new HD(),'hd'); }
-		//if(config['captions.file']) { sploader.addPlugin(new Captions(),'captions'); }
 	};
 
 
