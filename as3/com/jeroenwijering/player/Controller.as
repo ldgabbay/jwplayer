@@ -329,10 +329,6 @@ public class Controller extends EventDispatcher {
 			if(!ply[i]['streamer'] && config['streamer']) {
 				ply[i]['streamer'] = config['streamer'];
 			}
-			if(config['replace']) {
-				var arr:Array = config['replace'].split('|');
-				ply[i]['file'] = ply[i]['file'].replace(RegExp(arr[0]),arr[1]);
-			}
 			ply[i]['type'] = getModelType(ply[i],true);
 			if(!ply[i]['type']) { ply.splice(i,1); }
 		}

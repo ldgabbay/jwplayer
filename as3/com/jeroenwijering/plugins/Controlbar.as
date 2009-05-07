@@ -178,7 +178,7 @@ public class Controlbar implements PluginInterface {
 			}
 		} catch (err:Error) {}
 		try {
-			if(view.playlist && view.playlist[view.config['item']]['link']) {
+			if(view.playlist && view.playlist[view.config['item']]['link'] && !view.config['dock']) {
 				clip.linkButton.visible = true;
 			} else { 
 				clip.linkButton.visible = false;
@@ -214,17 +214,15 @@ public class Controlbar implements PluginInterface {
 	private function moveHandler(evt:MouseEvent=null):void {
 		if(clip.alpha == 0) { Animations.fade(clip,1); }
 		clearTimeout(hiding);
-		hiding = setTimeout(moveTimeout,1000);
+		hiding = setTimeout(moveTimeout,2000);
 		Mouse.show();
 	};
 
 
 	/** Hide above controlbar again when move has timed out. **/
 	private function moveTimeout():void {
-		if((clip.mouseY<3 || clip.mouseY>clip.height-5)  && clip.alpha == 1) {
-			Animations.fade(clip,0);
-			Mouse.hide();
-		}
+		Animations.fade(clip,0);
+		Mouse.hide();
 	};
 
 
@@ -386,7 +384,7 @@ public class Controlbar implements PluginInterface {
 					clip.pauseButton.visible = true;
 				} catch (err:Error) {}
 				if(config['position'] == 'over' || dps == 'fullScreen') {
-					hiding = setTimeout(moveTimeout,1000);
+					hiding = setTimeout(moveTimeout,2000);
 					view.skin.addEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
 				} else {
 					Animations.fade(clip,1);

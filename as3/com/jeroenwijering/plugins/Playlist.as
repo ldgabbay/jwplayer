@@ -215,6 +215,7 @@ public class Playlist implements PluginInterface {
 
 	/** New playlist loaded: rebuild the playclip. **/
 	private function playlistHandler(evt:ControllerEvent=null):void {
+		clearInterval(scrollInterval);
 		active = undefined;
 		buildList(true);
 		resizeHandler();

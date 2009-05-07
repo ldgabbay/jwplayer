@@ -67,7 +67,7 @@ public class RTMPModel extends AbstractModel {
 		var ext:String = url.substr(-4);
 		if(ext == '.mp3') {
 			return 'mp3:'+url.substr(0,url.length-4);
-		} else if(ext == '.mp4' || ext == '.mov' || ext == '.aac' || ext == '.m4a') {
+		} else if(ext == '.mp4' || ext == '.mov' || ext == '.aac' || ext == '.m4a' || ext == '.f4v') {
 			return 'mp4:'+url;
 		} else if (ext == '.flv') {
 			return url.substr(0,url.length-4);
@@ -139,7 +139,7 @@ public class RTMPModel extends AbstractModel {
 		}
 		if(position < item['duration']) {
 			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
-		} else if (item['duration'] > 0 && model.config['respectduration']) {
+		} else if (item['duration'] > 0) {
 			pause();
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}

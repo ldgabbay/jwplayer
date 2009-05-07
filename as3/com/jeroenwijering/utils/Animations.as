@@ -18,7 +18,7 @@ public class Animations {
 	* @param end	The final alpha value.
 	* @param spd	The amount of alpha change per frame.
 	**/
-	public static function fade(tgt:MovieClip,end:Number=1,spd:Number=0.2):void {
+	public static function fade(tgt:MovieClip,end:Number=1,spd:Number=0.25):void {
 		if(tgt.alpha > end) {
 			tgt.spd = -Math.abs(spd);
 		} else {

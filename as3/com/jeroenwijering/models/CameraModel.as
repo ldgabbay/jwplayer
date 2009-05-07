@@ -88,7 +88,7 @@ public class CameraModel extends AbstractModel {
 		position = Math.round(position*10+1)/10;
 		if(position < item['duration']) {
 			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
-		} else if (item['duration'] > 0 && model.config['respectduration']) {
+		} else if (item['duration'] > 0) {
 			pause();
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}

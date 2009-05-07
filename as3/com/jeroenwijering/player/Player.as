@@ -37,6 +37,7 @@ public class Player extends MovieClip {
 		screencolor:undefined,
 
 		controlbar:'bottom',
+		dock:true,
 		height:300,
 		playlist:'none',
 		playlistsize:180,
@@ -51,10 +52,8 @@ public class Player extends MovieClip {
 		item:0,
 		logo:undefined,
 		mute:false,
-		replace:undefined,
 		repeat:'none',
 		resizing:true,
-		respectduration:false,
 		shuffle:false,
 		smoothing:true,
 		state:'IDLE',
@@ -68,7 +67,7 @@ public class Player extends MovieClip {
 		linktarget:'_blank',
 		token:undefined,
 		tracecall:undefined,
-		version:'4.5.207'
+		version:'4.5.208'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -152,6 +151,7 @@ public class Player extends MovieClip {
 		sploader.addPlugin(new Rightclick(),'rightclick');
 		sploader.addPlugin(new Controlbar(),'controlbar');
 		sploader.addPlugin(new Playlist(),'playlist');
+		if(config['dock']) { sploader.addPlugin(new Dock(),'dock'); }
 		sploader.addPlugin(new Watermark(),'watermark');
 	};
 

@@ -29,6 +29,8 @@ public class Display implements PluginInterface {
 	private var margins:Array;
 	/** The latest playback state **/
 	private var state:String;
+	/** Map with color transformation objects. **/
+	private var colors:Object;
 	/** A list of all the icons. **/
 	private var ICONS:Array = new Array(
 		'playIcon',
@@ -37,10 +39,13 @@ public class Display implements PluginInterface {
 		'linkIcon',
 		'muteIcon',
 		'fullscreenIcon',
-		'nextIcon'
+		'nextIcon',
+		'titleIcon'
 	);
 	/** Timeout for hiding the buffericon. **/
 	private var timeout:Number;
+	/** Is there an error sent. **/
+	private var errored:Boolean;
 
 
 	/** Constructor; add all needed listeners. **/
@@ -58,10 +63,8 @@ public class Display implements PluginInterface {
 		view.addModelListener(ModelEvent.ERROR,errorHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
 		clip.media.mask = clip.masker;
-		if(view.config['screencolor']) {
-			var clr:ColorTransform = new ColorTransform();
-			clr.color = uint('0x'+view.config['screencolor'].substr(-6));
-			clip.back.transform.colorTransform = clr;
+		if(view.config['backcolor'] && view.config['frontcolor'] && view.config['screencolor']) {
+			setColors();
 		}
 		if(view.config['displayclick'] != 'none') {
 			clip.addEventListener(MouseEvent.CLICK,clickHandler);
@@ -100,6 +103,7 @@ public class Display implements PluginInterface {
 	/** Receive and print errors. **/
 	private function errorHandler(evt:Object):void {
 		if(view.config['icons'] == true) {
+			errored = true;
 			setIcon('errorIcon');
 			Draw.set(clip.errorIcon.txt,'text',evt.data.message);
 		}
@@ -146,7 +150,7 @@ public class Display implements PluginInterface {
 
 	/** Receive resizing requests **/
 	private function resizeHandler(evt:ControllerEvent):void {
-		if(config['height'] > 0) {
+		if(config['height'] > 11) {
 			clip.visible = true;
 		} else {
 			clip.visible = false;
@@ -163,11 +167,31 @@ public class Display implements PluginInterface {
 	};
 
 
+	/** Set color tranformation objects so the buttons can be colorized. **/
+	private function setColors():void {
+		var scr:ColorTransform = new ColorTransform();
+		scr.color = uint('0x'+view.config['screencolor']);
+		var frt:ColorTransform = new ColorTransform();
+		frt.color = uint('0x'+view.config['frontcolor']);
+		var bck:ColorTransform = new ColorTransform();
+		bck.color = uint('0x'+view.config['backcolor']);
+		colors = {screen:scr,front:frt,back:bck};
+		clip.back.transform.colorTransform = colors['screen'];
+		for(var i:String in ICONS) {
+			try {
+				clip[ICONS[i]].bck.transform.colorTransform = colors['front'];
+				clip[ICONS[i]].icn.transform.colorTransform = colors['back'];
+				clip[ICONS[i]].txt.textColor = colors['back'].color;
+			} catch (err:Error) {}
+		}
+	};
+
+
 	/** Set a specific icon in the clip. **/
 	private function setIcon(icn:String=undefined):void {
 		clearTimeout(timeout);
 		for(var i:String in ICONS) {
-			if(clip[ICONS[i]]) { 
+			if(clip[ICONS[i]]) {
 				if(icn == ICONS[i] && view.config['icons'] == true) {
 					clip[ICONS[i]].visible = true;
 				} else {
@@ -175,6 +199,24 @@ public class Display implements PluginInterface {
 				}
 			}
 		}
+	};
+
+
+	/** Place the title in the titleIcon. **/
+	private function setTitle() {
+		var icn:MovieClip = clip.titleIcon;
+		icn.txt.autoSize = 'left';
+		icn.txt.text = view.playlist[view.config['item']]['title'];
+		if(icn.txt.width+icn.icn.width + 60 > config['width']) {
+			icn.bck.width = config['width'] - 60;
+			icn.txt.autoSize = 'none';
+			icn.txt.width = icn.bck.width - icn.icn.width - 20;
+		} else { 
+			icn.bck.width = icn.txt.width + icn.icn.width + 20;
+		}
+		icn.bck.x = -icn.bck.width/2;
+		icn.icn.x = icn.bck.x;
+		icn.txt.x = icn.icn.x + icn.icn.width;
 	};
 
 
@@ -198,6 +240,11 @@ public class Display implements PluginInterface {
 			case ModelStates.IDLE:
 				if(view.config.displayclick == 'none' || !view.playlist) {
 					setIcon();
+				} else if (errored) { 
+					errored = false;
+				} else if (clip.titleIcon && view.playlist[view.config['item']]['title']) {
+					setTitle();
+					setIcon('titleIcon');
 				} else {
 					setIcon('playIcon');
 				}

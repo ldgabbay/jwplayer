@@ -50,6 +50,7 @@ public class Stretcher {
 				clp.scaleY = 1;
 				break;
 			case 'uniform':
+			default:
 				if(xsc > ysc) {
 					clp.width *= ysc;
 					clp.height *= ysc;

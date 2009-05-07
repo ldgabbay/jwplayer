@@ -40,7 +40,6 @@ public class VideoModel extends AbstractModel {
 		connection = new NetConnection();
 		connection.connect(null);
 		stream = new NetStream(connection);
-		stream.checkPolicyFile = true;
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		stream.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
@@ -65,6 +64,7 @@ public class VideoModel extends AbstractModel {
 		item = itm;
 		position = 0;
 		model.mediaHandler(video);
+		stream.checkPolicyFile = true;
 		stream.play(item['file']);
 		interval = setInterval(positionInterval,100);
 		loadinterval = setInterval(loadHandler,200);
@@ -139,7 +139,7 @@ public class VideoModel extends AbstractModel {
 		}
 		if(position < item['duration']) {
 			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
-		} else if (item['duration'] > 0 && model.config['respectduration']) {
+		} else if (item['duration'] > 0) {
 			pause();
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}

@@ -54,7 +54,7 @@ public class Model extends EventDispatcher {
 		thumb.contentLoaderInfo.addEventListener(Event.COMPLETE,thumbHandler);
 		thumb.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,thumbHandler);
 		Draw.clear(display.media);
-		display.addChildAt(thumb,display.getChildIndex(display.media)+1);
+		display.addChildAt(thumb,display.getChildIndex(display.media));
 		display.media.visible = false;
 		models = new Object();
 	};
