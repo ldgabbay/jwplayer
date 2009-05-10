@@ -34,43 +34,32 @@ public class Logger {
 	/**
 	* Log a message to the output system.
 	*
-	* @param message	The message to send forward.
-	* @param type		The type of message.
+	* @param message	The message to send forward. Arrays and objects are automatically chopped up.
+	* @param type		The type of message; is capitalized and precedes the message.
 	**/
 	public static function log(message:*,type:String="log"):void {
 		if(message == undefined) {
 			send(type.toUpperCase());
 		} else if (message is String) {
 			send(type.toUpperCase()+' ('+message+')');
-		} else if (message is Number) {
+		} else if (message is Boolean || message is Number || message is Array) {
 			send(type.toUpperCase()+' ('+message.toString()+')');
-		} else if (message is Array) {
-			Logger.array(message,type);
 		} else {
 			Logger.object(message,type);
 		}
 	};
 
 
-	/** Format an array for logging. **/
-	private static function array(message:Array,type:String):void {
-		var txt:String = type.toUpperCase()+' ([';
-		for(var i:Number=0; i<message.length; i++) {
-			txt += message[i]+', ';
-		}
-		txt = txt.substr(0,txt.length-2) +'])';
-		Logger.send(txt);
-	};
-
-
-	/** Format an object for logging. **/
+	/** Explode an object for logging. **/
 	private static function object(message:Object,type:String):void {
 		var txt:String = type.toUpperCase()+' ({';
-		for(var s:String in message) {
-			txt += s+': '+message[s]+', ';
+		for(var i:String in message) {
+			if(message[i] is Object) { 
+				txt += i+':'+message[i].toString()+', ';
+			}
 		}
 		txt = txt.substr(0,txt.length-2);
-		if(s) { txt += '})'; }
+		if(i) { txt += '})'; }
 		Logger.send(txt);
 	};
 
