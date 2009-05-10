@@ -11,7 +11,7 @@ public class JWParser {
 
 
 	/** Prefix for the JW Player namespace. **/
-	private static var PREFIX = 'jwplayer';
+	private static const PREFIX = 'jwplayer';
 
 
 	/**

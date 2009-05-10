@@ -108,7 +108,7 @@ public class Controller extends EventDispatcher {
 
 	/** Catch errors dispatched by the playlister. **/
 	private function errorHandler(evt:ErrorEvent):void {
-		dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,{message:evt.text}));
+		sendEvent(ControllerEvent.ERROR,{message:evt.text});
 	};
 
 
@@ -229,7 +229,7 @@ public class Controller extends EventDispatcher {
 			var dat:XML = XML(evt.target.data);
 			var fmt:String = dat.localName().toLowerCase();
 		} catch (err:Error) {
-			dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,{message:'This playlist is not a valid XML file.'}));
+			sendEvent(ControllerEvent.ERROR,{message:'This playlist is not a valid XML file.'});
 			return;
 		}
 		switch (fmt) {
@@ -249,7 +249,7 @@ public class Controller extends EventDispatcher {
 				playlistHandler(ATOMParser.parse(dat));
 				break;
 			default:
-				dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,{message:'Unknown playlist format: '+fmt}));
+				sendEvent(ControllerEvent.ERROR,{message:'Unknown playlist format: '+fmt});
 				return;
 		}
 	};
@@ -279,7 +279,7 @@ public class Controller extends EventDispatcher {
 			config['mute'] = !config['mute'];
 		}
 		Configger.saveCookie('mute',config['mute']);
-		dispatchEvent(new ControllerEvent(ControllerEvent.MUTE,{state:config['mute']}));
+		sendEvent(ControllerEvent.MUTE,{state:config['mute']});
 	};
 
 
@@ -299,14 +299,14 @@ public class Controller extends EventDispatcher {
 	private function playHandler(evt:ViewEvent):void {
 		if(playlist) {
 			if(evt.data.state != false && config['state'] == ModelStates.PAUSED) {
-				dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:true}));
+				sendEvent(ControllerEvent.PLAY,{state:true});
 			} else if (evt.data.state != false && config['state'] == ModelStates.COMPLETED) {
-				dispatchEvent(new ControllerEvent(ControllerEvent.SEEK,{position:0}));
+				sendEvent(ControllerEvent.SEEK,{position:0});
 			} else if(evt.data.state != false && config['state'] == ModelStates.IDLE) {
 				playItem();
 			} else if (evt.data.state != true &&
 				(config['state'] == ModelStates.PLAYING || config['state'] == ModelStates.BUFFERING)) {
-				dispatchEvent(new ControllerEvent(ControllerEvent.PLAY,{state:false}));
+				sendEvent(ControllerEvent.PLAY,{state:false});
 			}
 		}
 	};
@@ -317,7 +317,7 @@ public class Controller extends EventDispatcher {
 		if(!isNaN(nbr)) {
 			config['item'] = nbr;
 		}
-		dispatchEvent(new ControllerEvent(ControllerEvent.ITEM,{index:config['item']}));
+		sendEvent(ControllerEvent.ITEM,{index:config['item']});
 	};
 
 
@@ -335,7 +335,7 @@ public class Controller extends EventDispatcher {
 		if(ply.length > 0) {
 			playlist = ply;
 		} else {
-			dispatchEvent(new ControllerEvent(ControllerEvent.ERROR,{message:'No valid filetypes found in this playlist'}));
+			sendEvent(ControllerEvent.ERROR,{message:'No valid filetypes found in this playlist'});
 			return;
 		}
 		if(config['shuffle'] == true) {
@@ -344,7 +344,7 @@ public class Controller extends EventDispatcher {
 		} else if (config['item'] >= playlist.length) {
 			config['item'] = playlist.length-1;
 		}
-		dispatchEvent(new ControllerEvent(ControllerEvent.PLAYLIST,{playlist:playlist}));
+		sendEvent(ControllerEvent.PLAYLIST,{playlist:playlist});
 		if(config['autostart'] == true) {
 			playItem();
 		}
@@ -377,8 +377,8 @@ public class Controller extends EventDispatcher {
 			config['fullscreen'] = false;
 			sploader.layoutNormal();
 		}
-		dispatchEvent(new ControllerEvent(ControllerEvent.RESIZE,{
-			fullscreen:config['fullscreen'],width:config['width'],height:config['height']}));
+		sendEvent(ControllerEvent.RESIZE,{
+			fullscreen:config['fullscreen'],width:config['width'],height:config['height']});
 	};
 
 
@@ -388,17 +388,24 @@ public class Controller extends EventDispatcher {
 			var pos:Number = evt.data.position;
 			if(pos < 1) { 
 				pos = 0;
-			} else if (pos > playlist[config['item']]['duration']-1) { 
+			} else if (pos > playlist[config['item']]['duration']-1) {
 				pos = playlist[config['item']]['duration']-1;
 			}
-			dispatchEvent(new ControllerEvent(ControllerEvent.SEEK,{position:pos}));
+			sendEvent(ControllerEvent.SEEK,{position:pos});
 		}
+	};
+
+
+	/** Log and dispatch events. **/
+	private function sendEvent(typ:String,dat:Object=undefined):void {
+		Logger.log(dat,typ);
+		dispatchEvent(new ControllerEvent(typ,dat));
 	};
 
 
 	/** Stop all playback and buffering. **/
 	private function stopHandler(evt:ViewEvent=undefined):void {
-		dispatchEvent(new ControllerEvent(ControllerEvent.STOP));
+		sendEvent(ControllerEvent.STOP);
 	};
 
 
@@ -438,7 +445,7 @@ public class Controller extends EventDispatcher {
 			}
 			config['volume'] = vol;
 			Configger.saveCookie('volume',config['volume']);
-			dispatchEvent(new ControllerEvent(ControllerEvent.VOLUME,{percentage:vol}));
+			sendEvent(ControllerEvent.VOLUME,{percentage:vol});
 		}
 	};
 

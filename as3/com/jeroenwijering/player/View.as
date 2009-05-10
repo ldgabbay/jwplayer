@@ -94,14 +94,6 @@ public class View extends AbstractView {
 		if(prm.length > 0) {
 			prm = '('+prm.substr(0,prm.length-1)+')';
 		}
-		if(config['tracecall'] == 'arthropod') {
-			var obj:Object = {CONTROLLER:'0xFF6666',VIEW:'0x66FF66',MODEL:'0x6666FF'};
-			Debug.log(typ+' '+prm,obj[tgt]);
-		} else if(config['tracecall'] == 'flash') {
-			trace(tgt+': '+typ+' '+prm);
-		} else if (config['tracecall'] && ready) {
-			ExternalInterface.call(config['tracecall'],tgt+': '+typ+' '+prm);
-		}
 		if(!dat) { dat = new Object(); }
 	 	dat.id = config['id'];
 		dat.client = config['client'];
@@ -285,6 +277,7 @@ public class View extends AbstractView {
 				}
 				break;
 		}
+		Logger.log(prm,typ);
 		dispatchEvent(new ViewEvent(typ,dat));
 	};
 

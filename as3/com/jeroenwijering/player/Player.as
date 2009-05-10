@@ -8,6 +8,7 @@ import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.*;
 import com.jeroenwijering.plugins.*;
 import com.jeroenwijering.utils.Configger;
+import com.jeroenwijering.utils.Logger;
 
 import flash.display.MovieClip;
 import flash.events.Event;
@@ -39,6 +40,7 @@ public class Player extends MovieClip {
 		controlbar:'bottom',
 		dock:true,
 		height:300,
+		icons:true,
 		playlist:'none',
 		playlistsize:180,
 		skin:undefined,
@@ -48,8 +50,8 @@ public class Player extends MovieClip {
 		bufferlength:1,
 		displayclick:'play',
 		fullscreen:false,
-		icons:true,
 		item:0,
+		linktarget:'_blank',
 		logo:undefined,
 		mute:false,
 		repeat:'none',
@@ -60,14 +62,13 @@ public class Player extends MovieClip {
 		stretching:'uniform',
 		volume:90,
 
-		abouttext:undefined,
+		abouttext:"JW Player",
 		aboutlink:"http://www.longtailvideo.com/players/jw-flv-player/",
 		client:undefined,
+		debug:'none',
 		id:undefined,
-		linktarget:'_blank',
-		token:undefined,
-		tracecall:undefined,
-		version:'4.5.208'
+		plugins:undefined,
+		version:'4.5.211'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -109,6 +110,7 @@ public class Player extends MovieClip {
 
 	/** When config is loaded, the player laods the skin. **/
 	protected function loadSkin(evt:Event=null):void {
+		Logger.output = config['debug'];
 		sploader = new SPLoader(this);
 		sploader.addEventListener(SPLoaderEvent.SKIN,loadMVC);
 		sploader.loadSkin();

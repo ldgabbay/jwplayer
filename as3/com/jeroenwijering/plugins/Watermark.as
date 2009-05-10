@@ -1,5 +1,5 @@
 ﻿/**
-* Plugin that shows a watermark when buffering§.
+* Plugin that shows a watermark when buffering.
 **/
 package com.jeroenwijering.plugins {
 
@@ -32,8 +32,6 @@ public dynamic class Watermark extends MovieClip implements PluginInterface {
 		over: 1,
 		out: 0.5
 	};
-	/** URL to redirect to on mouse click **/
-	private var clickURL:String = "http://www.longtailvideo.com/players/jw-flv-player/";
 	/** Set to true when the watermark is visible **/
 	private var showing:Boolean = false;
 
@@ -71,8 +69,8 @@ public dynamic class Watermark extends MovieClip implements PluginInterface {
 
 	private function resizeHandler(evt:ControllerEvent):void {
 		config = view.getPluginConfig(this);
-		this.x = config['x'] + 10;
-		this.y = config['height'] - this.height - 12;
+		x = config['x'] + 10;
+		y = config['height'] - height - 12;
 	};
 
 
@@ -109,7 +107,8 @@ public dynamic class Watermark extends MovieClip implements PluginInterface {
 
 	/** Handle Mouse Click **/
 	private function clickHandler(evt:MouseEvent):void {
-		navigateToURL(new URLRequest(clickURL),"_self");
+		view.sendEvent(ViewEvent.PLAY,false);
+		navigateToURL(new URLRequest(view.config['aboutlink']));
 	};
 
 

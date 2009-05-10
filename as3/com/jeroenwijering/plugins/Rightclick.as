@@ -5,10 +5,13 @@ package com.jeroenwijering.plugins {
 
 
 import com.jeroenwijering.events.*;
+import com.jeroenwijering.utils.Logger;
+import com.jeroenwijering.utils.Stretcher;
 
 import flash.events.ContextMenuEvent;
 import flash.net.URLRequest;
 import flash.net.navigateToURL;
+import flash.system.Capabilities;
 import flash.ui.ContextMenu;
 import flash.ui.ContextMenuItem;
 
@@ -26,6 +29,8 @@ public class Rightclick implements PluginInterface {
 	private var fullscreen:ContextMenuItem;
 	/** Reference to the stretchmode menuitem. **/
 	private var stretching:ContextMenuItem;
+	/** Reference to the debugging menuitem. **/
+	private var debug:ContextMenuItem;
 	/** Reference to the MVC view. **/
 	private var view:AbstractView;
 
@@ -37,13 +42,8 @@ public class Rightclick implements PluginInterface {
 	};
 
 
-	/**
-	* Add an item to the contextmenu.
-	*
-	* @param itm	An initialized ContextMenuItem
-	* @param fcn	The function to call when the menuitem is clicked.
-	**/
-	public function addItem(itm:ContextMenuItem,fcn:Function):void {
+	/** Add an item to the contextmenu. **/
+	private function addItem(itm:ContextMenuItem,fcn:Function):void {
 		itm.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT,fcn);
 		itm.separatorBefore = true;
 		context.customItems.push(itm);
@@ -54,20 +54,26 @@ public class Rightclick implements PluginInterface {
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
 		view.skin.contextMenu = context;
+		// Add the 'fullscreen' menuitem.
 		try {
-			if(view.skin.stage['displayState']) {
-				fullscreen = new ContextMenuItem('Toggle fullscreen...');
-				addItem(fullscreen,fullscreenHandler);
-			}
+			fullscreen = new ContextMenuItem('Toggle Fullscreen...');
+			addItem(fullscreen,fullscreenHandler);
 		} catch (err:Error) {}
+		// Add the 'stretching' menuitem.
 		stretching = new ContextMenuItem('Stretching is '+view.config['stretching']+'...');
 		addItem(stretching,stretchHandler);
-		if(view.config['abouttext']) {
-			about = new ContextMenuItem(view.config['abouttext']+'...');
-		} else {
+		// Add the 'about' menuitem.
+		if(view.config['abouttext'] == 'JW Player' || view.config['abouttext'] == undefined) {
 			about = new ContextMenuItem('About JW Player '+view.config['version']+'...');
+		} else {
+			about = new ContextMenuItem('About '+view.config['abouttext']+'...');
 		}
 		addItem(about,aboutHandler);
+		// Add the 'debug' menuitem.
+		if(Capabilities.isDebugger == true || view.config['debug'] != 'none') {
+			debug = new ContextMenuItem('Logging to '+Logger.output+'...');
+			addItem(debug,debugHandler);
+		}
 	};
 
 
@@ -77,23 +83,29 @@ public class Rightclick implements PluginInterface {
 	};
 
 
+	/** change the debug system. **/
+	private function debugHandler(evt:ContextMenuEvent):void {
+		var arr:Array = new Array(Logger.NONE,Logger.ARTHROPOD,Logger.CONSOLE,Logger.TRACE);
+		var idx:Number = arr.indexOf(Logger.output);
+		idx == arr.length-1 ? idx = 0: idx++;
+		debug.caption = 'Logging to '+arr[idx]+'...';
+		Logger.output = arr[idx];
+	};
+
+
 	/** Toggle the fullscreen mode. **/
-	private function fullscreenHandler(evt:ContextMenuEvent):void { 
+	private function fullscreenHandler(evt:ContextMenuEvent):void {
 		view.sendEvent(ViewEvent.FULLSCREEN);
 	};
 
 
 	/** Change the stretchmode. **/
 	private function stretchHandler(evt:ContextMenuEvent):void {
-		var arr:Array = new Array('uniform','fill','exactfit','none');
-		for (var idx:Number = 0; idx<arr.length; idx++) {
-			if(arr[idx] == view.config['stretching']) {
-				break;
-			}
-		}
+		var arr:Array = new Array(Stretcher.UNIFORM,Stretcher.FILL,Stretcher.EXACTFIT,Stretcher.NONE);
+		var idx:Number = arr.indexOf(view.config['stretching']);
 		idx == arr.length-1 ? idx = 0: idx++;
 		view.config['stretching'] = arr[idx];
-		stretching.caption = 'Stretching is '+view.config['stretching']+'...';
+		stretching.caption = 'Stretching is '+arr[idx]+'...';
 		view.sendEvent(ViewEvent.REDRAW);
 	};
 

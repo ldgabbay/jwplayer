@@ -194,11 +194,11 @@ public class Model extends EventDispatcher {
 					}
 					break;
 			}
-			dispatchEvent(new ModelEvent(typ,dat));
-		} else {
-			dispatchEvent(new ModelEvent(typ,dat));
-			if(dat.width) { resizeHandler(); }
+		} else if(dat.width) {
+			resizeHandler();
 		}
+		Logger.log(dat,typ);
+		dispatchEvent(new ModelEvent(typ,dat));
 	};
 
 
