@@ -28,7 +28,7 @@ public dynamic class NetClient {
 		dat['type'] = typ;
 		var out:Object = new Object();
 		for (var i:Object in dat) { 
-			out[i] = dat[i]; 
+			out[i] = dat[i];
 		}
 		callback.onData(out);
 	};

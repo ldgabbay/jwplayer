@@ -272,7 +272,7 @@ public class View extends AbstractView {
 			default:
 				if(prm == true || prm == 'true') {
 					dat['state'] = true;
-				} else if(prm == false || prm == 'false') {
+				} else if(prm === false || prm == 'false') {
 					dat['state'] = false;
 				}
 				break;

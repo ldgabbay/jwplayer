@@ -263,7 +263,8 @@ public class HTTPModel extends AbstractModel {
 	protected function statusHandler(evt:NetStatusEvent):void {
 		switch (evt.info.code) {
 			case "NetStream.Play.Stop":
-				if(model.config['state'] != ModelStates.COMPLETED) {
+				if(model.config['state'] != ModelStates.COMPLETED && 
+					model.config['state'] != ModelStates.BUFFERING) {
 					clearInterval(interval);
 					model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 				}

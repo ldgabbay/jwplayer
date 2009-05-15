@@ -68,7 +68,7 @@ public class Player extends MovieClip {
 		debug:'none',
 		id:undefined,
 		plugins:undefined,
-		version:'4.5.211'
+		version:'4.5.212'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -144,6 +144,7 @@ public class Player extends MovieClip {
 		model.addModel(new FLVSeekModel(model),'flvseek');
 		model.addModel(new HighwindsModel(model),'highwinds');
 		model.addModel(new LighttpdModel(model),'lighttpd');
+		model.addModel(new VDOXModel(model),'vdox');
 	};
 
 
@@ -153,7 +154,7 @@ public class Player extends MovieClip {
 		sploader.addPlugin(new Rightclick(),'rightclick');
 		sploader.addPlugin(new Controlbar(),'controlbar');
 		sploader.addPlugin(new Playlist(),'playlist');
-		if(config['dock']) { sploader.addPlugin(new Dock(),'dock'); }
+		sploader.addPlugin(new Dock(),'dock');
 		sploader.addPlugin(new Watermark(),'watermark');
 	};
 

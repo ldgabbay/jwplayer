@@ -18,7 +18,8 @@ public class Dock implements PluginInterface {
 
 	/** Configuration vars for this plugin. **/
 	public var config:Object = {
-		align:'right'
+		align:'right',
+		link:true
 	};
 	/** Reference to the skin MVC. **/
 	public var clip:MovieClip;
@@ -73,13 +74,11 @@ public class Dock implements PluginInterface {
 
 	/** Let's see if the new item has a link. **/
 	private function itemHandler(evt:ControllerEvent):void {
-		if(view.playlist[view.config['item']]['link'] && !link) {
-			link = addButton(null,'visit link',linkHandler);
-			Debug.log('DOCK(adding button)');
-		} else if (!view.playlist[view.config['item']]['link'] && link) {
+		if(link) {
 			removeButton(link);
-			link = undefined;
-			Debug.log('DOCK(removing button)');
+		}
+		if(view.playlist[view.config['item']]['link'] && config['link']) {
+			link = addButton(null,'visit link',linkHandler);
 		}
 	}
 
@@ -120,23 +119,27 @@ public class Dock implements PluginInterface {
 				buttons.splice(i,1);
 			}
 		}
-		clip.removeChild(btn);
+		try {
+			clip.removeChild(btn);
+		} catch (err:Error) {}
 	};
 
 
 	/** Receive resizing requests **/
 	private function resizeHandler(evt:ControllerEvent=null):void {
-		if(buttons.length) {
+		clip.y = config['y'];
+		if(config['align'] == 'left') {
+			clip.x = config['x'];
+		} else {
+			clip.x = config['x'] + config['width'] - clip.width;
+		}
+		for (var i:Number=0; i<buttons.length; i++) {
+			buttons[i].y = buttons[i].height*i;
+		}
+		if(view.config['dock']) {
 			clip.visible = true;
-			clip.y = config['y'];
-			if(config['align'] == 'left') {
-				clip.x = config['x'];
-			} else {
-				clip.x = config['x'] + config['width'] - clip.width;
-			}
-			for (var i:Number=0; i<buttons.length; i++) {
-				buttons[i].y = buttons[i].height*i;
-			}
+		} else { 
+			clip.visible = false;
 		}
 	};
 
