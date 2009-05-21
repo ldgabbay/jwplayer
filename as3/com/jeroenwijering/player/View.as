@@ -122,14 +122,16 @@ public class View extends AbstractView {
 	private function getPlaylist():Array {
 		var arr:Array = new Array();
 		var cfg:Object = new Object();
-		for(var i:Number=0; i<controller.playlist.length; i++) {
-			cfg = new Object();
-			for(var s:String in controller.playlist[i]) {
-				if(s.indexOf('.') == -1) {
-					cfg[s] = controller.playlist[i][s];
+		if(controller.playlist) {
+			for(var i:Number=0; i<controller.playlist.length; i++) {
+				cfg = new Object();
+				for(var s:String in controller.playlist[i]) {
+					if(s.indexOf('.') == -1) {
+						cfg[s] = controller.playlist[i][s];
+					}
 				}
+				arr.push(cfg);
 			}
-			arr.push(cfg);
 		}
 		return arr;
 	};
