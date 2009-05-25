@@ -68,7 +68,7 @@ public class Player extends MovieClip {
 		debug:'none',
 		id:undefined,
 		plugins:undefined,
-		version:'4.5.215'
+		version:'4.5.216'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -140,6 +140,7 @@ public class Player extends MovieClip {
 		model.addModel(new YoutubeModel(model),'youtube');
 
 		model.addModel(new BitgravityModel(model),'bitgravity');
+		model.addModel(new EdgeCastModel(model),'edgecast');
 		model.addModel(new FCSubscribeModel(model),'fcsubscribe');
 		model.addModel(new FLVSeekModel(model),'flvseek');
 		model.addModel(new HighwindsModel(model),'highwinds');

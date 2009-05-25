@@ -5,7 +5,6 @@ package com.jeroenwijering.plugins {
 
 
 import com.jeroenwijering.utils.Draw;
-import com.jeroenwijering.utils.Debug;
 
 import flash.display.*;
 import flash.events.*;

@@ -1,24 +1,33 @@
 package com.jeroenwijering.utils {
 
 
-import com.jeroenwijering.utils.Debug;
-
 import flash.external.ExternalInterface;
+import flash.net.LocalConnection;
+import flash.system.System;
 
 
 /**
-* <p>Utility class for logging debug messages. it supports the following logging systems:</p>
+* <p>Utility class for logging debug messages. It supports the following logging systems:</p>
 * <ul>
-* <li>The tracing sstem built into the debugging players.</li>
 * <li>The standalone Arthropod AIR application.</li>
 * <li>The Console.log function built into Firefox/Firebug.</li>
+* <li>The tracing sstem built into the debugging players.</li>
 * </ul>
+*
+* @todo implement log levels.
 **/
 public class Logger {
 
 
 	/** Constant defining the Arthropod output type. **/
 	public static const ARTHROPOD:String = "arthropod";
+	/** LocalConnection instance arthropod use. **/
+	private static const CONNECTION:LocalConnection = new LocalConnection();
+	/** Arthropod connection name. **/
+	private static const CONNECTION_NAME:String = 
+		'app#com.carlcalderon.Arthropod.161E714B6C1A76DE7B9865F88B32FCCE8FABA7B5.1:arthropod';
+	/** Arthropod connection password. **/
+	public static const CONNECTION_PASSWORD:String = 'CDC309AF';
 	/** Constant defining the Firefox/Firebug console output type. **/
 	public static const CONSOLE:String = "console";
 	/** Constant defining there's no output. **/
@@ -67,13 +76,14 @@ public class Logger {
 	/** Send the messages to the output system. **/
 	private static function send(text:String):void {
 		switch(Logger.output) {
-			case Logger.ARTHROPOD:
-				Debug.log(text);
+			case ARTHROPOD:
+				CONNECTION.allowInsecureDomain('*');
+				CONNECTION.send(CONNECTION_NAME,'debug',CONNECTION_PASSWORD,text,0xCCCCCC);
 				break;
-			case Logger.CONSOLE:
+			case CONSOLE:
 				ExternalInterface.call('console.log',text);
 				break;
-			case Logger.TRACE:
+			case TRACE:
 				trace(text);
 				break;
 			default:

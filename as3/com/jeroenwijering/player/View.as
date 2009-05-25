@@ -292,7 +292,6 @@ public class View extends AbstractView {
 
 	/** Setup listeners to all events for tracing / javascript. **/
 	private function setListening():void {
-		if(config['tracecall'] == 'arthropod') { Debug.clear(); }
 		addControllerListener(ControllerEvent.ERROR,setController);
 		addControllerListener(ControllerEvent.ITEM,setController);
 		addControllerListener(ControllerEvent.MUTE,setController);
