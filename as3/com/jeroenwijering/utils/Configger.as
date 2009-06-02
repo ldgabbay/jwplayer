@@ -1,10 +1,8 @@
-﻿/**
-* Loads application configuration data (from xml, cookies and flashvars).
-**/
-package com.jeroenwijering.utils {
+﻿package com.jeroenwijering.utils {
 
 
 import com.jeroenwijering.utils.Strings;
+
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.display.Sprite;
@@ -13,6 +11,16 @@ import flash.net.URLRequest;
 import flash.net.URLLoader;
 
 
+/**
+* <p>This class loads application configuration data from respectively:</p>
+* <ul>
+* <li>An XML file (which can be set with the "config" flashvar).</li>
+* <li>Shared objects (Actionscripts' cookies).</li>
+* <li>Flashvars.</li>
+* </ul>
+* <p>This configuration data is pushed as key:value pairs in an opject handed over by the application class.</p>
+* <p>Values are converted to strings/numbers/booleans and asfunction injection attempts are filtered.</p>
+**/
 public class Configger extends EventDispatcher {
 
 
@@ -27,7 +35,7 @@ public class Configger extends EventDispatcher {
 	/**
 	* Constructor.
 	* 
-	* @param ref	A reference Sprite; needed to access the flashvars.
+	* @param ref	A reference Sprite that is placed on the stage; needed to access the flashvars.
 	**/
 	public function Configger(ref:Sprite):void {
 		reference = ref;
@@ -37,10 +45,10 @@ public class Configger extends EventDispatcher {
 	/**
 	* Start the variables loading process.
 	* 
-	* @param def	The default config object; existing values are overwritten.
+	* @param cfg	An object with key:value defaults; existing values are overwritten and new ones are added.
 	**/
-	public function load(def:Object):void {
-		config = def;
+	public function load(cfg:Object):void {
+		config = cfg;
 		var xml:String = reference.root.loaderInfo.parameters['config'];
 		if(xml) {
 			loadXML(Strings.decode(xml));
@@ -75,7 +83,7 @@ public class Configger extends EventDispatcher {
 
 
 	/** Load configuration data from flashcookie. **/
-	private function loadCookies() {
+	private function loadCookies():void {
 		var cookie:SharedObject = SharedObject.getLocal('com.jeroenwijering','/');
 		compareWrite(cookie.data);
 		loadFlashvars();
@@ -103,7 +111,7 @@ public class Configger extends EventDispatcher {
 	* @param prm	The parameter name.
 	* @param val	The parameter value.
 	**/
-	public static function saveCookie(prm:String,val:Object) {
+	public static function saveCookie(prm:String,val:Object):void {
 		var cookie:SharedObject = SharedObject.getLocal('com.jeroenwijering','/');
 		cookie.data[prm] = val;
 		cookie.flush();

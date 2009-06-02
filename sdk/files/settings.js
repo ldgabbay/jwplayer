@@ -1,6 +1,7 @@
 var settings = {
 	/** Player versions to embed in the testpage. **/
 	players: {
+		'4.5':'players/4.5.swf',
 		'4.4':'players/4.4.swf',
 		'4.3':'players/4.3.swf',
 		'4.2':'players/4.2.swf',
@@ -11,6 +12,10 @@ var settings = {
 		controlling: {
 			swf:'plugins/controlling/controlling.swf',
 			xml:'plugins/controlling/controlling.xml',
+		},
+		docking: {
+			swf:'plugins/docking/docking.swf',
+			xml:'plugins/docking/docking.xml',
 		},
 		flashvars: {
 			swf:'plugins/flashvars/flashvars.swf',
@@ -68,6 +73,13 @@ var settings = {
 			file:'../files/bunny.flv',
 			image:'files/bunny.jpg',
 			plugins:'controlling',
+			height:240,
+			width:400
+		},
+		'Docking plugin template': {
+			file:'../files/bunny.flv',
+			image:'files/bunny.jpg',
+			plugins:'docking',
 			height:240,
 			width:400
 		},

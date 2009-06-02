@@ -1,9 +1,9 @@
-﻿/**
-* A couple of commonly used string operations.
+﻿package com.jeroenwijering.utils {
+
+
+/**
+* This class groups a couple of commonly used string operations.
 **/
-package com.jeroenwijering.utils {
-
-
 public class Strings {
 
 

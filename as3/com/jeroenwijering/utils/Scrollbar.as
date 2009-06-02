@@ -4,7 +4,6 @@
 package com.jeroenwijering.utils {
 
 
-import com.jeroenwijering.utils.Draw;
 import flash.display.Sprite;
 import flash.events.MouseEvent;
 import flash.text.TextField;
@@ -24,7 +23,7 @@ public class Scrollbar {
 	/** Icon of the scrollbar. **/
 	private var icon:Sprite;
 	/** Color of the scrollbar. **/
-	private var color:String;
+	private var color:uint;
 	/** Proportion between the field and mask. **/
 	private var proportion:Number;
 	/** Interval ID for smooth scrolling. **/
@@ -35,36 +34,47 @@ public class Scrollbar {
 	* Constructor; initializes the scrollbar parameters.
 	*
 	* @param fld	The field that has to be scrolled.
-	* @param msk	The field to use as mask for the scrolleable field.
-	* @param icl	The color of the icon of the scrollbar (the part that moves).
-	* @param rcl	The color of the rail of the scrollbar (the background).
+	* @param clr	The color of the scrollbar (the part that moves).
 	**/
-	public function Scrollbar(fld:TextField,msk:Sprite,clr:String="000000"):void {
+	public function Scrollbar(fld:TextField,clr:uint=0xFFFFFF):void {
 		field = fld;
-		mask = msk;
 		color = clr;
+		mask = new Sprite();
+		mask.graphics.beginFill(color);
+		mask.graphics.drawRect(0,0,field.width,field.height);
+		mask.x = field.x;
+		mask.y = field.y;
+		field.parent.addChild(mask);
+		field.mask = mask;
 		scrollbar = new Sprite();
-		field.parent.addChild(scrollbar);
 		scrollbar.mouseChildren = false;
 		scrollbar.buttonMode = true;
+		field.parent.addChild(scrollbar);
+		icon = new Sprite();
+		scrollbar.addChild(icon);
 	};
 
 
 	/**
 	* Invoke a (re)draw of the scrollbar.
 	**/
-	public function draw():void {
-		Draw.clear(scrollbar);
+	public function draw(hei:Number):void {
+		if(hei) { mask.height = hei; }
+		mask.width = field.width;
 		field.y = mask.y;
-		scrollbar.x = mask.x+mask.width;
-		scrollbar.y = mask.y;
+		scrollbar.x = field.x + field.width;
+		scrollbar.y = field.y;
 		proportion = mask.height/field.height;
 		if(proportion < 1) {
 			scrollbar.visible = true;
+			scrollbar.graphics.clear();
+			scrollbar.graphics.drawRect(0,0,10,mask.height);
+			scrollbar.graphics.beginFill(color,0.5);
+			scrollbar.graphics.drawRect(4,0,1,mask.height);
+			icon.graphics.clear();
+			icon.graphics.beginFill(color);
+			icon.graphics.drawRect(3,0,3,mask.height*proportion);
 			scrollbar.addEventListener(MouseEvent.MOUSE_DOWN,downHandler);
-			Draw.rect(scrollbar,color,10,mask.height,0,0,0);
-			Draw.rect(scrollbar,color,1,mask.height,4,0,0.5);
-			icon = Draw.rect(scrollbar,color,3,mask.height*proportion,3,0,1);
 		} else {
 			scrollbar.visible = false;
 			scrollbar.removeEventListener(MouseEvent.MOUSE_DOWN,downHandler);

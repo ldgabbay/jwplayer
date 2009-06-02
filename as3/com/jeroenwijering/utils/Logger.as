@@ -27,7 +27,7 @@ public class Logger {
 	private static const CONNECTION_NAME:String = 
 		'app#com.carlcalderon.Arthropod.161E714B6C1A76DE7B9865F88B32FCCE8FABA7B5.1:arthropod';
 	/** Arthropod connection password. **/
-	public static const CONNECTION_PASSWORD:String = 'CDC309AF';
+	private static const CONNECTION_PASSWORD:String = 'CDC309AF';
 	/** Constant defining the Firefox/Firebug console output type. **/
 	public static const CONSOLE:String = "console";
 	/** Constant defining there's no output. **/

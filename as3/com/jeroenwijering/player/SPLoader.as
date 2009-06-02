@@ -49,6 +49,7 @@ public class SPLoader extends EventDispatcher {
 		var obj:Object = { reference:pgi,name:nam,x:0,y:0,width:400,height:300};
 		// hack for the playlist/controlbar flashvars
 		var cbr:DisplayObject = skin.getChildByName('controlbar');
+		var dck:DisplayObject = skin.getChildByName('dock');
 		if(nam == 'controlbar') {
 			config['controlbar.position'] = config['controlbar'];
 			config['controlbar.size'] = cbr.height;
@@ -86,7 +87,8 @@ public class SPLoader extends EventDispatcher {
 			pgi.config = obj;
 			pgi.clip = clp; 
 		} catch (err:Error) {}
-		skin.setChildIndex(cbr,skin.numChildren-1);
+		if(cbr) { skin.setChildIndex(cbr,skin.numChildren-1); }
+		if(dck) { skin.setChildIndex(dck,skin.numChildren-1); }
 		pgi.initializePlugin(player.view);
 	};
 
