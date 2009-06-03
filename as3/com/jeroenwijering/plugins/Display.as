@@ -238,9 +238,10 @@ public class Display implements PluginInterface {
 				}
 				break;
 			case ModelStates.IDLE:
+			case ModelStates.COMPLETED:
 				if(view.config.displayclick == 'none' || !view.playlist) {
 					setIcon();
-				} else if (errored) { 
+				} else if (errored) {
 					errored = false;
 				} else if (clip.titleIcon && view.playlist[view.config['item']]['title']) {
 					setTitle();

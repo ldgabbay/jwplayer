@@ -79,7 +79,7 @@
 						var set = '<fieldset id="'+nam+'">';
 						for (var i=0; i<arr.length; i++) {
 							var val = $('name',arr[i]).text();
-							set +='<label>'+val+'</label><input type="text" name="'+nam+'.'+val+'" />';
+							set +='<label>'+nam+'.'+val+'</label><input type="text" name="'+nam+'.'+val+'" />';
 						}
 						set += '</fieldset>';
 						$('#fieldsetspan').append(set);

@@ -61,11 +61,15 @@ public class Dock implements PluginInterface {
 	/** Initialize the plugin. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
-		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
-		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
-		view.addControllerListener(ControllerEvent.PLAYLIST,itemHandler);
-		view.addModelListener(ModelEvent.STATE,stateHandler);
-		clip.stage.addEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
+		if(view.config['dock']) {
+			view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
+			view.addControllerListener(ControllerEvent.ITEM,itemHandler);
+			view.addControllerListener(ControllerEvent.PLAYLIST,itemHandler);
+			view.addModelListener(ModelEvent.STATE,stateHandler);
+			clip.stage.addEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
+		} else {
+			clip.visible = false;
+		}
 		if(view.config['backcolor'] && view.config['frontcolor']) {
 			setColorTransforms();
 		}
@@ -135,11 +139,6 @@ public class Dock implements PluginInterface {
 		}
 		for (var i:Number=0; i<buttons.length; i++) {
 			buttons[i].y = buttons[i].height*i;
-		}
-		if(view.config['dock']) {
-			clip.visible = true;
-		} else { 
-			clip.visible = false;
 		}
 	};
 
