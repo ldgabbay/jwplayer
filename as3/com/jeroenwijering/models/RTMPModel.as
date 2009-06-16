@@ -139,8 +139,10 @@ public class RTMPModel extends AbstractModel {
 		}
 		if(position < item['duration']) {
 			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
-		} else if (item['duration'] > 0) {
-			pause();
+		} else if (!isNaN(position) && item['duration'] > 0) {
+			stream.pause();
+			clearInterval(interval);
+			if(started && item['duration'] == 0) { stop(); }
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}
 	};
@@ -150,7 +152,7 @@ public class RTMPModel extends AbstractModel {
 	override public function seek(pos:Number):void {
 		position = pos;
 		clearInterval(interval);
-		if(model.config['state'] == ModelStates.PAUSED) {
+		if(model.config['state'] != ModelStates.PLAYING) {
 			stream.resume();
 		}
 		interval = setInterval(positionInterval,100);
@@ -180,7 +182,8 @@ public class RTMPModel extends AbstractModel {
 		switch(evt.info.code) {
 			case 'NetConnection.Connect.Success':
 				if(evt.info.secureToken != undefined) {
-					connection.call("secureTokenResponse",null,TEA.decrypt(evt.info.secureToken,model.config['token']));
+					connection.call("secureTokenResponse",null,
+						TEA.decrypt(evt.info.secureToken,model.config['token']));
 				}
 				setStream();
 				var res:Responder = new Responder(streamlengthHandler);
@@ -198,9 +201,10 @@ public class RTMPModel extends AbstractModel {
 				interval = setInterval(positionInterval,100);
 				break;
 			case 'NetConnection.Connect.Rejected':
-				if(evt.info.ex && evt.info.ex.code == 302) {
+				if(evt.info.ex.code == 302) {
 					item['streamer'] = evt.info.ex.redirect;
-					connection.connect(item['streamer']);
+					setTimeout(load,100,item);
+					return;
 				}
 				break;
 			case 'NetStream.Failed':

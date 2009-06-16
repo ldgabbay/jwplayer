@@ -146,8 +146,10 @@ public class HTTPModel extends AbstractModel {
 	/** Interval for the loading progress **/
 	protected function loadHandler():void {
 		var ldd:Number = stream.bytesLoaded;
-		var ttl:Number = stream.bytesTotal + byteoffset;
-		var off:Number = byteoffset;
+		var ttl:Number = stream.bytesTotal;
+		var pct:Number = timeoffset/(item['duration']+0.001);
+		var off:Number = Math.round(ttl*pct/(1-pct));
+		ttl += off;
 		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl,offset:off});
 		if(ldd+off >= ttl && ldd > 0) {
 			clearInterval(loadinterval);
@@ -229,7 +231,8 @@ public class HTTPModel extends AbstractModel {
 		if(position < item['duration']) {
 			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
 		} else if (item['duration'] > 0) {
-			pause();
+			stream.pause();
+			clearInterval(interval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}
 	};
@@ -253,8 +256,7 @@ public class HTTPModel extends AbstractModel {
 			} else {
 				stream.seek(getOffset(position,true));
 			}
-			interval = setInterval(positionInterval,100);
-			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
+			play();
 		}
 	};
 

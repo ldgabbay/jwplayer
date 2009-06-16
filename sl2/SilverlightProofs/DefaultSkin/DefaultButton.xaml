@@ -1,6 +1,0 @@
-﻿<Canvas xmlns="http://schemas.microsoft.com/client/2007"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        >
-  <!-- Such a simple button -->
-  <TextBlock x:Name="tb"></TextBlock>
-</Canvas>

@@ -178,7 +178,7 @@ public class Controlbar implements PluginInterface {
 			}
 		} catch (err:Error) {}
 		try {
-			if(view.playlist && view.playlist[view.config['item']]['link'] && !view.config['dock']) {
+			if(view.playlist && view.playlist[view.config['item']]['link']) {
 				clip.linkButton.visible = true;
 			} else { 
 				clip.linkButton.visible = false;

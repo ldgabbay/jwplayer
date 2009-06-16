@@ -324,8 +324,8 @@ public class Controller extends EventDispatcher {
 	/** Check new playlist for playeable files and setup randomizing/autostart. **/
 	private function playlistHandler(ply:Array):void {
 		for(var i:Number = ply.length-1; i > -1; i--) {
-			if(!ply[i]['duration']) { ply[i]['duration'] = 0; }
-			if(!ply[i]['start']) { ply[i]['start'] = 0; }
+			if(!ply[i]['duration'] || isNaN(ply[i]['duration'])) { ply[i]['duration'] = 0; }
+			if(!ply[i]['start'] || isNaN(ply[i]['start'])) { ply[i]['start'] = 0; }
 			if(!ply[i]['streamer'] && config['streamer']) {
 				ply[i]['streamer'] = config['streamer'];
 			}

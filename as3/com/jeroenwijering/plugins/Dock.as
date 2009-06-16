@@ -18,8 +18,7 @@ public class Dock implements PluginInterface {
 
 	/** Configuration vars for this plugin. **/
 	public var config:Object = {
-		align:'right',
-		link:true
+		align:'right'
 	};
 	/** Reference to the skin MVC. **/
 	public var clip:MovieClip;
@@ -31,8 +30,6 @@ public class Dock implements PluginInterface {
 	private var colors:Object;
 	/** Timeout for hiding the buttons when the video plays. **/
 	private var timeout:Number;
-	/** Linkbutton reference. **/
-	private var link:DockButton;
 
 
 	/** Constructor; add all needed listeners. **/
@@ -63,8 +60,6 @@ public class Dock implements PluginInterface {
 		view = vie;
 		if(view.config['dock']) {
 			view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
-			view.addControllerListener(ControllerEvent.ITEM,itemHandler);
-			view.addControllerListener(ControllerEvent.PLAYLIST,itemHandler);
 			view.addModelListener(ModelEvent.STATE,stateHandler);
 			clip.stage.addEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
 		} else {
@@ -73,23 +68,6 @@ public class Dock implements PluginInterface {
 		if(view.config['backcolor'] && view.config['frontcolor']) {
 			setColorTransforms();
 		}
-	};
-
-
-	/** Let's see if the new item has a link. **/
-	private function itemHandler(evt:ControllerEvent):void {
-		if(link) {
-			removeButton(link);
-		}
-		if(view.playlist[view.config['item']]['link'] && config['link']) {
-			link = addButton(null,'visit link',linkHandler);
-		}
-	}
-
-
-	/** Manage clicks on the docks' link button. **/
-	private function linkHandler(evt:MouseEvent):void {
-		view.sendEvent(ViewEvent.LINK,view.config['item']);
 	};
 
 

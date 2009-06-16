@@ -25,7 +25,7 @@ public class Controlling extends MovieClip implements PluginInterface {
 		button = new MovieClip();
 		button.graphics.beginFill(0x000000,0.5);
 		button.graphics.drawRoundRect(10,10,40,40,5);
-		button.graphics.beginFill(0xFFFFFF,1);
+		button.graphics.beginFill(0xFF0000,1);
 		button.graphics.drawCircle(30,30,8);
 		addChild(button);
 	};

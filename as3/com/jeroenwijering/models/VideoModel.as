@@ -140,7 +140,8 @@ public class VideoModel extends AbstractModel {
 		if(position < item['duration']) {
 			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
 		} else if (item['duration'] > 0) {
-			pause();
+			stream.pause();
+			clearInterval(interval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}
 	};
