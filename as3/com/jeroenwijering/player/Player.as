@@ -38,7 +38,7 @@ public class Player extends MovieClip {
 		screencolor:undefined,
 
 		controlbar:'bottom',
-		dock:true,
+		dock:false,
 		height:300,
 		icons:true,
 		playlist:'none',
@@ -68,7 +68,7 @@ public class Player extends MovieClip {
 		debug:'none',
 		id:undefined,
 		plugins:undefined,
-		version:'4.5.220'
+		version:'4.5.223'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;

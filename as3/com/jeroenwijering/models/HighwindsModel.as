@@ -37,7 +37,11 @@ public class HighwindsModel extends RTMPModel {
 		position = item['start'];
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
-		smil = item['file'];
+		if(item['file'].substr(-5) == '.smil') { 
+			smil = item['file'];
+		} else {
+			smil = item['file']+'.smil';
+		}
 		loader.load(new URLRequest(smil));
 	};
 

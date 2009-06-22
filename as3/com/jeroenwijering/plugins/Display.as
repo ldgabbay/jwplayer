@@ -243,7 +243,7 @@ public class Display implements PluginInterface {
 					setIcon();
 				} else if (errored) {
 					errored = false;
-				} else if (clip.titleIcon && view.playlist[view.config['item']]['title']) {
+				} else if (clip.titleIcon && view.config['displaytitle']) {
 					setTitle();
 					setIcon('titleIcon');
 				} else {
