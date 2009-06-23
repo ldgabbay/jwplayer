@@ -62,7 +62,6 @@ public class Display implements PluginInterface {
 		view.addModelListener(ModelEvent.BUFFER,bufferHandler);
 		view.addModelListener(ModelEvent.ERROR,errorHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
-		clip.media.mask = clip.masker;
 		if(view.config['backcolor'] && view.config['frontcolor'] && view.config['screencolor']) {
 			setColors();
 		}

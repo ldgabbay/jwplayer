@@ -165,7 +165,7 @@ public class VideoModel extends AbstractModel {
 				break;
 			case "NetStream.Play.StreamNotFound":
 				stop();
-				model.sendEvent(ModelEvent.ERROR,{message:'Video not found: '+item['file']});
+				model.sendEvent(ModelEvent.ERROR,{message:'Video not found or access denied: '+item['file']});
 				break;
 			default:
 				model.sendEvent(ModelEvent.META,{info:evt.info.code});

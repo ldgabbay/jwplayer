@@ -161,6 +161,7 @@ public class SPLoader extends EventDispatcher {
 			ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,skinHandler);
 		} else {
 			ldr.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,pluginError);
+			ldr.contentLoaderInfo.addEventListener(SecurityErrorEvent.SECURITY_ERROR,pluginError);
 			ldr.contentLoaderInfo.addEventListener(Event.COMPLETE,pluginHandler);
 		}
 		str += '.swf';
@@ -178,7 +179,7 @@ public class SPLoader extends EventDispatcher {
 
 
 	/** Plugin loading failed. **/
-	private function pluginError(evt:IOErrorEvent):void {
+	private function pluginError(evt:ErrorEvent):void {
 		done--;
 		if(done == 0) {
 			dispatchEvent(new SPLoaderEvent(SPLoaderEvent.PLUGINS));
