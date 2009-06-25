@@ -49,11 +49,19 @@ public class Configger extends EventDispatcher {
 	**/
 	public function load(cfg:Object):void {
 		config = cfg;
+		loadCookies();
+	};
+
+
+	/** Load configuration data from flashcookie. **/
+	private function loadCookies():void {
+		var cookie:SharedObject = SharedObject.getLocal('com.jeroenwijering','/');
+		compareWrite(cookie.data);
 		var xml:String = reference.root.loaderInfo.parameters['config'];
 		if(xml) {
 			loadXML(Strings.decode(xml));
 		} else {
-			loadCookies();
+			loadFlashvars();
 		}
 	};
 
@@ -65,7 +73,7 @@ public class Configger extends EventDispatcher {
 		try {
 			loader.load(new URLRequest(url));
 		} catch (err:Error) {
-			loadCookies();
+			loadFlashvars();
 		}
 	};
 
@@ -78,15 +86,7 @@ public class Configger extends EventDispatcher {
 			obj[prp.name()] = prp.text();
 		}
 		compareWrite(obj);
-		loadCookies();
-	};
-
-
-	/** Load configuration data from flashcookie. **/
-	private function loadCookies():void {
-		var cookie:SharedObject = SharedObject.getLocal('com.jeroenwijering','/');
-		compareWrite(cookie.data);
-		loadFlashvars();
+			loadFlashvars();
 	};
 
 
