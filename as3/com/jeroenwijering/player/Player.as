@@ -68,7 +68,7 @@ public class Player extends MovieClip {
 		debug:'none',
 		id:undefined,
 		plugins:undefined,
-		version:'4.5.224'
+		version:'4.5.227'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -110,7 +110,11 @@ public class Player extends MovieClip {
 
 	/** When config is loaded, the player laods the skin. **/
 	protected function loadSkin(evt:Event=null):void {
-		Logger.output = config['debug'];
+		if(config['tracecall']) {
+			Logger.output = config['tracecall'];
+		} else { 
+			Logger.output = config['debug'];
+		}
 		sploader = new SPLoader(this);
 		sploader.addEventListener(SPLoaderEvent.SKIN,loadMVC);
 		sploader.loadSkin();

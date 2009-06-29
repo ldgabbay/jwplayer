@@ -44,7 +44,7 @@ public class Logger {
 	* Log a message to the output system.
 	*
 	* @param message	The message to send forward. Arrays and objects are automatically chopped up.
-	* @param type		The type of message; is capitalized and precedes the message.
+	* @param type		The type of message; is capitalized and encapsulates the message.
 	**/
 	public static function log(message:*,type:String="log"):void {
 		if(message == undefined) {
@@ -86,7 +86,10 @@ public class Logger {
 			case TRACE:
 				trace(text);
 				break;
+			case NONE:
+				break;
 			default:
+				ExternalInterface.call(Logger.output,text);
 				break;
 		}
 	};
