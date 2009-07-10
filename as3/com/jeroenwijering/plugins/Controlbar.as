@@ -72,7 +72,7 @@ public class Controlbar implements PluginInterface {
 	* @param hdl	The function to call when clicking the button.
 	**/
 	public function addButton(icn:DisplayObject,nam:String,hdl:Function):void {
-		if(clip['linkButton'].back) {
+		if(clip['linkButton'] && clip['linkButton'].back) {
 			var btn = Draw.clone(clip['linkButton']);
 			btn.name = nam+'Button';
 			btn.visible = true;
@@ -280,9 +280,6 @@ public class Controlbar implements PluginInterface {
 			clip.x = config['x'] + config['margin'];
 			clip.y = config['y'] + config['height'] - config['margin'] - config['size'];
 			wid = config['width'] - 2*config['margin'];
-			clip.back.alpha = 0.75;
-		} else if(config['position'] != 'none') {
-			clip.back.alpha = 1;
 		}
 		try { 
 			clip.fullscreenButton.visible = false;

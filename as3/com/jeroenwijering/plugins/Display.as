@@ -62,8 +62,10 @@ public class Display implements PluginInterface {
 		view.addModelListener(ModelEvent.BUFFER,bufferHandler);
 		view.addModelListener(ModelEvent.ERROR,errorHandler);
 		view.addModelListener(ModelEvent.STATE,stateHandler);
-		if(view.config['backcolor'] && view.config['frontcolor'] && view.config['screencolor']) {
-			setColors();
+		if(view.config['screencolor']) {
+			var scr:ColorTransform = new ColorTransform();
+			scr.color = uint('0x'+view.config['screencolor']);
+			clip.back.transform.colorTransform = scr;
 		}
 		if(view.config['displayclick'] != 'none') {
 			clip.addEventListener(MouseEvent.CLICK,clickHandler);
@@ -162,26 +164,6 @@ public class Display implements PluginInterface {
 		}
 		if(clip.logo) {
 			loaderHandler();
-		}
-	};
-
-
-	/** Set color tranformation objects so the buttons can be colorized. **/
-	private function setColors():void {
-		var scr:ColorTransform = new ColorTransform();
-		scr.color = uint('0x'+view.config['screencolor']);
-		var frt:ColorTransform = new ColorTransform();
-		frt.color = uint('0x'+view.config['frontcolor']);
-		var bck:ColorTransform = new ColorTransform();
-		bck.color = uint('0x'+view.config['backcolor']);
-		colors = {screen:scr,front:frt,back:bck};
-		clip.back.transform.colorTransform = colors['screen'];
-		for(var i:String in ICONS) {
-			try {
-				clip[ICONS[i]].bck.transform.colorTransform = colors['front'];
-				clip[ICONS[i]].icn.transform.colorTransform = colors['back'];
-				clip[ICONS[i]].txt.textColor = colors['back'].color;
-			} catch (err:Error) {}
 		}
 	};
 
