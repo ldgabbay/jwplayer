@@ -8,6 +8,7 @@ import flash.display.*;
 import flash.geom.Rectangle;
 import flash.text.TextField;
 import flash.text.TextFormat;
+import flash.utils.getQualifiedClassName;
 
 
 public class Draw {
@@ -36,7 +37,8 @@ public class Draw {
 	* @return		The clone; not yet added to the displaystack.
 	**/
 	public static function clone(tgt:Sprite,adc:Boolean=false):MovieClip {
-		var cls:Class = Object(tgt).constructor;
+		var nam:String = getQualifiedClassName(tgt);
+		var cls:Class = tgt.stage.loaderInfo.applicationDomain.getDefinition(nam) as Class;
 		var dup = new cls();
 		dup.transform = tgt.transform;
 		dup.filters = tgt.filters;

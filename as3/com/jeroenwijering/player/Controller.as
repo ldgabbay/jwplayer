@@ -167,12 +167,14 @@ public class Controller extends EventDispatcher {
 	/** Jump to a userdefined item in the playlist. **/
 	private function itemHandler(evt:ViewEvent):void {
 		var itm:Number = evt.data.index;
-		if (itm < 0) {
-			playItem(0);
-		} else if (itm > playlist.length-1) {
-			playItem(playlist.length-1);
-		} else if (!isNaN(itm)) {
-			playItem(itm);
+		if(playlist && playlist[itm]) {
+			if (itm < 0) {
+				playItem(0);
+			} else if (itm > playlist.length-1) {
+				playItem(playlist.length-1);
+			} else if (!isNaN(itm)) {
+				playItem(itm);
+			}
 		}
 	};
 
