@@ -44,8 +44,6 @@ public class Display implements PluginInterface {
 	);
 	/** Timeout for hiding the buffericon. **/
 	private var timeout:Number;
-	/** Is there an error sent. **/
-	private var errored:Boolean;
 
 
 	/** Constructor; add all needed listeners. **/
@@ -104,7 +102,6 @@ public class Display implements PluginInterface {
 	/** Receive and print errors. **/
 	private function errorHandler(evt:Object):void {
 		if(view.config['icons'] == true) {
-			errored = true;
 			setIcon('errorIcon');
 			Draw.set(clip.errorIcon.txt,'text',evt.data.message);
 		}
@@ -222,8 +219,6 @@ public class Display implements PluginInterface {
 			case ModelStates.COMPLETED:
 				if(view.config.displayclick == 'none' || !view.playlist) {
 					setIcon();
-				} else if (errored) {
-					errored = false;
 				} else if (clip.titleIcon && view.config['displaytitle']) {
 					setTitle();
 					setIcon('titleIcon');

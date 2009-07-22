@@ -80,7 +80,7 @@ public class Strings {
 		} else if (val == 'false') {
 			return false;
 		} else if (isNaN(Number(val)) || val.length > 5) {
-			return Strings.decode(val);
+			return val;
 		} else {
 			return Number(val);
 		}

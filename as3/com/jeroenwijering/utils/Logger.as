@@ -1,8 +1,10 @@
 package com.jeroenwijering.utils {
 
 
+import flash.events.StatusEvent;
 import flash.external.ExternalInterface;
 import flash.net.LocalConnection;
+import flash.net.SharedObject;
 import flash.system.System;
 
 
@@ -36,8 +38,8 @@ public class Logger {
 	public static const TRACE:String = "trace";
 
 
-	/** Current output system to use for logging. **/
-	public static var output:String = Logger.NONE;
+	/** Latest output position. **/
+	private static var _output = Logger.NONE;
 
 
 	/**
@@ -73,11 +75,35 @@ public class Logger {
 	};
 
 
+	/** 
+	* Set output system to use for logging. The output is also saved in a cookie.
+	*
+	* @param put	System to use (ARTHROPOD, CONSOLE, TRACE or NONE).StatusEvent
+	**/
+	public static function set output(put:String):void {
+		if(put == ARTHROPOD) {
+			CONNECTION.allowInsecureDomain('*');
+			CONNECTION.addEventListener(StatusEvent.STATUS,Logger.status);
+		}
+		SharedObject.getLocal('com.jeroenwijering','/').data['debug'] = put;
+		Logger._output = put;
+	};
+
+
+	/** 
+	* Get output system to use for logging.
+	*
+	* @return	System to use (ARTHROPOD, CONSOLE, TRACE or NONE).
+	**/
+	public static function get output():String {
+		return Logger._output;
+	};
+
+
 	/** Send the messages to the output system. **/
 	private static function send(text:String):void {
-		switch(Logger.output) {
+		switch(Logger._output) {
 			case ARTHROPOD:
-				CONNECTION.allowInsecureDomain('*');
 				CONNECTION.send(CONNECTION_NAME,'debug',CONNECTION_PASSWORD,text,0xCCCCCC);
 				break;
 			case CONSOLE:
@@ -89,10 +115,14 @@ public class Logger {
 			case NONE:
 				break;
 			default:
-				ExternalInterface.call(Logger.output,text);
+				ExternalInterface.call(Logger._output,text);
 				break;
 		}
 	};
+
+
+	/** Manage the status call of localconnection. **/
+	private static function status(evt:StatusEvent) {};
 
 
 }

@@ -301,7 +301,7 @@ public class Controller extends EventDispatcher {
 			if(evt.data.state != false && config['state'] == ModelStates.PAUSED) {
 				sendEvent(ControllerEvent.PLAY,{state:true});
 			} else if (evt.data.state != false && config['state'] == ModelStates.COMPLETED) {
-				sendEvent(ControllerEvent.SEEK,{position:0});
+				sendEvent(ControllerEvent.SEEK,{position:playlist[config['item']]['start']});
 			} else if(evt.data.state != false && config['state'] == ModelStates.IDLE) {
 				playItem();
 			} else if (evt.data.state != true &&
@@ -335,7 +335,7 @@ public class Controller extends EventDispatcher {
 		if(ply.length > 0) {
 			playlist = ply;
 		} else {
-			sendEvent(ControllerEvent.ERROR,{message:'No valid filetypes found in this playlist'});
+			sendEvent(ControllerEvent.ERROR,{message:"No valid media file(s) found."});
 			return;
 		}
 		if(config['shuffle'] == true) {

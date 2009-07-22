@@ -230,10 +230,8 @@ public class Playlist implements PluginInterface {
 		clip.back.height = config['height'];
 		buildList(false);
 		if(config['position'] == 'over') {
-			clip.back.alpha = 0.7;
 			stateHandler();
 		} else {
-			clip.back.alpha = 1;
 			clip.visible = config['visible'];
 		}
 	};

@@ -180,7 +180,7 @@ public class Model extends EventDispatcher {
 				case ModelStates.COMPLETED:
 					thumb.visible = true;
 					display.media.visible = false;
-					sendEvent(ModelEvent.TIME,{position:0,duration:item['duration']});
+					sendEvent(ModelEvent.TIME,{position:item['start'],duration:item['duration']});
 					break;
 				case ModelStates.PLAYING:
 					if(item['file'].indexOf('m4a') == -1
