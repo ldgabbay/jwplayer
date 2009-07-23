@@ -112,9 +112,11 @@ public class Configger extends EventDispatcher {
 	* @param val	The parameter value.
 	**/
 	public static function saveCookie(prm:String,val:Object):void {
-		var cookie:SharedObject = SharedObject.getLocal('com.jeroenwijering','/');
-		cookie.data[prm] = val;
-		cookie.flush();
+		try {
+			var cookie:SharedObject = SharedObject.getLocal('com.jeroenwijering','/');
+			cookie.data[prm] = val;
+			cookie.flush();
+		} catch (err:Error) {}
 	};
 
 

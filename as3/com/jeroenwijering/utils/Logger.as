@@ -28,8 +28,6 @@ public class Logger {
 	/** Arthropod connection name. **/
 	private static const CONNECTION_NAME:String = 
 		'app#com.carlcalderon.Arthropod.161E714B6C1A76DE7B9865F88B32FCCE8FABA7B5.1:arthropod';
-	/** Arthropod connection password. **/
-	private static const CONNECTION_PASSWORD:String = 'CDC309AF';
 	/** Constant defining the Firefox/Firebug console output type. **/
 	public static const CONSOLE:String = "console";
 	/** Constant defining there's no output. **/
@@ -104,7 +102,7 @@ public class Logger {
 	private static function send(text:String):void {
 		switch(Logger._output) {
 			case ARTHROPOD:
-				CONNECTION.send(CONNECTION_NAME,'debug',CONNECTION_PASSWORD,text,0xCCCCCC);
+				CONNECTION.send(CONNECTION_NAME,'debug','CDC309AF',text,0xCCCCCC);
 				break;
 			case CONSOLE:
 				ExternalInterface.call('console.log',text);

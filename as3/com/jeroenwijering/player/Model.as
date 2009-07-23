@@ -140,7 +140,7 @@ public class Model extends EventDispatcher {
 		var wid:Number = sploader.getPlugin('display').config['width'];
 		var hei:Number = sploader.getPlugin('display').config['height'];
 		Stretcher.stretch(display.media,wid,hei,config['stretching']);
-		if(thumb.width > 10) {
+		if(thumb.width > 10 && wid > 10) {
 			Stretcher.stretch(thumb,wid,hei,config['stretching']);
 		}
 	};
