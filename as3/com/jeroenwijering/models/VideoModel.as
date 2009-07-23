@@ -160,17 +160,17 @@ public class VideoModel extends AbstractModel {
 	protected function statusHandler(evt:NetStatusEvent):void {
 		switch (evt.info.code) {
 			case "NetStream.Play.Stop":
-				clearInterval(interval);
-				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+				if(position > 1) {
+					clearInterval(interval);
+					model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+				}
 				break;
 			case "NetStream.Play.StreamNotFound":
 				stop();
 				model.sendEvent(ModelEvent.ERROR,{message:'Video not found or access denied: '+item['file']});
 				break;
-			default:
-				model.sendEvent(ModelEvent.META,{info:evt.info.code});
-				break;
 		}
+		model.sendEvent(ModelEvent.META,{status:evt.info.code});
 	};
 
 
@@ -178,7 +178,7 @@ public class VideoModel extends AbstractModel {
 	override public function stop():void {
 		if(stream.bytesLoaded < stream.bytesTotal) {
 			stream.close();
-		} else { 
+		} else {
 			stream.pause();
 		}
 		loadtimer = undefined;
