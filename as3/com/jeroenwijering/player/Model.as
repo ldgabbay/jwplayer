@@ -183,14 +183,14 @@ public class Model extends EventDispatcher {
 					sendEvent(ModelEvent.TIME,{position:item['start'],duration:item['duration']});
 					break;
 				case ModelStates.PLAYING:
-					if(item['file'].indexOf('m4a') == -1
-						&& item['file'].indexOf('mp3') == -1
-						&& item['file'].indexOf('aac') == -1) {
-						thumb.visible = false;
-						display.media.visible = true;
-					} else { 
+					if(item['file'].substr(-3) == 'm4a' ||
+						item['file'].substr(-3) == 'mp3' ||
+						item['file'].substr(-3) == 'aac') {
 						thumb.visible = true;
 						display.media.visible = false;
+					} else { 
+						thumb.visible = false;
+						display.media.visible = true;
 					}
 					break;
 			}
