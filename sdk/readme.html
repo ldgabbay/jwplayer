@@ -25,7 +25,7 @@
 		<li>A testing page you can use to test your plugin with different player versions and settings.</li>
 		<li>This readme, which lists some plugin-related resources on the JW Player wiki.</li>
 	</ul>
-	<p>Note that you can use your IDE of choice for building plugins (e.g. <a href="http://www.adobe.com/products/flex/">Flex builder</a>, <a href="http://macromates.com/">Textmate</a> or <a href="http://www.adobe.com/products/flash/">Adobe Flash</a>). If you don't have Flex or Flash, you need the free <a href="http://www.adobe.com/cfusion/entitlement/index.cfm?e=flex3sdk">Flex SDK</a>, which includes the MXMLC actionscript compiler. Every plugin template has a small <i>build.sh</i> script that shows how to <a href="http://www.senocular.com/flash/tutorials/as3withmxmlc/">compile with MXMLC</a>.</p>
+	<p>Note that you can use your IDE of choice for building plugins (e.g. <a href="http://www.adobe.com/products/flex/">Flex builder</a>, <a href="http://macromates.com/">Textmate</a> or <a href="http://www.adobe.com/products/flash/">Adobe Flash</a>). If you don't have Flex or Flash, you can use the free <a href="http://www.adobe.com/cfusion/entitlement/index.cfm?e=flex3sdk">Flex SDK</a>, which includes the MXMLC actionscript compiler. Every plugin template has a small <i>build.sh</i> and <i>build.bat</i> script that shows how to <a href="http://developer.longtailvideo.com/trac/wiki/PluginsCompiling">compile with MXMLC</a>.</p>
 
 
 
@@ -33,6 +33,7 @@
 	<p>This SDK comes with a couple of simple plugin templates, each showcasing a specific interaction with the player. They are located in the <i>plugins</i> folder:</p>
 	<ul>
 		<li>The <i>Controlling</i> template shows how to control the player by sending events. It shows a simple <i>mute</i> button over the video.</li>
+		<li>The <i>Docking</i> template shows how to display a button in the player's dock. These dock buttons (available since player 4.5) can be used to control or display the plugin.</li>
 		<li>The <i>Flashvars</i> template shows how to load flashvars to make it configurable. It offers a simple <i>message</i> flashvar that is printed in the display.</li>
 		<li>The <i>Listening</i> template shows how to listen to events of the player and respond to them. It prints  the playback <i>state</i> and <i>position</i> over the video.</li>
 		<li>The <i>Positioning</i> template shows how to position a plugin inside the player. It shows a red square over the area the plugin has claimed.</li>
@@ -53,12 +54,15 @@
 	<h3>Links to resources</h3>
 	<p>The developer Wiki contains a wealth of resources for building plugins, including:</p>
 	<ul>
-		<li>The general <a href="http://developer.longtailvideo.com/trac/wiki/FlashPlugins">player plugin documentation</a>. It's a general overview of how plugins work.</li>
-		<li>A tutorial about <a href="http://developer.longtailvideo.com/trac/wiki/FlashSecurity">Flash security restrictions</a>. Read this if you want to load XML or other data across websites.</li>
+		<li>The general <a href="http://developer.longtailvideo.com/trac/wiki/PluginsBuilding">plugin building  documentation</a>. It's a general overview of how plugins work and how to build them.</li>
+		<li>The additional <a href="http://developer.longtailvideo.com/trac/wiki/PluginsCompiling">plugin compiling documentation</a>. It's an overview on how to compile plugins using the free Flex SDK.</li>
+	</ul>
+	<ul>
 		<li>A reference of the <a href="http://developer.longtailvideo.com/trac/wiki/FlashApi">API calls</a> plugins can use to interact with the player.</li>
 		<li>A reference of all <a href="http://developer.longtailvideo.com/trac/wiki/FlashEvents">events the player fires</a>. The <i>View</i> events are the ones your plugin can trigger.</li>
+		<li>A reference on <a href="http://developer.longtailvideo.com/trac/wiki/FlashSecurity">Flash security restrictions</a>. Read this if you want to load XML or other data across websites.</li>
 	</ul>
-	<p>You can also find <a href="http://developer.longtailvideo.com/trac/#Plugins">info and source code</a> on a string of plugins we built. Feel free to (re)use this code or create your own branch of any of these plugins!</p>
+	<p>You can also find <a href="http://developer.longtailvideo.com/trac/#Plugins">information and source code downloads</a> from a string of plugins we built. Feel free to (re)use this code or create your own version of any of these plugins!</p>
 
 
 
