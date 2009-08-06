@@ -139,6 +139,7 @@ public class Player extends MovieClip {
 		model.addModel(new HTTPModel(model),'http');
 		model.addModel(new ImageModel(model),'image');
 		model.addModel(new RTMPModel(model),'rtmp');
+		model.addModel(new SegmentModel(model),'segment');
 		model.addModel(new SoundModel(model),'sound');
 		model.addModel(new VideoModel(model),'video');
 		model.addModel(new YoutubeModel(model),'youtube');

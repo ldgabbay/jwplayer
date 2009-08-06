@@ -11,8 +11,7 @@ package com.jeroenwijering.models {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.player.Model;
-import com.jeroenwijering.utils.NetClient;
-import com.jeroenwijering.utils.TEA;
+import com.jeroenwijering.utils.*;
 
 import flash.events.*;
 import flash.media.*;
@@ -131,11 +130,15 @@ public class RTMPModel extends AbstractModel {
 		var bfr:Number = Math.round(stream.bufferLength/stream.bufferTime*100);
 		if(bfr < 95 && position < Math.abs(item['duration']-stream.bufferTime-1)) {
 			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
-			if(model.config['state'] != ModelStates.BUFFERING && bfr < 25) {
+			if(model.config['state'] != ModelStates.BUFFERING && bfr < 20) {
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
+				stream.bufferTime = model.config['bufferlength'];
+				model.sendEvent(ModelEvent.META,{bufferlength:model.config['bufferlength']});
 			}
 		} else if (bfr > 95 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
+			stream.bufferTime = model.config['bufferlength']*4;
+			model.sendEvent(ModelEvent.META,{bufferlength:model.config['bufferlength']*4});
 		}
 		if(position < item['duration']) {
 			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
