@@ -302,15 +302,18 @@ public class SPLoader extends EventDispatcher {
 		try {
 			var skn:MovieClip = evt.target.content['player'];
 			while(skn.numChildren > 0) {
-				var chd:DisplayObject = skin.getChildByName(skn.getChildAt(0).name);
-				
+				var newchd:DisplayObject = skn.getChildAt(0);
+				var chd:DisplayObject = skin.getChildByName(newchd.name);
 				if(chd) {
 					var idx:Number = skin.getChildIndex(chd);
 					skin.removeChild(chd);
-					skin.addChildAt(skn.getChildAt(0),idx);
-					skin.getChildByName(chd.name).visible = false;
+					delete skin[chd.name];
+					skin.addChildAt(newchd,idx);
+					skin[newchd.name] = newchd;
+					skin.getChildByName(newchd.name).visible = false;
 				} else { 
-					skin.addChild(skn.getChildAt(0));
+					skin.addChild(newchd);
+					skin[newchd.name] = newchd;
 				}
 			}
 			dispatchEvent(new SPLoaderEvent(SPLoaderEvent.SKIN));
