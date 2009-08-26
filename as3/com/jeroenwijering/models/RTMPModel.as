@@ -204,10 +204,17 @@ public class RTMPModel extends AbstractModel {
 				interval = setInterval(positionInterval,100);
 				break;
 			case 'NetConnection.Connect.Rejected':
-				if(evt.info.ex.code == 302) {
-					item['streamer'] = evt.info.ex.redirect;
-					setTimeout(load,100,item);
-					return;
+				try { 
+					if(evt.info.ex.code == 302) {
+						item['streamer'] = evt.info.ex.redirect;
+						setTimeout(load,100,item);
+						return;
+					}
+				} catch (err:Error) {
+					stop();
+					var msg:String = evt.info.code;
+					if(evt.info['description']) { msg = evt.info['description']; }
+					model.sendEvent(ModelEvent.ERROR,{message:msg});
 				}
 				break;
 			case 'NetStream.Failed':
@@ -228,7 +235,7 @@ public class RTMPModel extends AbstractModel {
 				unpublished = true;
 				break;
 		}
-		model.sendEvent(ModelEvent.META,{info:evt.info.code});
+		model.sendEvent(ModelEvent.META,evt.info);
 	};
 
 

@@ -172,6 +172,9 @@ public class Model extends EventDispatcher {
 	**/
 	public function sendEvent(typ:String,dat:Object):void {
 		if(typ == ModelEvent.STATE) {
+			if(dat.newstate == config['state']) {
+				return;
+			}
 			dat['oldstate'] = config['state'];
 			config['state'] = dat.newstate;
 			switch(dat['newstate']) {

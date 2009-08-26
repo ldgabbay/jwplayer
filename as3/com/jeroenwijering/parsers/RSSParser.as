@@ -39,7 +39,7 @@ public class RSSParser {
 				case 'title':
 					itm['title'] = i.text().toString();
 					break;
-				case 'pubDate':
+				case 'pubdate':
 					itm['date'] = i.text().toString();
 					break;
 				case 'description':
