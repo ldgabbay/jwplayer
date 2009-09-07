@@ -180,9 +180,9 @@ public class Controller extends EventDispatcher {
 
 
 	/** Jump to the link of a playlistitem. **/
-	private function linkHandler(evt:ViewEvent):void {
+	private function linkHandler(evt:ViewEvent=null):void {
 		var itm:Number = config['item'];
-		if(evt.data.index) { itm = evt.data.index; }
+		if(evt && evt.data.index) { itm = evt.data.index; }
 		var lnk:String = playlist[itm]['link'];
 		if(lnk != null) {
 			navigateToURL(new URLRequest(lnk),config['linktarget']);
@@ -414,6 +414,9 @@ public class Controller extends EventDispatcher {
 	/** Manage playback state changes. **/
 	private function stateHandler(evt:ModelEvent):void {
 		if(evt.data.newstate == ModelStates.COMPLETED) {
+			if(config['oncomplete'] == 'link') { 
+				linkHandler();
+			}
 			switch (config['repeat']) {
 				case 'single':
 					playHandler(new ViewEvent(ViewEvent.PLAY,{state:true}));

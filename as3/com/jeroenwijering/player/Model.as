@@ -181,9 +181,11 @@ public class Model extends EventDispatcher {
 				case ModelStates.IDLE:
 					sendEvent(ModelEvent.LOADED,{loaded:0,offset:0,total:0});
 				case ModelStates.COMPLETED:
-					thumb.visible = true;
-					display.media.visible = false;
-					sendEvent(ModelEvent.TIME,{position:item['start'],duration:item['duration']});
+					if(config['oncomplete'] != 'none') {
+						thumb.visible = true;
+						display.media.visible = false;
+						sendEvent(ModelEvent.TIME,{position:item['start'],duration:item['duration']});
+					}
 					break;
 				case ModelStates.PLAYING:
 					if(item['file'].substr(-3) == 'm4a' ||

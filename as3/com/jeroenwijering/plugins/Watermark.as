@@ -18,7 +18,7 @@ import flash.net.*;
 public dynamic class Watermark extends MovieClip implements PluginInterface {
 
 	/** Configuration vars for this plugin. **/
-	private var config:Object = {};
+	public var config:Object = {};
 	/** Reference to the skin MC. **/
 	public var clip:MovieClip;
 	/** Reference to the MVC view. **/
@@ -68,9 +68,8 @@ public dynamic class Watermark extends MovieClip implements PluginInterface {
 
 
 	private function resizeHandler(evt:ControllerEvent):void {
-		config = view.getPluginConfig(this);
-		x = config['x'] + 10;
-		y = config['height'] - height - 12;
+		clip.x = config['x'] + 10;
+		clip.y = config['y'] + config['height'] - clip.height - 12;
 	};
 
 

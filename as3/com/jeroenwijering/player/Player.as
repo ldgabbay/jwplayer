@@ -54,6 +54,7 @@ public class Player extends MovieClip {
 		linktarget:'_blank',
 		logo:undefined,
 		mute:false,
+		oncomplete:'rewind',
 		repeat:'none',
 		resizing:true,
 		shuffle:false,
