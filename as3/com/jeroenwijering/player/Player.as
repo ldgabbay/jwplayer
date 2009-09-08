@@ -88,6 +88,7 @@ public class Player extends MovieClip {
 	/** Constructor; hides player and waits until it is added to the stage. **/
 	public function Player():void {
 		skin = this['player'];
+		visible = false;
 		for(var i:Number=0; i<skin.numChildren; i++) {
 			skin.getChildAt(i).visible = false;
 		}
@@ -140,7 +141,7 @@ public class Player extends MovieClip {
 		model.addModel(new HTTPModel(model),'http');
 		model.addModel(new ImageModel(model),'image');
 		model.addModel(new RTMPModel(model),'rtmp');
-		model.addModel(new SegmentModel(model),'segment');
+		model.addModel(new SmoothModel(model),'smooth');
 		model.addModel(new SoundModel(model),'sound');
 		model.addModel(new VideoModel(model),'video');
 		model.addModel(new YoutubeModel(model),'youtube');
@@ -174,6 +175,7 @@ public class Player extends MovieClip {
 	**/
 	protected function startPlayer(evt:SPLoaderEvent=null) {
 		view.sendEvent(ViewEvent.REDRAW);
+		visible = true;
 		dispatchEvent(new PlayerEvent(PlayerEvent.READY));
 		view.playerReady();
 		if(config['file']) {
