@@ -20,14 +20,13 @@ public class LivestreamModel extends AbstractModel {
 
 	/** URL of the livestream SWF. **/
 	private const LOCATION:String = "http://cdn.livestream.com/chromelessPlayer/wrappers/SimpleWrapper.swf";
+	/** Testing key for developer.longtailvideo.com. **/
+	private var key:String = '8Y5Rp-6ikHTF0DaOYmxqBWNv8mAx7FdRjvbf2Kk-xWkAG0JUKJwrfGmnsgDfUlNMHqQUmpBOho4cmCyMKDT41I_H3riecIRlu9f1DNBkwF_We7mGBy3CD1fKSAbltsIn';
 
-
-	/** Developer key used to grant access. **/
-	private var devkey:String;
 	/** Loader for loading the Livestream API. **/
 	private var loader:Loader;
 	/** Reference to the chromeless player. **/
-	private var player:*;
+	private var player:Object;
 	/** Wrapper of the chromeless player. **/
 	private var wrapper:Object;
 
@@ -100,7 +99,11 @@ public class LivestreamModel extends AbstractModel {
 		player = wrapper.getPlayer();
 		model.mediaHandler(player as DisplayObject);
 		player.addEventListener("errorEvent", playerErrorHandler);
-		player.devKey = model.config['livestream.key'];
+		if(model.config['livestream.key']) {
+			player.devKey = model.config['livestream.key'];
+		} else {
+			player.devKey = key;
+		}
 		player.showMuteButton = false;
 		player.showPauseButton = false;
 		player.showPlayButton = false;
