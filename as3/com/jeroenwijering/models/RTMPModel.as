@@ -47,7 +47,7 @@ public class RTMPModel extends AbstractModel {
 		connection.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
 		connection.objectEncoding = ObjectEncoding.AMF0;
-		connection.client = new NetClient(this);
+		connection.client = new Object();
 		video = new Video(320,240);
 		video.smoothing = model.config['smoothing'];
 		transform = new SoundTransform();
@@ -141,7 +141,7 @@ public class RTMPModel extends AbstractModel {
 			model.sendEvent(ModelEvent.META,{bufferlength:model.config['bufferlength']*4});
 		}
 		if(position < item['duration']) {
-			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
+			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration'],framerate:stream.currentFPS});
 		} else if (!isNaN(position) && item['duration'] > 0) {
 			stream.pause();
 			clearInterval(interval);
@@ -191,7 +191,7 @@ public class RTMPModel extends AbstractModel {
 				setStream();
 				var res:Responder = new Responder(streamlengthHandler);
 				connection.call("getStreamLength",res,getID(item['file']));
-				connection.call("checkBandwidth",null);
+				//connection.call("checkBandwidth",null);
 				break;
 			case  'NetStream.Play.Start':
 				if(item['start'] > 0 && !started) {

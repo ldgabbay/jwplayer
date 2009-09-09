@@ -54,7 +54,8 @@ public class Controller extends EventDispatcher {
 		'rbs':'sound',
 		'sdp':'video',
 		'swf':'image',
-		'vp6':'video'
+		'vp6':'video',
+		'smc':'smooth'
 	};
 	/** Elements of config that are part of the playlist. **/
 	private var ELEMENTS:Object = {

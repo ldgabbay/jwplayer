@@ -11,19 +11,14 @@ import com.jeroenwijering.utils.Strings;
 public class SmoothParser {
 
 
-	/** Timecode to seconds multiplier. **/
-	private static const MULTIPLIER = 10000000;
-
-
 	/** Push c elements in an array. **/
 	public static function parseChunks(dat:XML):Array {
 		var arr:Array = new Array();
 		var stt:Number = 0;
 		for each (var i:XML in dat.children()[0].children()) {
 			if (i.localName().toLowerCase() == 'c') {
-				var end:Number = stt+i.@d.toString()/SmoothParser.MULTIPLIER;
+				var end:Number = Math.round((stt+Number(i.@d)/10000000)*100)/100;
 				var obj:Object = {start:stt,end:end};
-				Logger.log(obj);
 				arr.push(obj);
 				stt = end;
 			}
@@ -35,12 +30,10 @@ public class SmoothParser {
 	/** Push StreamIndex attributes into an object. **/
 	public static function parseIndex(dat:XML):Object {
 		var obj:Object = new Object();
+		obj['duration'] = Math.round(Number(dat.@Duration)/100000)/100;
 		var att:XMLList = dat.children()[0].@*;
 		for(var i:Number=0; i<att.length(); i++) {
 			obj[att[i].name().toString().toLowerCase()] = att[i].toString();
-		}
-		if(obj['duration']) {
-			obj['duration'] /= SmoothParser.MULTIPLIER;
 		}
 		return obj;
 	};

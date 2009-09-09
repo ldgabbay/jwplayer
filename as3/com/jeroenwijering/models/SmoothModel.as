@@ -8,8 +8,6 @@ import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.parsers.SmoothParser;
 import com.jeroenwijering.player.Model;
-import com.jeroenwijering.utils.Logger;
-import com.jeroenwijering.utils.NetClient;
 
 import flash.events.*;
 import flash.media.*;
@@ -36,8 +34,6 @@ public class SmoothModel extends AbstractModel {
 	protected var levels:Array;
 	/** Loader that loads the manifest XML file. **/
 	protected var loader:URLLoader;
-	/** Did NetStream.PLAY.STOP already fire. **/
-	protected var stopped:Boolean;
 	/** NetStream instance that handles the stream IO. **/
 	protected var stream:NetStream;
 	/** Sound control object. **/
@@ -59,9 +55,7 @@ public class SmoothModel extends AbstractModel {
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		stream.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
-		stream.bufferTime = model.config['bufferlength'];
-		stream.checkPolicyFile = true;
-		stream.client = new NetClient(this);
+		stream.client = new Object();
 		video = new Video(320,240);
 		video.smoothing = model.config['smoothing'];
 		video.attachNetStream(stream);
@@ -90,18 +84,16 @@ public class SmoothModel extends AbstractModel {
 
 	/** Load the next chunk for playback based upon the current position. **/
 	protected function loadChunk():void {
+		var pos:Number = position+0.5;
 		for (var i:Number=0; i<chunks.length; i++) {
-			if(chunks[i]['end'] > position && chunks[i]['start'] <= position) {
+			if(chunks[i]['end'] > pos && chunks[i]['start'] <= pos) {
 				chunk = i;
 				break;
 			}
 		}
-		var url:String = index['url'];
-		url = url.replace('{start time}',chunks[chunk]['start']);
-		url = url.replace('{end time}',chunks[chunk+1]['end']);
-		url = url.replace('{identifier}',levels[level]['identifier']);
-		url = url.replace('{bitrate}',levels[level]['bitrate']);
-		Logger.log({url:url,position:position,chunk:chunk},'CHUNK');
+		var url:String = 'http://h264.code-shop.com:8080/ccc.mp4';
+		url += '?start='+chunks[chunk]['start'];
+		url += '&end='+chunks[chunk]['end'];
 		stream.play(url);
 	};
 
@@ -119,18 +111,9 @@ public class SmoothModel extends AbstractModel {
 		} else {
 			model.mediaHandler(video);
 			interval = setInterval(positionInterval,100);
+			setLevel();
 			loadChunk();
 		}
-	};
-
-
-	/** Get metadata information from netstream class. **/
-	public function onData(dat:Object):void {
-		if(dat.width) {
-			video.width = dat.width;
-			video.height = dat.height;
-		}
-		model.sendEvent(ModelEvent.META,dat);
 	};
 
 
@@ -152,22 +135,20 @@ public class SmoothModel extends AbstractModel {
 
 	/** Interval for the position progress **/
 	protected function positionInterval():void {
-		stopped = false;
-		position = chunks[chunk]['start'] + Math.round(stream.time*10)/10;
-		//var bfr:Number = Math.round(stream.bufferLength/stream.bufferTime*100);
-		if (model.config['state'] != ModelStates.PLAYING) {
+		var pos:Number = Math.round((chunks[chunk]['start']+stream.time)*10)/10;
+		if(pos == position || pos > position + 1) {
+			return; 
+		}
+		position = pos;
+		if(model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
 		if(position < item['duration']) {
-			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
+			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration'],chunk:chunk});
 		} else if (item['duration'] > 0) {
 			stream.pause();
 			clearInterval(interval);
-			if(chunk == chunks.length-1) {
-				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
-			} else {
-				loadChunk();
-			}
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}
 	};
 
@@ -182,17 +163,19 @@ public class SmoothModel extends AbstractModel {
 	};
 
 
+	/** Set a specific stream level. **/
+	protected function setLevel():void {
+		level = 0;
+		model.sendEvent(ModelEvent.META,levels[level]);
+	};
+
+
 	/** Receive NetStream status updates. **/
 	protected function statusHandler(evt:NetStatusEvent):void {
 		switch (evt.info.code) {
 			case "NetStream.Play.Stop":
-				clearInterval(interval);
-				if(stopped) {
-					return;
-				} else {
-					stopped = true;
-				}
 				if(chunk == chunks.length-1) {
+					clearInterval(interval);
 					model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 				} else {
 					loadChunk();
@@ -203,7 +186,6 @@ public class SmoothModel extends AbstractModel {
 				model.sendEvent(ModelEvent.ERROR,{message:'Video not found or access denied: '+item['file']});
 				break;
 		}
-		model.sendEvent(ModelEvent.META,{status:evt.info.code});
 	};
 
 	/** Destroy the video. **/
@@ -214,7 +196,7 @@ public class SmoothModel extends AbstractModel {
 			stream.pause();
 		}
 		clearInterval(interval);
-		position = chunk = level = 0;
+		position = item['start'];
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
