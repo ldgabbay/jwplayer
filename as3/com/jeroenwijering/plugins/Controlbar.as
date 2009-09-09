@@ -380,7 +380,7 @@ public class Controlbar implements PluginInterface {
 					clip.playButton.visible = false;
 					clip.pauseButton.visible = true;
 				} catch (err:Error) {}
-				if(config['position'] == 'over' || dps == 'fullScreen') {
+				if(config['position'] == 'over' || (dps == 'fullScreen' && config['position'] != 'none')) {
 					hiding = setTimeout(moveTimeout,2000);
 					view.skin.addEventListener(MouseEvent.MOUSE_MOVE,moveHandler);
 				} else {

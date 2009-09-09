@@ -159,6 +159,8 @@ public class Controller extends EventDispatcher {
 		// this is a small hack to enable youtube links to work by default.
 		} else if(itm['file'].indexOf('youtube.com/w') > -1 || itm['file'].indexOf('youtube.com/v') > -1) {
 			return 'youtube';
+		} else if(itm['file'].indexOf('livestream.com/') > -1 ) {
+			return 'livestream';
 		} else { 
 			 return EXTENSIONS[itm['file'].substr(-3).toLowerCase()];
 		}
