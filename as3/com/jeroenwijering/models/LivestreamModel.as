@@ -35,7 +35,6 @@ public class LivestreamModel extends AbstractModel {
 	public function LivestreamModel(mod:Model):void {
 		super(mod);
 		Security.allowDomain('*');
-		Security.loadPolicyFile("http://cdn.livestream.com/crossdomain.xml");
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
