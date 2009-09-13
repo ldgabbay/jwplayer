@@ -90,12 +90,9 @@ public class VideoModel extends AbstractModel {
 
 	/** timeout for checking the bitrate. **/
 	protected function loadTimeout():void {
-		var obj:Object = new Object();
-		obj['bandwidth'] = Math.round(stream.bytesLoaded/1024/3*8);
-		if(item['duration']) {
-			obj['bitrate'] = Math.round(stream.bytesTotal/1024*8/item['duration']);
-		}
-		model.sendEvent('META',obj);
+		model.sendEvent('META',{
+			bandwidth:Math.round(stream.bytesLoaded/1024/3*8)
+		});
 	};
 
 
@@ -137,9 +134,9 @@ public class VideoModel extends AbstractModel {
 		} else if (bfr > 95 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(position < item['duration']) {
+		if(position < item['duration'] + 10) {
 			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
-		} else if (item['duration'] > 0) {
+		} else if (item['duration']) {
 			stream.pause();
 			clearInterval(interval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});

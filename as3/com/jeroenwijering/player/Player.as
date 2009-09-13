@@ -69,7 +69,7 @@ public class Player extends MovieClip {
 		debug:'none',
 		id:undefined,
 		plugins:undefined,
-		version:'4.6.341'
+		version:'4.6.535'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -140,20 +140,12 @@ public class Player extends MovieClip {
 	protected function addModels():void {
 		model.addModel(new HTTPModel(model),'http');
 		model.addModel(new ImageModel(model),'image');
+		//model.addModel(new LivestreamModel(model),'livestream');
 		model.addModel(new RTMPModel(model),'rtmp');
 		model.addModel(new SmoothModel(model),'smooth');
 		model.addModel(new SoundModel(model),'sound');
 		model.addModel(new VideoModel(model),'video');
 		model.addModel(new YoutubeModel(model),'youtube');
-
-		model.addModel(new BitgravityModel(model),'bitgravity');
-		model.addModel(new EdgeCastModel(model),'edgecast');
-		model.addModel(new FCSubscribeModel(model),'fcsubscribe');
-		model.addModel(new FLVSeekModel(model),'flvseek');
-		model.addModel(new LivestreamModel(model),'livestream');
-		model.addModel(new HighwindsModel(model),'highwinds');
-		model.addModel(new LighttpdModel(model),'lighttpd');
-		model.addModel(new VDOXModel(model),'vdox');
 	};
 
 
@@ -164,7 +156,7 @@ public class Player extends MovieClip {
 		sploader.addPlugin(new Controlbar(),'controlbar');
 		sploader.addPlugin(new Playlist(),'playlist');
 		sploader.addPlugin(new Dock(),'dock');
-		sploader.addPlugin(new Watermark(),'watermark');
+		sploader.addPlugin(new Watermark(false),'watermark');
 	};
 
 

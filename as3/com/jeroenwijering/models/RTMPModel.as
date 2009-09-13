@@ -1,11 +1,4 @@
-﻿/**
-* Wrapper for playback of video streamed over RTMP.
-* 
-* All playback functionalities are cross-server (FMS, Wowza, Red5), with the exception of:
-* - The SecureToken functionality (Wowza).
-* - getStreamLength / checkBandwidth (FMS3).
-**/
-package com.jeroenwijering.models {
+﻿package com.jeroenwijering.models {
 
 
 import com.jeroenwijering.events.*;
@@ -19,23 +12,33 @@ import flash.net.*;
 import flash.utils.*;
 
 
+/**
+* Wrapper for playback of video streamed over RTMP. Can playback MP4, FLV, MP3, AAC and live streams.
+* Server-specific features are:
+* - The SecureToken functionality of Wowza (with the 'token' flahvar).
+* - Load balancing with SMIL files (with the 'rtmp.loadbalance=true' flashvar).
+**/
 public class RTMPModel extends AbstractModel {
 
 
-	/** Video object to be instantiated. **/
-	protected var video:Video;
 	/** NetConnection object for setup of the video stream. **/
-	protected var connection:NetConnection;
-	/** NetStream instance that handles the stream IO. **/
-	protected var stream:NetStream;
-	/** Sound control object. **/
-	protected var transform:SoundTransform;
-	/** Save that the video has been started. **/
-	protected var started:Boolean;
+	private var connection:NetConnection;
 	/** ID for the position interval. **/
-	protected var interval:Number;
+	private var interval:Number;
+	/** Loader instance that loads the XML file. **/
+	private var loader:URLLoader;
+	/** NetStream instance that handles the stream IO. **/
+	private var stream:NetStream;
+	/** Sound control object. **/
+	private var transform:SoundTransform;
+	/** Save the location of the XML redirect. **/
+	private var smil:String;
+	/** Save that the video has been started. **/
+	private var started:Boolean;
 	/** Save that a file is unpublished. **/
-	protected var unpublished:Boolean;
+	private var unpublished:Boolean;
+	/** Video object to be instantiated. **/
+	private var video:Video;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -48,6 +51,10 @@ public class RTMPModel extends AbstractModel {
 		connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
 		connection.objectEncoding = ObjectEncoding.AMF0;
 		connection.client = new Object();
+		loader = new URLLoader();
+		loader.addEventListener(Event.COMPLETE, loaderHandler);
+		loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,errorHandler);
+		loader.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		video = new Video(320,240);
 		video.smoothing = model.config['smoothing'];
 		transform = new SoundTransform();
@@ -55,14 +62,14 @@ public class RTMPModel extends AbstractModel {
 
 
 	/** Catch security errors. **/
-	protected function errorHandler(evt:ErrorEvent):void {
+	private function errorHandler(evt:ErrorEvent):void {
 		stop();
 		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
 	};
 
 
 	/** Extract the correct rtmp syntax from the file string. **/
-	protected function getID(url:String):String {
+	private function getID(url:String):String {
 		var ext:String = url.substr(-4);
 		if(ext == '.mp3') {
 			return 'mp3:'+url.substr(0,url.length-4);
@@ -80,10 +87,25 @@ public class RTMPModel extends AbstractModel {
 	override public function load(itm:Object):void {
 		item = itm;
 		position = 0;
-		model.mediaHandler(video);
-		connection.connect(item['streamer']);
 		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
+		if(model.config['rtmp.loadbalance']) {
+			smil = item['file'];
+			loader.load(new URLRequest(smil));
+		} else {
+			model.mediaHandler(video);
+			connection.connect(item['streamer']);
+		}
+	};
+
+
+	/** Get the streamer / file from the loadbalancing XML. **/
+	private function loaderHandler(evt:Event) {
+		var xml:XML = XML(evt.currentTarget.data);
+		item['streamer'] = xml.children()[0].children()[0].@base.toString();
+		item['file'] = xml.children()[1].children()[0].@src.toString();
+		model.mediaHandler(video);
+		connection.connect(item['streamer']);
 	};
 
 
@@ -96,12 +118,11 @@ public class RTMPModel extends AbstractModel {
 		if(dat.type == 'complete') {
 			clearInterval(interval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
-		} else  if(dat.type == 'close') {
+		}
+		if(dat.type == 'close') {
 			stop();
 		}
-		if(model.config['ignoremeta'] != true) {
-			model.sendEvent(ModelEvent.META,dat);
-		}
+		model.sendEvent(ModelEvent.META,dat);
 	};
 
 
@@ -125,7 +146,7 @@ public class RTMPModel extends AbstractModel {
 
 
 	/** Interval for the position progress. **/
-	protected function positionInterval():void {
+	private function positionInterval():void {
 		position = Math.round(stream.time*10)/10;
 		var bfr:Number = Math.round(stream.bufferLength/stream.bufferTime*100);
 		if(bfr < 95 && position < Math.abs(item['duration']-stream.bufferTime-1)) {
@@ -141,7 +162,7 @@ public class RTMPModel extends AbstractModel {
 			model.sendEvent(ModelEvent.META,{bufferlength:model.config['bufferlength']*4});
 		}
 		if(position < item['duration']) {
-			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration'],framerate:stream.currentFPS});
+			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
 		} else if (!isNaN(position) && item['duration'] > 0) {
 			stream.pause();
 			clearInterval(interval);
@@ -165,7 +186,7 @@ public class RTMPModel extends AbstractModel {
 
 
 	/** Start the netstream object. **/
-	protected function setStream() {
+	private function setStream() {
 		stream = new NetStream(connection);
 		stream.checkPolicyFile = true;
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
@@ -181,7 +202,7 @@ public class RTMPModel extends AbstractModel {
 
 
 	/** Receive NetStream status updates. **/
-	protected function statusHandler(evt:NetStatusEvent):void {
+	private function statusHandler(evt:NetStatusEvent):void {
 		switch(evt.info.code) {
 			case 'NetConnection.Connect.Success':
 				if(evt.info.secureToken != undefined) {
@@ -191,12 +212,10 @@ public class RTMPModel extends AbstractModel {
 				setStream();
 				var res:Responder = new Responder(streamlengthHandler);
 				connection.call("getStreamLength",res,getID(item['file']));
-				//connection.call("checkBandwidth",null);
+				connection.call("checkBandwidth",null);
 				break;
 			case  'NetStream.Play.Start':
-				if(item['start'] > 0 && !started) {
-					seek(item['start']);
-				}
+				if(item['start'] > 0 && !started) { seek(item['start']); }
 				started = true;
 				break;
 			case  'NetStream.Seek.Notify':
@@ -249,14 +268,15 @@ public class RTMPModel extends AbstractModel {
 		clearInterval(interval);
 		position = 0;
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
+		if(smil) { 
+			item['file'] = smil;
+		}
 	};
 
 
 	/** Get the streamlength returned from the connection. **/
 	private function streamlengthHandler(len:Number):void {
-		if(len > 0) {
-			onData({type:'streamlength',duration:len});
-		}
+		if(len > 0) { onData({type:'streamlength',duration:len}); }
 	};
 
 

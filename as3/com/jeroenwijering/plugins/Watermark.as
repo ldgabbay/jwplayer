@@ -1,7 +1,4 @@
-﻿/**
-* Plugin that shows a watermark when buffering.
-**/
-package com.jeroenwijering.plugins {
+﻿package com.jeroenwijering.plugins {
 
 
 import com.jeroenwijering.events.*;
@@ -15,44 +12,112 @@ import flash.utils.*;
 import flash.events.*;
 import flash.net.*;
 
-public dynamic class Watermark extends MovieClip implements PluginInterface {
 
-	/** Configuration vars for this plugin. **/
-	public var config:Object = {};
+/**
+* Plugin that shows a watermark when buffering.
+**/
+public class Watermark extends MovieClip implements PluginInterface {
+
+
 	/** Reference to the skin MC. **/
 	public var clip:MovieClip;
+	/** Configuration flashvars pushed by the player. **/
+	public var config:Object = {};
+	/** Configuration flashvars, not overwritten by the player. **/
+	private var _config:Object = {
+		file:undefined,
+		link:undefined,
+		margin:10,
+		out:0.5,
+		over:1,
+		state:false,
+		timeout:3
+	};
+	/** Save whether the plugin is configurable. **/
+	private var configurable:Boolean;
+	/** Reference to the loader **/
+	private var loader:Loader;
 	/** Reference to the MVC view. **/
 	private var view:AbstractView;
-	/** Time to display watermark **/
-	private var watermarkTimeout:Number = 3000;
 	/** Timeout keeping track of fade out  **/
-	private var hidingTimeout:uint;
-	/** Alpha values for mouse states **/
-	private var alphas:Object = {
-		over: 1,
-		out: 0.5
+	private var timeout:uint;
+
+
+	/** Constructor. **/
+	public function Watermark(cfg:Boolean=false):void {
+		configurable = cfg;
 	};
-	/** Set to true when the watermark is visible **/
-	private var showing:Boolean = false;
 
 
-	/** Constructor **/
-	public function Watermark() {
-		this.alpha = alphas['out'];
-		this.buttonMode = true;
-		addEventListener(MouseEvent.MOUSE_OVER, mouseOverHandler);
-		addEventListener(MouseEvent.MOUSE_OUT, mouseOutHandler);
-		addEventListener(MouseEvent.CLICK, clickHandler);
+	/** Handle Mouse Click **/
+	private function clickHandler(evt:MouseEvent):void {
+		view.sendEvent(ViewEvent.PLAY,false);
+		var lnk:String = view.config['aboutlink'];
+		if(_config['link']) { lnk = _config['link']; }
+		navigateToURL(new URLRequest(lnk));
+	};
+
+
+	/** Fade out watermark. **/
+	private function hide():void {
+		_config['state'] = false;
+		clip.mouseEnabled = false;
+		TransitionManager.start(clip,{
+			type:Fade,
+			direction:Transition.OUT,
+			duration:0.3,
+			easing:Regular.easeIn
+		});
 	};
 
 
 	/** Initialize the plugin. **/
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
-		this.visible = false;
-		clip.addChild(this);
-		view.addModelListener(ModelEvent.STATE, stateHandler);
-		view.addControllerListener(ControllerEvent.RESIZE, resizeHandler);
+		view.addModelListener(ModelEvent.STATE,stateHandler);
+		view.addControllerListener(ControllerEvent.RESIZE,resizeHandler);
+		if(configurable) {
+			for (var i:String in config) { _config[i] = config[i]; }
+		}
+		clip.visible = false;
+		clip.alpha = _config['out'];
+		clip.buttonMode = true;
+		clip.addEventListener(MouseEvent.CLICK,clickHandler);
+		clip.addEventListener(MouseEvent.MOUSE_OVER,overHandler);
+		clip.addEventListener(MouseEvent.MOUSE_OUT,outHandler);
+		if(!configurable) {
+			clip.addChild(this);
+			resizeHandler();
+		} else if(_config['file']) {
+			loader = new Loader();
+			loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
+			loader.load(new URLRequest(_config['file']));
+		}
+	};
+
+
+	/** Watermark loaded, so position it. **/
+	private function loaderHandler(evt:Event):void {
+		clip.addChild(loader);
+		resizeHandler();
+	};
+
+
+	/** Handle mouse out state **/
+	private function outHandler(evt:MouseEvent):void {
+		clip.alpha = _config['out'];
+	};
+
+
+	/** Handle mouse over state **/
+	private function overHandler(evt:MouseEvent):void {
+		clip.alpha = _config['over'];
+	};
+
+
+	private function resizeHandler(evt:ControllerEvent=null):void {
+		clip.x = config['x'] + _config['margin'];
+		clip.y = config['y'] + config['height'] - clip.height - _config['margin'];
 	};
 
 
@@ -60,54 +125,26 @@ public dynamic class Watermark extends MovieClip implements PluginInterface {
 	private function stateHandler(evt:ModelEvent):void {
 		switch(evt.data.newstate) {
 			case ModelStates.BUFFERING:
-				clearTimeout(hidingTimeout);
-				showWatermark();
+				clearTimeout(timeout);
+				show();
 				break;
 		}
 	};
 
 
-	private function resizeHandler(evt:ControllerEvent):void {
-		clip.x = config['x'] + 10;
-		clip.y = config['y'] + config['height'] - clip.height - 12;
-	};
-
-
 	/** Fade in watermark. **/
-	private function showWatermark():void {
-		if(!showing) {
-			showing = true;
-			TransitionManager.start(this,{type:Fade, direction:Transition.IN, duration:0.3, easing:Regular.easeIn});
+	private function show():void {
+		if(!_config['state']) {
+			_config['state'] = true;
+			TransitionManager.start(clip,{
+				type:Fade,
+				direction:Transition.IN,
+				duration:0.3,
+				easing:Regular.easeIn
+			});
 		}
-		hidingTimeout = setTimeout(hideWatermark, watermarkTimeout);
+		timeout = setTimeout(hide,_config['timeout']*1000);
 		clip.mouseEnabled = true;
-	};
-
-
-	/** Fade out watermark. **/
-	private function hideWatermark():void {
-		showing = false;
-		clip.mouseEnabled = false;
-		TransitionManager.start(this, {type:Fade, direction:Transition.OUT, duration:0.3, easing:Regular.easeIn});
-	};
-
-
-	/** Handle mouse over state **/
-	private function mouseOverHandler(evt:MouseEvent):void {
-		this.alpha = alphas['over'];
-	};
-
-
-	/** Handle mouse out state **/
-	private function mouseOutHandler(evt:MouseEvent):void {
-		this.alpha = alphas['out'];
-	};
-
-
-	/** Handle Mouse Click **/
-	private function clickHandler(evt:MouseEvent):void {
-		view.sendEvent(ViewEvent.PLAY,false);
-		navigateToURL(new URLRequest(view.config['aboutlink']));
 	};
 
 

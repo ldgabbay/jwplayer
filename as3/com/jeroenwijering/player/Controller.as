@@ -72,6 +72,15 @@ public class Controller extends EventDispatcher {
 		title:undefined,
 		type:undefined
 	};
+	/** A list with legacy CDN classes that are now redirected to buit-in ones. **/
+	private var REDIRECTS:Object = {
+		bitgravity:{flashvar:'startparam',model:'http',value:'starttime'},
+		edgecast:{flashvar:'startparam',model:'http',value:'ec_seek'},
+		flvseek:{flashvar:'startparam',model:'http',value:'fs'},
+		highwinds:{flashvar:'loadbalance',model:'rtmp',value:true},
+		lighttpd:{flashvar:'startparam',model:'http',value:'start'},
+		vdox:{flashvar:'loadbalance',model:'rtmp',value:true}
+	};
 
 
 	/** Constructor, set up stage and playlist listeners. **/
@@ -146,6 +155,10 @@ public class Controller extends EventDispatcher {
 	private function getModelType(itm:Object,sub:Boolean):String {
 		if(!itm['file']) {
 			return null;
+		} else if(REDIRECTS[itm['type']]) {
+			var typ:Object = REDIRECTS[itm['type']];
+			config[typ['model']+'.'+typ['flashvar']] = typ['value'];
+			return typ['model'];
 		} else if(itm['type']) {
 			return itm['type'];
 		} else if (itm['streamer'] && sub) {

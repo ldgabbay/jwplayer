@@ -19,31 +19,33 @@ public class HTTPModel extends AbstractModel {
 
 
 	/** NetConnection object for setup of the video stream. **/
-	protected var connection:NetConnection;
+	private var connection:NetConnection;
 	/** NetStream instance that handles the stream IO. **/
-	protected var stream:NetStream;
+	private var stream:NetStream;
 	/** Video object to be instantiated. **/
-	protected var video:Video;
+	private var video:Video;
 	/** Sound control object. **/
-	protected var transform:SoundTransform;
+	private var transform:SoundTransform;
 	/** ID for the position interval. **/
-	protected var interval:Number;
+	private var interval:Number;
 	/** Interval ID for the loading. **/
-	protected var loadinterval:Number;
+	private var loadinterval:Number;
 	/** Save whether metadata has already been sent. **/
-	protected var meta:Boolean;
+	private var meta:Boolean;
 	/** Object with keyframe times and positions. **/
-	protected var keyframes:Object;
+	private var keyframes:Object;
 	/** Offset in bytes of the last seek. **/
-	protected var byteoffset:Number;
+	private var byteoffset:Number;
 	/** Offset in seconds of the last seek. **/
-	protected var timeoffset:Number;
+	private var timeoffset:Number;
 	/** Boolean for mp4 / flv streaming. **/
-	protected var mp4:Boolean;
+	private var mp4:Boolean;
 	/** Load offset for bandwidth checking. **/
-	protected var loadtimer:Number;
+	private var loadtimer:Number;
 	/** Variable that takes reloading into account. **/
-	protected var iterator:Number;
+	private var iterator:Number;
+	/** Start parameter. **/
+	private var startparam:String = 'start';
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -67,7 +69,7 @@ public class HTTPModel extends AbstractModel {
 
 
 	/** Convert seekpoints to keyframes. **/
-	protected function convertSeekpoints(dat:Object):Object {
+	private function convertSeekpoints(dat:Object):Object {
 		var kfr:Object = new Object();
 		kfr.times = new Array();
 		kfr.filepositions = new Array();
@@ -80,14 +82,14 @@ public class HTTPModel extends AbstractModel {
 
 
 	/** Catch security errors. **/
-	protected function errorHandler(evt:ErrorEvent):void {
+	private function errorHandler(evt:ErrorEvent):void {
 		stop();
 		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
 	};
 
 
 	/** Return a keyframe byteoffset or timeoffset. **/
-	protected function getOffset(pos:Number,tme:Boolean=false):Number {
+	private function getOffset(pos:Number,tme:Boolean=false):Number {
 		if(!keyframes) {
 			return 0;
 		}
@@ -105,21 +107,38 @@ public class HTTPModel extends AbstractModel {
 
 
 	/** Create the video request URL. **/
-	protected function getURL():String {
-		var url:String = item['streamer'];
+	private function getURL():String {
+		var url:String = item['file'];
 		var off:Number  = byteoffset;
+		if(model.config['http.startparam']) {
+			startparam = model.config['http.startparam'];
+		}
+		if(item['streamer']) {
+			url = item['streamer'];
+			url = getURLConcat(url,'file',item['file']);
+		}
 		if(mp4) {
 			off = timeoffset;
+		} else if (startparam == 'starttime') {
+			startparam = 'start';
 		}
-		if(url.indexOf('?') > -1) {
-			url += "&file="+item['file']+'&start='+off;
-		} else {
-			url += "?file="+item['file']+'&start='+off;
+		if(off > 0) {
+			url = getURLConcat(url,startparam,off);
 		}
 		if(model.config['token']) {
-			url += '&token='+model.config['token'];
+			url = getURLConcat(url,'token',model.config['token']);
 		}
 		return url;
+	};
+
+
+	/** Concatenate a parameter to the url. **/
+	private function getURLConcat(url:String,prm:String,val:*):String {
+		if(url.indexOf('?') > -1) {
+			return url+'&'+prm+'='+val;
+		} else {
+			return url + '?'+prm+'='+val;
+		}
 	};
 
 
@@ -127,9 +146,6 @@ public class HTTPModel extends AbstractModel {
 	override public function load(itm:Object):void {
 		item = itm;
 		position = timeoffset;
-		if(stream.bytesLoaded + byteoffset < stream.bytesTotal) {
-			stream.close();
-		}
 		model.mediaHandler(video);
 		stream.play(getURL());
 		iterator = 0;
@@ -144,7 +160,7 @@ public class HTTPModel extends AbstractModel {
 
 
 	/** Interval for the loading progress **/
-	protected function loadHandler():void {
+	private function loadHandler():void {
 		var ldd:Number = stream.bytesLoaded;
 		var ttl:Number = stream.bytesTotal;
 		var pct:Number = timeoffset/(item['duration']+0.001);
@@ -161,7 +177,7 @@ public class HTTPModel extends AbstractModel {
 
 
 	/** timeout for checking the bitrate. **/
-	protected function loadTimeout():void {
+	private function loadTimeout():void {
 		var obj:Object = new Object();
 		obj['bandwidth'] = Math.round(stream.bytesLoaded/1024/3*8);
 		if(item['duration']) {
@@ -211,7 +227,7 @@ public class HTTPModel extends AbstractModel {
 
 
 	/** Interval for the position progress **/
-	protected function positionInterval():void {
+	private function positionInterval():void {
 		iterator++;
 		if(iterator > 10) {
 			position = Math.round(stream.time*10)/10;
@@ -228,7 +244,7 @@ public class HTTPModel extends AbstractModel {
 		} else if (bfr > 95 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(position < item['duration']) {
+		if(position < item['duration'] + 10) {
 			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
 		} else if (item['duration'] > 0) {
 			stream.pause();
@@ -262,7 +278,7 @@ public class HTTPModel extends AbstractModel {
 
 
 	/** Receive NetStream status updates. **/
-	protected function statusHandler(evt:NetStatusEvent):void {
+	private function statusHandler(evt:NetStatusEvent):void {
 		switch (evt.info.code) {
 			case "NetStream.Play.Stop":
 				if(model.config['state'] != ModelStates.COMPLETED && 
