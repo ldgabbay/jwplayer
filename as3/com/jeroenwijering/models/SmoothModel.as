@@ -145,7 +145,7 @@ public class SmoothModel extends AbstractModel {
 	/** Resume playing. **/
 	override public function play():void {
 		chunks[chunk].netstream.resume();
-		interval = setInterval(positionInterval,50);
+		interval = setInterval(positionInterval,40);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 	};
 
@@ -154,17 +154,21 @@ public class SmoothModel extends AbstractModel {
 	private function positionInterval():void {
 		var chk:Number = chunk;
 		var obj:Object = chunks[chunk];
-		position = Math.round((obj['start']+obj.netstream.time)*10)/10;
+		var pos:Number = obj['start']+obj.netstream.time;
 		if(model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(position > obj['end']-0.2) {
+		if(pos > obj['end']-0.15) {
 			setTimeout(killChunk,2000,chk);
 			playChunk(chk+1);
 			setTimeout(loadChunk,1000,chk+2);
 		}
-		if(position < item['duration']) {
-			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration'],chunk:chk});
+		if(pos < item['duration']) {
+			pos = Math.round(pos*10)/10;
+			if(pos != position) {
+				position = pos;
+				model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration'],chunk:chk});
+			}
 		} else if (item['duration'] > 0) {
 			obj.netstream.pause();
 			clearInterval(interval);
@@ -187,7 +191,7 @@ public class SmoothModel extends AbstractModel {
 				break;
 			}
 		}
-		interval = setInterval(positionInterval,50);
+		interval = setInterval(positionInterval,40);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
