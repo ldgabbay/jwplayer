@@ -18,34 +18,34 @@ import flash.utils.*;
 public class HTTPModel extends AbstractModel {
 
 
+	/** Offset in bytes of the last seek. **/
+	private var byteoffset:Number = 0;
+	/** Save if the bandwidth checkin already occurs. **/
+	private var bwcheck:Boolean;
+	/** Switch on startup if the bandwidth is not enough. **/
+	private var bwswitch:Boolean = true;
 	/** NetConnection object for setup of the video stream. **/
 	private var connection:NetConnection;
-	/** NetStream instance that handles the stream IO. **/
-	private var stream:NetStream;
-	/** Video object to be instantiated. **/
-	private var video:Video;
-	/** Sound control object. **/
-	private var transform:SoundTransform;
 	/** ID for the position interval. **/
 	private var interval:Number;
+	/** Object with keyframe times and positions. **/
+	private var keyframes:Object;
 	/** Interval ID for the loading. **/
 	private var loadinterval:Number;
 	/** Save whether metadata has already been sent. **/
 	private var meta:Boolean;
-	/** Object with keyframe times and positions. **/
-	private var keyframes:Object;
-	/** Offset in bytes of the last seek. **/
-	private var byteoffset:Number;
-	/** Offset in seconds of the last seek. **/
-	private var timeoffset:Number;
 	/** Boolean for mp4 / flv streaming. **/
 	private var mp4:Boolean;
-	/** Load offset for bandwidth checking. **/
-	private var loadtimer:Number;
-	/** Variable that takes reloading into account. **/
-	private var iterator:Number;
 	/** Start parameter. **/
 	private var startparam:String = 'start';
+	/** NetStream instance that handles the stream IO. **/
+	private var stream:NetStream;
+	/** Offset in seconds of the last seek. **/
+	private var timeoffset:Number = 0;
+	/** Sound control object. **/
+	private var transformer:SoundTransform;
+	/** Video object to be instantiated. **/
+	private var video:Video;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -60,11 +60,11 @@ public class HTTPModel extends AbstractModel {
 		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
 		stream.bufferTime = model.config['bufferlength'];
 		stream.client = new NetClient(this);
+		transformer = new SoundTransform();
 		video = new Video(320,240);
 		video.smoothing = model.config['smoothing'];
 		video.attachNetStream(stream);
-		transform = new SoundTransform();
-		byteoffset = timeoffset = 0;
+		addChild(video);
 	};
 
 
@@ -85,6 +85,39 @@ public class HTTPModel extends AbstractModel {
 	private function errorHandler(evt:ErrorEvent):void {
 		stop();
 		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
+	};
+
+
+	/** Bandwidth is checked every four seconds as long as there's loading. **/
+	private function getBandwidth(old:Number):void {
+		var ldd:Number = stream.bytesLoaded;
+		var bdw:Number = Math.round((ldd-old)*4/1000);
+		if(ldd < stream.bytesTotal) {
+			if(bdw > 0) { model.config['bandwidth'] = bdw; }
+			if(bwswitch) {
+				bwswitch = false;
+				if(getLevel() != model.config['level']) {
+					byteoffset = -1;
+					seek(position);
+					return;
+				}
+			}
+			setTimeout(getBandwidth,2000,ldd);
+		}
+	};
+
+
+	/** Return which level best fits the display width and connection bandwidth. **/
+	private function getLevel():Number {
+		var lvl:Number = item['levels'].length-1;
+		for (var i:Number=0; i<item['levels'].length; i++) {
+			if(model.config['width'] >= item['levels'][i].width && 
+				model.config['bandwidth'] >= item['levels'][i].bitrate) {
+				lvl = i;
+				break;
+			}
+		}
+		return lvl;
 	};
 
 
@@ -114,8 +147,12 @@ public class HTTPModel extends AbstractModel {
 			startparam = model.config['http.startparam'];
 		}
 		if(item['streamer']) {
-			url = item['streamer'];
-			url = getURLConcat(url,'file',item['file']);
+			if(item['streamer'].indexOf('/') > 0) {
+				url = item['streamer'];
+				url = getURLConcat(url,'file',item['file']);
+			} else { 
+				startparam = item['streamer'];
+			}
 		}
 		if(mp4) {
 			off = timeoffset;
@@ -146,15 +183,17 @@ public class HTTPModel extends AbstractModel {
 	override public function load(itm:Object):void {
 		item = itm;
 		position = timeoffset;
-		model.mediaHandler(video);
+		bwcheck = false;
+		if(item['levels']) {
+			model.config['level'] = getLevel();
+			item['file'] = item['levels'][model.config['level']].url;
+		}
 		stream.play(getURL());
-		iterator = 0;
 		clearInterval(interval);
 		interval = setInterval(positionInterval,100);
 		clearInterval(loadinterval);
 		loadinterval = setInterval(loadHandler,200);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
-		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
@@ -170,28 +209,22 @@ public class HTTPModel extends AbstractModel {
 		if(ldd+off >= ttl && ldd > 0) {
 			clearInterval(loadinterval);
 		}
-		if(!loadtimer) {
-			loadtimer = setTimeout(loadTimeout,3000);
+		if(ldd > 0 && !bwcheck) {
+			bwcheck = true;
+			setTimeout(getBandwidth,2000,ldd);
 		}
-	};
-
-
-	/** timeout for checking the bitrate. **/
-	private function loadTimeout():void {
-		var obj:Object = new Object();
-		obj['bandwidth'] = Math.round(stream.bytesLoaded/1024/3*8);
-		if(item['duration']) {
-			obj['bitrate'] = Math.round(stream.bytesTotal/1024*8/item['duration']);
-		}
-		model.sendEvent('META',obj);
 	};
 
 
 	/** Get metadata information from netstream class. **/
-	public function onData(dat:Object):void {
+	public function onClientData(dat:Object):void {
 		if(dat.width) {
 			video.width = dat.width;
 			video.height = dat.height;
+			super.resize();
+		}
+		if(!item['duration'] && dat.duration) {
+			item['duration'] = dat.duration;
 		}
 		if(dat['type'] == 'metadata' && !meta) {
 			meta = true;
@@ -228,28 +261,39 @@ public class HTTPModel extends AbstractModel {
 
 	/** Interval for the position progress **/
 	private function positionInterval():void {
-		iterator++;
-		if(iterator > 10) {
-			position = Math.round(stream.time*10)/10;
-			if (mp4) {
-				position += timeoffset;
-			}
+		var pos:Number = Math.round(stream.time*10)/10;
+		if(pos > position - timeoffset + 5) {
+			pos = position - timeoffset + 0.1;
 		}
-		var bfr:Number = Math.round(stream.bufferLength/stream.bufferTime*100);
-		if(bfr < 95 && position < Math.abs(item['duration']-stream.bufferTime-1)) {
-			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
-			if(model.config['state'] != ModelStates.BUFFERING && bfr < 25) {
-				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-			}
-		} else if (bfr > 95 && model.config['state'] != ModelStates.PLAYING) {
+		if (mp4) {
+			pos += timeoffset;
+		}
+		var bfr:Number = stream.bufferLength/stream.bufferTime;
+		if(bfr < 0.5 && pos < item['duration']-5 && model.config['state'] != ModelStates.BUFFERING) {
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
+		} else if (bfr > 1 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(position < item['duration'] + 10) {
-			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
+		if(pos < item['duration'] + 10) {
+			if(pos != position) {
+				model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration']});
+				position = pos;
+			}
 		} else if (item['duration'] > 0) {
 			stream.pause();
 			clearInterval(interval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+		}
+	};
+
+
+	/** The stage has been resize. **/
+	override public function resize():void {
+		super.resize();
+		if(item['levels'] && getLevel() != model.config['level']) {
+			byteoffset = getOffset(position);
+			timeoffset = position = getOffset(position,true);
+			load(item);
 		}
 	};
 
@@ -300,7 +344,7 @@ public class HTTPModel extends AbstractModel {
 	override public function stop():void {
 		if(stream.bytesLoaded+byteoffset < stream.bytesTotal) {
 			stream.close();
-		} else { 
+		} else {
 			stream.pause();
 		}
 		clearInterval(interval);
@@ -312,10 +356,10 @@ public class HTTPModel extends AbstractModel {
 	};
 
 
-	/** Set the volume level. **/
+	/** Set the volume. **/
 	override public function volume(vol:Number):void {
-		transform.volume = vol/100;
-		stream.soundTransform = transform;
+		transformer.volume = vol/100;
+		stream.soundTransform = transformer;
 	};
 
 

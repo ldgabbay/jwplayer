@@ -27,7 +27,7 @@ public class Stretcher {
 	* @param wid	The target width.
 	* @param hei	The target height.
 	* @param typ	The stretching type.
- * 	**/
+	**/
 	public static function stretch(clp:DisplayObject,wid:Number,hei:Number,typ:String='uniform'):void {
 		var xsc:Number = wid/clp.width;
 		var ysc:Number = hei/clp.height;

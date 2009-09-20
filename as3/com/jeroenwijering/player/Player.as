@@ -47,16 +47,16 @@ public class Player extends MovieClip {
 		width:400,
 
 		autostart:false,
+		bandwidth:5000,
 		bufferlength:1,
 		displayclick:'play',
 		fullscreen:false,
 		item:0,
+		level:0,
 		linktarget:'_blank',
 		logo:undefined,
 		mute:false,
-		oncomplete:'rewind',
 		repeat:'none',
-		resizing:true,
 		shuffle:false,
 		smoothing:true,
 		state:'IDLE',
@@ -69,7 +69,7 @@ public class Player extends MovieClip {
 		debug:'none',
 		id:undefined,
 		plugins:undefined,
-		version:'4.6.535'
+		version:'4.6.374'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -140,7 +140,7 @@ public class Player extends MovieClip {
 	protected function addModels():void {
 		model.addModel(new HTTPModel(model),'http');
 		model.addModel(new ImageModel(model),'image');
-		//model.addModel(new LivestreamModel(model),'livestream');
+		model.addModel(new LivestreamModel(model),'livestream');
 		model.addModel(new RTMPModel(model),'rtmp');
 		model.addModel(new SmoothModel(model),'smooth');
 		model.addModel(new SoundModel(model),'sound');

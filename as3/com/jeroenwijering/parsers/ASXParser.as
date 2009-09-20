@@ -5,6 +5,7 @@ package com.jeroenwijering.parsers {
 
 
 import com.jeroenwijering.parsers.JWParser;
+import com.jeroenwijering.parsers.MediaParser;
 import com.jeroenwijering.utils.Strings;
 
 
@@ -55,6 +56,7 @@ public class ASXParser {
 					break;
 			}
 		}
+		itm = MediaParser.parseGroup(obj,itm);
 		itm = JWParser.parseEntry(obj,itm);
 		return itm;
 	};

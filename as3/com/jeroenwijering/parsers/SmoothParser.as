@@ -44,10 +44,11 @@ public class SmoothParser {
 		var arr:Array = new Array();
 		for each (var i:XML in dat.children()[0].children()) {
 			if (i.localName().toLowerCase() == 'qualitylevel') {
-				var obj:Object = new Object();
-				for(var j:Number=0; j<i.@*.length(); j++) {
-					obj[i.@*[j].name().toString().toLowerCase()] = i.@*[j].toString();
-				}
+				var obj:Object = {
+					bitrate:Number(i.@Bitrate.toString())/1000,
+					width:Number(i.@Width.toString())/1,
+					height:Number(i.@Height.toString())/1
+				};
 				Logger.log(obj);
 				arr.push(obj);
 			}

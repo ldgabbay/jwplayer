@@ -7,12 +7,14 @@ package com.jeroenwijering.models {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.player.Model;
+import com.jeroenwijering.utils.Logger;
 
 import flash.display.Loader;
 import flash.events.*;
 import flash.net.LocalConnection;
 import flash.net.URLRequest;
 import flash.system.Security;
+import flash.utils.setTimeout;
 
 
 public class YoutubeModel extends AbstractModel {
@@ -26,29 +28,16 @@ public class YoutubeModel extends AbstractModel {
 	private var outgoing:LocalConnection;
 	/** connection from the YT proxy. **/
 	private var inbound:LocalConnection;
-	/** Save that the meta has been sent. **/
-	private var metasent:Boolean;
 	/** Save that a load call has been sent. **/
 	private var loading:Boolean;
 	/** Save the connection state. **/
 	private var connected:Boolean;
-	/** URL of a custom youtube swf. **/
-	private var location:String;
 
 
 	/** Setup YouTube connections and load proxy. **/
 	public function YoutubeModel(mod:Model):void {
 		super(mod);
 		Security.allowDomain('*');
-		var url:String = model.display.loaderInfo.url;
-		if(url.indexOf('http://') == 0) {
-			unique = Math.random().toString().substr(2);
-			var str:String = url.substr(0,url.indexOf('.swf'));
-			location = str.substr(0,str.lastIndexOf('/')+1)+'yt.swf?unique='+unique;
-		} else {
-			unique = '1';
-			location = 'yt.swf';
-		}
 		outgoing = new LocalConnection();
 		outgoing.allowDomain('*');
 		outgoing.allowInsecureDomain('*');
@@ -57,10 +46,10 @@ public class YoutubeModel extends AbstractModel {
 		inbound.allowDomain('*');
 		inbound.allowInsecureDomain('*');
 		inbound.addEventListener(StatusEvent.STATUS,onLocalConnectionStatusChange);
-		//inbound.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
 		inbound.client = this;
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
+		addChild(loader);
 	};
 
 
@@ -88,6 +77,21 @@ public class YoutubeModel extends AbstractModel {
 	};
 
 
+	/** Get the location of yt.swf. **/
+	private function getLocation():String {
+		var loc:String;
+		var url:String = loaderInfo.url;
+		if(url.indexOf('http://') == 0) {
+			unique = Math.random().toString().substr(2);
+			loc = url.substr(0,url.indexOf('.swf'));
+			loc = loc.substr(0,loc.lastIndexOf('/')+1)+'yt.swf?unique='+unique;
+		} else {
+			unique = '1';
+			loc = 'yt.swf';
+		}
+		return loc;
+	};
+
 	/** Load the YouTube movie. **/
 	override public function load(itm:Object):void {
 		item = itm;
@@ -96,15 +100,13 @@ public class YoutubeModel extends AbstractModel {
 		if(connected) {
 			if(outgoing) {
 				var gid = getID(item['file']);
-				resize(model.config['width'],model.config['width']/4*3);
 				outgoing.send('AS3_'+unique,"loadVideoById",gid,item['start']);
-				model.mediaHandler(loader);
+				resize();
 			}
 		} else {
+			loader.load(new URLRequest(getLocation()));
 			inbound.connect('AS2_'+unique);
-			loader.load(new URLRequest(location));
 		}
-		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
@@ -133,24 +135,23 @@ public class YoutubeModel extends AbstractModel {
 
 
 	/** error was thrown without this handler **/
-	public function onLocalConnectionStatusChange(evt:StatusEvent):void {
-		// model.sendEvent(ModelEvent.META,{status:evt.code});
-	};
+	public function onLocalConnectionStatusChange(evt:StatusEvent):void {};
 
 
 	/** Catch youtube errors. **/
-	public function onError(erc:String):void {
-		model.sendEvent(ModelEvent.ERROR,{message:"YouTube error (video not found?):\n"+item['file']});
+	public function onError(erc:Number):void {
 		stop();
+		var msg:String = 'Video not found or deleted: ' + getID(item['file']);
+		if(erc == 101 || erc == 150) { 
+			msg = 'Embedding this video is disabled by its owner.';
+		}
+		model.sendEvent(ModelEvent.ERROR,{message:msg});
 	};
 
 
 	/** Catch youtube state changes. **/
 	public function onStateChange(stt:Number):void {
 		switch(Number(stt)) {
-			case -1:
-				// model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
-				break;
 			case 0:
 				if(model.config['state'] != ModelStates.BUFFERING && model.config['state'] != ModelStates.IDLE) {
 					model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
@@ -179,16 +180,14 @@ public class YoutubeModel extends AbstractModel {
 	/** Catch Youtube position changes **/
 	public function onTimeChange(pos:Number,dur:Number):void {
 		model.sendEvent(ModelEvent.TIME,{position:pos,duration:dur});
-		if(!metasent) {
-			model.sendEvent(ModelEvent.META,{width:320,height:240,duration:dur});
-			metasent = true;
-		}
+		if(!item['duration']) { item['duration'] = dur; }
+		
 	};
 
 
 	/** Resize the YT player. **/
-	public function resize(wid:Number,hei:Number) {
-		outgoing.send('AS3_'+unique,"setSize",wid,hei);
+	override public function resize():void {
+		outgoing.send('AS3_'+unique,"setSize",model.config['width'],model.config['height']);
 	};
 
 
@@ -201,7 +200,6 @@ public class YoutubeModel extends AbstractModel {
 
 	/** Destroy the youtube video. **/
 	override public function stop():void {
-		metasent = false;
 		outgoing.send('AS3_'+unique,"stopVideo");
 		position = 0;
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});

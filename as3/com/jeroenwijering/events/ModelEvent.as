@@ -17,7 +17,6 @@ public class ModelEvent extends Event {
 	public static var ERROR:String = "ERROR";
 	public static var LOADED:String = "LOADED";
 	public static var META:String = "META";
-	public static var QUALITY:String = "QUALITY";
 	public static var STATE:String = "STATE";
 	public static var TIME:String = "TIME";
 	/** The data associated with the event. **/

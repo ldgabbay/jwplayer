@@ -263,10 +263,8 @@ public class SPLoader extends EventDispatcher {
 			plugins[overs[j]]['height'] = bounds.height;
 			plugins[overs[j]]['visible'] = true;
 		}
-		if(config['resizing']) {
-			config['width'] = bounds.width;
-			config['height'] = bounds.height;
-		}
+		config['width'] = bounds.width;
+		config['height'] = bounds.height;
 	};
 
 
@@ -284,10 +282,8 @@ public class SPLoader extends EventDispatcher {
 				plugins[i]['visible'] = false;
 			}
 		}
-		if(config['resizing']) {
-			config['width'] = skin.stage.stageWidth;
-			config['height'] = skin.stage.stageHeight;
-		}
+		config['width'] = skin.stage.stageWidth;
+		config['height'] = skin.stage.stageHeight;
 	};
 
 

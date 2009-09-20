@@ -20,10 +20,8 @@ public class Model extends EventDispatcher {
 
 	/** Object with all configuration variables. **/
 	public var config:Object;
-	/** Reference to the display MovieClip. **/
-	public var display:MovieClip;
-	/** Object with all display variables. **/
-	private var sploader:SPLoader;
+	/** Reference to the media element. **/
+	public var media:Sprite;
 	/** Reference to the player's controller. **/
 	private var controller:Controller;
 	/** The list with all active models. **/
@@ -39,8 +37,6 @@ public class Model extends EventDispatcher {
 	/** Constructor, save references, setup listeners and  init thumbloader. **/
 	public function Model(cfg:Object,skn:MovieClip,ldr:SPLoader,ctr:Controller):void {
 		config = cfg;
-		display = MovieClip(skn.getChildByName('display'));
-		sploader = ldr;
 		controller = ctr;
 		controller.addEventListener(ControllerEvent.ITEM,itemHandler);
 		controller.addEventListener(ControllerEvent.MUTE,muteHandler);
@@ -50,13 +46,15 @@ public class Model extends EventDispatcher {
 		controller.addEventListener(ControllerEvent.SEEK,seekHandler);
 		controller.addEventListener(ControllerEvent.STOP,stopHandler);
 		controller.addEventListener(ControllerEvent.VOLUME,volumeHandler);
+		models = new Object();
 		thumb = new Loader();
 		thumb.contentLoaderInfo.addEventListener(Event.COMPLETE,thumbHandler);
 		thumb.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,thumbHandler);
-		Draw.clear(display.media);
-		display.addChildAt(thumb,display.getChildIndex(display.media));
-		display.media.visible = false;
-		models = new Object();
+		var dpl:MovieClip = skn.getChildByName('display') as MovieClip;
+		media = dpl.media as Sprite;
+		media.visible = false;
+		Draw.clear(media);
+		dpl.addChildAt(thumb,dpl.getChildIndex(media));
 	};
 
 
@@ -65,14 +63,26 @@ public class Model extends EventDispatcher {
 		models[typ] = mdl;
 	};
 
+	/** Check if the currently playing item is audio only. **/
+	private function audioOnly():Boolean {
+		var ext:String = item['file'].substr(-3);
+		if(ext == 'm4a' || ext == 'mp3' || ext == 'aac') {
+			return true;
+		} else {
+			return false;
+		}
+	};
+
 
 	/** Item change: stop the old model and start the new one. **/
 	private function itemHandler(evt:ControllerEvent):void {
 		if(item) {
 			models[item['type']].stop();
+			media.removeChild(models[item['type']]);
 		}
 		item = controller.playlist[config['item']];
 		if(models[item['type']]) {
+			media.addChild(models[item['type']]);
 			models[item['type']].load(item);
 		} else {
 			sendEvent(ModelEvent.ERROR,{message:'No suiteable model found for playback of this file.'});
@@ -86,18 +96,6 @@ public class Model extends EventDispatcher {
 			image = undefined;
 			thumb.unload();
 		}
-	};
-
-
-	/** 
-	* Place the mediafile fro the current model on stage.
-	* 
-	* @param obj	The displayobject (MovieClip/Video/Loader) to display.
-	**/
-	public function mediaHandler(obj:DisplayObject=undefined):void {
-		Draw.clear(display.media);
-		display.media.addChild(obj);
-		resizeHandler();
 	};
 
 
@@ -118,14 +116,14 @@ public class Model extends EventDispatcher {
 		if(item) {
 			if(evt.data.state == true) {
 				models[item['type']].play();
-			} else { 
+			} else {
 				models[item['type']].pause();
 			}
 		}
 	};
 
 
-	/** Load a new thumbnail. **/
+	/** Load a thumb; either from the playlist or (if there) player-wide.  **/
 	private function playlistHandler(evt:ControllerEvent):void {
 		var img:String = controller.playlist[config['item']]['image'];
 		if(img && img != image) {
@@ -136,13 +134,9 @@ public class Model extends EventDispatcher {
 
 
 	/** Resize the media and thumb. **/
-	private function resizeHandler(evt:Event=null):void {
-		var wid:Number = sploader.getPlugin('display').config['width'];
-		var hei:Number = sploader.getPlugin('display').config['height'];
-		Stretcher.stretch(display.media,wid,hei,config['stretching']);
-		if(thumb.width > 10 && wid > 10) {
-			Stretcher.stretch(thumb,wid,hei,config['stretching']);
-		}
+	private function resizeHandler(evt:ControllerEvent):void {
+		if(thumb.width) { thumbResize(); };
+		if(item) { models[item['type']].resize(); }
 	};
 
 
@@ -162,7 +156,7 @@ public class Model extends EventDispatcher {
 	};
 
 
-	/**  
+	/**
 	* Dispatch events to the View/ Controller.
 	* When switching states, the thumbnail is shown/hidden.
 	* 
@@ -172,35 +166,21 @@ public class Model extends EventDispatcher {
 	**/
 	public function sendEvent(typ:String,dat:Object):void {
 		if(typ == ModelEvent.STATE) {
-			if(dat.newstate == config['state']) {
-				return;
-			}
 			dat['oldstate'] = config['state'];
 			config['state'] = dat.newstate;
 			switch(dat['newstate']) {
 				case ModelStates.IDLE:
 					sendEvent(ModelEvent.LOADED,{loaded:0,offset:0,total:0});
 				case ModelStates.COMPLETED:
-					if(config['oncomplete'] != 'none') {
-						thumb.visible = true;
-						display.media.visible = false;
-						sendEvent(ModelEvent.TIME,{position:item['start'],duration:item['duration']});
-					}
+					thumb.visible = true;
+					media.visible = false;
+					sendEvent(ModelEvent.TIME,{position:item['start'],duration:item['duration']});
 					break;
 				case ModelStates.PLAYING:
-					if(item['file'].substr(-3) == 'm4a' ||
-						item['file'].substr(-3) == 'mp3' ||
-						item['file'].substr(-3) == 'aac') {
-						thumb.visible = true;
-						display.media.visible = false;
-					} else { 
-						thumb.visible = false;
-						display.media.visible = true;
-					}
+					thumb.visible = audioOnly();
+					media.visible = !audioOnly();
 					break;
 			}
-		} else if(dat.width) {
-			resizeHandler();
 		}
 		Logger.log(dat,typ);
 		dispatchEvent(new ModelEvent(typ,dat));
@@ -212,7 +192,13 @@ public class Model extends EventDispatcher {
 		try {
 			Bitmap(thumb.content).smoothing = true;
 		} catch (err:Error) {}
-		resizeHandler();
+		thumbResize();
+	};
+
+
+	/** Resize the thumbnail. **/
+	private function thumbResize():void {
+		Stretcher.stretch(thumb,config['width'],config['height'],config['stretching']);
 	};
 
 

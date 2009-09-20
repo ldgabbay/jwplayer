@@ -21,6 +21,10 @@ import flash.utils.*;
 public class RTMPModel extends AbstractModel {
 
 
+	/** Save if the bandwidth checkin already occurs. **/
+	private var bwcheck:Boolean;
+	/** Switch if the bandwidth is not enough. **/
+	private var bwswitch:Boolean = true;
 	/** NetConnection object for setup of the video stream. **/
 	private var connection:NetConnection;
 	/** ID for the position interval. **/
@@ -29,14 +33,14 @@ public class RTMPModel extends AbstractModel {
 	private var loader:URLLoader;
 	/** NetStream instance that handles the stream IO. **/
 	private var stream:NetStream;
+	/** Offset in seconds of the last seek. **/
+	private var timeoffset:Number = 0;
 	/** Sound control object. **/
-	private var transform:SoundTransform;
+	private var transformer:SoundTransform;
 	/** Save the location of the XML redirect. **/
 	private var smil:String;
-	/** Save that the video has been started. **/
-	private var started:Boolean;
-	/** Save that a file is unpublished. **/
-	private var unpublished:Boolean;
+	/** Save that a stream is streaming. **/
+	private var streaming:Boolean;
 	/** Video object to be instantiated. **/
 	private var video:Video;
 
@@ -50,14 +54,15 @@ public class RTMPModel extends AbstractModel {
 		connection.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
 		connection.objectEncoding = ObjectEncoding.AMF0;
-		connection.client = new Object();
+		connection.client = new NetClient(this);
 		loader = new URLLoader();
 		loader.addEventListener(Event.COMPLETE, loaderHandler);
 		loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR,errorHandler);
 		loader.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
+		transformer = new SoundTransform();
 		video = new Video(320,240);
 		video.smoothing = model.config['smoothing'];
-		transform = new SoundTransform();
+		addChild(video);
 	};
 
 
@@ -68,12 +73,22 @@ public class RTMPModel extends AbstractModel {
 	};
 
 
+	/** Bandwidth is checked every four seconds as long as there's loading. **/
+	private function getBandwidth():void {
+		if(streaming) {
+			connection.call("checkBandwidth",null);
+		}
+	};
+
+
 	/** Extract the correct rtmp syntax from the file string. **/
 	private function getID(url:String):String {
 		var ext:String = url.substr(-4);
-		if(ext == '.mp3') {
+		if(model.config['rtmp.prepend'] == false) {
+			return url;
+		} else if(ext == '.mp3') {
 			return 'mp3:'+url.substr(0,url.length-4);
-		} else if(ext == '.mp4' || ext == '.mov' || ext == '.aac' || ext == '.m4a' || ext == '.f4v') {
+		} else if (ext=='.mp4' || ext=='.mov' || ext=='.m4v' || ext=='.aac' || ext=='.m4a' || ext=='.f4v') {
 			return 'mp4:'+url;
 		} else if (ext == '.flv') {
 			return url.substr(0,url.length-4);
@@ -83,17 +98,30 @@ public class RTMPModel extends AbstractModel {
 	};
 
 
+	/** Return which level best fits the display width and connection bandwidth. **/
+	private function getLevel():Number {
+		var lvl:Number = item['levels'].length-1;
+		for (var i:Number=0; i<item['levels'].length; i++) {
+			if(model.config['width'] >= item['levels'][i].width && 
+				model.config['bandwidth'] >= item['levels'][i].bitrate) {
+				lvl = i;
+				break;
+			}
+		}
+		return lvl;
+	};
+
+
 	/** Load content. **/
 	override public function load(itm:Object):void {
 		item = itm;
 		position = 0;
-		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
+		timeoffset = item['start'];
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 		if(model.config['rtmp.loadbalance']) {
 			smil = item['file'];
 			loader.load(new URLRequest(smil));
 		} else {
-			model.mediaHandler(video);
 			connection.connect(item['streamer']);
 		}
 	};
@@ -104,16 +132,20 @@ public class RTMPModel extends AbstractModel {
 		var xml:XML = XML(evt.currentTarget.data);
 		item['streamer'] = xml.children()[0].children()[0].@base.toString();
 		item['file'] = xml.children()[1].children()[0].@src.toString();
-		model.mediaHandler(video);
 		connection.connect(item['streamer']);
 	};
 
 
 	/** Get metadata information from netstream class. **/
-	public function onData(dat:Object):void {
+	public function onClientData(dat:Object):void {
 		if(dat.width) {
 			video.width = dat.width;
 			video.height = dat.height;
+			super.resize();
+			model.sendEvent(ModelEvent.META,dat);
+		}
+		if(dat.duration && !item['duration']) {
+			item['duration'] = dat.duration;
 		}
 		if(dat.type == 'complete') {
 			clearInterval(interval);
@@ -122,7 +154,15 @@ public class RTMPModel extends AbstractModel {
 		if(dat.type == 'close') {
 			stop();
 		}
-		model.sendEvent(ModelEvent.META,dat);
+		if(dat.type == 'bandwidth') {
+			model.config['bandwidth'] = dat.bandwidth;
+			if(item['levels']) {
+				if(!streaming) {
+					setStream();
+				}
+				setTimeout(getBandwidth,10000);
+			}
+		}
 	};
 
 
@@ -131,9 +171,7 @@ public class RTMPModel extends AbstractModel {
 		stream.pause();
 		clearInterval(interval);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
-		if(started && item['duration'] == 0) {
-			stop();
-		}
+		if(stream && item['duration'] == 0) { stop(); }
 	};
 
 
@@ -147,41 +185,58 @@ public class RTMPModel extends AbstractModel {
 
 	/** Interval for the position progress. **/
 	private function positionInterval():void {
-		position = Math.round(stream.time*10)/10;
-		var bfr:Number = Math.round(stream.bufferLength/stream.bufferTime*100);
-		if(bfr < 95 && position < Math.abs(item['duration']-stream.bufferTime-1)) {
-			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
-			if(model.config['state'] != ModelStates.BUFFERING && bfr < 20) {
-				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-				stream.bufferTime = model.config['bufferlength'];
-				model.sendEvent(ModelEvent.META,{bufferlength:model.config['bufferlength']});
-			}
-		} else if (bfr > 95 && model.config['state'] != ModelStates.PLAYING) {
+		var pos:Number = Math.round((stream.time+timeoffset)*10)/10;
+		var bfr:Number = stream.bufferLength/stream.bufferTime;
+		if(bfr < 0.5 && pos < item['duration']-5 && model.config['state'] != ModelStates.BUFFERING) {
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
+			stream.bufferTime = model.config['bufferlength'];
+		} else if (bfr > 1 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 			stream.bufferTime = model.config['bufferlength']*4;
-			model.sendEvent(ModelEvent.META,{bufferlength:model.config['bufferlength']*4});
 		}
-		if(position < item['duration']) {
-			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
+		if(pos < item['duration']) {
+			if(pos != position) {
+				model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration']});
+				position = pos;
+			}
 		} else if (!isNaN(position) && item['duration'] > 0) {
 			stream.pause();
 			clearInterval(interval);
-			if(started && item['duration'] == 0) { stop(); }
+			if(stream && item['duration'] == 0) { stop(); }
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
+		}
+	};
+
+
+	/** Check if the level must be switched on resize. **/
+	override public function resize():void {
+		super.resize();
+		if(getLevel() != model.config['level']) {
+			seek( position);
 		}
 	};
 
 
 	/** Seek to a new position. **/
 	override public function seek(pos:Number):void {
-		position = pos;
+		position = 0;
+		timeoffset = pos;
 		clearInterval(interval);
-		if(model.config['state'] != ModelStates.PLAYING) {
+		interval = setInterval(positionInterval,100);
+		if(item['levels'] && getLevel() != model.config['level']) {
+			model.config['level'] = getLevel();
+			item['file'] = item['levels'][model.config['level']].url;
+		}
+		if(model.config['state'] == ModelStates.PAUSED) {
 			stream.resume();
 		}
-		interval = setInterval(positionInterval,100);
-		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
-		stream.seek(position);
+		stream.play(getID(item['file']),timeoffset);
+		/*stream.play2({
+			streamName:getID(item['file']),
+			start:timeoffset,
+			transition:'reset'
+		});*/
+		streaming = true;
 	};
 
 
@@ -196,8 +251,7 @@ public class RTMPModel extends AbstractModel {
 		stream.client = new NetClient(this);
 		video.attachNetStream(stream);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
-		interval = setInterval(positionInterval,100);
-		stream.play(getID(item['file']));
+		seek(timeoffset);
 	};
 
 
@@ -209,14 +263,10 @@ public class RTMPModel extends AbstractModel {
 					connection.call("secureTokenResponse",null,
 						TEA.decrypt(evt.info.secureToken,model.config['token']));
 				}
-				setStream();
+				if(!item['levels']) { setStream(); }
+				connection.call("checkBandwidth",null);
 				var res:Responder = new Responder(streamlengthHandler);
 				connection.call("getStreamLength",res,getID(item['file']));
-				connection.call("checkBandwidth",null);
-				break;
-			case  'NetStream.Play.Start':
-				if(item['start'] > 0 && !started) { seek(item['start']); }
-				started = true;
 				break;
 			case  'NetStream.Seek.Notify':
 				clearInterval(interval);
@@ -233,14 +283,14 @@ public class RTMPModel extends AbstractModel {
 					stop();
 					var msg:String = evt.info.code;
 					if(evt.info['description']) { msg = evt.info['description']; }
+					stop();
 					model.sendEvent(ModelEvent.ERROR,{message:msg});
 				}
 				break;
 			case 'NetStream.Failed':
 			case 'NetStream.Play.StreamNotFound':
-				if(unpublished) {
-					onData({type:'complete'});
-					unpublished = false;
+				if(!streaming) {
+					onClientData({type:'complete'});
 				} else { 
 					stop();
 					model.sendEvent(ModelEvent.ERROR,{message:"Stream not found: "+item['file']});
@@ -251,22 +301,21 @@ public class RTMPModel extends AbstractModel {
 				model.sendEvent(ModelEvent.ERROR,{message:"Server not found: "+item['streamer']});
 				break;
 			case 'NetStream.Play.UnpublishNotify':
-				unpublished = true;
+				streaming = false;
 				break;
 		}
-		model.sendEvent(ModelEvent.META,evt.info);
+		model.sendEvent('META',evt.info);
 	};
 
 
 	/** Destroy the stream. **/
 	override public function stop():void {
-		if(stream) { 
-			stream.close();
-		}
+		if(stream.time) { stream.close(); }
+		streaming = false;
 		connection.close();
-		started = false;
 		clearInterval(interval);
 		position = 0;
+		timeoffset = item['start'];
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 		if(smil) { 
 			item['file'] = smil;
@@ -276,15 +325,15 @@ public class RTMPModel extends AbstractModel {
 
 	/** Get the streamlength returned from the connection. **/
 	private function streamlengthHandler(len:Number):void {
-		if(len > 0) { onData({type:'streamlength',duration:len}); }
+		if(len && !item['duration']) { item['duration'] = len; }
 	};
 
 
 	/** Set the volume level. **/
 	override public function volume(vol:Number):void {
-		transform.volume = vol/100;
-		if(stream) { 
-			stream.soundTransform = transform;
+		transformer.volume = vol/100;
+		if(stream) {
+			stream.soundTransform = transformer;
 		}
 	};
 

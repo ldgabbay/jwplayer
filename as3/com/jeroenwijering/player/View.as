@@ -42,13 +42,9 @@ public class View extends AbstractView {
 		_config = cfg;
 		_config['client'] = 'FLASH '+Capabilities.version;
 		_skin = skn;
-		if(_config['resizing']) {
-			_skin.stage.scaleMode = "noScale";
-			_skin.stage.align = "TL";
-			_skin.stage.addEventListener(Event.RESIZE,resizeHandler);
-		} else {
-			_skin.stage.addEventListener(FullScreenEvent.FULL_SCREEN,resizeHandler);
-		}
+		_skin.stage.scaleMode = "noScale";
+		_skin.stage.align = "TL";
+		_skin.stage.addEventListener(Event.RESIZE,resizeHandler);
 		sploader = ldr;
 		controller = ctr;
 		model = mdl;

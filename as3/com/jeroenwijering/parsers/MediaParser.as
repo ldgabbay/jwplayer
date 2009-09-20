@@ -41,6 +41,16 @@ public class MediaParser {
 						if(i.children().length() > 0) {
 							itm = MediaParser.parseGroup(i,itm);
 						}
+						if(i.@width && i.@bitrate) {
+							if(!itm.levels) {
+								itm.levels = new Array();
+							}
+							itm.levels.push({
+								width:i.@width.toString(),
+								bitrate:i.@bitrate.toString(),
+								url:i.@url.toString()
+							});
+						}
 						break;
 					case 'title':
 						itm['title'] = i.text().toString();

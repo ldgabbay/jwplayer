@@ -54,22 +54,18 @@ public class Rightclick implements PluginInterface {
 	public function initializePlugin(vie:AbstractView):void {
 		view = vie;
 		view.skin.contextMenu = context;
-		// Add the 'fullscreen' menuitem.
 		try {
 			fullscreen = new ContextMenuItem('Toggle Fullscreen...');
 			addItem(fullscreen,fullscreenHandler);
 		} catch (err:Error) {}
-		// Add the 'stretching' menuitem.
 		stretching = new ContextMenuItem('Stretching is '+view.config['stretching']+'...');
 		addItem(stretching,stretchHandler);
-		// Add the 'about' menuitem.
 		if(view.config['abouttext'] == 'JW Player' || view.config['abouttext'] == undefined) {
 			about = new ContextMenuItem('About JW Player '+view.config['version']+'...');
 		} else {
 			about = new ContextMenuItem('About '+view.config['abouttext']+'...');
 		}
 		addItem(about,aboutHandler);
-		// Add the 'debug' menuitem.
 		if(Capabilities.isDebugger == true || view.config['debug'] != 'none') {
 			debug = new ContextMenuItem('Logging to '+Logger.output+'...');
 			addItem(debug,debugHandler);

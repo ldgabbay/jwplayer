@@ -72,7 +72,7 @@ function onPlayerStateChange(stt:Number) {
 	_as2_to_as3.send('AS2_'+unique,"onStateChange",stt);
 }; 
 function onPlayerError(erc:Number) {
-	_as2_to_as3.send('AS2_'+unique,"onError",stt);
+	_as2_to_as3.send('AS2_'+unique,"onError",erc);
 	clearInterval(timeInterval);
 };
 

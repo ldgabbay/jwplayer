@@ -20,7 +20,7 @@ public class SoundModel extends AbstractModel {
 	/** sound object to be instantiated. **/
 	private var sound:Sound;
 	/** Sound control object. **/
-	private var transform:SoundTransform;
+	private var transformer:SoundTransform;
 	/** Sound channel object. **/
 	private var channel:SoundChannel;
 	/** Sound context object. **/
@@ -34,7 +34,7 @@ public class SoundModel extends AbstractModel {
 	/** Constructor; sets up the connection and display. **/
 	public function SoundModel(mod:Model):void {
 		super(mod);
-		transform = new SoundTransform();
+		transformer = new SoundTransform();
 		context = new SoundLoaderContext(model.config['bufferlength']*1000,true);
 	};
 
@@ -97,7 +97,7 @@ public class SoundModel extends AbstractModel {
 		var ttl = sound.bytesTotal;
 		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl});
 		if(ldd/ttl > 0.1 && item['duration'] == 0) {
-			model.sendEvent(ModelEvent.META,{duration:sound.length/1000/ldd*ttl});
+			item['duration'] =  sound.length/1000/ldd*ttl;
 		}
 		if(ldd == ttl && ldd > 0) {
 			clearInterval(loadinterval);
@@ -115,7 +115,7 @@ public class SoundModel extends AbstractModel {
 
 	/** Play the sound. **/
 	override public function play():void {
-		channel = sound.play(position*1000,0,transform);
+		channel = sound.play(position*1000,0,transformer);
 		channel.addEventListener(Event.SOUND_COMPLETE,completeHandler);
 		interval = setInterval(positionInterval,100);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
@@ -166,9 +166,9 @@ public class SoundModel extends AbstractModel {
 
 	/** Set the volume level. **/
 	override public function volume(vol:Number):void {
-		transform.volume = vol/100;
+		transformer.volume = vol/100;
 		if(channel) {
-			channel.soundTransform = transform;
+			channel.soundTransform = transformer;
 		}
 	};
 

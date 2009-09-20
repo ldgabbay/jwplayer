@@ -54,8 +54,7 @@ public class Controller extends EventDispatcher {
 		'rbs':'sound',
 		'sdp':'video',
 		'swf':'image',
-		'vp6':'video',
-		'smc':'smooth'
+		'vp6':'video'
 	};
 	/** Elements of config that are part of the playlist. **/
 	private var ELEMENTS:Object = {
@@ -98,7 +97,6 @@ public class Controller extends EventDispatcher {
 	/** Register view and model with controller, start loading playlist. **/
 	public function closeMVC(mdl:Model,vie:View):void {
 		model= mdl;
-		model.addEventListener(ModelEvent.META,metaHandler);
 		model.addEventListener(ModelEvent.STATE,stateHandler);
 		view = vie;
 		view.addEventListener(ViewEvent.FULLSCREEN,fullscreenHandler);
@@ -135,19 +133,13 @@ public class Controller extends EventDispatcher {
 
 	/** Set the fullscreen rectangle **/
 	private function fullscreenrect():void {
-		var srx:Number = Capabilities.screenResolutionX;
-		var asr:Number = srx/Capabilities.screenResolutionY;
 		var pnt:Point = skin.parent.localToGlobal(new Point(skin.x,skin.y));
-		try {
-			var wid:Number = playlist[config['item']]['width'];
-		} catch (err:Error) {}
-		if(wid && wid > srx) {
-			skin.stage["fullScreenSourceRect"] = new Rectangle(pnt.x,pnt.y,srx,Capabilities.screenResolutionY);
-		} else if(wid && wid > srx/2) {
-			skin.stage["fullScreenSourceRect"] = new Rectangle(pnt.x,pnt.y,wid,Math.round(wid/asr));
-		} else {
-			skin.stage["fullScreenSourceRect"] = new Rectangle(pnt.x,pnt.y,srx/2,Capabilities.screenResolutionY/2);
-		}
+		skin.stage["fullScreenSourceRect"] = new Rectangle(
+			pnt.x,
+			pnt.y,
+			Capabilities.screenResolutionX,
+			Capabilities.screenResolutionY
+		);
 	};
 
 
@@ -273,18 +265,6 @@ public class Controller extends EventDispatcher {
 	};
 
 
-	/** Update playlist item duration. **/
-	private function metaHandler(evt:ModelEvent):void {
-		if(evt.data.duration && playlist[config['item']]['duration'] == 0) {
-			playlist[config['item']]['duration'] = evt.data.duration;
-		}
-		if(evt.data.width) {
-			playlist[config['item']]['width'] = evt.data.width;
-			playlist[config['item']]['height'] = evt.data.height;
-		}
-	};
-
-
 	/** Save new state of the mute switch and send volume. **/
 	private function muteHandler(evt:ViewEvent):void {
 		if(evt.data.state == true || evt.data.state == false) {
@@ -373,7 +353,7 @@ public class Controller extends EventDispatcher {
 	private function prevHandler(evt:ViewEvent):void {
 		if (config['item'] == 0) {
 			playItem(playlist.length-1);
-		} else { 
+		} else {
 			playItem(config['item']-1);
 		}
 	};
@@ -384,14 +364,12 @@ public class Controller extends EventDispatcher {
 		try { 
 			var dps:String = skin.stage['displayState'];
 		} catch (err:Error) {}
-		if(dps == 'fullScreen' && config['resizing']) {
+		if(dps == 'fullScreen') {
 			config['fullscreen'] = true;
 			sploader.layoutFullscreen();
 		} else {
-			if(config['resizing']) {
-				config['width'] = skin.stage.stageWidth;
-				config['height'] = skin.stage.stageHeight;
-			}
+			config['width'] = skin.stage.stageWidth;
+			config['height'] = skin.stage.stageHeight;
 			config['fullscreen'] = false;
 			sploader.layoutNormal();
 		}
@@ -430,9 +408,6 @@ public class Controller extends EventDispatcher {
 	/** Manage playback state changes. **/
 	private function stateHandler(evt:ModelEvent):void {
 		if(evt.data.newstate == ModelStates.COMPLETED) {
-			if(config['oncomplete'] == 'link') { 
-				linkHandler();
-			}
 			switch (config['repeat']) {
 				case 'single':
 					playHandler(new ViewEvent(ViewEvent.PLAY,{state:true}));

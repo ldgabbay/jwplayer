@@ -30,7 +30,7 @@ public dynamic class NetClient {
 		for (var i:Object in dat) { 
 			out[i] = dat[i];
 		}
-		callback.onData(out);
+		callback.onClientData(out);
 	};
 
 

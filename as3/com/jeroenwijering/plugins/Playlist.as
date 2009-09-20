@@ -297,7 +297,7 @@ public class Playlist implements PluginInterface {
 			if(!buttons[idx].c[itm] || !view.playlist[idx][itm]) {
 				continue;
 			} else if(itm == 'image') {
-				if(config['thumbs'] != false &&
+				if(config['thumbs'] != false && view.config['playlist'] != 'none' &&
 					(view.playlist[idx]['image'] || view.playlist[idx]['playlist.image'])) {
 					var img:MovieClip = buttons[idx].c.image;
 					var msk:Sprite = Draw.rect(buttons[idx].c,'0xFF0000',img.width,img.height,img.x,img.y);

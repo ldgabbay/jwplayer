@@ -6,9 +6,12 @@ package com.jeroenwijering.models {
 
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.player.Model;
+import com.jeroenwijering.utils.Stretcher;
+
+import flash.display.Sprite;
 
 
-public class AbstractModel {
+public class AbstractModel extends Sprite {
 
 
 	/** Reference to the player Model. **/
@@ -27,6 +30,7 @@ public class AbstractModel {
 	**/
 	public function AbstractModel(mod:Model):void {
 		model = mod;
+		mouseEnabled = false;
 	};
 
 
@@ -47,6 +51,16 @@ public class AbstractModel {
 
 	/** Resume playback of the item. **/
 	public function play():void {};
+
+
+	/** Handle a resize of the display. **/
+	public function resize():void {
+		Stretcher.stretch(this,
+			model.config['width'],
+			model.config['height'],
+			model.config['stretching']
+		);
+	};
 
 
 	/**

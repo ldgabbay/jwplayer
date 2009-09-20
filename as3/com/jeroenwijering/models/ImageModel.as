@@ -31,6 +31,7 @@ public class ImageModel extends AbstractModel {
 		loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
 		loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS,progressHandler);
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
+		addChild(loader);
 	};
 
 
@@ -53,11 +54,11 @@ public class ImageModel extends AbstractModel {
 
 	/** Load and place the image on stage. **/
 	private function loaderHandler(evt:Event):void {
-		model.mediaHandler(loader);
 		try {
 			Bitmap(loader.content).smoothing = true;
 		} catch (err:Error) {}
 		model.sendEvent(ModelEvent.META,{height:evt.target.height,width:evt.target.width});
+		resize();
 		play();
 	};
 

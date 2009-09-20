@@ -68,7 +68,6 @@ public class Display implements PluginInterface {
 		if(view.config['displayclick'] != 'none') {
 			clip.addEventListener(MouseEvent.CLICK,clickHandler);
 			clip.buttonMode = true;
-			clip.mouseChildren = false;
 		}
 		if(clip.logo) {
 			logoSetter();

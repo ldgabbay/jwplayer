@@ -7,7 +7,7 @@ package com.jeroenwijering.models {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.player.Model;
-import com.jeroenwijering.utils.NetClient;
+import com.jeroenwijering.utils.*;
 
 import flash.events.*;
 import flash.media.*;
@@ -18,20 +18,22 @@ import flash.utils.*;
 public class VideoModel extends AbstractModel {
 
 
-	/** Video object to be instantiated. **/
-	protected var video:Video;
+	/** Save if the bandwidth checkin already occurs. **/
+	private var bwcheck:Boolean;
+	/** Switch if the bandwidth is not enough. **/
+	private var bwswitch:Boolean = true;
 	/** NetConnection object for setup of the video stream. **/
-	protected var connection:NetConnection;
-	/** NetStream instance that handles the stream IO. **/
-	protected var stream:NetStream;
-	/** Sound control object. **/
-	protected var transform:SoundTransform;
+	private var connection:NetConnection;
 	/** ID for the position interval. **/
-	protected var interval:Number;
+	private var interval:Number;
 	/** Interval ID for the loading. **/
-	protected var loadinterval:Number;
-	/** Load offset for bandwidth checking. **/
-	protected var loadtimer:Number;
+	private var loading:Number;
+	/** NetStream instance that handles the stream IO. **/
+	private var stream:NetStream;
+	/** Sound control object. **/
+	private var transformer:SoundTransform;
+	/** Video object to be instantiated. **/
+	private var video:Video;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -45,17 +47,52 @@ public class VideoModel extends AbstractModel {
 		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
 		stream.bufferTime = model.config['bufferlength'];
 		stream.client = new NetClient(this);
+		transformer = new SoundTransform();
 		video = new Video(320,240);
 		video.smoothing = model.config['smoothing'];
 		video.attachNetStream(stream);
-		transform = new SoundTransform();
+		addChild(video);
 	};
 
 
 	/** Catch security errors. **/
-	protected function errorHandler(evt:ErrorEvent):void {
+	private function errorHandler(evt:ErrorEvent):void {
 		stop();
 		model.sendEvent(ModelEvent.ERROR,{message:evt.text});
+	};
+
+
+	/** Bandwidth is checked every four seconds as long as there's loading. **/
+	private function getBandwidth(old:Number):void {
+		var ldd:Number = stream.bytesLoaded;
+		var bdw:Number = Math.round((ldd-old)*4/1000);
+		if(ldd < stream.bytesTotal) {
+			if(bdw > 0) { model.config['bandwidth'] = bdw; }
+			if(bwswitch) {
+				bwswitch = false;
+				if(getLevel() != model.config['level']) {
+					model.config['level'] = getLevel();
+					item['file'] = item['levels'][model.config['level']].url;
+					load(item);
+					return;
+				}
+			}
+			setTimeout(getBandwidth,2000,ldd);
+		}
+	};
+
+
+	/** Return which level best fits the display width and connection bandwidth. **/
+	private function getLevel():Number {
+		var lvl:Number = item['levels'].length-1;
+		for (var i:Number=0; i<item['levels'].length; i++) {
+			if(model.config['width'] >= item['levels'][i].width &&
+				model.config['bandwidth'] >= item['levels'][i].bitrate) {
+				lvl = i;
+				break;
+			}
+		}
+		return lvl;
 	};
 
 
@@ -63,44 +100,46 @@ public class VideoModel extends AbstractModel {
 	override public function load(itm:Object):void {
 		item = itm;
 		position = 0;
-		model.mediaHandler(video);
+		bwcheck = false;
+		if(item['levels']) {
+			model.config['level'] = getLevel();
+			item['file'] = item['levels'][model.config['level']].url;
+		}
 		stream.checkPolicyFile = true;
 		stream.play(item['file']);
+		clearInterval(interval);
 		interval = setInterval(positionInterval,100);
-		loadinterval = setInterval(loadHandler,200);
+		clearInterval(loading);
+		loading = setInterval(loadHandler,200);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
-		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
 
 
 	/** Interval for the loading progress **/
-	protected function loadHandler():void {
+	private function loadHandler():void {
 		var ldd:Number = stream.bytesLoaded;
 		var ttl:Number = stream.bytesTotal;
 		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl});
-		if(ldd == ttl && ldd > 0) {
-			clearInterval(loadinterval);
+		if(ldd && ldd == ttl) {
+			clearInterval(loading);
 		}
-		if(!loadtimer) {
-			loadtimer = setTimeout(loadTimeout,3000);
+		if(ldd > 0 && !bwcheck) {
+			bwcheck = true;
+			setTimeout(getBandwidth,2000,ldd);
 		}
-	};
-
-
-	/** timeout for checking the bitrate. **/
-	protected function loadTimeout():void {
-		model.sendEvent('META',{
-			bandwidth:Math.round(stream.bytesLoaded/1024/3*8)
-		});
 	};
 
 
 	/** Get metadata information from netstream class. **/
-	public function onData(dat:Object):void {
+	public function onClientData(dat:Object):void {
 		if(dat.width) {
 			video.width = dat.width;
 			video.height = dat.height;
+			resize();
+		}
+		if(dat.duration && !item['duration']) {
+			item['duration'] = dat.duration;
 		}
 		model.sendEvent(ModelEvent.META,dat);
 	};
@@ -123,19 +162,19 @@ public class VideoModel extends AbstractModel {
 
 
 	/** Interval for the position progress **/
-	protected function positionInterval():void {
-		position = Math.round(stream.time*10)/10;
-		var bfr:Number = Math.round(stream.bufferLength/stream.bufferTime*100);
-		if(bfr < 95 && position < Math.abs(item['duration']-stream.bufferTime-1)) {
-			model.sendEvent(ModelEvent.BUFFER,{percentage:bfr});
-			if(model.config['state'] != ModelStates.BUFFERING && bfr < 25) {
-				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-			}
-		} else if (bfr > 95 && model.config['state'] != ModelStates.PLAYING) {
+	private function positionInterval():void {
+		var pos:Number = Math.round(stream.time*10)/10;
+		var bfr:Number = stream.bufferLength/stream.bufferTime;
+		if(bfr < 0.5 && position < item['duration']-5 && model.config['state'] != ModelStates.BUFFERING) {
+			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
+		} else if (bfr > 1 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(position < item['duration'] + 10) {
-			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
+		if(pos < item['duration'] + 10) {
+			if(pos != position) {
+				position = pos;
+				model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration']});
+			}
 		} else if (item['duration']) {
 			stream.pause();
 			clearInterval(interval);
@@ -154,7 +193,7 @@ public class VideoModel extends AbstractModel {
 
 
 	/** Receive NetStream status updates. **/
-	protected function statusHandler(evt:NetStatusEvent):void {
+	private function statusHandler(evt:NetStatusEvent):void {
 		switch (evt.info.code) {
 			case "NetStream.Play.Stop":
 				if(position > 1) {
@@ -178,18 +217,17 @@ public class VideoModel extends AbstractModel {
 		} else {
 			stream.pause();
 		}
-		loadtimer = undefined;
-		clearInterval(loadinterval);
+		clearInterval(loading);
 		clearInterval(interval);
 		position = 0;
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 
 
-	/** Set the volume level. **/
+	/** Set the volume. **/
 	override public function volume(vol:Number):void {
-		transform.volume = vol/100;
-		stream.soundTransform = transform;
+		transformer.volume = vol/100;
+		stream.soundTransform = transformer;
 	};
 
 
