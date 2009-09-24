@@ -22,6 +22,8 @@ public class HTTPModel extends AbstractModel {
 	private var byteoffset:Number = 0;
 	/** Save if the bandwidth checkin already occurs. **/
 	private var bwcheck:Boolean;
+	/** Bandwidth interval checking ID. **/
+	private var bwtimeout:Number;
 	/** Switch on startup if the bandwidth is not enough. **/
 	private var bwswitch:Boolean = true;
 	/** NetConnection object for setup of the video stream. **/
@@ -102,7 +104,7 @@ public class HTTPModel extends AbstractModel {
 					return;
 				}
 			}
-			setTimeout(getBandwidth,2000,ldd);
+			bwtimeout = setTimeout(getBandwidth,2000,ldd);
 		}
 	};
 
@@ -193,6 +195,7 @@ public class HTTPModel extends AbstractModel {
 		interval = setInterval(positionInterval,100);
 		clearInterval(loadinterval);
 		loadinterval = setInterval(loadHandler,200);
+		clearTimeout(bwtimeout);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 	};
@@ -211,7 +214,7 @@ public class HTTPModel extends AbstractModel {
 		}
 		if(ldd > 0 && !bwcheck) {
 			bwcheck = true;
-			setTimeout(getBandwidth,2000,ldd);
+			bwtimeout = setTimeout(getBandwidth,2000,ldd);
 		}
 	};
 
@@ -342,7 +345,7 @@ public class HTTPModel extends AbstractModel {
 
 	/** Destroy the HTTP stream. **/
 	override public function stop():void {
-		if(stream.bytesLoaded+byteoffset < stream.bytesTotal) {
+		if(stream.bytesLoaded < stream.bytesTotal) {
 			stream.close();
 		} else {
 			stream.pause();

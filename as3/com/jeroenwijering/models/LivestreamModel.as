@@ -7,6 +7,7 @@ package com.jeroenwijering.models {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.player.Model;
+import com.jeroenwijering.utils.Logger;
 
 import flash.display.*;
 import flash.events.*;
@@ -27,6 +28,8 @@ public class LivestreamModel extends AbstractModel {
 	private var player:Object;
 	/** Wrapper of the chromeless player. **/
 	private var wrapper:Object;
+	/** Save if we're actually playing. **/
+	private var playing:Boolean;
 
 
 	/** Setup YouTube connections and load proxy. **/
@@ -77,9 +80,9 @@ public class LivestreamModel extends AbstractModel {
 
 	/** Play or pause the video. **/
 	override public function play():void {
-		var idx:Number = item['file'].lastIndexOf('/');
-		player.channel = item['file'].substr(idx+1);
+		player.channel = item['file'];
 		player.play();
+		playing = true;
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 	};
 
@@ -94,7 +97,7 @@ public class LivestreamModel extends AbstractModel {
 		player.showPlayButton = false;
 		player.showSpinner = false;
 		player.volumeOverlayEnabled = true;
-		player.volume = model.config['volume']/100;
+		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		resize();
 		play();
 	};
@@ -103,14 +106,17 @@ public class LivestreamModel extends AbstractModel {
 	/** Chromeless player failed loading. **/
 	private function playerErrorHandler(evt:Event):void {
 		stop();
-		var msg:String = Object(evt).message;
-		model.sendEvent(ModelEvent.ERROR,{message:msg});
+		model.sendEvent(ModelEvent.ERROR,{message:Object(evt).message});
 	};
 
 
 	/** Destroy the youtube video. **/
 	override public function stop():void {
-		if(player) { player.stop(); }
+		if(playing) {
+			player.stop();
+			playing = false;
+			Logger.log('stopping the player','livestream');
+		}
 		position = item['start'];
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};

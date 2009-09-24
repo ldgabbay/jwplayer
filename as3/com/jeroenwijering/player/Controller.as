@@ -75,6 +75,7 @@ public class Controller extends EventDispatcher {
 	private var REDIRECTS:Object = {
 		bitgravity:{flashvar:'startparam',model:'http',value:'starttime'},
 		edgecast:{flashvar:'startparam',model:'http',value:'ec_seek'},
+		fcsubscribe:{flashvar:'subscribe',model:'rtmp',value:true},
 		flvseek:{flashvar:'startparam',model:'http',value:'fs'},
 		highwinds:{flashvar:'loadbalance',model:'rtmp',value:true},
 		lighttpd:{flashvar:'startparam',model:'http',value:'start'},

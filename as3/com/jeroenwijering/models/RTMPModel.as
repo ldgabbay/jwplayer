@@ -33,6 +33,8 @@ public class RTMPModel extends AbstractModel {
 	private var loader:URLLoader;
 	/** NetStream instance that handles the stream IO. **/
 	private var stream:NetStream;
+	/** Interval ID for subscription pings. **/
+	private var subscribe:Number;
 	/** Offset in seconds of the last seek. **/
 	private var timeoffset:Number = 0;
 	/** Sound control object. **/
@@ -63,6 +65,12 @@ public class RTMPModel extends AbstractModel {
 		video = new Video(320,240);
 		video.smoothing = model.config['smoothing'];
 		addChild(video);
+	};
+
+
+	/** Try subscribing to livestream **/
+	private function doSubscribe(id:String):void {
+		connection.call("FCSubscribe",null,id);
 	};
 
 
@@ -138,6 +146,14 @@ public class RTMPModel extends AbstractModel {
 
 	/** Get metadata information from netstream class. **/
 	public function onClientData(dat:Object):void {
+		if(dat.type == 'fcsubscribe') {
+			if(dat.code == "NetStream.Play.StreamNotFound" ) {
+				model.sendEvent(ModelEvent.ERROR,{message:"Subscription failed: "+item['file']});
+			} else if(dat.code == "NetStream.Play.Start") {
+				setStream();
+			}
+			clearInterval(subscribe);
+		}
 		if(dat.width) {
 			video.width = dat.width;
 			video.height = dat.height;
@@ -155,12 +171,14 @@ public class RTMPModel extends AbstractModel {
 			stop();
 		}
 		if(dat.type == 'bandwidth') {
-			model.config['bandwidth'] = dat.bandwidth;
+			if(dat.bandwidth > 50) {
+				model.config['bandwidth'] = dat.bandwidth;
+			}
 			if(item['levels']) {
 				if(!streaming) {
 					setStream();
 				}
-				setTimeout(getBandwidth,10000);
+				setTimeout(getBandwidth,15000);
 			}
 		}
 	};
@@ -230,12 +248,11 @@ public class RTMPModel extends AbstractModel {
 		if(model.config['state'] == ModelStates.PAUSED) {
 			stream.resume();
 		}
-		stream.play(getID(item['file']),timeoffset);
-		/*stream.play2({
-			streamName:getID(item['file']),
-			start:timeoffset,
-			transition:'reset'
-		});*/
+		if(model.config['rtmp.subscribe']) {
+			stream.play(getID(item['file']));
+		} else {
+			stream.play(getID(item['file']),timeoffset);
+		}
 		streaming = true;
 	};
 
@@ -263,10 +280,15 @@ public class RTMPModel extends AbstractModel {
 					connection.call("secureTokenResponse",null,
 						TEA.decrypt(evt.info.secureToken,model.config['token']));
 				}
-				if(!item['levels']) { setStream(); }
-				connection.call("checkBandwidth",null);
+				if(model.config['rtmp.subscribe']) {
+					subscribe = setInterval(doSubscribe,1000,getID(item['file']));
+					return;
+				} else if(!item['levels']) {
+					setStream();
+				}
 				var res:Responder = new Responder(streamlengthHandler);
 				connection.call("getStreamLength",res,getID(item['file']));
+				connection.call("checkBandwidth",null);
 				break;
 			case  'NetStream.Seek.Notify':
 				clearInterval(interval);
