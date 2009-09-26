@@ -70,7 +70,7 @@ public class VideoModel extends AbstractModel {
 			if(bdw > 0) { model.config['bandwidth'] = bdw; }
 			if(bwswitch) {
 				bwswitch = false;
-				if(getLevel() != model.config['level']) {
+				if(item['levels'] && getLevel() != model.config['level']) {
 					model.config['level'] = getLevel();
 					item['file'] = item['levels'][model.config['level']].url;
 					load(item);

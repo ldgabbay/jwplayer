@@ -98,7 +98,7 @@ public class HTTPModel extends AbstractModel {
 			if(bdw > 0) { model.config['bandwidth'] = bdw; }
 			if(bwswitch) {
 				bwswitch = false;
-				if(getLevel() != model.config['level']) {
+				if(item['levels'] && getLevel() != model.config['level']) {
 					byteoffset = -1;
 					seek(position);
 					return;

@@ -25,8 +25,12 @@ public class RTMPModel extends AbstractModel {
 	private var bwcheck:Boolean;
 	/** Switch if the bandwidth is not enough. **/
 	private var bwswitch:Boolean = true;
+	/** Interval for bw checking - with dynamic streaming. **/
+	private var bwinterval:Number;
 	/** NetConnection object for setup of the video stream. **/
 	private var connection:NetConnection;
+	/** Is dynamic streaming possible. **/
+	private var dynamics:Boolean;
 	/** ID for the position interval. **/
 	private var interval:Number;
 	/** Loader instance that loads the XML file. **/
@@ -43,9 +47,10 @@ public class RTMPModel extends AbstractModel {
 	private var smil:String;
 	/** Save that a stream is streaming. **/
 	private var streaming:Boolean;
+	/** Save that we're transitioning. **/
+	private var transitioning:Boolean;
 	/** Video object to be instantiated. **/
 	private var video:Video;
-
 
 	/** Constructor; sets up the connection and display. **/
 	public function RTMPModel(mod:Model):void {
@@ -68,6 +73,17 @@ public class RTMPModel extends AbstractModel {
 	};
 
 
+	/** Check if the player can use dynamic streaming. **/
+	private function checkDynamic(str:String):void {
+		var clt:Number = Number(model.config['client'].split(' ')[2].split(',')[0]);
+		var mjr:Number = Number(str.split(',')[0]);
+		var mnr:Number = Number(str.split(',')[1]);
+		if(clt > 9 && (mjr > 3 || (mjr == 3 && mnr > 4))) { 
+			dynamics = true;
+		}
+	};
+
+
 	/** Try subscribing to livestream **/
 	private function doSubscribe(id:String):void {
 		connection.call("FCSubscribe",null,id);
@@ -81,8 +97,17 @@ public class RTMPModel extends AbstractModel {
 	};
 
 
-	/** Bandwidth is checked every four seconds as long as there's loading. **/
+	/** Bandwidth checking for dynamic streaming. **/
 	private function getBandwidth():void {
+		model.config['bandwidth'] = Math.round(stream.info.maxBytesPerSecond*8/1024);
+		if(model.config['rtmp.dynamic'] && getLevel() != model.config['level']) {
+			swap();
+		}
+	};
+
+
+	/** Bandwidth checking for non-dynamic streaming. **/
+	private function getBW():void {
 		if(streaming) {
 			connection.call("checkBandwidth",null);
 		}
@@ -158,7 +183,6 @@ public class RTMPModel extends AbstractModel {
 			video.width = dat.width;
 			video.height = dat.height;
 			super.resize();
-			model.sendEvent(ModelEvent.META,dat);
 		}
 		if(dat.duration && !item['duration']) {
 			item['duration'] = dat.duration;
@@ -174,13 +198,11 @@ public class RTMPModel extends AbstractModel {
 			if(dat.bandwidth > 50) {
 				model.config['bandwidth'] = dat.bandwidth;
 			}
-			if(item['levels']) {
-				if(!streaming) {
-					setStream();
-				}
-				setTimeout(getBandwidth,15000);
+			if(item['levels'] && !streaming) {
+				setStream();
 			}
 		}
+		model.sendEvent(ModelEvent.META,dat);
 	};
 
 
@@ -229,8 +251,12 @@ public class RTMPModel extends AbstractModel {
 	/** Check if the level must be switched on resize. **/
 	override public function resize():void {
 		super.resize();
-		if(getLevel() != model.config['level']) {
-			seek( position);
+		if(item['levels'] && getLevel() != model.config['level']) {
+			if(model.config['rtmp.dynamic'] && dynamics) {
+				swap();
+			} else { 
+				seek(position);
+			}
 		}
 	};
 
@@ -240,6 +266,7 @@ public class RTMPModel extends AbstractModel {
 		position = 0;
 		timeoffset = pos;
 		clearInterval(interval);
+		clearInterval(bwinterval);
 		interval = setInterval(positionInterval,100);
 		if(item['levels'] && getLevel() != model.config['level']) {
 			model.config['level'] = getLevel();
@@ -252,6 +279,11 @@ public class RTMPModel extends AbstractModel {
 			stream.play(getID(item['file']));
 		} else {
 			stream.play(getID(item['file']),timeoffset);
+			if(dynamics) {
+				bwinterval = setInterval(getBandwidth,2000);
+			} else { 
+				bwinterval = setInterval(getBW,20000);
+			}
 		}
 		streaming = true;
 	};
@@ -280,15 +312,21 @@ public class RTMPModel extends AbstractModel {
 					connection.call("secureTokenResponse",null,
 						TEA.decrypt(evt.info.secureToken,model.config['token']));
 				}
+				checkDynamic(evt.info.data.version);
 				if(model.config['rtmp.subscribe']) {
 					subscribe = setInterval(doSubscribe,1000,getID(item['file']));
 					return;
-				} else if(!item['levels']) {
+				} else if(item['levels']) {
+					if(model.config['rtmp.dynamic'] && dynamics) {
+						model.config['bandwidth'] = 100;
+						setStream();
+					} else {
+						connection.call("checkBandwidth",null);
+					}
+				} else {
 					setStream();
+					connection.call("getStreamLength",new Responder(streamlengthHandler),getID(item['file']));
 				}
-				var res:Responder = new Responder(streamlengthHandler);
-				connection.call("getStreamLength",res,getID(item['file']));
-				connection.call("checkBandwidth",null);
 				break;
 			case  'NetStream.Seek.Notify':
 				clearInterval(interval);
@@ -322,6 +360,9 @@ public class RTMPModel extends AbstractModel {
 				stop();
 				model.sendEvent(ModelEvent.ERROR,{message:"Server not found: "+item['streamer']});
 				break;
+			case 'NetStream.Play.TransitionComplete':
+				transitioning = false;
+				break;
 			case 'NetStream.Play.UnpublishNotify':
 				streaming = false;
 				break;
@@ -332,10 +373,11 @@ public class RTMPModel extends AbstractModel {
 
 	/** Destroy the stream. **/
 	override public function stop():void {
-		if(stream.time) { stream.close(); }
+		if(stream && stream.time) { stream.close(); }
 		streaming = false;
 		connection.close();
 		clearInterval(interval);
+		clearInterval(bwinterval);
 		position = 0;
 		timeoffset = item['start'];
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
@@ -348,6 +390,20 @@ public class RTMPModel extends AbstractModel {
 	/** Get the streamlength returned from the connection. **/
 	private function streamlengthHandler(len:Number):void {
 		if(len && !item['duration']) { item['duration'] = len; }
+	};
+
+
+	/** Dynamically switch streams **/
+	private function swap():void {
+		if(!transitioning) {
+			transitioning = true;
+			model.config['level'] = getLevel();
+			item['file'] = item['levels'][model.config['level']].url;
+			var nso:NetStreamPlayOptions = new NetStreamPlayOptions();
+			nso.streamName = getID(item['file']);
+			nso.transition = NetStreamPlayTransitions.SWITCH;
+			stream.play2(nso);
+		}
 	};
 
 
