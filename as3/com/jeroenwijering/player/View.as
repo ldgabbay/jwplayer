@@ -7,7 +7,7 @@ package com.jeroenwijering.player {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.utils.*;
 
-import flash.display.MovieClip;
+import flash.display.*;
 import flash.events.*;
 import flash.external.ExternalInterface;
 import flash.system.*;
@@ -142,7 +142,7 @@ public class View extends AbstractView {
 	/** Return the config object of a specific plugin. **/
 	public function getJSPluginConfig(nam:String):Object {
 		try {
-			var plg = getPlugin(nam);
+			var plg:Object = getPlugin(nam);
 			var cfg:Object = getPluginConfig(plg);
 		} catch (err:Error) {
 			return {error:'plugin not loaded'}
@@ -173,7 +173,7 @@ public class View extends AbstractView {
 
 
 	/** Send a ready ping to javascript. **/
-	public function playerReady() {
+	public function playerReady():void {
 		if(ExternalInterface.available && _skin.loaderInfo.url.indexOf('http') == 0 && ready != true) {
 			ready = true;
 			setTimeout(playerReadyPing,50);
@@ -182,7 +182,7 @@ public class View extends AbstractView {
 
 
 	/** The timeout on this ping is needed for IE - it'll not get the playerReady call. **/
-	private function playerReadyPing() {
+	private function playerReadyPing():void {
 		try {
 			if(ExternalInterface.objectID && !_config['id']) {
 				_config['id'] = ExternalInterface.objectID;

@@ -7,14 +7,19 @@ package com.jeroenwijering.player {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.*;
 import com.jeroenwijering.plugins.*;
-import com.jeroenwijering.utils.Configger;
-import com.jeroenwijering.utils.Logger;
+import com.jeroenwijering.utils.*;
 
-import flash.display.MovieClip;
-import flash.events.Event;
+import flash.display.*;
+import flash.events.*;
+
+import mx.core.MovieClipLoaderAsset;
 
 
 public class Player extends MovieClip {
+
+
+	[Embed(source="../../../../../skins/regular/regular.swf")]
+	private const EmbeddedSkin:Class;
 
 
 	/** All configuration values. Change them to hard-code your preferences. **/
@@ -69,7 +74,7 @@ public class Player extends MovieClip {
 		debug:'none',
 		id:undefined,
 		plugins:undefined,
-		version:'4.6.385'
+		version:'4.6.388'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -87,31 +92,24 @@ public class Player extends MovieClip {
 
 	/** Constructor; hides player and waits until it is added to the stage. **/
 	public function Player():void {
-		skin = this['player'];
 		visible = false;
-		for(var i:Number=0; i<skin.numChildren; i++) {
-			skin.getChildAt(i).visible = false;
-		}
-		// This event is useful for Flex, but not recognized by FP9.0.16
-		try {
-			addEventListener(Event.ADDED_TO_STAGE,loadConfig);
-		} catch(err:Error) { loadConfig(); }
+		var mcl:MovieClipLoaderAsset = new EmbeddedSkin() as MovieClipLoaderAsset;
+		var ldr:Loader = Loader(mcl.getChildAt(0));
+		ldr.contentLoaderInfo.addEventListener(Event.INIT, loadConfig);
 	};
 
 
-	/** When added to stage, the player loads configuration settings. **/
-	protected function loadConfig(evt:Event=null):void {
-		try {
-			removeEventListener(Event.ADDED_TO_STAGE,loadConfig);
-		} catch(err:Error) {}
+	/** When the skinis loaded, the config is loaded. **/
+	protected function loadConfig(evt:Event):void {
+		skin = MovieClip(LoaderInfo(evt.target).content).player;
+		addChild(skin);
 		configger = new Configger(this);
 		configger.addEventListener(Event.COMPLETE,loadSkin);
 		configger.load(config);
 	};
 
-
 	/** When config is loaded, the player laods the skin. **/
-	protected function loadSkin(evt:Event=null):void {
+	protected function loadSkin(evt:Event):void {
 		if(config['tracecall']) {
 			Logger.output = config['tracecall'];
 		} else { 
@@ -124,7 +122,7 @@ public class Player extends MovieClip {
 
 
 	/** When the skin is loaded, the model/view/controller are inited. **/
-	protected function loadMVC(evt:SPLoaderEvent=null):void {
+	protected function loadMVC(evt:SPLoaderEvent):void {
 		controller = new Controller(config,skin,sploader);
 		model = new Model(config,skin,sploader,controller);
 		view = new View(config,skin,sploader,controller,model);
@@ -166,7 +164,7 @@ public class Player extends MovieClip {
 	* The Player broadcasts a READY event here to actionscript.
 	* The View will send an asynchroneous PlayerReady event to javascript.
 	**/
-	protected function startPlayer(evt:SPLoaderEvent=null) {
+	protected function startPlayer(evt:SPLoaderEvent):void {
 		view.sendEvent(ViewEvent.REDRAW);
 		visible = true;
 		dispatchEvent(new PlayerEvent(PlayerEvent.READY));

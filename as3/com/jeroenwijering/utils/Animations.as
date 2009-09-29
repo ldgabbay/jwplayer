@@ -31,7 +31,7 @@ public class Animations {
 
 	/** The fade enterframe function. **/
 	private static function fadeHandler(evt:Event):void {
-		var tgt = MovieClip(evt.target);
+		var tgt:MovieClip = MovieClip(evt.target);
 		if((tgt.alpha >= tgt.end-tgt.spd && tgt.spd > 0) ||
 			(tgt.alpha <= tgt.end+tgt.spd && tgt.spd < 0)) {
 			tgt.removeEventListener(Event.ENTER_FRAME,fadeHandler);

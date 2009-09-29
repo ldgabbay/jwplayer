@@ -62,9 +62,9 @@ public class YoutubeModel extends AbstractModel {
 
 	/** xtract the current ID from a youtube URL **/
 	private function getID(url:String):String {
-		var arr = url.split('?');
-		var str = '';
-		for (var i in arr) {
+		var arr:Array = url.split('?');
+		var str:String = '';
+		for (var i:String in arr) {
 			if(arr[i].substr(0,2) == 'v=') {
 				str = arr[i].substr(2);
 			}
@@ -99,7 +99,7 @@ public class YoutubeModel extends AbstractModel {
 		loading = true;
 		if(connected) {
 			if(outgoing) {
-				var gid = getID(item['file']);
+				var gid:String = getID(item['file']);
 				outgoing.send('AS3_'+unique,"loadVideoById",gid,item['start']);
 				resize();
 			}

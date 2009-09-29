@@ -188,7 +188,7 @@ public class Model extends EventDispatcher {
 
 
 	/** Thumb loaded, try to antialias it before resizing. **/
-	private function thumbHandler(evt:Event) {
+	private function thumbHandler(evt:Event):void {
 		try {
 			Bitmap(thumb.content).smoothing = true;
 		} catch (err:Error) {}

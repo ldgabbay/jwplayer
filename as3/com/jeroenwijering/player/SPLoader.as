@@ -116,7 +116,7 @@ public class SPLoader extends EventDispatcher {
 
 
 	/** Load a single plugin into the stack (after initialization). **/
-	public function loadPlugin(url:String,str:String=null) {
+	public function loadPlugin(url:String,str:String=null):void {
 		if(str != null && str != '') {
 			var ar1:Array = str.split('&');
 			for(var i:String in ar1) {
@@ -269,7 +269,7 @@ public class SPLoader extends EventDispatcher {
 
 
 	/** Layout all plugins in case of a fullscreen resize. **/
-	public function layoutFullscreen() {
+	public function layoutFullscreen():void {
 		for(var i:Number=0; i<plugins.length; i++) {
 			if (plugins[i]['position'] == 'over' || plugins[i]['position'] == undefined || 
 				plugins[i]['name'] == 'controlbar' && plugins[i]['position'] != 'none') {

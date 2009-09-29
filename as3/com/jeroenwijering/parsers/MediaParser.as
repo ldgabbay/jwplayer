@@ -11,7 +11,7 @@ public class MediaParser {
 
 
 	/** Prefix for the JW Player namespace. **/
-	private static const PREFIX = 'media';
+	private static const PREFIX:String = 'media';
 
 
 	/**

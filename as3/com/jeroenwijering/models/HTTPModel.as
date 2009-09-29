@@ -75,7 +75,7 @@ public class HTTPModel extends AbstractModel {
 		var kfr:Object = new Object();
 		kfr.times = new Array();
 		kfr.filepositions = new Array();
-		for (var j in dat) {
+		for (var j:String in dat) {
 			kfr.times[j] = Number(dat[j]['time']);
 			kfr.filepositions[j] = Number(dat[j]['offset']);
 		}

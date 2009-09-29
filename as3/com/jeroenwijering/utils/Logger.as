@@ -37,7 +37,7 @@ public class Logger {
 
 
 	/** Latest output position. **/
-	private static var _output = Logger.NONE;
+	private static var _output:String = Logger.NONE;
 
 
 	/**
@@ -120,7 +120,7 @@ public class Logger {
 
 
 	/** Manage the status call of localconnection. **/
-	private static function status(evt:StatusEvent) {};
+	private static function status(evt:StatusEvent):void {};
 
 
 }

@@ -180,7 +180,7 @@ public class Display implements PluginInterface {
 
 
 	/** Place the title in the titleIcon. **/
-	private function setTitle() {
+	private function setTitle():void {
 		var icn:MovieClip = clip.titleIcon;
 		icn.txt.autoSize = 'left';
 		icn.txt.text = view.playlist[view.config['item']]['title'];

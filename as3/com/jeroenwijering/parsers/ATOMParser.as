@@ -26,7 +26,7 @@ public class ATOMParser {
 
 	/** Translate ATOM item to playlist item. **/
 	public static function parseItem(obj:XML):Object {
-		var itm =  new Object();
+		var itm:Object =  new Object();
 		for each (var i:XML in obj.children()) {
 			switch(i.localName().toLowerCase()) {
 				case 'author':

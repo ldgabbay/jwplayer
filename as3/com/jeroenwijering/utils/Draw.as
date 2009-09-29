@@ -14,7 +14,7 @@ import flash.utils.getQualifiedClassName;
 public class Draw {
 
 
-	/** 
+	/**
 	* Completely clear the contents of a displayobject.
 	*
 	* @param tgt	Displayobject to clear.
@@ -37,15 +37,16 @@ public class Draw {
 	* @return		The clone; not yet added to the displaystack.
 	**/
 	public static function clone(tgt:Sprite,adc:Boolean=false):MovieClip {
-		var nam:String = getQualifiedClassName(tgt);
-		var cls:Class = tgt.stage.loaderInfo.applicationDomain.getDefinition(nam) as Class;
-		var dup = new cls();
+		//var nam:String = getQualifiedClassName(tgt);
+		//var cls:Class = tgt.stage.loaderInfo.applicationDomain.getDefinition(nam) as Class;
+		var cls:Class = Object(tgt).constructor;
+		var dup:* = new cls();
 		dup.transform = tgt.transform;
 		dup.filters = tgt.filters;
 		dup.cacheAsBitmap = tgt.cacheAsBitmap;
 		dup.opaqueBackground = tgt.opaqueBackground;
 		if(adc == true) {
-			var idx = tgt.parent.getChildIndex(tgt);
+			var idx:Number = tgt.parent.getChildIndex(tgt);
 			tgt.parent.addChildAt(dup,idx+1);
 		}
 	    return dup;
@@ -96,7 +97,7 @@ public class Draw {
 	* @param prp	The property to update.
 	* @param val	The new value of the property.
 	**/
-	public static function set(obj:DisplayObject,prp:String,val:Object) {
+	public static function set(obj:DisplayObject,prp:String,val:Object):void {
 		try {
 			obj[prp] = val;
 		} catch (err:Error) {}

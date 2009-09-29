@@ -11,7 +11,7 @@ import flash.events.*;
 import flash.text.TextField;
 
 
-public class DockButton extends MovieClip {
+public dynamic class DockButton extends MovieClip {
 
 
 	/** Reference to the object with colors. **/
@@ -30,28 +30,28 @@ public class DockButton extends MovieClip {
 		mouseChildren = false;
 		buttonMode = true;
 		if(icn) { setImage(icn); }
-		field.text = txt;
+		this.field.text = txt;
 		addEventListener(MouseEvent.CLICK,hdl);
 		if(clr) {
 			colors = clr;
-			back.transform.colorTransform = colors['back'];
-			icon.transform.colorTransform = colors['front'];
+			this.back.transform.colorTransform = colors['back'];
+			this.icon.transform.colorTransform = colors['front'];
 			addEventListener(MouseEvent.MOUSE_OVER,overHandler);
 			addEventListener(MouseEvent.MOUSE_OUT,outHandler);
-			field.textColor = colors['front'].color;
+			this.field.textColor = colors['front'].color;
 		}
 	};
 
 
 	/** When rolling over, the background is color changed. **/
 	private function overHandler(evt:MouseEvent):void {
-		back.transform.colorTransform = colors['light'];
+		this.back.transform.colorTransform = colors['light'];
 	};
 
 
 	/** When rolling over, the background is color changed. **/
 	private function outHandler(evt:MouseEvent):void {
-		back.transform.colorTransform = colors['back'];
+		this.back.transform.colorTransform = colors['back'];
 	};
 
 
@@ -61,10 +61,10 @@ public class DockButton extends MovieClip {
 	* @param dpo	The new caption for the button.
 	**/
 	private function setImage(dpo:DisplayObject):void {
-		Draw.clear(icon);
-		icon.addChild(dpo);
-		icon.x =  Math.round(width/2 - icon.width/2);
-		icon.y = Math.round(height/2 - icon.height/2);
+		Draw.clear(this.icon);
+		this.icon.addChild(dpo);
+		this.icon.x =  Math.round(width/2 - this.icon.width/2);
+		this.icon.y = Math.round(height/2 - this.icon.height/2);
 	};
 
 

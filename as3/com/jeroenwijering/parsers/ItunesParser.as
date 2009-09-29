@@ -11,7 +11,7 @@ public class ItunesParser {
 
 
 	/** Prefix for the iTunes namespace. **/
-	private static const PREFIX = 'itunes';
+	private static const PREFIX:String = 'itunes';
 
 
 	/**

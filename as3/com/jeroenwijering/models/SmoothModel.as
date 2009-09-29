@@ -130,7 +130,7 @@ public class SmoothModel extends AbstractModel {
 		setTimeout(showChunk,100);
 	};
 
-	private function showChunk() {
+	private function showChunk():void {
 		addChild(chunks[chunk].video);
 		resize();
 	};

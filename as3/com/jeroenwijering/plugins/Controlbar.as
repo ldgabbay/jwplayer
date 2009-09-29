@@ -38,7 +38,7 @@ public class Controlbar implements PluginInterface {
 	/** Color object for lightcolor. **/
 	private var light:ColorTransform;
 	/** The actions for all controlbar buttons. **/
-	private var BUTTONS = {
+	private var BUTTONS:Object = {
 		playButton:'PLAY',
 		pauseButton:'PLAY',
 		stopButton:'STOP',
@@ -51,7 +51,7 @@ public class Controlbar implements PluginInterface {
 		unmuteButton:'MUTE'
 	};
 	/** The actions for all sliders **/
-	private var SLIDERS = {
+	private var SLIDERS:Object = {
 		timeSlider:'SEEK',
 		volumeSlider:'VOLUME'
 	}
@@ -73,7 +73,7 @@ public class Controlbar implements PluginInterface {
 	**/
 	public function addButton(icn:DisplayObject,nam:String,hdl:Function):void {
 		if(clip['linkButton'] && clip['linkButton'].back) {
-			var btn = Draw.clone(clip['linkButton']);
+			var btn:* = Draw.clone(clip['linkButton']);
 			btn.name = nam+'Button';
 			btn.visible = true;
 			btn.tabEnabled = true;

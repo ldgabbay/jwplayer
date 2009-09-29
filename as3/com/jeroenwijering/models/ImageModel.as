@@ -91,7 +91,7 @@ public class ImageModel extends AbstractModel {
 
 	/** Send load progress to player. **/
 	private function progressHandler(evt:ProgressEvent):void {
-		var pct = Math.round(evt.bytesLoaded/evt.bytesTotal*100);
+		var pct:Number = Math.round(evt.bytesLoaded/evt.bytesTotal*100);
 		model.sendEvent(ModelEvent.BUFFER,{percentage:pct});
 	};
 

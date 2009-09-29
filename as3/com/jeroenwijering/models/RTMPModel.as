@@ -161,7 +161,7 @@ public class RTMPModel extends AbstractModel {
 
 
 	/** Get the streamer / file from the loadbalancing XML. **/
-	private function loaderHandler(evt:Event) {
+	private function loaderHandler(evt:Event):void {
 		var xml:XML = XML(evt.currentTarget.data);
 		item['streamer'] = xml.children()[0].children()[0].@base.toString();
 		item['file'] = xml.children()[1].children()[0].@src.toString();
@@ -290,7 +290,7 @@ public class RTMPModel extends AbstractModel {
 
 
 	/** Start the netstream object. **/
-	private function setStream() {
+	private function setStream():void {
 		stream = new NetStream(connection);
 		stream.checkPolicyFile = true;
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);

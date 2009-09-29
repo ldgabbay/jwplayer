@@ -28,7 +28,7 @@ public class SoundModel extends AbstractModel {
 	/** ID for the position interval. **/
 	protected var interval:Number;
 	/** Interval for loading progress. **/
-	private var loadinterval;
+	private var loadinterval:Number;
 
 
 	/** Constructor; sets up the connection and display. **/
@@ -93,8 +93,8 @@ public class SoundModel extends AbstractModel {
 
 	/** Interval for the loading progress **/
 	private function loadHandler():void {
-		var ldd = sound.bytesLoaded;
-		var ttl = sound.bytesTotal;
+		var ldd:Number = sound.bytesLoaded;
+		var ttl:Number = sound.bytesTotal;
 		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl});
 		if(ldd/ttl > 0.1 && item['duration'] == 0) {
 			item['duration'] =  sound.length/1000/ldd*ttl;
