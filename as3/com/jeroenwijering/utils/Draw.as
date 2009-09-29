@@ -37,9 +37,13 @@ public class Draw {
 	* @return		The clone; not yet added to the displaystack.
 	**/
 	public static function clone(tgt:Sprite,adc:Boolean=false):MovieClip {
-		//var nam:String = getQualifiedClassName(tgt);
-		//var cls:Class = tgt.stage.loaderInfo.applicationDomain.getDefinition(nam) as Class;
-		var cls:Class = Object(tgt).constructor;
+		var nam:String = getQualifiedClassName(tgt);
+		var cls:Class;
+		try {
+			cls = tgt.loaderInfo.applicationDomain.getDefinition(nam) as Class;
+		} catch(e:Error) {
+			cls = Object(tgt).constructor;
+		}
 		var dup:* = new cls();
 		dup.transform = tgt.transform;
 		dup.filters = tgt.filters;
