@@ -100,7 +100,7 @@ public class RTMPModel extends AbstractModel {
 	/** Bandwidth checking for dynamic streaming. **/
 	private function getBandwidth():void {
 		model.config['bandwidth'] = Math.round(stream.info.maxBytesPerSecond*8/1024);
-		if(model.config['rtmp.dynamic'] && getLevel() != model.config['level']) {
+		if(getLevel() != model.config['level']) {
 			swap();
 		}
 	};
@@ -202,6 +202,9 @@ public class RTMPModel extends AbstractModel {
 				setStream();
 			}
 		}
+		if(dat.code == 'NetStream.Play.TransitionComplete') {
+			transitioning = false;
+		}
 		model.sendEvent(ModelEvent.META,dat);
 	};
 
@@ -225,7 +228,7 @@ public class RTMPModel extends AbstractModel {
 
 	/** Interval for the position progress. **/
 	private function positionInterval():void {
-		var pos:Number = Math.round((stream.time+timeoffset)*10)/10;
+		var pos:Number = Math.round((stream.time)*10)/10;
 		var bfr:Number = stream.bufferLength/stream.bufferTime;
 		if(bfr < 0.5 && pos < item['duration']-5 && model.config['state'] != ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
@@ -252,7 +255,7 @@ public class RTMPModel extends AbstractModel {
 	override public function resize():void {
 		super.resize();
 		if(item['levels'] && getLevel() != model.config['level']) {
-			if(model.config['rtmp.dynamic'] && dynamics) {
+			if(dynamics) {
 				swap();
 			} else { 
 				seek(position);
@@ -265,6 +268,7 @@ public class RTMPModel extends AbstractModel {
 	override public function seek(pos:Number):void {
 		position = 0;
 		timeoffset = pos;
+		transitioning = false;
 		clearInterval(interval);
 		clearInterval(bwinterval);
 		interval = setInterval(positionInterval,100);
@@ -278,7 +282,8 @@ public class RTMPModel extends AbstractModel {
 		if(model.config['rtmp.subscribe']) {
 			stream.play(getID(item['file']));
 		} else {
-			stream.play(getID(item['file']),timeoffset);
+			stream.play(getID(item['file']));
+			if(timeoffset) { stream.seek(timeoffset); }
 			if(dynamics) {
 				bwinterval = setInterval(getBandwidth,2000);
 			} else { 
@@ -317,8 +322,7 @@ public class RTMPModel extends AbstractModel {
 					subscribe = setInterval(doSubscribe,1000,getID(item['file']));
 					return;
 				} else if(item['levels']) {
-					if(model.config['rtmp.dynamic'] && dynamics) {
-						model.config['bandwidth'] = 100;
+					if(dynamics) {
 						setStream();
 					} else {
 						connection.call("checkBandwidth",null);
@@ -360,9 +364,6 @@ public class RTMPModel extends AbstractModel {
 				stop();
 				model.sendEvent(ModelEvent.ERROR,{message:"Server not found: "+item['streamer']});
 				break;
-			case 'NetStream.Play.TransitionComplete':
-				transitioning = false;
-				break;
 			case 'NetStream.Play.UnpublishNotify':
 				streaming = false;
 				break;
@@ -395,9 +396,12 @@ public class RTMPModel extends AbstractModel {
 
 	/** Dynamically switch streams **/
 	private function swap():void {
-		if(!transitioning) {
+		if(transitioning == true) {
+			Logger.log('transition to level '+getLevel()+' cancelled');
+		} else { 
 			transitioning = true;
 			model.config['level'] = getLevel();
+			Logger.log('transition to level '+getLevel()+' initiated');
 			item['file'] = item['levels'][model.config['level']].url;
 			var nso:NetStreamPlayOptions = new NetStreamPlayOptions();
 			nso.streamName = getID(item['file']);
