@@ -74,7 +74,7 @@ public class Player extends MovieClip {
 		debug:'none',
 		id:undefined,
 		plugins:undefined,
-		version:'4.6.389'
+		version:'4.6.390'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -140,7 +140,6 @@ public class Player extends MovieClip {
 		model.addModel(new ImageModel(model),'image');
 		model.addModel(new LivestreamModel(model),'livestream');
 		model.addModel(new RTMPModel(model),'rtmp');
-		model.addModel(new SmoothModel(model),'smooth');
 		model.addModel(new SoundModel(model),'sound');
 		model.addModel(new VideoModel(model),'video');
 		model.addModel(new YoutubeModel(model),'youtube');
