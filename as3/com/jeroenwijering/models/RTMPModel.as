@@ -99,7 +99,11 @@ public class RTMPModel extends AbstractModel {
 
 	/** Bandwidth checking for dynamic streaming. **/
 	private function getBandwidth():void {
-		model.config['bandwidth'] = Math.round(stream.info.maxBytesPerSecond*8/1024);
+		try { 
+			model.config['bandwidth'] = Math.round(stream.info.maxBytesPerSecond*8/1024);
+		} catch(err:Error) { 
+			clearInterval(bwinterval);
+		}
 		if(getLevel() != model.config['level']) {
 			swap();
 		}
@@ -194,13 +198,8 @@ public class RTMPModel extends AbstractModel {
 		if(dat.type == 'close') {
 			stop();
 		}
-		if(dat.type == 'bandwidth') {
-			if(dat.bandwidth > 50) {
-				model.config['bandwidth'] = dat.bandwidth;
-			}
-			if(item['levels'] && !streaming) {
-				setStream();
-			}
+		if(dat.type == 'bandwidth' && dat.bandwidth > 50) {
+			model.config['bandwidth'] = dat.bandwidth;
 		}
 		if(dat.code == 'NetStream.Play.TransitionComplete') {
 			transitioning = false;
@@ -286,7 +285,7 @@ public class RTMPModel extends AbstractModel {
 			if(timeoffset) { stream.seek(timeoffset); }
 			if(dynamics) {
 				bwinterval = setInterval(getBandwidth,2000);
-			} else { 
+			} else {
 				bwinterval = setInterval(getBW,20000);
 			}
 		}
@@ -317,19 +316,15 @@ public class RTMPModel extends AbstractModel {
 					connection.call("secureTokenResponse",null,
 						TEA.decrypt(evt.info.secureToken,model.config['token']));
 				}
-				checkDynamic(evt.info.data.version);
+				if(evt.info.data) { checkDynamic(evt.info.data.version); }
 				if(model.config['rtmp.subscribe']) {
 					subscribe = setInterval(doSubscribe,1000,getID(item['file']));
 					return;
-				} else if(item['levels']) {
-					if(dynamics) {
-						setStream();
-					} else {
-						connection.call("checkBandwidth",null);
-					}
 				} else {
 					setStream();
-					connection.call("getStreamLength",new Responder(streamlengthHandler),getID(item['file']));
+					if(!item['levels']) {
+						connection.call("getStreamLength",new Responder(streamlengthHandler),getID(item['file']));
+					}
 				}
 				break;
 			case  'NetStream.Seek.Notify':
