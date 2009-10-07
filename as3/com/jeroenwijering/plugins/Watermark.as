@@ -4,6 +4,9 @@
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.utils.*;
 
+import fl.transitions.*;
+import fl.transitions.easing.*;
+
 import flash.display.*;
 import flash.utils.*;
 import flash.events.*;
@@ -19,9 +22,7 @@ public class Watermark extends MovieClip implements PluginInterface {
 	/** Reference to the skin MC. **/
 	public var clip:MovieClip;
 	/** Configuration flashvars pushed by the player. **/
-	public var config:Object = {
-		position:'over'
-	};
+	public var config:Object = {};
 	/** Configuration flashvars, not overwritten by the player. **/
 	private var _config:Object = {
 		file:undefined,
@@ -59,7 +60,14 @@ public class Watermark extends MovieClip implements PluginInterface {
 
 	/** Fade out watermark. **/
 	private function hide():void {
-		Animations.fade(clip,0,0.1);
+		_config['state'] = false;
+		clip.mouseEnabled = false;
+		TransitionManager.start(clip,{
+			type:Fade,
+			direction:Transition.OUT,
+			duration:0.3,
+			easing:Regular.easeIn
+		});
 	};
 
 
@@ -71,6 +79,8 @@ public class Watermark extends MovieClip implements PluginInterface {
 		if(configurable) {
 			for (var i:String in config) { _config[i] = config[i]; }
 		}
+		clip.visible = false;
+		clip.alpha = _config['out'];
 		clip.buttonMode = true;
 		clip.addEventListener(MouseEvent.CLICK,clickHandler);
 		clip.addEventListener(MouseEvent.MOUSE_OVER,overHandler);
@@ -83,8 +93,6 @@ public class Watermark extends MovieClip implements PluginInterface {
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
 			loader.load(new URLRequest(_config['file']));
 		}
-		clip.alpha = 0;
-		clip.visible = false;
 	};
 
 
@@ -97,14 +105,13 @@ public class Watermark extends MovieClip implements PluginInterface {
 
 	/** Handle mouse out state **/
 	private function outHandler(evt:MouseEvent):void {
-		Animations.fade(clip,0,0.2);
+		clip.alpha = _config['out'];
 	};
 
 
 	/** Handle mouse over state **/
 	private function overHandler(evt:MouseEvent):void {
-		clearTimeout(timeout);
-		Animations.fade(clip,_config['over'],0.1);
+		clip.alpha = _config['over'];
 	};
 
 
@@ -127,8 +134,17 @@ public class Watermark extends MovieClip implements PluginInterface {
 
 	/** Fade in watermark. **/
 	private function show():void {
-		Animations.fade(clip,_config['out'],0.1);
+		if(!_config['state']) {
+			_config['state'] = true;
+			TransitionManager.start(clip,{
+				type:Fade,
+				direction:Transition.IN,
+				duration:0.3,
+				easing:Regular.easeIn
+			});
+		}
 		timeout = setTimeout(hide,_config['timeout']*1000);
+		clip.mouseEnabled = true;
 	};
 
 

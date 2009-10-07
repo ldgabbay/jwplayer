@@ -12,14 +12,8 @@ import com.jeroenwijering.utils.*;
 import flash.display.*;
 import flash.events.*;
 
-import mx.core.MovieClipLoaderAsset;
-
 
 public class Player extends MovieClip {
-
-
-	[Embed(source="../../../../../skins/regular/regular.swf")]
-	private const EmbeddedSkin:Class;
 
 
 	/** All configuration values. Change them to hard-code your preferences. **/
@@ -93,16 +87,13 @@ public class Player extends MovieClip {
 	/** Constructor; hides player and waits until it is added to the stage. **/
 	public function Player():void {
 		visible = false;
-		var mcl:MovieClipLoaderAsset = new EmbeddedSkin() as MovieClipLoaderAsset;
-		var ldr:Loader = Loader(mcl.getChildAt(0));
-		ldr.contentLoaderInfo.addEventListener(Event.INIT, loadConfig);
+		skin = this['player'];
+		loadConfig();
 	};
 
 
 	/** When the skinis loaded, the config is loaded. **/
-	protected function loadConfig(evt:Event):void {
-		skin = MovieClip(LoaderInfo(evt.target).content).player;
-		addChild(skin);
+	protected function loadConfig():void {
 		configger = new Configger(this);
 		configger.addEventListener(Event.COMPLETE,loadSkin);
 		configger.load(config);
