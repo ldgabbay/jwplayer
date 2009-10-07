@@ -278,6 +278,7 @@ public class RTMPModel extends AbstractModel {
 		if(model.config['state'] == ModelStates.PAUSED) {
 			stream.resume();
 		}
+		Logger.log("playing: "+getID(item['file']));
 		if(model.config['rtmp.subscribe']) {
 			stream.play(getID(item['file']));
 		} else {
