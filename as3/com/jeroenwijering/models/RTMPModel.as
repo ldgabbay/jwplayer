@@ -161,6 +161,7 @@ public class RTMPModel extends AbstractModel {
 		} else {
 			connection.connect(item['streamer']);
 		}
+		resize();
 	};
 
 
@@ -361,10 +362,10 @@ public class RTMPModel extends AbstractModel {
 				model.sendEvent(ModelEvent.ERROR,{message:"Server not found: "+item['streamer']});
 				break;
 			case 'NetStream.Play.UnpublishNotify':
-				streaming = false;
+				stop();
 				break;
 		}
-		//model.sendEvent('META',evt.info);
+		model.sendEvent('META',evt.info);
 	};
 
 
