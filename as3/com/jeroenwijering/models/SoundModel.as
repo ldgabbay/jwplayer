@@ -87,7 +87,6 @@ public class SoundModel extends AbstractModel {
 		loadinterval = setInterval(loadHandler,200);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 	};
 
 
@@ -118,21 +117,13 @@ public class SoundModel extends AbstractModel {
 		channel = sound.play(position*1000,0,transformer);
 		channel.addEventListener(Event.SOUND_COMPLETE,completeHandler);
 		interval = setInterval(positionInterval,100);
-		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 	};
 
 
 	/** Interval for the position progress **/
 	protected function positionInterval():void {
 		position = Math.round(channel.position/100)/10;
-		if(sound.isBuffering == true && sound.bytesTotal > sound.bytesLoaded) {
-			if(model.config['state'] != ModelStates.BUFFERING) {
-				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-			} else {
-				var pct:Number = Math.floor(sound.length/(channel.position+model.config['bufferlength']*1000)*100);
-				model.sendEvent(ModelEvent.BUFFER,{percentage:pct});
-			}
-		} else if (model.config['state'] == ModelStates.BUFFERING && sound.isBuffering == false) {
+		if (model.config['state'] != ModelStates.PLAYING && channel.position > 0) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
 		if(position < item['duration']) {
@@ -155,10 +146,10 @@ public class SoundModel extends AbstractModel {
 
 	/** Destroy the sound. **/
 	override public function stop():void {
-		if(channel) { channel.stop(); }
-		try { sound.close(); } catch (err:Error) {}
 		clearInterval(loadinterval);
 		clearInterval(interval);
+		if(channel) { channel.stop(); }
+		try { sound.close(); } catch (err:Error) {}
 		position = 0;
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};

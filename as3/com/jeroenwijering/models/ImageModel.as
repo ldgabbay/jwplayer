@@ -29,7 +29,6 @@ public class ImageModel extends AbstractModel {
 		super(mod);
 		loader = new Loader();
 		loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loaderHandler);
-		loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS,progressHandler);
 		loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		addChild(loader);
 	};
@@ -41,7 +40,6 @@ public class ImageModel extends AbstractModel {
 		position = 0;
 		loader.load(new URLRequest(item['file']),new LoaderContext(true));
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-		model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 	};
 
 
@@ -83,16 +81,9 @@ public class ImageModel extends AbstractModel {
 		if(position < item['duration']) {
 			model.sendEvent(ModelEvent.TIME,{position:position,duration:item['duration']});
 		} else if (item['duration'] > 0) {
-			pause();
+			clearInterval(interval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}
-	};
-
-
-	/** Send load progress to player. **/
-	private function progressHandler(evt:ProgressEvent):void {
-		var pct:Number = Math.round(evt.bytesLoaded/evt.bytesTotal*100);
-		model.sendEvent(ModelEvent.BUFFER,{percentage:pct});
 	};
 
 
@@ -106,12 +97,12 @@ public class ImageModel extends AbstractModel {
 
 	/** Stop the image interval. **/
 	override public function stop():void {
-		if(loader.contentLoaderInfo.bytesLoaded != loader.contentLoaderInfo.bytesTotal) {
+		clearInterval(interval);
+		try { 
 			loader.close();
-		} else {
+		} catch(err:Error) {
 			loader.unload();
 		}
-		clearInterval(interval);
 		position = 0;
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};

@@ -98,11 +98,9 @@ public class YoutubeModel extends AbstractModel {
 		position = 0;
 		loading = true;
 		if(connected) {
-			if(outgoing) {
-				var gid:String = getID(item['file']);
-				outgoing.send('AS3_'+unique,"loadVideoById",gid,item['start']);
-				resize();
-			}
+			var gid:String = getID(item['file']);
+			outgoing.send('AS3_'+unique,"loadVideoById",gid,item['start']);
+			resize();
 		} else {
 			loader.load(new URLRequest(getLocation()));
 			inbound.connect('AS2_'+unique);
@@ -165,7 +163,6 @@ public class YoutubeModel extends AbstractModel {
 				break;
 			case 3:
 				model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-				model.sendEvent(ModelEvent.BUFFER,{percentage:0});
 				break;
 		}
 	};
@@ -200,7 +197,11 @@ public class YoutubeModel extends AbstractModel {
 
 	/** Destroy the youtube video. **/
 	override public function stop():void {
-		outgoing.send('AS3_'+unique,"stopVideo");
+		if(connected) {
+			outgoing.send('AS3_'+unique,"stopVideo");
+		} else {
+			loading = false;
+		}
 		position = 0;
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};

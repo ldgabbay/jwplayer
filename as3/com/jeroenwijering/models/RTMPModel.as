@@ -104,7 +104,7 @@ public class RTMPModel extends AbstractModel {
 		} catch(err:Error) { 
 			clearInterval(bwinterval);
 		}
-		if(getLevel() != model.config['level']) {
+		if(item['levels'] && getLevel() != model.config['level']) {
 			swap();
 		}
 	};
@@ -364,7 +364,7 @@ public class RTMPModel extends AbstractModel {
 				streaming = false;
 				break;
 		}
-		model.sendEvent('META',evt.info);
+		//model.sendEvent('META',evt.info);
 	};
 
 

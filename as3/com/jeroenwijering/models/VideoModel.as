@@ -185,10 +185,12 @@ public class VideoModel extends AbstractModel {
 
 	/** Seek to a new position. **/
 	override public function seek(pos:Number):void {
-		position = pos;
-		clearInterval(interval);
-		stream.seek(position);
-		play();
+		if(stream && pos < stream.bytesLoaded/stream.bytesTotal*item['duration']) {
+			position = pos;
+			clearInterval(interval);
+			stream.seek(position);
+			play();
+		}
 	};
 
 

@@ -131,6 +131,33 @@ public class LivestreamModel extends AbstractModel {
 	};
 
 
+	/** Getters/setters for resizing. These make sure the aspectratios of the wrapper are kept. **/
+	override public function get width():Number {
+		if(wrapper) { return wrapper.width; } else { return width; }
+	};
+	override public function set width(val:Number):void {
+		if(wrapper) { wrapper.width = val; } else { super.width = val; }
+	};
+	override public function get height():Number {
+		if(wrapper) { return wrapper.height; } else { return height; }
+	};
+	override public function set height(val:Number):void {
+		if(wrapper) { wrapper.height = val; } else { wrapper.height = val; }
+	};
+	override public function get x():Number {
+		if(wrapper) { return wrapper.x; } else { return x; }
+	};
+	override public function set x(val:Number):void {
+		if(wrapper) { wrapper.x = val; } else { super.x = val; }
+	}
+	override public function get y():Number {
+		if(wrapper) { return wrapper.y; } else { return y; }
+	}
+	override public function set y(val:Number):void {
+		if(wrapper) { wrapper.y = val; } else { super.y = val; }
+	}
+
+
 }
 
 

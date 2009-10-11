@@ -265,9 +265,6 @@ public class HTTPModel extends AbstractModel {
 	/** Interval for the position progress **/
 	private function positionInterval():void {
 		var pos:Number = Math.round(stream.time*10)/10;
-		if(pos > position - timeoffset + 5) {
-			pos = position - timeoffset + 0.1;
-		}
 		if (mp4) {
 			pos += timeoffset;
 		}
