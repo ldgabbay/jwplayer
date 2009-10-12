@@ -177,6 +177,7 @@ public class Model extends EventDispatcher {
 					media.visible = false;
 					sendEvent(ModelEvent.TIME,{position:item['start'],duration:item['duration']});
 					break;
+				case ModelStates.BUFFERING:
 				case ModelStates.PLAYING:
 					thumb.visible = audioOnly();
 					media.visible = !audioOnly();
