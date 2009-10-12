@@ -161,7 +161,6 @@ public class RTMPModel extends AbstractModel {
 		} else {
 			connection.connect(item['streamer']);
 		}
-		resize();
 	};
 
 
@@ -279,7 +278,6 @@ public class RTMPModel extends AbstractModel {
 		if(model.config['state'] == ModelStates.PAUSED) {
 			stream.resume();
 		}
-		Logger.log("playing: "+getID(item['file']));
 		if(model.config['rtmp.subscribe']) {
 			stream.play(getID(item['file']));
 		} else {
@@ -307,6 +305,7 @@ public class RTMPModel extends AbstractModel {
 		video.attachNetStream(stream);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		seek(timeoffset);
+		resize();
 	};
 
 
