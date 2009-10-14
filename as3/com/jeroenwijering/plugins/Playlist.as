@@ -313,7 +313,7 @@ public class Playlist implements PluginInterface {
 				}
 			} else if(itm == 'duration') {
 				if(view.playlist[idx][itm] > 0) {
-					buttons[idx].c[itm].text = Strings.digits(view.playlist[idx][itm]);
+					buttons[idx].c[itm].htmlText = '<b>'+Strings.digits(view.playlist[idx][itm])+'</b>';
 					if(front) { 
 						buttons[idx].c[itm].textColor = front.color;
 					}
@@ -322,6 +322,8 @@ public class Playlist implements PluginInterface {
 				try { 
 					if(itm == 'description') {
 						buttons[idx].c[itm].htmlText = view.playlist[idx][itm];
+					} else if(itm == 'title') {
+						buttons[idx].c[itm].htmlText = '<b>'+view.playlist[idx][itm]+'</b>';
 					} else {
 						buttons[idx].c[itm].text = view.playlist[idx][itm];
 					}
