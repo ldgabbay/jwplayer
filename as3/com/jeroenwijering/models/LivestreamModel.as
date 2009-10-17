@@ -1,5 +1,5 @@
 ﻿/**
-* Wrapper for load and playback of Youtube videos through their API.
+* Wrapper for load and playback of Livestream channels through their API.
 **/
 package com.jeroenwijering.models {
 
@@ -32,7 +32,7 @@ public class LivestreamModel extends AbstractModel {
 	private var playing:Boolean;
 
 
-	/** Setup YouTube connections and load proxy. **/
+	/** Setup Livestream application loader. **/
 	public function LivestreamModel(mod:Model):void {
 		super(mod);
 		mouseEnabled = true;
@@ -69,8 +69,7 @@ public class LivestreamModel extends AbstractModel {
 			try {
 				loader.load(new URLRequest(LOCATION),new LoaderContext(true,
 					ApplicationDomain.currentDomain,SecurityDomain.currentDomain));
-			} 
-			catch (e:SecurityError) {
+			} catch (e:SecurityError) {
 				loader.load(new URLRequest(LOCATION));
 			}
 		}
@@ -83,7 +82,13 @@ public class LivestreamModel extends AbstractModel {
 	};
 
 
-	/** Play or pause the video. **/
+	/** Pause the livestream. **/
+	override public function pause():void {
+		stop();
+	};
+
+
+	/** Play the livestream. **/
 	override public function play():void {
 		player.channel = item['file'];
 		player.play();
