@@ -113,6 +113,7 @@ public class VideoModel extends AbstractModel {
 		loading = setInterval(loadHandler,200);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
+		resize();
 	};
 
 

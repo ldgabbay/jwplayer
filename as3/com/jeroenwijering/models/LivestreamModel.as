@@ -7,7 +7,7 @@ package com.jeroenwijering.models {
 import com.jeroenwijering.events.*;
 import com.jeroenwijering.models.AbstractModel;
 import com.jeroenwijering.player.Model;
-import com.jeroenwijering.utils.Logger;
+import com.jeroenwijering.utils.Stretcher;
 
 import flash.display.*;
 import flash.events.*;
@@ -66,8 +66,13 @@ public class LivestreamModel extends AbstractModel {
 			play();
 		} else {
 			Security.loadPolicyFile("http://cdn.livestream.com/crossdomain.xml");
-			loader.load(new URLRequest(LOCATION),new LoaderContext(true,
-				ApplicationDomain.currentDomain,SecurityDomain.currentDomain));
+			try {
+				loader.load(new URLRequest(LOCATION),new LoaderContext(true,
+					ApplicationDomain.currentDomain,SecurityDomain.currentDomain));
+			} 
+			catch (e:SecurityError) {
+				loader.load(new URLRequest(LOCATION));
+			}
 		}
 	};
 
@@ -110,17 +115,23 @@ public class LivestreamModel extends AbstractModel {
 	};
 
 
+	/** Handle a resize of the livestream. **/
+	override public function resize():void {
+		if(wrapper) {
+			Stretcher.stretch(DisplayObject(wrapper),model.config['width'],model.config['height'],Stretcher.EXACTFIT);
+		}
+	};
+
+
 	/** Destroy the youtube video. **/
 	override public function stop():void {
 		if(playing) {
 			player.stop();
 			playing = false;
-			Logger.log('stopping the player','livestream');
 		}
 		position = item['start'];
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
-
 
 
 	/** Set the volume level. **/
@@ -129,33 +140,6 @@ public class LivestreamModel extends AbstractModel {
 			player.volume = pct/100;
 		}
 	};
-
-
-	/** Getters/setters for resizing. These make sure the aspectratios of the wrapper are kept. **/
-	override public function get width():Number {
-		if(wrapper) { return wrapper.width; } else { return width; }
-	};
-	override public function set width(val:Number):void {
-		if(wrapper) { wrapper.width = val; } else { super.width = val; }
-	};
-	override public function get height():Number {
-		if(wrapper) { return wrapper.height; } else { return height; }
-	};
-	override public function set height(val:Number):void {
-		if(wrapper) { wrapper.height = val; } else { wrapper.height = val; }
-	};
-	override public function get x():Number {
-		if(wrapper) { return wrapper.x; } else { return x; }
-	};
-	override public function set x(val:Number):void {
-		if(wrapper) { wrapper.x = val; } else { super.x = val; }
-	}
-	override public function get y():Number {
-		if(wrapper) { return wrapper.y; } else { return y; }
-	}
-	override public function set y(val:Number):void {
-		if(wrapper) { wrapper.y = val; } else { super.y = val; }
-	}
 
 
 }
