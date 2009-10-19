@@ -42,26 +42,25 @@
 	<p>Below you see a simple embedded example of the JW Player.  Copy and paste the source code and put the SWF, JS and FLV file on your site to get started.</p>
 
 	<!-- START OF THE PLAYER EMBEDDING TO COPY-PASTE -->
-
-	<script type="text/javascript" src="swfobject.js"></script>
-	<script type="text/javascript">
-		swfobject.registerObject("player","9.0.0");
-	</script>
-
+	
 	<object id="player" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" name="player" width="328" height="200">
 		<param name="movie" value="player.swf" />
 		<param name="allowfullscreen" value="true" />
 		<param name="allowscriptaccess" value="always" />
 		<param name="flashvars" value="file=video.flv&image=preview.jpg" />
-		<object type="application/x-shockwave-flash" data="player.swf" width="328" height="200">
-			<param name="movie" value="player.swf" />
-			<param name="allowfullscreen" value="true" />
-			<param name="allowscriptaccess" value="always" />
-			<param name="flashvars" value="file=video.flv&image=preview.jpg" />
-			<p><a href="http://get.adobe.com/flashplayer">Get Flash</a> to see this player.</p>
-		</object>
+		<embed
+			type="application/x-shockwave-flash"
+			id="player2"
+			name="player2"
+			src="player.swf" 
+			width="328" 
+			height="200"
+			allowscriptaccess="always" 
+			allowfullscreen="true"
+			flashvars="file=video.flv&image=preview.jpg" 
+		/>
 	</object>
-
+	
 	<!-- END OF THE PLAYER EMBEDDING -->
 
 
