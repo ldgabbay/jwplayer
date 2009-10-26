@@ -149,9 +149,8 @@ public class HTTPModel extends AbstractModel {
 			startparam = model.config['http.startparam'];
 		}
 		if(item['streamer']) {
-			if(item['streamer'].indexOf('/') > 0) {
-				url = item['streamer'];
-				url = getURLConcat(url,'file',item['file']);
+			if(item['streamer'].indexOf('/') > -1) {
+				url = getURLConcat(item['streamer'],'file',item['file']);
 			} else { 
 				startparam = item['streamer'];
 			}
@@ -161,7 +160,7 @@ public class HTTPModel extends AbstractModel {
 		} else if (startparam == 'starttime') {
 			startparam = 'start';
 		}
-		if(off > 0) {
+		if(!mp4 || off > 0) {
 			url = getURLConcat(url,startparam,off);
 		}
 		if(model.config['token']) {

@@ -68,7 +68,7 @@ public class Player extends MovieClip {
 		debug:'none',
 		id:undefined,
 		plugins:undefined,
-		version:'4.6.485'
+		version:'4.6.525'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
