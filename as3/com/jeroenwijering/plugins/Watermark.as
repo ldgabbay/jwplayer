@@ -142,6 +142,7 @@ public class Watermark extends MovieClip implements PluginInterface {
 				duration:0.3,
 				easing:Regular.easeIn
 			});
+			resizeHandler();
 		}
 		timeout = setTimeout(hide,_config['timeout']*1000);
 		clip.mouseEnabled = true;

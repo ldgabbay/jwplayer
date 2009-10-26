@@ -213,7 +213,7 @@ public class RTMPModel extends AbstractModel {
 		stream.pause();
 		clearInterval(interval);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PAUSED});
-		if(stream && item['duration'] == 0) { stop(); }
+		if(stream && item['duration'] == 0 && !dynamics) { stop(); }
 	};
 
 
