@@ -1,6 +1,8 @@
 var settings = {
 	/** Player versions to embed in the testpage. **/
 	players: {
+		'4.6':'players/4.6.swf',
+		'5.0':'players/5.0.swf',
 		'4.5':'players/4.5.swf',
 		'4.4':'players/4.4.swf',
 		'4.3':'players/4.3.swf',
