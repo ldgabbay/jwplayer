@@ -30,6 +30,10 @@ var settings = {
 		positioning: {
 			swf:'plugins/positioning/positioning.swf',
 			xml:'plugins/positioning/positioning.xml',
+		},
+		player5plugin: {
+			swf:'plugins/player5plugin/player5plugin.swf',
+			xml:'plugins/player5plugin/player5plugin.xml',
 		}
 	},
 	/** Skins to embed in the testpage. **/
@@ -106,6 +110,15 @@ var settings = {
 			plugins:'positioning',
 			'positioning.position':'left',
 			'positioning.size':200,
+			height:240,
+			width:600
+		},
+		'Using a Player 5 Plugin': {
+			file:'../files/bunny.flv',
+			image:'files/bunny.jpg',
+			plugins:'player5plugin',
+			'player5plugin.position':'left',
+			'player5plugin.size':200,
 			height:240,
 			width:600
 		}
