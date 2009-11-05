@@ -119,6 +119,7 @@ var settings = {
 			plugins:'player5plugin',
 			'player5plugin.position':'left',
 			'player5plugin.size':200,
+			'player5plugin.text':'Hello, world!',
 			height:240,
 			width:600
 		}
