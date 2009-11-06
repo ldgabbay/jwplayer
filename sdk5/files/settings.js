@@ -1,36 +1,10 @@
 var settings = {
 	/** Player versions to embed in the testpage. **/
 	players: {
-		'4.6':'players/4.6.swf',
-		'5.0':'players/5.0.swf',
-		'4.5':'players/4.5.swf',
-		'4.4':'players/4.4.swf',
-		'4.3':'players/4.3.swf',
-		'4.2':'players/4.2.swf',
-		'4.1':'players/4.1.swf'
+		'5.0':'players/5.0.swf'
 	},
 	/** Available plugins (xml contains all info for flashvars). **/
 	plugins: {
-		controlling: {
-			swf:'plugins/controlling/controlling.swf',
-			xml:'plugins/controlling/controlling.xml',
-		},
-		docking: {
-			swf:'plugins/docking/docking.swf',
-			xml:'plugins/docking/docking.xml',
-		},
-		flashvars: {
-			swf:'plugins/flashvars/flashvars.swf',
-			xml:'plugins/flashvars/flashvars.xml',
-		},
-		listening: {
-			swf:'plugins/listening/listening.swf',
-			xml:'plugins/listening/listening.xml',
-		},
-		positioning: {
-			swf:'plugins/positioning/positioning.swf',
-			xml:'plugins/positioning/positioning.xml',
-		},
 		player5plugin: {
 			swf:'plugins/player5plugin/player5plugin.swf',
 			xml:'plugins/player5plugin/player5plugin.xml',
@@ -74,44 +48,6 @@ var settings = {
 			playlistsize:400
 		},
 		' ': {
-		},
-		'Controlling plugin template': {
-			file:'../files/bunny.flv',
-			image:'files/bunny.jpg',
-			plugins:'controlling',
-			height:240,
-			width:400
-		},
-		'Docking plugin template': {
-			file:'../files/bunny.flv',
-			image:'files/bunny.jpg',
-			plugins:'docking',
-			height:240,
-			width:400
-		},
-		'Flashvars plugin template': {
-			file:'../files/bunny.flv',
-			image:'files/bunny.jpg',
-			plugins:'flashvars',
-			'flashvars.message':'hello world!',
-			height:240,
-			width:400
-		},
-		'Listening plugin template': {
-			file:'../files/bunny.flv',
-			image:'files/bunny.jpg',
-			plugins:'listening',
-			height:240,
-			width:400
-		},
-		'Positioning plugin template': {
-			file:'../files/bunny.flv',
-			image:'files/bunny.jpg',
-			plugins:'positioning',
-			'positioning.position':'left',
-			'positioning.size':200,
-			height:240,
-			width:600
 		},
 		'Using a Player 5 Plugin': {
 			file:'../files/bunny.flv',
