@@ -23,8 +23,6 @@ public class RTMPModel extends AbstractModel {
 
 	/** Save if the bandwidth checkin already occurs. **/
 	private var bwcheck:Boolean;
-	/** Switch if the bandwidth is not enough. **/
-	private var bwswitch:Boolean = true;
 	/** Interval for bw checking - with dynamic streaming. **/
 	private var bwinterval:Number;
 	/** NetConnection object for setup of the video stream. **/
@@ -73,13 +71,16 @@ public class RTMPModel extends AbstractModel {
 	};
 
 
-	/** Check if the player can use dynamic streaming. **/
+	/** Check if the player can use dynamic streaming (server versions and no load balancing). **/
 	private function checkDynamic(str:String):void {
 		var clt:Number = Number(model.config['client'].split(' ')[2].split(',')[0]);
 		var mjr:Number = Number(str.split(',')[0]);
 		var mnr:Number = Number(str.split(',')[1]);
-		if(clt > 9 && (mjr > 3 || (mjr == 3 && mnr > 4))) { 
+		if(!model.config['rtmp.loadbalance'] && !item['rtmp.loadbalance'] &&
+			clt > 9 && (mjr > 3 || (mjr == 3 && mnr > 4))) { 
 			dynamics = true;
+		} else {
+			dynamics = false;
 		}
 	};
 
@@ -106,14 +107,6 @@ public class RTMPModel extends AbstractModel {
 		}
 		if(item['levels'] && getLevel() != model.config['level']) {
 			swap();
-		}
-	};
-
-
-	/** Bandwidth checking for non-dynamic streaming. **/
-	private function getBW():void {
-		if(streaming) {
-			connection.call("checkBandwidth",null);
 		}
 	};
 
@@ -154,8 +147,9 @@ public class RTMPModel extends AbstractModel {
 		item = itm;
 		position = 0;
 		timeoffset = item['start'];
+		clearInterval(interval);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-		if(model.config['rtmp.loadbalance']) {
+		if(model.config['rtmp.loadbalance'] || item['rtmp.loadbalance']) {
 			smil = item['file'];
 			loader.load(new URLRequest(smil));
 		} else {
@@ -198,8 +192,9 @@ public class RTMPModel extends AbstractModel {
 		if(dat.type == 'close') {
 			stop();
 		}
-		if(dat.type == 'bandwidth' && dat.bandwidth > 50) {
+		if(dat.type == 'bandwidth') {
 			model.config['bandwidth'] = dat.bandwidth;
+			setStream();
 		}
 		if(dat.code == 'NetStream.Play.TransitionComplete') {
 			transitioning = false;
@@ -241,7 +236,7 @@ public class RTMPModel extends AbstractModel {
 				model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration']});
 				position = pos;
 			}
-		} else if (!isNaN(position) && item['duration'] > 0) {
+		} else if (position > 0 && item['duration'] > 0) {
 			stream.pause();
 			clearInterval(interval);
 			if(stream && item['duration'] == 0) { stop(); }
@@ -253,10 +248,11 @@ public class RTMPModel extends AbstractModel {
 	/** Check if the level must be switched on resize. **/
 	override public function resize():void {
 		super.resize();
-		if(item['levels'] && getLevel() != model.config['level']) {
+		if(item['levels'] && getLevel() != model.config['level'] && 
+			model.config['state'] == ModelStates.PLAYING) {
 			if(dynamics) {
 				swap();
-			} else { 
+			} else {
 				seek(position);
 			}
 		}
@@ -274,19 +270,22 @@ public class RTMPModel extends AbstractModel {
 		if(item['levels'] && getLevel() != model.config['level']) {
 			model.config['level'] = getLevel();
 			item['file'] = item['levels'][model.config['level']].url;
+			if(model.config['rtmp.loadbalance'] || item['rtmp.loadbalance']) {
+				item['start'] = pos;
+				load(item);
+				return;
+			}
 		}
 		if(model.config['state'] == ModelStates.PAUSED) {
 			stream.resume();
 		}
-		if(model.config['rtmp.subscribe']) {
+		if(model.config['rtmp.subscribe'] || item['rtmp.subscribe']) {
 			stream.play(getID(item['file']));
 		} else {
 			stream.play(getID(item['file']));
 			if(timeoffset) { stream.seek(timeoffset); }
 			if(dynamics) {
 				bwinterval = setInterval(getBandwidth,2000);
-			} else {
-				bwinterval = setInterval(getBW,20000);
 			}
 		}
 		streaming = true;
@@ -318,12 +317,19 @@ public class RTMPModel extends AbstractModel {
 						TEA.decrypt(evt.info.secureToken,model.config['token']));
 				}
 				if(evt.info.data) { checkDynamic(evt.info.data.version); }
-				if(model.config['rtmp.subscribe']) {
+				if(model.config['rtmp.subscribe'] || item['rtmp.subscribe']) {
 					subscribe = setInterval(doSubscribe,1000,getID(item['file']));
 					return;
 				} else {
-					setStream();
-					if(!item['levels']) {
+					if(item['levels']) {
+						if(dynamics || bwcheck) {
+							setStream();
+						} else {
+							bwcheck = true;
+							connection.call('checkBandwidth',null);
+						}
+					} else {
+						setStream();
 						connection.call("getStreamLength",new Responder(streamlengthHandler),getID(item['file']));
 					}
 				}

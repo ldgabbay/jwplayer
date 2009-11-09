@@ -139,7 +139,7 @@ public class VideoModel extends AbstractModel {
 			video.height = dat.height;
 			resize();
 		}
-		if(dat.duration && !item['duration']) {
+		if(dat.duration && (!item['duration'] || item['duration'] > dat.duration-10)) {
 			item['duration'] = dat.duration;
 		}
 		model.sendEvent(ModelEvent.META,dat);
@@ -171,7 +171,7 @@ public class VideoModel extends AbstractModel {
 		} else if (bfr > 1 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(pos < item['duration'] + 10) {
+		if(pos < item['duration']) {
 			if(pos != position) {
 				position = pos;
 				model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration']});

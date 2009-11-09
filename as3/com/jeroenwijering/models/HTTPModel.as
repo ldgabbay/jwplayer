@@ -145,7 +145,9 @@ public class HTTPModel extends AbstractModel {
 	private function getURL():String {
 		var url:String = item['file'];
 		var off:Number  = byteoffset;
-		if(model.config['http.startparam']) {
+		if(item['http.startparam']) {
+			startparam = item['http.startparam'];
+		} else if (model.config['http.startparam']) {
 			startparam = model.config['http.startparam'];
 		}
 		if(item['streamer']) {
@@ -225,7 +227,7 @@ public class HTTPModel extends AbstractModel {
 			video.height = dat.height;
 			super.resize();
 		}
-		if(!item['duration'] && dat.duration) {
+		if(dat.duration && (!item['duration'] || item['duration'] > dat.duration-10)) {
 			item['duration'] = dat.duration;
 		}
 		if(dat['type'] == 'metadata' && !meta) {
@@ -273,7 +275,7 @@ public class HTTPModel extends AbstractModel {
 		} else if (bfr > 1 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
-		if(pos < item['duration'] + 10) {
+		if(pos < item['duration']) {
 			if(pos != position) {
 				model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration']});
 				position = pos;

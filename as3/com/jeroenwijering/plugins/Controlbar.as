@@ -13,6 +13,7 @@ import flash.events.MouseEvent;
 import flash.geom.ColorTransform;
 import flash.geom.Rectangle;
 import flash.net.URLRequest;
+import flash.text.*;
 import flash.ui.Mouse;
 import flash.utils.clearTimeout;
 import flash.utils.setTimeout;
@@ -414,8 +415,12 @@ public class Controlbar implements PluginInterface {
 		var pct:Number = pos/dur;
 		if(isNaN(pct)) { pct = 1; }
 		try {
-			clip.elapsedText.text = Strings.digits(pos);
-			clip.totalText.text = Strings.digits(dur);
+			var clr:String = '000000';
+			if(view.config['frontcolor']) { 
+				clr = view.config['frontcolor'].substr(-6);
+			}
+			clip.elapsedText.htmlText = '<font color="#'+clr+'"><b>'+Strings.digits(pos)+'</b></font>';
+			clip.totalText.htmlText = '<font color="#'+clr+'"><b>'+Strings.digits(dur)+'</b></font>';
 		} catch (err:Error) {}
 		try {
 			var tsl:MovieClip = clip.timeSlider;
