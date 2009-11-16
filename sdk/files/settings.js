@@ -12,23 +12,23 @@ var settings = {
 	plugins: {
 		controlling: {
 			swf:'plugins/controlling/controlling.swf',
-			xml:'plugins/controlling/controlling.xml',
+			xml:'plugins/controlling/controlling.xml'
 		},
 		docking: {
 			swf:'plugins/docking/docking.swf',
-			xml:'plugins/docking/docking.xml',
+			xml:'plugins/docking/docking.xml'
 		},
 		flashvars: {
 			swf:'plugins/flashvars/flashvars.swf',
-			xml:'plugins/flashvars/flashvars.xml',
+			xml:'plugins/flashvars/flashvars.xml'
 		},
 		listening: {
 			swf:'plugins/listening/listening.swf',
-			xml:'plugins/listening/listening.xml',
+			xml:'plugins/listening/listening.xml'
 		},
 		positioning: {
 			swf:'plugins/positioning/positioning.swf',
-			xml:'plugins/positioning/positioning.xml',
+			xml:'plugins/positioning/positioning.xml'
 		}
 	},
 	/** Skins to embed in the testpage. **/
