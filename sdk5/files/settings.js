@@ -7,7 +7,7 @@ var settings = {
 	plugins: {
 		player5plugin: {
 			swf:'plugins/player5plugin/player5plugin.swf',
-			xml:'plugins/player5plugin/player5plugin.xml',
+			xml:'plugins/player5plugin/player5plugin.xml'
 		}
 	},
 	/** Skins to embed in the testpage. **/
