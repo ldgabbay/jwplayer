@@ -23,8 +23,10 @@ package {
 
 		/** Constructor **/
 		public function Player5Plugin() {
+			
+			
 			clickButton = new Sprite();
-			clickButton.graphics.beginFill(0x003388, 1);
+			clickButton.graphics.beginFill(0x338800, 1);
 			clickButton.graphics.drawCircle(5, 5, 10);
 			clickButton.graphics.endFill();
 			clickButton.x = 10;
