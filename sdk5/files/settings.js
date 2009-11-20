@@ -8,11 +8,16 @@ var settings = {
 		player5plugin: {
 			swf:'plugins/player5plugin/player5plugin.swf',
 			xml:'plugins/player5plugin/player5plugin.xml'
+		},
+		dockableskinnableplugin: {
+			swf:'plugins/dockableskinnableplugin/dockableskinnableplugin.swf',
+			xml:'plugins/dockableskinnableplugin/dockableskinnableplugin.xml'
 		}
 	},
 	/** Skins to embed in the testpage. **/
 	skins: {
 		none:'',
+		beelden:'skins/beelden/beelden.xml',
 		bright:'skins/bright.swf',
 		overlay:'skins/overlay.swf',
 		simple:'skins/simple.swf',
@@ -58,6 +63,14 @@ var settings = {
 			'player5plugin.text':'Hello, world!',
 			height:240,
 			width:600
+		},
+		'Using a Dockable Skinnable Plugin': {
+			file:'../files/bunny.flv',
+			image:'files/bunny.jpg',
+			plugins:'dockableskinnableplugin',
+			'dockableskinnableplugin.text':'Hello World',
+			height:240,
+			width:400
 		}
 	}
 }
