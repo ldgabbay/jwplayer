@@ -43,7 +43,9 @@ public class Ping extends MovieClip implements PluginInterface {
 		view = vie;
 		view.addControllerListener(ControllerEvent.ITEM,itemHandler);
 		if(ExternalInterface.available) {
-			referrer = ExternalInterface.call("function(){return window.location.href;}");
+			try { 
+				referrer = ExternalInterface.call("function(){return window.location.href;}");
+			} catch(err:Error) {}
 		}
 	};
 

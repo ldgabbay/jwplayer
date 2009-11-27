@@ -160,6 +160,7 @@ public class HTTPModel extends AbstractModel {
 		if(mp4) {
 			off = timeoffset;
 		} else if (startparam == 'starttime') {
+			// nasty little bitgravity hack. 
 			startparam = 'start';
 		}
 		if(!mp4 || off > 0) {
@@ -227,7 +228,7 @@ public class HTTPModel extends AbstractModel {
 			video.height = dat.height;
 			super.resize();
 		}
-		if(dat.duration && (!item['duration'] || item['duration'] > dat.duration-10)) {
+		if(dat.duration && timeoffset == 0 && (!item['duration'] || item['duration'] > dat.duration-5)) {
 			item['duration'] = dat.duration;
 		}
 		if(dat['type'] == 'metadata' && !meta) {
@@ -275,11 +276,12 @@ public class HTTPModel extends AbstractModel {
 		} else if (bfr > 1 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 		}
+		if(model.config['state'] != ModelStates.PLAYING) {
+			return;
+		}
 		if(pos < item['duration']) {
-			if(pos != position) {
-				model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration']});
-				position = pos;
-			}
+			model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration']});
+			position = pos;
 		} else if (item['duration'] > 0) {
 			stream.pause();
 			clearInterval(interval);
@@ -326,8 +328,8 @@ public class HTTPModel extends AbstractModel {
 	private function statusHandler(evt:NetStatusEvent):void {
 		switch (evt.info.code) {
 			case "NetStream.Play.Stop":
-				if(model.config['state'] != ModelStates.COMPLETED && 
-					model.config['state'] != ModelStates.BUFFERING) {
+				if(model.config['state'] == ModelStates.PLAYING) {
+					Logger.log('Triggered a netstream complete!');
 					clearInterval(interval);
 					model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 				}

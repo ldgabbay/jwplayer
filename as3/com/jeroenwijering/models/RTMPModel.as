@@ -146,6 +146,7 @@ public class RTMPModel extends AbstractModel {
 	override public function load(itm:Object):void {
 		item = itm;
 		position = 0;
+		if(item['levels']) { loadLevelSync(); }
 		timeoffset = item['start'];
 		clearInterval(interval);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
@@ -156,6 +157,18 @@ public class RTMPModel extends AbstractModel {
 			connection.connect(item['streamer']);
 		}
 	};
+
+
+	/** Make sure the selected level is actually the item['file']. **/
+	private function loadLevelSync() {
+		for (var i:Number=0; i<item['levels'].length; i++) {
+			if(item['file'] == item['levels'][i].url ) {
+				model.config['level'] = i;
+				break;
+			}
+		}
+	};
+
 
 
 	/** Get the streamer / file from the loadbalancing XML. **/
@@ -231,11 +244,12 @@ public class RTMPModel extends AbstractModel {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
 			stream.bufferTime = model.config['bufferlength']*4;
 		}
+		if(model.config['state'] != ModelStates.PLAYING) {
+			return;
+		}
 		if(pos < item['duration']) {
-			if(pos != position) {
-				model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration']});
-				position = pos;
-			}
+			model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration']});
+			position = pos;
 		} else if (position > 0 && item['duration'] > 0) {
 			stream.pause();
 			clearInterval(interval);
@@ -281,6 +295,8 @@ public class RTMPModel extends AbstractModel {
 		}
 		if(model.config['rtmp.subscribe'] || item['rtmp.subscribe']) {
 			stream.play(getID(item['file']));
+		} else if(model.config['rtmp.dvr'] || item['rtmp.dvr']) {
+			stream.play(getID(item['file']),0,-1);
 		} else {
 			stream.play(getID(item['file']));
 			if(timeoffset) { stream.seek(timeoffset); }
@@ -330,6 +346,8 @@ public class RTMPModel extends AbstractModel {
 						}
 					} else {
 						setStream();
+					}
+					if(item['file'].substr(-4) == '.mp3') { 
 						connection.call("getStreamLength",new Responder(streamlengthHandler),getID(item['file']));
 					}
 				}
@@ -374,6 +392,7 @@ public class RTMPModel extends AbstractModel {
 	};
 
 
+
 	/** Destroy the stream. **/
 	override public function stop():void {
 		if(stream && stream.time) { stream.close(); }
@@ -392,6 +411,7 @@ public class RTMPModel extends AbstractModel {
 
 	/** Get the streamlength returned from the connection. **/
 	private function streamlengthHandler(len:Number):void {
+		Logger.log({duration:len});
 		if(len && !item['duration']) { item['duration'] = len; }
 	};
 
