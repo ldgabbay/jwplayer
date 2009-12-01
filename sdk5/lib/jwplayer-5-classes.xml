@@ -1,6 +1,6 @@
 <report>
   <scripts>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/controller/PlayerSetup.as" mod="1258475587000" size="6830" optimizedsize="4005">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/controller/PlayerSetup.as" mod="1259169300000" size="7049" optimizedsize="4156">
       <def id="com.longtailvideo.jwplayer.controller:PlayerSetup" />
       <pre id="flash.events:EventDispatcher" />
       <dep id="com.longtailvideo.jwplayer.view.skins:SWFSkin" />
@@ -11,6 +11,7 @@
       <dep id="com.longtailvideo.jwplayer.plugins:PluginConfig" />
       <dep id="com.longtailvideo.jwplayer.view:View" />
       <dep id="com.longtailvideo.jwplayer.view.interfaces:ISkin" />
+      <dep id="com.longtailvideo.jwplayer.view.skins:ZIPSkin" />
       <dep id="com.longtailvideo.jwplayer.events:PlayerEvent" />
       <dep id="AS3" />
       <dep id="com.longtailvideo.jwplayer.model:Model" />
@@ -56,7 +57,7 @@
       <dep id="com.longtailvideo.jwplayer.player:IPlayer" />
       <dep id="com.longtailvideo.jwplayer.model:PlayerConfig" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/player/Player.as" mod="1258577941000" size="6110" optimizedsize="2695">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/player/Player.as" mod="1259688402000" size="6341" optimizedsize="2741">
       <def id="com.longtailvideo.jwplayer.player:Player" />
       <pre id="com.longtailvideo.jwplayer.player:IPlayer" />
       <pre id="flash.display:Sprite" />
@@ -99,7 +100,7 @@
       <dep id="AS3" />
       <dep id="flash.utils:Dictionary" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/media/SoundMediaProvider.as" mod="1258579861000" size="4683" optimizedsize="2901">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/media/SoundMediaProvider.as" mod="1259619402000" size="4920" optimizedsize="3062">
       <def id="com.longtailvideo.jwplayer.media:SoundMediaProvider" />
       <pre id="com.longtailvideo.jwplayer.media:MediaProvider" />
       <dep id="com.longtailvideo.jwplayer.model:PlaylistItem" />
@@ -140,6 +141,11 @@
       <pre id="Object" />
       <dep id="AS3" />
     </script>
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/nochump/util/zip/ZipConstants.as" mod="1259094559000" size="1162" optimizedsize="596">
+      <def id="com.nochump.util.zip:ZipConstants" />
+      <pre id="Object" />
+      <dep id="AS3" />
+    </script>
     <script name="/Developer/SDKs/Flex/3.4.1/frameworks/libs/flex.swc(mx/core/MovieClipLoaderAsset)" mod="1251404745692" size="2857" optimizedsize="1678">
       <def id="mx.core:MovieClipLoaderAsset" />
       <pre id="mx.core:IFlexAsset" />
@@ -170,14 +176,14 @@
       <dep id="Math" />
       <dep id="flash.display:MovieClip" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/parsers/JWParser.as" mod="1256072980000" size="1577" optimizedsize="991">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/parsers/JWParser.as" mod="1259632159000" size="1637" optimizedsize="1046">
       <def id="com.longtailvideo.jwplayer.parsers:JWParser" />
       <pre id="Object" />
       <dep id="AS3" />
       <dep id="com.longtailvideo.jwplayer.utils:Strings" />
       <dep id="XML" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/components/DisplayComponent.as" mod="1258579860000" size="7542" optimizedsize="4296">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/components/DisplayComponent.as" mod="1259170080000" size="7689" optimizedsize="4424">
       <def id="com.longtailvideo.jwplayer.view.components:DisplayComponent" />
       <pre id="com.longtailvideo.jwplayer.view.interfaces:IDisplayComponent" />
       <pre id="com.longtailvideo.jwplayer.view.components:CoreComponent" />
@@ -189,8 +195,8 @@
       <dep id="Math" />
       <dep id="Error" />
       <dep id="flash.utils:clearInterval" />
-      <dep id="flash.events:MouseEvent" />
       <dep id="com.longtailvideo.jwplayer.events:PlayerEvent" />
+      <dep id="flash.events:MouseEvent" />
       <dep id="AS3" />
       <dep id="com.longtailvideo.jwplayer.events:PlayerStateEvent" />
       <dep id="com.longtailvideo.jwplayer.events:ViewEvent" />
@@ -198,6 +204,7 @@
       <dep id="flash.display:DisplayObject" />
       <dep id="com.longtailvideo.jwplayer.player:PlayerState" />
       <dep id="flash.text:TextFormatAlign" />
+      <dep id="flash.display:Bitmap" />
       <dep id="com.longtailvideo.jwplayer.player:IPlayer" />
       <dep id="flash.geom:ColorTransform" />
       <dep id="flash.display:MovieClip" />
@@ -228,7 +235,7 @@
       <pre id="Object" />
       <dep id="AS3" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/media/VideoMediaProvider.as" mod="1258586763000" size="5663" optimizedsize="3506">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/media/VideoMediaProvider.as" mod="1259619402000" size="5852" optimizedsize="3627">
       <def id="com.longtailvideo.jwplayer.media:VideoMediaProvider" />
       <pre id="com.longtailvideo.jwplayer.media:MediaProvider" />
       <dep id="com.longtailvideo.jwplayer.model:PlaylistItem" />
@@ -290,13 +297,12 @@
       <dep id="com.longtailvideo.jwplayer.media:VideoMediaProvider" />
       <dep id="com.longtailvideo.jwplayer.model:PlayerConfig" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/skins/PNGSkin.as" mod="1257462554000" size="4766" optimizedsize="2861">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/skins/PNGSkin.as" mod="1259169989000" size="4794" optimizedsize="2814">
       <def id="com.longtailvideo.jwplayer.view.skins:PNGSkin" />
       <pre id="com.longtailvideo.jwplayer.view.skins:SkinBase" />
       <pre id="com.longtailvideo.jwplayer.view.interfaces:ISkin" />
       <dep id="flash.events:Event" />
-      <dep id="flash.display:BitmapData" />
-      <dep id="flash.display:DisplayObjectContainer" />
+      <dep id="com.longtailvideo.jwplayer.utils:Strings" />
       <dep id="com.longtailvideo.jwplayer.view.skins:SkinProperties" />
       <dep id="XMLList" />
       <dep id="Error" />
@@ -385,7 +391,7 @@
       <dep id="flash.media:Video" />
       <dep id="XML" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/controller/Controller.as" mod="1258590214000" size="13518" optimizedsize="7204">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/controller/Controller.as" mod="1259685948000" size="13756" optimizedsize="7297">
       <def id="com.longtailvideo.jwplayer.controller:Controller" />
       <pre id="com.longtailvideo.jwplayer.events:GlobalEventDispatcher" />
       <dep id="com.longtailvideo.jwplayer.controller:MediaProviderLoader" />
@@ -474,7 +480,7 @@
       <dep id="Math" />
       <dep id="flash.display:MovieClip" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/media/ImageMediaProvider.as" mod="1258579860000" size="3751" optimizedsize="2310">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/media/ImageMediaProvider.as" mod="1258659911000" size="3785" optimizedsize="2345">
       <def id="com.longtailvideo.jwplayer.media:ImageMediaProvider" />
       <pre id="com.longtailvideo.jwplayer.media:MediaProvider" />
       <dep id="com.longtailvideo.jwplayer.model:PlaylistItem" />
@@ -597,7 +603,7 @@
       <dep id="AS3" />
       <dep id="com.longtailvideo.jwplayer.view:View_LoadingScreen_dataClass" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/Logo.as" mod="1258478929000" size="3924" optimizedsize="2526">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/Logo.as" mod="1259630803000" size="3993" optimizedsize="2510">
       <def id="com.longtailvideo.jwplayer.view:Logo" />
       <pre id="flash.display:MovieClip" />
       <dep id="flash.events:Event" />
@@ -616,7 +622,7 @@
       <dep id="com.longtailvideo.jwplayer.player:PlayerState" />
       <dep id="com.longtailvideo.jwplayer.player:IPlayer" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/skins/SkinBase.as" mod="1257902542000" size="2474" optimizedsize="1213">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/skins/SkinBase.as" mod="1259094559000" size="2471" optimizedsize="1210">
       <def id="com.longtailvideo.jwplayer.view.skins:SkinBase" />
       <pre id="com.longtailvideo.jwplayer.view.interfaces:ISkin" />
       <pre id="flash.events:EventDispatcher" />
@@ -643,7 +649,7 @@
       <dep id="flash.utils:Dictionary" />
       <dep id="flash.events:ErrorEvent" />
     </script>
-    <script name="com/longtailvideo/jwplayer/view/skins/DefaultSkin_EmbeddedSkin.as" mod="1258494248000" size="1211" optimizedsize="745">
+    <script name="com/longtailvideo/jwplayer/view/skins/DefaultSkin_EmbeddedSkin.as" mod="1259628288000" size="1211" optimizedsize="745">
       <def id="com.longtailvideo.jwplayer.view.skins:DefaultSkin_EmbeddedSkin" />
       <pre id="mx.core:MovieClipLoaderAsset" />
       <dep id="com.longtailvideo.jwplayer.view.skins:DefaultSkin_EmbeddedSkin_dataClass" />
@@ -656,12 +662,12 @@
       <pre id="Object" />
       <dep id="AS3" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/player/PlayerVersion.as" mod="1258589775000" size="690" optimizedsize="293">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/player/PlayerVersion.as" mod="1259686425000" size="685" optimizedsize="288">
       <def id="com.longtailvideo.jwplayer.player:PlayerVersion" />
       <pre id="Object" />
       <dep id="AS3" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/components/ControlbarComponentV4.as" mod="1258579860000" size="14395" optimizedsize="9188">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/components/ControlbarComponentV4.as" mod="1259178589000" size="14396" optimizedsize="9188">
       <def id="com.longtailvideo.jwplayer.view.components:ControlbarComponentV4" />
       <pre id="com.longtailvideo.jwplayer.view.interfaces:IControlbarComponent" />
       <pre id="com.longtailvideo.jwplayer.view.components:CoreComponent" />
@@ -751,7 +757,7 @@
       <dep id="flash.events:ErrorEvent" />
       <dep id="flash.events:NetStatusEvent" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/components/Slider.as" mod="1258061221000" size="4673" optimizedsize="2465">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/components/Slider.as" mod="1259094558000" size="4659" optimizedsize="2461">
       <def id="com.longtailvideo.jwplayer.view.components:Slider" />
       <pre id="flash.display:Sprite" />
       <dep id="com.longtailvideo.jwplayer.utils:RootReference" />
@@ -768,7 +774,7 @@
       <dep id="AS3" />
       <dep id="flash.display:MovieClip" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/controller/MediaProviderLoader.as" mod="1253135811000" size="1817" optimizedsize="993">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/controller/MediaProviderLoader.as" mod="1259628171000" size="1820" optimizedsize="996">
       <def id="com.longtailvideo.jwplayer.controller:MediaProviderLoader" />
       <pre id="flash.events:EventDispatcher" />
       <dep id="flash.events:Event" />
@@ -800,6 +806,14 @@
       <dep id="com.longtailvideo.jwplayer.utils:Logger" />
       <dep id="Error" />
       <dep id="flash.display:Sprite" />
+    </script>
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/nochump/util/zip/Inflater.as" mod="1259094559000" size="5546" optimizedsize="3651">
+      <def id="com.nochump.util.zip:Inflater" />
+      <pre id="Object" />
+      <dep id="flash.utils:ByteArray" />
+      <dep id="AS3" />
+      <dep id="flash.utils:Endian" />
+      <dep id="Error" />
     </script>
     <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/jeroenwijering/events/ModelEvent.as" mod="1250282081000" size="926" optimizedsize="438">
       <def id="com.jeroenwijering.events:ModelEvent" />
@@ -836,7 +850,7 @@
       <dep id="AS3" />
       <dep id="com.longtailvideo.jwplayer.view.interfaces:IDockComponent" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/model/PlayerConfig.as" mod="1258473865000" size="12632" optimizedsize="4669">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/model/PlayerConfig.as" mod="1259681472000" size="12558" optimizedsize="4598">
       <def id="com.longtailvideo.jwplayer.model:PlayerConfig" />
       <pre id="flash.events:EventDispatcher" />
       <dep id="com.longtailvideo.jwplayer.model:Color" />
@@ -848,6 +862,20 @@
       <dep id="com.longtailvideo.jwplayer.utils:TypeChecker" />
       <dep id="Error" />
       <dep id="com.longtailvideo.jwplayer.plugins:PluginConfig" />
+    </script>
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/nochump/util/zip/ZipFile.as" mod="1259094559000" size="3005" optimizedsize="1929">
+      <def id="com.nochump.util.zip:ZipFile" />
+      <pre id="Object" />
+      <dep id="com.nochump.util.zip:Inflater" />
+      <dep id="com.nochump.util.zip:ZipEntry" />
+      <dep id="flash.utils:ByteArray" />
+      <dep id="AS3" />
+      <dep id="flash.utils:Endian" />
+      <dep id="Math" />
+      <dep id="com.nochump.util.zip:ZipConstants" />
+      <dep id="flash.utils:IDataInput" />
+      <dep id="com.nochump.util.zip:ZipError" />
+      <dep id="flash.utils:Dictionary" />
     </script>
     <script name="com/longtailvideo/jwplayer/view/View_ErrorScreen.as" mod="1257804992000" size="1128" optimizedsize="709">
       <def id="com.longtailvideo.jwplayer.view:View_ErrorScreen" />
@@ -886,7 +914,18 @@
       <dep id="com.longtailvideo.jwplayer.events:ViewEvent" />
       <dep id="flash.display:DisplayObject" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/media/YouTubeMediaProvider.as" mod="1258579861000" size="6668" optimizedsize="3775">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/controller/PluginLoader.as" mod="1259178176000" size="3560" optimizedsize="1819">
+      <def id="com.longtailvideo.jwplayer.controller:PluginLoader" />
+      <pre id="flash.events:EventDispatcher" />
+      <dep id="flash.events:Event" />
+      <dep id="AS3" />
+      <dep id="com.longtailvideo.jwplayer.utils:Strings" />
+      <dep id="flash.display:DisplayObject" />
+      <dep id="com.longtailvideo.jwplayer.utils:AssetLoader" />
+      <dep id="flash.utils:Dictionary" />
+      <dep id="flash.events:ErrorEvent" />
+    </script>
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/media/YouTubeMediaProvider.as" mod="1259703672000" size="6450" optimizedsize="3674">
       <def id="com.longtailvideo.jwplayer.media:YouTubeMediaProvider" />
       <pre id="com.longtailvideo.jwplayer.media:MediaProvider" />
       <dep id="com.longtailvideo.jwplayer.model:PlaylistItem" />
@@ -895,7 +934,6 @@
       <dep id="com.longtailvideo.jwplayer.utils:RootReference" />
       <dep id="flash.system:Security" />
       <dep id="flash.net:URLRequest" />
-      <dep id="trace" />
       <dep id="Math" />
       <dep id="flash.events:IOErrorEvent" />
       <dep id="flash.display:Loader" />
@@ -905,15 +943,22 @@
       <dep id="com.longtailvideo.jwplayer.model:PlayerConfig" />
       <dep id="flash.events:ErrorEvent" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/controller/PluginLoader.as" mod="1256847792000" size="3451" optimizedsize="1800">
-      <def id="com.longtailvideo.jwplayer.controller:PluginLoader" />
-      <pre id="flash.events:EventDispatcher" />
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/skins/ZIPSkin.as" mod="1259165879000" size="2740" optimizedsize="1984">
+      <def id="com.longtailvideo.jwplayer.view.skins:ZIPSkin" />
+      <pre id="com.longtailvideo.jwplayer.view.skins:PNGSkin" />
       <dep id="flash.events:Event" />
-      <dep id="AS3" />
+      <dep id="com.nochump.util.zip:ZipEntry" />
+      <dep id="flash.net:URLRequest" />
       <dep id="com.longtailvideo.jwplayer.utils:Strings" />
-      <dep id="flash.display:DisplayObject" />
+      <dep id="com.nochump.util.zip:ZipFile" />
+      <dep id="flash.net:URLStream" />
+      <dep id="flash.events:IOErrorEvent" />
+      <dep id="XMLList" />
+      <dep id="flash.events:SecurityErrorEvent" />
+      <dep id="Error" />
+      <dep id="AS3" />
       <dep id="com.longtailvideo.jwplayer.utils:AssetLoader" />
-      <dep id="flash.utils:Dictionary" />
+      <dep id="XML" />
       <dep id="flash.events:ErrorEvent" />
     </script>
     <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/model/IPlaylist.as" mod="1258142536000" size="2002" optimizedsize="481">
@@ -925,7 +970,7 @@
       <dep id="com.longtailvideo.jwplayer.events:PlayerEvent" />
       <dep id="AS3" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/components/ControlbarComponent.as" mod="1258480958000" size="15036" optimizedsize="8188">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/components/ControlbarComponent.as" mod="1259094558000" size="15016" optimizedsize="8172">
       <def id="com.longtailvideo.jwplayer.view.components:ControlbarComponent" />
       <pre id="com.longtailvideo.jwplayer.view.interfaces:IControlbarComponent" />
       <pre id="com.longtailvideo.jwplayer.view.components:CoreComponent" />
@@ -977,7 +1022,7 @@
       <pre id="Object" />
       <dep id="AS3" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/View.as" mod="1258590615000" size="11392" optimizedsize="6959">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/View.as" mod="1259612807000" size="11566" optimizedsize="7006">
       <def id="com.longtailvideo.jwplayer.view:View" />
       <pre id="com.longtailvideo.jwplayer.events:GlobalEventDispatcher" />
       <dep id="flash.events:Event" />
@@ -1022,17 +1067,12 @@
       <dep id="com.longtailvideo.jwplayer.player:IPlayer" />
       <dep id="com.longtailvideo.jwplayer.utils:Stretcher" />
     </script>
-    <script name="_7514b9faf74cb7f9b726699d337e856f0207d4cdc14b22c55e07e7e80b0576c6_flash_display_Sprite.as" mod="1258653628872" size="1107" optimizedsize="511">
-      <def id="_7514b9faf74cb7f9b726699d337e856f0207d4cdc14b22c55e07e7e80b0576c6_flash_display_Sprite" />
-      <pre id="flash.display:Sprite" />
-      <dep id="flash.system:Security" />
-      <dep id="AS3" />
-    </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/utils/AssetLoader.as" mod="1252539209000" size="2842" optimizedsize="1660">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/utils/AssetLoader.as" mod="1259165879000" size="3265" optimizedsize="1811">
       <def id="com.longtailvideo.jwplayer.utils:AssetLoader" />
       <pre id="flash.events:EventDispatcher" />
       <dep id="flash.events:Event" />
       <dep id="com.longtailvideo.jwplayer.utils:RootReference" />
+      <dep id="flash.utils:ByteArray" />
       <dep id="flash.net:URLRequest" />
       <dep id="flash.events:IOErrorEvent" />
       <dep id="flash.display:Loader" />
@@ -1046,9 +1086,16 @@
       <dep id="flash.system:LoaderContext" />
       <dep id="flash.events:ErrorEvent" />
     </script>
-    <script name="com/longtailvideo/jwplayer/view/skins/DefaultSkin_EmbeddedSkin_dataClass.as" mod="1258494248000" size="887" optimizedsize="325">
+    <script name="com/longtailvideo/jwplayer/view/skins/DefaultSkin_EmbeddedSkin_dataClass.as" mod="1259628288000" size="887" optimizedsize="325">
       <def id="com.longtailvideo.jwplayer.view.skins:DefaultSkin_EmbeddedSkin_dataClass" />
       <pre id="mx.core:ByteArrayAsset" />
+      <dep id="AS3" />
+    </script>
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/nochump/util/zip/ZipEntry.as" mod="1259094559000" size="2751" optimizedsize="1204">
+      <def id="com.nochump.util.zip:ZipEntry" />
+      <pre id="Object" />
+      <dep id="flash.utils:ByteArray" />
+      <dep id="Date" />
       <dep id="AS3" />
     </script>
     <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/components/PlaylistComponent.as" mod="1258503925000" size="14197" optimizedsize="8873">
@@ -1069,8 +1116,8 @@
       <dep id="com.longtailvideo.jwplayer.view.skins:DefaultSkin" />
       <dep id="com.longtailvideo.jwplayer.view:PlayerLayoutManager" />
       <dep id="flash.geom:ColorTransform" />
-      <dep id="flash.display:MovieClip" />
       <dep id="flash.display:Sprite" />
+      <dep id="flash.display:MovieClip" />
       <dep id="com.longtailvideo.jwplayer.model:PlaylistItem" />
       <dep id="com.longtailvideo.jwplayer.utils:RootReference" />
       <dep id="com.longtailvideo.jwplayer.utils:Stacker" />
@@ -1086,6 +1133,11 @@
       <dep id="com.longtailvideo.jwplayer.player:PlayerState" />
       <dep id="com.longtailvideo.jwplayer.player:IPlayer" />
       <dep id="com.longtailvideo.jwplayer.utils:Stretcher" />
+    </script>
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/nochump/util/zip/ZipError.as" mod="1259094559000" size="518" optimizedsize="246">
+      <def id="com.nochump.util.zip:ZipError" />
+      <pre id="flash.errors:IOError" />
+      <dep id="AS3" />
     </script>
     <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/components/DockComponent.as" mod="1257902542000" size="4340" optimizedsize="2988">
       <def id="com.longtailvideo.jwplayer.view.components:DockComponent" />
@@ -1145,6 +1197,24 @@
       <pre id="flash.events:Event" />
       <dep id="AS3" />
     </script>
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/RightclickMenu.as" mod="1259618968000" size="3525" optimizedsize="2163">
+      <def id="com.longtailvideo.jwplayer.view:RightclickMenu" />
+      <pre id="com.longtailvideo.jwplayer.events:GlobalEventDispatcher" />
+      <dep id="flash.net:URLRequest" />
+      <dep id="com.longtailvideo.jwplayer.utils:Configger" />
+      <dep id="flash.net:navigateToURL" />
+      <dep id="flash.ui:ContextMenu" />
+      <dep id="com.longtailvideo.jwplayer.utils:Logger" />
+      <dep id="flash.ui:ContextMenuItem" />
+      <dep id="Error" />
+      <dep id="flash.events:ContextMenuEvent" />
+      <dep id="com.longtailvideo.jwplayer.events:ViewEvent" />
+      <dep id="AS3" />
+      <dep id="flash.system:Capabilities" />
+      <dep id="com.longtailvideo.jwplayer.player:IPlayer" />
+      <dep id="com.longtailvideo.jwplayer.utils:Stretcher" />
+      <dep id="flash.display:MovieClip" />
+    </script>
     <script name="/Developer/SDKs/Flex/3.4.1/frameworks/libs/flex.swc(mx/core/MovieClipAsset)" mod="1251404748598" size="1650" optimizedsize="927">
       <def id="mx.core:MovieClipAsset" />
       <pre id="mx.core:IFlexAsset" />
@@ -1162,26 +1232,7 @@
       <dep id="AS3" />
       <dep id="XML" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/RightclickMenu.as" mod="1256928558000" size="3463" optimizedsize="2195">
-      <def id="com.longtailvideo.jwplayer.view:RightclickMenu" />
-      <pre id="com.longtailvideo.jwplayer.events:GlobalEventDispatcher" />
-      <dep id="flash.net:URLRequest" />
-      <dep id="com.longtailvideo.jwplayer.utils:Configger" />
-      <dep id="flash.net:navigateToURL" />
-      <dep id="flash.ui:ContextMenu" />
-      <dep id="com.longtailvideo.jwplayer.utils:Logger" />
-      <dep id="flash.ui:ContextMenuItem" />
-      <dep id="Error" />
-      <dep id="flash.events:ContextMenuEvent" />
-      <dep id="com.longtailvideo.jwplayer.player:PlayerVersion" />
-      <dep id="com.longtailvideo.jwplayer.events:ViewEvent" />
-      <dep id="AS3" />
-      <dep id="com.longtailvideo.jwplayer.model:Model" />
-      <dep id="flash.system:Capabilities" />
-      <dep id="com.longtailvideo.jwplayer.utils:Stretcher" />
-      <dep id="flash.display:MovieClip" />
-    </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/player/PlayerV4Emulation.as" mod="1258420815000" size="13509" optimizedsize="7792">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/player/PlayerV4Emulation.as" mod="1259021555000" size="13511" optimizedsize="7792">
       <def id="com.longtailvideo.jwplayer.player:PlayerV4Emulation" />
       <pre id="com.jeroenwijering.events:AbstractView" />
       <dep id="com.jeroenwijering.events:ControllerEvent" />
@@ -1248,7 +1299,7 @@
       <pre id="Object" />
       <dep id="AS3" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/interfaces/ISkin.as" mod="1254861404000" size="1646" optimizedsize="506">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/view/interfaces/ISkin.as" mod="1259094558000" size="1643" optimizedsize="503">
       <def id="com.longtailvideo.jwplayer.view.interfaces:ISkin" />
       <pre id="flash.events:IEventDispatcher" />
       <pre id="Object" />
@@ -1259,7 +1310,7 @@
       <dep id="flash.display:Sprite" />
       <dep id="flash.events:ErrorEvent" />
     </script>
-    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/player/IPlayer.as" mod="1257974709000" size="4086" optimizedsize="992">
+    <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/player/IPlayer.as" mod="1258992967000" size="3952" optimizedsize="970">
       <def id="com.longtailvideo.jwplayer.player:IPlayer" />
       <pre id="flash.events:IEventDispatcher" />
       <pre id="Object" />
@@ -1270,6 +1321,12 @@
       <dep id="com.longtailvideo.jwplayer.view.interfaces:IPlayerComponent" />
       <dep id="com.longtailvideo.jwplayer.plugins:IPlugin" />
       <dep id="com.longtailvideo.jwplayer.model:PlayerConfig" />
+    </script>
+    <script name="_a911396776868b986cabaa0c99f0bde6f816c856f7344d8f4eb683167c1f3ea8_flash_display_Sprite.as" mod="1259703967809" size="1107" optimizedsize="511">
+      <def id="_a911396776868b986cabaa0c99f0bde6f816c856f7344d8f4eb683167c1f3ea8_flash_display_Sprite" />
+      <pre id="flash.display:Sprite" />
+      <dep id="flash.system:Security" />
+      <dep id="AS3" />
     </script>
     <script name="/Users/pablo/JWPlayer/trunk/fl5/src/com/longtailvideo/jwplayer/utils/Stretcher.as" mod="1256771535000" size="1416" optimizedsize="864">
       <def id="com.longtailvideo.jwplayer.utils:Stretcher" />
@@ -1353,8 +1410,10 @@
     <ext id="flash.utils:clearInterval" />
     <ext id="flash.system:SecurityDomain" />
     <ext id="flash.display:IBitmapDrawable" />
+    <ext id="Date" />
     <ext id="flash.events:StatusEvent" />
     <ext id="flash.geom:ColorTransform" />
+    <ext id="flash.net:URLStream" />
     <ext id="flash.events:SecurityErrorEvent" />
     <ext id="flash.events:ProgressEvent" />
     <ext id="flash.media:SoundChannel" />
@@ -1371,11 +1430,14 @@
     <ext id="flash.display:MovieClip" />
     <ext id="SecurityError" />
     <ext id="flash.text:GridFitType" />
+    <ext id="flash.utils:IDataInput" />
+    <ext id="flash.utils:Endian" />
     <ext id="flash.utils:Timer" />
     <ext id="flash.display:DisplayObjectContainer" />
     <ext id="flash.media:SoundLoaderContext" />
     <ext id="flash.text:TextFormat" />
     <ext id="flash.events:TimerEvent" />
+    <ext id="flash.errors:IOError" />
     <ext id="flash.media:Sound" />
     <ext id="flash.display:Sprite" />
     <ext id="flash.display:Loader" />
