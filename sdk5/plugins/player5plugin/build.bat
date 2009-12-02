@@ -5,4 +5,4 @@ SET FLEXPATH="C:\Program Files\flex_sdk_3"
 
 echo "Compiling player 5 plugin..."
 
-%FLEXPATH%\bin\mxmlc .\Player5Plugin.as -sp .\ -o .\player5plugin.swf -library-path ..\..\lib -load-externs ..\..\lib\jwplayer-5-classes.xml  -use-network=false
+%FLEXPATH%\bin\mxmlc .\Player5Plugin.as -sp .\ -o .\player5plugin.swf -library-path+=..\..\lib -load-externs ..\..\lib\jwplayer-5-classes.xml  -use-network=false

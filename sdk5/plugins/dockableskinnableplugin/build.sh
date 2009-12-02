@@ -6,4 +6,4 @@ FLEXPATH=/Developer/SDKs/flex_sdk_3
 
 
 echo "Compiling dockable skinnable plugin..."
-$FLEXPATH/bin/mxmlc ./DockableSkinnablePlugin.as -sp ./ -o ./dockableskinnableplugin.swf -library-path ../../lib -load-externs ../../lib/jwplayer-5-classes.xml -use-network=false
+$FLEXPATH/bin/mxmlc ./DockableSkinnablePlugin.as -sp ./ -o ./dockableskinnableplugin.swf -library-path+=../../lib -load-externs ../../lib/jwplayer-5-classes.xml -use-network=false

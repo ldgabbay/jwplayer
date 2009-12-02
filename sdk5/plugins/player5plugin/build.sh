@@ -6,4 +6,4 @@ FLEXPATH=/Developer/SDKs/flex_sdk_3
 
 
 echo "Compiling positioning plugin..."
-$FLEXPATH/bin/mxmlc ./Player5Plugin.as -sp ./ -o ./player5plugin.swf -library-path ../../lib -load-externs ../../lib/jwplayer-5-classes.xml -use-network=false
+$FLEXPATH/bin/mxmlc ./Player5Plugin.as -sp ./ -o ./player5plugin.swf -library-path+=../../lib -load-externs ../../lib/jwplayer-5-classes.xml -use-network=false
