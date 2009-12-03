@@ -29,6 +29,10 @@ public class RTMPModel extends AbstractModel {
 	private var connection:NetConnection;
 	/** Is dynamic streaming possible. **/
 	private var dynamics:Boolean;
+	/** Duration of the DVR stream (grows with a timer). **/
+	private var dvrDuration:Number = 0;
+	/** Interval ID for griowing the DVR duration. **/
+	private var dvrInterval:Number;
 	/** ID for the position interval. **/
 	private var interval:Number;
 	/** Loader instance that loads the XML file. **/
@@ -88,6 +92,17 @@ public class RTMPModel extends AbstractModel {
 	/** Try subscribing to livestream **/
 	private function doSubscribe(id:String):void {
 		connection.call("FCSubscribe",null,id);
+	};
+
+
+	/** If there's a DVR stream, we simply add up the time. **/
+	private function dvrPosition():void {
+		dvrDuration++;
+		if(model.config['duration'] && dvrDuration < model.config['duration']) {
+			model.sendEvent(ModelEvent.LOADED,{loaded:dvrDuration,total:model.config['duration']});
+		} else if (!model.config['duration']) {
+			item['duration'] = dvrDuration;
+		}
 	};
 
 
@@ -195,8 +210,13 @@ public class RTMPModel extends AbstractModel {
 			video.height = dat.height;
 			super.resize();
 		}
-		if(dat.duration && !item['duration']) {
-			item['duration'] = dat.duration;
+		if(dat.duration) {
+			if(model.config['rtmp.dvr'] || item['rtmp.dvr']) {
+				// Save the DVR duration differently, adding a small buffer.
+				dvrDuration = dat.duration + 3;
+			} else if(!item['duration']) {
+				item['duration'] = dat.duration;
+			}
 		}
 		if(dat.type == 'complete') {
 			clearInterval(interval);
@@ -239,10 +259,8 @@ public class RTMPModel extends AbstractModel {
 		var bfr:Number = stream.bufferLength/stream.bufferTime;
 		if(bfr < 0.5 && pos < item['duration']-5 && model.config['state'] != ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-			stream.bufferTime = model.config['bufferlength'];
 		} else if (bfr > 1 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
-			stream.bufferTime = model.config['bufferlength']*4;
 		}
 		if(model.config['state'] != ModelStates.PLAYING) {
 			return;
@@ -253,7 +271,6 @@ public class RTMPModel extends AbstractModel {
 		} else if (position > 0 && item['duration'] > 0) {
 			stream.pause();
 			clearInterval(interval);
-			if(stream && item['duration'] == 0) { stop(); }
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}
 	};
@@ -280,6 +297,7 @@ public class RTMPModel extends AbstractModel {
 		transitioning = false;
 		clearInterval(interval);
 		clearInterval(bwinterval);
+		clearInterval(dvrInterval);
 		interval = setInterval(positionInterval,100);
 		if(item['levels'] && getLevel() != model.config['level']) {
 			model.config['level'] = getLevel();
@@ -296,10 +314,18 @@ public class RTMPModel extends AbstractModel {
 		if(model.config['rtmp.subscribe'] || item['rtmp.subscribe']) {
 			stream.play(getID(item['file']));
 		} else if(model.config['rtmp.dvr'] || item['rtmp.dvr']) {
-			stream.play(getID(item['file']),0,-1);
-		} else {
-			stream.play(getID(item['file']));
+			if(model.config['state'] != ModelStates.PLAYING) {
+				stream.play(getID(item['file']),0,-1);
+			}
 			if(timeoffset) { stream.seek(timeoffset); }
+			dvrInterval = setInterval(dvrPosition,1000);
+		} else {
+			if(model.config['state'] != ModelStates.PLAYING) {
+				stream.play(getID(item['file']));
+			}
+			if(timeoffset) {
+				stream.seek(timeoffset);
+			}
 			if(dynamics) {
 				bwinterval = setInterval(getBandwidth,2000);
 			}
@@ -385,6 +411,7 @@ public class RTMPModel extends AbstractModel {
 				model.sendEvent(ModelEvent.ERROR,{message:"Server not found: "+item['streamer']});
 				break;
 			case 'NetStream.Play.UnpublishNotify':
+			case 'NetStream.Play.Stop':
 				stop();
 				break;
 		}
@@ -400,6 +427,7 @@ public class RTMPModel extends AbstractModel {
 		connection.close();
 		clearInterval(interval);
 		clearInterval(bwinterval);
+		clearInterval(dvrInterval);
 		position = 0;
 		timeoffset = item['start'];
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
