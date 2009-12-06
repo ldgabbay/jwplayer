@@ -257,7 +257,7 @@ public class RTMPModel extends AbstractModel {
 	private function positionInterval():void {
 		var pos:Number = Math.round((stream.time)*10)/10;
 		var bfr:Number = stream.bufferLength/stream.bufferTime;
-		if(bfr < 0.5 && pos < item['duration']-5 && model.config['state'] != ModelStates.BUFFERING) {
+		if(bfr < 0.25 && pos < item['duration']-5 && model.config['state'] != ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 		} else if (bfr > 1 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
@@ -410,8 +410,10 @@ public class RTMPModel extends AbstractModel {
 				stop();
 				model.sendEvent(ModelEvent.ERROR,{message:"Server not found: "+item['streamer']});
 				break;
-			case 'NetStream.Play.UnpublishNotify':
 			case 'NetStream.Play.Stop':
+				if(model.config['rtmp.dvr']) { stop(); }
+				break;
+			case 'NetStream.Play.UnpublishNotify':
 				stop();
 				break;
 		}
