@@ -151,7 +151,7 @@ public class Playlist implements PluginInterface {
 		if(back) {
 			buttons[idx].c['back'].transform.colorTransform = back;
 		}
-		buttons[idx].c.gotoAndStop('active');
+		try { buttons[idx].c.gotoAndStop('active'); } catch (err:Error) {}
 		if(!isNaN(active)) {
 			if(front) {
 				for (var act:String in view.playlist[active]) {

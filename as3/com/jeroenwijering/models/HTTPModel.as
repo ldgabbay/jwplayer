@@ -271,7 +271,7 @@ public class HTTPModel extends AbstractModel {
 			pos += timeoffset;
 		}
 		var bfr:Number = stream.bufferLength/stream.bufferTime;
-		if(bfr < 0.5 && pos < item['duration']-5 && model.config['state'] != ModelStates.BUFFERING) {
+		if(bfr < 0.5 && pos < item['duration'] - 10 && model.config['state'] != ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 		} else if (bfr > 1 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
