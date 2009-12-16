@@ -67,7 +67,10 @@ public class VideoModel extends AbstractModel {
 		var ldd:Number = stream.bytesLoaded;
 		var bdw:Number = Math.round((ldd-old)*4/1000);
 		if(ldd < stream.bytesTotal) {
-			if(bdw > 0) { model.config['bandwidth'] = bdw; }
+			if(bdw > 0) { 
+				model.config['bandwidth'] = bdw;
+				Configger.saveCookie('bandwidth',bdw);
+			}
 			if(bwswitch) {
 				bwswitch = false;
 				if(item['levels'] && getLevel() != model.config['level']) {

@@ -90,17 +90,19 @@ public class HTTPModel extends AbstractModel {
 	};
 
 
-	/** Bandwidth is checked every four seconds as long as there's loading. **/
+	/** Bandwidth is checked every two seconds as long as there's loading. **/
 	private function getBandwidth(old:Number):void {
 		var ldd:Number = stream.bytesLoaded;
 		var bdw:Number = Math.round((ldd-old)*4/1000);
 		if(ldd < stream.bytesTotal) {
-			if(bdw > 0) { model.config['bandwidth'] = bdw; }
+			if(bdw > 0) { 
+				model.config['bandwidth'] = bdw;
+				Configger.saveCookie('bandwidth',bdw);
+			}
 			if(bwswitch) {
 				bwswitch = false;
 				if(item['levels'] && getLevel() != model.config['level']) {
-					byteoffset = -1;
-					seek(position);
+					load(item);
 					return;
 				}
 			}

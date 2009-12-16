@@ -29,6 +29,8 @@ public class RTMPModel extends AbstractModel {
 	private var connection:NetConnection;
 	/** Is dynamic streaming possible. **/
 	private var dynamics:Boolean;
+	/** The currently playing RTMP stream. **/
+	private var file:String;
 	/** ID for the position interval. **/
 	private var interval:Number;
 	/** Loader instance that loads the XML file. **/
@@ -100,11 +102,19 @@ public class RTMPModel extends AbstractModel {
 
 	/** Bandwidth checking for dynamic streaming. **/
 	private function getBandwidth():void {
-		try { 
-			model.config['bandwidth'] = Math.round(stream.info.maxBytesPerSecond*8/1024);
+		try {
+			var bdw:Number = Math.round(stream.info.maxBytesPerSecond*8/1024);
 		} catch(err:Error) { 
 			clearInterval(bwinterval);
+			return;
 		}
+		if(bdw < 100 || bdw > 99999) {
+			return;
+		} else {
+			bdw = Math.round(model.config['bandwidth']/2+bdw/2);
+		}
+		model.config['bandwidth'] = bdw;
+		Configger.saveCookie('bandwidth',bdw);
 		if(item['levels'] && getLevel() != model.config['level']) {
 			swap();
 		}
@@ -114,7 +124,7 @@ public class RTMPModel extends AbstractModel {
 	/** Extract the correct rtmp syntax from the file string. **/
 	private function getID(url:String):String {
 		var ext:String = url.substr(-4);
-		if(model.config['rtmp.prepend'] == false) {
+		if(url.indexOf(':') > -1) {
 			return url;
 		} else if(ext == '.mp3') {
 			return 'mp3:'+url.substr(0,url.length-4);
@@ -207,6 +217,7 @@ public class RTMPModel extends AbstractModel {
 		}
 		if(dat.type == 'bandwidth') {
 			model.config['bandwidth'] = dat.bandwidth;
+			Configger.saveCookie('bandwidth',dat.bandwidth);
 			setStream();
 		}
 		if(dat.code == 'NetStream.Play.TransitionComplete') {
@@ -280,7 +291,6 @@ public class RTMPModel extends AbstractModel {
 		transitioning = false;
 		clearInterval(interval);
 		clearInterval(bwinterval);
-		interval = setInterval(positionInterval,100);
 		if(item['levels'] && getLevel() != model.config['level']) {
 			model.config['level'] = getLevel();
 			item['file'] = item['levels'][model.config['level']].url;
@@ -298,13 +308,17 @@ public class RTMPModel extends AbstractModel {
 		} else if(model.config['rtmp.dvr'] || item['rtmp.dvr']) {
 			stream.play(getID(item['file']),0,-1);
 		} else {
-			stream.play(getID(item['file']));
+			if(file != item['file']) {
+				file = item['file'];
+				stream.play(getID(item['file']));
+			}
 			if(timeoffset) { stream.seek(timeoffset); }
 			if(dynamics) {
 				bwinterval = setInterval(getBandwidth,2000);
 			}
 		}
 		streaming = true;
+		interval = setInterval(positionInterval,100);
 	};
 
 
@@ -347,7 +361,7 @@ public class RTMPModel extends AbstractModel {
 					} else {
 						setStream();
 					}
-					if(item['file'].substr(-4) == '.mp3') { 
+					if(item['file'].substr(-4) == '.mp3' || item['file'].substr(0,4) == 'mp3:') { 
 						connection.call("getStreamLength",new Responder(streamlengthHandler),getID(item['file']));
 					}
 				}
@@ -400,6 +414,7 @@ public class RTMPModel extends AbstractModel {
 	override public function stop():void {
 		if(stream && stream.time) { stream.close(); }
 		streaming = false;
+		file = undefined;
 		connection.close();
 		clearInterval(interval);
 		clearInterval(bwinterval);
@@ -427,7 +442,7 @@ public class RTMPModel extends AbstractModel {
 			transitioning = true;
 			model.config['level'] = getLevel();
 			Logger.log('transition to level '+getLevel()+' initiated');
-			item['file'] = item['levels'][model.config['level']].url;
+			item['file'] = file = item['levels'][model.config['level']].url;
 			var nso:NetStreamPlayOptions = new NetStreamPlayOptions();
 			nso.streamName = getID(item['file']);
 			nso.transition = NetStreamPlayTransitions.SWITCH;

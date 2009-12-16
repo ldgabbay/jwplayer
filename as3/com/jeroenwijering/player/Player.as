@@ -46,7 +46,7 @@ public class Player extends MovieClip {
 		width:400,
 
 		autostart:false,
-		bandwidth:5000,
+		bandwidth:1500,
 		bufferlength:1,
 		displayclick:'play',
 		fullscreen:false,
