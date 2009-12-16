@@ -250,10 +250,8 @@ public class RTMPModel extends AbstractModel {
 		var bfr:Number = stream.bufferLength/stream.bufferTime;
 		if(bfr < 0.25 && pos < item['duration']-5 && model.config['state'] != ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-			stream.bufferTime = model.config['bufferlength'];
 		} else if (bfr > 1 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
-			stream.bufferTime = model.config['bufferlength']*4;
 		}
 		if(model.config['state'] != ModelStates.PLAYING) {
 			return;
@@ -264,7 +262,6 @@ public class RTMPModel extends AbstractModel {
 		} else if (position > 0 && item['duration'] > 0) {
 			stream.pause();
 			clearInterval(interval);
-			if(stream && item['duration'] == 0) { stop(); }
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 		}
 	};
@@ -305,8 +302,6 @@ public class RTMPModel extends AbstractModel {
 		}
 		if(model.config['rtmp.subscribe'] || item['rtmp.subscribe']) {
 			stream.play(getID(item['file']));
-		} else if(model.config['rtmp.dvr'] || item['rtmp.dvr']) {
-			stream.play(getID(item['file']),0,-1);
 		} else {
 			if(file != item['file']) {
 				file = item['file'];
@@ -397,9 +392,6 @@ public class RTMPModel extends AbstractModel {
 			case 'NetConnection.Connect.Failed':
 				stop();
 				model.sendEvent(ModelEvent.ERROR,{message:"Server not found: "+item['streamer']});
-				break;
-			case 'NetStream.Play.Stop':
-				if(model.config['rtmp.dvr']) { stop(); }
 				break;
 			case 'NetStream.Play.UnpublishNotify':
 				stop();
