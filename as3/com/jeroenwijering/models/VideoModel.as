@@ -89,7 +89,7 @@ public class VideoModel extends AbstractModel {
 	private function getLevel():Number {
 		var lvl:Number = item['levels'].length-1;
 		for (var i:Number=0; i<item['levels'].length; i++) {
-			if(model.config['width'] >= item['levels'][i].width &&
+			if(model.config['width'] >= item['levels'][i].width*.9 &&
 				model.config['bandwidth'] >= item['levels'][i].bitrate) {
 				lvl = i;
 				break;
