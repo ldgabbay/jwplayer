@@ -4,6 +4,9 @@
 package com.jeroenwijering.utils {
 
 
+import com.jeroenwijering.utils.Logger;
+
+
 public dynamic class NetClient {
 
 
@@ -110,11 +113,15 @@ public dynamic class NetClient {
 
 
 	/** Receive NetStream playback codes. **/
-	public function onPlayStatus(dat:Object):void {
-		if(dat.code == "NetStream.Play.Complete") {
-			forward(dat,'complete');
-		} else { 
-			forward(dat,'playstatus');
+	public function onPlayStatus(... rest):void {
+		if(rest[0]) { 
+			if(rest[0].code == "NetStream.Play.Complete") {
+				forward(rest[0],'complete');
+			} else { 
+				forward(rest[0],'playstatus');
+			}
+		} else if (rest[2]) { 
+			forward(rest[2],'playstatus');
 		}
 	};
 

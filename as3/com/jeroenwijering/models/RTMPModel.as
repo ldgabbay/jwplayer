@@ -307,7 +307,9 @@ public class RTMPModel extends AbstractModel {
 				file = item['file'];
 				stream.play(getID(item['file']));
 			}
-			if(timeoffset) { stream.seek(timeoffset); }
+			if(timeoffset || model.config['state'] == ModelStates.COMPLETED) {
+				stream.seek(timeoffset);
+			}
 			if(dynamics) {
 				bwinterval = setInterval(getBandwidth,2000);
 			}

@@ -331,7 +331,6 @@ public class HTTPModel extends AbstractModel {
 		switch (evt.info.code) {
 			case "NetStream.Play.Stop":
 				if(model.config['state'] == ModelStates.PLAYING) {
-					Logger.log('Triggered a netstream complete!');
 					clearInterval(interval);
 					model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 				}

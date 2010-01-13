@@ -91,6 +91,7 @@ public class View extends AbstractView {
 			prm = '('+prm.substr(0,prm.length-1)+')';
 		}
 		if(!dat) { dat = new Object(); }
+		if(dat.playlist) { dat.playlist = getPlaylist(); }
 	 	dat.id = config['id'];
 		dat.client = config['client'];
 		dat.version = config['version'];
@@ -155,8 +156,6 @@ public class View extends AbstractView {
 		}
 		return obj;
 	};
-
-
 
 
 	/** Get a reference to a specific plugin. **/
