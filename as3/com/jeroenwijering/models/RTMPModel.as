@@ -297,7 +297,7 @@ public class RTMPModel extends AbstractModel {
 				return;
 			}
 		}
-		if(model.config['state'] == ModelStates.PAUSED) {
+		if(model.config['state'] == ModelStates.PAUSED || model.config['state'] == ModelStates.COMPLETED) {
 			stream.resume();
 		}
 		if(model.config['rtmp.subscribe'] || item['rtmp.subscribe']) {
