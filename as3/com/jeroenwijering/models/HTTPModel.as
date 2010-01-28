@@ -159,11 +159,8 @@ public class HTTPModel extends AbstractModel {
 				startparam = item['streamer'];
 			}
 		}
-		if(mp4) {
+		if(mp4 || startparam == 'starttime') {
 			off = timeoffset;
-		} else if (startparam == 'starttime') {
-			// nasty little bitgravity hack. 
-			startparam = 'apstart';
 		}
 		if(!mp4 || off > 0) {
 			url = getURLConcat(url,startparam,off);
