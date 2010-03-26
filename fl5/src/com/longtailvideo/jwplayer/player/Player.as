@@ -223,71 +223,63 @@
 		public function playlistItem(index:Number):Boolean {
 			return controller.setPlaylistIndex(index);
 		}
-		
-		
+
 		/**
 		 * @inheritDoc
 		 */
 		public function playlistNext():Boolean {
 			return controller.next();
 		}
-		
-		
+
 		/**
 		 * @inheritDoc
 		 */
 		public function playlistPrev():Boolean {
 			return controller.previous();
 		}
-		
-		
+
 		/**
 		 * @inheritDoc
 		 */
 		public function redraw():Boolean {
 			return controller.redraw();
 		}
-		
-		
+
 		/**
 		 * @inheritDoc
 		 */
 		public function get fullscreen():Boolean {
 			return model.fullscreen;
 		}
-		
-		
+
 		/**
 		 * @inheritDoc
 		 */
 		public function set fullscreen(on:Boolean):void {
 			controller.fullscreen(on);
 		}
-		
-		
+
 		/**
 		 * @inheritDoc
 		 */
 		public function link(index:Number = NaN):Boolean {
 			return controller.link(index);
 		}
-		
-		
+
 		/**
 		 * @inheritDoc
 		 */
 		public function get controls():IPlayerComponents {
 			return view.components;
 		}
-		
-		
+
 		/**
 		 * @inheritDoc
 		 */
 		public function overrideComponent(plugin:IPlayerComponent):void {
 			view.overrideComponent(plugin);
 		}
-		
+
 		/** 
 		 * @private
 		 * 
@@ -296,7 +288,7 @@
 		public function getPlugin(id:String):Object {
 			return view.getPlugin(id);
 		} 
-		
+
 		/** The player should not accept any calls referencing its display stack **/
 		public override function addChild(child:DisplayObject):DisplayObject {
 			return null;
