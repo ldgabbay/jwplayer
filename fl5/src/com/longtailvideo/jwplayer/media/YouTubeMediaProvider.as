@@ -87,7 +87,7 @@ package com.longtailvideo.jwplayer.media {
 		private function getLocation():String {
 			var loc:String;
 			var url:String = RootReference.stage.loaderInfo.url;
-			if (url.indexOf('http://') == 0) {
+			if (url.indexOf('http') == 0) {
 				_unique = Math.random().toString().substr(2);
 				loc = url.substr(0, url.indexOf('.swf'));
 				loc = loc.substr(0, loc.lastIndexOf('/') + 1) + 'yt.swf?unique=' + _unique;

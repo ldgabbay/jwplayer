@@ -14,7 +14,7 @@ package com.longtailvideo.jwplayer.model {
 	 * @author Pablo Schklowsky
 	 */
 	public dynamic class PlayerConfig extends EventDispatcher {
-		protected var _singleItem:PlaylistItem;
+		protected var _singleItem:PlaylistItem = new PlaylistItem();
 
 		protected var _playlistfile:String	= null;
 
@@ -65,8 +65,6 @@ package com.longtailvideo.jwplayer.model {
 		}
 		
 		public function setConfig(config:Object):void {
-			var playlistItems:Boolean = false;
-			if (!_singleItem) { _singleItem = new PlaylistItem(); }
 			for (var item:String in config) {
 				item = item;
 				if (_singleItem.hasOwnProperty(item)) {
@@ -74,7 +72,6 @@ package com.longtailvideo.jwplayer.model {
 						setProperty("playlistfile", config[item]);					
 					} else {
 						_singleItem[item.toLowerCase()] = config[item];
-						playlistItems = true;
 					}
 				} else if (item.indexOf(".") > 0) {
 					setPluginProperty(item, config[item]);

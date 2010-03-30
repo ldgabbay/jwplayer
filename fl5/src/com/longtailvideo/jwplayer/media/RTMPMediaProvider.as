@@ -151,7 +151,8 @@ package com.longtailvideo.jwplayer.media {
 
         /** Extract the correct rtmp syntax from the file string. **/
         private function getID(url:String):String {
-            var ext:String = url.substr(-4);
+			var parts:Array = url.split("?");
+            var ext:String = parts[0].substr(-4);
             if (url.indexOf(':') > -1) {
                 return url;
             } else if (ext == '.mp3') {
@@ -159,7 +160,8 @@ package com.longtailvideo.jwplayer.media {
             } else if (ext == '.mp4' || ext == '.mov' || ext == '.m4v' || ext == '.aac' || ext == '.m4a' || ext == '.f4v') {
                 return 'mp4:' + url;
             } else if (ext == '.flv') {
-                return url.substr(0, url.length - 4);
+				parts[0] = parts[0].substr(0, parts[0].length-4);
+                return parts.length > 1 ? parts.join("?") : parts[0];
             } else {
                 return url;
             }

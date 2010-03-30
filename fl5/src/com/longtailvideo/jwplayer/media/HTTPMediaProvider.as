@@ -186,9 +186,6 @@ package com.longtailvideo.jwplayer.media {
 			
 			if (item.levels.length > 0) { item.setLevel(item.getLevel(config.bandwidth, config.width)); }
 			
-			if (_stream.bytesLoaded + _byteoffset < _stream.bytesTotal) {
-				_stream.close();
-			}
 			media = _video;
 			_stream.play(getURL());
 			
@@ -362,7 +359,7 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Destroy the HTTP stream. **/
 		override public function stop():void {
-			if (_stream.bytesLoaded + _byteoffset < _stream.bytesTotal) {
+			if (_stream.bytesLoaded < _stream.bytesTotal) {
 				_stream.close();
 			} else {
 				_stream.pause();
