@@ -100,7 +100,7 @@ package com.longtailvideo.jwplayer.model {
 		public function getLevel(bitrate:Number, width:Number):Number {
 			for (var i:Number=0; i < _levels.length; i++) {
 				var level:PlaylistItemLevel = _levels[i] as PlaylistItemLevel;
-				if (bitrate >= level.bitrate && width >= level.width * 0.9) {
+				if (bitrate >= level.bitrate * 1.2 && width >= level.width * 0.9) {
 					return i;
 				}
 			}

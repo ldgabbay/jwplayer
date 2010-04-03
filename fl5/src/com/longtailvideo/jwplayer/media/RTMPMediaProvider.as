@@ -56,6 +56,8 @@ package com.longtailvideo.jwplayer.media {
         private var _isStreaming:Boolean;
         /** Level to which we're transitioning. **/
         private var _transitionLevel:Number = -1;
+        /** Save if we want to transition. **/
+        private var _transitionPlanned:Boolean = false;
         /** Video object to be instantiated. **/
         private var _video:Video;
 		/** Whether or not the buffer is full **/
@@ -137,15 +139,16 @@ package com.longtailvideo.jwplayer.media {
                 clearInterval(_bandwidthInterval);
                 return;
             }
-            if (bdw < 100 || bdw > 99999) {
-                return;
-            } else {
-                bdw = Math.round(config.bandwidth / 2 + bdw / 2);
-            }
+            if (bdw < 99 || bdw > 99999) { return; }
             config.bandwidth = bdw;
             Configger.saveCookie('bandwidth', bdw);
             if (item.levels.length > 0 && item.getLevel(config.bandwidth, config.width) != item.currentLevel) {
-				swap(item.getLevel(config.bandwidth, config.width));
+				if(_transitionPlanned) {
+					swap(item.getLevel(config.bandwidth, config.width));
+					_transitionPlanned = false;
+				} else { 
+					_transitionPlanned = true;
+				}
             }
         }
 
@@ -283,10 +286,7 @@ package com.longtailvideo.jwplayer.media {
 				}
             }
             if (dat.code == 'NetStream.Play.TransitionComplete') {
-				if (_transitionLevel >= 0) {
-					Logger.log("Transition to level " + item.currentLevel + " complete");
-                	_transitionLevel = -1;
-				}
+				if (_transitionLevel >= 0) { _transitionLevel = -1; }
             }
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: dat});
         }
@@ -368,6 +368,7 @@ package com.longtailvideo.jwplayer.media {
         override public function seek(pos:Number):void {
 			if (isDVR && pos > _dvrDuration) { pos = _dvrDuration; }
             _transitionLevel = -1;
+			_transitionPlanned = false;
 			_timeoffset = pos;
             clearInterval(_positionInterval);
             clearInterval(_bandwidthInterval);
@@ -411,7 +412,7 @@ package com.longtailvideo.jwplayer.media {
 					}
                 }
                 if (_dynamic) {
-                    _bandwidthInterval = setInterval(getBandwidth, 2000);
+                    _bandwidthInterval = setInterval(getBandwidth, 1000);
                 }
             }
             _isStreaming = true;
@@ -567,12 +568,9 @@ package com.longtailvideo.jwplayer.media {
 
         /** Dynamically switch streams **/
         private function swap(newLevel:Number):void {
-            if (_transitionLevel == newLevel) {
-                Logger.log('Already tranisitioning to level ' + item.currentLevel + ' ; transition ignored');
-            } else {
+            if (_transitionLevel == -1) {
                 _transitionLevel = newLevel;
 				item.setLevel(newLevel);
-                Logger.log('transition to level ' + newLevel + ' initiated');
                 var nso:NetStreamPlayOptions = new NetStreamPlayOptions();
                 nso.streamName = getID(item.file);
                 nso.transition = NetStreamPlayTransitions.SWITCH;
