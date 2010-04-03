@@ -95,7 +95,7 @@ public class SoundModel extends AbstractModel {
 		var ldd:Number = sound.bytesLoaded;
 		var ttl:Number = sound.bytesTotal;
 		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl});
-		if(ldd/ttl > 0.1) {
+		if(ldd/ttl > 0.1 && !model.config['duration']) {
 			item['duration'] =  sound.length/1000/ldd*ttl;
 		}
 		if(ldd == ttl && ldd > 0) {

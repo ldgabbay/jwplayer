@@ -83,8 +83,10 @@ public class Logger {
 			CONNECTION.allowInsecureDomain('*');
 			CONNECTION.addEventListener(StatusEvent.STATUS,Logger.status);
 		}
-		SharedObject.getLocal('com.jeroenwijering','/').data['debug'] = put;
 		Logger._output = put;
+		try {
+			SharedObject.getLocal('com.jeroenwijering','/').data['debug'] = put;
+		} catch (err:Error) {}
 	};
 
 

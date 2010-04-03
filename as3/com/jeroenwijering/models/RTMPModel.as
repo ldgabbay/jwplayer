@@ -51,6 +51,8 @@ public class RTMPModel extends AbstractModel {
 	private var transitioning:Boolean;
 	/** Video object to be instantiated. **/
 	private var video:Video;
+	/** Save if the model wants to swap to a new state. **/
+	private var wantstoswap:Boolean;
 
 	/** Constructor; sets up the connection and display. **/
 	public function RTMPModel(mod:Model):void {
@@ -108,15 +110,16 @@ public class RTMPModel extends AbstractModel {
 			clearInterval(bwinterval);
 			return;
 		}
-		if(bdw < 100 || bdw > 99999) {
-			return;
-		} else {
-			bdw = Math.round(model.config['bandwidth']/2+bdw/2);
-		}
+		if(bdw < 10 || bdw > 99999) { return; }
 		model.config['bandwidth'] = bdw;
 		Configger.saveCookie('bandwidth',bdw);
 		if(item['levels'] && getLevel() != model.config['level']) {
-			swap();
+			if(wantstoswap) {
+				swap();
+				wantstoswap = false;
+			} else { 
+				wantstoswap = true;
+			}
 		}
 	};
 
@@ -407,7 +410,7 @@ public class RTMPModel extends AbstractModel {
 	/** Destroy the stream. **/
 	override public function stop():void {
 		if(stream && stream.time) { stream.close(); }
-		streaming = false;
+		streaming = wantstoswap = false;
 		file = undefined;
 		connection.close();
 		clearInterval(interval);
@@ -432,7 +435,7 @@ public class RTMPModel extends AbstractModel {
 	private function swap():void {
 		if(transitioning == true) {
 			Logger.log('transition to level '+getLevel()+' cancelled');
-		} else { 
+		} else {
 			transitioning = true;
 			model.config['level'] = getLevel();
 			Logger.log('transition to level '+getLevel()+' initiated');

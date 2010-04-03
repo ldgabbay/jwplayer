@@ -16,7 +16,7 @@ public class ASXParser {
 	public static function parse(dat:XML):Array {
 		var arr:Array = new Array();
 		for each (var i:XML in dat.children()) {
-			if (i.localName() == 'entry') {
+			if (i.localName().toLowerCase() == 'entry') {
 				arr.push(ASXParser.parseItem(i));
 			}
 		}

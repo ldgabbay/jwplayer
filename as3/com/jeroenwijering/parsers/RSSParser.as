@@ -16,9 +16,9 @@ public class RSSParser {
 	public static function parse(dat:XML):Array {
 		var arr:Array = new Array();
 		for each (var i:XML in dat.children()) {
-			if (i.localName() == 'channel') {
+			if (i.localName().toLowerCase() == 'channel') {
 				for each (var j:XML in i.children()) {
-					if(j.name() == 'item') {
+					if(j.localName().toLowerCase() == 'item') {
 						arr.push(RSSParser.parseItem(j));
 					}
 				}

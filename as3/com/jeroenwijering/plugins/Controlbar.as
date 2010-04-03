@@ -415,12 +415,14 @@ public class Controlbar implements PluginInterface {
 		var pct:Number = pos/dur;
 		if(isNaN(pct)) { pct = 1; }
 		try {
-			var clr:String = '000000';
 			if(view.config['frontcolor']) { 
-				clr = view.config['frontcolor'].substr(-6);
+				var clr:String = view.config['frontcolor'].substr(-6);
+				clip.elapsedText.htmlText = '<font color="#'+clr+'"><b>'+Strings.digits(pos)+'</b></font>';
+				clip.totalText.htmlText = '<font color="#'+clr+'"><b>'+Strings.digits(dur)+'</b></font>';
+			} else {
+				clip.elapsedText.htmlText = '<b>'+Strings.digits(pos)+'</b>';
+				clip.totalText.htmlText = '<b>'+Strings.digits(dur)+'</b>';
 			}
-			clip.elapsedText.htmlText = '<font color="#'+clr+'"><b>'+Strings.digits(pos)+'</b></font>';
-			clip.totalText.htmlText = '<font color="#'+clr+'"><b>'+Strings.digits(dur)+'</b></font>';
 		} catch (err:Error) {}
 		try {
 			var tsl:MovieClip = clip.timeSlider;
@@ -428,7 +430,7 @@ public class Controlbar implements PluginInterface {
 			if (dur > 0) {
 				clip.timeSlider.icon.visible = true;
 				clip.timeSlider.mark.visible = true;
-				if(!scrubber) {
+				if(!scrubber || scrubber.name != 'timeSlider') {
 					clip.timeSlider.icon.x = xps;
 					clip.timeSlider.done.width = xps;
 				}
