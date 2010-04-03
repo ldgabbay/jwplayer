@@ -149,7 +149,9 @@ package com.longtailvideo.jwplayer.media {
 				} else { 
 					_transitionPlanned = true;
 				}
-            }
+			} else {
+				_transitionPlanned = false;
+			}
         }
 
         /** Extract the correct rtmp syntax from the file string. **/
