@@ -145,7 +145,7 @@ package com.longtailvideo.jwplayer.media {
             config.bandwidth = bdw;
             Configger.saveCookie('bandwidth', bdw);
             if (item.levels.length > 0 && item.getLevel(config.bandwidth, config.width) != item.currentLevel) {
-                swap(item.currentLevel);
+				swap(item.getLevel(config.bandwidth, config.width));
             }
         }
 
