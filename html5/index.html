@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+<title>HTML controlbar</title>
+<style type="text/css">
+	body { background-color: #fff; padding: 20px; color:#000; font: 13px/18px Arial, sans-serif; }
+	a,h1 { color: #B00; }
+	h1,h3 { padding-top: 20px; }
+	ul { margin:15px 0 15px 16px; padding:0; list-style-type:square; }
+	pre { font-family: monospace; color: #B00; }
+</style>
+
+<script type="text/javascript" src="libs/jquery.js"></script>
+<script type="text/javascript" src="src/jquery.jwplayer.core.js"></script>
+<script type="text/javascript" src="src/jquery.jwplayer.utils.js"></script>
+
+</head>
+<body>
+
+
+<h3>HTML5 Player</h3>
+
+<video
+	height="270"
+	id="player"
+	poster="../../testing/files/bunny.jpg"
+	src="../../testing/files/bunny.mp4"
+	width="480"
+>
+
+
+
+<script type="text/javascript">
+	$('video').jwplayer({
+		skin:'../../skins/five/five.xml'
+	});
+</script>
+
+
+
+</body>
+</html>
