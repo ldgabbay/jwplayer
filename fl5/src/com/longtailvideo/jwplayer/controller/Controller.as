@@ -3,6 +3,7 @@ package com.longtailvideo.jwplayer.controller {
 	import com.longtailvideo.jwplayer.events.GlobalEventDispatcher;
 	import com.longtailvideo.jwplayer.events.MediaEvent;
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
+	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
 	import com.longtailvideo.jwplayer.events.PlaylistEvent;
 	import com.longtailvideo.jwplayer.events.ViewEvent;
 	import com.longtailvideo.jwplayer.model.Model;
@@ -501,7 +502,14 @@ package com.longtailvideo.jwplayer.controller {
 			try {
 				if (!item.streamer && _model.config.streamer) { item.streamer = _model.config.streamer; }
 				if (!item.provider) { item.provider = JWParser.getProvider(item); }
-				if (!setProvider(item) && item.file) { _model.playlist.load(item.file); }
+				
+				if (!setProvider(item) && item.file) {
+					_model.playlist.load(item.file); 
+				} else if(_mediaLoader) {
+					_delayedItem = item;
+					_model.setActiveMediaProvider('default');
+					dispatchEvent(new PlayerStateEvent(PlayerStateEvent.JWPLAYER_PLAYER_STATE, PlayerState.BUFFERING, PlayerState.IDLE));
+				}
 			} catch (err:Error) {
 				Logger.log(err.message, "ERROR");
 				return false;
@@ -573,12 +581,13 @@ package com.longtailvideo.jwplayer.controller {
 
 		protected function mediaSourceLoaded(evt:Event):void {
 			var loader:MediaProviderLoader = _mediaLoader;
-			_delayedItem = null;
 			_mediaLoader = null;
 			if (_delayedItem) {
 				_model.setMediaProvider(_delayedItem.provider, loader.loadedSource);
+				_delayedItem = null;
 				play();
 			} else {
+				_delayedItem = null;
 				_model.setMediaProvider(_model.playlist.currentItem.provider, loader.loadedSource);				
 			}
 		}
