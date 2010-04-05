@@ -1,15 +1,21 @@
 /**
-* Core component of the JW Player (initialization, API).
-**/
+ * Core component of the JW Player (initialization, API).
+ *
+ * @author jeroen
+ * @version 1.0alpha
+ * @lastmodifiedauthor zach
+ * @lastmodifieddate 2010-04-05
+ */
+
 (function($){
 
-
-
-
 /** Hooking the controlbar up to jQuery. **/
-$.fn.jwplayer = function(ops) {
+$.fn.jwplayer = function(options) {
 	return this.each(function() {
-		var options = $.extend({},$.fn.jwplayer.defaults,ops);
+		var config = $.extend({},$.fn.jwplayer.defaults,options);
+		if ($.fn.jwplayer.utils.supportsFlash){
+			$.fn.jwplayer.utils.embedFlash(this, config);
+		}
 		// loadSkin(options);
 	});
 };
@@ -112,6 +118,9 @@ function loadImage(element,config) {
 	img.src = url+$(element).attr('src');
 };
 
-
+/** Automatically initializes the player for all <video> tags with the JWPlayer class. **/
+$(document).ready(function() {
+   $("video.jwplayer").jwplayer();
+ }); 
 
 })(jQuery);

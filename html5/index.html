@@ -21,18 +21,29 @@
 
 <h3>HTML5 Player</h3>
 
+<h4>Test 1: $.document.ready embed</h4>
 <video
 	height="270"
-	id="player"
-	poster="../../testing/files/bunny.jpg"
-	src="../../testing/files/bunny.mp4"
+	id="player1"
+	class="jwplayer"
+	poster="http://developer.longtailvideo.com/player/testing/files/bunny.jpg"
+	src="http://developer.longtailvideo.com/player/testing/files/bunny.mp4"
 	width="480"
 >
+</video>
 
-
+<h4>Test 2: manual embed</h4>
+<video
+	height="270"
+	id="player2"
+	poster="http://developer.longtailvideo.com/player/testing/files/bunny.jpg"
+	src="http://developer.longtailvideo.com/player/testing/files/bunny.mp4"
+	width="480"
+>
+</video>
 
 <script type="text/javascript">
-	$('video').jwplayer({
+	$('#player2').jwplayer({
 		skin:'../../skins/five/five.xml'
 	});
 </script>
