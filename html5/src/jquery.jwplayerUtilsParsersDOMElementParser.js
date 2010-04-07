@@ -31,7 +31,10 @@ $.fn.jwplayerUtilsParsersDOMElementParser.parse = function(domElement, attribute
 		var configuration = {};			
 		for (var attribute in attributes) {
 			if (attribute != "length") {
-				configuration[attributes[attribute]] = $(domElement).attr(attribute);
+				var value = $(domElement).attr(attribute);
+				if (!(value == "" || value == undefined)) {
+					configuration[attributes[attribute]] = $(domElement).attr(attribute);
+				}
 			}
 		}
 		return configuration;

@@ -25,9 +25,12 @@ $.fn.jwplayerUtilsParsersDOMMediaElementParser.parse = function(domElement, attr
 	}
 	var sources = [];
 	$("source",domElement).each(function() {
-		sources[sources.length] = $.fn.jwplayerUtilsParsersDOMSourceElementParser.parse(domElement);
+		sources[sources.length] = $.fn.jwplayerUtilsParsersDOMSourceElementParser.parse(this);
 	});
 	var configuration = $.fn.jwplayerUtilsParsersDOMElementParser.parse(domElement, attributes);
+	if (configuration['file'] != undefined) {
+		sources[0] = {'file':configuration['file']};
+	}
 	configuration['sources'] = sources;
 	return configuration;
 };

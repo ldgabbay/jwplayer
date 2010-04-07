@@ -106,8 +106,11 @@ $.fn.jwplayerUtils.typeOf = function(value) {
 };
 
 
-$.fn.log = function (msg) {
-	console.log("%s: %o", msg, this);
+$.fn.log = function (msg, obj) {
+	try {
+		console.log("%s: %o", msg, obj);
+	} catch (err) {
+	}
 	return this;
 };
 

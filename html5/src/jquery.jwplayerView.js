@@ -12,7 +12,6 @@ $.fn.jwplayerView = function() {
 
 /** Embeds a Flash Player at the specified location in the DOM. **/
 $.fn.jwplayerView.embedFlash = function(domElement, model) {
-	$.fn.log($.fn.jwplayerUtils.dump(model));
 	if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
 		$(domElement).replaceWith("<embed " + 
 			"width='" + model.width + "' " + 
@@ -23,7 +22,7 @@ $.fn.jwplayerView.embedFlash = function(domElement, model) {
 			"src='src/jquery.jwplayer.swf' " + 
 			"allowfullscreen='true' " + 
 			"allowscriptaccess='always' " + 
-			"flashvars='file=" + model.file + "&image=" + model.image + "' " + 
+			"flashvars='file=" + model.sources[0].file + "&image=" + model.image + "' " + 
 			"/>"
 		);
 	} else {
@@ -32,7 +31,7 @@ $.fn.jwplayerView.embedFlash = function(domElement, model) {
 			"<param name='allowfullscreen' value='true'>" + 
 			"<param name='allowscriptaccess' value='always'>" + 
 			"<param name='wmode' value='transparent'>" + 
-			"<param name='flashvars' value='file=" + model.file + "&image=" + model.image + "'>" + 
+			"<param name='flashvars' value='file=" + model.sources[0].file + "&image=" + model.image + "'>" + 
 			"</object>"
 		);
 	}
