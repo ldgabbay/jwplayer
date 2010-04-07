@@ -7,24 +7,24 @@
  */
 (function($){
 
-$.fn.jwplayerUtilsParsersDOMsourceElementParser = {};
+$.fn.jwplayerUtilsParsersDOMSourceElementParser = {};
 
-$.fn.jwplayerUtilsParsersDOMsourceElementParser.attributes = {
+$.fn.jwplayerUtilsParsersDOMSourceElementParser.attributes = {
 	'src': 'file',
 	'type': 'type',
 	'media': 'media'
 };
 
-$.fn.jwplayerUtilsParsersDOMsourceElementParser.parse = function(domElement, attributes) {
+$.fn.jwplayerUtilsParsersDOMSourceElementParser.parse = function(domElement, attributes) {
 	if  (attributes == undefined) {
-		attributes = $.fn.jwplayerUtilsParsersDOMsourceElementParser.attributes;
+		attributes = $.fn.jwplayerUtilsParsersDOMSourceElementParser.attributes;
 	} else {
-		$.merge(attributes, $.fn.jwplayerUtilsParsersDOMsourceElementParser.attributes);
+		$.extend(attributes, $.fn.jwplayerUtilsParsersDOMSourceElementParser.attributes);
 	}
 	return $.fn.jwplayerUtilsParsersDOMElementParser.parse(domElement, attributes);
 };
 
 
-$.fn.jwplayerUtilsParsersDOMElementParser.parsers['source'] = $.fn.jwplayerUtilsParsersDOMsourceElementParser.parse;
+$.fn.jwplayerUtilsParsersDOMElementParser.parsers['source'] = $.fn.jwplayerUtilsParsersDOMSourceElementParser.parse;
 
 })(jQuery);

@@ -7,21 +7,21 @@
  */
 (function($){
 
-$.fn.jwplayerUtilsParsersDOMvideoElementParser = {};
+$.fn.jwplayerUtilsParsersDOMVideoElementParser = {};
 
-$.fn.jwplayerUtilsParsersDOMvideoElementParser.attributes = {
+$.fn.jwplayerUtilsParsersDOMVideoElementParser.attributes = {
 	'poster': 'image'
 };
 
-$.fn.jwplayerUtilsParsersDOMvideoElementParser.parse = function(domElement, attributes) {
+$.fn.jwplayerUtilsParsersDOMVideoElementParser.parse = function(domElement, attributes) {
 	if  (attributes == undefined) {
-		attributes = $.fn.jwplayerUtilsParsersDOMvideoElementParser.attributes;
+		attributes = $.fn.jwplayerUtilsParsersDOMVideoElementParser.attributes;
 	} else {
-		$.merge(attributes, $.fn.jwplayerUtilsParsersDOMvideoElementParser.attributes);
+		$.extend(attributes, $.fn.jwplayerUtilsParsersDOMVideoElementParser.attributes);
 	}
-	return $.fn.jwplayerUtilsParsersDOMmediaElementParser.parse(domElement, attributes);
+	return $.fn.jwplayerUtilsParsersDOMMediaElementParser.parse(domElement, attributes);
 }
 
-$.fn.jwplayerUtilsParsersDOMElementParser.parsers['video'] = $.fn.jwplayerUtilsParsersDOMvideoElementParser.parse;
+$.fn.jwplayerUtilsParsersDOMElementParser.parsers['video'] = $.fn.jwplayerUtilsParsersDOMVideoElementParser.parse;
 
 })(jQuery);

@@ -59,86 +59,57 @@ $.fn.jwplayerUtils.supportsOgg = function() {
 	}
 };
 
-
-/** Embeds a Flash Player at the specified location in the DOM. **/
-$.fn.jwplayerUtils.embedFlash = function(object, options) {
-	object = $(object);
-	var flashvars = "";
-	for (var option in options) {
-		if (options[option] != undefined) {
-			flashvars += option + "=" + options[option] + "&";
-		}
-	}
-	if ($.browser.msie) {
-		object.replaceWith("<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' width='"+object.attr('width') +"' height='"+object.attr('height') +"' id='"+object.attr('id') +"' name='"+object.attr('name') +"' class='"+object.attr("class") +"'>" +
-			"<param name='movie' value='src/jquery.jwplayer.swf'>" +
-			"<param name='allowfullscreen' value='true'>" +
-			"<param name='allowscriptaccess' value='always'>" +
-			"<param name='wmode' value='transparent'>" +
-			"<param name='flashvars' value='"+flashvars+"file="+object.attr('src') +"&image="+object.attr('poster') +"'>" +
-			"</object>"
-		);
-	} else {
-		object.replaceWith("<embed " +
-			"width='" + object.attr('width') + "' " +
-			"height='" + object.attr('height') + "' " + 
-			"id='" + object.attr('id') + "' " +
-			"name='" + object.attr('name') + "' " +
-			"class='" + object.attr('class') + "' " +
-			"src='src/jquery.jwplayer.swf' " +
-			"allowfullscreen='true' " +
-			"allowscriptaccess='always' " +
-			"flashvars='" + flashvars + "file=" + object.attr('src') +"&image="+object.attr('poster') +"' " +
-			"/>"
-		);
-	}
-};
-
 $.fn.jwplayerUtils.dump = function(object, depth) {
-		if (object == null) {
-			return 'null';
-		} else if ($.fn.jwplayerUtils.typeOf(object) != 'object') {
-			if ($.fn.jwplayerUtils.typeOf(object) == 'string'){
-				return"\""+object+"\"";
-			}
-			return object;
+	if (object == null) {
+		return 'null';
+	} else if ($.fn.jwplayerUtils.typeOf(object) != 'object') {
+		if ($.fn.jwplayerUtils.typeOf(object) == 'string'){
+			return"\""+object+"\"";
 		}
-		
-		var type = $.fn.jwplayerUtils.typeOf(object);
-		
-		(depth == undefined) ? depth = 1 : depth++;
-		var indent = "";
-		for (var i = 0; i < depth; i++) { indent += "\t"; }
-
-		var result = (type == "array") ? "[" : "{";
-		result += "\n"+indent;
-	
-		for (var i in object) {
-			if (type == "object") { result += "\""+i+"\": "};
-			result += $.fn.jwplayerUtils.dump(object[i], depth)+",\n"+indent;
-		}
-		
-		result = result.substring(0, result.length-2-depth)+"\n";
-
-		result  += indent.substring(0, indent.length-1);
-		result  += (type == "array") ? "]" : "}";
-	
-		return result;
+		return object;
 	}
+	
+	var type = $.fn.jwplayerUtils.typeOf(object);
+	
+	(depth == undefined) ? depth = 1 : depth++;
+	var indent = "";
+	for (var i = 0; i < depth; i++) { indent += "\t"; }
+
+	var result = (type == "array") ? "[" : "{";
+	result += "\n"+indent;
+
+	for (var i in object) {
+		if (type == "object") { result += "\""+i+"\": "};
+		result += $.fn.jwplayerUtils.dump(object[i], depth)+",\n"+indent;
+	}
+	
+	result = result.substring(0, result.length-2-depth)+"\n";
+
+	result  += indent.substring(0, indent.length-1);
+	result  += (type == "array") ? "]" : "}";
+
+	return result;
+};
 	
 $.fn.jwplayerUtils.typeOf = function(value) {
-		var s = typeof value;
-		if (s === 'object') {
-			if (value) {
-				if (value instanceof Array) {
-					s = 'array';
-				}
-			} else {
-				s = 'null';
+	var s = typeof value;
+	if (s === 'object') {
+		if (value) {
+			if (value instanceof Array) {
+				s = 'array';
 			}
+		} else {
+			s = 'null';
 		}
-		return s;
 	}
+	return s;
+};
+
+
+$.fn.log = function (msg) {
+	console.log("%s: %o", msg, this);
+	return this;
+};
 
 
 })(jQuery);

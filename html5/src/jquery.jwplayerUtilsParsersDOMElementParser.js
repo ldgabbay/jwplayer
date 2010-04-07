@@ -26,11 +26,13 @@ $.fn.jwplayerUtilsParsersDOMElementParser.parse = function(domElement, attribute
 		if  (attributes == undefined) {
 			attributes = $.fn.jwplayerUtilsParsersDOMElementParser.attributes;
 		} else {
-			$.merge(attributes, $.fn.jwplayerUtilsParsersDOMElementParser.attributes);
+			$.extend(attributes, $.fn.jwplayerUtilsParsersDOMElementParser.attributes);
 		}
 		var configuration = {};			
 		for (var attribute in attributes) {
-			configuration[attributes[attribute]] = $(domElement).attr(attribute);
+			if (attribute != "length") {
+				configuration[attributes[attribute]] = $(domElement).attr(attribute);
+			}
 		}
 		return configuration;
 	}

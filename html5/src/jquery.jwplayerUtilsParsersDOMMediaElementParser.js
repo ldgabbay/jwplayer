@@ -7,9 +7,9 @@
  */
 (function($){
 
-$.fn.jwplayerUtilsParsersDOMmediaElementParser = {};
+$.fn.jwplayerUtilsParsersDOMMediaElementParser = {};
 
-$.fn.jwplayerUtilsParsersDOMmediaElementParser.attributes = {
+$.fn.jwplayerUtilsParsersDOMMediaElementParser.attributes = {
 	'src': 'file',
 	'preload': 'preload', 
 	'autoplay': 'autostart',
@@ -17,22 +17,22 @@ $.fn.jwplayerUtilsParsersDOMmediaElementParser.attributes = {
 	'controls': 'controls'
 };
 
-$.fn.jwplayerUtilsParsersDOMmediaElementParser.parse = function(domElement, attributes) {
+$.fn.jwplayerUtilsParsersDOMMediaElementParser.parse = function(domElement, attributes) {
 	if  (attributes == undefined) {
-		attributes = $.fn.jwplayerUtilsParsersDOMmediaElementParser.attributes;
+		attributes = $.fn.jwplayerUtilsParsersDOMMediaElementParser.attributes;
 	} else {
-		$.merge(attributes, $.fn.jwplayerUtilsParsersDOMmediaElementParser.attributes);
+		$.extend(attributes, $.fn.jwplayerUtilsParsersDOMMediaElementParser.attributes);
 	}
 	var sources = [];
 	$("source",domElement).each(function() {
-		sources[sources.length] = $.fn.jwplayerUtilsParsersDOMsourceElementParser.parse(domElement);
+		sources[sources.length] = $.fn.jwplayerUtilsParsersDOMSourceElementParser.parse(domElement);
 	});
 	var configuration = $.fn.jwplayerUtilsParsersDOMElementParser.parse(domElement, attributes);
 	configuration['sources'] = sources;
 	return configuration;
 };
 
-$.fn.jwplayerUtilsParsersDOMElementParser.parsers['media'] = $.fn.jwplayerUtilsParsersDOMmediaElementParser.parse;
-$.fn.jwplayerUtilsParsersDOMElementParser.parsers['audio'] = $.fn.jwplayerUtilsParsersDOMmediaElementParser.parse;
+$.fn.jwplayerUtilsParsersDOMElementParser.parsers['media'] = $.fn.jwplayerUtilsParsersDOMMediaElementParser.parse;
+$.fn.jwplayerUtilsParsersDOMElementParser.parsers['audio'] = $.fn.jwplayerUtilsParsersDOMMediaElementParser.parse;
 
 })(jQuery);
