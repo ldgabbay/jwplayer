@@ -8,13 +8,13 @@
  */
 (function($){
 
-$.fn.jwplayer.utils = function(ops) {
+$.fn.jwplayerUtils = function(){
 	return this.each(function() {
 	});
-};
+}
 
 /** Check if this client supports Flash player 9.0.115+ (FLV/H264). **/
-$.fn.jwplayer.utils.supportsFlash = function() {
+$.fn.jwplayerUtils.supportsFlash = function() {
 	var version = '0,0,0,0';
 	try {
 		try {
@@ -41,7 +41,7 @@ $.fn.jwplayer.utils.supportsFlash = function() {
 };
 
 /** check if this client supports HTML5 H.264 playback. **/
-$.fn.jwplayer.utils.supportsH264 = function() {
+$.fn.jwplayerUtils.supportsH264 = function() {
 	try { 
 		return !!document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
 	} catch(e) { 
@@ -51,7 +51,7 @@ $.fn.jwplayer.utils.supportsH264 = function() {
 
 
 /** check if this client supports HTML5 OGG playback. **/
-$.fn.jwplayer.utils.supportsOgg = function() {
+$.fn.jwplayerUtils.supportsOgg = function() {
 	try {
 		return !!document.createElement('video').canPlayType('video/ogg; codecs="theora, vorbis"');
 	} catch(e) { 
@@ -61,7 +61,7 @@ $.fn.jwplayer.utils.supportsOgg = function() {
 
 
 /** Embeds a Flash Player at the specified location in the DOM. **/
-$.fn.jwplayer.utils.embedFlash = function(object, options) {
+$.fn.jwplayerUtils.embedFlash = function(object, options) {
 	object = $(object);
 	var flashvars = "";
 	for (var option in options) {
@@ -93,6 +93,52 @@ $.fn.jwplayer.utils.embedFlash = function(object, options) {
 		);
 	}
 };
+
+$.fn.jwplayerUtils.dump = function(object, depth) {
+		if (object == null) {
+			return 'null';
+		} else if ($.fn.jwplayerUtils.typeOf(object) != 'object') {
+			if ($.fn.jwplayerUtils.typeOf(object) == 'string'){
+				return"\""+object+"\"";
+			}
+			return object;
+		}
+		
+		var type = $.fn.jwplayerUtils.typeOf(object);
+		
+		(depth == undefined) ? depth = 1 : depth++;
+		var indent = "";
+		for (var i = 0; i < depth; i++) { indent += "\t"; }
+
+		var result = (type == "array") ? "[" : "{";
+		result += "\n"+indent;
+	
+		for (var i in object) {
+			if (type == "object") { result += "\""+i+"\": "};
+			result += $.fn.jwplayerUtils.dump(object[i], depth)+",\n"+indent;
+		}
+		
+		result = result.substring(0, result.length-2-depth)+"\n";
+
+		result  += indent.substring(0, indent.length-1);
+		result  += (type == "array") ? "]" : "}";
+	
+		return result;
+	}
+	
+$.fn.jwplayerUtils.typeOf = function(value) {
+		var s = typeof value;
+		if (s === 'object') {
+			if (value) {
+				if (value instanceof Array) {
+					s = 'array';
+				}
+			} else {
+				s = 'null';
+			}
+		}
+		return s;
+	}
 
 
 })(jQuery);

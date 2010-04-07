@@ -12,14 +12,14 @@
 /** Hooking the controlbar up to jQuery. **/
 $.fn.jwplayer = function(options) {
 	return this.each(function() {
-		var config = $.extend({},$.fn.jwplayer.defaults,options);
-		if ($.fn.jwplayer.utils.supportsFlash){
-			$.fn.jwplayer.utils.embedFlash(this, config);
+		var domConfig = $.fn.jwplayerUtilsParsersDOMElementParser.parse(this);
+		var model = $.extend(true, {}, $.fn.jwplayer.defaults, options, domConfig);
+		if ($.fn.jwplayerUtils.supportsFlash){
+			$.fn.jwplayerView.embedFlash(this, model);
 		}
 		// loadSkin(options);
 	});
-};
-
+}
 
 /** Map with all players on the page. **/
 $.fn.jwplayer.players = {};
