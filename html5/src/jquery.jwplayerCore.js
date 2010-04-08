@@ -28,13 +28,12 @@ $.fn.jwplayer.play = function(event) {
 	var model = video.data("model");
 	for (var sourceIndex in model.sources) {
 		var source = model.sources[sourceIndex];
-		$.fn.log($.fn.jwplayerUtils.supportsType(source.type)+":" + source.type, source);
-		$.fn.log((source.type == undefined));
+		if (source.type == undefined) {
+			source.type = 'video/' + source.file.substr(source.file.lastIndexOf('.')+1, source.file.length) + ';';
+		}
 		if ($.fn.jwplayerUtils.supportsType(source.type)){
 			$(event.target).remove();
-			//video[0].src = source.file;
 			video.css("display","block");
-			$.fn.log("video", video);
 			video[0].play();
 			model.state = 'playing';
 			break;
