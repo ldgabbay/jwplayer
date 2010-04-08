@@ -40,23 +40,24 @@ $.fn.jwplayerUtils.supportsFlash = function() {
 	}
 };
 
-/** check if this client supports HTML5 H.264 playback. **/
-$.fn.jwplayerUtils.supportsH264 = function() {
+/** check if this client supports playback for the specified type. **/
+$.fn.jwplayerUtils.supportsType = function(type) {
 	try { 
-		return !!document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
+		return !!document.createElement('video').canPlayType(type);
 	} catch(e) { 
 		return false;
 	}
 };
 
+/** check if this client supports HTML5 H.264 playback. **/
+$.fn.jwplayerUtils.supportsH264 = function() {
+	return $.fn.jwplayerUtils.supportsType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
+};
+
 
 /** check if this client supports HTML5 OGG playback. **/
 $.fn.jwplayerUtils.supportsOgg = function() {
-	try {
-		return !!document.createElement('video').canPlayType('video/ogg; codecs="theora, vorbis"');
-	} catch(e) { 
-		return false;
-	}
+	return $.fn.jwplayerUtils.supportsType('video/ogg; codecs="theora, vorbis"');
 };
 
 $.fn.jwplayerUtils.dump = function(object, depth) {

@@ -12,13 +12,40 @@
 /** Hooking the controlbar up to jQuery. **/
 $.fn.jwplayer = function(options) {
 	return this.each(function() {
+		$(this).css("display","none");
 		var domConfig = $.fn.jwplayerUtilsParsersDOMElementParser.parse(this);
 		var model = $.extend(true, {}, $.fn.jwplayer.defaults, options, domConfig);
-		if ($.fn.jwplayerUtils.supportsFlash){
-			$.fn.jwplayerView.embedFlash(this, model);
-		}
+		$(this).data("model", model);
+		$(this).wrap("<div />");
+		$(this).before("<img src='" + model.image + "' style='width:" + model.width + "px,height:" + model.height + "px' />");
+		$(this).prev("img").click($.fn.jwplayer.play);
 		// loadSkin(options);
 	});
+}
+
+$.fn.jwplayer.play = function(event) {
+	var video = $(event.target).next("video");
+	var model = video.data("model");
+	for (var sourceIndex in model.sources) {
+		var source = model.sources[sourceIndex];
+		$.fn.log($.fn.jwplayerUtils.supportsType(source.type)+":" + source.type, source);
+		$.fn.log((source.type == undefined));
+		if ($.fn.jwplayerUtils.supportsType(source.type)){
+			$(event.target).remove();
+			//video[0].src = source.file;
+			video.css("display","block");
+			$.fn.log("video", video);
+			video[0].play();
+			model.state = 'playing';
+			break;
+		}
+	} 
+	if ($.fn.jwplayerUtils.supportsFlash && model.state != 'playing'){
+		if (event != undefined) {
+			$.fn.jwplayerView.embedFlash(video, model);
+			$(event.target).remove();			
+		}
+	}
 }
 
 /** Map with all players on the page. **/
