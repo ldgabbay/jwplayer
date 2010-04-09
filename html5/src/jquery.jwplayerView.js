@@ -22,7 +22,7 @@ $.fn.jwplayerView.embedFlash = function(domElement, model) {
 			"src='src/jquery.jwplayer.swf' " + 
 			"allowfullscreen='true' " + 
 			"allowscriptaccess='always' " + 
-			"flashvars='file=" + model.sources[0].file + "&image=" + model.image + "' " + 
+			"flashvars='file=" + model.sources[model.item].file + "&image=" + model.image + "' " + 
 			"/>"
 		);
 	} else {
@@ -31,7 +31,7 @@ $.fn.jwplayerView.embedFlash = function(domElement, model) {
 			"<param name='allowfullscreen' value='true'>" + 
 			"<param name='allowscriptaccess' value='always'>" + 
 			"<param name='wmode' value='transparent'>" + 
-			"<param name='flashvars' value='file=" + model.sources[0].file + "&image=" + model.image + "'>" + 
+			"<param name='flashvars' value='file=" + model.sources[model.item].file + "&image=" + model.image + "'>" + 
 			"</object>"
 		);
 	}

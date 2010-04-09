@@ -13,15 +13,14 @@
 $.fn.jwplayer = function(options) {
 	return this.each(function() {
 		$(this).css("display","none");
-		var domConfig = $.fn.jwplayerUtilsParsersDOMElementParser.parse(this);
-		var model = $.extend(true, {}, $.fn.jwplayer.defaults, options, domConfig);
-		$(this).data("model", model);
+		$(this).jwplayerParse(options);
 		$(this).wrap("<div />");
-		$(this).before("<img src='" + model.image + "' style='width:" + model.width + "px,height:" + model.height + "px' />");
+		$(this).before("<img src='" + $(this).data("model").image + "' style='width:" + $(this).data("model").width + "px,height:" + $(this).data("model").height + "px' />");
 		$(this).prev("img").click($.fn.jwplayer.play);
 		// loadSkin(options);
 	});
-}
+};
+
 
 $.fn.jwplayer.play = function(event) {
 	var video = $(event.target).next("video");
@@ -29,23 +28,33 @@ $.fn.jwplayer.play = function(event) {
 	for (var sourceIndex in model.sources) {
 		var source = model.sources[sourceIndex];
 		if (source.type == undefined) {
-			source.type = 'video/' + source.file.substr(source.file.lastIndexOf('.')+1, source.file.length) + ';';
+			source.type = 'video/' + $.fn.jwplayerUtils.extension(source.file) + ';';
 		}
 		if ($.fn.jwplayerUtils.supportsType(source.type)){
-			$(event.target).remove();
-			video.css("display","block");
+			model.item = sourceIndex;
+			$(event.target).css("display","none");
+			video.css("display","inherit");
 			video[0].play();
 			model.state = 'playing';
-			break;
-		}
-	} 
-	if ($.fn.jwplayerUtils.supportsFlash && model.state != 'playing'){
-		if (event != undefined) {
-			$.fn.jwplayerView.embedFlash(video, model);
-			$(event.target).remove();			
+			return true;
 		}
 	}
-}
+	if ($.fn.jwplayerUtils.supportsFlash && model.state != 'playing'){
+		for (var sourceIndex in model.sources) {
+			var source = model.sources[sourceIndex];
+			$.fn.log($.fn.jwplayerUtils.flashCanPlay(source.file));
+			if ($.fn.jwplayerUtils.flashCanPlay(source.file)){
+				model.item = sourceIndex;
+				$.fn.jwplayerView.embedFlash(video, model);
+				$(event.target).css("display","none");
+				return true;
+			}
+		}			
+	}
+	alert("No file to play!");
+	return false;
+};
+
 
 /** Map with all players on the page. **/
 $.fn.jwplayer.players = {};
@@ -65,7 +74,8 @@ $.fn.jwplayer.defaults = {
 	state:'idle',
 	top:0,
 	volume:100,
-	width:400
+	width:400,
+	item:0
 };
 
 

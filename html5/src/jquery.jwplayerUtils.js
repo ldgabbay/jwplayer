@@ -8,10 +8,11 @@
  */
 (function($){
 
+/** Constructor **/
 $.fn.jwplayerUtils = function(){
 	return this.each(function() {
 	});
-}
+};
 
 /** Check if this client supports Flash player 9.0.115+ (FLV/H264). **/
 $.fn.jwplayerUtils.supportsFlash = function() {
@@ -40,7 +41,40 @@ $.fn.jwplayerUtils.supportsFlash = function() {
 	}
 };
 
-/** check if this client supports playback for the specified type. **/
+/** Filetypes supported by Flash **/
+var flashFileTypes = {
+	'3g2':true,
+	'3gp':true,
+	'aac':true,
+	'f4b':true,
+	'f4p':true,
+	'f4v':true,
+	'flv':true,
+	'gif':true,
+	'jpg':true,
+	'jpeg':true,
+	'm4a':true,
+	'm4v':true,
+	'mov':true,
+	'mp3':true,
+	'mp4':true,
+	'png':true,
+	'rbs':true,
+	'sdp':true,
+	'swf':true,
+	'vp6':true
+};
+
+
+/** Check if this client supports Flash player 9.0.115+ (FLV/H264). **/
+$.fn.jwplayerUtils.flashCanPlay = function(fileName) {
+	if (flashFileTypes[$.fn.jwplayerUtils.extension(fileName)]){
+		return true;
+	} 
+	return false;
+};
+
+/** Check if this client supports playback for the specified type. **/
 $.fn.jwplayerUtils.supportsType = function(type) {
 	try { 
 		return !!document.createElement('video').canPlayType(type);
@@ -49,17 +83,23 @@ $.fn.jwplayerUtils.supportsType = function(type) {
 	}
 };
 
-/** check if this client supports HTML5 H.264 playback. **/
+/** Check if this client supports HTML5 H.264 playback. **/
 $.fn.jwplayerUtils.supportsH264 = function() {
 	return $.fn.jwplayerUtils.supportsType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
 };
 
 
-/** check if this client supports HTML5 OGG playback. **/
+/** Check if this client supports HTML5 OGG playback. **/
 $.fn.jwplayerUtils.supportsOgg = function() {
 	return $.fn.jwplayerUtils.supportsType('video/ogg; codecs="theora, vorbis"');
 };
 
+/** Returns the extension of a file name **/
+$.fn.jwplayerUtils.extension = function(path) {
+	return path.substr(path.lastIndexOf('.')+1, path.length);
+};
+
+/** Dumps the content of an object to a string **/
 $.fn.jwplayerUtils.dump = function(object, depth) {
 	if (object == null) {
 		return 'null';
@@ -91,7 +131,8 @@ $.fn.jwplayerUtils.dump = function(object, depth) {
 
 	return result;
 };
-	
+
+/** Returns the true type of an object **/	
 $.fn.jwplayerUtils.typeOf = function(value) {
 	var s = typeof value;
 	if (s === 'object') {
@@ -107,9 +148,14 @@ $.fn.jwplayerUtils.typeOf = function(value) {
 };
 
 
+/** Logger **/
 $.fn.log = function (msg, obj) {
 	try {
-		console.log("%s: %o", msg, obj);
+		if (obj) {
+			console.log("%s: %o", msg, obj);
+		} else {
+			console.log($.fn.jwplayerUtils.dump(msg));
+		}
 	} catch (err) {
 	}
 	return this;
