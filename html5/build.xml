@@ -2,7 +2,8 @@
 <project name="JW Player for HTML5" default="build-release" basedir=".">
 
     <target name="clean" depends="load.properties">
-        <delete dir="${build.dir}" quiet="true"/>
+        <delete file="${basedir}/${build.dir}/jquery.${product.name}-${version.number}.js" quiet="true"/>
+        <delete file="${basedir}/${build.dir}/jquery.${product.name}-${version.number}.min.js" quiet="true"/>
     </target>
 	
     <target name="load.properties">
