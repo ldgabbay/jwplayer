@@ -1,9 +1,9 @@
 /**
- * Utility methods for the JW Player.
+ * JW Player view component
  *
  * @author zach
  * @version 1.0alpha
- * @lastmodifieddate 2010-04-05
+ * @lastmodifieddate 2010-04-11
  */
 (function($){
 
