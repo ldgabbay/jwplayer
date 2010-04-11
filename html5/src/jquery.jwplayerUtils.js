@@ -125,7 +125,7 @@
         
         var type = $.fn.jwplayerUtils.typeOf(object);
         
-        depth = (depth === undefined) ? 1 : depth+1;
+        depth = (depth === undefined) ? 1 : depth + 1;
         var indent = "";
         for (var i = 0; i < depth; i++) {
             indent += "\t";

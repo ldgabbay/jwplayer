@@ -40,7 +40,7 @@
         });
     };
     
-    function getAttributeList(attributes, elementType){
+    function getAttributeList(elementType, attributes){
         if (attributes === undefined) {
             attributes = elementAttributes[elementType];
         }
@@ -51,11 +51,11 @@
     }
     
     function parseElement(domElement, attributes){
-        if (parsers[domElement.tagName.toLowerCase()] && (attributes === null)) {
+        if (parsers[domElement.tagName.toLowerCase()] && (attributes === undefined)) {
             return parsers[domElement.tagName.toLowerCase()](domElement);
         }
         else {
-            attributes = getAttributeList(attributes, 'element');
+            attributes = getAttributeList('element', attributes);
             var configuration = {};
             for (var attribute in attributes) {
                 if (attribute != "length") {
@@ -70,7 +70,7 @@
     }
     
     function parseMediaElement(domElement, attributes){
-        attributes = getAttributeList(attributes, 'media');
+        attributes = getAttributeList('media', attributes);
         var sources = [];
         $("source", domElement).each(function(){
             sources[sources.length] = parseSourceElement(this);
@@ -86,12 +86,12 @@
     }
     
     function parseSourceElement(domElement, attributes){
-        attributes = getAttributeList(attributes, 'source');
+        attributes = getAttributeList('source', attributes);
         return parseElement(domElement, attributes);
     }
     
     function parseVideoElement(domElement, attributes){
-        attributes = getAttributeList(attributes, 'video');
+        attributes = getAttributeList('video', attributes);
         return parseMediaElement(domElement, attributes);
     }
     

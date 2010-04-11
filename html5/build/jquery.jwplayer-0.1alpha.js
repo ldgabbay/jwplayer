@@ -511,18 +511,15 @@
     /** Hooking the controlbar up to jQuery. **/
     $.fn.jwplayer = function(options){
         return this.each(function(){
-            $(this).css("display", "none");
-            $(this).jwplayerParse(options);
-            $(this).wrap("<div />");
-            $(this).before("<img src='" + $(this).data("model").image + "' style='width:" + $(this).data("model").width + "px,height:" + $(this).data("model").height + "px' />");
-            $(this).prev("img").click($.fn.jwplayer.play);
-            // loadSkin(options);
+			$(this).css("display","none"); 
+            $(this).jwplayerModel(options);
+            $(this).jwplayerView();
         });
     };
     
     
     $.fn.jwplayer.play = function(event){
-		var source, sourceIndex;
+        var source, sourceIndex;
         var video = $(event.target).next("video");
         var model = video.data("model");
         for (sourceIndex in model.sources) {
@@ -672,16 +669,21 @@
 })(jQuery);
 /**
  * JW Player model component
- * 
+ *
  * @author zach
  * @version 1.0alpha
  * @lastmodifieddate 2010-04-11
  */
 (function($){
 
-
-
-})(jQuery);/**
+    $.fn.jwplayerModel = function(options){
+        return this.each(function(){
+            $(this).jwplayerParse(options);
+        });
+    };
+    
+})(jQuery);
+/**
  * Parser for the JW Player.
  *
  * @author zach
@@ -723,7 +725,7 @@
         });
     };
     
-    function getAttributeList(attributes, elementType){
+    function getAttributeList(elementType, attributes){
         if (attributes === undefined) {
             attributes = elementAttributes[elementType];
         }
@@ -734,11 +736,11 @@
     }
     
     function parseElement(domElement, attributes){
-        if (parsers[domElement.tagName.toLowerCase()] && (attributes === null)) {
+        if (parsers[domElement.tagName.toLowerCase()] && (attributes === undefined)) {
             return parsers[domElement.tagName.toLowerCase()](domElement);
         }
         else {
-            attributes = getAttributeList(attributes, 'element');
+            attributes = getAttributeList('element', attributes);
             var configuration = {};
             for (var attribute in attributes) {
                 if (attribute != "length") {
@@ -753,7 +755,7 @@
     }
     
     function parseMediaElement(domElement, attributes){
-        attributes = getAttributeList(attributes, 'media');
+        attributes = getAttributeList('media', attributes);
         var sources = [];
         $("source", domElement).each(function(){
             sources[sources.length] = parseSourceElement(this);
@@ -769,12 +771,12 @@
     }
     
     function parseSourceElement(domElement, attributes){
-        attributes = getAttributeList(attributes, 'source');
+        attributes = getAttributeList('source', attributes);
         return parseElement(domElement, attributes);
     }
     
     function parseVideoElement(domElement, attributes){
-        attributes = getAttributeList(attributes, 'video');
+        attributes = getAttributeList('video', attributes);
         return parseMediaElement(domElement, attributes);
     }
     
@@ -924,7 +926,7 @@
         
         var type = $.fn.jwplayerUtils.typeOf(object);
         
-        depth = (depth === undefined) ? 1 : depth+1;
+        depth = (depth === undefined) ? 1 : depth + 1;
         var indent = "";
         for (var i = 0; i < depth; i++) {
             indent += "\t";
@@ -991,35 +993,52 @@
  */
 (function($){
 
-$.fn.jwplayerView = function() {
-};
-
-/** Embeds a Flash Player at the specified location in the DOM. **/
-$.fn.jwplayerView.embedFlash = function(domElement, model) {
-	if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
-		$(domElement).replaceWith("<embed " + 
-			"width='" + model.width + "' " + 
-			"height='" + model.height + "' " + 
-			"id='" + model.id + "' " + 
-			"name='" + model.name + "' " + 
-			"class='" + model.className + "' " + 
-			"src='src/jquery.jwplayer.swf' " + 
-			"allowfullscreen='true' " + 
-			"allowscriptaccess='always' " + 
-			"flashvars='file=" + model.sources[model.item].file + "&image=" + model.image + "' " + 
-			"/>"
-		);
-	} else {
-			$(domElement).replaceWith("<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' width='" + model.width + "' height='" + model.height + "' id='" + model.id + "' name='" + model.name + "' class='" + model.className + "'>" + 
-			"<param name='movie' value='src/jquery.jwplayer.swf'>" + 
-			"<param name='allowfullscreen' value='true'>" + 
-			"<param name='allowscriptaccess' value='always'>" + 
-			"<param name='wmode' value='transparent'>" + 
-			"<param name='flashvars' value='file=" + model.sources[model.item].file + "&image=" + model.image + "'>" + 
-			"</object>"
-		);
-	}
-};
-
-
+    var embedString = "<embed %elementvars% src='src/jquery.jwplayer.swf' allowfullscreen='true' allowscriptaccess='always' flashvars='%flashvars%' />";
+    var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars%'> <param name='movie' value='src/jquery.jwplayer.swf'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
+    var elementvars = {
+        width: true,
+        height: true,
+        id: true,
+        name: true,
+        className: true
+    }
+    
+    $.fn.jwplayerView = function(){
+        return this.each(function(){
+            $(this).wrap("<div />");
+            $(this).before("<img src='" + $(this).data("model").image + "' style='width:" + $(this).data("model").width + "px,height:" + $(this).data("model").height + "px' />");
+            $(this).prev("img").click($.fn.jwplayer.play);
+        });
+    };
+    
+    /** Embeds a Flash Player at the specified location in the DOM. **/
+    $.fn.jwplayerView.embedFlash = function(domElement, model){
+        var htmlString, elementvarString = "", flashvarString = "";
+        if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
+            htmlString = embedString;
+        }
+        else {
+            htmlString = objectString;
+        }
+        for (var elementvar in elementvars) {
+            if (!((model[elementvar] === undefined) || (model[elementvar] === "") || (model[elementvar] === null))) {
+                elementvarString += elementvar + "='" + model[elementvar] + "'";
+            }
+        }
+        for (var flashvar in model) {
+            if (!((model[flashvar] === undefined) || (model[flashvar] === "") || (model[flashvar] === null))) {
+                if (flashvar == "sources") {
+                    flashvarString += "file=" + model.sources[model.item].file + "&";
+                }
+                else {
+                    flashvarString += flashvar + "=" + model[flashvar] + "&";
+                }
+            }
+        }
+        htmlString = htmlString.replace("%elementvars%", elementvarString);
+        htmlString = htmlString.replace("%flashvars%", flashvarString);
+        $(domElement).replaceWith(htmlString);
+    };
+    
+    
 })(jQuery);

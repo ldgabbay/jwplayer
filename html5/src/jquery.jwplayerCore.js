@@ -11,18 +11,15 @@
     /** Hooking the controlbar up to jQuery. **/
     $.fn.jwplayer = function(options){
         return this.each(function(){
-            $(this).css("display", "none");
-            $(this).jwplayerParse(options);
-            $(this).wrap("<div />");
-            $(this).before("<img src='" + $(this).data("model").image + "' style='width:" + $(this).data("model").width + "px,height:" + $(this).data("model").height + "px' />");
-            $(this).prev("img").click($.fn.jwplayer.play);
-            // loadSkin(options);
+			$(this).css("display","none"); 
+            $(this).jwplayerModel(options);
+            $(this).jwplayerView();
         });
     };
     
     
     $.fn.jwplayer.play = function(event){
-		var source, sourceIndex;
+        var source, sourceIndex;
         var video = $(event.target).next("video");
         var model = video.data("model");
         for (sourceIndex in model.sources) {
