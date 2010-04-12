@@ -524,7 +524,11 @@ package com.longtailvideo.jwplayer.view.components {
 				var button:Sprite = getButton(imageLoaderMap[ldr]);
 				var img:Sprite = button.getChildByName("image") as Sprite;
 				img.visible = false;
-				(buttons[imageLoaderMap[ldr]].s as Stacker).rearrange(getConfigParam("width"));
+				if (proportion > 1.01) {
+					(buttons[imageLoaderMap[ldr]].s as Stacker).rearrange(getConfigParam("width")-slider.width);
+				} else {
+					(buttons[imageLoaderMap[ldr]].s as Stacker).rearrange(getConfigParam("width"));
+				}
 			} catch (err:Error) {
 				Logger.log('Error loading playlist image '+ ldr.loaderInfo.url+': '+err.message);
 			}
