@@ -158,8 +158,8 @@ package com.longtailvideo.jwplayer.view.components {
 			var margin:Number = controlbarConfig['margin'];
 
 			if (controlbarConfig['position'] == 'over' || _player.fullscreen == true) {
-				x = margin;
-				y = height - skin.height - margin;
+				x = margin + player.config.pluginConfig('display')['x'];
+				y = height - skin.height - margin + player.config.pluginConfig('display')['y'];
 				wid = width - 2 * margin;
 			}
 
