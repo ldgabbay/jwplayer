@@ -158,7 +158,7 @@
 	
 	
 	/** Logger **/
-	$.fn.log = function(msg, obj) {
+	$.fn.jwplayerUtils.log = function(msg, obj) {
 		try {
 			if (obj) {
 				console.log("%s: %o", msg, obj);

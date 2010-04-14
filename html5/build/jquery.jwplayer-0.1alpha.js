@@ -524,6 +524,26 @@
  */
 (function($) {
 
+	function jwplayer(selector) {
+		if (selector === undefined) {
+			selector = ".jwplayer:first";
+		}
+		return {
+			play: play(selector),
+			pause: pause(selector),
+			seek: seek(selector),
+			stop: stop(selector),
+			volume: volume(selector),
+			mute: mute(selector),
+			fullscreen: fullscreen(selector)
+		};
+	}
+	
+	/** Extending jQuery **/
+	$.extend({
+		jwplayer: jwplayer
+	});
+	
 	/** Hooking the controlbar up to jQuery. **/
 	$.fn.jwplayer = function(options) {
 		return this.each(function() {
@@ -542,70 +562,161 @@
 	/** Map with config for the controlbar plugin. **/
 	$.fn.jwplayer.defaults = {
 		autostart: false,
-		buffer: 0,
 		duration: 0,
 		file: undefined,
 		height: 300,
 		image: undefined,
-		left: 0,
-		position: 0,
 		skin: '../../skins/five/five.xml',
-		state: 'idle',
-		top: 0,
 		volume: 100,
 		width: 400,
-		source: 0
+		source: 0,
+		flashplayer: 'src/jquery.jwplayer.swf'
 	};
+	
+	function factory(selector, fn) {
+		return function() {
+			try {
+				fn();
+				return jwplayer(selector);
+			} catch (err) {
+			
+			}
+			return false;
+		};
+	}
 	
 	
 	/** Start playback or resume. **/
-	$.fn.jwplayer.play = function(player) {
-		return $.fn.jwplayerController.play(player);
-	};
+	function play(player) {
+		return factory(player, function(arg) {
+			switch ($.fn.jwplayerUtils.typeOf(arg)) {
+				case "function":
+					addEventListener(player, 'jwplayer.play', arg);
+					break;
+				default:
+					$.fn.jwplayerController.play(player);
+					break;
+			}
+		});
+	}
 	
 	/** Switch the pause state of the player. **/
-	$.fn.jwplayer.pause = function(player) {
-		return $.fn.jwplayerController.pause(player);
-	};
+	function pause(player) {
+		return factory(player, function(arg) {
+			switch ($.fn.jwplayerUtils.typeOf(arg)) {
+				case "function":
+					addEventListener(player, 'jwplayer.pause', arg);
+					break;
+				default:
+					$.fn.jwplayerController.pause(player);
+					break;
+			}
+		});
+	}
 	
 	
 	/** Seek to a position in the video. **/
-	$.fn.jwplayer.seek = function(player, position) {
-		return $.fn.jwplayerController.seek(player, position);
-	};
+	function seek(player) {
+		return factory(player, function(arg) {
+			switch ($.fn.jwplayerUtils.typeOf(arg)) {
+				case "function":
+					addEventListener(player, 'jwplayer.seek', arg);
+					break;
+				default:
+					$.fn.jwplayerController.seek(player, arg);
+					break;
+			}
+		});
+	}
 	
 	
 	/** Stop playback and loading of the video. **/
-	$.fn.jwplayer.stop = function(player) {
-		return $.fn.jwplayerController.stop(player);
-	};
+	function stop(player) {
+		return factory(player, function(arg) {
+			switch ($.fn.jwplayerUtils.typeOf(arg)) {
+				case "function":
+					addEventListener(player, 'jwplayer.stop', arg);
+					break;
+				default:
+					$.fn.jwplayerController.stop(player);
+					break;
+			}
+		});
+	}
 	
 	
 	/** Change the video's volume level. **/
-	$.fn.jwplayer.volume = function(player, volume) {
-		return $.fn.jwplayerController.volume(player, volume);
-	};
+	function volume(player) {
+		return factory(player, function(arg) {
+			switch ($.fn.jwplayerUtils.typeOf(arg)) {
+				case "function":
+					addEventListener(player, 'jwplayer.volume', arg);
+					break;
+				case "number":
+					$.fn.jwplayerController.setVolume(player, arg);
+					break;
+				default:
+					$.fn.jwplayerController.getVolume(player);
+					break;
+			}
+		});
+	}
 	
 	/** Switch the mute state of the player. **/
-	$.fn.jwplayer.mute = function(player, state) {
-		return $.fn.jwplayerController.mute(player, state);
-	};
+	function mute(player, state) {
+		return factory(player, function(arg) {
+			switch ($.fn.jwplayerUtils.typeOf(arg)) {
+				case "function":
+					addEventListener(player, 'jwplayer.mute', arg);
+					break;
+				case "boolean":
+					$.fn.jwplayerController.setMute(player, arg);
+					break;
+				default:
+					$.fn.jwplayerController.getMute(player);
+					break;
+			}
+		});
+	}
 	
 	/** Jumping the player to/from fullscreen. **/
-	$.fn.jwplayer.fullscreen = function(player, state) {
-		return $.fn.jwplayerController.fullscreen(player, state);
-	};
+	function fullscreen(player, state) {
+		return factory(player, function(arg) {
+			switch ($.fn.jwplayerUtils.typeOf(arg)) {
+				case "function":
+					addEventListener(player, 'jwplayer.fullscreen', arg);
+					break;
+				case "boolean":
+					$.fn.jwplayerController.setFullscreen(player, arg);
+					break;
+				default:
+					$.fn.jwplayerController.getFullscreen(player);
+					break;
+			}
+		});
+	}
+	
+	/** Jumping the player to/from fullscreen. **/
+	function state(player) {
+		return factory(player, function(arg) {
+			switch ($.fn.jwplayerUtils.typeOf(arg)) {
+				case "function":
+					addEventListener(player, 'jwplayer.state', arg);
+					break;
+			}
+		});
+	}
 	
 	/** Add an event listener. **/
-	$.fn.jwplayer.addEventListener = function(player, event, listener) {
+	function addEventListener(player, event, listener) {
 		$(player).bind(event, listener);
-	};
+	}
 	
 	
 	/** Remove an event listener. **/
-	$.fn.jwplayer.removeEventListener = function(player, event, listener) {
+	function removeEventListener(player, event, listener) {
 		$(player).unbind(event, listener);
-	};
+	}
 	
 	/** Automatically initializes the player for all <video> tags with the JWPlayer class. **/
 	$(document).ready(function() {
@@ -625,7 +736,11 @@
 	$.fn.jwplayerMediaFlash = function(options) {
 		return this.each(function() {
 			$(this).data("media", $.fn.jwplayerMediaFlash);
-			$.fn.jwplayerView.embedFlash($(this), $(this).data("model"));
+			var model = $(this).data("model");
+			model.autostart = true;
+			model.controlbar = 'none';
+			model.icons = false;
+			$.fn.jwplayerView.embedFlash($(this), model);
 		});
 	};
 	
@@ -1171,7 +1286,7 @@
 	
 	
 	/** Logger **/
-	$.fn.log = function(msg, obj) {
+	$.fn.jwplayerUtils.log = function(msg, obj) {
 		try {
 			if (obj) {
 				console.log("%s: %o", msg, obj);
@@ -1194,8 +1309,8 @@
  */
 (function($) {
 
-	var embedString = "<embed %elementvars% src='src/jquery.jwplayer.swf' allowfullscreen='true' allowscriptaccess='always' flashvars='%flashvars%' />";
-	var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars%'> <param name='movie' value='src/jquery.jwplayer.swf'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
+	var embedString = "<embed %elementvars% src='%flashplayer%' allowfullscreen='true' allowscriptaccess='always' flashvars='%flashvars%' />";
+	var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars%'> <param name='movie' value='%flashplayer%'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
 	var elementvars = {
 		width: true,
 		height: true,
@@ -1215,36 +1330,53 @@
 				} else {
 					evt.returnValue = false; // IE 
 				}
-				$.fn.jwplayer.play(video);
+				$.jwplayer(video).play();
 			});
+			$.jwplayer(video).state(imageHandler);
 		});
 	};
 	
+	function imageHandler(event, parameters) {
+		switch (parameters.newState) {
+			case 'idle':
+				$(event.target).css("display", "none");
+				$(event.target).prev("a").css("display", "inherit");
+				break;
+			case 'playing':
+				$(event.target).css("display", "inherit");
+				$(event.target).prev("a").css("display", "none");
+				break;
+		}
+	}
+	
 	/** Embeds a Flash Player at the specified location in the DOM. **/
 	$.fn.jwplayerView.embedFlash = function(domElement, model) {
-		var htmlString, elementvarString = "", flashvarString = "";
-		if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
-			htmlString = embedString;
-		} else {
-			htmlString = objectString;
-		}
-		for (var elementvar in elementvars) {
-			if (!((model[elementvar] === undefined) || (model[elementvar] === "") || (model[elementvar] === null))) {
-				elementvarString += elementvar + "='" + model[elementvar] + "'";
+		if (model.flashplayer !== false) {
+			var htmlString, elementvarString = "", flashvarString = "";
+			if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
+				htmlString = embedString;
+			} else {
+				htmlString = objectString;
 			}
-		}
-		for (var flashvar in model) {
-			if (!((model[flashvar] === undefined) || (model[flashvar] === "") || (model[flashvar] === null))) {
-				if (flashvar == "sources") {
-					flashvarString += "file=" + model.sources[model.source].file + "&";
-				} else {
-					flashvarString += flashvar + "=" + model[flashvar] + "&";
+			for (var elementvar in elementvars) {
+				if (!((model[elementvar] === undefined) || (model[elementvar] === "") || (model[elementvar] === null))) {
+					elementvarString += elementvar + "='" + model[elementvar] + "'";
 				}
 			}
+			for (var flashvar in model) {
+				if (!((model[flashvar] === undefined) || (model[flashvar] === "") || (model[flashvar] === null))) {
+					if (flashvar == "sources") {
+						flashvarString += "file=" + model.sources[model.source].file + "&";
+					} else {
+						flashvarString += flashvar + "=" + model[flashvar] + "&";
+					}
+				}
+			}
+			htmlString = htmlString.replace("%elementvars%", elementvarString);
+			htmlString = htmlString.replace("%flashvars%", flashvarString);
+			htmlString = htmlString.replace("%flashplayer%", model.flashplayer);
+			$(domElement).before(htmlString);
 		}
-		htmlString = htmlString.replace("%elementvars%", elementvarString);
-		htmlString = htmlString.replace("%flashvars%", flashvarString);
-		$(domElement).replaceWith(htmlString);
 	};
 	
 	

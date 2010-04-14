@@ -10,7 +10,11 @@
 	$.fn.jwplayerMediaFlash = function(options) {
 		return this.each(function() {
 			$(this).data("media", $.fn.jwplayerMediaFlash);
-			$.fn.jwplayerView.embedFlash($(this), $(this).data("model"));
+			var model = $(this).data("model");
+			model.autostart = true;
+			model.controlbar = 'none';
+			model.icons = false;
+			$.fn.jwplayerView.embedFlash($(this), model);
 		});
 	};
 	

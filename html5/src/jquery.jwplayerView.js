@@ -7,8 +7,8 @@
  */
 (function($) {
 
-	var embedString = "<embed %elementvars% src='src/jquery.jwplayer.swf' allowfullscreen='true' allowscriptaccess='always' flashvars='%flashvars%' />";
-	var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars%'> <param name='movie' value='src/jquery.jwplayer.swf'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
+	var embedString = "<embed %elementvars% src='%flashplayer%' allowfullscreen='true' allowscriptaccess='always' flashvars='%flashvars%' />";
+	var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars%'> <param name='movie' value='%flashplayer%'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
 	var elementvars = {
 		width: true,
 		height: true,
@@ -28,36 +28,53 @@
 				} else {
 					evt.returnValue = false; // IE 
 				}
-				$.fn.jwplayer.play(video);
+				$.jwplayer(video).play();
 			});
+			$.jwplayer(video).state(imageHandler);
 		});
 	};
 	
+	function imageHandler(event, parameters) {
+		switch (parameters.newState) {
+			case 'idle':
+				$(event.target).css("display", "none");
+				$(event.target).prev("a").css("display", "inherit");
+				break;
+			case 'playing':
+				$(event.target).css("display", "inherit");
+				$(event.target).prev("a").css("display", "none");
+				break;
+		}
+	}
+	
 	/** Embeds a Flash Player at the specified location in the DOM. **/
 	$.fn.jwplayerView.embedFlash = function(domElement, model) {
-		var htmlString, elementvarString = "", flashvarString = "";
-		if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
-			htmlString = embedString;
-		} else {
-			htmlString = objectString;
-		}
-		for (var elementvar in elementvars) {
-			if (!((model[elementvar] === undefined) || (model[elementvar] === "") || (model[elementvar] === null))) {
-				elementvarString += elementvar + "='" + model[elementvar] + "'";
+		if (model.flashplayer !== false) {
+			var htmlString, elementvarString = "", flashvarString = "";
+			if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
+				htmlString = embedString;
+			} else {
+				htmlString = objectString;
 			}
-		}
-		for (var flashvar in model) {
-			if (!((model[flashvar] === undefined) || (model[flashvar] === "") || (model[flashvar] === null))) {
-				if (flashvar == "sources") {
-					flashvarString += "file=" + model.sources[model.source].file + "&";
-				} else {
-					flashvarString += flashvar + "=" + model[flashvar] + "&";
+			for (var elementvar in elementvars) {
+				if (!((model[elementvar] === undefined) || (model[elementvar] === "") || (model[elementvar] === null))) {
+					elementvarString += elementvar + "='" + model[elementvar] + "'";
 				}
 			}
+			for (var flashvar in model) {
+				if (!((model[flashvar] === undefined) || (model[flashvar] === "") || (model[flashvar] === null))) {
+					if (flashvar == "sources") {
+						flashvarString += "file=" + model.sources[model.source].file + "&";
+					} else {
+						flashvarString += flashvar + "=" + model[flashvar] + "&";
+					}
+				}
+			}
+			htmlString = htmlString.replace("%elementvars%", elementvarString);
+			htmlString = htmlString.replace("%flashvars%", flashvarString);
+			htmlString = htmlString.replace("%flashplayer%", model.flashplayer);
+			$(domElement).before(htmlString);
 		}
-		htmlString = htmlString.replace("%elementvars%", elementvarString);
-		htmlString = htmlString.replace("%flashvars%", flashvarString);
-		$(domElement).replaceWith(htmlString);
 	};
 	
 	

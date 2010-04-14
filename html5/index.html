@@ -85,7 +85,7 @@
 
 <script type="text/javascript">
 	$('#player5').jwplayer();
-	$.fn.jwplayer.addEventListener('#player1', 'jwplayer.state', function(parameters, extra){
+	$.jwplayer.addEventListener('#player1', 'jwplayer.state', function(parameters, extra){
 		$.fn.log('statelistener', extra);
 	});
 </script>
