@@ -228,7 +228,7 @@ public class HTTPModel extends AbstractModel {
 			video.height = dat.height;
 			super.resize();
 		}
-		if(dat.duration && timeoffset == 0 && (!item['duration'] || item['duration'] > dat.duration-5)) {
+		if(dat.duration && !item['duration'] && timeoffset == 0) {
 			item['duration'] = dat.duration;
 		}
 		if(dat['type'] == 'metadata' && !meta) {

@@ -142,7 +142,7 @@ public class VideoModel extends AbstractModel {
 			video.height = dat.height;
 			resize();
 		}
-		if(dat.duration && (!item['duration'] || item['duration'] > dat.duration-5)) {
+		if(dat.duration && !item['duration']) {
 			item['duration'] = dat.duration;
 		}
 		model.sendEvent(ModelEvent.META,dat);
