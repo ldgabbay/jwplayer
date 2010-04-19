@@ -35,14 +35,15 @@
 	};
 	
 	function imageHandler(event, parameters) {
-		switch (parameters.newState) {
+		$.fn.jwplayerUtils(event.target);
+		switch (parameters.newstate) {
 			case 'idle':
 				$(event.target).css("display", "none");
 				$(event.target).prev("a").css("display", "inherit");
 				break;
 			case 'playing':
-				$(event.target).css("display", "inherit");
 				$(event.target).prev("a").css("display", "none");
+				$(event.target).css("display", "inherit");
 				break;
 		}
 	}
@@ -73,7 +74,10 @@
 			htmlString = htmlString.replace("%elementvars%", elementvarString);
 			htmlString = htmlString.replace("%flashvars%", flashvarString);
 			htmlString = htmlString.replace("%flashplayer%", model.flashplayer);
-			$(domElement).before(htmlString);
+			var id = domElement[0].id;
+			$(domElement).replaceWith(htmlString);
+			//$("#"+id).css("display", "none");
+			$("#"+id).prev("a").css("display", "none");
 		}
 	};
 	

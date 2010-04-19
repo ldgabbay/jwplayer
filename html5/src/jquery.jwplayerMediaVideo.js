@@ -6,12 +6,9 @@
  * @lastmodifieddate 2010-04-12
  */
 (function($) {
-
-	var state = 'idle';
-	
 	var states = {
 		"buffering": "buffering",
-		"ended" : "idle",
+		"ended": "idle",
 		"playing": "playing",
 		"pause": "paused"
 	};
@@ -28,15 +25,15 @@
 		'loadedmetadata': metaHandler,
 		'loadstart': stateHandler,
 		'pause': stateHandler,
-		'play': stateHandler,
+		'play': positionHandler,
 		'playing': stateHandler,
-		'progress': positionHandler,
+		'progress': generalHandler,
 		'ratechange': generalHandler,
 		'seeked': stateHandler,
 		'seeking': stateHandler,
 		'stalled': stateHandler,
 		'suspend': stateHandler,
-		'timeupdate': positionHandler,
+		'timeupdate': generalHandler,
 		'volumechange': generalHandler,
 		'waiting': stateHandler,
 		'canshowcurrentframe': generalHandler,
@@ -50,121 +47,170 @@
 	$.fn.jwplayerMediaVideo = function(options) {
 		return this.each(function() {
 			var video = $(this);
-			//$.fn.log(this);
 			var media = {
-				play: $.fn.jwplayerMediaVideo.play(video),
-				pause: $.fn.jwplayerMediaVideo.pause(video),
-				seek: $.fn.jwplayerMediaVideo.seek(video),
-				volume: $.fn.jwplayerMediaVideo.volume(video),
-				mute: $.fn.jwplayerMediaVideo.mute(video),
-				fullscreen: $.fn.jwplayerMediaVideo.fullscreen(video)
+				play: play(video),
+				pause: pause(video),
+				seek: seek(video),
+				volume: volume(video),
+				mute: mute(video),
+				fullscreen: fullscreen(video),
+				load: load(video),
+				state: "idle",
+				interval: null
 			};
 			video.data("media", media);
 			$.each(events, function(event, handler) {
-				video[0].addEventListener(event, handler,true);
+				video[0].addEventListener(event, handler, true);
 			});
 		});
 	};
 	
 	function generalHandler(event) {
-		$.fn.log("general:" + event.type);
+		//$.fn.jwplayerUtils.log("general:" + event.type);
 	}
 	
 	function stateHandler(event) {
-		/*$.fn.log("state", {
-			event: event.type,
-			state: state
-		});*/
-		if(states[event.type]) {
+		if (states[event.type]) {
 			setState(event.target, states[event.type]);
 		}
 	}
 	
 	function setState(player, newState) {
-		if (state != newState) {
-			var oldState = state;
-			state = newState;
-			$(player).trigger("jwplayer.state", {
+		if ($(player).data("media").state != newState) {
+			var oldState = $(player).data("media").state;
+			$(player).data("media").state = newState;
+			sendEvent($(player), $.jwplayer().events.JWPLAYER_PLAYER_STATE, {
 				oldstate: oldState,
 				newstate: newState
 			});
 		}
+		if (newState == 'idle') {
+			clearInterval($(player).data("media").interval);
+			$(player).data("media").interval = null;
+		}
 	}
 	
 	function metaHandler(event) {
-		$.fn.log("meta:" + event.type);
-	}
-	
-	function positionHandler(event) {
-		$(event.target).trigger("jwplayer.time", {
-			position: event.target.currentTime,
-			duration: event.target.duraiton
+		sendEvent($(event.target), $.jwplayer().events.JWPLAYER_MEDIA_META, {
+			videoHeight: event.target.videoHeight,
+			videoWidth: event.target.videoWidth,
+			duration: event.target.duration
 		});
 	}
 	
-	function errorHandler(event) {
-		$.fn.log("error:" + event.type);
+	function positionHandler(event) {
+		if ($(event.target).data("media").interval === null) {
+			$(event.target).data("media").interval = window.setInterval(function() {
+				positionHandler(event);
+			}, 100);
+		}
+		sendEvent($(event.target), $.jwplayer().events.JWPLAYER_MEDIA_TIME, {
+			position: event.target.currentTime
+		});
+		if (event.target.buffered !== undefined) {
+			if (event.target.buffered.end(event.target.buffered.length - 1) != event.target.duration) {
+				sendEvent($(event.target), $.jwplayer().events.JWPLAYER_MEDIA_BUFFER, {
+					buffer: event.target.currentTime
+				});
+			}
+		}
 	}
 	
-	$.fn.jwplayerMediaVideo.play = function(player) {
+	function errorHandler(event) {
+		sendEvent($(event.target), $.jwplayer().events.JWPLAYER_ERROR, {});
+	}
+	
+	function play(player) {
 		return function() {
-			try {
-				player.css("display", "inherit");
-				player[0].play();
-				model.state = 'playing';
-				return true;
-			} catch (err) {
-			
-			}
-			return false;
+			player[0].play();
 		};
-	};
+	}
 	
 	/** Switch the pause state of the player. **/
-	$.fn.jwplayerMediaVideo.pause = function(player) {
+	function pause(player) {
 		return function() {
-			player.pause();
+			player[0].pause();
 		};
-	};
+	}
 	
 	
 	/** Seek to a position in the video. **/
-	$.fn.jwplayerMediaVideo.seek = function(player) {
+	function seek(player) {
 		return function(position) {
-			player.currentTime = position;
+			player[0].currentTime = position;
 		};
-	};
+	}
 	
 	
 	/** Stop playback and loading of the video. **/
-	$.fn.jwplayerMediaVideo.stop = function(player) {
+	function stop(player) {
 		return function() {
-			player.pause();
-			player.currentTime = player.startTime;
+			player[0].pause();
+			player[0].currentTime = player.startTime;
 		};
-	};
+	}
 	
 	
 	/** Change the video's volume level. **/
-	$.fn.jwplayerMediaVideo.volume = function(player) {
+	function volume(player) {
 		return function(position) {
-			video.volume = position / 100;
+			player.volume = position / 100;
+			sendEvent(player, $.jwplayer().events.JWPLAYER_MEDIA_VOLUME, {
+				volume: position
+			});
 		};
-	};
+	}
 	
 	/** Switch the mute state of the player. **/
-	$.fn.jwplayerMediaVideo.mute = function(player) {
+	function mute(player) {
 		return function(state) {
 			player.mute = state;
+			sendEvent(player, $.jwplayer().events.JWPLAYER_MEDIA_MUTE, {
+				mute: player.mute
+			});
 		};
-	};
+	}
+	
+	/** Resize the player. **/
+	function resize(player) {
+		return function(width, height) {
+			player.css("width", width);
+			player.css("height", height);
+			sendEvent(player, $.jwplayer().events.JWPLAYER_MEDIA_RESIZE, {
+				width: width,
+				hieght: height
+			});
+		};
+	}
 	
 	/** Switch the fullscreen state of the player. **/
-	$.fn.jwplayerMediaVideo.fullscreen = function(player) {
+	function fullscreen(player) {
 		return function(state) {
-			//player.fullscreen = state;
+			if (state === true) {
+				player.css("width", window.width);
+				player.css("height", window.height);
+				sendEvent(player, $.jwplayer().events.JWPLAYER_MEDIA_RESIZE, {
+					width: width,
+					hieght: height
+				});
+			} else {
+				// TODO: exit fullscreen
+			}
 		};
-	};
+	}
 	
+	/** Load a new video into the player. **/
+	function load(player) {
+		return function(path) {
+			//TODO
+		};
+	}
+	
+	function sendEvent(player, type, data) {
+		player.trigger(type, $.extend({
+			id: player[0].id,
+			version: $.jwplayer(player).version
+		}, data));
+	}
 	
 })(jQuery);

@@ -33,8 +33,6 @@
 				if ($.fn.jwplayerUtils.flashCanPlay(source.file)) {
 					model.source = sourceIndex;
 					player.jwplayerMediaFlash();
-					//$.fn.jwplayerView.embedFlash(player, model);
-					//$(event.target).css("display", "none");
 					return true;
 				}
 			}

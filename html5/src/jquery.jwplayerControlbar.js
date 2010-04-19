@@ -1,5 +1,5 @@
 /**
- * Controlbar component of the JW Player.
+ * jwplayerControlbar component of the JW Player.
  *
  * @author jeroen
  * @version 1.0alpha
@@ -9,14 +9,14 @@
 (function($) {
 
 
-	/** Hooking the controlbar up to jQuery. **/
-	$.fn.controlbar = function(ops) {
+	/** Hooking the jwplayerControlbar up to jQuery. **/
+	$.fn.jwplayerControlbar = function(ops) {
 		return this.each(function() {
 			var id = $(this)[0].id;
 			var div = $('#' + id).parents()[0].id;
 			var player = document.getElementById(id);
-			var options = $.extend({}, $.fn.controlbar.defaults, ops);
-			$.extend(options, player.getConfig());
+			var options = $.extend({}, $.fn.jwplayerControlbar.defaults, ops);
+			//$.extend(options, player.getConfig());
 			// Add positioning options and change the player css, so we can full-browser-screen it.
 			$.extend(options, {
 				id: id,
@@ -31,22 +31,22 @@
 			$('#' + id).css('width', '100%');
 			$('#' + id).css('height', '100%');
 			// Save the variables globally and start loading the skin.
-			$.fn.controlbar.bars[id] = {
+			$.fn.jwplayerControlbar.bars[id] = {
 				player: player,
 				options: options,
 				images: {}
 			};
-			loadSkin($.fn.controlbar.bars[id]);
+			loadSkin($.fn.jwplayerControlbar.bars[id]);
 		});
 	};
 	
 	
-	/** Map with all controlbars. **/
-	$.fn.controlbar.bars = {};
+	/** Map with all jwplayerControlbars. **/
+	$.fn.jwplayerControlbar.bars = {};
 	
 	
-	/** Map with config for the controlbar plugin. **/
-	$.fn.controlbar.defaults = {
+	/** Map with config for the jwplayerControlbar plugin. **/
+	$.fn.jwplayerControlbar.defaults = {
 		buffer: 0,
 		div: 'container',
 		duration: 0,
@@ -71,32 +71,32 @@
 	
 	
 	/** Callbacks called by Flash players to update stats. **/
-	$.fn.controlbar.bufferHandler = function(obj) {
+	$.fn.jwplayerControlbar.bufferHandler = function(obj) {
 		bufferHandler({
 			id: obj.id,
 			buffer: obj.percentage
 		});
 	};
-	$.fn.controlbar.muteHandler = function(obj) {
+	$.fn.jwplayerControlbar.muteHandler = function(obj) {
 		muteHandler({
 			id: obj.id,
 			mute: obj.state
 		});
 	};
-	$.fn.controlbar.stateHandler = function(obj) {
+	$.fn.jwplayerControlbar.stateHandler = function(obj) {
 		stateHandler({
 			id: obj.id,
 			state: obj.newstate.toLowerCase()
 		});
 	};
-	$.fn.controlbar.timeHandler = function(obj) {
+	$.fn.jwplayerControlbar.timeHandler = function(obj) {
 		timeHandler({
 			id: obj.id,
 			elapsed: obj.position,
 			duration: obj.duration
 		});
 	};
-	$.fn.controlbar.volumeHandler = function(obj) {
+	$.fn.jwplayerControlbar.volumeHandler = function(obj) {
 		volumeHandler({
 			id: obj.id,
 			volume: obj.percentage
@@ -104,13 +104,13 @@
 	};
 	
 	
-	/** Draw the controlbar elements. **/
+	/** Draw the jwplayerControlbar elements. **/
 	function buildElements(config) {
 		// Draw the background.
-		$('#' + config.options.div).after('<div id="' + config.options.id + '_controlBar"></div>');
-		$('#' + config.options.id + '_controlBar').css('position', 'absolute');
-		$('#' + config.options.id + '_controlBar').css('height', config.images.background.height);
-		$('#' + config.options.id + '_controlBar').css('background', 'url(' + config.images.background.src + ') repeat-x center left');
+		$('#' + config.options.div).after('<div id="' + config.options.id + '_jwplayerControlbar"></div>');
+		$('#' + config.options.id + '_jwplayerControlbar').css('position', 'absolute');
+		$('#' + config.options.id + '_jwplayerControlbar').css('height', config.images.background.height);
+		$('#' + config.options.id + '_jwplayerControlbar').css('background', 'url(' + config.images.background.src + ') repeat-x center left');
 		// Draw all elements on top of the bar.
 		buildElement('capLeft', 'left', true, config);
 		buildElement('playButton', 'left', false, config);
@@ -134,10 +134,10 @@
 	}
 	
 	
-	/** Draw a single element into the controlbar. **/
+	/** Draw a single element into the jwplayerControlbar. **/
 	function buildElement(element, align, offset, config) {
 		var nam = config.options.id + '_' + element;
-		$('#' + config.options.id + '_controlBar').append('<div id="' + nam + '"></div>');
+		$('#' + config.options.id + '_jwplayerControlbar').append('<div id="' + nam + '"></div>');
 		$('#' + nam).css('position', 'absolute');
 		$('#' + nam).css('top', 0);
 		if (element.indexOf('Text') > 0) {
@@ -171,7 +171,7 @@
 	}
 	
 	
-	/** Add interactivity to the controlbar elements. **/
+	/** Add interactivity to the jwplayerControlbar elements. **/
 	function buildHandlers(config) {
 		// Register events with the buttons.
 		buildHandler('playButton', 'play', config.player, config.options);
@@ -184,11 +184,11 @@
 		 addSliders(options);
 		 */
 		// Register events with the player.
-		config.player.addModelListener('buffer', 'jQuery.fn.controlbar.bufferHandler');
-		config.player.addModelListener('state', 'jQuery.fn.controlbar.stateHandler');
-		config.player.addModelListener('time', 'jQuery.fn.controlbar.timeHandler');
-		config.player.addControllerListener('mute', 'jQuery.fn.controlbar.muteHandler');
-		config.player.addControllerListener('volume', 'jQuery.fn.controlbar.volumeHandler');
+		config.player.addModelListener('buffer', 'jQuery.fn.jwplayerControlbar.bufferHandler');
+		config.player.addModelListener('state', 'jQuery.fn.jwplayerControlbar.stateHandler');
+		config.player.addModelListener('time', 'jQuery.fn.jwplayerControlbar.timeHandler');
+		config.player.addControllerListener('mute', 'jQuery.fn.jwplayerControlbar.muteHandler');
+		config.player.addControllerListener('volume', 'jQuery.fn.jwplayerControlbar.volumeHandler');
 		// Trigger a few events so the bar looks good on startup.
 		fullscreenHandler(config.options);
 		muteHandler(config.options);
@@ -218,7 +218,7 @@
 	
 	/** Set the volume drag handler. **/
 	function addSliders() {
-		var bar = '#' + config.id + '_controlBar';
+		var bar = '#' + config.id + '_jwplayerControlbar';
 		var trl = '#' + config.id + '_timeSliderRail';
 		var vrl = '#' + config.id + '_volumeSliderRail';
 		$(bar).css('cursor', 'hand');
@@ -260,8 +260,8 @@
 			}
 			player.sendEvent('seek', pos);
 		} else if (config.scrubber == 'volume') {
-			var bar = $('#' + config.id + '_controlBar').width();
-			var brx = $('#' + config.id + '_controlBar').position().left;
+			var bar = $('#' + config.id + '_jwplayerControlbar').width();
+			var brx = $('#' + config.id + '_jwplayerControlbar').position().left;
 			var rig = $('#' + config.id + '_volumeSliderRail').css('right').substr(0, 2);
 			var wid = config.images.volumeSliderRail.width;
 			var pct = Math.round((msx - bar - brx + 1 * rig + wid) / wid * 100);
@@ -380,12 +380,12 @@
 	}
 	
 	
-	/** Resize the controlbar. **/
+	/** Resize the jwplayerControlbar. **/
 	function resizeBar(options) {
 		var lft = options.left;
 		var top = options.top + options.height;
 		var wid = options.width;
-		var hei = $('#' + options.id + '_controlBar').height();
+		var hei = $('#' + options.id + '_jwplayerControlbar').height();
 		if (options.position == 'over') {
 			lft += 1 * options.margin;
 			top -= 1 * options.margin + hei;
@@ -395,13 +395,13 @@
 			lft = options.margin;
 			top = $(window).height() - options.margin - hei;
 			wid = $(window).width() - 2 * options.margin;
-			$('#' + options.id + '_controlBar').css('z-index', 99);
+			$('#' + options.id + '_jwplayerControlbar').css('z-index', 99);
 		} else {
-			$('#' + options.id + '_controlBar').css('z-index', 97);
+			$('#' + options.id + '_jwplayerControlbar').css('z-index', 97);
 		}
-		$('#' + options.id + '_controlBar').css('left', lft);
-		$('#' + options.id + '_controlBar').css('top', top);
-		$('#' + options.id + '_controlBar').css('width', wid);
+		$('#' + options.id + '_jwplayerControlbar').css('left', lft);
+		$('#' + options.id + '_jwplayerControlbar').css('top', top);
+		$('#' + options.id + '_jwplayerControlbar').css('width', wid);
 		$('#' + options.id + '_timeSliderRail').css('width', wid - options.leftmargin - options.rightmargin);
 	}
 	

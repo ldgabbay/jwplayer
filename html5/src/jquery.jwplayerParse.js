@@ -63,6 +63,7 @@
 					}
 				}
 			}
+			configuration.screencolor = $(domElement).css("background-color");
 			return configuration;
 		}
 	}

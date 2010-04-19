@@ -25,8 +25,8 @@
 	height="270"
 	id="player1"
 	class="jwplayer"
-	poster="http://developer.longtailvideo.com/player/testing/files/bunny.jpg"
-	src="http://developer.longtailvideo.com/player/testing/files/bunny.mp4"
+	poster="http://localhost/files/bunny.jpg"
+	src="http://localhost/files/bunny.mp4"
 	width="480"
 >
 </video>
@@ -35,8 +35,8 @@
 <video
 	height="270"
 	id="player2"
-	poster="http://developer.longtailvideo.com/player/testing/files/bunny.jpg"
-	src="http://developer.longtailvideo.com/player/testing/files/bunny.mp4"
+	poster="http://localhost/files/bunny.jpg"
+	src="http://localhost/files/bunny.mp4"
 	width="480"
 >
 </video>
@@ -53,9 +53,9 @@
 	class="jwplayer"
 	width="480"
 	height="270"
-	poster="http://developer.longtailvideo.com/player/testing/files/bunny.jpg"
+	poster="http://localhost/files/bunny.jpg"
 >
-<source src='http://v2v.cc/~j/theora_testsuite/320x240.ogg' type='video/ogg; codecs="theora, vorbis"'>
+<source src='http://localhost/files/bunny.ogv' type='video/ogg; codecs="theora, vorbis"'>
 </video>
 
 
@@ -65,10 +65,10 @@
 	class="jwplayer"
 	width="480"
 	height="270"
-	poster="http://developer.longtailvideo.com/player/testing/files/bunny.jpg"
+	poster="http://localhost/files/bunny.jpg"
 >
-<source src='http://v2v.cc/~j/theora_testsuite/320x240.ogg' type='video/ogg; codecs="theora, vorbis"'>
-<source src='http://developer.longtailvideo.com/player/testing/files/bunny.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+<source src='http://localhost/files/bunny.ogv' type='video/ogg; codecs="theora, vorbis"'>
+<source src='http://localhost/files/bunny.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
 </video>
 
 
@@ -77,16 +77,19 @@
 	id="player5"
 	width="480"
 	height="270"
-	poster="http://developer.longtailvideo.com/player/testing/files/bunny.jpg"
+	poster="http://localhost/files/bunny.jpg"
 >
-<source src='http://v2v.cc/~j/theora_testsuite/320x240.ogg' type='video/ogg; codecs="theora, vorbis"'>
-<source src='http://developer.longtailvideo.com/player/testing/files/bunny.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+<source src='http://localhost/files/bunny.ogv' type='video/ogg; codecs="theora, vorbis"'>
+<source src='http://localhost/files/bunny.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
 </video>
 
 <script type="text/javascript">
 	$('#player5').jwplayer();
-	$.jwplayer.addEventListener('#player1', 'jwplayer.state', function(parameters, extra){
-		$.fn.log('statelistener', extra);
+	/*$.jwplayer('#player3').time(function(parameters, extra){
+		$.fn.jwplayerUtils.log('time', extra);
+	});*/
+	$.jwplayer('#player1').buffer(function(parameters, extra){
+		$.fn.jwplayerUtils.log('buffer', extra);
 	});
 </script>
 
