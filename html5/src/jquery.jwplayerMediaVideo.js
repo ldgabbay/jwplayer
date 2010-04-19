@@ -163,7 +163,6 @@
 	/** Change the video's volume level. **/
 	function volume(player) {
 		return function(position) {
-			$.fn.jwplayerUtils.log(position / 100);
 			player[0].volume = position / 100;
 			sendEvent(player, $.jwplayer().events.JWPLAYER_MEDIA_VOLUME, {
 				volume: player[0].volume
