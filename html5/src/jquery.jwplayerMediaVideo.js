@@ -27,7 +27,7 @@
 		'pause': stateHandler,
 		'play': positionHandler,
 		'playing': stateHandler,
-		'progress': generalHandler,
+		'progress': progressHandler,
 		'ratechange': generalHandler,
 		'seeked': stateHandler,
 		'seeking': stateHandler,
@@ -51,6 +51,7 @@
 				play: play(video),
 				pause: pause(video),
 				seek: seek(video),
+				stop: stop(video),
 				volume: volume(video),
 				mute: mute(video),
 				fullscreen: fullscreen(video),
@@ -107,13 +108,18 @@
 		sendEvent($(event.target), $.jwplayer().events.JWPLAYER_MEDIA_TIME, {
 			position: event.target.currentTime
 		});
-		if (event.target.buffered !== undefined) {
-			if (event.target.buffered.end(event.target.buffered.length - 1) != event.target.duration) {
-				sendEvent($(event.target), $.jwplayer().events.JWPLAYER_MEDIA_BUFFER, {
-					buffer: event.target.currentTime
-				});
-			}
+	}
+	
+	function progressHandler(event) {
+		var buffer;
+		if (!isNaN(event.loaded / event.total)) {
+			buffer = event.loaded / event.total * 100;
+		} else if (event.target.buffered !== undefined) {
+			buffer = event.target.buffered.end(0) / event.target.duration * 100;
 		}
+		sendEvent($(event.target), $.jwplayer().events.JWPLAYER_MEDIA_BUFFER, {
+			'buffer': buffer
+		});
 	}
 	
 	function errorHandler(event) {
@@ -146,7 +152,10 @@
 	function stop(player) {
 		return function() {
 			player[0].pause();
-			player[0].currentTime = player.startTime;
+			player[0].currentTime = 0;
+			clearInterval($(player).data("media").interval);
+			$(player).data("media").interval = null;
+			setState(player, 'idle');
 		};
 	}
 	
@@ -154,9 +163,10 @@
 	/** Change the video's volume level. **/
 	function volume(player) {
 		return function(position) {
-			player.volume = position / 100;
+			$.fn.jwplayerUtils.log(position / 100);
+			player[0].volume = position / 100;
 			sendEvent(player, $.jwplayer().events.JWPLAYER_MEDIA_VOLUME, {
-				volume: position
+				volume: player[0].volume
 			});
 		};
 	}
@@ -164,9 +174,9 @@
 	/** Switch the mute state of the player. **/
 	function mute(player) {
 		return function(state) {
-			player.mute = state;
+			player[0].muted = state;
 			sendEvent(player, $.jwplayer().events.JWPLAYER_MEDIA_MUTE, {
-				mute: player.mute
+				mute: player[0].muted
 			});
 		};
 	}
@@ -214,3 +224,4 @@
 	}
 	
 })(jQuery);
+

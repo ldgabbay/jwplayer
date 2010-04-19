@@ -140,6 +140,9 @@
 				case "number":
 					$.fn.jwplayerController.volume(player, arg);
 					break;
+				case "string":
+					$.fn.jwplayerController.volume(player, parseInt(arg,10));
+					break;
 				default:
 					return $.fn.jwplayerController.volume(player);
 			}

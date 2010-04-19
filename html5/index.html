@@ -26,7 +26,7 @@
 	id="player1"
 	class="jwplayer"
 	poster="http://localhost/files/bunny.jpg"
-	src="http://localhost/files/bunny.mp4"
+	src="http://developer.longtailvideo.com/player/testing/files/bunny.mp4"
 	width="480"
 >
 </video>
@@ -79,18 +79,62 @@
 	height="270"
 	poster="http://localhost/files/bunny.jpg"
 >
-<source src='http://localhost/files/bunny.ogv' type='video/ogg; codecs="theora, vorbis"'>
-<source src='http://localhost/files/bunny.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+<source src='http://localhost/html5/bunny.ogv' type='video/ogg; codecs="theora, vorbis"'>
+<source src='http://developer.longtailvideo.com/player/testing/files/bunny.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
 </video>
+
+<a id="play">play</a>
+<a id="pause">pause</a>
+<a id="stop">stop</a>
+<a id="mute">mute</a>
+<a id="unmute">unmute</a>
+<input type="text" id="seekposition" />
+<a id="seek">seek</a>
+<input type="text" id="volumeposition" />
+<a id="volume">volume</a>
+<input type="text" id="currenttime" />
+<input type="text" id="currentbuffer" />
 
 <script type="text/javascript">
 	$('#player5').jwplayer();
-	/*$.jwplayer('#player3').time(function(parameters, extra){
-		$.fn.jwplayerUtils.log('time', extra);
-	});*/
-	$.jwplayer('#player1').buffer(function(parameters, extra){
-		$.fn.jwplayerUtils.log('buffer', extra);
+	
+	$.jwplayer('#player5').buffer(function(parameters, extra){
+		$("#currentbuffer")[0].value = Math.round(extra.buffer*10)/10;
 	});
+	
+	$.jwplayer('#player5').time(function(parameters, extra){
+		$("#currenttime")[0].value = Math.round(extra.position*10)/10;
+	});
+
+	$("#play").click(function(){
+		$.jwplayer('#player5').play();
+	});
+
+	$("#pause").click(function(){
+		$.jwplayer('#player5').pause();
+	});
+
+	$("#stop").click(function(){
+		$.jwplayer('#player5').stop();
+	});
+	
+	$("#seek").click(function(){
+		$.jwplayer('#player5').seek($("#seekposition")[0].value);
+	});
+	
+	$("#volume").click(function(){
+		$.jwplayer('#player5').volume($("#volumeposition")[0].value);
+	});
+	
+	$("#mute").click(function(){
+		$.jwplayer('#player5').mute(true);
+	});
+
+	$("#unmute").click(function(){
+		$.jwplayer('#player5').mute(false);
+	});
+
+
 </script>
 
 </body>

@@ -80,7 +80,7 @@
 	/** Get / set the mute state of the player. **/
 	$.fn.jwplayerController.mute = function(player, state) {
 		try {
-			if (position === undefined) {
+			if (state === undefined) {
 				return $(player).data("model").mute;
 			} else {
 				player.data("media").mute(state);
