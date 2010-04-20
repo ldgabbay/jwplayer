@@ -64,7 +64,7 @@
 	$.fn.jwplayer = function(options) {
 		return this.each(function() {
 			var id = $(this)[0].id;
-			$(this).css("display", "none");
+			//$(this).css("display", "none");
 			$(this).jwplayerModel(options);
 			$(this).jwplayerView();
 			$.fn.jwplayerModel.setActiveMediaProvider($(this));

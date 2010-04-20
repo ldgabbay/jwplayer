@@ -7,85 +7,102 @@
  */
 (function($) {
 
+	var controllerEvents = {
+		ERROR: "ERROR",
+		ITEM: "ITEM",
+		MUTE: "MUTE",
+		PLAY: "PLAY",
+		PLAYLIST: "PLAYLIST",
+		RESIZE: "RESIZE",
+		SEEK: "SEEK",
+		STOP: "STOP",
+		VOLUME: "VOLUME"
+	};
+	
+	var modelEvents = {
+		BUFFER: "BUFFER",
+		ERROR: "ERROR",
+		LOADED: "LOADED",
+		META: "META",
+		STATE: stateHandler,
+		TIME: "TIME"
+	};
+	
+	var viewEvents = {
+		FULLSCREEN: "FULLSCREEN",
+		ITEM: "ITEM",
+		LINK: "LINK",
+		LOAD: "LOAD",
+		MUTE: "MUTE",
+		NEXT: "NEXT",
+		PLAY: "PLAY",
+		PREV: "PREV",
+		REDRAW: "REDRAW",
+		SEEK: "SEEK",
+		STOP: "STOP",
+		TRACE: "TRACE",
+		VOLUME: "VOLUME"
+	};
+	
 	$.fn.jwplayerMediaFlash = function(options) {
 		return this.each(function() {
 			var model = $(this).data("model");
 			//model.autostart = true;
 			model.controlbar = 'none';
 			model.icons = false;
-			var id = $(this)[0].id;
 			$.fn.jwplayerView.embedFlash($(this), model);
-			var video = $("#"+id);
 			var media = {
-				play: play(video),
-				pause: pause(video),
-				seek: seek(video),
-				volume: volume(video),
-				mute: mute(video),
-				fullscreen: fullscreen(video)
+				play: play($(this)),
+				pause: pause($(this)),
+				seek: seek($(this)),
+				volume: volume($(this)),
+				mute: mute($(this)),
+				fullscreen: fullscreen($(this)),
+				state: "idle"
 			};
-			// THIS DOESN'T WORK - I HATE YOU JQUERY
-			$("#"+id).data("media", media);
+			$(this).data("media", media);
+			addEventListeners($(this));
 		});
 	};
 	
-	function setup(player) {
-		var media = player.data("media");
-		if (media.state === undefined) {
-			media.state = "idle";
-			player.css("display", "inherit");
-			//player.prev("a").css("display", "none");
-			//setState(player, "playing");
-			addEventListeners(player);
-		}
-	}
-	
 	function stateHandler(event) {
-		if (states[event.type]) {
-			setState(event.target, states[event.type]);
+		$(event.id).data("media").state = event.newState;
+		sendEvent($(event.id), $.jwplayer().events.JWPLAYER_PLAYER_STATE, {
+			oldstate: event.oldstate,
+			newstate: event.newState
+		});
+	}
+	
+	function addEventListeners(player) {
+		var event;
+		if ($("#" + player[0].id)[0].addControllerListener === undefined) {
+			setTimeout(function() {
+				addEventListeners(player);
+			}, 100);
+			return;
+		}
+		for (event in controllerEvents) {
+			$("#" + player[0].id)[0].addControllerListener(event, "$.fn.jwplayerMediaFlash.forward");
+		}
+		for (event in modelEvents) {
+			$("#" + player[0].id)[0].addModelListener(event, "$.fn.jwplayerMediaFlash.forward");
 		}
 	}
 	
-	function setState(player, newState) {
-		if ($(player).data("media").state != newState) {
-			var oldState = $(player).data("media").state;
-			$(player).data("media").state = newState;
-			$(player).trigger("jwplayer.state", {
-				oldstate: oldState,
-				newstate: newState
-			});
-		}
-	}
-	
-	function addEventListeners(player){
-		var events = $.jwplayer().events;
-		for (var event in events) {
-			player[0].addEventListener(events[event], forward, true);
-		}
-	}
-	
-	function forward(event){
+	$.fn.jwplayerMediaFlash.forward = function(event) {
 		$(event.id).trigger(event.type, event);
-	}
+	};
 	
 	function play(player) {
 		return function() {
-			setup(player);
-			try {
-				player[0].play();
-				return true;
-			} catch (err) {
-				$.fn.jwplayerUtils.log("error", err);
-			}
-			return false;
+			$("#" + player[0].id)[0].sendEvent("PLAY");
 		};
 	}
 	
 	/** Switch the pause state of the player. **/
 	function pause(player) {
 		return function() {
-			setup(player);
-			player.pause();
+			$("#" + player[0].id)[0].sendEvent("PAUSE");
 		};
 	}
 	
@@ -93,8 +110,7 @@
 	/** Seek to a position in the video. **/
 	function seek(player) {
 		return function(position) {
-			setup(player);
-			player.seek(position);
+			$("#" + player[0].id)[0].sendEvent("SEEK", position);
 		};
 	}
 	
@@ -102,8 +118,7 @@
 	/** Stop playback and loading of the video. **/
 	function stop(player) {
 		return function() {
-			setup(player);
-			player.stop();
+			$("#" + player[0].id)[0].sendEvent("STOP");
 		};
 	}
 	
@@ -111,23 +126,20 @@
 	/** Change the video's volume level. **/
 	function volume(player) {
 		return function(position) {
-			setup(player);
-			player.volume(position);
+			$("#" + player[0].id)[0].sendEvent("VOLUME", position);
 		};
 	}
 	
 	/** Switch the mute state of the player. **/
 	function mute(player) {
 		return function(state) {
-			setup(player);
-			player.mute(state);
+			$("#" + player[0].id)[0].sendEvent("MUTE");
 		};
 	}
 	
 	/** Switch the fullscreen state of the player. **/
 	function fullscreen(player) {
 		return function(state) {
-			setup(player);
 			//player.fullscreen = state;
 		};
 	}

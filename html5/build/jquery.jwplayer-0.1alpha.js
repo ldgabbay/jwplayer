@@ -627,7 +627,7 @@
 	$.fn.jwplayer = function(options) {
 		return this.each(function() {
 			var id = $(this)[0].id;
-			$(this).css("display", "none");
+			//$(this).css("display", "none");
 			$(this).jwplayerModel(options);
 			$(this).jwplayerView();
 			$.fn.jwplayerModel.setActiveMediaProvider($(this));
@@ -893,38 +893,64 @@
  */
 (function($) {
 
+	var controllerEvents = {
+		ERROR: "ERROR",
+		ITEM: "ITEM",
+		MUTE: "MUTE",
+		PLAY: "PLAY",
+		PLAYLIST: "PLAYLIST",
+		RESIZE: "RESIZE",
+		SEEK: "SEEK",
+		STOP: "STOP",
+		VOLUME: "VOLUME"
+	};
+	
+	var modelEvents = {
+		BUFFER: "BUFFER",
+		ERROR: "ERROR",
+		LOADED: "LOADED",
+		META: "META",
+		STATE: "STATE",
+		TIME: "TIME"
+	};
+	
+	var viewEvents = {
+		FULLSCREEN: "FULLSCREEN",
+		ITEM: "ITEM",
+		LINK: "LINK",
+		LOAD: "LOAD",
+		MUTE: "MUTE",
+		NEXT: "NEXT",
+		PLAY: "PLAY",
+		PREV: "PREV",
+		REDRAW: "REDRAW",
+		SEEK: "SEEK",
+		STOP: "STOP",
+		TRACE: "TRACE",
+		VOLUME: "VOLUME"
+	};
+	
 	$.fn.jwplayerMediaFlash = function(options) {
 		return this.each(function() {
 			var model = $(this).data("model");
 			//model.autostart = true;
 			model.controlbar = 'none';
 			model.icons = false;
-			var id = $(this)[0].id;
 			$.fn.jwplayerView.embedFlash($(this), model);
-			var video = $("#"+id);
 			var media = {
-				play: play(video),
-				pause: pause(video),
-				seek: seek(video),
-				volume: volume(video),
-				mute: mute(video),
-				fullscreen: fullscreen(video)
+				play: play($(this)),
+				pause: pause($(this)),
+				seek: seek($(this)),
+				volume: volume($(this)),
+				mute: mute($(this)),
+				fullscreen: fullscreen($(this)),
+				state: "idle"
 			};
 			// THIS DOESN'T WORK - I HATE YOU JQUERY
-			$("#"+id).data("media", media);
+			$(this).data("media", media);
+			addEventListeners($(this));
 		});
 	};
-	
-	function setup(player) {
-		var media = player.data("media");
-		if (media.state === undefined) {
-			media.state = "idle";
-			player.css("display", "inherit");
-			//player.prev("a").css("display", "none");
-			//setState(player, "playing");
-			addEventListeners(player);
-		}
-	}
 	
 	function stateHandler(event) {
 		if (states[event.type]) {
@@ -943,34 +969,33 @@
 		}
 	}
 	
-	function addEventListeners(player){
-		var events = $.jwplayer().events;
-		for (var event in events) {
-			player[0].addEventListener(events[event], forward, true);
+	function addEventListeners(player) {
+		var event;
+		if ($("#" + player[0].id)[0].addControllerListener === undefined){
+			setTimeout(function(){addEventListeners(player);}, 100);
+			return;
+		}
+		for (event in controllerEvents) {
+			$("#" + player[0].id)[0].addControllerListener(controllerEvents[event], "$.fn.jwplayerMediaFlash.forward");
+		}
+		for (event in modelEvents) {
+			$("#" + player[0].id)[0].addModelListener(modelEvents[event], "$.fn.jwplayerMediaFlash.forward");
 		}
 	}
 	
-	function forward(event){
+	$.fn.jwplayerMediaFlash.forward = function (event) {
 		$(event.id).trigger(event.type, event);
-	}
+	};
 	
 	function play(player) {
 		return function() {
-			setup(player);
-			try {
-				player[0].play();
-				return true;
-			} catch (err) {
-				$.fn.jwplayerUtils.log("error", err);
-			}
-			return false;
+			$("#" + player[0].id)[0].sendEvent("PLAY", "true");
 		};
 	}
 	
 	/** Switch the pause state of the player. **/
 	function pause(player) {
 		return function() {
-			setup(player);
 			player.pause();
 		};
 	}
@@ -979,7 +1004,6 @@
 	/** Seek to a position in the video. **/
 	function seek(player) {
 		return function(position) {
-			setup(player);
 			player.seek(position);
 		};
 	}
@@ -988,7 +1012,6 @@
 	/** Stop playback and loading of the video. **/
 	function stop(player) {
 		return function() {
-			setup(player);
 			player.stop();
 		};
 	}
@@ -997,7 +1020,6 @@
 	/** Change the video's volume level. **/
 	function volume(player) {
 		return function(position) {
-			setup(player);
 			player.volume(position);
 		};
 	}
@@ -1005,7 +1027,6 @@
 	/** Switch the mute state of the player. **/
 	function mute(player) {
 		return function(state) {
-			setup(player);
 			player.mute(state);
 		};
 	}
@@ -1013,7 +1034,6 @@
 	/** Switch the fullscreen state of the player. **/
 	function fullscreen(player) {
 		return function(state) {
-			setup(player);
 			//player.fullscreen = state;
 		};
 	}
@@ -1638,8 +1658,9 @@
  */
 (function($) {
 
-	var embedString = "<embed %elementvars% src='%flashplayer%' allowfullscreen='true' allowscriptaccess='always' flashvars='%flashvars%' />";
-	var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars%'> <param name='movie' value='%flashplayer%'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
+	var styleString = "style='left:0px;top:0px;position:absolute;z-index:0;'";
+	var embedString = "<embed %elementvars% src='%flashplayer%' allowfullscreen='true' allowscriptaccess='always' flashvars='%flashvars%' %style% />";
+	var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars%' %style%> <param name='movie' value='%flashplayer%'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
 	var elementvars = {
 		width: true,
 		height: true,
@@ -1652,7 +1673,14 @@
 		return this.each(function() {
 			var video = $(this);
 			$(this).wrap("<div />");
+			$(this).parent().css("position","relative");
+			$(this).css("position","absolute");
+			$(this).css("left", "0px");
+			$(this).css("top", "0px");
+			$(this).css("z-index", "0");
 			$(this).before("<a href='" + $(this).data("model").sources[$(this).data("model").source].file + "' style='display:block; background:#ffffff url(" + $(this).data("model").image + ") no-repeat center center;width:" + $(this).data("model").width + "px;height:" + $(this).data("model").height + "px;position:relative;'><img src='http://content.bitsontherun.com/staticfiles/play.png' alt='Click to play video' style='position:absolute; top:" + ($(this).data("model").height - 60) / 2 + "px; left:" + ($(this).data("model").width - 60) / 2 + "px; border:0;' /></a>");
+			$(this).prev("a").css("position","relative");
+			$(this).prev("a").css("z-index","100");
 			$(this).prev("a").click(function(evt) {
 				if (typeof evt.preventDefault != 'undefined') {
 					evt.preventDefault(); // W3C 
@@ -1669,12 +1697,12 @@
 		$.fn.jwplayerUtils(event.target);
 		switch (parameters.newstate) {
 			case 'idle':
-				$(event.target).css("display", "none");
-				$(event.target).prev("a").css("display", "inherit");
+				$(event.target).css("z-index", "0");
+				$(event.target).prev("a").css("z-index", "100");
 				break;
 			case 'playing':
-				$(event.target).prev("a").css("display", "none");
-				$(event.target).css("display", "inherit");
+				$(event.target).prev("a").css("z-index", "0");
+				$(event.target).css("z-index", "100");
 				break;
 		}
 	}
@@ -1705,10 +1733,11 @@
 			htmlString = htmlString.replace("%elementvars%", elementvarString);
 			htmlString = htmlString.replace("%flashvars%", flashvarString);
 			htmlString = htmlString.replace("%flashplayer%", model.flashplayer);
-			var id = domElement[0].id;
-			$(domElement).replaceWith(htmlString);
-			//$("#"+id).css("display", "none");
-			$("#"+id).prev("a").css("display", "none");
+			htmlString = htmlString.replace("%style%", styleString);
+			$(domElement).before(htmlString);
+			var result = $(domElement).prev();
+			$(domElement).remove();
+			return result;
 		}
 	};
 	

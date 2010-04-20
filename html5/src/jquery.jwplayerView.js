@@ -7,8 +7,9 @@
  */
 (function($) {
 
-	var embedString = "<embed %elementvars% src='%flashplayer%' allowfullscreen='true' allowscriptaccess='always' flashvars='%flashvars%' />";
-	var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars%'> <param name='movie' value='%flashplayer%'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
+	var styleString = "style='left:0px;top:0px;position:absolute;z-index:0;'";
+	var embedString = "<embed %elementvars% src='%flashplayer%' allowfullscreen='true' allowscriptaccess='always' flashvars='%flashvars%' %style% />";
+	var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars%' %style%> <param name='movie' value='%flashplayer%'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
 	var elementvars = {
 		width: true,
 		height: true,
@@ -21,7 +22,14 @@
 		return this.each(function() {
 			var video = $(this);
 			$(this).wrap("<div />");
+			$(this).parent().css("position","relative");
+			$(this).css("position","absolute");
+			$(this).css("left", "0px");
+			$(this).css("top", "0px");
+			$(this).css("z-index", "0");
 			$(this).before("<a href='" + $(this).data("model").sources[$(this).data("model").source].file + "' style='display:block; background:#ffffff url(" + $(this).data("model").image + ") no-repeat center center;width:" + $(this).data("model").width + "px;height:" + $(this).data("model").height + "px;position:relative;'><img src='http://content.bitsontherun.com/staticfiles/play.png' alt='Click to play video' style='position:absolute; top:" + ($(this).data("model").height - 60) / 2 + "px; left:" + ($(this).data("model").width - 60) / 2 + "px; border:0;' /></a>");
+			$(this).prev("a").css("position","relative");
+			$(this).prev("a").css("z-index","100");
 			$(this).prev("a").click(function(evt) {
 				if (typeof evt.preventDefault != 'undefined') {
 					evt.preventDefault(); // W3C 
@@ -38,12 +46,12 @@
 		$.fn.jwplayerUtils(event.target);
 		switch (parameters.newstate) {
 			case 'idle':
-				$(event.target).css("display", "none");
-				$(event.target).prev("a").css("display", "inherit");
+				$(event.target).css("z-index", "0");
+				$(event.target).prev("a").css("z-index", "100");
 				break;
 			case 'playing':
-				$(event.target).prev("a").css("display", "none");
-				$(event.target).css("display", "inherit");
+				$(event.target).prev("a").css("z-index", "0");
+				$(event.target).css("z-index", "100");
 				break;
 		}
 	}
@@ -74,10 +82,11 @@
 			htmlString = htmlString.replace("%elementvars%", elementvarString);
 			htmlString = htmlString.replace("%flashvars%", flashvarString);
 			htmlString = htmlString.replace("%flashplayer%", model.flashplayer);
-			var id = domElement[0].id;
-			$(domElement).replaceWith(htmlString);
-			//$("#"+id).css("display", "none");
-			$("#"+id).prev("a").css("display", "none");
+			htmlString = htmlString.replace("%style%", styleString);
+			$(domElement).before(htmlString);
+			var result = $(domElement).prev();
+			$(domElement).remove();
+			return result;
 		}
 	};
 	
