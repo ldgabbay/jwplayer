@@ -16,7 +16,7 @@
 			var div = $('#' + id).parents()[0].id;
 			var player = document.getElementById(id);
 			var options = $.extend({}, $.fn.jwplayerControlbar.defaults, ops);
-			//$.extend(options, player.getConfig());
+			$.extend(options, $('#' + id).data("model"));
 			// Add positioning options and change the player css, so we can full-browser-screen it.
 			$.extend(options, {
 				id: id,
@@ -57,7 +57,7 @@
 		id: 'player',
 		images: 0,
 		position: 'bottom',
-		skin: '././skins/five/five.xml',
+		skin: 'assets/five/five.xml',
 		width: 400,
 		height: 300,
 		left: 0,
@@ -184,11 +184,11 @@
 		 addSliders(options);
 		 */
 		// Register events with the player.
-		config.player.addModelListener('buffer', 'jQuery.fn.jwplayerControlbar.bufferHandler');
-		config.player.addModelListener('state', 'jQuery.fn.jwplayerControlbar.stateHandler');
-		config.player.addModelListener('time', 'jQuery.fn.jwplayerControlbar.timeHandler');
-		config.player.addControllerListener('mute', 'jQuery.fn.jwplayerControlbar.muteHandler');
-		config.player.addControllerListener('volume', 'jQuery.fn.jwplayerControlbar.volumeHandler');
+		$.jwplayer(config.player).buffer($.fn.jwplayerControlbar.bufferHandler);
+		$.jwplayer(config.player).state($.fn.jwplayerControlbar.stateHandler);
+		$.jwplayer(config.player).time($.fn.jwplayerControlbar.timeHandler);
+		$.jwplayer(config.player).mute($.fn.jwplayerControlbar.muteHandler);
+		$.jwplayer(config.player).volume($.fn.jwplayerControlbar.volumeHandler);
 		// Trigger a few events so the bar looks good on startup.
 		fullscreenHandler(config.options);
 		muteHandler(config.options);
@@ -415,8 +415,54 @@
 		$('#' + options.id + '_volumeSliderProgress').css('right', 1 * rig + rwd - wid);
 	}
 	
+	/** Loading the images from the skin XML. **/
+	function loadSkin(config) {
+		$.get(config.options['skin'], {}, function(xml) {
+			var arr = $('component', xml);
+			for (var i = 0; i < arr.length; i++) {
+				if ($(arr[i]).attr('name') == 'controlbar') {
+					//var sts = $(arr[i]).find('setting');
+					arr = $(arr[i]).find('element');
+					break;
+				}
+			}
+			/*for (var i = 0; i < sts.length; i++) {
+				config.options[$(sts[i]).attr('name')] = $(sts[i]).attr('value');
+			}*/
+			config.options['images'] = arr.length;
+			for (var i = 0; i < arr.length; i++) {
+				loadImage(arr[i], config);
+			}
+		});
+	};
 	
-})(jQuery);/**
+	
+	/** Load the data for a single element. **/
+	function loadImage(element, config) {
+		var img = new Image();
+		var nam = $(element).attr('name');
+		var url = config.options['skin'].substr(0, config.options['skin'].lastIndexOf('/')) + '/controlbar/';
+		$(img).error(function() {
+			config.options['images']--;
+		});
+		$(img).load(function() {
+			config.images[nam] = {
+				height: this.height,
+				width: this.width,
+				src: this.src
+			};
+			config.options['images']--;
+			if (config.options['images'] == 0) {
+				buildElements(config);
+				buildHandlers(config);
+			}
+		});
+		img.src = url + $(element).attr('src');
+	};
+	
+	
+	})(jQuery);
+/**
  * JW Player controller component
  *
  * @author zach
@@ -631,7 +677,7 @@
 			$(this).jwplayerModel(options);
 			$(this).jwplayerView();
 			$.fn.jwplayerModel.setActiveMediaProvider($(this));
-			//$(this).jwplayerControlbar();
+			$(this).jwplayerControlbar();
 			$(this).trigger("JWPLAYER_READY", {
 				id: id
 			});
@@ -910,7 +956,7 @@
 		ERROR: "ERROR",
 		LOADED: "LOADED",
 		META: "META",
-		STATE: "STATE",
+		STATE: stateHandler,
 		TIME: "TIME"
 	};
 	
@@ -946,57 +992,49 @@
 				fullscreen: fullscreen($(this)),
 				state: "idle"
 			};
-			// THIS DOESN'T WORK - I HATE YOU JQUERY
 			$(this).data("media", media);
 			addEventListeners($(this));
 		});
 	};
 	
 	function stateHandler(event) {
-		if (states[event.type]) {
-			setState(event.target, states[event.type]);
-		}
-	}
-	
-	function setState(player, newState) {
-		if ($(player).data("media").state != newState) {
-			var oldState = $(player).data("media").state;
-			$(player).data("media").state = newState;
-			$(player).trigger("jwplayer.state", {
-				oldstate: oldState,
-				newstate: newState
-			});
-		}
+		$(event.id).data("media").state = event.newState;
+		sendEvent($(event.id), $.jwplayer().events.JWPLAYER_PLAYER_STATE, {
+			oldstate: event.oldstate,
+			newstate: event.newState
+		});
 	}
 	
 	function addEventListeners(player) {
 		var event;
-		if ($("#" + player[0].id)[0].addControllerListener === undefined){
-			setTimeout(function(){addEventListeners(player);}, 100);
+		if ($("#" + player[0].id)[0].addControllerListener === undefined) {
+			setTimeout(function() {
+				addEventListeners(player);
+			}, 100);
 			return;
 		}
 		for (event in controllerEvents) {
-			$("#" + player[0].id)[0].addControllerListener(controllerEvents[event], "$.fn.jwplayerMediaFlash.forward");
+			$("#" + player[0].id)[0].addControllerListener(event, "$.fn.jwplayerMediaFlash.forward");
 		}
 		for (event in modelEvents) {
-			$("#" + player[0].id)[0].addModelListener(modelEvents[event], "$.fn.jwplayerMediaFlash.forward");
+			$("#" + player[0].id)[0].addModelListener(event, "$.fn.jwplayerMediaFlash.forward");
 		}
 	}
 	
-	$.fn.jwplayerMediaFlash.forward = function (event) {
+	$.fn.jwplayerMediaFlash.forward = function(event) {
 		$(event.id).trigger(event.type, event);
 	};
 	
 	function play(player) {
 		return function() {
-			$("#" + player[0].id)[0].sendEvent("PLAY", "true");
+			$("#" + player[0].id)[0].sendEvent("PLAY");
 		};
 	}
 	
 	/** Switch the pause state of the player. **/
 	function pause(player) {
 		return function() {
-			player.pause();
+			$("#" + player[0].id)[0].sendEvent("PAUSE");
 		};
 	}
 	
@@ -1004,7 +1042,7 @@
 	/** Seek to a position in the video. **/
 	function seek(player) {
 		return function(position) {
-			player.seek(position);
+			$("#" + player[0].id)[0].sendEvent("SEEK", position);
 		};
 	}
 	
@@ -1012,7 +1050,7 @@
 	/** Stop playback and loading of the video. **/
 	function stop(player) {
 		return function() {
-			player.stop();
+			$("#" + player[0].id)[0].sendEvent("STOP");
 		};
 	}
 	
@@ -1020,14 +1058,14 @@
 	/** Change the video's volume level. **/
 	function volume(player) {
 		return function(position) {
-			player.volume(position);
+			$("#" + player[0].id)[0].sendEvent("VOLUME", position);
 		};
 	}
 	
 	/** Switch the mute state of the player. **/
 	function mute(player) {
 		return function(state) {
-			player.mute(state);
+			$("#" + player[0].id)[0].sendEvent("MUTE");
 		};
 	}
 	
@@ -1429,50 +1467,7 @@
 	};
 	
 	
-	/** Loading the images from the skin XML. **/
-	function loadSkin(model) {
-		$.get(model.skin, {}, function(xml) {
-			var arr = $('component', xml);
-			for (var i = 0; i < arr.length; i++) {
-				if ($(arr[i]).attr('name') == 'display') {
-					var sts = $(arr[i]).find('setting');
-					arr = $(arr[i]).find('element');
-					break;
-				}
-			}
-			for (var i = 0; i < sts.length; i++) {
-				model.skinlements[$(sts[i]).attr('name')] = $(sts[i]).attr('value');
-			}
-			config.options.images = arr.length;
-			for (var i = 0; i < arr.length; i++) {
-				loadImage(arr[i], config);
-			}
-		});
-	}
-	
-	
-	/** Load the data for a single element. **/
-	function loadImage(element, config) {
-		var img = new Image();
-		var nam = $(element).attr('name');
-		var url = config.options.skin.substr(0, config.options.skin.lastIndexOf('/')) + '/controlbar/';
-		$(img).error(function() {
-			config.options.images--;
-		});
-		$(img).load(function() {
-			config.images[nam] = {
-				height: this.height,
-				width: this.width,
-				src: this.src
-			};
-			config.options.images--;
-			if (config.options.images === 0) {
-				buildElements(config);
-				buildHandlers(config);
-			}
-		});
-		img.src = url + $(element).attr('src');
-	}
+
 	
 })(jQuery);
 /**
@@ -1672,7 +1667,7 @@
 	$.fn.jwplayerView = function() {
 		return this.each(function() {
 			var video = $(this);
-			$(this).wrap("<div />");
+			$(this).wrap("<div id='"+$(this)[0].id+"_jwplayer' />");
 			$(this).parent().css("position","relative");
 			$(this).css("position","absolute");
 			$(this).css("left", "0px");

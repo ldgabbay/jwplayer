@@ -68,7 +68,7 @@
 			$(this).jwplayerModel(options);
 			$(this).jwplayerView();
 			$.fn.jwplayerModel.setActiveMediaProvider($(this));
-			//$(this).jwplayerControlbar();
+			$(this).jwplayerControlbar();
 			$(this).trigger("JWPLAYER_READY", {
 				id: id
 			});

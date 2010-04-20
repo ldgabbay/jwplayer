@@ -21,7 +21,7 @@
 	$.fn.jwplayerView = function() {
 		return this.each(function() {
 			var video = $(this);
-			$(this).wrap("<div />");
+			$(this).wrap("<div id='"+$(this)[0].id+"_jwplayer' />");
 			$(this).parent().css("position","relative");
 			$(this).css("position","absolute");
 			$(this).css("left", "0px");
