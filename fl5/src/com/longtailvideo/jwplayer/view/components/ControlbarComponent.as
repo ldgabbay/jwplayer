@@ -394,7 +394,7 @@ package com.longtailvideo.jwplayer.view.components {
 			textFormat.font = "_sans";
 			textFormat.size = 10;
 			textFormat.bold = true;
-			textFormat.color = player.config.frontcolor.color;
+			if (_player.config.frontcolor) { textFormat.color = _player.config.frontcolor.color; }
 			var textField:TextField = new TextField();
 			textField.defaultTextFormat = textFormat;
 			textField.selectable = false;

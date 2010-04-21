@@ -264,14 +264,18 @@ package com.longtailvideo.jwplayer.media {
 				_video.height = dat.height;
 				resize(_width, _height);
             }
-            if (dat.duration) {
-				if (isDVR) {
-					// Save the DVR duration differently, adding a small buffer.
-					_dvrDuration = dat.duration + 3;
-				} else if (duration <= 0) {
-                	item.duration = dat.duration;
-				}
-            }
+			if (dat.code == 'NetStream.Play.TransitionComplete') {
+				if (_transitionLevel >= 0) { _transitionLevel = -1; }
+			} else {
+            	if (dat.duration) {
+					if (isDVR) {
+						// Save the DVR duration differently, adding a small buffer.
+						_dvrDuration = dat.duration + 3;
+					} else if (duration <= 0) {
+	                	item.duration = dat.duration;
+					}
+            	}
+			}
             if (dat.type == 'complete') {
                 clearInterval(_positionInterval);
 				complete();
@@ -286,9 +290,6 @@ package com.longtailvideo.jwplayer.media {
 					_bandwidthSwitch = false;
                 	setStream();
 				}
-            }
-            if (dat.code == 'NetStream.Play.TransitionComplete') {
-				if (_transitionLevel >= 0) { _transitionLevel = -1; }
             }
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: dat});
         }

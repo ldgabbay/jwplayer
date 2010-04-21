@@ -36,7 +36,9 @@ package com.longtailvideo.jwplayer.utils {
 
 			switch(type.toLowerCase()) {
 				case "color":
-					return new Color(stringToColor(value));
+					if (value.length > 0) {
+						return new Color(stringToColor(value));
+					} else return null;
 				case "number":
 					return Number(value);
 				case "boolean":
