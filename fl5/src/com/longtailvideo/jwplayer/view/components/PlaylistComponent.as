@@ -478,8 +478,8 @@ package com.longtailvideo.jwplayer.view.components {
 					tags.htmlText = playlistItem.tags; 
 				}
 				if (front) {
-					description.textColor = front.color;
-					title.textColor = front.color;
+					if (description) { description.textColor = front.color; }
+					if (title) { title.textColor = front.color; }
 				}
 			} catch (e:Error) {
 			}
