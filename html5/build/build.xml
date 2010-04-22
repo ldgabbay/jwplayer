@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<project name="JW Player for HTML5" default="build-debug" basedir="..">
+
+	<target name="clean">
+		<delete file="${basedir}/jquery.jwplayer.js" quiet="true"/>
+		<delete file="${basedir}/jquery.jwplayer.min.js" quiet="true"/>
+	</target>
+
+	<target name="concat" depends="clean">
+		<concat destfile="${basedir}/jquery.jwplayer.js">
+			<fileset dir="${basedir}/src/" includes="*.js" />
+		</concat>
+	</target>
+
+	<target name="build-debug">
+		<antcall target="concat" />
+	</target>
+
+	<target name="build-release" depends="concat">
+		<java jar="${basedir}/build/yuicompressor-2.4.2.jar" fork="true">
+			<arg line="'${basedir}/jquery.jwplayer.js'"/>
+			<arg line="-o '${basedir}/jquery.jwplayer.min.js'"/>
+		</java>
+	</target>
+
+</project>
