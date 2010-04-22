@@ -43,7 +43,7 @@ If no codecs are provided, the player presumes an H264/AAC video for **.mp4** an
 Flash player fallback
 ---------------------
 
-When the player detects that none of the source videos can be played, it can fall back to an instance of the `JW Player for Flash <www.longtailvideo.com/players/jw-flv-player/>`_:
+When the player detects that none of the source videos can be played, it can fall back to an instance of the `JW Player for Flash <http://www.longtailvideo.com/players/jw-flv-player/>`_:
 
 .. code-block:: html
 
