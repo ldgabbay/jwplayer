@@ -98,13 +98,13 @@
 <script type="text/javascript">
 	$('#player5').jwplayer();
 	
-	$.jwplayer('#player5').buffer(function(parameters, extra){
+	/*$.jwplayer('#player5').buffer(function(parameters, extra){
 		$("#currentbuffer")[0].value = Math.round(extra.buffer*10)/10;
 	});
 	
 	$.jwplayer('#player5').time(function(parameters, extra){
 		$("#currenttime")[0].value = Math.round(extra.position*10)/10;
-	});
+	});*/
 
 	$("#play").click(function(){
 		$.jwplayer('#player5').play();

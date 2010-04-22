@@ -106,7 +106,8 @@
 			}, 100);
 		}
 		sendEvent($(event.target), $.jwplayer().events.JWPLAYER_MEDIA_TIME, {
-			position: event.target.currentTime
+			position: event.target.currentTime,
+			duration: event.target.duration
 		});
 	}
 	
@@ -118,7 +119,7 @@
 			buffer = event.target.buffered.end(0) / event.target.duration * 100;
 		}
 		sendEvent($(event.target), $.jwplayer().events.JWPLAYER_MEDIA_BUFFER, {
-			'buffer': buffer
+			'bufferPercent': buffer
 		});
 	}
 	

@@ -73,25 +73,25 @@
 	
 	
 	/** Callbacks called by Flash players to update stats. **/
-	$.fn.jwplayerControlbar.bufferHandler = function(obj) {
+	$.fn.jwplayerControlbar.bufferHandler = function(event, obj) {
 		bufferHandler({
 			id: obj.id,
-			buffer: obj.percentage
+			bufferPercent: obj.bufferPercent
 		});
 	};
-	$.fn.jwplayerControlbar.muteHandler = function(obj) {
+	$.fn.jwplayerControlbar.muteHandler = function(event, obj) {
 		muteHandler({
 			id: obj.id,
 			mute: obj.state
 		});
 	};
-	$.fn.jwplayerControlbar.stateHandler = function(obj) {
+	$.fn.jwplayerControlbar.stateHandler = function(event, obj) {
 		stateHandler({
 			id: obj.id,
 			state: obj.newstate.toLowerCase()
 		});
 	};
-	$.fn.jwplayerControlbar.timeHandler = function(obj) {
+	$.fn.jwplayerControlbar.timeHandler = function(event, obj) {
 		timeHandler({
 			id: obj.id,
 			elapsed: obj.position,
@@ -177,7 +177,7 @@
 	function buildHandlers(config) {
 		// Register events with the buttons.
 		buildHandler('playButton', 'play', config.player, config.options);
-		buildHandler('pauseButton', 'play', config.player, config.options);
+		buildHandler('pauseButton', 'pause', config.player, config.options);
 		buildHandler('muteButton', 'mute', config.player, config.options);
 		buildHandler('unmuteButton', 'mute', config.player, config.options);
 		buildHandler('fullscreenButton', 'fullscreen', config.player, config.options);
@@ -186,11 +186,11 @@
 		 addSliders(options);
 		 */
 		// Register events with the player.
-		$.jwplayer(config.player).buffer($.fn.jwplayerControlbar.bufferHandler);
-		$.jwplayer(config.player).state($.fn.jwplayerControlbar.stateHandler);
-		$.jwplayer(config.player).time($.fn.jwplayerControlbar.timeHandler);
-		$.jwplayer(config.player).mute($.fn.jwplayerControlbar.muteHandler);
-		$.jwplayer(config.player).volume($.fn.jwplayerControlbar.volumeHandler);
+		$.jwplayer("#"+config.player.id).buffer($.fn.jwplayerControlbar.bufferHandler);
+		$.jwplayer("#"+config.player.id).state($.fn.jwplayerControlbar.stateHandler);
+		$.jwplayer("#"+config.player.id).time($.fn.jwplayerControlbar.timeHandler);
+		$.jwplayer("#"+config.player.id).mute($.fn.jwplayerControlbar.muteHandler);
+		$.jwplayer("#"+config.player.id).volume($.fn.jwplayerControlbar.volumeHandler);
 		// Trigger a few events so the bar looks good on startup.
 		fullscreenHandler(config.options);
 		muteHandler(config.options);
@@ -212,7 +212,7 @@
 		} else {
 			$('#' + nam).mouseup(function(evt) {
 				evt.stopPropagation();
-				player.sendEvent(handler);
+				player[handler]();
 			});
 		}
 	}
@@ -260,7 +260,7 @@
 			} else if (pos > config.duration) {
 				pos = config.duration - 3;
 			}
-			player.sendEvent('seek', pos);
+			player.seek(pos);
 		} else if (config.scrubber == 'volume') {
 			var bar = $('#' + config.id + '_jwplayerControlbar').width();
 			var brx = $('#' + config.id + '_jwplayerControlbar').position().left;
@@ -272,7 +272,7 @@
 			} else if (pct > 100) {
 				pct = 100;
 			}
-			player.sendEvent('volume', pct);
+			player.volume(pct);
 		}
 		config.scrubber = 'none';
 	}
@@ -282,12 +282,12 @@
 	
 	/** Update the buffer percentage. **/
 	function bufferHandler(options) {
-		if (options.buffer === 0) {
+		if (options.bufferPercent === 0) {
 			$('#' + options.id + '_timeSliderBuffer').css('display', 'none');
 		} else {
 			$('#' + options.id + '_timeSliderBuffer').css('display', 'block');
 			var wid = $('#' + options.id + '_timeSliderRail').width();
-			$('#' + options.id + '_timeSliderBuffer').css('width', Math.round(wid * options.buffer / 100));
+			$('#' + options.id + '_timeSliderBuffer').css('width', Math.round(wid * options.bufferPercent / 100));
 		}
 	}
 	
@@ -315,7 +315,7 @@
 			$('#' + options.id + '_pauseButton').css('display', 'none');
 			$('#' + options.id + '_playButton').css('display', 'block');
 		}
-		if (options.state == 'completed') {
+		if (options.state == 'idle') {
 			options.elapsed = 0;
 			timeHandler(options);
 		}
