@@ -63,17 +63,22 @@
 	/** Hooking the controlbar up to jQuery. **/
 	$.fn.jwplayer = function(options) {
 		return this.each(function() {
-			var id = $(this)[0].id;
-			//$(this).css("display", "none");
-			$(this).jwplayerModel(options);
-			$(this).jwplayerView();
-			$.fn.jwplayerModel.setActiveMediaProvider($(this));
-			$(this).jwplayerControlbar();
-			$(this).trigger("JWPLAYER_READY", {
-				id: id
+			var player = $(this);
+			player.jwplayerModel(options);
+			player.jwplayerView();
+			$.fn.jwplayerModel.setActiveMediaProvider(player);
+			$("#"+player[0].id).jwplayerSkinner(function() {
+				finishSetup(player);
 			});
 		});
 	};
+	
+	function finishSetup(player) {
+		player.jwplayerControlbar();
+		player.trigger("JWPLAYER_READY", {
+			id: player[0].id
+		});
+	}
 	
 	
 	/** Map with all players on the page. **/
@@ -141,7 +146,7 @@
 					$.fn.jwplayerController.volume(player, arg);
 					break;
 				case "string":
-					$.fn.jwplayerController.volume(player, parseInt(arg,10));
+					$.fn.jwplayerController.volume(player, parseInt(arg, 10));
 					break;
 				default:
 					return $.fn.jwplayerController.volume(player);

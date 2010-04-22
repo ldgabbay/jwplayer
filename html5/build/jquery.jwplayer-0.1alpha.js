@@ -31,12 +31,14 @@
 			$('#' + id).css('width', '100%');
 			$('#' + id).css('height', '100%');
 			// Save the variables globally and start loading the skin.
-			$.fn.jwplayerControlbar.bars[id] = {
+			config = {
 				player: player,
 				options: options,
-				images: {}
+				images: $(player).data("skin").controlbar.elements
 			};
-			loadSkin($.fn.jwplayerControlbar.bars[id]);
+			$.fn.jwplayerControlbar.bars[id] = config;
+			buildElements(config);
+			buildHandlers(config);
 		});
 	};
 	
@@ -414,53 +416,8 @@
 		$('#' + options.id + '_volumeSliderProgress').css('width', wid);
 		$('#' + options.id + '_volumeSliderProgress').css('right', 1 * rig + rwd - wid);
 	}
-	
-	/** Loading the images from the skin XML. **/
-	function loadSkin(config) {
-		$.get(config.options['skin'], {}, function(xml) {
-			var arr = $('component', xml);
-			for (var i = 0; i < arr.length; i++) {
-				if ($(arr[i]).attr('name') == 'controlbar') {
-					//var sts = $(arr[i]).find('setting');
-					arr = $(arr[i]).find('element');
-					break;
-				}
-			}
-			/*for (var i = 0; i < sts.length; i++) {
-				config.options[$(sts[i]).attr('name')] = $(sts[i]).attr('value');
-			}*/
-			config.options['images'] = arr.length;
-			for (var i = 0; i < arr.length; i++) {
-				loadImage(arr[i], config);
-			}
-		});
-	};
-	
-	
-	/** Load the data for a single element. **/
-	function loadImage(element, config) {
-		var img = new Image();
-		var nam = $(element).attr('name');
-		var url = config.options['skin'].substr(0, config.options['skin'].lastIndexOf('/')) + '/controlbar/';
-		$(img).error(function() {
-			config.options['images']--;
-		});
-		$(img).load(function() {
-			config.images[nam] = {
-				height: this.height,
-				width: this.width,
-				src: this.src
-			};
-			config.options['images']--;
-			if (config.options['images'] == 0) {
-				buildElements(config);
-				buildHandlers(config);
-			}
-		});
-		img.src = url + $(element).attr('src');
-	};
-	
-	
+
+
 	})(jQuery);
 /**
  * JW Player controller component
@@ -672,17 +629,22 @@
 	/** Hooking the controlbar up to jQuery. **/
 	$.fn.jwplayer = function(options) {
 		return this.each(function() {
-			var id = $(this)[0].id;
-			//$(this).css("display", "none");
-			$(this).jwplayerModel(options);
-			$(this).jwplayerView();
-			$.fn.jwplayerModel.setActiveMediaProvider($(this));
-			$(this).jwplayerControlbar();
-			$(this).trigger("JWPLAYER_READY", {
-				id: id
+			var player = $(this);
+			player.jwplayerModel(options);
+			player.jwplayerView();
+			$.fn.jwplayerModel.setActiveMediaProvider(player);
+			$("#"+player[0].id).jwplayerSkinner(function() {
+				finishSetup(player);
 			});
 		});
 	};
+	
+	function finishSetup(player) {
+		player.jwplayerControlbar();
+		player.trigger("JWPLAYER_READY", {
+			id: player[0].id
+		});
+	}
 	
 	
 	/** Map with all players on the page. **/
@@ -750,7 +712,7 @@
 					$.fn.jwplayerController.volume(player, arg);
 					break;
 				case "string":
-					$.fn.jwplayerController.volume(player, parseInt(arg,10));
+					$.fn.jwplayerController.volume(player, parseInt(arg, 10));
 					break;
 				default:
 					return $.fn.jwplayerController.volume(player);
@@ -1460,14 +1422,90 @@
 (function($) {
 
 	/** Constructor **/
-	$.fn.jwplayerSkinner = function() {
+	$.fn.jwplayerSkinner = function(completeHandler) {
 		return this.each(function() {
-			loadSkin($(this).data("model"));
+			load($(this), completeHandler);
 		});
 	};
 	
+	/** Load the skin **/
+	load = function (player, completeHandler){
+		$.get(player.data("model").skin, {}, function(xml) {
+			var skin = {
+				properties:{},
+				incompleteElements: 0
+			};
+			var components = $('component', xml);
+			for (var componentIndex = 0; componentIndex < components.length; componentIndex++) {
+				var componentName = $(components[componentIndex]).attr('name');
+				var component = {
+					settings:{}, 
+					elements:{}
+				};
+				var elements = $(components[componentIndex]).find('element');
+				for (var elementIndex = 0; elementIndex < elements.length; elementIndex++){
+					skin.incompleteElements++;
+					loadImage(elements[elementIndex], componentName, player, completeHandler);
+				}
+				var settings = $(components[componentIndex]).find('setting');
+				for (var settingIndex = 0; settingIndex < settings.length; settingIndex++){
+					component.settings[$(settings[settingIndex]).attr("name")] = $(settings[settingIndex]).attr("value");
+				}
+				skin[componentName] = component;
+			}
+			player.data("skin", skin);
+		});
+	};
 	
+	/** Load the data for a single element. **/
+	function loadImage(element, component, player, completeHandler) {
+		var img = new Image();
+		var elementName = $(element).attr('name');
+		var elementSource = $(element).attr('src');
+		var skinUrl = player.data("model").skin.substr(0, player.data("model").skin.lastIndexOf('/'));
+		$(img).error(function() {
+			player.data("skin").incompleteElements--;
+		});
+		$(img).load(function() {
+			player.data("skin")[component].elements[elementName] = {
+				height: this.height,
+				width: this.width,
+				src: this.src
+			};
+			player.data("skin").incompleteElements--;
+			if (player.data("skin").incompleteElements === 0) {
+				completeHandler();
+			}
+		});
+		img.src = [skinUrl, component, elementSource].join("/");
+	}
+	
+	$.fn.jwplayerSkinner.hasComponent = function (player, component){
+		return (player.data("skin")[component] !== null);
+	};
+	
+	
+	$.fn.jwplayerSkinner.getSkinElement = function (player, component, element){
+		try {
+			return player.data("skin")[component].elements[element];
+		} catch (err) {
+			$.fn.jwplayerUtils.log("No such skin component / element: ", [player, component, element]);
+		}
+		return null;
+	};
 
+	
+	$.fn.jwplayerSkinner.addSkinElement = function (player, component, name, element){
+		try {
+			player.data("skin")[component][name] = element;
+		} catch (err){
+			$.fn.jwplayerUtils.log("No such skin component ", [player, component]);
+		}
+	};
+	
+	$.fn.jwplayerSkinner.getSkinProperties = function (player){
+		return player.data("skin").properties;
+	};
 	
 })(jQuery);
 /**
