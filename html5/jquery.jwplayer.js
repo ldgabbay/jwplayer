@@ -582,23 +582,23 @@
 			selector = $(selector);
 		}
 		return {
-			play: play(selector),
-			pause: pause(selector),
-			seek: seek(selector),
-			stop: stop(selector),
-			volume: volume(selector),
-			mute: mute(selector),
-			fullscreen: fullscreen(selector),
-			state: state(selector),
 			buffer: buffer(selector),
 			duration: duration(selector),
-			width: width(selector),
+			complete: complete(selector),
+			fullscreen: fullscreen(selector),
 			height: buffer(selector),
 			load: load(selector),
-			resize: resize(selector),
 			meta: meta(selector),
+			mute: mute(selector),
+			pause: pause(selector),
+			play: play(selector),
+			resize: resize(selector),
+			seek: seek(selector),
+			state: state(selector),
+			stop: stop(selector),
 			time: time(selector),
-			complete: complete(selector),
+			volume: volume(selector),
+			width: width(selector),
 			events: events
 		};
 	}
@@ -608,11 +608,11 @@
 		JWPLAYER_RESIZE: 'jwplayerResize',
 		//JWPLAYER_LOCKED: 'jwplayerLocked',
 		//JWPLAYER_UNLOCKED: 'jwplayerLocked',
-		JWPLAYER_ERROR: 'jwplayerError',
+		//JWPLAYER_ERROR: 'jwplayerError',
 		JWPLAYER_MEDIA_BUFFER: 'jwplayerMediaBuffer',
 		//JWPLAYER_MEDIA_BUFFER_FULL: 'jwplayerMediaBufferFull',
 		JWPLAYER_MEDIA_ERROR: 'jwplayerMediaError',
-		JWPLAYER_MEDIA_LOADED: 'jwplayerMediaLoaded',
+		//JWPLAYER_MEDIA_LOADED: 'jwplayerMediaLoaded',
 		JWPLAYER_MEDIA_COMPLETE: 'jwplayerMediaComplete',
 		JWPLAYER_MEDIA_TIME: 'jwplayerMediaTime',
 		JWPLAYER_MEDIA_VOLUME: 'jwplayerMediaVolume',
@@ -828,7 +828,7 @@
 			return jwplayer(player);
 		};
 	}
-	
+
 	/** Adds a listener for video completion **/
 	function complete(player) {
 		return function(arg) {
@@ -836,15 +836,23 @@
 			return jwplayer(player);
 		};
 	}
-	
+
 	/** Returns the duration **/
 	function duration(player) {
 		return function() {
 			return $.fn.jwplayerController.mediaInfo(player).duration;
 		};
 	}
-	
-	
+
+	/** Adds a listener for media errors. **/
+	function error(player) {
+		return function(arg) {
+			addEventListener(player, $.jwplayer().events.JWPLAYER_MEDIA_ERROR, arg);
+			return jwplayer(player);
+		};
+	}
+
+
 	/** Returns the width **/
 	function width(player) {
 		return function() {

@@ -5,7 +5,7 @@ Player API
 
 The HTML5 player contains a simple javascript API which can be used to:
 
-* Request the various playback states (*position*, *volume*, *dimensions*).
+* Request the various playback states (*time*, *volume*, *dimensions*).
 * Control the player through a number of available methods (*play*, *pause*, *load*).
 * Track the player state by listening to certain events (*time*, *volume*, *resize*).
 
@@ -40,7 +40,15 @@ If you have multiple players on a page, you can reference a single player by giv
 Requesting properties
 ---------------------
 
-The following player properties can be requested using javascript: 
+The player contains a number of properties (such as its *volume* or playback *state*) that can be requested at runtime. Here's how to request a player property:
+
+.. code-block:: html
+
+   <video class="jwplayer" width="400" height="300" src="/static/video.mp4">
+
+   <p onclick="alert($.jwplayer().volume())">Get player volume</p>
+
+Here's the full list of available properties:
 
 .. describe:: buffer ()
 
@@ -67,9 +75,6 @@ The following player properties can be requested using javascript:
 
    .. note:: *Volume* and *mute* are separate properties. This allows the player to switch to the previously used volume when the player is muted and then unmuted.
 
-.. describe:: position ()
-
-   The current playback position of the video, in seconds.
 
 .. describe:: state ()
 
@@ -80,6 +85,10 @@ The following player properties can be requested using javascript:
    * **playing**: Video is playing.
    * **paused** Video has enough data for playback, but the user has paused the video. 
 
+.. describe:: time ()
+
+   The current playback position of the video, in seconds.
+
 .. describe:: volume ()
 
    The audio volume percentage of the player, can be **0** to **100**.
@@ -89,19 +98,22 @@ The following player properties can be requested using javascript:
    The width of the player, in pixels.
 
 
-Here's how to request a player property:
+Calling methods
+---------------
+
+The player exposes a list of methods you can use to control it from javascript (e.g. *play*).  Here's how to invoke a player method:
 
 .. code-block:: html
 
    <video class="jwplayer" width="400" height="300" src="/static/video.mp4">
+   <ul>
+     <li> onclick="$.jwplayer().play()">play the video</li>
+     <li> onclick="$.jwplayer().pause()">pause the video</li>
+     <li> onclick="$.jwplayer().seek(0)">play from the beginning of the video</li>
+   </ul>
 
-   <p onclick="alert($.jwplayer().volume())">Get player volume</p>
+Here's the full list of available methods for the player:
 
-
-Calling methods
----------------
-
-The player exposes a list of methods you can use to control it from javascript:
 
 .. describe:: fullscreen (state) 
 
@@ -142,13 +154,111 @@ The player exposes a list of methods you can use to control it from javascript:
    Set the player audio volume percentage, a number between 0 and 100. When changing the volume while the player is muted, it will also automatically be unmuted.
 
 
-Here's how to invoke a player method:
+Listening to events
+-------------------
+
+The player broadcasts an event whenever one of its properties change (e.g. the playback *time*, *fullscreen* state or *volume*). Listen to these events to build interaction between the player and other elements on the page (e.g. showing a message when the video starts). Here's how to listen to an event:
 
 .. code-block:: html
 
    <video class="jwplayer" width="400" height="300" src="/static/video.mp4">
-   <ul>
-     <li> onclick="$.jwplayer().play()">play the video</li>
-     <li> onclick="$.jwplayer().pause()">pause the video</li>
-     <li> onclick="$.jwplayer().seek(0)">play from the beginning of the video</li>
-   </ul>
+
+   <p id="message"></p>
+
+   <script type="text/javascript"> 
+     function stateListener(event) {
+       $('#message').html('The new playback state is '+event.state);
+     };
+     $.jwplayer.addEventListener('jwplayerPlayerState',stateListener);
+   </script>
+
+Here's the full list of events, and their parameters:
+
+.. describe:: 'jwplayerMediaBuffer'
+
+   This event is fired while the video to play is being downloaded. Parameters:
+
+   * **buffer** (*number*): percentage of the video that is downloaded (0 to 100).
+   * **player** (*jwplayer*): Reference to the player that sent the event.
+   * **version** (*string*): version of the JW Player, e.g. 1.0.877.
+
+.. describe:: 'jwplayerMediaComplete'
+
+   The end of the video was reached during playback. Parameters:
+
+   * **player** (*jwplayer*): Reference to the player that sent the event.
+   * **version** (*string*): version of the JW Player, e.g. 1.0.877.
+
+.. describe:: 'jwplayerMediaError'
+
+   There was an error loading or playing the video (e.g. the video was not found). Parameters:
+
+   * **message** (*string*): The error message.
+   * **player** (*jwplayer*): Reference to the player that sent the event.
+   * **version** (*string*): version of the JW Player, e.g. 1.0.877.
+
+.. describe:: 'jwplayerFullscreen'
+
+   The player has switched from / to fullscreen mode. Parameters:
+
+   * **fullscreen** (*boolean*): The new fullscreen state (if *true*, the player is in fullscreen).
+   * **player** (*jwplayer*): Reference to the player that sent the event.
+   * **version** (*string*): version of the JW Player, e.g. 1.0.877.
+
+.. describe:: 'jwplayerMediaLoaded'
+
+   A new video is loaded into the player. Note that the actual video date is not loaded yet (you should listen to the *jwplayerMediaBuffer* event for that). This event states the loaded file is ready for playback. Parameters:
+
+   * **player** (*jwplayer*): Reference to the player that sent the event.
+   * **version** (*string*): version of the JW Player, e.g. 1.0.877.
+
+.. describe:: 'jwplayerMediaMeta'
+
+   The player has received metadata about the video it is playing. Parameters:
+
+   * **data** (*object*): an object with key:value pairs of metadata (e.g. *{duration:33.02,height:240,width:320}*).
+   * **player** (*jwplayer*): reference to the player that sent the event.
+   * **version** (*string*): version of the JW Player, e.g. 1.0.877.
+
+.. describe:: 'jwplayerMediaMute'
+
+   The mute state of the player just got updated. When muted, the audio is completely dropped. The player will display a muted icon on top of the video. Parameters:
+
+   * **mute** (*boolean*): the new mute state (if *true*, the player is silent).
+   * **player** (*jwplayer*): reference to the player that sent the event.
+   * **version** (*string*): version of the JW Player, e.g. 1.0.877.
+
+.. describe:: 'jwplayerResize'
+
+   The player was resized on the page to different dimensions. Parameters:
+
+   * **height** (*number*): the new height of the player, in pixels.
+   * **width** (*number*): the new width of the player, in pixels.
+   * **player** (*jwplayer*): reference to the player that sent the event.
+   * **version** (*string*): version of the JW Player, e.g. 1.0.877.
+
+.. describe:: 'jwplayerPlayerState'
+
+   The playback state of player was changed. Parameters:
+
+   * **oldstate** (*idle* ,*buffering* ,*paused* ,*playing*): The playback state the player just switched away from. Can be one of 4 states
+   * **newstate** (*idle* ,*buffering* ,*paused* ,*playing*): The playback state the player just switched to. Can be one of 4 states
+   * **player** (*jwplayer*): reference to the player that sent the event.
+   * **version** (*string*): version of the JW Player, e.g. 1.0.877.
+
+.. describe:: 'jwplayerMediaTime'
+
+   The position and/or duration of the mediafile have changed. This event typically fires when the mediafile is playing, with a resolution of 10x / second. Parameters:
+
+   * **position** (*number*): current playback position in the mediafile, in seconds.
+   * **duration** (*number*): total duration of the mediafile, in seconds.
+   * **player** (*jwplayer*): reference to the player that sent the event.
+   * **version** (*string*): version of the JW Player, e.g. 1.0.877.
+
+.. describe:: 'jwplayerMediaVolume'
+
+   The audio volume of the player just got updated. Parameters:
+
+   * **volume** (*number*): the new volume percentage (0 to 100).
+   * **player** (*jwplayer*): reference to the player that sent the event.
+   * **version** (*string*): version of the JW Player, e.g. 1.0.877.

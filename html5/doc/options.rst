@@ -63,7 +63,9 @@ For modifying the layout of the player, the following options are available:
 
    PNG Skin to load. PNG skins are fully supported by both the HTML5 and the Flash player.
 
-   .. note:: The PNG skinning functionality allows you to swiftly modify the look of the player with great control. A large number of skins is freely available from our addons repository.
+   .. note:: 
+
+      The JW Player for HTML5 is fully compatible with the `PNG Skinning model <http://www.longtailvideo.com/support/jw-player/jw-player-for-flash-v5/14/skinning-the-jw-player-5>`_ of the JW Player for Flash. Any PNG skin built for the Flash player can be used in the HTML5 player. You do need to unzip a skin before it can be loaded into the HTML5 player. Zipped skins are not supported (yet).
 
 .. describe:: screencolor ('000000'): 
 

@@ -22,8 +22,8 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-# extensions = ['sphinx.ext.todo','rst2pdf.pdfbuilder']
-extensions = ['sphinx.ext.todo']
+extensions = ['sphinx.ext.todo','rst2pdf.pdfbuilder']
+# extensions = ['sphinx.ext.todo']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -224,3 +224,32 @@ pdf_stylesheets = ['sphinx','kerning','a4']
 #pdf_language = "en_US" 
 # Mode for literal blocks wider than the frame. Can be 
 # overflow, shrink or truncate 
+#pdf_fit_mode = "shrink" 
+# Section level that forces a break page. 
+# For example: 1 means top-level sections start in a new page 
+# 0 means disabled 
+#pdf_break_level = 0 
+# When a section starts in a new page, force it to be 'even', 'odd', 
+# or just use 'any' 
+#pdf_breakside = 'any' 
+# Insert footnotes where they are defined instead of 
+# at the end. 
+#pdf_inline_footnotes = True 
+# verbosity level. 0 1 or 2 
+#pdf_verbosity = 0 
+# If false, no index is generated. 
+#pdf_use_index = True 
+# If false, no modindex is generated. 
+#pdf_use_modindex = True 
+# If false, no coverpage is generated. 
+#pdf_use_coverpage = True 
+# Documents to append as an appendix to all manuals. 
+#pdf_appendices = [] 
+# Enable experimental feature to split table cells. Use it 
+# if you get "DelayedTable too big" errors 
+#pdf_splittables = False 
+# Set the default DPI for images 
+#pdf_default_dpi = 72 
+# Enable rst2pdf extension modules (default is empty list) 
+# you need vectorpdf for better sphinx's graphviz support 
+#pdf_extensions = ['vectorpdf'] 
