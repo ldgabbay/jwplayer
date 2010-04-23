@@ -33,6 +33,8 @@
 			time: time(selector),
 			volume: volume(selector),
 			width: width(selector),
+			addEventListener: apiAddEventListener(selector),
+			removeEventListener: apiRemoveEventListener(selector),
 			events: events
 		};
 	}
@@ -317,6 +319,19 @@
 		};
 	}
 	
+	/** Returns the API method for adding an event listener.**/
+	function apiAddEventListener(player) {
+		return function(event, listener) {
+			addEventListener(player, event, listener);
+		};
+	}
+
+	/** Returns the API method for adding an event listener.**/
+	function apiRemoveEventListener(player) {
+		return function(event, listener) {
+			removeEventListener(player, event, listener);
+		};
+	}
 	
 	/** Add an event listener. **/
 	function addEventListener(player, event, listener) {
