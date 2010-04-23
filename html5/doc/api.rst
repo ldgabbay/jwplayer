@@ -28,8 +28,8 @@ If you have multiple players on a page, you can reference a single player by giv
 
 .. code-block:: html
 
-   <video class="jwplayer" id="player1" width="400" height="300" src="/static/video1.mp4">
-   <video class="jwplayer" id="player2" width="400" height="300" src="/static/video2.mp4">
+   <video class="jwplayer" id="player1" width="400" height="300" src="../video1.mp4">
+   <video class="jwplayer" id="player2" width="400" height="300" src="../video2.mp4">
 
    <script type="text/javascript">
      var player = $.jwplayer("#player1");
@@ -216,7 +216,7 @@ Here's the full list of events, and their parameters:
 
    The player has received metadata about the video it is playing. Parameters:
 
-   * **data** (*object*): an object with key:value pairs of metadata (e.g. *{duration:33.02,height:240,width:320}*).
+   * **data** (*object*): an object with key:value pairs of metadata (e.g. duration, height and width).
    * **player** (*jwplayer*): reference to the player that sent the event.
    * **version** (*string*): version of the JW Player, e.g. 1.0.877.
 

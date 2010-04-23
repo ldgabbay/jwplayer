@@ -30,8 +30,8 @@ Video tags with multiple nested *<source>* tags are also supported by the player
 .. code-block:: html
 
     <video width="480" height="270" class="jwplayer">
-      <source src="/static/files/bunny.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
-      <source src="/static/files/bunny.ogv" type='video/ogg; codecs="theora, vorbis"' />
+      <source src="/static/files/bunny.mp4" type="video/mp4" />
+      <source src="/static/files/bunny.ogv" type="video/ogg" />
     </video>
 
 The player tries to playback the *<source>* videos in order of appearance. So with the above example, if a browsers supports both H264/AAC and Theora/Vorbis, the first option would be played.
@@ -48,19 +48,19 @@ When the player detects that none of the source videos can be played, it can fal
 .. code-block:: html
 
     <video width="480" height="270" class="jwplayer" >
-      <source src="/static/files/bunny.mp4" type='video/mp4' />
-      <source src="/static/files/bunny.ogv" type='video/ogg' />
-      <source src="/static/files/bunny.flv" type='video/flv' />
+      <source src="/static/files/bunny.mp4" type="video/mp4" />
+      <source src="/static/files/bunny.ogv" type="video/ogg" />
+      <source src="/static/files/bunny.flv" type="video/flv" />
     </video>
 
 If Adobe Flash also is not supported by the browser, the player does not touch the *<video>* element at all. A fallback message can be placed in those tags to warn the end-user:
 
 .. code-block:: html
 
-    <video id="container" src="/static/files/bunny.mp4" width="480" height="270" class="jwplayer" >
-      Your browser does not support video playback, but you can <a href="/static/files/bunny.mp4">download the video here</a>.
+    <video src="../files/bunny.mp4" width="480" height="270" class="jwplayer">
+      Your browser does not support video playback, but you can 
+      <a href="/static/files/bunny.mp4">download the video here</a>.
     </video>
-
 
 
 

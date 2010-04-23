@@ -21,8 +21,6 @@ The following video formats are supported by the player:
 * Spark (H263) video / MP3 audio in the FLV container (`FLV example <http://developer.longtailvideo.com/player/testing/files/bunny.flv>`_). 
     Supported as part of the the Flash fallback.
 
-
-
 .. todo:
 
     Audio formats

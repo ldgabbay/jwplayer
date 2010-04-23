@@ -67,7 +67,10 @@
 	/** The complete list with all current flashvars. **/
 	var variables = {width:500,height:260};
 	/** When jQuery is loaded, we initialize everything. **/
-	$().ready(function() { loadSettings(); });
+	$().ready(function() { 
+		loadSettings(); 
+		setAPI();
+	});
 	/** Load the settings and querystring. **/
 	function loadSettings() {
 		// load the settings.
@@ -249,77 +252,38 @@
 	* This section is executed when a user starts interacting with the player API.
 	**/
 
-	/** Reference to the player **/
-	var player;
 	/** When the player is ready and the API forms can be shown, display them. **/
-	function playerReady(obj) {
-		if(settings['api_forms'] == 'show') {
-			player = document.getElementById(obj['id']);
-			$('#javascript').css('display','block');
-			$("#variablesform").submit(function(evt) { getVariable(evt); });
-			$("#sendeventform").submit(function(evt) { sendEvent(evt); });
-			$("#listenersform").submit(function(evt) { setListener(evt); });
-		}
+	function setAPI(obj) {
+		$("#variablesform").submit(function(evt) { getVariable(evt); });
+		$("#sendeventform").submit(function(evt) { sendEvent(evt); });
+		$("#listenersform").submit(function(evt) { setListener(evt); });
 	};
 	/** Get a variable from the player. **/
 	function getVariable(evt) {
 		evt.preventDefault();
-		switch($('#vartype').val().toString()) {
-			case 'config':
-				var obj = player.getConfig();
-				break;
-			case 'playlist':
-				var obj = player.getPlaylist();
-				break;
-			case 'plugin.config':
-				var obj = player.getPluginConfig($('#configplugin').val());
-				break;
-		}
-		alertValue(obj);
+		var typ = $('#vartype').val().toString();
+		var prp = $.jwplayer()[typ]();
+		alert(prp);
 	};
 	/** Send an event to the player. **/
 	function sendEvent(evt) {
 		evt.preventDefault();
 		var typ = $('#sendevent').val();
-		var dat = $('#sendeventdata').val();
-		if(typ == 'LOAD' && dat.indexOf('{') > 0) {
-			var arr = new Array();
-			var ply = dat.split(';');
-			for(var i=0; i<ply.length; i++) {
-				var obj = new Object();
-				var itm = ply[i].split(',');
-				for(var j=0; j<itm.length; j++) {
-					obj[itm[j].split(':')[0]] = itm[j].split(':')[1];
-				}
-				arr.push(obj);
-			}
-			if(arr.length > 1) {
-				dat = arr;
-			} else { 
-				dat = obj;
-			}
+		var pr1 = $('#sendeventdata1').val();
+		var pr2 = $('#sendeventdata2').val();
+		if(pr2) {
+			$.jwplayer()[typ](pr1,pr2);
+		} else if (pr1) { 
+			$.jwplayer()[typ](pr1);
+		} else { 
+			$.jwplayer()[typ]();
 		}
-		player.sendEvent(typ,dat);
 	};
 	/** Set a listener to the player. **/
 	function setListener(evt) {
 		evt.preventDefault();
-		var arr = $('#eventtype').val().toString().split(': ');
-		var sel = $('#addremove').val().toString();
-		var fcn = 'alertValue';
-		if(arr.length == 2 && sel == 'add') {
-			if(arr[0] == 'Model') {
-				player.addModelListener(arr[1],fcn);
-			} else { 
-				player.addControllerListener(arr[1],fcn);
-			}
-		} else if(arr.length == 2 && sel == 'remove') {
-			if(arr[0] == 'Model') { 
-				player.removeModelListener(arr[1],fcn);
-			} else {
-				player.removeControllerListener(arr[1],fcn);
-			}
-		}
+		var typ = $('#eventtype').val();
+		$.jwplayer()[typ](alertValue);
 	};
 	/** Alert responses from the player. **/
 	function alertValue(obj) {
@@ -359,66 +323,60 @@
 <div id="javascript">
 	<form id="variablesform">
 		<fieldset>
-			<label>Variable</label>
+			<label>Property</label>
 			<select type="text" id="vartype">
-				<option>config</option>
-				<option>playlist</option>
-				<option>plugin.config</option>
+				<option>buffer</option>
+				<option>duration</option>
+				<option>fullscreen</option>
+				<option>height</option>
+				<option>mute</option>
+				<option>state</option>
+				<option>time</option>
+				<option>volume</option>
+				<option>width</option>
 			</select>
-			<label>Plugin</label>
-			<input type="text" id="configplugin" />
 		</fieldset>
-		<button type="submit" id="variablesbutton">Get variable</button>
+		<button type="submit" id="variablesbutton">Get property</button>
 	</form>
 	<form id="sendeventform">
 		<fieldset>
-			<label>Event</label>
+			<label>Method</label>
 			<select type="text" id="sendevent">
-				<option>ITEM</option>
-				<option>LINK</option>
-				<option>LOAD</option>
-				<option>MUTE</option>
-				<option>NEXT</option>
-				<option>PLAY</option>
-				<option>PREV</option>
-				<option>REDRAW</option>
-				<option>SEEK</option>
-				<option>STOP</option>
-				<option>VOLUME</option>
+				<option>fullscreen</option>
+				<option>load</option>
+				<option>mute</option>
+				<option>pause</option>
+				<option>play</option>
+				<option>resize</option>
+				<option>seek</option>
+				<option>stop</option>
+				<option>volume</option>
 			</select>
-			<label>Data</label>
-			<input type="text" id="sendeventdata" />
+			<label>Parameter 1</label>
+			<input type="text" id="sendeventdata1" />
+			<label>Parameter 2</label>
+			<input type="text" id="sendeventdata2" />
 		</fieldset>
-		<button type="submit" id="sendeventbutton">Send event</button>
+		<button type="submit" id="sendeventbutton">Call method</button>
 	</form>
 	<form id="listenersform">
 		<fieldset>
-			<label>Type</label>
-			<select type="text" id="addremove">
-				<option>add</option>
-				<option>remove</option>
-			</select>
 			<label>Event</label>
 			<select type="text" id="eventtype">
-				<option>Controller: ERROR</option>
-				<option>Controller: ITEM</option>
-				<option>Controller: MUTE</option>
-				<option>Controller: PLAY</option>
-				<option>Controller: PLAYLIST</option>
-				<option>Controller: RESIZE</option>
-				<option>Controller: SEEK</option>
-				<option>Controller: STOP</option>
-				<option>Controller: VOLUME</option>
-				<option></option>
-				<option>Model: BUFFER</option>
-				<option>Model: ERROR</option>
-				<option>Model: LOADED</option>
-				<option>Model: META</option>
-				<option>Model: STATE</option>
-				<option>Model: TIME</option>
+				<option>buffer</option>
+				<option>complete</option>
+				<option>error</option>
+				<option>fullscreen</option>
+				<option>loaded</option>
+				<option>meta</option>
+				<option>mute</option>
+				<option>resize</option>
+				<option>state</option>
+				<option>time</option>
+				<option>volume</option>
 			</select>
 		</fieldset>
-		<button type="submit" id="listenersbutton">Set listener</button>
+		<button type="submit" id="listenersbutton">Listen to event</button>
 	</form>
 </div>
 
