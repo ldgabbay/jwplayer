@@ -21,15 +21,21 @@
 	$.fn.jwplayerView = function() {
 		return this.each(function() {
 			var video = $(this);
-			$(this).wrap("<div id='"+$(this)[0].id+"_jwplayer' />");
-			$(this).parent().css("position","relative");
-			$(this).css("position","absolute");
+			if ($(this).attr("src") !== "") {
+				$(this).attr("preload", "metadata");
+				$(this).append('<source src="' + $(this).attr("src") + '" >');
+				$(this).removeAttr("src");
+			}
+			$(this).wrap("<div id='" + $(this)[0].id + "_jwplayer' />");
+			$(this).parent().css("position", "relative");
+			//$(this).css("display", "none");
+			$(this).css("position", "absolute");
 			$(this).css("left", "0px");
 			$(this).css("top", "0px");
 			$(this).css("z-index", "0");
 			$(this).before("<a href='" + $(this).data("model").sources[$(this).data("model").source].file + "' style='display:block; background:#ffffff url(" + $(this).data("model").image + ") no-repeat center center;width:" + $(this).data("model").width + "px;height:" + $(this).data("model").height + "px;position:relative;'><img src='http://content.bitsontherun.com/staticfiles/play.png' alt='Click to play video' style='position:absolute; top:" + ($(this).data("model").height - 60) / 2 + "px; left:" + ($(this).data("model").width - 60) / 2 + "px; border:0;' /></a>");
-			$(this).prev("a").css("position","relative");
-			$(this).prev("a").css("z-index","100");
+			$(this).prev("a").css("position", "relative");
+			$(this).prev("a").css("z-index", "100");
 			$(this).prev("a").click(function(evt) {
 				if (typeof evt.preventDefault != 'undefined') {
 					evt.preventDefault(); // W3C 

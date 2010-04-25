@@ -14,6 +14,7 @@
 		return this.each(function() {
 			var id = $(this)[0].id;
 			var div = $('#' + id).parents()[0].id;
+			//$($('#' + id).parents()[0]).append('<div id="' + div + '">');
 			var player = document.getElementById(id);
 			var options = $.extend({}, $.fn.jwplayerControlbar.defaults, ops);
 			$.extend(options, $('#' + id).data("model"));
@@ -21,15 +22,9 @@
 			$.extend(options, {
 				id: id,
 				div: div,
-				left: $('#' + div).position().left,
-				top: $('#' + div).position().top
+				left: 0,
+				top: 0
 			});
-			$('#' + div).css('position', 'static');
-			$('#' + div).css('z-index', '98');
-			$('#' + div).css('height', options.height);
-			$('#' + div).css('width', options.width);
-			$('#' + id).css('width', '100%');
-			$('#' + id).css('height', '100%');
 			// Save the variables globally and start loading the skin.
 			config = {
 				player: player,
@@ -109,8 +104,8 @@
 	/** Draw the jwplayerControlbar elements. **/
 	function buildElements(config) {
 		// Draw the background.
-		$('#' + config.options.div).after('<div id="' + config.options.id + '_jwplayerControlbar"></div>');
-		$('#' + config.options.id + '_jwplayerControlbar').css('position', 'absolute');
+		$('#' + config.options.div).append('<div id="' + config.options.id + '_jwplayerControlbar"></div>');
+		$('#' + config.options.id + '_jwplayerControlbar').css('position', 'relative');
 		$('#' + config.options.id + '_jwplayerControlbar').css('height', config.images.background.height);
 		$('#' + config.options.id + '_jwplayerControlbar').css('background', 'url(' + config.images.background.src + ') repeat-x center left');
 		// Draw all elements on top of the bar.
@@ -186,11 +181,11 @@
 		 addSliders(options);
 		 */
 		// Register events with the player.
-		$.jwplayer("#"+config.player.id).buffer($.fn.jwplayerControlbar.bufferHandler);
-		$.jwplayer("#"+config.player.id).state($.fn.jwplayerControlbar.stateHandler);
-		$.jwplayer("#"+config.player.id).time($.fn.jwplayerControlbar.timeHandler);
-		$.jwplayer("#"+config.player.id).mute($.fn.jwplayerControlbar.muteHandler);
-		$.jwplayer("#"+config.player.id).volume($.fn.jwplayerControlbar.volumeHandler);
+		$.jwplayer("#" + config.player.id).buffer($.fn.jwplayerControlbar.bufferHandler);
+		$.jwplayer("#" + config.player.id).state($.fn.jwplayerControlbar.stateHandler);
+		$.jwplayer("#" + config.player.id).time($.fn.jwplayerControlbar.timeHandler);
+		$.jwplayer("#" + config.player.id).mute($.fn.jwplayerControlbar.muteHandler);
+		$.jwplayer("#" + config.player.id).volume($.fn.jwplayerControlbar.volumeHandler);
 		// Trigger a few events so the bar looks good on startup.
 		fullscreenHandler(config.options);
 		muteHandler(config.options);
@@ -356,22 +351,22 @@
 	/** Flip the player size to/from full-browser-screen. **/
 	function fullscreenHandler(options) {
 		if (options.fullscreen) {
-			$('#' + options.div).css('position', 'absolute');
-			$('#' + options.div).css('left', 0);
-			$('#' + options.div).css('top', 0);
-			$('#' + options.div).css('height', '100%');
-			$('#' + options.div).css('width', '100%');
+			//$('#' + options.div).css('position', 'absolute');
+			//$('#' + options.div).css('left', 0);
+			//$('#' + options.div).css('top', 0);
+			//$('#' + options.div).css('height', '100%');
+			//$('#' + options.div).css('width', '100%');
 			$('#' + options.id + '_normalscreenButton').css('display', 'block');
 			$('#' + options.id + '_fullscreenButton').css('display', 'none');
 			$(window).resize(function() {
 				resizeBar(options);
 			});
 		} else {
-			$('#' + options.div).css('position', 'static');
-			$('#' + options.div).css('left', options.left);
-			$('#' + options.div).css('top', options.top);
-			$('#' + options.div).css('height', options.height);
-			$('#' + options.div).css('width', options.width);
+			//$('#' + options.div).css('position', 'relative');
+			//$('#' + options.div).css('left', options.left);
+			//$('#' + options.div).css('top', options.top);
+			//$('#' + options.div).css('height', options.height);
+			//$('#' + options.div).css('width', options.width);
 			$('#' + options.id + '_normalscreenButton').css('display', 'none');
 			$('#' + options.id + '_fullscreenButton').css('display', 'block');
 			$(window).resize(null);
@@ -385,7 +380,7 @@
 	/** Resize the jwplayerControlbar. **/
 	function resizeBar(options) {
 		var lft = options.left;
-		var top = options.top + options.height;
+		var top = options.top;
 		var wid = options.width;
 		var hei = $('#' + options.id + '_jwplayerControlbar').height();
 		if (options.position == 'over') {
@@ -416,9 +411,9 @@
 		$('#' + options.id + '_volumeSliderProgress').css('width', wid);
 		$('#' + options.id + '_volumeSliderProgress').css('right', 1 * rig + rwd - wid);
 	}
-
-
-	})(jQuery);
+	
+	
+})(jQuery);
 /**
  * JW Player controller component
  *
@@ -599,6 +594,8 @@
 			time: time(selector),
 			volume: volume(selector),
 			width: width(selector),
+			addEventListener: apiAddEventListener(selector),
+			removeEventListener: apiRemoveEventListener(selector),
 			events: events
 		};
 	}
@@ -883,6 +880,19 @@
 		};
 	}
 	
+	/** Returns the API method for adding an event listener.**/
+	function apiAddEventListener(player) {
+		return function(event, listener) {
+			addEventListener(player, event, listener);
+		};
+	}
+
+	/** Returns the API method for adding an event listener.**/
+	function apiRemoveEventListener(player) {
+		return function(event, listener) {
+			removeEventListener(player, event, listener);
+		};
+	}
 	
 	/** Add an event listener. **/
 	function addEventListener(player, event, listener) {
@@ -1715,15 +1725,21 @@
 	$.fn.jwplayerView = function() {
 		return this.each(function() {
 			var video = $(this);
-			$(this).wrap("<div id='"+$(this)[0].id+"_jwplayer' />");
-			$(this).parent().css("position","relative");
-			$(this).css("position","absolute");
+			if ($(this).attr("src") !== "") {
+				$(this).attr("preload", "metadata");
+				$(this).append('<source src="' + $(this).attr("src") + '" >');
+				$(this).removeAttr("src");
+			}
+			$(this).wrap("<div id='" + $(this)[0].id + "_jwplayer' />");
+			$(this).parent().css("position", "relative");
+			//$(this).css("display", "none");
+			$(this).css("position", "absolute");
 			$(this).css("left", "0px");
 			$(this).css("top", "0px");
 			$(this).css("z-index", "0");
 			$(this).before("<a href='" + $(this).data("model").sources[$(this).data("model").source].file + "' style='display:block; background:#ffffff url(" + $(this).data("model").image + ") no-repeat center center;width:" + $(this).data("model").width + "px;height:" + $(this).data("model").height + "px;position:relative;'><img src='http://content.bitsontherun.com/staticfiles/play.png' alt='Click to play video' style='position:absolute; top:" + ($(this).data("model").height - 60) / 2 + "px; left:" + ($(this).data("model").width - 60) / 2 + "px; border:0;' /></a>");
-			$(this).prev("a").css("position","relative");
-			$(this).prev("a").css("z-index","100");
+			$(this).prev("a").css("position", "relative");
+			$(this).prev("a").css("z-index", "100");
 			$(this).prev("a").click(function(evt) {
 				if (typeof evt.preventDefault != 'undefined') {
 					evt.preventDefault(); // W3C 
