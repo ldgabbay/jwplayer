@@ -46,7 +46,7 @@
 	$.fn.jwplayerControlbar.stateHandler = function(obj) {
 		stateHandler({
 			id: obj.id,
-			state: obj.newstate.toLowerCase()
+			state: obj.newstate
 		});
 	};
 	
@@ -166,7 +166,7 @@
 		if (handler == 'fullscreen') {
 			$('#' + nam).mouseup(function(evt) {
 				evt.stopPropagation();
-				player.fullscreen() = !player.fullscreen();
+				player.fullscreen(!player.fullscreen());
 				fullscreenHandler(player);
 			});
 		} else {
@@ -184,8 +184,10 @@
 		var trl = '#' +player.id + '_timeSliderRail';
 		var vrl = '#' +player.id + '_volumeSliderRail';
 		$(bar).css('cursor', 'hand');
+		$(trl).css('cursor', 'hand');
+		$(vrl).css('cursor', 'hand');
 		$(bar).mousedown(function(evt) {
-			var xps = evt.pageX - $(bar).position().left;
+			var xps = evt.pageX - $(bar).position().left - $('#' +player.id + '_jwplayerControlbar').parents(":first").position().left;
 			if (xps > $(trl).position().left && xps < $(trl).position().left + $(trl).width()) {
 				player.controlbar.scrubber = 'time';
 			} else if (xps > $(vrl).position().left && xps < $(vrl).position().left + $(vrl).width()) {
@@ -212,7 +214,7 @@
 	/** The slider has been moved up. **/
 	function sliderUp(msx, player) {
 		if (player.controlbar.scrubber == 'time') {
-			var xps = msx - $('#' +player.id + '_timeSliderRail').position().left;
+			var xps = msx - $('#' +player.id + '_timeSliderRail').position().left - $('#' +player.id + '_jwplayerControlbar').parents(":first").position().left;
 			var wid = $('#' +player.id + '_timeSliderRail').width();
 			var pos = xps / wid * player.duration();
 			if (pos < 0) {
@@ -254,7 +256,7 @@
 	/** Update the mute state. **/
 	function muteHandler(event) {
 		var player = $.jwplayer(event.id);
-		if (event.mute) {
+		if (player.mute()) {
 			$('#' +player.id + '_muteButton').css('display', 'none');
 			$('#' +player.id + '_unmuteButton').css('display', 'block');
 			$('#' +player.id + '_volumeSliderProgress').css('display', 'none');
@@ -269,7 +271,7 @@
 	/** Update the playback state. **/
 	function stateHandler(event) {
 		var player = $.jwplayer(event.id);
-		if (event.state == $.fn.jwplayer.states.BUFFERING || player.state() ==  $.fn.jwplayer.states.PLAYING) {
+		if (player.state() == $.fn.jwplayer.states.BUFFERING || player.state() ==  $.fn.jwplayer.states.PLAYING) {
 			$('#' +player.id + '_pauseButton').css('display', 'block');
 			$('#' +player.id + '_playButton').css('display', 'none');
 		} else {
@@ -320,7 +322,7 @@
 	/** Flip the player size to/from full-browser-screen. **/
 	function fullscreenHandler(event) {
 		var player = $.jwplayer(event.id);
-		if (event.fullscreen) {
+		if (player.fullscreen()) {
 			//$('#' + options.div).css('position', 'absolute');
 			//$('#' + options.div).css('left', 0);
 			//$('#' + options.div).css('top', 0);

@@ -89,6 +89,7 @@
 		if (newstate == $.fn.jwplayer.states.IDLE) {
 			clearInterval(player.media.interval);
 			player.media.interval = null;
+			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE);
 		}
 	}
 	

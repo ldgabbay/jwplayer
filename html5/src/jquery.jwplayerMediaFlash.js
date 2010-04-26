@@ -106,7 +106,11 @@
 		$.fn.jwplayerUtils.log(type, event);
 		switch (type) {
 			case $.fn.jwplayer.events.JWPLAYER_PLAYER_STATE:
-				stateHandler(event, player);
+				if (event.newstate == "COMPLETED") {
+					sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE);
+				} else {
+					stateHandler(event, player);	
+				}
 				break;
 			case $.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER:
 				event.bufferPercent = event.percentage; 
