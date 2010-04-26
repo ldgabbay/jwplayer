@@ -19,33 +19,44 @@
 	};
 	
 	$.fn.jwplayerView = function(player) {
-		/*if (!(($(this).attr("src") === undefined) || ($(this).attr("src") === ""))) {
-			$(this).attr("preload", "metadata");
-			$(this).append('<source src="' + $(this).attr("src") + '" >');
-			$(this).removeAttr("src");
-		}*/
 		player.model.domelement.wrap("<div id='" + player.model.config.id + "_jwplayer' />");
-		player.model.domelement.parent().css("position", "relative");
-		//$(this).css("display", "none");
-		player.model.domelement.css("position", "absolute");
-		player.model.domelement.css("left", "0px");
-		player.model.domelement.css("top", "0px");
-		player.model.domelement.css("z-index", "0");
-		player.model.domelement.before("<a href='" + player.model.sources[player.model.source].file + "' style='display:block; background:#ffffff url(" + player.model.config.image + ") no-repeat center center;width:" + player.model.width + "px;height:" + player.model.height + "px;position:relative;'><img src='http://content.bitsontherun.com/staticfiles/play.png' alt='Click to play video' style='position:absolute; top:" + (player.model.height - 60) / 2 + "px; left:" + (player.model.width - 60) / 2 + "px; border:0;' /></a>");
-		player.model.domelement.prev("a").css("position", "relative");
-		player.model.domelement.prev("a").css("z-index", "100");
+		player.model.domelement.parent().jwplayerCSS({
+			'position': 'relative',
+			'width': player.model.config.width + 'px',
+			'height': player.model.config.height + 'px',
+			'margin': 'auto'
+		});
+		player.model.domelement.jwplayerCSS({
+			'position': 'absolute',
+			'width': player.model.config.width + 'px',
+			'height': player.model.config.height + 'px',
+			'left': '0px',
+			'top': '0px',
+			'z-index': '0'
+		});
+		player.model.domelement.before("<a href='" + player.model.sources[player.model.source].file + "'><img src='http://content.bitsontherun.com/staticfiles/play.png' alt='Click to play video' style='position:absolute; top:" + (player.model.height - 60) / 2 + "px; left:" + (player.model.width - 60) / 2 + "px; border:0;' /></a>");
+		player.model.domelement.prev("a").jwplayerCSS({
+			'display': 'block',
+			'background': '#ffffff url(' + player.model.config.image + ') no-repeat center center',
+			'width': player.model.width + 'px',
+			'height': player.model.height + 'px',
+			'position': 'relative',
+			'left': '0px',
+			'top': '0px',
+			'z-index': '50'
+		});
 		player.model.domelement.prev("a").click(function(evt) {
 			if (typeof evt.preventDefault != 'undefined') {
 				evt.preventDefault(); // W3C 
 			} else {
 				evt.returnValue = false; // IE 
 			}
-			if (player.state() !== $.fn.jwplayer.states.PLAYING){
+			if (player.state() !== $.fn.jwplayer.states.PLAYING) {
 				player.play();
 			} else {
 				player.pause();
 			}
-			 
+			
 		});
 		$.jwplayer(player.model.config.id).state(function(obj) {
 			imageHandler(obj, player);
@@ -56,17 +67,17 @@
 		switch (obj.newstate) {
 			case $.fn.jwplayer.states.IDLE:
 				player.model.domelement.css("z-index", "0");
-				player.model.domelement.prev("a").css("z-index", "100");
+				player.model.domelement.prev("a").css("z-index", "50");
 				break;
 			case $.fn.jwplayer.states.PLAYING:
 				player.model.domelement.prev("a").css("z-index", "0");
-				player.model.domelement.css("z-index", "100");
+				player.model.domelement.css("z-index", "50");
 				break;
 		}
 	}
 	
-	$.fn.jwplayerView.switchMediaProvider = function(){
-		
+	$.fn.jwplayerView.switchMediaProvider = function() {
+	
 	};
 	
 	/** Embeds a Flash Player at the specified location in the DOM. **/
@@ -87,7 +98,7 @@
 			var config = $.extend(true, {}, player.model.config, options);
 			for (var flashvar in config) {
 				if (!((config[flashvar] === undefined) || (config[flashvar] === "") || (config[flashvar] === null))) {
-						flashvarString += flashvar + "=" + config[flashvar] + "&";
+					flashvarString += flashvar + "=" + config[flashvar] + "&";
 				}
 			}
 			htmlString = htmlString.replace("%elementvars%", elementvarString);

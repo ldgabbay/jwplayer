@@ -192,10 +192,9 @@
 		$(trl).css('cursor', 'hand');
 		$(vrl).css('cursor', 'hand');
 		$(bar).mousedown(function(evt) {
-			var xps = evt.pageX - $(bar).position().left - $('#' + player.id + '_jwplayerControlbar').parents(":first").position().left;
-			if (xps > $(trl).position().left && xps < $(trl).position().left + $(trl).width()) {
+			if (evt.pageX >= $(trl).offset().left && evt.pageX <= $(trl).offset().left + $(trl).width()) {
 				player.controlbar.scrubber = 'time';
-			} else if (xps > $(vrl).position().left && xps < $(vrl).position().left + $(vrl).width()) {
+			} else if (evt.pageX >= $(vrl).offset().left && evt.pageX <= $(vrl).offset().left + $(trl).width()) {
 				player.controlbar.scrubber = 'volume';
 			}
 		});
@@ -219,7 +218,7 @@
 	/** The slider has been moved up. **/
 	function sliderUp(msx, player) {
 		if (player.controlbar.scrubber == 'time') {
-			var xps = msx - $('#' + player.id + '_timeSliderRail').position().left - $('#' + player.id + '_jwplayerControlbar').parents(":first").position().left;
+			var xps = msx - $('#' + player.id + '_timeSliderRail').offset().left;
 			var wid = $('#' + player.id + '_timeSliderRail').width();
 			var pos = xps / wid * player.duration();
 			if (pos < 0) {
@@ -229,11 +228,9 @@
 			}
 			player.seek(pos);
 		} else if (player.controlbar.scrubber == 'volume') {
-			var bar = $('#' + player.id + '_jwplayerControlbar').width();
-			var brx = $('#' + player.id + '_jwplayerControlbar').position().left + $('#' + player.id + '_jwplayerControlbar').parents(":first").position().left;
-			var rig = $('#' + player.id + '_volumeSliderRail').css('right').substr(0, 2);
-			var wid = player.skin.controlbar.elements.volumeSliderRail.width;
-			var pct = Math.round((msx - bar - brx + 1 * rig + wid) / wid * 100);
+			var xps = msx - $('#' + player.id + '_volumeSliderRail').offset().left;
+			var wid = $('#' + player.id + '_volumeSliderRail').width();
+			var pct = Math.round(xps / wid * 100);
 			if (pct < 0) {
 				pct = 0;
 			} else if (pct > 100) {
@@ -723,7 +720,6 @@
 					addEventListener(player, $.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, arg);
 					break;
 				default:
-					$.fn.jwplayerUtils.log("mediainfo", $.fn.jwplayerController.mediaInfo(player));
 					return $.fn.jwplayerController.mediaInfo(player).state;
 			}
 			return jwplayer(player);
@@ -1405,7 +1401,7 @@
 (function($) {
 	var jwplayerid = 1;
 	
-	var modelParams ={
+	var modelParams = {
 		volume: 100,
 		fullscreen: false,
 		mute: false,
@@ -1414,7 +1410,7 @@
 		duration: 0
 	};
 	
-	function createModel(){
+	function createModel() {
 		return {
 			config: {},
 			sources: {},
@@ -1424,13 +1420,13 @@
 			buffer: 0
 		};
 	}
-
+	
 	
 	$.fn.jwplayerModel = function(domElement, options) {
 		var model = createModel();
 		model.config = $.fn.jwplayerParse(domElement[0], options);
 		if (model.config.id === undefined) {
-			model.config.id = "jwplayer_"+jwplayerid++;
+			model.config.id = "jwplayer_" + jwplayerid++;
 		}
 		model.sources = model.config.sources;
 		delete model.config.sources;
@@ -1450,10 +1446,14 @@
 		for (sourceIndex in player.model.sources) {
 			source = player.model.sources[sourceIndex];
 			if (source.type === undefined) {
-				source.type = 'video/' + $.fn.jwplayerUtils.extension(source.file) + ';';
+				var extension = $.fn.jwplayerUtils.extension(source.file);
+				if (extension == "ogv") {
+					extension = "ogg";
+				}
+				source.type = 'video/' + extension + ';';
 			}
 			if ($.fn.jwplayerUtils.supportsType(source.type)) {
-				player.model.source = sourceIndex
+				player.model.source = sourceIndex;
 				$.fn.jwplayerMediaVideo(player);
 				return true;
 			}
@@ -1774,6 +1774,47 @@
 		return path.substr(path.lastIndexOf('.') + 1, path.length);
 	};
 	
+	/** Resets an element's CSS **/
+	$.fn.jwplayerCSS = function(options) {
+		return this.each(function() {
+			var defaults = {
+				'margin':'0',
+				'padding':'0',
+				'background': 'none',
+				'border': 'none',
+				'bottom': 'auto',
+				'clear': 'none',
+				'cursor': 'default',
+				'float': 'none',
+				'font-family': '"Arial", "Helvetica", sans-serif',
+				'font-size': 'medium',
+				'font-style': 'normal',
+				'font-weight': 'normal',
+				'height': 'auto',
+				'left': 'auto',
+				'letter-spacing': 'normal',
+				'line-height': 'normal',
+				'max-height': 'none',
+				'max-width': 'none',
+				'min-height': '0',
+				'min-width': '0',
+				'overflow': 'visible',
+				'position': 'static',
+				'right': 'auto',
+				'text-align': 'left',
+				'text-decoration': 'none',
+				'text-indent': '0',
+				'text-transform': 'none',
+				'top': 'auto',
+				'visibility': 'visible',
+				'white-space': 'normal',
+				'width': 'auto',
+				'z-index': 'auto'
+			};
+			$(this).css($.extend(defaults, options));
+		});
+	};
+	
 	/** Dumps the content of an object to a string **/
 	$.fn.jwplayerUtils.dump = function(object, depth) {
 		if (object === null) {
@@ -1863,33 +1904,44 @@
 	};
 	
 	$.fn.jwplayerView = function(player) {
-		/*if (!(($(this).attr("src") === undefined) || ($(this).attr("src") === ""))) {
-			$(this).attr("preload", "metadata");
-			$(this).append('<source src="' + $(this).attr("src") + '" >');
-			$(this).removeAttr("src");
-		}*/
 		player.model.domelement.wrap("<div id='" + player.model.config.id + "_jwplayer' />");
-		player.model.domelement.parent().css("position", "relative");
-		//$(this).css("display", "none");
-		player.model.domelement.css("position", "absolute");
-		player.model.domelement.css("left", "0px");
-		player.model.domelement.css("top", "0px");
-		player.model.domelement.css("z-index", "0");
-		player.model.domelement.before("<a href='" + player.model.sources[player.model.source].file + "' style='display:block; background:#ffffff url(" + player.model.config.image + ") no-repeat center center;width:" + player.model.width + "px;height:" + player.model.height + "px;position:relative;'><img src='http://content.bitsontherun.com/staticfiles/play.png' alt='Click to play video' style='position:absolute; top:" + (player.model.height - 60) / 2 + "px; left:" + (player.model.width - 60) / 2 + "px; border:0;' /></a>");
-		player.model.domelement.prev("a").css("position", "relative");
-		player.model.domelement.prev("a").css("z-index", "100");
+		player.model.domelement.parent().jwplayerCSS({
+			'position': 'relative',
+			'width': player.model.config.width + 'px',
+			'height': player.model.config.height + 'px',
+			'margin': 'auto'
+		});
+		player.model.domelement.jwplayerCSS({
+			'position': 'absolute',
+			'width': player.model.config.width + 'px',
+			'height': player.model.config.height + 'px',
+			'left': '0px',
+			'top': '0px',
+			'z-index': '0'
+		});
+		player.model.domelement.before("<a href='" + player.model.sources[player.model.source].file + "'><img src='http://content.bitsontherun.com/staticfiles/play.png' alt='Click to play video' style='position:absolute; top:" + (player.model.height - 60) / 2 + "px; left:" + (player.model.width - 60) / 2 + "px; border:0;' /></a>");
+		player.model.domelement.prev("a").jwplayerCSS({
+			'display': 'block',
+			'background': '#ffffff url(' + player.model.config.image + ') no-repeat center center',
+			'width': player.model.width + 'px',
+			'height': player.model.height + 'px',
+			'position': 'relative',
+			'left': '0px',
+			'top': '0px',
+			'z-index': '50'
+		});
 		player.model.domelement.prev("a").click(function(evt) {
 			if (typeof evt.preventDefault != 'undefined') {
 				evt.preventDefault(); // W3C 
 			} else {
 				evt.returnValue = false; // IE 
 			}
-			if (player.state() !== $.fn.jwplayer.states.PLAYING){
+			if (player.state() !== $.fn.jwplayer.states.PLAYING) {
 				player.play();
 			} else {
 				player.pause();
 			}
-			 
+			
 		});
 		$.jwplayer(player.model.config.id).state(function(obj) {
 			imageHandler(obj, player);
@@ -1900,17 +1952,17 @@
 		switch (obj.newstate) {
 			case $.fn.jwplayer.states.IDLE:
 				player.model.domelement.css("z-index", "0");
-				player.model.domelement.prev("a").css("z-index", "100");
+				player.model.domelement.prev("a").css("z-index", "50");
 				break;
 			case $.fn.jwplayer.states.PLAYING:
 				player.model.domelement.prev("a").css("z-index", "0");
-				player.model.domelement.css("z-index", "100");
+				player.model.domelement.css("z-index", "50");
 				break;
 		}
 	}
 	
-	$.fn.jwplayerView.switchMediaProvider = function(){
-		
+	$.fn.jwplayerView.switchMediaProvider = function() {
+	
 	};
 	
 	/** Embeds a Flash Player at the specified location in the DOM. **/
@@ -1931,7 +1983,7 @@
 			var config = $.extend(true, {}, player.model.config, options);
 			for (var flashvar in config) {
 				if (!((config[flashvar] === undefined) || (config[flashvar] === "") || (config[flashvar] === null))) {
-						flashvarString += flashvar + "=" + config[flashvar] + "&";
+					flashvarString += flashvar + "=" + config[flashvar] + "&";
 				}
 			}
 			htmlString = htmlString.replace("%elementvars%", elementvarString);

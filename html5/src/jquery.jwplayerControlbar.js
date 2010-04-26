@@ -192,10 +192,9 @@
 		$(trl).css('cursor', 'hand');
 		$(vrl).css('cursor', 'hand');
 		$(bar).mousedown(function(evt) {
-			var xps = evt.pageX - $(bar).position().left - $('#' + player.id + '_jwplayerControlbar').parents(":first").position().left;
-			if (xps > $(trl).position().left && xps < $(trl).position().left + $(trl).width()) {
+			if (evt.pageX >= $(trl).offset().left && evt.pageX <= $(trl).offset().left + $(trl).width()) {
 				player.controlbar.scrubber = 'time';
-			} else if (xps > $(vrl).position().left && xps < $(vrl).position().left + $(vrl).width()) {
+			} else if (evt.pageX >= $(vrl).offset().left && evt.pageX <= $(vrl).offset().left + $(trl).width()) {
 				player.controlbar.scrubber = 'volume';
 			}
 		});
@@ -219,7 +218,7 @@
 	/** The slider has been moved up. **/
 	function sliderUp(msx, player) {
 		if (player.controlbar.scrubber == 'time') {
-			var xps = msx - $('#' + player.id + '_timeSliderRail').position().left - $('#' + player.id + '_jwplayerControlbar').parents(":first").position().left;
+			var xps = msx - $('#' + player.id + '_timeSliderRail').offset().left;
 			var wid = $('#' + player.id + '_timeSliderRail').width();
 			var pos = xps / wid * player.duration();
 			if (pos < 0) {
@@ -229,11 +228,9 @@
 			}
 			player.seek(pos);
 		} else if (player.controlbar.scrubber == 'volume') {
-			var bar = $('#' + player.id + '_jwplayerControlbar').width();
-			var brx = $('#' + player.id + '_jwplayerControlbar').position().left + $('#' + player.id + '_jwplayerControlbar').parents(":first").position().left;
-			var rig = $('#' + player.id + '_volumeSliderRail').css('right').substr(0, 2);
-			var wid = player.skin.controlbar.elements.volumeSliderRail.width;
-			var pct = Math.round((msx - bar - brx + 1 * rig + wid) / wid * 100);
+			var xps = msx - $('#' + player.id + '_volumeSliderRail').offset().left;
+			var wid = $('#' + player.id + '_volumeSliderRail').width();
+			var pct = Math.round(xps / wid * 100);
 			if (pct < 0) {
 				pct = 0;
 			} else if (pct > 100) {

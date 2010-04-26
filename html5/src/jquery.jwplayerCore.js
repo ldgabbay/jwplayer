@@ -162,7 +162,6 @@
 					addEventListener(player, $.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, arg);
 					break;
 				default:
-					$.fn.jwplayerUtils.log("mediainfo", $.fn.jwplayerController.mediaInfo(player));
 					return $.fn.jwplayerController.mediaInfo(player).state;
 			}
 			return jwplayer(player);

@@ -8,7 +8,7 @@
 (function($) {
 	var jwplayerid = 1;
 	
-	var modelParams ={
+	var modelParams = {
 		volume: 100,
 		fullscreen: false,
 		mute: false,
@@ -17,7 +17,7 @@
 		duration: 0
 	};
 	
-	function createModel(){
+	function createModel() {
 		return {
 			config: {},
 			sources: {},
@@ -27,13 +27,13 @@
 			buffer: 0
 		};
 	}
-
+	
 	
 	$.fn.jwplayerModel = function(domElement, options) {
 		var model = createModel();
 		model.config = $.fn.jwplayerParse(domElement[0], options);
 		if (model.config.id === undefined) {
-			model.config.id = "jwplayer_"+jwplayerid++;
+			model.config.id = "jwplayer_" + jwplayerid++;
 		}
 		model.sources = model.config.sources;
 		delete model.config.sources;
@@ -53,10 +53,14 @@
 		for (sourceIndex in player.model.sources) {
 			source = player.model.sources[sourceIndex];
 			if (source.type === undefined) {
-				source.type = 'video/' + $.fn.jwplayerUtils.extension(source.file) + ';';
+				var extension = $.fn.jwplayerUtils.extension(source.file);
+				if (extension == "ogv") {
+					extension = "ogg";
+				}
+				source.type = 'video/' + extension + ';';
 			}
 			if ($.fn.jwplayerUtils.supportsType(source.type)) {
-				player.model.source = sourceIndex
+				player.model.source = sourceIndex;
 				$.fn.jwplayerMediaVideo(player);
 				return true;
 			}
