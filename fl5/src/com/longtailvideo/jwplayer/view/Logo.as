@@ -96,9 +96,13 @@ package com.longtailvideo.jwplayer.view {
 		/** Logo loaded - add to display **/
 		protected function loaderHandler(evt:Event):void {
 			if (getConfigParam('hide').toString() == "true") visible = false;
-			addChild(loader);
-			resize(_width, _height);
-			outHandler();
+			if (loader is DisplayObject) {
+				addChild(loader);
+				resize(_width, _height);
+				outHandler();
+			} else {
+				Logger.log("Logo was not a display object");
+			}
 		}
 		
 		/** Logo failed to load - die **/

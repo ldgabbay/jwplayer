@@ -149,7 +149,7 @@
 			}
 			
 			var _streamTime:Number = Math.min(_stream.time, item.duration);
-			var bufferPercent:Number = _stream.bytesLoaded / _stream.bytesTotal * 100;
+			var bufferPercent:Number = _stream.bytesTotal > 0 ? _stream.bytesLoaded / _stream.bytesTotal * 100 : 0;
 			var bufferTime:Number = _stream.bufferTime < (item.duration - _streamTime) ? _stream.bufferTime : Math.floor(Math.abs(item.duration - _streamTime));
 			var bufferFill:Number = bufferTime == 0 ? 100 : Math.floor(_stream.bufferLength / bufferTime * 100);
 
@@ -192,7 +192,7 @@
 				if (bandwidth > 0) {
 					config.bandwidth = bandwidth;
 					var obj:Object = {bandwidth:bandwidth};
-					if (item.duration > 0) {
+					if (item.duration > 0 && _stream.bytesTotal > 0) {
 						obj.bitrate = Math.ceil(_stream.bytesTotal / 1024 * 8 / item.duration);
 					}
 					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: obj});
@@ -214,7 +214,7 @@
 		}
 		
 		private function seekStream(pos:Number, ply:Boolean=true):void {
-			var bufferLength:Number = _stream.bytesLoaded / _stream.bytesTotal * item.duration;
+			var bufferLength:Number = _stream.bytesTotal > 0 ? (_stream.bytesLoaded / _stream.bytesTotal * item.duration) : 0;
 			if (pos <= bufferLength) {
 				super.seek(pos);
 				clearInterval(_positionInterval);

@@ -27,7 +27,9 @@ package com.longtailvideo.jwplayer.view {
 		public function resize(width:Number, height:Number):void {
 			toLayout = [];
 			noLayout = [];
-			
+
+			remainingSpace = new Rectangle(0, 0, width, height);
+
 			for each (var plugin:String in _player.config.pluginIds) {
 				addLayout(plugin);
 			}
@@ -37,18 +39,44 @@ package com.longtailvideo.jwplayer.view {
 			addLayout('display');			
 			addLayout('dock');	
 			
-			remainingSpace = new Rectangle(0, 0, width, height);
 			generateLayout();
 		} 
 
 
 		private function addLayout(plugin:String):void {
-			var cfg:PluginConfig = _player.config.pluginConfig(plugin); 
-			if (!_player.fullscreen && testPosition(cfg['position']) && Number(cfg['size']) > 0 ) {
+			var cfg:PluginConfig = _player.config.pluginConfig(plugin);
+			
+			if (!_player.fullscreen && testPosition(cfg['position']) && cfg['size']) {
 				toLayout.push(cfg);
 			} else {
 				noLayout.push(cfg);
 			}
+		}
+		
+		private function fitsLayout(config:PluginConfig):Boolean {
+			switch (testPosition(config['position'])) {
+				case BOTTOM:
+				case TOP:
+					var controlbarConfig:PluginConfig = _player.config.pluginConfig('controlbar');
+					if (config['id'] != "controlbar" && (testPosition(controlbarConfig['position']) == TOP || testPosition(controlbarConfig['position']) == BOTTOM)) {
+						return ((remainingSpace.height - controlbarConfig['size']) > Number(config['size']) > 0);
+					} else {
+						return (remainingSpace.height > Number(config['size']) > 0);
+					}
+					break;
+				case LEFT:
+				case RIGHT:
+					var playlistConfig:PluginConfig = _player.config.pluginConfig('playlist');
+					if (config['id'] != "playlist" && (testPosition(playlistConfig['position']) == LEFT || testPosition(playlistConfig['position']) == RIGHT)) {
+						return ((remainingSpace.width - playlistConfig['size']) > Number(config['size']) > 0);
+					} else {
+						return (remainingSpace.width > Number(config['size']) > 0);
+					}
+					break;
+			}
+			
+			return false;
+			
 		}
 
 		public static function testPosition(pos:String):String {
@@ -80,44 +108,47 @@ package com.longtailvideo.jwplayer.view {
 			
 			var config:PluginConfig = toLayout.shift() as PluginConfig;
 			var pluginSpace:Rectangle = new Rectangle();
-			var position:String = testPosition(config['position']);
 			var size:Number = config['size'];
 			
-			switch (position) {
-				case LEFT:
-					pluginSpace.x = remainingSpace.x;
-					pluginSpace.y = remainingSpace.y;
-					pluginSpace.width = size;
-					pluginSpace.height = remainingSpace.height;
-					remainingSpace.width -= size;
-					remainingSpace.x += size;
-					break;
-				case RIGHT:
-					pluginSpace.x = remainingSpace.x + remainingSpace.width - size;
-					pluginSpace.y = remainingSpace.y;
-					pluginSpace.width = size;
-					pluginSpace.height = remainingSpace.height;
-					remainingSpace.width -= size;
-					break;
-				case TOP:
-					pluginSpace.x = remainingSpace.x;
-					pluginSpace.y = remainingSpace.y;
-					pluginSpace.width = remainingSpace.width;
-					pluginSpace.height = size;
-					remainingSpace.height -= size;
-					remainingSpace.y += size;
-					break;
-				case BOTTOM:
-					pluginSpace.x = remainingSpace.x;
-					pluginSpace.y = remainingSpace.y + remainingSpace.height - size;
-					pluginSpace.width = remainingSpace.width;
-					pluginSpace.height = size;
-					remainingSpace.height -= size;
-					break;
-			}
+			if (fitsLayout(config)) {
+				switch (testPosition(config['position'])) {
+					case LEFT:
+						pluginSpace.x = remainingSpace.x;
+						pluginSpace.y = remainingSpace.y;
+						pluginSpace.width = size;
+						pluginSpace.height = remainingSpace.height;
+						remainingSpace.width -= size;
+						remainingSpace.x += size;
+						break;
+					case RIGHT:
+						pluginSpace.x = remainingSpace.x + remainingSpace.width - size;
+						pluginSpace.y = remainingSpace.y;
+						pluginSpace.width = size;
+						pluginSpace.height = remainingSpace.height;
+						remainingSpace.width -= size;
+						break;
+					case TOP:
+						pluginSpace.x = remainingSpace.x;
+						pluginSpace.y = remainingSpace.y;
+						pluginSpace.width = remainingSpace.width;
+						pluginSpace.height = size;
+						remainingSpace.height -= size;
+						remainingSpace.y += size;
+						break;
+					case BOTTOM:
+						pluginSpace.x = remainingSpace.x;
+						pluginSpace.y = remainingSpace.y + remainingSpace.height - size;
+						pluginSpace.width = remainingSpace.width;
+						pluginSpace.height = size;
+						remainingSpace.height -= size;
+						break;
+				}
 
-			config['visible'] = true;
-			assignSpace(config, pluginSpace);
+				config['visible'] = true;
+				assignSpace(config, pluginSpace);
+			} else {
+				noLayout.push(config);
+			}
 			
 			generateLayout();
 		}

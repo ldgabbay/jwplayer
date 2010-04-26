@@ -109,6 +109,7 @@ package com.longtailvideo.jwplayer.player {
 		// Player Event Handlers
 		
 		private function errorHandler(evt:PlayerEvent):void {
+			modelEventDispatcher.dispatchEvent(new ModelEvent(ModelEvent.ERROR, {message:evt.message, id:id, client:client, version:version}));
 			controllerEventDispatcher.dispatchEvent(new ControllerEvent(ControllerEvent.ERROR, {message:evt.message, id:id, client:client, version:version}));
 		}
 		
@@ -120,6 +121,7 @@ package com.longtailvideo.jwplayer.player {
 		
 		private function mediaError(evt:MediaEvent):void {
 			modelEventDispatcher.dispatchEvent(new ModelEvent(ModelEvent.ERROR, {message:evt.message, id:id, client:client, version:version}));
+			controllerEventDispatcher.dispatchEvent(new ControllerEvent(ControllerEvent.ERROR, {message:evt.message, id:id, client:client, version:version}));
 		}
 		
 		private function mediaLoaded(evt:MediaEvent):void {

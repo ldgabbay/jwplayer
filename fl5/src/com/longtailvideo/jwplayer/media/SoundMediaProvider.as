@@ -134,15 +134,17 @@ package com.longtailvideo.jwplayer.media {
 		protected function positionHandler(progressEvent:ProgressEvent=null):void {
 			var bufferPercent:Number;
 			
-			if (_sound.bytesLoaded / _sound.bytesTotal > 0.1 && (_item.duration <= 0 || _userDuration < 0)) {
+			if (_sound.bytesTotal > 0 && _sound.bytesLoaded / _sound.bytesTotal > 0.1 && (_item.duration <= 0 || _userDuration < 0)) {
 				_item.duration = _sound.length / 1000 / _sound.bytesLoaded * _sound.bytesTotal;
 			}
 			
-			if (_channel) {
+			if (_channel && _sound && _sound.bytesTotal > 0) {
 				_position = Math.round(_channel.position / 100) / 10;
 				bufferPercent = Math.floor(_sound.bytesLoaded / _sound.bytesTotal * 100);
-			} else if (!_channel && progressEvent) {
+			} else if (!_channel && progressEvent && progressEvent.bytesTotal > 0) {
 				bufferPercent = Math.floor(progressEvent.bytesLoaded / progressEvent.bytesTotal * 100);
+			} else {
+				bufferPercent = 0;
 			}
 			
 			if (_sound.isBuffering == true && _sound.bytesTotal > _sound.bytesLoaded) {
@@ -182,7 +184,7 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Seek in the _sound. **/
 		override public function seek(pos:Number):void {
-			if (_sound && (pos < (_sound.bytesLoaded / _sound.bytesTotal) * item.duration) || item.start) {
+			if (_sound && _sound.bytesTotal > 0 && (pos < (_sound.bytesLoaded / _sound.bytesTotal) * item.duration) || item.start) {
 				clearInterval(_positionInterval);
 				_positionInterval = undefined;
 				if (_channel) {

@@ -253,7 +253,7 @@ package com.longtailvideo.jwplayer.media {
 			
 			var bufferPercent:Number;
 			var bufferFill:Number;
-			if (item.duration > 0) {
+			if (item.duration > 0 && _stream && _stream.bytesTotal > 0) {
 				percentoffset =  Math.round(_timeoffset /  item.duration * 100);
 				bufferPercent = (_stream.bytesLoaded / _stream.bytesTotal) * (1 - _timeoffset / item.duration) * 100;
 				var bufferTime:Number = _stream.bufferTime < (item.duration - position) ? _stream.bufferTime : Math.round(item.duration - position);
