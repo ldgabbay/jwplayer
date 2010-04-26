@@ -109,6 +109,7 @@
 				positionHandler(event, player);
 			}, 100);
 		}
+		player.model.duration = event.target.duration;
 		sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
 			position: event.target.currentTime,
 			duration: event.target.duration
@@ -119,8 +120,8 @@
 		var buffer;
 		if (!isNaN(event.loaded / event.total)) {
 			buffer = event.loaded / event.total * 100;
-		} else if (player.model.domelement.buffered !== undefined) {
-			buffer = player.model.domelement.buffered.end(0) / player.model.domelement.duration * 100;
+		} else if (player.model.domelement[0].buffered !== undefined) {
+			buffer = player.model.domelement[0].buffered.end(0) / player.model.domelement[0].duration * 100;
 		}
 		sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
 			'bufferPercent': buffer

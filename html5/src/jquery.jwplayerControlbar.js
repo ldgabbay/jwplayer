@@ -16,7 +16,7 @@
 		buildHandlers(player);
 	};
 	
-		
+	
 	/** Map with config for the jwplayerControlbar plugin. **/
 	$.fn.jwplayerControlbar.defaults = {
 		fontsize: 10,
@@ -29,7 +29,7 @@
 	
 	
 	/** Callbacks called by Flash players to update stats. **/
-	$.fn.jwplayerControlbar.bufferHandler = function(obj) {	
+	$.fn.jwplayerControlbar.bufferHandler = function(obj) {
 		bufferHandler({
 			id: obj.id,
 			bufferPercent: obj.bufferPercent
@@ -69,10 +69,10 @@
 	/** Draw the jwplayerControlbar elements. **/
 	function buildElements(player) {
 		// Draw the background.
-		player.model.domelement.parents(":first").append('<div id="' +player.id + '_jwplayerControlbar"></div>');
-		$("#"+player.id + '_jwplayerControlbar').css('position', 'relative');
-		$("#"+player.id + '_jwplayerControlbar').css('height', player.skin.controlbar.elements.background.height);
-		$("#"+player.id + '_jwplayerControlbar').css('background', 'url(' + player.skin.controlbar.elements.background.src + ') repeat-x center left');
+		player.model.domelement.parents(":first").append('<div id="' + player.id + '_jwplayerControlbar"></div>');
+		$("#" + player.id + '_jwplayerControlbar').css('position', 'relative');
+		$("#" + player.id + '_jwplayerControlbar').css('height', player.skin.controlbar.elements.background.height);
+		$("#" + player.id + '_jwplayerControlbar').css('background', 'url(' + player.skin.controlbar.elements.background.src + ') repeat-x center left');
 		// Draw all elements on top of the bar.
 		buildElement('capLeft', 'left', true, player);
 		buildElement('playButton', 'left', false, player);
@@ -98,8 +98,8 @@
 	
 	/** Draw a single element into the jwplayerControlbar. **/
 	function buildElement(element, align, offset, player) {
-		var nam =player.id + '_' + element;
-		$('#' +player.id + '_jwplayerControlbar').append('<div id="' + nam + '"></div>');
+		var nam = player.id + '_' + element;
+		$('#' + player.id + '_jwplayerControlbar').append('<div id="' + nam + '"></div>');
 		$('#' + nam).css('position', 'absolute');
 		$('#' + nam).css('top', 0);
 		if (element.indexOf('Text') > 0) {
@@ -144,7 +144,7 @@
 		buildHandler('normalscreenButton', 'fullscreen', player, false);
 		
 		addSliders(player);
-
+		
 		// Register events with the player.
 		player.buffer($.fn.jwplayerControlbar.bufferHandler);
 		player.state($.fn.jwplayerControlbar.stateHandler);
@@ -173,7 +173,7 @@
 			$('#' + nam).mouseup(function(evt) {
 				evt.stopPropagation();
 				if (args !== undefined) {
-					player[handler](args);	
+					player[handler](args);
 				} else {
 					player[handler]();
 				}
@@ -185,14 +185,14 @@
 	
 	/** Set the volume drag handler. **/
 	function addSliders(player) {
-		var bar = '#' +player.id + '_jwplayerControlbar';
-		var trl = '#' +player.id + '_timeSliderRail';
-		var vrl = '#' +player.id + '_volumeSliderRail';
+		var bar = '#' + player.id + '_jwplayerControlbar';
+		var trl = '#' + player.id + '_timeSliderRail';
+		var vrl = '#' + player.id + '_volumeSliderRail';
 		$(bar).css('cursor', 'hand');
 		$(trl).css('cursor', 'hand');
 		$(vrl).css('cursor', 'hand');
 		$(bar).mousedown(function(evt) {
-			var xps = evt.pageX - $(bar).position().left - $('#' +player.id + '_jwplayerControlbar').parents(":first").position().left;
+			var xps = evt.pageX - $(bar).position().left - $('#' + player.id + '_jwplayerControlbar').parents(":first").position().left;
 			if (xps > $(trl).position().left && xps < $(trl).position().left + $(trl).width()) {
 				player.controlbar.scrubber = 'time';
 			} else if (xps > $(vrl).position().left && xps < $(vrl).position().left + $(vrl).width()) {
@@ -210,7 +210,7 @@
 		$(bar).mousemove(function(evt) {
 			if (player.controlbar.scrubber == 'time') {
 				var xps = evt.pageX - $(bar).position().left;
-				$('#' +player.id + '_timeSliderThumb').css('left', xps);
+				$('#' + player.id + '_timeSliderThumb').css('left', xps);
 			}
 		});
 	}
@@ -219,8 +219,8 @@
 	/** The slider has been moved up. **/
 	function sliderUp(msx, player) {
 		if (player.controlbar.scrubber == 'time') {
-			var xps = msx - $('#' +player.id + '_timeSliderRail').position().left - $('#' +player.id + '_jwplayerControlbar').parents(":first").position().left;
-			var wid = $('#' +player.id + '_timeSliderRail').width();
+			var xps = msx - $('#' + player.id + '_timeSliderRail').position().left - $('#' + player.id + '_jwplayerControlbar').parents(":first").position().left;
+			var wid = $('#' + player.id + '_timeSliderRail').width();
 			var pos = xps / wid * player.duration();
 			if (pos < 0) {
 				pos = 0;
@@ -229,9 +229,9 @@
 			}
 			player.seek(pos);
 		} else if (player.controlbar.scrubber == 'volume') {
-			var bar = $('#' +player.id + '_jwplayerControlbar').width();
-			var brx = $('#' +player.id + '_jwplayerControlbar').position().left +  $('#' +player.id + '_jwplayerControlbar').parents(":first").position().left;
-			var rig = $('#' +player.id + '_volumeSliderRail').css('right').substr(0, 2);
+			var bar = $('#' + player.id + '_jwplayerControlbar').width();
+			var brx = $('#' + player.id + '_jwplayerControlbar').position().left + $('#' + player.id + '_jwplayerControlbar').parents(":first").position().left;
+			var rig = $('#' + player.id + '_volumeSliderRail').css('right').substr(0, 2);
 			var wid = player.skin.controlbar.elements.volumeSliderRail.width;
 			var pct = Math.round((msx - bar - brx + 1 * rig + wid) / wid * 100);
 			if (pct < 0) {
@@ -249,11 +249,13 @@
 	function bufferHandler(event) {
 		var player = $.jwplayer(event.id);
 		if (event.bufferPercent === 0) {
-			$('#' +player.id + '_timeSliderBuffer').css('display', 'none');
+			$('#' + player.id + '_timeSliderBuffer').css('display', 'none');
 		} else {
-			$('#' +player.id + '_timeSliderBuffer').css('display', 'block');
-			var wid = $('#' +player.id + '_timeSliderRail').width();
-			$('#' +player.id + '_timeSliderBuffer').css('width', Math.round(wid * event.bufferPercent / 100));
+			if (player.state() != $.fn.jwplayer.states.IDLE) {
+				$('#' + player.id + '_timeSliderBuffer').css('display', 'block');
+			}
+			var wid = $('#' + player.id + '_timeSliderRail').width();
+			$('#' + player.id + '_timeSliderBuffer').css('width', Math.round(wid * event.bufferPercent / 100));
 		}
 	}
 	
@@ -262,13 +264,13 @@
 	function muteHandler(event) {
 		var player = $.jwplayer(event.id);
 		if (player.mute()) {
-			$('#' +player.id + '_muteButton').css('display', 'none');
-			$('#' +player.id + '_unmuteButton').css('display', 'block');
-			$('#' +player.id + '_volumeSliderProgress').css('display', 'none');
+			$('#' + player.id + '_muteButton').css('display', 'none');
+			$('#' + player.id + '_unmuteButton').css('display', 'block');
+			$('#' + player.id + '_volumeSliderProgress').css('display', 'none');
 		} else {
-			$('#' +player.id + '_muteButton').css('display', 'block');
-			$('#' +player.id + '_unmuteButton').css('display', 'none');
-			$('#' +player.id + '_volumeSliderProgress').css('display', 'block');
+			$('#' + player.id + '_muteButton').css('display', 'block');
+			$('#' + player.id + '_unmuteButton').css('display', 'none');
+			$('#' + player.id + '_volumeSliderProgress').css('display', 'block');
 		}
 	}
 	
@@ -276,14 +278,14 @@
 	/** Update the playback state. **/
 	function stateHandler(event) {
 		var player = $.jwplayer(event.id);
-		if (player.state() == $.fn.jwplayer.states.BUFFERING || player.state() ==  $.fn.jwplayer.states.PLAYING) {
-			$('#' +player.id + '_pauseButton').css('display', 'block');
-			$('#' +player.id + '_playButton').css('display', 'none');
+		if (player.state() == $.fn.jwplayer.states.BUFFERING || player.state() == $.fn.jwplayer.states.PLAYING) {
+			$('#' + player.id + '_pauseButton').css('display', 'block');
+			$('#' + player.id + '_playButton').css('display', 'none');
 		} else {
-			$('#' +player.id + '_pauseButton').css('display', 'none');
-			$('#' +player.id + '_playButton').css('display', 'block');
+			$('#' + player.id + '_pauseButton').css('display', 'none');
+			$('#' + player.id + '_playButton').css('display', 'block');
 		}
-		if (player.state() ==  $.fn.jwplayer.states.IDLE) {
+		if (player.state() == $.fn.jwplayer.states.IDLE) {
 			timeHandler({
 				id: player.id,
 				position: 0
@@ -295,21 +297,26 @@
 	/** Update the playback time. **/
 	function timeHandler(event) {
 		var player = $.jwplayer(event.id);
-		var wid = $('#' +player.id + '_timeSliderRail').width();
-		var thb = $('#' +player.id + '_timeSliderThumb').width();
-		var lft = $('#' +player.id + '_timeSliderRail').position().left;
-		if (event.position === 0) {
-			$('#' +player.id + '_timeSliderProgress').css('display', 'none');
-			$('#' +player.id + '_timeSliderThumb').css('display', 'none');
+		var wid = $('#' + player.id + '_timeSliderRail').width();
+		var thb = $('#' + player.id + '_timeSliderThumb').width();
+		var lft = $('#' + player.id + '_timeSliderRail').position().left;
+		if (player.state() == $.fn.jwplayer.states.IDLE) {
+			$('#' + player.id + '_timeSliderBuffer').css('display', 'none');
 		} else {
-			$('#' +player.id + '_timeSliderProgress').css('display', 'block');
-			$('#' +player.id + '_timeSliderProgress').css('width', Math.round(wid * event.position / event.duration));
-			$('#' +player.id + '_timeSliderThumb').css('display', 'block');
-			$('#' +player.id + '_timeSliderThumb').css('left', lft +
-			Math.round((wid - thb) * event.position / event.duration));
-			$('#' +player.id + '_durationText').html(timeFormat(event.duration));
+			$('#' + player.id + '_timeSliderBuffer').css('display', 'block');
 		}
-		$('#' +player.id + '_elapsedText').html(timeFormat(event.position));
+		if (event.position === 0) {
+			$('#' + player.id + '_timeSliderProgress').css('display', 'none');
+			$('#' + player.id + '_timeSliderThumb').css('display', 'none');
+		} else {
+			$('#' + player.id + '_timeSliderProgress').css('display', 'block');
+			$('#' + player.id + '_timeSliderProgress').css('width', Math.round(wid * event.position / event.duration));
+			$('#' + player.id + '_timeSliderThumb').css('display', 'block');
+			$('#' + player.id + '_timeSliderThumb').css('left', lft +
+			Math.round((wid - thb) * event.position / event.duration));
+			$('#' + player.id + '_durationText').html(timeFormat(event.duration));
+		}
+		$('#' + player.id + '_elapsedText').html(timeFormat(event.position));
 	}
 	
 	
@@ -333,8 +340,8 @@
 			//$('#' + options.div).css('top', 0);
 			//$('#' + options.div).css('height', '100%');
 			//$('#' + options.div).css('width', '100%');
-			$('#' +player.id + '_normalscreenButton').css('display', 'block');
-			$('#' +player.id + '_fullscreenButton').css('display', 'none');
+			$('#' + player.id + '_normalscreenButton').css('display', 'block');
+			$('#' + player.id + '_fullscreenButton').css('display', 'none');
 			$(window).resize(function() {
 				resizeBar(player);
 			});
@@ -344,8 +351,8 @@
 			//$('#' + options.div).css('top', options.top);
 			//$('#' + options.div).css('height', options.height);
 			//$('#' + options.div).css('width', options.width);
-			$('#' +player.id + '_normalscreenButton').css('display', 'none');
-			$('#' +player.id + '_fullscreenButton').css('display', 'block');
+			$('#' + player.id + '_normalscreenButton').css('display', 'none');
+			$('#' + player.id + '_fullscreenButton').css('display', 'block');
 			$(window).resize(null);
 		}
 		resizeBar(player);
@@ -359,7 +366,7 @@
 		var lft = player.controlbar.left;
 		var top = player.controlbar.top;
 		var wid = player.model.config.width;
-		var hei = $('#' +player.id + '_jwplayerControlbar').height();
+		var hei = $('#' + player.id + '_jwplayerControlbar').height();
 		if (player.controlbar.position == 'over') {
 			lft += 1 * player.controlbar.margin;
 			top -= 1 * player.controlbar.margin + hei;
@@ -369,25 +376,25 @@
 			lft = player.controlbar.margin;
 			top = $(window).height() - player.controlbar.margin - hei;
 			wid = $(window).width() - 2 * player.controlbar.margin;
-			$('#' +player.id + '_jwplayerControlbar').css('z-index', 99);
+			$('#' + player.id + '_jwplayerControlbar').css('z-index', 99);
 		} else {
-			$('#' +player.id + '_jwplayerControlbar').css('z-index', 97);
+			$('#' + player.id + '_jwplayerControlbar').css('z-index', 97);
 		}
-		$('#' +player.id + '_jwplayerControlbar').css('left', lft);
-		$('#' +player.id + '_jwplayerControlbar').css('top', top);
-		$('#' +player.id + '_jwplayerControlbar').css('width', wid);
-		$('#' +player.id + '_timeSliderRail').css('width', wid - player.controlbar.leftmargin - player.controlbar.rightmargin);
+		$('#' + player.id + '_jwplayerControlbar').css('left', lft);
+		$('#' + player.id + '_jwplayerControlbar').css('top', top);
+		$('#' + player.id + '_jwplayerControlbar').css('width', wid);
+		$('#' + player.id + '_timeSliderRail').css('width', wid - player.controlbar.leftmargin - player.controlbar.rightmargin);
 	}
 	
 	
 	/** Update the volume level. **/
 	function volumeHandler(event) {
 		var player = $.jwplayer(event.id);
-		var rwd = $('#' +player.id + '_volumeSliderRail').width();
+		var rwd = $('#' + player.id + '_volumeSliderRail').width();
 		var wid = Math.round(event.volume / 100 * rwd);
-		var rig = $('#' +player.id + '_volumeSliderRail').css('right').substr(0, 2);
-		$('#' +player.id + '_volumeSliderProgress').css('width', wid);
-		$('#' +player.id + '_volumeSliderProgress').css('right', 1 * rig + rwd - wid);
+		var rig = $('#' + player.id + '_volumeSliderRail').css('right').substr(0, 2);
+		$('#' + player.id + '_volumeSliderProgress').css('width', wid);
+		$('#' + player.id + '_volumeSliderProgress').css('right', 1 * rig + rwd - wid);
 	}
 	
 	
