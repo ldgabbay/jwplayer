@@ -114,8 +114,7 @@
 					$.fn.jwplayerController.mute(player, arg);
 					break;
 				default:
-					$.fn.jwplayerController.mute(player);
-					break;
+					return $.fn.jwplayerController.mute(player);
 			}
 			return jwplayer(player);
 		};

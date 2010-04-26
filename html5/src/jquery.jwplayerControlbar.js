@@ -39,7 +39,7 @@
 	$.fn.jwplayerControlbar.muteHandler = function(obj) {
 		muteHandler({
 			id: obj.id,
-			mute: obj.state
+			mute: obj.mute
 		});
 	};
 	
@@ -61,7 +61,7 @@
 	$.fn.jwplayerControlbar.volumeHandler = function(obj) {
 		volumeHandler({
 			id: obj.id,
-			volume: obj.percentage
+			volume: obj.volume
 		});
 	};
 	
@@ -138,10 +138,10 @@
 		// Register events with the buttons.
 		buildHandler('playButton', 'play', player);
 		buildHandler('pauseButton', 'pause', player);
-		buildHandler('muteButton', 'mute', player);
-		buildHandler('unmuteButton', 'mute', player);
-		buildHandler('fullscreenButton', 'fullscreen', player);
-		buildHandler('normalscreenButton', 'fullscreen', player);
+		buildHandler('muteButton', 'mute', player, true);
+		buildHandler('unmuteButton', 'mute', player, false);
+		buildHandler('fullscreenButton', 'fullscreen', player, true);
+		buildHandler('normalscreenButton', 'fullscreen', player, false);
 		
 		addSliders(player);
 
@@ -160,7 +160,7 @@
 	
 	
 	/** Set a single button handler. **/
-	function buildHandler(element, handler, player) {
+	function buildHandler(element, handler, player, args) {
 		var nam = player.id + '_' + element;
 		$('#' + nam).css('cursor', 'pointer');
 		if (handler == 'fullscreen') {
@@ -172,7 +172,12 @@
 		} else {
 			$('#' + nam).mouseup(function(evt) {
 				evt.stopPropagation();
-				player[handler]();
+				if (args !== undefined) {
+					player[handler](args);	
+				} else {
+					player[handler]();
+				}
+				
 			});
 		}
 	}
@@ -225,7 +230,7 @@
 			player.seek(pos);
 		} else if (player.controlbar.scrubber == 'volume') {
 			var bar = $('#' +player.id + '_jwplayerControlbar').width();
-			var brx = $('#' +player.id + '_jwplayerControlbar').position().left;
+			var brx = $('#' +player.id + '_jwplayerControlbar').position().left +  $('#' +player.id + '_jwplayerControlbar').parents(":first").position().left;
 			var rig = $('#' +player.id + '_volumeSliderRail').css('right').substr(0, 2);
 			var wid = player.skin.controlbar.elements.volumeSliderRail.width;
 			var pct = Math.round((msx - bar - brx + 1 * rig + wid) / wid * 100);

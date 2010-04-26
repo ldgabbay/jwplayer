@@ -39,7 +39,7 @@
 	$.fn.jwplayerControlbar.muteHandler = function(obj) {
 		muteHandler({
 			id: obj.id,
-			mute: obj.state
+			mute: obj.mute
 		});
 	};
 	
@@ -61,7 +61,7 @@
 	$.fn.jwplayerControlbar.volumeHandler = function(obj) {
 		volumeHandler({
 			id: obj.id,
-			volume: obj.percentage
+			volume: obj.volume
 		});
 	};
 	
@@ -138,10 +138,10 @@
 		// Register events with the buttons.
 		buildHandler('playButton', 'play', player);
 		buildHandler('pauseButton', 'pause', player);
-		buildHandler('muteButton', 'mute', player);
-		buildHandler('unmuteButton', 'mute', player);
-		buildHandler('fullscreenButton', 'fullscreen', player);
-		buildHandler('normalscreenButton', 'fullscreen', player);
+		buildHandler('muteButton', 'mute', player, true);
+		buildHandler('unmuteButton', 'mute', player, false);
+		buildHandler('fullscreenButton', 'fullscreen', player, true);
+		buildHandler('normalscreenButton', 'fullscreen', player, false);
 		
 		addSliders(player);
 
@@ -160,7 +160,7 @@
 	
 	
 	/** Set a single button handler. **/
-	function buildHandler(element, handler, player) {
+	function buildHandler(element, handler, player, args) {
 		var nam = player.id + '_' + element;
 		$('#' + nam).css('cursor', 'pointer');
 		if (handler == 'fullscreen') {
@@ -172,7 +172,12 @@
 		} else {
 			$('#' + nam).mouseup(function(evt) {
 				evt.stopPropagation();
-				player[handler]();
+				if (args !== undefined) {
+					player[handler](args);	
+				} else {
+					player[handler]();
+				}
+				
 			});
 		}
 	}
@@ -225,7 +230,7 @@
 			player.seek(pos);
 		} else if (player.controlbar.scrubber == 'volume') {
 			var bar = $('#' +player.id + '_jwplayerControlbar').width();
-			var brx = $('#' +player.id + '_jwplayerControlbar').position().left;
+			var brx = $('#' +player.id + '_jwplayerControlbar').position().left +  $('#' +player.id + '_jwplayerControlbar').parents(":first").position().left;
 			var rig = $('#' +player.id + '_volumeSliderRail').css('right').substr(0, 2);
 			var wid = player.skin.controlbar.elements.volumeSliderRail.width;
 			var pct = Math.round((msx - bar - brx + 1 * rig + wid) / wid * 100);
@@ -663,8 +668,7 @@
 					$.fn.jwplayerController.mute(player, arg);
 					break;
 				default:
-					$.fn.jwplayerController.mute(player);
-					break;
+					return $.fn.jwplayerController.mute(player);
 			}
 			return jwplayer(player);
 		};
@@ -1306,9 +1310,10 @@
 	/** Change the video's volume level. **/
 	function volume(player) {
 		return function(position) {
+			player.model.volume = position / 100;
 			player.model.domelement[0].volume = position / 100;
 			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_VOLUME, {
-				volume: player.model.domelement[0].volume
+				volume: player.model.domelement[0].volume * 100
 			});
 		};
 	}
@@ -1316,6 +1321,7 @@
 	/** Switch the mute state of the player. **/
 	function mute(player) {
 		return function(state) {
+			player.model.mute = state;
 			player.model.domelement[0].muted = state;
 			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_MUTE, {
 				mute: player.model.domelement[0].muted
@@ -1326,6 +1332,8 @@
 	/** Resize the player. **/
 	function resize(player) {
 		return function(width, height) {
+			player.model.width = width;
+			player.model.height = height;
 			player.css("width", width);
 			player.css("height", height);
 			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
@@ -1338,6 +1346,7 @@
 	/** Switch the fullscreen state of the player. **/
 	function fullscreen(player) {
 		return function(state) {
+			player.model.fullscreen = state;
 			if (state === true) {
 				player.css("width", window.width);
 				player.css("height", window.height);

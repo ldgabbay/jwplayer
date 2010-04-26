@@ -168,9 +168,10 @@
 	/** Change the video's volume level. **/
 	function volume(player) {
 		return function(position) {
+			player.model.volume = position / 100;
 			player.model.domelement[0].volume = position / 100;
 			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_VOLUME, {
-				volume: player.model.domelement[0].volume
+				volume: player.model.domelement[0].volume * 100
 			});
 		};
 	}
@@ -178,6 +179,7 @@
 	/** Switch the mute state of the player. **/
 	function mute(player) {
 		return function(state) {
+			player.model.mute = state;
 			player.model.domelement[0].muted = state;
 			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_MUTE, {
 				mute: player.model.domelement[0].muted
@@ -188,6 +190,8 @@
 	/** Resize the player. **/
 	function resize(player) {
 		return function(width, height) {
+			player.model.width = width;
+			player.model.height = height;
 			player.css("width", width);
 			player.css("height", height);
 			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
@@ -200,6 +204,7 @@
 	/** Switch the fullscreen state of the player. **/
 	function fullscreen(player) {
 		return function(state) {
+			player.model.fullscreen = state;
 			if (state === true) {
 				player.css("width", window.width);
 				player.css("height", window.height);
