@@ -7,6 +7,18 @@
  */
 (function($) {
 
+	var mediaParams ={
+		volume: 100,
+		fullscreen: false,
+		mute: false,
+		width: 480,
+		height: 320,
+		duration: 0,
+		source: 0,
+		buffer: 0,
+		state: 'IDLE'
+	};
+
 	$.fn.jwplayerController = function() {
 		return this.each(function() {
 		});
@@ -15,7 +27,7 @@
 	
 	$.fn.jwplayerController.play = function(player) {
 		try {
-			player.data("media").play();
+			player.media.play();
 			return true;
 		} catch (err) {
 			$.fn.jwplayerUtils.log("error", err);
@@ -26,7 +38,7 @@
 	/** Switch the pause state of the player. **/
 	$.fn.jwplayerController.pause = function(player) {
 		try {
-			player.data("media").pause();
+			player.media.pause();
 			return true;
 		} catch (err) {
 			$.fn.jwplayerUtils.log("error", err);
@@ -38,7 +50,7 @@
 	/** Seek to a position in the video. **/
 	$.fn.jwplayerController.seek = function(player, position) {
 		try {
-			player.data("media").seek(position);
+			player.media.seek(position);
 			return true;
 		} catch (err) {
 			$.fn.jwplayerUtils.log("error", err);
@@ -51,7 +63,7 @@
 	/** Stop playback and loading of the video. **/
 	$.fn.jwplayerController.stop = function(player) {
 		try {
-			player.data("media").stop();
+			player.media.stop();
 			return true;
 		} catch (err) {
 			$.fn.jwplayerUtils.log("error", err);
@@ -65,10 +77,10 @@
 	$.fn.jwplayerController.volume = function(player, position) {
 		try {
 			if (position === undefined) {
-				return $(player).data("model").volume;
+				return player.model.volume;
 			} else {
-				player.data("media").volume(position);
-				$(player).data("model").volume = position;
+				player.media.volume(position);
+				player.model.volume = position;
 				return true;
 			}
 		} catch (err) {
@@ -81,9 +93,9 @@
 	$.fn.jwplayerController.mute = function(player, state) {
 		try {
 			if (state === undefined) {
-				return $(player).data("model").mute;
+				return player.model.mute;
 			} else {
-				player.data("media").mute(state);
+				player.media.mute(state);
 				return true;
 			}
 			return true;
@@ -97,10 +109,10 @@
 	/** Jumping the player to/from fullscreen. **/
 	$.fn.jwplayerController.fullscreen = function(player, state) {
 		try {
-			if (position === undefined) {
-				return $(player).data("model").fullscreen;
+			if (state === undefined) {
+				return player.model.fullscreen;
 			} else {
-				player.data("media").fullscreen(state);
+				player.media.fullscreen(state);
 				return true;
 			}
 		} catch (err) {
@@ -112,7 +124,7 @@
 	/** Resizes the video **/
 	$.fn.jwplayerController.resize = function(player, width, height) {
 		try {
-			player.data("media").resize(width, height);
+			player.media.resize(width, height);
 			return true;
 		} catch (err) {
 			$.fn.jwplayerUtils.log("error", err);
@@ -123,8 +135,11 @@
 	/** Returns the meta **/
 	$.fn.jwplayerController.mediaInfo = function(player) {
 		try {
-			player.data("media").mediaInfo();
-			return true;
+			var result = {};
+			for (var mediaParam in mediaParams){
+				result[mediaParam] = player.model[mediaParam];
+			}
+			return result;
 		} catch (err) {
 			$.fn.jwplayerUtils.log("error", err);
 		}
@@ -134,7 +149,7 @@
 	/** Loads a new video **/
 	$.fn.jwplayerController.load = function(player, path) {
 		try {
-			player.data("media").load(path);
+			player.media.load(path);
 			return true;
 		} catch (err) {
 			$.fn.jwplayerUtils.log("error", err);

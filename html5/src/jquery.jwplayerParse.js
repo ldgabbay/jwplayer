@@ -34,10 +34,8 @@
 	
 	var parsers = {};
 	
-	$.fn.jwplayerParse = function(options) {
-		return this.each(function() {
-			$(this).data("model", $.extend(true, {}, $.fn.jwplayer.defaults, options, parseElement(this)));
-		});
+	$.fn.jwplayerParse = function(player, options) {
+		return $.extend(true, {}, $.fn.jwplayer.defaults, options, parseElement(player));
 	};
 	
 	function getAttributeList(elementType, attributes) {
@@ -63,7 +61,7 @@
 					}
 				}
 			}
-			configuration.screencolor = $(domElement).css("background-color");
+			configuration.screencolor = ($(domElement).css("background-color") == "transparent") ? "#ffffff" : $(domElement).css("background-color");
 			return configuration;
 		}
 	}

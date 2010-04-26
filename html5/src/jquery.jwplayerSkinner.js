@@ -9,15 +9,13 @@
 (function($) {
 
 	/** Constructor **/
-	$.fn.jwplayerSkinner = function(completeHandler) {
-		return this.each(function() {
-			load($(this), completeHandler);
-		});
+	$.fn.jwplayerSkinner = function(player, completeHandler) {
+		load(player, completeHandler);
 	};
 	
 	/** Load the skin **/
 	load = function (player, completeHandler){
-		$.get(player.data("model").skin, {}, function(xml) {
+		$.get(player.model.config.skin, {}, function(xml) {
 			var skin = {
 				properties:{},
 				incompleteElements: 0
@@ -40,7 +38,7 @@
 				}
 				skin[componentName] = component;
 			}
-			player.data("skin", skin);
+			player.skin = skin;
 		});
 	};
 	
@@ -49,18 +47,18 @@
 		var img = new Image();
 		var elementName = $(element).attr('name');
 		var elementSource = $(element).attr('src');
-		var skinUrl = player.data("model").skin.substr(0, player.data("model").skin.lastIndexOf('/'));
+		var skinUrl = player.model.config.skin.substr(0,  player.model.config.skin.lastIndexOf('/'));
 		$(img).error(function() {
-			player.data("skin").incompleteElements--;
+			player.skin.incompleteElements--;
 		});
 		$(img).load(function() {
-			player.data("skin")[component].elements[elementName] = {
+			player.skin[component].elements[elementName] = {
 				height: this.height,
 				width: this.width,
 				src: this.src
 			};
-			player.data("skin").incompleteElements--;
-			if (player.data("skin").incompleteElements === 0) {
+			player.skin.incompleteElements--;
+			if (player.skin.incompleteElements === 0) {
 				completeHandler();
 			}
 		});
@@ -68,13 +66,13 @@
 	}
 	
 	$.fn.jwplayerSkinner.hasComponent = function (player, component){
-		return (player.data("skin")[component] !== null);
+		return (player.skin[component] !== null);
 	};
 	
 	
 	$.fn.jwplayerSkinner.getSkinElement = function (player, component, element){
 		try {
-			return player.data("skin")[component].elements[element];
+			return player.skin[component].elements[element];
 		} catch (err) {
 			$.fn.jwplayerUtils.log("No such skin component / element: ", [player, component, element]);
 		}
@@ -84,14 +82,14 @@
 	
 	$.fn.jwplayerSkinner.addSkinElement = function (player, component, name, element){
 		try {
-			player.data("skin")[component][name] = element;
+			player.skin[component][name] = element;
 		} catch (err){
 			$.fn.jwplayerUtils.log("No such skin component ", [player, component]);
 		}
 	};
 	
 	$.fn.jwplayerSkinner.getSkinProperties = function (player){
-		return player.data("skin").properties;
+		return player.skin.properties;
 	};
 	
 })(jQuery);

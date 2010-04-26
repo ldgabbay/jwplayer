@@ -18,53 +18,60 @@
 		className: true
 	};
 	
-	$.fn.jwplayerView = function() {
-		return this.each(function() {
-			var video = $(this);
-			if ($(this).attr("src") !== "") {
-				$(this).attr("preload", "metadata");
-				$(this).append('<source src="' + $(this).attr("src") + '" >');
-				$(this).removeAttr("src");
+	$.fn.jwplayerView = function(player) {
+		/*if (!(($(this).attr("src") === undefined) || ($(this).attr("src") === ""))) {
+			$(this).attr("preload", "metadata");
+			$(this).append('<source src="' + $(this).attr("src") + '" >');
+			$(this).removeAttr("src");
+		}*/
+		player.model.domelement.wrap("<div id='" + player.model.config.id + "_jwplayer' />");
+		player.model.domelement.parent().css("position", "relative");
+		//$(this).css("display", "none");
+		player.model.domelement.css("position", "absolute");
+		player.model.domelement.css("left", "0px");
+		player.model.domelement.css("top", "0px");
+		player.model.domelement.css("z-index", "0");
+		player.model.domelement.before("<a href='" + player.model.sources[player.model.source].file + "' style='display:block; background:#ffffff url(" + player.model.config.image + ") no-repeat center center;width:" + player.model.width + "px;height:" + player.model.height + "px;position:relative;'><img src='http://content.bitsontherun.com/staticfiles/play.png' alt='Click to play video' style='position:absolute; top:" + (player.model.height - 60) / 2 + "px; left:" + (player.model.width - 60) / 2 + "px; border:0;' /></a>");
+		player.model.domelement.prev("a").css("position", "relative");
+		player.model.domelement.prev("a").css("z-index", "100");
+		player.model.domelement.prev("a").click(function(evt) {
+			if (typeof evt.preventDefault != 'undefined') {
+				evt.preventDefault(); // W3C 
+			} else {
+				evt.returnValue = false; // IE 
 			}
-			$(this).wrap("<div id='" + $(this)[0].id + "_jwplayer' />");
-			$(this).parent().css("position", "relative");
-			//$(this).css("display", "none");
-			$(this).css("position", "absolute");
-			$(this).css("left", "0px");
-			$(this).css("top", "0px");
-			$(this).css("z-index", "0");
-			$(this).before("<a href='" + $(this).data("model").sources[$(this).data("model").source].file + "' style='display:block; background:#ffffff url(" + $(this).data("model").image + ") no-repeat center center;width:" + $(this).data("model").width + "px;height:" + $(this).data("model").height + "px;position:relative;'><img src='http://content.bitsontherun.com/staticfiles/play.png' alt='Click to play video' style='position:absolute; top:" + ($(this).data("model").height - 60) / 2 + "px; left:" + ($(this).data("model").width - 60) / 2 + "px; border:0;' /></a>");
-			$(this).prev("a").css("position", "relative");
-			$(this).prev("a").css("z-index", "100");
-			$(this).prev("a").click(function(evt) {
-				if (typeof evt.preventDefault != 'undefined') {
-					evt.preventDefault(); // W3C 
-				} else {
-					evt.returnValue = false; // IE 
-				}
-				$.jwplayer(video).play();
-			});
-			$.jwplayer(video).state(imageHandler);
+			if (player.state() !== $.fn.jwplayer.states.PLAYING){
+				player.play();
+			} else {
+				player.pause();
+			}
+			 
+		});
+		$.jwplayer(player.model.config.id).state(function(obj) {
+			imageHandler(obj, player);
 		});
 	};
 	
-	function imageHandler(event, parameters) {
-		$.fn.jwplayerUtils(event.target);
-		switch (parameters.newstate) {
-			case 'idle':
-				$(event.target).css("z-index", "0");
-				$(event.target).prev("a").css("z-index", "100");
+	function imageHandler(obj, player) {
+		switch (obj.newstate) {
+			case $.fn.jwplayer.states.IDLE:
+				player.model.domelement.css("z-index", "0");
+				player.model.domelement.prev("a").css("z-index", "100");
 				break;
-			case 'playing':
-				$(event.target).prev("a").css("z-index", "0");
-				$(event.target).css("z-index", "100");
+			case $.fn.jwplayer.states.PLAYING:
+				player.model.domelement.prev("a").css("z-index", "0");
+				player.model.domelement.css("z-index", "100");
 				break;
 		}
 	}
 	
+	$.fn.jwplayerView.switchMediaProvider = function(){
+		
+	};
+	
 	/** Embeds a Flash Player at the specified location in the DOM. **/
-	$.fn.jwplayerView.embedFlash = function(domElement, model) {
-		if (model.flashplayer !== false) {
+	$.fn.jwplayerView.embedFlash = function(player, options) {
+		if (player.model.config.flashplayer !== false) {
 			var htmlString, elementvarString = "", flashvarString = "";
 			if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
 				htmlString = embedString;
@@ -72,27 +79,25 @@
 				htmlString = objectString;
 			}
 			for (var elementvar in elementvars) {
-				if (!((model[elementvar] === undefined) || (model[elementvar] === "") || (model[elementvar] === null))) {
-					elementvarString += elementvar + "='" + model[elementvar] + "'";
+				if (!((player.model.config[elementvar] === undefined) || (player.model.config[elementvar] === "") || (player.model.config[elementvar] === null))) {
+					elementvarString += elementvar + "='" + player.model.config[elementvar] + "'";
 				}
 			}
-			for (var flashvar in model) {
-				if (!((model[flashvar] === undefined) || (model[flashvar] === "") || (model[flashvar] === null))) {
-					if (flashvar == "sources") {
-						flashvarString += "file=" + model.sources[model.source].file + "&";
-					} else {
-						flashvarString += flashvar + "=" + model[flashvar] + "&";
-					}
+			flashvarString += "file=" + player.model.sources[player.model.source].file + "&";
+			var config = $.extend(true, {}, player.model.config, options);
+			for (var flashvar in config) {
+				if (!((config[flashvar] === undefined) || (config[flashvar] === "") || (config[flashvar] === null))) {
+						flashvarString += flashvar + "=" + config[flashvar] + "&";
 				}
 			}
 			htmlString = htmlString.replace("%elementvars%", elementvarString);
 			htmlString = htmlString.replace("%flashvars%", flashvarString);
-			htmlString = htmlString.replace("%flashplayer%", model.flashplayer);
+			htmlString = htmlString.replace("%flashplayer%", player.model.config.flashplayer);
 			htmlString = htmlString.replace("%style%", styleString);
-			$(domElement).before(htmlString);
-			var result = $(domElement).prev();
-			$(domElement).remove();
-			return result;
+			player.model.domelement.before(htmlString);
+			var oldDOMElement = player.model.domelement;
+			player.model.domelement = player.model.domelement.prev();
+			oldDOMElement.remove();
 		}
 	};
 	
