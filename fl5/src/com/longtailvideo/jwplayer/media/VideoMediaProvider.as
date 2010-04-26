@@ -167,6 +167,7 @@
 				if (bufferPercent == 100 && _bufferingComplete == false) {
 					_bufferingComplete = true;
 				}
+				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {loaded:_stream.bytesLoaded, total:_stream.bytesTotal}});
 				sendBufferEvent(bufferPercent);
 			}
 

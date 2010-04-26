@@ -283,6 +283,7 @@ package com.longtailvideo.jwplayer.media {
 				if ((bufferPercent + percentoffset) == 100 && _bufferingComplete == false) {
 					_bufferingComplete = true;
 				}
+				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {loaded:_stream.bytesLoaded, total:_stream.bytesTotal, offset:_timeoffset}});
 				sendBufferEvent(bufferPercent, _timeoffset);
 			}
 			

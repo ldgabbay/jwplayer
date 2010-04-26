@@ -27,7 +27,7 @@ package com.longtailvideo.jwplayer.view {
 		protected var defaults:Object = {
 			prefix: "http://l.longtailvideo.com/", 
 			file: "logo.png", 
-			link: "http://www.longtailvideo.com/players/jw-flv-player/", 
+			link: "http://www.longtailvideo.com/players/jw-flv-player/",
 			margin: 8, 
 			out: 0.5, 
 			over: 1, 
@@ -114,6 +114,7 @@ package com.longtailvideo.jwplayer.view {
 		/** Handles mouse clicks **/
 		protected function clickHandler(evt:MouseEvent):void {
 			_player.pause();
+			_player.fullscreen = false;
 			if (getConfigParam('link')) {
 				navigateToURL(new URLRequest(getConfigParam('link')));
 			}
