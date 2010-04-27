@@ -75,6 +75,7 @@
 <h4>Test 5: Events</h4>
 <video
 	id="player5"
+	class="jwplayer"
 	width="480"
 	height="270"
 	poster="http://localhost/html5/test/files/bunny.jpg"
@@ -83,7 +84,7 @@
 <source src='http://localhost/html5/test/files/bunny.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
 </video>
 
-<a id="play">play</a>
+<!--<a id="play">play</a>
 <a id="pause">pause</a>
 <a id="stop">stop</a>
 <a id="mute">mute</a>
@@ -107,7 +108,7 @@
 	});*/
 
 	$("#play").click(function(){
-		$.jwplayer('#player5').play();
+		$.jwplayer('player5').play();
 	});
 
 	$("#pause").click(function(){
@@ -135,7 +136,7 @@
 	});
 
 
-</script>
+</script>-->
 
 </body>
 </html>

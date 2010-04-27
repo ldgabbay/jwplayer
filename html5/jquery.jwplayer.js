@@ -101,7 +101,7 @@
 		var nam = player.id + '_' + element;
 		$('#' + player.id + '_jwplayerControlbar').append('<div id="' + nam + '"></div>');
 		$('#' + nam).css('position', 'absolute');
-		$('#' + nam).css('top', 0);
+		$('#' + nam).css('top', '0px');
 		if (element.indexOf('Text') > 0) {
 			$('#' + nam).html('00:00');
 			$('#' + nam).css('font', player.controlbar.fontsize + 'px/' + (player.skin.controlbar.elements.background.height + 1) + 'px Arial,sans-serif');
@@ -245,6 +245,7 @@
 	/** Update the buffer percentage. **/
 	function bufferHandler(event) {
 		var player = $.jwplayer(event.id);
+		var bufferPercent = (event.bufferPercent === undefined) ? 0 : event.bufferPercent;
 		if (event.bufferPercent === 0) {
 			$('#' + player.id + '_timeSliderBuffer').css('display', 'none');
 		} else {
@@ -252,7 +253,7 @@
 				$('#' + player.id + '_timeSliderBuffer').css('display', 'block');
 			}
 			var wid = $('#' + player.id + '_timeSliderRail').width();
-			$('#' + player.id + '_timeSliderBuffer').css('width', Math.round(wid * event.bufferPercent / 100));
+			$('#' + player.id + '_timeSliderBuffer').css('width', Math.round(wid * bufferPercent / 100));
 		}
 	}
 	
@@ -294,6 +295,9 @@
 	/** Update the playback time. **/
 	function timeHandler(event) {
 		var player = $.jwplayer(event.id);
+		var position = (event.position === undefined) ? 0 : event.position;
+		var duration = (event.duration === undefined) ? 0 : event.duration;
+		var progress = (position === duration === 0) ? 0 : position / duration; 
 		var wid = $('#' + player.id + '_timeSliderRail').width();
 		var thb = $('#' + player.id + '_timeSliderThumb').width();
 		var lft = $('#' + player.id + '_timeSliderRail').position().left;
@@ -302,18 +306,18 @@
 		} else {
 			$('#' + player.id + '_timeSliderBuffer').css('display', 'block');
 		}
-		if (event.position === 0) {
+		if (position === 0) {
 			$('#' + player.id + '_timeSliderProgress').css('display', 'none');
 			$('#' + player.id + '_timeSliderThumb').css('display', 'none');
 		} else {
 			$('#' + player.id + '_timeSliderProgress').css('display', 'block');
-			$('#' + player.id + '_timeSliderProgress').css('width', Math.round(wid * event.position / event.duration));
+			$('#' + player.id + '_timeSliderProgress').css('width', Math.round(wid * progress));
 			$('#' + player.id + '_timeSliderThumb').css('display', 'block');
 			$('#' + player.id + '_timeSliderThumb').css('left', lft +
-			Math.round((wid - thb) * event.position / event.duration));
-			$('#' + player.id + '_durationText').html(timeFormat(event.duration));
+			Math.round((wid - thb) * progress));
+			$('#' + player.id + '_durationText').html(timeFormat(duration));
 		}
-		$('#' + player.id + '_elapsedText').html(timeFormat(event.position));
+		$('#' + player.id + '_elapsedText').html(timeFormat(position));
 	}
 	
 	
@@ -380,18 +384,30 @@
 		$('#' + player.id + '_jwplayerControlbar').css('left', lft);
 		$('#' + player.id + '_jwplayerControlbar').css('top', top);
 		$('#' + player.id + '_jwplayerControlbar').css('width', wid);
-		$('#' + player.id + '_timeSliderRail').css('width', wid - player.controlbar.leftmargin - player.controlbar.rightmargin);
+		$('#' + player.id + '_timeSliderRail').css('width', (wid - player.controlbar.leftmargin - player.controlbar.rightmargin));
 	}
 	
 	
 	/** Update the volume level. **/
 	function volumeHandler(event) {
 		var player = $.jwplayer(event.id);
+		var volume;
+		switch($.fn.jwplayerUtils.typeOf(event.volume)){
+			case "function":
+				volume = event.volume();
+				break;
+			case "undefined":
+				volume = player.model.volume;
+				break;
+			default:
+				volume = event.volume;
+				break;
+		}
 		var rwd = $('#' + player.id + '_volumeSliderRail').width();
-		var wid = Math.round(event.volume / 100 * rwd);
+		var wid = Math.round(volume / 100 * rwd);
 		var rig = $('#' + player.id + '_volumeSliderRail').css('right').substr(0, 2);
 		$('#' + player.id + '_volumeSliderProgress').css('width', wid);
-		$('#' + player.id + '_volumeSliderProgress').css('right', 1 * rig + rwd - wid);
+		$('#' + player.id + '_volumeSliderProgress').css('right', (1 * rig + rwd - wid));
 	}
 	
 	
@@ -1589,63 +1605,73 @@
 	};
 	
 	/** Load the skin **/
-	load = function (player, completeHandler){
+	function load(player, completeHandler) {
 		$.get(player.model.config.skin, {}, function(xml) {
 			var skin = {
-				properties:{},
+				properties: {},
 				incompleteElements: 0
 			};
+			player.skin = skin;
 			var components = $('component', xml);
 			for (var componentIndex = 0; componentIndex < components.length; componentIndex++) {
 				var componentName = $(components[componentIndex]).attr('name');
 				var component = {
-					settings:{}, 
-					elements:{}
+					settings: {},
+					elements: {}
 				};
+				player.skin[componentName] = component;
 				var elements = $(components[componentIndex]).find('element');
-				for (var elementIndex = 0; elementIndex < elements.length; elementIndex++){
-					skin.incompleteElements++;
+				player.skin.loading = true;
+				for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+					player.skin.incompleteElements++;
 					loadImage(elements[elementIndex], componentName, player, completeHandler);
 				}
 				var settings = $(components[componentIndex]).find('setting');
-				for (var settingIndex = 0; settingIndex < settings.length; settingIndex++){
-					component.settings[$(settings[settingIndex]).attr("name")] = $(settings[settingIndex]).attr("value");
+				for (var settingIndex = 0; settingIndex < settings.length; settingIndex++) {
+					player.skin[componentName].settings[$(settings[settingIndex]).attr("name")] = $(settings[settingIndex]).attr("value");
 				}
-				skin[componentName] = component;
+				player.skin.loading = false;
 			}
-			player.skin = skin;
 		});
-	};
+	}
 	
 	/** Load the data for a single element. **/
 	function loadImage(element, component, player, completeHandler) {
 		var img = new Image();
 		var elementName = $(element).attr('name');
 		var elementSource = $(element).attr('src');
-		var skinUrl = player.model.config.skin.substr(0,  player.model.config.skin.lastIndexOf('/'));
+		var skinUrl = player.model.config.skin.substr(0, player.model.config.skin.lastIndexOf('/'));
 		$(img).error(function() {
 			player.skin.incompleteElements--;
 		});
-		$(img).load(function() {
-			player.skin[component].elements[elementName] = {
+		$(img).bind('load', {
+			player: player,
+			elementName: elementName,
+			component: component,
+			completeHandler: completeHandler
+		}, function(event) {
+			event.data.player.skin[event.data.component].elements[event.data.elementName] = {
 				height: this.height,
 				width: this.width,
 				src: this.src
 			};
-			player.skin.incompleteElements--;
-			if (player.skin.incompleteElements === 0) {
-				completeHandler();
+			event.data.player.skin.incompleteElements--;
+			if ((event.data.player.skin.incompleteElements === 0) && (event.data.player.skin.loading === false)) {
+				event.data.completeHandler();
 			}
 		});
-		img.src = [skinUrl, component, elementSource].join("/");
+		var src = [skinUrl, component, elementSource].join("/");
+		//$(img).attr('style', "filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);");
+		img.src = src;
+		img.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + src + "')";
 	}
 	
-	$.fn.jwplayerSkinner.hasComponent = function (player, component){
+	$.fn.jwplayerSkinner.hasComponent = function(player, component) {
 		return (player.skin[component] !== null);
 	};
 	
 	
-	$.fn.jwplayerSkinner.getSkinElement = function (player, component, element){
+	$.fn.jwplayerSkinner.getSkinElement = function(player, component, element) {
 		try {
 			return player.skin[component].elements[element];
 		} catch (err) {
@@ -1653,17 +1679,17 @@
 		}
 		return null;
 	};
-
 	
-	$.fn.jwplayerSkinner.addSkinElement = function (player, component, name, element){
+	
+	$.fn.jwplayerSkinner.addSkinElement = function(player, component, name, element) {
 		try {
 			player.skin[component][name] = element;
-		} catch (err){
+		} catch (err) {
 			$.fn.jwplayerUtils.log("No such skin component ", [player, component]);
 		}
 	};
 	
-	$.fn.jwplayerSkinner.getSkinProperties = function (player){
+	$.fn.jwplayerSkinner.getSkinProperties = function(player) {
 		return player.skin.properties;
 	};
 	
@@ -1778,8 +1804,8 @@
 	$.fn.jwplayerCSS = function(options) {
 		return this.each(function() {
 			var defaults = {
-				'margin':'0',
-				'padding':'0',
+				'margin':0,
+				'padding':0,
 				'background': 'none',
 				'border': 'none',
 				'bottom': 'auto',
@@ -1796,14 +1822,14 @@
 				'line-height': 'normal',
 				'max-height': 'none',
 				'max-width': 'none',
-				'min-height': '0',
-				'min-width': '0',
+				'min-height': 0,
+				'min-width': 0,
 				'overflow': 'visible',
 				'position': 'static',
 				'right': 'auto',
 				'text-align': 'left',
 				'text-decoration': 'none',
-				'text-indent': '0',
+				'text-indent': 0,
 				'text-transform': 'none',
 				'top': 'auto',
 				'visibility': 'visible',
@@ -1811,7 +1837,11 @@
 				'width': 'auto',
 				'z-index': 'auto'
 			};
-			$(this).css($.extend(defaults, options));
+			try {
+				$(this).css($.extend(defaults, options));
+			} catch (err) {
+				//alert($.fn.jwplayerUtils.dump(err));
+			}
 		});
 	};
 	

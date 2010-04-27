@@ -108,8 +108,8 @@
 	$.fn.jwplayerCSS = function(options) {
 		return this.each(function() {
 			var defaults = {
-				'margin':'0',
-				'padding':'0',
+				'margin':0,
+				'padding':0,
 				'background': 'none',
 				'border': 'none',
 				'bottom': 'auto',
@@ -126,14 +126,14 @@
 				'line-height': 'normal',
 				'max-height': 'none',
 				'max-width': 'none',
-				'min-height': '0',
-				'min-width': '0',
+				'min-height': 0,
+				'min-width': 0,
 				'overflow': 'visible',
 				'position': 'static',
 				'right': 'auto',
 				'text-align': 'left',
 				'text-decoration': 'none',
-				'text-indent': '0',
+				'text-indent': 0,
 				'text-transform': 'none',
 				'top': 'auto',
 				'visibility': 'visible',
@@ -141,7 +141,11 @@
 				'width': 'auto',
 				'z-index': 'auto'
 			};
-			$(this).css($.extend(defaults, options));
+			try {
+				$(this).css($.extend(defaults, options));
+			} catch (err) {
+				//alert($.fn.jwplayerUtils.dump(err));
+			}
 		});
 	};
 	
