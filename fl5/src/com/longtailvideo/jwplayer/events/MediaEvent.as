@@ -188,19 +188,17 @@ package com.longtailvideo.jwplayer.events {
 			var retString:String = '[MediaEvent type="' + type + '"';
 			var defaults:MediaEvent = new MediaEvent("");
 
-			if (this.type == MediaEvent.JWPLAYER_MEDIA_META) {
-				for (var s:String in metadata) {
-					retString += ' ' + s + '="' + metadata[s] + '"';
-				}
-			} else {
-				if (bufferPercent != defaults.bufferPercent) retString += ' bufferPercent="' + bufferPercent + '"';
-				if (duration != defaults.duration) retString += ' duration="' + duration + '"';
-				if (position != defaults.position) retString += ' position="' + position + '"';
-				if (offset != defaults.offset) retString += ' offset="' + offset + '"';
-				if (volume != defaults.volume) retString += ' volume="' + volume + '"';
-				if (mute != defaults.mute) retString += ' mute="' + mute + '"';
-				if (message != defaults.message) retString += ' message="' + message + '"';
+			for (var s:String in metadata) {
+				retString += ' ' + s + '="' + metadata[s] + '"';
 			}
+
+			if (bufferPercent != defaults.bufferPercent) retString += ' bufferPercent="' + bufferPercent + '"';
+			if (duration != defaults.duration) retString += ' duration="' + duration + '"';
+			if (position != defaults.position) retString += ' position="' + position + '"';
+			if (offset != defaults.offset) retString += ' offset="' + offset + '"';
+			if (volume != defaults.volume) retString += ' volume="' + volume + '"';
+			if (mute != defaults.mute) retString += ' mute="' + mute + '"';
+			if (message != defaults.message) retString += ' message="' + message + '"';
 			
 			retString += ' id="' + id + '"'
 			retString += ' client="' + client + '"'

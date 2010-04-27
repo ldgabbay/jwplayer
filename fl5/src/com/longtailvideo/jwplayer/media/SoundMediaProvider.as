@@ -167,8 +167,7 @@ package com.longtailvideo.jwplayer.media {
 				if (bufferPercent == 100 && _bufferingComplete == false) {
 					_bufferingComplete = true;
 				}
-				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {loaded:_sound.bytesLoaded, total:_sound.bytesTotal}});
-				sendBufferEvent(bufferPercent);
+				sendBufferEvent(bufferPercent, 0, {loaded:_sound.bytesLoaded, total:_sound.bytesTotal});
 			}
 			
 			if (state != PlayerState.PLAYING) {

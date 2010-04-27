@@ -136,31 +136,10 @@
 			if (!_positionInterval) {
 				_positionInterval = setInterval(positionHandler, 100);
 			}
-			// Don't resume the stream if it should continue buffering
-			if (!shouldBuffer) {
-				_stream.resume();
-				super.play();
-			} else {
-				setState(PlayerState.BUFFERING);
-			}
+			_stream.resume();
+			super.play();
 		}
-		
-		/** Calculate how much of the buffer time has been loaded **/
-		protected function get bufferFill():Number {
-			return _stream.bufferTime > 0 ? Math.floor(_stream.bufferLength / _stream.bufferTime * 100) : 0;
-		}
-		
-		/** Figure out whether or not to buffer, based on the amount loaded **/
-		protected function get shouldBuffer():Boolean {
-			return (bufferFill < 50);
-		}
-		
-		/** Returns true if the required buffer time has been loaded **/
-		protected function get bufferFull():Boolean {
-			var streamTime:Number = Math.min(_stream.time, item.duration);
-			var bufferTime:Number = _stream.bufferTime < (item.duration - streamTime) ? _stream.bufferTime : Math.floor(Math.abs(item.duration - streamTime));
-			return (bufferFill > 95 && state == PlayerState.BUFFERING && _bufferFull == false && bufferTime > 0);
-		}
+
 
 		/** Interval for the position progress **/
 		protected function positionHandler():void {
@@ -169,30 +148,33 @@
 				setTimeout(checkBandwidth, _bandwidthTimeout, _stream.bytesLoaded);
 			}
 			
-			if (shouldBuffer && state == PlayerState.PLAYING) {
+			var _streamTime:Number = Math.min(_stream.time, item.duration);
+			var bufferPercent:Number = _stream.bytesTotal > 0 ? _stream.bytesLoaded / _stream.bytesTotal * 100 : 0;
+			var bufferTime:Number = _stream.bufferTime < (item.duration - _streamTime) ? _stream.bufferTime : Math.floor(Math.abs(item.duration - _streamTime));
+			var bufferFill:Number = bufferTime == 0 ? 100 : Math.floor(_stream.bufferLength / bufferTime * 100);
+
+			
+			if (bufferFill < 50 && state == PlayerState.PLAYING) {
 				_bufferFull = false;
 				_stream.pause();
 				setState(PlayerState.BUFFERING);
-			} else if (bufferFull) {
+			} else if (bufferFill > 95 && state == PlayerState.BUFFERING && _bufferFull == false && bufferTime > 0) {
 				_bufferFull = true;
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_BUFFER_FULL);
 			}
 
-			var bufferPercent:Number = _stream.bytesTotal > 0 ? _stream.bytesLoaded / _stream.bytesTotal * 100 : 0;
-			
 			if (!_bufferingComplete) {
 				if (bufferPercent == 100 && _bufferingComplete == false) {
 					_bufferingComplete = true;
 				}
-				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {loaded:_stream.bytesLoaded, total:_stream.bytesTotal}});
-				sendBufferEvent(bufferPercent);
+				sendBufferEvent(bufferPercent, 0, {loaded:_stream.bytesLoaded, total:_stream.bytesTotal});
 			}
 
 			if (state != PlayerState.PLAYING) {
 				return;
 			}
 
-			_position = Math.round(_stream.time * 10) / 10;
+			_position = Math.round(_streamTime * 10) / 10;
 			
 			if (position < item.duration) {
 				if (position >= 0) {
