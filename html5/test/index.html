@@ -237,7 +237,6 @@
 				variables[$(arr[i]).attr('name')] = $(arr[i]).val();
 			}
 		}
-		$('#preview').css('height',vrs['height']);
 		var ply = settings.players[$('#players').val()];
 		$('#preview').html('<video id="container" src="'+vrs['file']+'" width="'+vrs['width']+'" height="'+vrs['height']+'" />');
 		$('#container').jwplayer(vrs);

@@ -1908,7 +1908,6 @@
 		player.model.domelement.parent().jwplayerCSS({
 			'position': 'relative',
 			'width': player.model.config.width + 'px',
-			'height': player.model.config.height + 'px',
 			'margin': 'auto'
 		});
 		player.model.domelement.jwplayerCSS({
