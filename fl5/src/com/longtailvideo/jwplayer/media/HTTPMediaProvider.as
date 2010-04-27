@@ -235,46 +235,60 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Resume playing. **/
 		override public function play():void {
-			_stream.resume();
 			if (!_positionInterval) {
 				_positionInterval = setInterval(positionInterval, 100);
 			}
-			super.play();
+			if (!shouldBuffer) {
+				_stream.resume();
+				super.play();
+			} else {
+				setState(PlayerState.BUFFERING);
+			}
 		}
 
+		/** Calculate how much of the buffer time has been loaded **/
+		protected function get bufferFill():Number {
+			return _stream.bufferTime > 0 ? Math.floor(_stream.bufferLength / _stream.bufferTime * 100) : 0;
+		}
+		
+		/** Figure out whether or not to buffer, based on the amount loaded **/
+		protected function get shouldBuffer():Boolean {
+			return (bufferFill < 50);
+		}
+		
+		/** Returns true if the required buffer time has been loaded **/
+		protected function get bufferFull():Boolean {
+			var streamTime:Number = Math.min(_stream.time, item.duration);
+			var bufferTime:Number = _stream.bufferTime < (item.duration - streamTime) ? _stream.bufferTime : Math.floor(Math.abs(item.duration - streamTime));
+			return (bufferFill > 95 && state == PlayerState.BUFFERING && _bufferFull == false && bufferTime > 0);
+		}
 
 		/** Interval for the position progress **/
 		protected function positionInterval():void {
-			_position = Math.round(_stream.time * 10) / 10;
-			var percentoffset:Number;
-			if (_mp4) {
-				_position += _timeoffset;
-			}
-			
-			var bufferPercent:Number;
-			var bufferFill:Number;
+			var percentoffset:Number = 0;
+			var bufferPercent:Number = 0;
+
 			if (item.duration > 0 && _stream && _stream.bytesTotal > 0) {
 				percentoffset =  Math.round(_timeoffset /  item.duration * 100);
 				bufferPercent = (_stream.bytesLoaded / _stream.bytesTotal) * (1 - _timeoffset / item.duration) * 100;
-				var bufferTime:Number = _stream.bufferTime < (item.duration - position) ? _stream.bufferTime : Math.round(item.duration - position);
-				bufferFill = _stream.bufferTime == 0 ? 0 : Math.ceil(_stream.bufferLength / bufferTime * 100);
-			} else {
-				percentoffset = 0;
-				bufferPercent = 0;
-				bufferFill = _stream.bufferLength/_stream.bufferTime * 100;
 			}
-	
+			
+			_position = Math.round(_stream.time * 10) / 10;
+			if (_mp4) {
+				_position += _timeoffset;
+			}
+
 			if (!_bandwidthChecked && _stream.bytesLoaded > 0 && _stream.bytesLoaded < _stream.bytesTotal) {
 				_bandwidthChecked = true;
 				clearTimeout(_bandwidthTimeout);
 				_bandwidthTimeout = setTimeout(checkBandwidth, _bandwidthDelay, _stream.bytesLoaded);
 			}
 			
-			if (bufferFill < 25 && state == PlayerState.PLAYING) {
+			if (shouldBuffer && state == PlayerState.PLAYING) {
 				_bufferFull = false;
 				_stream.pause();
 				setState(PlayerState.BUFFERING);
-			} else if (bufferFill > 95 && state == PlayerState.BUFFERING && _bufferFull == false) {
+			} else if (bufferFull) {
 				_bufferFull = true;
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_BUFFER_FULL);
 			}
