@@ -57,8 +57,7 @@ package com.longtailvideo.jwplayer.player {
 		 */
 		function unlock(target:IPlugin):Boolean;
 		function volume(volume:Number):Boolean;
-		function get mute():Boolean;
-		function set mute(state:Boolean):void;
+		function mute(state:Boolean):void;
 		function play():Boolean;
 		function pause():Boolean;
 		function stop():Boolean;
@@ -69,10 +68,10 @@ package com.longtailvideo.jwplayer.player {
 		function playlistPrev():Boolean;
 		/** Force a redraw of the player **/
 		function redraw():Boolean;
-		function get fullscreen():Boolean;
-		function set fullscreen(on:Boolean):void;
-		function link(index:Number=NaN):Boolean;
+		function fullscreen(on:Boolean):void;
 		function get controls():IPlayerComponents;
 		function overrideComponent(plugin:IPlayerComponent):void
+		/** This method is deprecated; it will be removed when support is dropped for v4 compatibility **/
+		function link(index:Number=NaN):Boolean;
 	}
 }

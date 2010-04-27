@@ -114,7 +114,7 @@ package com.longtailvideo.jwplayer.view {
 		/** Handles mouse clicks **/
 		protected function clickHandler(evt:MouseEvent):void {
 			_player.pause();
-			_player.fullscreen = false;
+			_player.fullscreen(false);
 			if (getConfigParam('link')) {
 				navigateToURL(new URLRequest(getConfigParam('link')));
 			}

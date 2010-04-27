@@ -157,7 +157,7 @@ package com.longtailvideo.jwplayer.view.components {
 			var wid:Number = width;
 			var margin:Number = controlbarConfig['margin'];
 
-			if (controlbarConfig['position'] == 'over' || _player.fullscreen == true) {
+			if (controlbarConfig['position'] == 'over' || _player.config.fullscreen == true) {
 				x = margin + player.config.pluginConfig('display')['x'];
 				y = height - skin.height - margin + player.config.pluginConfig('display')['y'];
 				wid = width - 2 * margin;
@@ -167,7 +167,7 @@ package com.longtailvideo.jwplayer.view.components {
 				getSkinComponent('fullscreenButton').visible = false;
 				getSkinComponent('normalscreenButton').visible = false;
 				if (stage['displayState'] && _player.config.height > 40) {
-					if (_player.fullscreen) {
+					if (_player.config.fullscreen) {
 						getSkinComponent('fullscreenButton').visible = false;
 						getSkinComponent('normalscreenButton').visible = true;
 					} else {
@@ -203,13 +203,13 @@ package com.longtailvideo.jwplayer.view.components {
 			if (blocking != true || act == ViewEvent.JWPLAYER_VIEW_FULLSCREEN || act == ViewEvent.JWPLAYER_VIEW_MUTE) {
 				switch (act) {
 					case ViewEvent.JWPLAYER_VIEW_FULLSCREEN:
-						data = Boolean(!_player.fullscreen);
+						data = Boolean(!_player.config.fullscreen);
 						break;
 					case ViewEvent.JWPLAYER_VIEW_PAUSE:
 						data = Boolean(_player.state == PlayerState.IDLE || _player.state == PlayerState.PAUSED);
 						break;
 					case ViewEvent.JWPLAYER_VIEW_MUTE:
-						data = Boolean(!_player.mute);
+						data = Boolean(!_player.config.mute);
 						break;
 				}
 				var event:ViewEvent = new ViewEvent(act, data);
@@ -250,7 +250,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 		/** Show a mute icon if playing. **/
 		private function muteHandler(evt:MediaEvent=null):void {
-			if (_player.mute == true) {
+			if (_player.config.mute == true) {
 				try {
 					getSkinComponent('muteButton').visible = false;
 					getSkinComponent('unmuteButton').visible = true;
@@ -364,7 +364,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 		
 		private function startFader():void {
-			if (controlbarConfig['position'] == 'over' || (_player.fullscreen && controlbarConfig['position'] != 'none')) {
+			if (controlbarConfig['position'] == 'over' || (_player.config.fullscreen && controlbarConfig['position'] != 'none')) {
 				if (!isNaN(hiding)) {
 					clearTimeout(hiding);
 				}

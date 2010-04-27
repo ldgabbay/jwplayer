@@ -133,7 +133,7 @@ package com.longtailvideo.jwplayer.model {
 		public function get duration():Number { return _duration; }
 		public function set duration(d:*):void { 
 			_duration = Strings.seconds(String(d));
-			if (_duration == 0) { _duration = -1; }
+//			if (_duration == 0) { _duration = -1; }
 		}
 		
 		// For backwards compatibility

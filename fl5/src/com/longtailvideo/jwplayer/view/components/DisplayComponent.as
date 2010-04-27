@@ -216,7 +216,7 @@
 					setDisplay(_icons['play']);
 					break;
 				default:
-					if (player.mute) {
+					if (player.config.mute) {
 						setDisplay(_icons['mute']);
 					} else {
 						clearDisplay();

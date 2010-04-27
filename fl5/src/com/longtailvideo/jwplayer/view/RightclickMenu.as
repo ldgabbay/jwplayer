@@ -88,7 +88,7 @@ package com.longtailvideo.jwplayer.view {
 
 		/** Toggle the fullscreen mode. **/
 		protected function fullscreenHandler(evt:ContextMenuEvent):void {
-			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_FULLSCREEN, !_player.fullscreen));
+			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_FULLSCREEN, !_player.config.fullscreen));
 		}
 
 		/** Change the stretchmode. **/

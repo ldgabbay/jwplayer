@@ -144,7 +144,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 		
 		private function startFader():void {
-			if (controlbarConfig['position'] == 'over' || (_player.fullscreen && controlbarConfig['position'] != 'none')) {
+			if (controlbarConfig['position'] == 'over' || (_player.config.fullscreen && controlbarConfig['position'] != 'none')) {
 				if (!isNaN(hiding)) {
 					clearTimeout(hiding);
 				}
@@ -220,13 +220,13 @@ package com.longtailvideo.jwplayer.view.components {
 				hideButton('prev');
 				hideButton('next');
 			}
-			if (player.mute) {
+			if (player.config.mute) {
 				newLayout = newLayout.replace("mute", "unmute");
 				hideButton("mute");
 			} else {
 				hideButton("unmute");
 			}
-			if (player.fullscreen) {
+			if (player.config.fullscreen) {
 				newLayout = newLayout.replace("fullscreen", "normalscreen");
 				hideButton("fullscreen");
 			} else {
@@ -513,7 +513,7 @@ package com.longtailvideo.jwplayer.view.components {
 			
 			_width = width;
 
-			if (getConfigParam('position') == 'over' || _player.fullscreen == true) {
+			if (getConfigParam('position') == 'over' || _player.config.fullscreen == true) {
 				x = getConfigParam('margin') + player.config.pluginConfig('display')['x'];
 				y = height - background.height - getConfigParam('margin') + player.config.pluginConfig('display')['y'];
 				_width = width - 2 * getConfigParam('margin');

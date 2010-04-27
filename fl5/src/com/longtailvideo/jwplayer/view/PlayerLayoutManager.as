@@ -45,8 +45,8 @@ package com.longtailvideo.jwplayer.view {
 
 		private function addLayout(plugin:String):void {
 			var cfg:PluginConfig = _player.config.pluginConfig(plugin);
-			
-			if (!_player.fullscreen && testPosition(cfg['position']) && cfg['size']) {
+
+			if (!_player.config.fullscreen && testPosition(cfg['position']) && Number(cfg['size']) > 0 ) {
 				toLayout.push(cfg);
 			} else {
 				noLayout.push(cfg);
@@ -98,7 +98,7 @@ package com.longtailvideo.jwplayer.view {
 		protected function generateLayout():void {
 			if (toLayout.length == 0) {
 				for each(var item:PluginConfig in noLayout) {
-					item['visible'] = !(_player.fullscreen && testPosition(item['position']));
+					item['visible'] = !(_player.config.fullscreen && testPosition(item['position']));
 					assignSpace(item, remainingSpace);
 				}
 				_player.config.width = remainingSpace.width;

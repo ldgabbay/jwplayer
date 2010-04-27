@@ -60,7 +60,6 @@ package com.longtailvideo.jwplayer.view.components {
 			super.init();
 			_imageLayer.addChild(_text);
 			if (_assetColor) {
-				_outIcon.transform.colorTransform = createColorTransform(_assetColor);
 				_text.textColor = _assetColor.color;
 			} else {
 				_text.textColor = 0xFFFFFF;

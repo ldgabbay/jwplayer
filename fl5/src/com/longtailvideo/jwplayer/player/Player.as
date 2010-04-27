@@ -164,15 +164,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function get mute():Boolean {
-			return model.mute;
-		}
-		
-		
-		/**
-		 * @inheritDoc
-		 */
-		public function set mute(state:Boolean):void {
+		public function mute(state:Boolean):void {
 			controller.mute(state);
 		}
 		
@@ -248,14 +240,7 @@
 		/**
 		 * @inheritDoc
 		 */
-		public function get fullscreen():Boolean {
-			return model.fullscreen;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public function set fullscreen(on:Boolean):void {
+		public function fullscreen(on:Boolean):void {
 			controller.fullscreen(on);
 		}
 

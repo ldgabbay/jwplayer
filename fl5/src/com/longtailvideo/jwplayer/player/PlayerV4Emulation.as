@@ -199,7 +199,7 @@ package com.longtailvideo.jwplayer.player {
 		
 		private function viewRedraw(width:Number, height:Number):void {
 			viewEventDispatcher.dispatchEvent(new com.jeroenwijering.events.ViewEvent(com.jeroenwijering.events.ViewEvent.REDRAW, {id:id, client:client, version:version}));
-			controllerEventDispatcher.dispatchEvent(new ControllerEvent(ControllerEvent.RESIZE, {width:width, height:height, fullscreen:_player.fullscreen, client:client, version:version}));
+			controllerEventDispatcher.dispatchEvent(new ControllerEvent(ControllerEvent.RESIZE, {width:width, height:height, fullscreen:_player.config.fullscreen, client:client, version:version}));
 		}
 
 		private function viewSeek(evt:ViewEvent):void {
@@ -256,7 +256,7 @@ package com.longtailvideo.jwplayer.player {
 			Logger.log("V4 emulator sending event: " + typ + " " + Strings.print_r(prm));
 			switch (typ) {
 				case com.jeroenwijering.events.ViewEvent.FULLSCREEN:
-					_player.fullscreen = prm;
+					_player.fullscreen(prm);
 					break;
 				case com.jeroenwijering.events.ViewEvent.ITEM:
 					_player.playlistItem(Number(prm));
@@ -269,9 +269,9 @@ package com.longtailvideo.jwplayer.player {
 					break;
 				case com.jeroenwijering.events.ViewEvent.MUTE:
 					if (prm != null && prm != "") {
-						_player.mute = (prm != "false" && prm != 0);
+						_player.mute(prm != "false" && prm != 0);
 					} else {
-						_player.mute = !_player.mute;
+						_player.mute(!_player.config.mute);
 					}
 					break;
 				case com.jeroenwijering.events.ViewEvent.NEXT:
@@ -347,7 +347,7 @@ package com.longtailvideo.jwplayer.player {
 					break;
 			}
 
-			cfg['fullscreen'] = _player.fullscreen;
+			cfg['fullscreen'] = _player.config.fullscreen;
 			cfg['version'] = _player.version;
 			cfg['item'] = _player.playlist.currentIndex;
 			cfg['level'] = _player.playlist.currentItem ? _player.playlist.currentItem.currentLevel : 0;
