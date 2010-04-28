@@ -150,7 +150,7 @@ package com.longtailvideo.jwplayer.media {
 		/** Play or pause the video. **/
 		override public function play():void {
 			_outgoing.send('AS3_' + _unique, "playVideo");
-//			super.play();
+			super.play();
 		}
 
 
@@ -199,7 +199,7 @@ package com.longtailvideo.jwplayer.media {
 		public function onLoadChange(ldd:Number, ttl:Number, off:Number):void {
 			_bufferPercent = Math.round(ldd / ttl * 100);
 			_offset = off / ttl * item.duration;
-			sendBufferEvent(_bufferPercent, _offset);
+			sendBufferEvent(_bufferPercent, _offset, {loaded:ldd, total:ttl});
 		}
 
 
@@ -208,9 +208,6 @@ package com.longtailvideo.jwplayer.media {
 			_position = pos;
 			if (item.duration < 0) {
 				item.duration = dur;
-			}
-			if (state != PlayerState.PLAYING){
-				super.play();
 			}
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_TIME, {position: pos, duration: item.duration, offset: _offset});
 			if (pos > item.duration) {

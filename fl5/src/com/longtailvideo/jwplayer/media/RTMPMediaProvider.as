@@ -255,7 +255,17 @@ package com.longtailvideo.jwplayer.media {
                 if (dat.code == "NetStream.Play.StreamNotFound") {
 					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR,{message: "Subscription failed: " + item.file}); 
                 } else if (dat.code == "NetStream.Play.Start") {
-                    setStream();
+					if (item.levels.length > 0) {
+						if (_dynamic || _bandwidthChecked) {
+							setStream();
+						} else {
+							_bandwidthChecked = true;
+							_bandwidthSwitch = true;
+							_connection.call('checkBandwidth', null);
+						}
+					} else {
+						setStream();
+					}
                 }
                 clearInterval(_subscribeInterval);
             }
@@ -383,12 +393,12 @@ package com.longtailvideo.jwplayer.media {
                     return;
                 }
             }
+			
 			if (state == PlayerState.PAUSED) {
 				play();
 			}
-            if (getConfigProperty('subscribe')) {
-                _stream.play(getID(item.file));
-			} else if(isDVR) {
+			
+			if(isDVR) {
 				if(state != PlayerState.PLAYING) {
 					try {
 						_stream.play(getID(item.file),0,-1);

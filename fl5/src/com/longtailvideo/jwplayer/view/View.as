@@ -453,6 +453,8 @@ package com.longtailvideo.jwplayer.view {
 						_mediaLayer.visible = true;
 						_imageLayer.visible = false;
 					}
+					if (_logo) _logo.visible = true;
+					break;
 				case PlayerState.BUFFERING:
 					if (_logo) _logo.visible = true;
 					break;

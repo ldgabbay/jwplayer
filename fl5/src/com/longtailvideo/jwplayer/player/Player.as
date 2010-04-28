@@ -15,6 +15,7 @@
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.utils.setTimeout;
 	
 	
 	/**
@@ -71,11 +72,17 @@
 		protected function playerReady(evt:PlayerEvent):void {
 			// Only handle JWPLAYER_READY once
 			controller.removeEventListener(PlayerEvent.JWPLAYER_READY, playerReady);
+			
+			// Initialize Javascript interface
 			var jsAPI:JavascriptAPI = new JavascriptAPI(this);
+			
+			// Forward all MVC events
 			model.addGlobalListener(forward);
 			view.addGlobalListener(forward);
 			controller.addGlobalListener(forward);
-			forward(evt);
+
+			// Insert a delay to allow Javascript listeners to initialize 
+			setTimeout(forward, 50, evt);
 		}
 		
 		

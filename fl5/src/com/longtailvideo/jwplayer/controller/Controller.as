@@ -60,6 +60,8 @@ package com.longtailvideo.jwplayer.controller {
 		protected var _lockManager:LockManager;
 		/** Load after unlock - My favorite variable ever **/
 		protected var _unlockAndLoad:Boolean;
+		/** Whether the playlist has been loaded yet **/
+		protected var _playlistReady:Boolean = false;
 		
 		
 		/** A list with legacy CDN classes that are now redirected to buit-in ones. **/
@@ -146,24 +148,27 @@ package com.longtailvideo.jwplayer.controller {
 			if (!locking && _setupComplete && !_setupFinalized) {
 				_setupFinalized = true;
 
-				dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_READY));
-
 				_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, playlistLoadHandler);
 				_player.addEventListener(ErrorEvent.ERROR, errorHandler);
 				_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, playlistItemHandler);
-
+				
 				_model.addEventListener(MediaEvent.JWPLAYER_MEDIA_COMPLETE, completeHandler);
+				
+				dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_READY));
 
 				// Broadcast playlist loaded (which was swallowed during player setup);
 				if (_model.playlist.length > 0) {
 					dispatchEvent(new PlaylistEvent(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, _model.playlist));
 				}
 
+				
 			}
 		}
 
 
 		protected function playlistLoadHandler(evt:PlaylistEvent=null):void {
+			_playlistReady = true;
+			
 			if (_model.config.shuffle) {
 				shuffleItem();
 			} else {
@@ -321,6 +326,11 @@ package com.longtailvideo.jwplayer.controller {
 
 
 		public function play():Boolean {
+			if (!_playlistReady) {
+				Logger.log("Attempted to begin playback before playlist is ready");
+				return false;
+			}
+			
 			if (_mediaLoader) {
 				_delayedItem = _model.playlist.currentItem;
 				return false;
