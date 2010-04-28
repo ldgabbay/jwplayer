@@ -593,8 +593,7 @@
 			players[model.config.id] = player;
 			player = $.extend(player, api(player));
 			$.fn.jwplayerView(player);
-			$.fn.jwplayerModel.setActiveMediaProvider(player);
-			$.fn.jwplayerSkinner(player, function() {
+ 			$.fn.jwplayerSkinner(player, function() {
 				finishSetup(player);
 			});
 		});
@@ -874,7 +873,6 @@
 	/** Send an event **/
 	function sendEvent(player) {
 		return function(type, data) {
-			alert(player.id);
 			for (var listener in player.model.listeners[type]) {
 				player.model.listeners[type][listener](data);
 			}
@@ -2012,7 +2010,6 @@
 	};
 	
 	function imageHandler(obj, player) {
-		alert(player.id+":"+obj.newstate);
 		switch (obj.newstate) {
 			case $.fn.jwplayer.states.IDLE:
 				player.model.domelement.css("z-index", "0");
