@@ -1804,8 +1804,8 @@
 	$.fn.jwplayerCSS = function(options) {
 		return this.each(function() {
 			var defaults = {
-				'margin':0,
-				'padding':0,
+				'margin': 0,
+				'padding': 0,
 				'background': 'none',
 				'border': 'none',
 				'bottom': 'auto',
@@ -1844,6 +1844,55 @@
 			}
 		});
 	};
+	
+	$.fn.jwplayerUtils.isNull = function(obj) {
+		return ((obj === null) || (obj === undefined) || (obj === ""));
+	};
+	
+	/** Gets an absolute file path based on a relative filepath **/
+	$.fn.jwplayerUtils.getAbsolutePath = function(path) {
+		if (isAbsolutePath(path)) {
+			return path;
+		}
+		var protocol = document.location.href.substr(0, document.location.href.indexOf("://") + 3);
+		var basepath = document.location.href.substring(protocol.length, (path.indexOf("/") === 0) ? document.location.href.indexOf('/') : document.location.href.lastIndexOf('/'));
+		var patharray = (basepath + "/" + path).split("/");
+		var result = [];
+		for (var i = 0; i < patharray.length; i++) {
+			if ($.fn.jwplayerUtils.isNull(patharray[i]) || patharray[i] == ".") {
+				continue;
+			} else if (patharray[i] == "..") {
+				result.pop();
+			} else {
+				result.push(patharray[i]);
+			}
+		}
+		return protocol + result.join("/");
+	};
+	
+	function isAbsolutePath(path) {
+		var protocol = path.indexOf("://");
+		var queryparams = path.indexOf("?");
+		return (protocol > 0 && (queryparams < 0 || (queryparams > protocol)));
+	}
+	
+	function resolvePath(url) {
+		var protocol = url.substr(0, url.indexOf("://") + 3);
+		url = url.replace(protocol, '');
+		url = url.replace(/\/\//g, '/');
+		url = url.replace(/\/\.\//g, '/');
+		var basePathLength = url.indexOf('/');
+		var moveup = url.indexOf('/../');
+		while (moveup > 0) {
+			if (basePathLength == moveup) {
+				url = url.slice(0, moveup) + url.slice(moveup + 3, url.length);
+			} else {
+				url = url.slice(0, url.lastIndexOf('/', moveup - 1)) + url.slice(moveup + 3, url.length);
+			}
+			moveup = url.indexOf('/../');
+		}
+		return protocol + url;
+	}
 	
 	/** Dumps the content of an object to a string **/
 	$.fn.jwplayerUtils.dump = function(object, depth) {
@@ -1922,12 +1971,12 @@
  */
 (function($) {
 
-	var styleString = "style='left:0px;top:0px;position:absolute;z-index:0;'";
+	var styleString = "left:0px;top:0px;position:absolute;z-index:0;";
 	var embedString = "<embed %elementvars% src='%flashplayer%' allowfullscreen='true' allowscriptaccess='always' flashvars='%flashvars%' %style% />";
 	var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars%' %style%> <param name='movie' value='%flashplayer%'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
 	var elementvars = {
-		width: true,
-		height: true,
+		//width: true,
+		//height: true,
 		id: true,
 		name: true,
 		className: true
@@ -1937,33 +1986,34 @@
 		player.model.domelement.wrap("<div id='" + player.model.config.id + "_jwplayer' />");
 		player.model.domelement.parent().jwplayerCSS({
 			'position': 'relative',
-			'width': player.model.config.width + 'px',
+			'height': player.model.config.height,
+			'width': player.model.config.width,
 			'margin': 'auto'
 		});
 		player.model.domelement.jwplayerCSS({
 			'position': 'absolute',
-			'width': player.model.config.width + 'px',
-			'height': player.model.config.height + 'px',
-			'left': '0px',
-			'top': '0px',
-			'z-index': '0'
+			'width': player.model.config.width,
+			'height': player.model.config.height,
+			'left': 0,
+			'top': 0,
+			'z-index': 0
 		});
-		player.model.domelement.before("<a href='" + player.model.sources[player.model.source].file + "'><img src='http://content.bitsontherun.com/staticfiles/play.png' alt='Click to play video' style='position:absolute; top:" + (player.model.height - 60) / 2 + "px; left:" + (player.model.width - 60) / 2 + "px; border:0;' /></a>");
+		player.model.domelement.before("<a href='" + $.fn.jwplayerUtils.getAbsolutePath(player.model.sources[player.model.source].file) + "'><img src='http://content.bitsontherun.com/staticfiles/play.png' alt='Click to play video' style='position:absolute; top:" + (player.model.height - 60) / 2 + "px; left:" + (player.model.width - 60) / 2 + "px; border:0;' /></a>");
 		player.model.domelement.prev("a").jwplayerCSS({
 			'display': 'block',
-			'background': '#ffffff url(' + player.model.config.image + ') no-repeat center center',
-			'width': player.model.width + 'px',
-			'height': player.model.height + 'px',
+			'background': '#ffffff url(' + $.fn.jwplayerUtils.getAbsolutePath(player.model.config.image) + ') no-repeat center center',
+			'width': player.model.width,
+			'height': player.model.height,
 			'position': 'relative',
-			'left': '0px',
-			'top': '0px',
-			'z-index': '50'
+			'left': 0,
+			'top': 0,
+			'z-index': 50
 		});
 		player.model.domelement.prev("a").click(function(evt) {
 			if (typeof evt.preventDefault != 'undefined') {
-				evt.preventDefault(); // W3C 
+				evt.preventDefault(); // W3C
 			} else {
-				evt.returnValue = false; // IE 
+				evt.returnValue = false; // IE
 			}
 			if (player.state() !== $.fn.jwplayer.states.PLAYING) {
 				player.play();
@@ -2005,10 +2055,10 @@
 			}
 			for (var elementvar in elementvars) {
 				if (!((player.model.config[elementvar] === undefined) || (player.model.config[elementvar] === "") || (player.model.config[elementvar] === null))) {
-					elementvarString += elementvar + "='" + player.model.config[elementvar] + "'";
+					elementvarString += elementvar + "='" + player.model.config[elementvar] + "' ";
 				}
 			}
-			flashvarString += "file=" + player.model.sources[player.model.source].file + "&";
+			flashvarString += "file=" + $.fn.jwplayerUtils.getAbsolutePath(player.model.sources[player.model.source].file) + "&";
 			var config = $.extend(true, {}, player.model.config, options);
 			for (var flashvar in config) {
 				if (!((config[flashvar] === undefined) || (config[flashvar] === "") || (config[flashvar] === null))) {
@@ -2018,7 +2068,7 @@
 			htmlString = htmlString.replace("%elementvars%", elementvarString);
 			htmlString = htmlString.replace("%flashvars%", flashvarString);
 			htmlString = htmlString.replace("%flashplayer%", player.model.config.flashplayer);
-			htmlString = htmlString.replace("%style%", styleString);
+			htmlString = htmlString.replace("%style%", "style='"+styleString+"width:"+player.model.config.width+"px;height:"+player.model.config.height+"px;'");
 			player.model.domelement.before(htmlString);
 			var oldDOMElement = player.model.domelement;
 			player.model.domelement = player.model.domelement.prev();

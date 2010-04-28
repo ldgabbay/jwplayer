@@ -108,8 +108,8 @@
 	$.fn.jwplayerCSS = function(options) {
 		return this.each(function() {
 			var defaults = {
-				'margin':0,
-				'padding':0,
+				'margin': 0,
+				'padding': 0,
 				'background': 'none',
 				'border': 'none',
 				'bottom': 'auto',
@@ -148,6 +148,55 @@
 			}
 		});
 	};
+	
+	$.fn.jwplayerUtils.isNull = function(obj) {
+		return ((obj === null) || (obj === undefined) || (obj === ""));
+	};
+	
+	/** Gets an absolute file path based on a relative filepath **/
+	$.fn.jwplayerUtils.getAbsolutePath = function(path) {
+		if (isAbsolutePath(path)) {
+			return path;
+		}
+		var protocol = document.location.href.substr(0, document.location.href.indexOf("://") + 3);
+		var basepath = document.location.href.substring(protocol.length, (path.indexOf("/") === 0) ? document.location.href.indexOf('/') : document.location.href.lastIndexOf('/'));
+		var patharray = (basepath + "/" + path).split("/");
+		var result = [];
+		for (var i = 0; i < patharray.length; i++) {
+			if ($.fn.jwplayerUtils.isNull(patharray[i]) || patharray[i] == ".") {
+				continue;
+			} else if (patharray[i] == "..") {
+				result.pop();
+			} else {
+				result.push(patharray[i]);
+			}
+		}
+		return protocol + result.join("/");
+	};
+	
+	function isAbsolutePath(path) {
+		var protocol = path.indexOf("://");
+		var queryparams = path.indexOf("?");
+		return (protocol > 0 && (queryparams < 0 || (queryparams > protocol)));
+	}
+	
+	function resolvePath(url) {
+		var protocol = url.substr(0, url.indexOf("://") + 3);
+		url = url.replace(protocol, '');
+		url = url.replace(/\/\//g, '/');
+		url = url.replace(/\/\.\//g, '/');
+		var basePathLength = url.indexOf('/');
+		var moveup = url.indexOf('/../');
+		while (moveup > 0) {
+			if (basePathLength == moveup) {
+				url = url.slice(0, moveup) + url.slice(moveup + 3, url.length);
+			} else {
+				url = url.slice(0, url.lastIndexOf('/', moveup - 1)) + url.slice(moveup + 3, url.length);
+			}
+			moveup = url.indexOf('/../');
+		}
+		return protocol + url;
+	}
 	
 	/** Dumps the content of an object to a string **/
 	$.fn.jwplayerUtils.dump = function(object, depth) {
