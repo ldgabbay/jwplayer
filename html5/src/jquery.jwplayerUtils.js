@@ -180,24 +180,6 @@
 		return (protocol > 0 && (queryparams < 0 || (queryparams > protocol)));
 	}
 	
-	function resolvePath(url) {
-		var protocol = url.substr(0, url.indexOf("://") + 3);
-		url = url.replace(protocol, '');
-		url = url.replace(/\/\//g, '/');
-		url = url.replace(/\/\.\//g, '/');
-		var basePathLength = url.indexOf('/');
-		var moveup = url.indexOf('/../');
-		while (moveup > 0) {
-			if (basePathLength == moveup) {
-				url = url.slice(0, moveup) + url.slice(moveup + 3, url.length);
-			} else {
-				url = url.slice(0, url.lastIndexOf('/', moveup - 1)) + url.slice(moveup + 3, url.length);
-			}
-			moveup = url.indexOf('/../');
-		}
-		return protocol + url;
-	}
-	
 	/** Dumps the content of an object to a string **/
 	$.fn.jwplayerUtils.dump = function(object, depth) {
 		if (object === null) {

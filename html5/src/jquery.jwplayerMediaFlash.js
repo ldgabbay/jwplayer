@@ -125,7 +125,7 @@
 	function play(player) {
 		return function() {
 			try {
-				player.model.domelement[0].sendEvent("PLAY");
+				player.model.domelement[0].sendEvent("PLAY", true);
 			} catch (err){
 				$.fn.jwplayerUtils.log("There was an error", err);
 			}

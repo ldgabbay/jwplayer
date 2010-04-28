@@ -299,6 +299,7 @@
 	/** Send an event **/
 	function sendEvent(player) {
 		return function(type, data) {
+			alert(player.id);
 			for (var listener in player.model.listeners[type]) {
 				player.model.listeners[type][listener](data);
 			}

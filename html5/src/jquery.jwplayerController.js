@@ -26,6 +26,7 @@
 	
 	
 	$.fn.jwplayerController.play = function(player) {
+			player.media.play();
 		try {
 			player.media.play();
 			return true;

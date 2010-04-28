@@ -440,6 +440,7 @@
 	
 	
 	$.fn.jwplayerController.play = function(player) {
+			player.media.play();
 		try {
 			player.media.play();
 			return true;
@@ -873,6 +874,7 @@
 	/** Send an event **/
 	function sendEvent(player) {
 		return function(type, data) {
+			alert(player.id);
 			for (var listener in player.model.listeners[type]) {
 				player.model.listeners[type][listener](data);
 			}
@@ -1081,7 +1083,7 @@
 	function play(player) {
 		return function() {
 			try {
-				player.model.domelement[0].sendEvent("PLAY");
+				player.model.domelement[0].sendEvent("PLAY", true);
 			} catch (err){
 				$.fn.jwplayerUtils.log("There was an error", err);
 			}
@@ -1876,24 +1878,6 @@
 		return (protocol > 0 && (queryparams < 0 || (queryparams > protocol)));
 	}
 	
-	function resolvePath(url) {
-		var protocol = url.substr(0, url.indexOf("://") + 3);
-		url = url.replace(protocol, '');
-		url = url.replace(/\/\//g, '/');
-		url = url.replace(/\/\.\//g, '/');
-		var basePathLength = url.indexOf('/');
-		var moveup = url.indexOf('/../');
-		while (moveup > 0) {
-			if (basePathLength == moveup) {
-				url = url.slice(0, moveup) + url.slice(moveup + 3, url.length);
-			} else {
-				url = url.slice(0, url.lastIndexOf('/', moveup - 1)) + url.slice(moveup + 3, url.length);
-			}
-			moveup = url.indexOf('/../');
-		}
-		return protocol + url;
-	}
-	
 	/** Dumps the content of an object to a string **/
 	$.fn.jwplayerUtils.dump = function(object, depth) {
 		if (object === null) {
@@ -1973,7 +1957,7 @@
 
 	var styleString = "left:0px;top:0px;position:absolute;z-index:0;";
 	var embedString = "<embed %elementvars% src='%flashplayer%' allowfullscreen='true' allowscriptaccess='always' flashvars='%flashvars%' %style% />";
-	var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars%' %style%> <param name='movie' value='%flashplayer%'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
+	var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars% %style% > <param name='movie' value='%flashplayer%'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
 	var elementvars = {
 		//width: true,
 		//height: true,
@@ -2022,12 +2006,13 @@
 			}
 			
 		});
-		$.jwplayer(player.model.config.id).state(function(obj) {
+		player.state(function(obj) {
 			imageHandler(obj, player);
 		});
 	};
 	
 	function imageHandler(obj, player) {
+		alert(player.id+":"+obj.newstate);
 		switch (obj.newstate) {
 			case $.fn.jwplayer.states.IDLE:
 				player.model.domelement.css("z-index", "0");
@@ -2058,10 +2043,16 @@
 					elementvarString += elementvar + "='" + player.model.config[elementvar] + "' ";
 				}
 			}
-			flashvarString += "file=" + $.fn.jwplayerUtils.getAbsolutePath(player.model.sources[player.model.source].file) + "&";
+			if (elementvar.indexOf("name" ) < 0) {
+				elementvarString += "name" + "='" + player.id + "' ";
+			}
 			var config = $.extend(true, {}, player.model.config, options);
+			flashvarString += "file=" + $.fn.jwplayerUtils.getAbsolutePath(player.model.sources[player.model.source].file) + "&image=" + $.fn.jwplayerUtils.getAbsolutePath(config.image) +"&";
 			for (var flashvar in config) {
-				if (!((config[flashvar] === undefined) || (config[flashvar] === "") || (config[flashvar] === null))) {
+				if ((flashvar == "file") || (flashvar == "image")) {
+					continue;
+				}
+				if (!$.fn.jwplayerUtils.isNull(config[flashvar] === undefined)) {
 					flashvarString += flashvar + "=" + config[flashvar] + "&";
 				}
 			}
@@ -2069,7 +2060,12 @@
 			htmlString = htmlString.replace("%flashvars%", flashvarString);
 			htmlString = htmlString.replace("%flashplayer%", player.model.config.flashplayer);
 			htmlString = htmlString.replace("%style%", "style='"+styleString+"width:"+player.model.config.width+"px;height:"+player.model.config.height+"px;'");
-			player.model.domelement.before(htmlString);
+			if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
+				player.model.domelement.before(htmlString);
+			} else {
+				player.model.domelement.before("<div />");
+				player.model.domelement.prev()[0].outerHTML= htmlString;
+			}
 			var oldDOMElement = player.model.domelement;
 			player.model.domelement = player.model.domelement.prev();
 			oldDOMElement.remove();
