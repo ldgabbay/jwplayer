@@ -18,8 +18,7 @@
 			players[model.config.id] = player;
 			player = $.extend(player, api(player));
 			$.fn.jwplayerView(player);
-			$.fn.jwplayerModel.setActiveMediaProvider(player);
-			$.fn.jwplayerSkinner(player, function() {
+ 			$.fn.jwplayerSkinner(player, function() {
 				finishSetup(player);
 			});
 		});
@@ -299,7 +298,6 @@
 	/** Send an event **/
 	function sendEvent(player) {
 		return function(type, data) {
-			alert(player.id);
 			for (var listener in player.model.listeners[type]) {
 				player.model.listeners[type][listener](data);
 			}

@@ -64,7 +64,6 @@
 	};
 	
 	function imageHandler(obj, player) {
-		alert(player.id+":"+obj.newstate);
 		switch (obj.newstate) {
 			case $.fn.jwplayer.states.IDLE:
 				player.model.domelement.css("z-index", "0");
