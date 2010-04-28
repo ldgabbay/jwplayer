@@ -238,7 +238,7 @@
 			}
 		}
 		var ply = settings.players[$('#players').val()];
-		$('#preview').html('<video id="container" src="'+vrs['file']+'" width="'+vrs['width']+'" height="'+vrs['height']+'" />');
+		$('#preview').html('<video id="container" src="'+vrs['file']+'" width="'+vrs['width']+'" height="'+vrs['height']+'">Your browser supports neither HTML5 nor Flash</video>');
 		$('#container').jwplayer(vrs);
 		var lnk = 'http://developer.longtailvideo.com/player/trunk/html5/test/';
 		$("#permalink").val(lnk+'?'+$.param(variables));
@@ -262,7 +262,6 @@
 		evt.preventDefault();
 		var typ = $('#vartype').val().toString();
 		var prp = $.jwplayer()[typ]();
-		alert(prp);
 	};
 	/** Send an event to the player. **/
 	function sendEvent(evt) {
