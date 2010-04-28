@@ -614,12 +614,12 @@
 	$.fn.jwplayer.defaults = {
 		autostart: false,
 		file: undefined,
-		height: 300,
+		height: 295,
 		image: undefined,
-		skin: 'assets/five/five.xml',
-		volume: 100,
-		width: 400,
-		flashplayer: 'assets/player.swf'
+		skin: 'http://developer.longtailvideo.com/player/trunk/html5/assets/five/five.xml',
+		volume: 90,
+		width: 480,
+		flashplayer:'http://developer.longtailvideo.com/player/trunk/html5/assets/player.swf'
 	};
 	
 	
