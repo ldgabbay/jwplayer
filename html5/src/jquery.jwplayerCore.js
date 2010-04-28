@@ -18,6 +18,7 @@
 			players[model.config.id] = player;
 			player = $.extend(player, api(player));
 			$.fn.jwplayerView(player);
+			$.fn.jwplayerModel.setActiveMediaProvider(player);
  			$.fn.jwplayerSkinner(player, function() {
 				finishSetup(player);
 			});
