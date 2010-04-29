@@ -101,7 +101,7 @@ package com.longtailvideo.jwplayer.view.components {
 			if (!background) {
 				background = new Sprite();
 				background.name = "background";
-				background.graphics.beginFill(0, 1);
+				background.graphics.beginFill(player.config.screencolor.color, 1);
 				background.graphics.drawRect(0, 0, 1, 1);
 				background.graphics.endFill();
 			}

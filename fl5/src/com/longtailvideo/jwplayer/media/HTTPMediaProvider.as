@@ -254,8 +254,8 @@ package com.longtailvideo.jwplayer.media {
 			var bufferPercent:Number;
 			var bufferFill:Number;
 			if (item.duration > 0 && _stream && _stream.bytesTotal > 0) {
-				percentoffset =  Math.round(_timeoffset /  item.duration * 100);
-				bufferPercent = (_stream.bytesLoaded / _stream.bytesTotal) * (1 - _timeoffset / item.duration) * 100;
+				percentoffset =  _timeoffset /  item.duration * 100;
+				bufferPercent = (_stream.bytesLoaded / _stream.bytesTotal) * (1 - percentoffset/100) * 100;
 				var bufferTime:Number = _stream.bufferTime < (item.duration - pos) ? _stream.bufferTime : Math.round(item.duration - pos);
 				bufferFill = _stream.bufferTime == 0 ? 0 : Math.ceil(_stream.bufferLength / bufferTime * 100);
 			} else {
@@ -340,9 +340,7 @@ package com.longtailvideo.jwplayer.media {
 		protected function statusHandler(evt:NetStatusEvent):void {
 			switch (evt.info.code) {
 				case "NetStream.Play.Stop":
-					if (state != PlayerState.BUFFERING) {
-						complete();
-					}
+					complete();
 					break;
 				case "NetStream.Play.StreamNotFound":
 					stop();
@@ -361,7 +359,7 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Destroy the HTTP stream. **/
 		override public function stop():void {
-			if (_stream.bytesLoaded < _stream.bytesTotal) {
+			if (_stream.bytesLoaded < _stream.bytesTotal || _byteoffset > 0) {
 				_stream.close();
 			} else {
 				_stream.pause();

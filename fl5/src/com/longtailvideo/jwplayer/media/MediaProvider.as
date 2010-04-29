@@ -230,8 +230,10 @@ package com.longtailvideo.jwplayer.media {
 		
 		/** Completes video playback **/
 		protected function complete():void {
-			stop();
-			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_COMPLETE);
+			if (state != PlayerState.IDLE) {
+				stop();
+				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_COMPLETE);
+			}
 		}
 		
 		
