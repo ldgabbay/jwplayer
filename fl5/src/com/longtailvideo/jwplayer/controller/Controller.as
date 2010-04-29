@@ -123,7 +123,7 @@ package com.longtailvideo.jwplayer.controller {
 		protected function prevHandler(evt:ViewEvent):void { previous(); }
 		protected function seekHandler(evt:ViewEvent):void { seek(evt.data); }
 		protected function muteHandler(evt:ViewEvent):void { mute(evt.data); }
-		protected function volumeHandler(evt:ViewEvent):void { mute(false); setVolume(evt.data); }
+		protected function volumeHandler(evt:ViewEvent):void { setVolume(evt.data); }
 		protected function fullscreenHandler(evt:ViewEvent):void { fullscreen(evt.data); }
 		protected function loadHandler(evt:ViewEvent):void { load(evt.data); }
 		protected function redrawHandler(evt:ViewEvent):void { redraw(); }
@@ -299,6 +299,7 @@ package com.longtailvideo.jwplayer.controller {
 				return false;
 			}
 			if (_model.media) {
+				mute(false); 
 				_model.config.volume = vol;
 				_model.media.setVolume(vol);
 				setCookie('volume', vol);

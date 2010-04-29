@@ -4,6 +4,7 @@
 	import com.longtailvideo.jwplayer.model.PlaylistItem;
 	import com.longtailvideo.jwplayer.player.PlayerState;
 	import com.longtailvideo.jwplayer.utils.NetClient;
+	import com.longtailvideo.jwplayer.utils.Strings;
 	
 	import flash.events.*;
 	import flash.media.*;
@@ -85,8 +86,10 @@
 					|| _stream.bytesLoaded == 0 
 					|| (_stream.bytesLoaded < _stream.bytesTotal > 0)) 
 			{
-				media = _video;
 				_currentFile = itm.file;
+				if (!(Strings.extension(_currentFile) == "aac" || Strings.extension(_currentFile) == "m4a")) {
+					media = _video;
+				}
 				_stream.checkPolicyFile = true;
 				_stream.play(itm.file);
 				_stream.pause();

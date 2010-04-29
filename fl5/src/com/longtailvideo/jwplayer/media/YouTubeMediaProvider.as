@@ -173,9 +173,6 @@ package com.longtailvideo.jwplayer.media {
 		/** Catch youtube state changes. **/
 		public function onStateChange(stt:Number):void {
 			switch (Number(stt)) {
-				case -1:
-					// setState(PlayerState.IDLE);
-					break;
 				case 0:
 					if (state != PlayerState.BUFFERING && state != PlayerState.IDLE) {
 						complete();
@@ -205,16 +202,19 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Catch Youtube _position changes **/
 		public function onTimeChange(pos:Number, dur:Number):void {
-			_position = pos;
-			if (item.duration < 0) {
-				item.duration = dur;
-			}
-			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_TIME, {position: pos, duration: item.duration, offset: _offset});
-			if (pos > item.duration) {
-				complete();
+			if (state == PlayerState.PLAYING) {
+			
+				_position = pos;
+				if (item.duration < 0) {
+					item.duration = dur;
+				}
+				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_TIME, {position: pos, duration: item.duration, offset: _offset});
+				if (pos > item.duration) {
+					complete();
+				}
 			}
 		}
-
+		
 
 		/** Resize the YT player. **/
 		public override function resize(wid:Number, hei:Number):void {

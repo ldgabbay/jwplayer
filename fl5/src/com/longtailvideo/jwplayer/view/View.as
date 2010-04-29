@@ -449,8 +449,8 @@ package com.longtailvideo.jwplayer.view {
 					if (_logo) _logo.visible = false;
 					break;
 				case PlayerState.PLAYING:
+					_mediaLayer.visible = true;
 					if (_model.media.display) {
-						_mediaLayer.visible = true;
 						_imageLayer.visible = false;
 					}
 					if (_logo) _logo.visible = true;
