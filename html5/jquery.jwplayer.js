@@ -7,12 +7,14 @@
  * @lastmodifieddate 2010-04-11
  */
 (function($) {
+	
+	var controlbars = {}
 
 
 	/** Hooking the jwplayerControlbar up to jQuery. **/
-	$.fn.jwplayerControlbar = function(player) {
-		player.controlbar = $.extend({}, $.fn.jwplayerControlbar.defaults, player.controlbar);
-		buildElements(player);
+	$.fn.jwplayerControlbar = function(player, domelement) {
+		controlbars[player.id] = $.extend({}, $.fn.jwplayerControlbar.defaults, player.config.plugins.controlbar);
+		buildElements(player, domelement);
 		buildHandlers(player);
 	};
 	
@@ -27,49 +29,10 @@
 		scrubber: 'none'
 	};
 	
-	
-	/** Callbacks called by Flash players to update stats. **/
-	$.fn.jwplayerControlbar.bufferHandler = function(obj) {
-		bufferHandler({
-			id: obj.id,
-			bufferPercent: obj.bufferPercent
-		});
-	};
-	
-	$.fn.jwplayerControlbar.muteHandler = function(obj) {
-		muteHandler({
-			id: obj.id,
-			mute: obj.mute
-		});
-	};
-	
-	$.fn.jwplayerControlbar.stateHandler = function(obj) {
-		stateHandler({
-			id: obj.id,
-			state: obj.newstate
-		});
-	};
-	
-	$.fn.jwplayerControlbar.timeHandler = function(obj) {
-		timeHandler({
-			id: obj.id,
-			position: obj.position,
-			duration: obj.duration
-		});
-	};
-	
-	$.fn.jwplayerControlbar.volumeHandler = function(obj) {
-		volumeHandler({
-			id: obj.id,
-			volume: obj.volume
-		});
-	};
-	
-	
 	/** Draw the jwplayerControlbar elements. **/
-	function buildElements(player) {
+	function buildElements(player, domelement) {
 		// Draw the background.
-		player.model.domelement.parents(":first").append('<div id="' + player.id + '_jwplayerControlbar"></div>');
+		domelement.parents(":first").append('<div id="' + player.id + '_jwplayerControlbar"></div>');
 		$("#" + player.id + '_jwplayerControlbar').css('position', 'relative');
 		$("#" + player.id + '_jwplayerControlbar').css('height', player.skin.controlbar.elements.background.height);
 		$("#" + player.id + '_jwplayerControlbar').css('background', 'url(' + player.skin.controlbar.elements.background.src + ') repeat-x center left');
@@ -104,12 +67,12 @@
 		$('#' + nam).css('top', '0px');
 		if (element.indexOf('Text') > 0) {
 			$('#' + nam).html('00:00');
-			$('#' + nam).css('font', player.controlbar.fontsize + 'px/' + (player.skin.controlbar.elements.background.height + 1) + 'px Arial,sans-serif');
+			$('#' + nam).css('font', controlbars[player.id].fontsize + 'px/' + (player.skin.controlbar.elements.background.height + 1) + 'px Arial,sans-serif');
 			$('#' + nam).css('text-align', 'center');
 			$('#' + nam).css('font-weight', 'bold');
 			$('#' + nam).css('cursor', 'default');
-			var wid = 14 + 3 * player.controlbar.fontsize;
-			$('#' + nam).css('color', '#' + player.controlbar.fontcolor.substr(-6));
+			var wid = 14 + 3 * controlbars[player.id].fontsize;
+			$('#' + nam).css('color', '#' + controlbars[player.id].fontcolor.substr(-6));
 		} else if (element.indexOf('divider') === 0) {
 			$('#' + nam).css('background', 'url(' + player.skin.controlbar.elements.divider.src + ') repeat-x center left');
 			var wid = player.skin.controlbar.elements.divider.width;
@@ -118,14 +81,14 @@
 			var wid = player.skin.controlbar.elements[element].width;
 		}
 		if (align == 'left') {
-			$('#' + nam).css(align, player.controlbar.leftmargin);
+			$('#' + nam).css(align, controlbars[player.id].leftmargin);
 			if (offset) {
-				player.controlbar.leftmargin += wid;
+				controlbars[player.id].leftmargin += wid;
 			}
 		} else if (align == 'right') {
-			$('#' + nam).css(align, player.controlbar.rightmargin);
+			$('#' + nam).css(align, controlbars[player.id].rightmargin);
 			if (offset) {
-				player.controlbar.rightmargin += wid;
+				controlbars[player.id].rightmargin += wid;
 			}
 		}
 		$('#' + nam).css('width', wid);
@@ -146,16 +109,32 @@
 		addSliders(player);
 		
 		// Register events with the player.
-		player.buffer($.fn.jwplayerControlbar.bufferHandler);
-		player.state($.fn.jwplayerControlbar.stateHandler);
-		player.time($.fn.jwplayerControlbar.timeHandler);
-		player.mute($.fn.jwplayerControlbar.muteHandler);
-		player.volume($.fn.jwplayerControlbar.volumeHandler);
+		player.buffer(bufferHandler);
+		player.state(stateHandler);
+		player.time(timeHandler);
+		player.mute(muteHandler);
+		player.volume(volumeHandler);
+		player.complete(completeHandler);
+		
 		// Trigger a few events so the bar looks good on startup.
-		fullscreenHandler(player);
-		muteHandler(player);
-		stateHandler(player);
-		volumeHandler(player);
+		resizeHandler({
+			id: player.id,
+			fulscreen: player.fullscreen(),
+			width: player.width(),
+			height: player.height()
+		});
+		muteHandler({
+			id: player.id,
+			mute: player.mute()
+		});
+		stateHandler({
+			id: player.id,
+			newstate: $.fn.jwplayer.states.IDLE
+		});
+		volumeHandler({
+			id: player.id,
+			volume: player.volume()
+		});
 	}
 	
 	
@@ -167,12 +146,17 @@
 			$('#' + nam).mouseup(function(evt) {
 				evt.stopPropagation();
 				player.fullscreen(!player.fullscreen());
-				fullscreenHandler(player);
+				resizeHandler({
+					id: player.id,
+					fullscreen: player.fullscreen(),
+					width: player.width(),
+					height: player.height()
+				});
 			});
 		} else {
 			$('#' + nam).mouseup(function(evt) {
 				evt.stopPropagation();
-				if (args !== undefined) {
+				if (!$.fn.jwplayerUtils.isNull(args)) {
 					player[handler](args);
 				} else {
 					player[handler]();
@@ -193,9 +177,9 @@
 		$(vrl).css('cursor', 'hand');
 		$(bar).mousedown(function(evt) {
 			if (evt.pageX >= $(trl).offset().left && evt.pageX <= $(trl).offset().left + $(trl).width()) {
-				player.controlbar.scrubber = 'time';
+				controlbars[player.id].scrubber = 'time';
 			} else if (evt.pageX >= $(vrl).offset().left && evt.pageX <= $(vrl).offset().left + $(trl).width()) {
-				player.controlbar.scrubber = 'volume';
+				controlbars[player.id].scrubber = 'volume';
 			}
 		});
 		$(bar).mouseup(function(evt) {
@@ -207,7 +191,7 @@
 			evt.stopPropagation();
 		});
 		$(bar).mousemove(function(evt) {
-			if (player.controlbar.scrubber == 'time') {
+			if (controlbars[player.id].scrubber == 'time') {
 				var xps = evt.pageX - $(bar).position().left;
 				$('#' + player.id + '_timeSliderThumb').css('left', xps);
 			}
@@ -217,17 +201,17 @@
 	
 	/** The slider has been moved up. **/
 	function sliderUp(msx, player) {
-		if (player.controlbar.scrubber == 'time') {
+		if (controlbars[player.id].scrubber == 'time') {
 			var xps = msx - $('#' + player.id + '_timeSliderRail').offset().left;
 			var wid = $('#' + player.id + '_timeSliderRail').width();
 			var pos = xps / wid * player.duration();
 			if (pos < 0) {
 				pos = 0;
-			} else if (pos > player.controlbar.duration) {
-				pos = player.controlbar.duration - 3;
+			} else if (pos > controlbars[player.id].duration) {
+				pos = controlbars[player.id].duration - 3;
 			}
 			player.seek(pos);
-		} else if (player.controlbar.scrubber == 'volume') {
+		} else if (controlbars[player.id].scrubber == 'volume') {
 			var xps = msx - $('#' + player.id + '_volumeSliderRail').offset().left;
 			var wid = $('#' + player.id + '_volumeSliderRail').width();
 			var pct = Math.round(xps / wid * 100);
@@ -238,86 +222,88 @@
 			}
 			player.volume(pct);
 		}
-		player.controlbar.scrubber = 'none';
+		controlbars[player.id].scrubber = 'none';
 	}
 	
 	
 	/** Update the buffer percentage. **/
 	function bufferHandler(event) {
-		var player = $.jwplayer(event.id);
-		var bufferPercent = (event.bufferPercent === undefined) ? 0 : event.bufferPercent;
+		if (!$.fn.jwplayerUtils.isNull(event.bufferPercent)) {
+			controlbars[event.id].currentBuffer = event.bufferPercent;
+		}
 		if (event.bufferPercent === 0) {
-			$('#' + player.id + '_timeSliderBuffer').css('display', 'none');
+			$('#' + event.id + '_timeSliderBuffer').css('display', 'none');
 		} else {
-			if (player.state() != $.fn.jwplayer.states.IDLE) {
-				$('#' + player.id + '_timeSliderBuffer').css('display', 'block');
-			}
-			var wid = $('#' + player.id + '_timeSliderRail').width();
-			$('#' + player.id + '_timeSliderBuffer').css('width', Math.round(wid * bufferPercent / 100));
+			var wid = $('#' + event.id + '_timeSliderRail').width();
+			$('#' + event.id + '_timeSliderBuffer').css('width', Math.round(wid * controlbars[event.id].currentBuffer / 100));
 		}
 	}
 	
 	
 	/** Update the mute state. **/
 	function muteHandler(event) {
-		var player = $.jwplayer(event.id);
-		if (player.mute()) {
-			$('#' + player.id + '_muteButton').css('display', 'none');
-			$('#' + player.id + '_unmuteButton').css('display', 'block');
-			$('#' + player.id + '_volumeSliderProgress').css('display', 'none');
+		if (event.mute) {
+			$('#' + event.id + '_muteButton').css('display', 'none');
+			$('#' + event.id + '_unmuteButton').css('display', 'block');
+			$('#' + event.id + '_volumeSliderProgress').css('display', 'none');
 		} else {
-			$('#' + player.id + '_muteButton').css('display', 'block');
-			$('#' + player.id + '_unmuteButton').css('display', 'none');
-			$('#' + player.id + '_volumeSliderProgress').css('display', 'block');
+			$('#' + event.id + '_muteButton').css('display', 'block');
+			$('#' + event.id + '_unmuteButton').css('display', 'none');
+			$('#' + event.id + '_volumeSliderProgress').css('display', 'block');
 		}
 	}
 	
 	
 	/** Update the playback state. **/
 	function stateHandler(event) {
-		var player = $.jwplayer(event.id);
-		if (player.state() == $.fn.jwplayer.states.BUFFERING || player.state() == $.fn.jwplayer.states.PLAYING) {
-			$('#' + player.id + '_pauseButton').css('display', 'block');
-			$('#' + player.id + '_playButton').css('display', 'none');
+		// Handle the play / pause button
+		if (event.newstate == $.fn.jwplayer.states.BUFFERING || event.newstate == $.fn.jwplayer.states.PLAYING) {
+			$('#' + event.id + '_pauseButton').css('display', 'block');
+			$('#' + event.id + '_playButton').css('display', 'none');
 		} else {
-			$('#' + player.id + '_pauseButton').css('display', 'none');
-			$('#' + player.id + '_playButton').css('display', 'block');
+			$('#' + event.id + '_pauseButton').css('display', 'none');
+			$('#' + event.id + '_playButton').css('display', 'block');
 		}
-		if (player.state() == $.fn.jwplayer.states.IDLE) {
-			timeHandler({
-				id: player.id,
-				position: 0
-			});
+		
+		// Show / hide progress bar
+		if (event.newstate == $.fn.jwplayer.states.IDLE) {
+			$('#' + event.id + '_timeSliderBuffer').css('display', 'none');
+			$('#' + event.id + '_timeSliderProgress').css('display', 'none');
+			$('#' + event.id + '_timeSliderThumb').css('display', 'none');
+		} else {
+			$('#' + event.id + '_timeSliderBuffer').css('display', 'block');
+			$('#' + event.id + '_timeSliderProgress').css('display', 'block');
+			$('#' + event.id + '_timeSliderThumb').css('display', 'block');
 		}
+	}
+	
+	/** Handles event completion **/
+	function completeHandler(event){
+		timeHandler($.extend(event, {
+			position: 0,
+			duration: controlbars[event.id].currentDuration
+		}));
 	}
 	
 	
 	/** Update the playback time. **/
 	function timeHandler(event) {
-		var player = $.jwplayer(event.id);
-		var position = (event.position === undefined) ? 0 : event.position;
-		var duration = (event.duration === undefined) ? 0 : event.duration;
-		var progress = (position === duration === 0) ? 0 : position / duration; 
-		var wid = $('#' + player.id + '_timeSliderRail').width();
-		var thb = $('#' + player.id + '_timeSliderThumb').width();
-		var lft = $('#' + player.id + '_timeSliderRail').position().left;
-		if (player.state() == $.fn.jwplayer.states.IDLE) {
-			$('#' + player.id + '_timeSliderBuffer').css('display', 'none');
-		} else {
-			$('#' + player.id + '_timeSliderBuffer').css('display', 'block');
+		if (!$.fn.jwplayerUtils.isNull(event.position)) {
+			controlbars[event.id].currentPosition = event.position;
 		}
-		if (position === 0) {
-			$('#' + player.id + '_timeSliderProgress').css('display', 'none');
-			$('#' + player.id + '_timeSliderThumb').css('display', 'none');
-		} else {
-			$('#' + player.id + '_timeSliderProgress').css('display', 'block');
-			$('#' + player.id + '_timeSliderProgress').css('width', Math.round(wid * progress));
-			$('#' + player.id + '_timeSliderThumb').css('display', 'block');
-			$('#' + player.id + '_timeSliderThumb').css('left', lft +
-			Math.round((wid - thb) * progress));
-			$('#' + player.id + '_durationText').html(timeFormat(duration));
+		if (!$.fn.jwplayerUtils.isNull(event.duration)) {
+			controlbars[event.id].currentDuration = event.duration;
 		}
-		$('#' + player.id + '_elapsedText').html(timeFormat(position));
+		var progress = (controlbars[event.id].currentPosition === controlbars[event.id].currentDuration === 0) ? 0 : controlbars[event.id].currentPosition / controlbars[event.id].currentDuration;
+		var railWidth = $('#' + event.id + '_timeSliderRail').width();
+		var thumbWidth = $('#' + event.id + '_timeSliderThumb').width();
+		var railLeft = $('#' + event.id + '_timeSliderRail').position().left;
+		
+		$('#' + event.id + '_timeSliderProgress').css('width', Math.round(railWidth * progress));
+		$('#' + event.id + '_timeSliderThumb').css('left', railLeft + Math.round((railWidth - thumbWidth) * progress));
+		
+		$('#' + event.id + '_durationText').html(timeFormat(controlbars[event.id].currentDuration));
+		$('#' + event.id + '_elapsedText').html(timeFormat(controlbars[event.id].currentPosition));
 	}
 	
 	
@@ -333,81 +319,59 @@
 	
 	
 	/** Flip the player size to/from full-browser-screen. **/
-	function fullscreenHandler(event) {
-		var player = $.jwplayer(event.id);
-		if (player.fullscreen()) {
-			//$('#' + options.div).css('position', 'absolute');
-			//$('#' + options.div).css('left', 0);
-			//$('#' + options.div).css('top', 0);
-			//$('#' + options.div).css('height', '100%');
-			//$('#' + options.div).css('width', '100%');
-			$('#' + player.id + '_normalscreenButton').css('display', 'block');
-			$('#' + player.id + '_fullscreenButton').css('display', 'none');
-			$(window).resize(function() {
-				resizeBar(player);
-			});
+	function resizeHandler(event) {
+		controlbars[event.id].width = event.width;
+		controlbars[event.id].fullscreen = event.fullscreen;
+		if (event.fullscreen) {
+			$('#' + event.id + '_normalscreenButton').css('display', 'block');
+			$('#' + event.id + '_fullscreenButton').css('display', 'none');
+			/*$(window).resize(function() {
+			 resizeBar(player);
+			 });*/
 		} else {
-			//$('#' + options.div).css('position', 'relative');
-			//$('#' + options.div).css('left', options.left);
-			//$('#' + options.div).css('top', options.top);
-			//$('#' + options.div).css('height', options.height);
-			//$('#' + options.div).css('width', options.width);
-			$('#' + player.id + '_normalscreenButton').css('display', 'none');
-			$('#' + player.id + '_fullscreenButton').css('display', 'block');
-			$(window).resize(null);
+			$('#' + event.id + '_normalscreenButton').css('display', 'none');
+			$('#' + event.id + '_fullscreenButton').css('display', 'block');
+			//$(window).resize(null);
 		}
-		resizeBar(player);
-		timeHandler(player);
-		bufferHandler(player);
+		resizeBar(event);
+		timeHandler(event);
+		bufferHandler(event);
 	}
 	
 	
 	/** Resize the jwplayerControlbar. **/
-	function resizeBar(player) {
-		var lft = player.controlbar.left;
-		var top = player.controlbar.top;
-		var wid = player.model.config.width;
-		var hei = $('#' + player.id + '_jwplayerControlbar').height();
-		if (player.controlbar.position == 'over') {
-			lft += 1 * player.controlbar.margin;
-			top -= 1 * player.controlbar.margin + hei;
-			wid -= 2 * player.controlbar.margin;
+	function resizeBar(event) {
+		var lft = controlbars[event.id].left;
+		var top = controlbars[event.id].top;
+		var wid = controlbars[event.id].width;
+		var hei = $('#' + event.id + '_jwplayerControlbar').height();
+		if (controlbars[event.id].position == 'over') {
+			lft += 1 * controlbars[event.id].margin;
+			top -= 1 * controlbars[event.id].margin + hei;
+			wid -= 2 * controlbars[event.id].margin;
 		}
-		if (player.fullscreen()) {
-			lft = player.controlbar.margin;
-			top = $(window).height() - player.controlbar.margin - hei;
-			wid = $(window).width() - 2 * player.controlbar.margin;
-			$('#' + player.id + '_jwplayerControlbar').css('z-index', 99);
+		if (controlbars[event.id].fullscreen) {
+			lft = controlbars[event.id].margin;
+			top = $(window).height() - controlbars[event.id].margin - hei;
+			wid = $(window).width() - 2 * controlbars[event.id].margin;
+			$('#' + event.id + '_jwplayerControlbar').css('z-index', 99);
 		} else {
-			$('#' + player.id + '_jwplayerControlbar').css('z-index', 97);
+			$('#' + event.id + '_jwplayerControlbar').css('z-index', 97);
 		}
-		$('#' + player.id + '_jwplayerControlbar').css('left', lft);
-		$('#' + player.id + '_jwplayerControlbar').css('top', top);
-		$('#' + player.id + '_jwplayerControlbar').css('width', wid);
-		$('#' + player.id + '_timeSliderRail').css('width', (wid - player.controlbar.leftmargin - player.controlbar.rightmargin));
+		$('#' + event.id + '_jwplayerControlbar').css('left', lft);
+		$('#' + event.id + '_jwplayerControlbar').css('top', top);
+		$('#' + event.id + '_jwplayerControlbar').css('width', wid);
+		$('#' + event.id + '_timeSliderRail').css('width', (wid - controlbars[event.id].leftmargin - controlbars[event.id].rightmargin));
 	}
 	
 	
 	/** Update the volume level. **/
 	function volumeHandler(event) {
-		var player = $.jwplayer(event.id);
-		var volume;
-		switch($.fn.jwplayerUtils.typeOf(event.volume)){
-			case "function":
-				volume = event.volume();
-				break;
-			case "undefined":
-				volume = player.model.volume;
-				break;
-			default:
-				volume = event.volume;
-				break;
-		}
-		var rwd = $('#' + player.id + '_volumeSliderRail').width();
-		var wid = Math.round(volume / 100 * rwd);
-		var rig = $('#' + player.id + '_volumeSliderRail').css('right').substr(0, 2);
-		$('#' + player.id + '_volumeSliderProgress').css('width', wid);
-		$('#' + player.id + '_volumeSliderProgress').css('right', (1 * rig + rwd - wid));
+		var rwd = $('#' + event.id + '_volumeSliderRail').width();
+		var wid = Math.round(event.volume / 100 * rwd);
+		var rig = $('#' + event.id + '_volumeSliderRail').css('right').substr(0, 2);
+		$('#' + event.id + '_volumeSliderProgress').css('width', wid);
+		$('#' + event.id + '_volumeSliderProgress').css('right', (1 * rig + rwd - wid));
 	}
 	
 	
@@ -430,6 +394,8 @@
 		duration: 0,
 		source: 0,
 		buffer: 0,
+		// I hate javascript
+		//state: $.fn.jwplayer.states.IDLE
 		state: 'IDLE'
 	};
 
@@ -601,8 +567,8 @@
 	};
 	
 	function finishSetup(player) {
-		$.fn.jwplayerControlbar(player);
-		player.sendEvent("JWPLAYER_READY");
+		$.fn.jwplayerControlbar($.jwplayer(player.id), player.model.domelement);
+		player.sendEvent($.fn.jwplayer.events.JWPLAYER_READY);
 	}
 	
 	
@@ -616,9 +582,10 @@
 		file: undefined,
 		height: 295,
 		image: undefined,
-		skin: 'http://developer.longtailvideo.com/player/trunk/html5/assets/five/five.xml',
+		skin: './assets/five/five.xml',
 		volume: 90,
 		width: 480,
+		mute: false,
 		flashplayer:'http://developer.longtailvideo.com/player/trunk/html5/assets/player.swf'
 	};
 	
@@ -627,7 +594,7 @@
 	function play(player) {
 		return function() {
 			$.fn.jwplayerController.play(player);
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -635,7 +602,7 @@
 	function pause(player) {
 		return function() {
 			$.fn.jwplayerController.pause(player);
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -644,7 +611,7 @@
 	function seek(player) {
 		return function(arg) {
 			$.fn.jwplayerController.seek(player, arg);
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -653,7 +620,7 @@
 	function stop(player) {
 		return function() {
 			$.fn.jwplayerController.stop(player);
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -674,12 +641,12 @@
 				default:
 					return $.fn.jwplayerController.volume(player);
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
 	/** Switch the mute state of the player. **/
-	function mute(player, state) {
+	function mute(player) {
 		return function(arg) {
 			switch ($.fn.jwplayerUtils.typeOf(arg)) {
 				case "function":
@@ -691,12 +658,12 @@
 				default:
 					return $.fn.jwplayerController.mute(player);
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
 	/** Resizing the player **/
-	function resize(player, state) {
+	function resize(player) {
 		return function(arg1, arg2) {
 			switch ($.fn.jwplayerUtils.typeOf(arg)) {
 				case "function":
@@ -708,12 +675,12 @@
 				default:
 					break;
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
 	/** Fullscreen the player **/
-	function fullscreen(player, state) {
+	function fullscreen(player) {
 		return function(arg) {
 			switch ($.fn.jwplayerUtils.typeOf(arg)) {
 				case "function":
@@ -725,7 +692,7 @@
 				default:
 					return $.fn.jwplayerController.fullscreen(player);
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -739,7 +706,7 @@
 				default:
 					return $.fn.jwplayerController.mediaInfo(player).state;
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -753,7 +720,7 @@
 				default:
 					return $.fn.jwplayerController.mediaInfo(player).buffer;
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -767,7 +734,7 @@
 				default:
 					return $.fn.jwplayerController.mediaInfo(player).time;
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -781,7 +748,7 @@
 				default:
 					$.fn.jwplayerController.load(player, arg);
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -789,7 +756,15 @@
 	function complete(player) {
 		return function(arg) {
 			addEventListener(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE, arg);
-			return jwplayer(player);
+			return jwplayer(player.id);
+		};
+	}
+	
+	/** Adds a listener for player ready **/
+	function ready(player) {
+		return function(arg) {
+			addEventListener(player, $.fn.jwplayer.events.JWPLAYER_READY, arg);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -804,7 +779,7 @@
 	function error(player) {
 		return function(arg) {
 			addEventListener(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_ERROR, arg);
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -834,7 +809,7 @@
 				default:
 					return $.fn.jwplayerController.mediaInfo(player);
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -874,13 +849,22 @@
 	/** Send an event **/
 	function sendEvent(player) {
 		return function(type, data) {
+			data = $.extend({
+				id: player.id,
+				version: player.version
+			}, data);
+			//$.fn.jwplayerUtils.log(type, data);
 			for (var listener in player.model.listeners[type]) {
 				player.model.listeners[type][listener](data);
 			}
 		};
 	}
+		
 	
 	function api(player) {
+		if (!$.fn.jwplayerUtils.isNull(player.id)){
+			return player;
+		}
 		return {
 			id: player.model.config.id,
 			buffer: buffer(player),
@@ -894,12 +878,15 @@
 			pause: pause(player),
 			play: play(player),
 			resize: resize(player),
+			ready: ready(player),
 			seek: seek(player),
 			state: state(player),
 			stop: stop(player),
 			time: time(player),
 			volume: volume(player),
 			width: width(player),
+			skin: player.skin,
+			config: player.model.config,
 			addEventListener: apiAddEventListener(player),
 			removeEventListener: apiRemoveEventListener(player),
 			sendEvent: sendEvent(player),
@@ -908,12 +895,12 @@
 	}
 	
 	function jwplayer(selector) {
-		if (selector === undefined) {
+		if ($.fn.jwplayerUtils.isNull(selector)) {
 			for (var player in players) {
-				return players[player];
+				return api(players[player]);
 			}
 		} else {
-			return players[selector];
+			return api(players[selector]);
 		}
 		return null;
 	}
@@ -1000,11 +987,10 @@
 		TRACE: "TRACE",
 		VOLUME: "VOLUME"
 	};
-
+	
 	
 	$.fn.jwplayerMediaFlash = function(player) {
 		var options = {};
-		//options.autostart = true;
 		options.controlbar = 'none';
 		options.icons = false;
 		$.fn.jwplayerView.embedFlash(player, options);
@@ -1017,7 +1003,6 @@
 			fullscreen: fullscreen(player),
 			load: load(player),
 			resize: resize(player),
-			mediaInfo: mediaInfo(player),
 			state: $.fn.jwplayer.states.IDLE
 		};
 		player.media = media;
@@ -1040,19 +1025,23 @@
 			}, 100);
 			return;
 		}
+		$.fn.jwplayerMediaFlash.forwarders[player.id] = {}
 		var video = player.model.domelement;
 		for (var controllerEvent in controllerEvents) {
-			$.fn.jwplayerMediaFlash.forwarders[controllerEvents[controllerEvent]] = forwardFactory(controllerEvents[controllerEvent], player);
-			video[0].addControllerListener(controllerEvent, "$.fn.jwplayerMediaFlash.forwarders."+controllerEvents[controllerEvent]);
+			$.fn.jwplayerMediaFlash.forwarders[player.id][controllerEvents[controllerEvent]] = forwardFactory(controllerEvents[controllerEvent], player);
+			video[0].addControllerListener(controllerEvent, "$.fn.jwplayerMediaFlash.forwarders." + player.id + "." + controllerEvents[controllerEvent]);
 		}
 		for (var modelEvent in modelEvents) {
-			$.fn.jwplayerMediaFlash.forwarders[modelEvents[modelEvent]] = forwardFactory(modelEvents[modelEvent], player);
-			video[0].addModelListener(modelEvent, "$.fn.jwplayerMediaFlash.forwarders."+modelEvents[modelEvent]);
+			$.fn.jwplayerMediaFlash.forwarders[player.id][modelEvents[modelEvent]] = forwardFactory(modelEvents[modelEvent], player);
+			video[0].addModelListener(modelEvent, "$.fn.jwplayerMediaFlash.forwarders." + player.id + "." + modelEvents[modelEvent]);
 		}
+		$.fn.jwplayerMediaFlash.forwarders[player.id][viewEvents.MUTE] = forwardFactory(viewEvents.MUTE, player);
+		video[0].addViewListener(viewEvents.MUTE, "$.fn.jwplayerMediaFlash.forwarders." + player.id + "." + viewEvents.MUTE);
+
 	}
 	
-	function forwardFactory(type, player){
-		return function(event){
+	function forwardFactory(type, player) {
+		return function(event) {
 			forward(event, type, player);
 		};
 	}
@@ -1060,30 +1049,55 @@
 	$.fn.jwplayerMediaFlash.forwarders = {};
 	
 	function forward(event, type, player) {
-		$.fn.jwplayerUtils.log(type, event);
 		switch (type) {
+			case $.fn.jwplayer.events.JWPLAYER_MEDIA_META:
+				//$.fn.jwplayerUtils.log(type, event);
+				player.sendEvent(type, event);
+				break;
+			case $.fn.jwplayer.events.JWPLAYER_MEDIA_MUTE:
+				player.model.mute = event.state;
+				event.mute = event.state;
+				player.sendEvent(type, event);
+				break;
+			case $.fn.jwplayer.events.JWPLAYER_MEDIA_VOLUME:
+				player.model.volume = event.percentage;
+				event.volume = event.percentage;
+				player.sendEvent(type, event);
+				break;
+			case $.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE:
+				player.model.fullscreen = event.fullscreen;
+				player.model.height = event.height;
+				player.model.width = event.width;
+				player.sendEvent(type, event);
+				break;
+			case $.fn.jwplayer.events.JWPLAYER_MEDIA_TIME:
+				if (player.model.duration === 0) {
+					player.model.duration = event.duration;
+				}
+				player.sendEvent(type, event);
+				break;
 			case $.fn.jwplayer.events.JWPLAYER_PLAYER_STATE:
 				if (event.newstate == "COMPLETED") {
-					sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE);
+					player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE, event);
 				} else {
-					stateHandler(event, player);	
+					stateHandler(event, player);
 				}
 				break;
 			case $.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER:
-				event.bufferPercent = event.percentage; 
+				event.bufferPercent = event.percentage;
 				player.sendEvent(type, event);
 				break;
 			default:
 				player.sendEvent(type, event);
 				break;
-		}	
+		}
 	}
 	
 	function play(player) {
 		return function() {
 			try {
 				player.model.domelement[0].sendEvent("PLAY", true);
-			} catch (err){
+			} catch (err) {
 				$.fn.jwplayerUtils.log("There was an error", err);
 			}
 		};
@@ -1092,7 +1106,7 @@
 	/** Switch the pause state of the player. **/
 	function pause(player) {
 		return function() {
-			player.model.domelement[0].sendEvent("PAUSE");
+			player.model.domelement[0].sendEvent("PLAY", false);
 		};
 	}
 	
@@ -1123,39 +1137,36 @@
 	/** Switch the mute state of the player. **/
 	function mute(player) {
 		return function(state) {
-			player.model.domelement[0].sendEvent("MUTE");
+			player.model.domelement[0].sendEvent("MUTE", state);
 		};
 	}
 	
 	/** Switch the fullscreen state of the player. **/
 	function fullscreen(player) {
 		return function(state) {
-			//player.fullscreen = state;
+			player.model.fullscreen = state;
+			$.fn.jwplayerUtils.log("Fullscreen does not work for Flash media.");
 		};
 	}
+	
 	/** Load a new video into the player. **/
 	function load(player) {
 		return function(path) {
-			//TODO
+			player.model.domelement[0].sendEvent("LOAD", path);
 		};
 	}
 	
 	/** Resizes the video **/
 	function resize(player) {
 		return function(width, height) {
-			//TODO
-		};
-	}
-	
-	
-	/** Returns the media info **/
-	function mediaInfo(player) {
-		return function(){
-			return {
-				width: player.model.width,
-				player: player.model.height,
-				state: player.model.state 
-			};
+			player.model.width = width;
+			player.model.height = height;
+			player.css("width", width);
+			player.css("height", height);
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
+				width: width,
+				hieght: height
+			});
 		};
 	}
 	
@@ -1217,11 +1228,12 @@
 			fullscreen: fullscreen(player),
 			load: load(player),
 			resize: resize(player),
-			mediaInfo: mediaInfo(player),
 			state: $.fn.jwplayer.states.IDLE,
 			interval: null
 		};
 		player.media = media;
+		media.mute(player.mute());
+		media.volume(player.volume());
 		$.each(events, function(event, handler) {
 			player.model.domelement[0].addEventListener(event, function(event) {
 				handler(event, player);
@@ -1243,7 +1255,7 @@
 		if (player.model.state != newstate) {
 			var oldstate = player.model.state;
 			player.model.state = newstate;
-			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, {
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, {
 				oldstate: oldstate,
 				newstate: newstate
 			});
@@ -1251,7 +1263,7 @@
 		if (newstate == $.fn.jwplayer.states.IDLE) {
 			clearInterval(player.media.interval);
 			player.media.interval = null;
-			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE);
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE);
 		}
 	}
 	
@@ -1261,8 +1273,11 @@
 			width: event.target.videoWidth,
 			duration: event.target.duration
 		};
-		player.model = $.extend(player.model, meta);
-		sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_META, meta);
+		if (player.model.duration === 0){
+			player.model.duration = event.target.duration;
+		}
+		player.model.sources[player.model.source] = $.extend(player.model.sources[player.model.source], meta);
+		player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_META, meta);
 	}
 	
 	function positionHandler(event, player) {
@@ -1271,8 +1286,10 @@
 				positionHandler(event, player);
 			}, 100);
 		}
-		player.model.duration = event.target.duration;
-		sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
+		if (player.model.duration  === 0){
+			player.model.duration = event.target.duration;
+		}
+		player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
 			position: event.target.currentTime,
 			duration: event.target.duration
 		});
@@ -1285,13 +1302,13 @@
 		} else if (player.model.domelement[0].buffered !== undefined) {
 			buffer = player.model.domelement[0].buffered.end(0) / player.model.domelement[0].duration * 100;
 		}
-		sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
+		player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
 			'bufferPercent': buffer
 		});
 	}
 	
 	function errorHandler(event, player) {
-		sendEvent(player, $.fn.jwplayer.events.JWPLAYER_ERROR, {});
+		player.sendEvent($.fn.jwplayer.events.JWPLAYER_ERROR, {});
 	}
 	
 	function play(player) {
@@ -1331,9 +1348,9 @@
 	/** Change the video's volume level. **/
 	function volume(player) {
 		return function(position) {
-			player.model.volume = position / 100;
+			player.model.volume = position;
 			player.model.domelement[0].volume = position / 100;
-			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_VOLUME, {
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_VOLUME, {
 				volume: player.model.domelement[0].volume * 100
 			});
 		};
@@ -1344,7 +1361,7 @@
 		return function(state) {
 			player.model.mute = state;
 			player.model.domelement[0].muted = state;
-			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_MUTE, {
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_MUTE, {
 				mute: player.model.domelement[0].muted
 			});
 		};
@@ -1357,7 +1374,7 @@
 			player.model.height = height;
 			player.css("width", width);
 			player.css("height", height);
-			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
 				width: width,
 				hieght: height
 			});
@@ -1371,7 +1388,7 @@
 			if (state === true) {
 				player.css("width", window.width);
 				player.css("height", window.height);
-				sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
+				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
 					width: width,
 					hieght: height
 				});
@@ -1384,31 +1401,10 @@
 	/** Load a new video into the player. **/
 	function load(player) {
 		return function(path) {
-			//TODO
+			player.model.domelement[0].src = path;
 		};
 	}
-	
-	/** Returns the media info **/
-	function mediaInfo(player) {
-		return function(){
-			return {
-				width: player.model.width,
-				player: player.model.height,
-				state: player.model.state 
-			};
-		};
-	}
-	
-	function sendEvent(player, type, data) {
-		player.sendEvent(type, $.extend({
-			id: player.model.config.id,
-			version: player.version
-		}, data));
-	}
-	
-})(jQuery);
-
-/**
+})(jQuery);/**
  * JW Player model component
  *
  * @author zach
@@ -1429,7 +1425,6 @@
 	
 	function createModel() {
 		return {
-			config: {},
 			sources: {},
 			listeners: {},
 			state: $.fn.jwplayer.states.IDLE,
@@ -1442,14 +1437,14 @@
 	$.fn.jwplayerModel = function(domElement, options) {
 		var model = createModel();
 		model.config = $.fn.jwplayerParse(domElement[0], options);
-		if (model.config.id === undefined) {
+		if ($.fn.jwplayerUtils.isNull(model.config.id)) {
 			model.config.id = "jwplayer_" + jwplayerid++;
 		}
 		model.sources = model.config.sources;
 		delete model.config.sources;
 		model.domelement = domElement;
 		for (var modelParam in modelParams) {
-			if (model.config[modelParam] !== undefined) {
+			if (!$.fn.jwplayerUtils.isNull(model.config[modelParam])) {
 				model[modelParam] = model.config[modelParam];
 			} else {
 				model[modelParam] = modelParams[modelParam];
@@ -1553,6 +1548,7 @@
 				}
 			}
 			configuration.screencolor = ($(domElement).css("background-color") == "transparent") ? "#ffffff" : $(domElement).css("background-color");
+			configuration.plugins = {};
 			return configuration;
 		}
 	}
@@ -1580,7 +1576,11 @@
 	
 	function parseVideoElement(domElement, attributes) {
 		attributes = getAttributeList('video', attributes);
-		return parseMediaElement(domElement, attributes);
+		var result = parseMediaElement(domElement, attributes);
+		if (!$.fn.jwplayerUtils.isNull($(domElement).attr('poster'))){
+			$(domElement).removeAttr('poster');
+		}
+		return result;
 	}
 	
 	parsers.media = parseMediaElement;
@@ -2047,10 +2047,10 @@
 			var config = $.extend(true, {}, player.model.config, options);
 			flashvarString += "file=" + $.fn.jwplayerUtils.getAbsolutePath(player.model.sources[player.model.source].file) + "&image=" + $.fn.jwplayerUtils.getAbsolutePath(config.image) +"&";
 			for (var flashvar in config) {
-				if ((flashvar == "file") || (flashvar == "image")) {
+				if ((flashvar == "file") || (flashvar == "image") ||  (flashvar == "plugins")) {
 					continue;
 				}
-				if (!$.fn.jwplayerUtils.isNull(config[flashvar] === undefined)) {
+				if (!$.fn.jwplayerUtils.isNull(config[flashvar])){
 					flashvarString += flashvar + "=" + config[flashvar] + "&";
 				}
 			}

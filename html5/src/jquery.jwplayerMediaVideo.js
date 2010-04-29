@@ -55,11 +55,12 @@
 			fullscreen: fullscreen(player),
 			load: load(player),
 			resize: resize(player),
-			mediaInfo: mediaInfo(player),
 			state: $.fn.jwplayer.states.IDLE,
 			interval: null
 		};
 		player.media = media;
+		media.mute(player.mute());
+		media.volume(player.volume());
 		$.each(events, function(event, handler) {
 			player.model.domelement[0].addEventListener(event, function(event) {
 				handler(event, player);
@@ -81,7 +82,7 @@
 		if (player.model.state != newstate) {
 			var oldstate = player.model.state;
 			player.model.state = newstate;
-			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, {
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, {
 				oldstate: oldstate,
 				newstate: newstate
 			});
@@ -89,7 +90,7 @@
 		if (newstate == $.fn.jwplayer.states.IDLE) {
 			clearInterval(player.media.interval);
 			player.media.interval = null;
-			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE);
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE);
 		}
 	}
 	
@@ -99,8 +100,11 @@
 			width: event.target.videoWidth,
 			duration: event.target.duration
 		};
-		player.model = $.extend(player.model, meta);
-		sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_META, meta);
+		if (player.model.duration === 0){
+			player.model.duration = event.target.duration;
+		}
+		player.model.sources[player.model.source] = $.extend(player.model.sources[player.model.source], meta);
+		player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_META, meta);
 	}
 	
 	function positionHandler(event, player) {
@@ -109,8 +113,10 @@
 				positionHandler(event, player);
 			}, 100);
 		}
-		player.model.duration = event.target.duration;
-		sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
+		if (player.model.duration  === 0){
+			player.model.duration = event.target.duration;
+		}
+		player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
 			position: event.target.currentTime,
 			duration: event.target.duration
 		});
@@ -123,13 +129,13 @@
 		} else if (player.model.domelement[0].buffered !== undefined) {
 			buffer = player.model.domelement[0].buffered.end(0) / player.model.domelement[0].duration * 100;
 		}
-		sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
+		player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
 			'bufferPercent': buffer
 		});
 	}
 	
 	function errorHandler(event, player) {
-		sendEvent(player, $.fn.jwplayer.events.JWPLAYER_ERROR, {});
+		player.sendEvent($.fn.jwplayer.events.JWPLAYER_ERROR, {});
 	}
 	
 	function play(player) {
@@ -169,9 +175,9 @@
 	/** Change the video's volume level. **/
 	function volume(player) {
 		return function(position) {
-			player.model.volume = position / 100;
+			player.model.volume = position;
 			player.model.domelement[0].volume = position / 100;
-			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_VOLUME, {
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_VOLUME, {
 				volume: player.model.domelement[0].volume * 100
 			});
 		};
@@ -182,7 +188,7 @@
 		return function(state) {
 			player.model.mute = state;
 			player.model.domelement[0].muted = state;
-			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_MUTE, {
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_MUTE, {
 				mute: player.model.domelement[0].muted
 			});
 		};
@@ -195,7 +201,7 @@
 			player.model.height = height;
 			player.css("width", width);
 			player.css("height", height);
-			sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
 				width: width,
 				hieght: height
 			});
@@ -209,7 +215,7 @@
 			if (state === true) {
 				player.css("width", window.width);
 				player.css("height", window.height);
-				sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
+				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
 					width: width,
 					hieght: height
 				});
@@ -222,27 +228,7 @@
 	/** Load a new video into the player. **/
 	function load(player) {
 		return function(path) {
-			//TODO
+			player.model.domelement[0].src = path;
 		};
 	}
-	
-	/** Returns the media info **/
-	function mediaInfo(player) {
-		return function(){
-			return {
-				width: player.model.width,
-				player: player.model.height,
-				state: player.model.state 
-			};
-		};
-	}
-	
-	function sendEvent(player, type, data) {
-		player.sendEvent(type, $.extend({
-			id: player.model.config.id,
-			version: player.version
-		}, data));
-	}
-	
 })(jQuery);
-

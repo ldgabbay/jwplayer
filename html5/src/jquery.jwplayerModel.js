@@ -19,7 +19,6 @@
 	
 	function createModel() {
 		return {
-			config: {},
 			sources: {},
 			listeners: {},
 			state: $.fn.jwplayer.states.IDLE,
@@ -32,14 +31,14 @@
 	$.fn.jwplayerModel = function(domElement, options) {
 		var model = createModel();
 		model.config = $.fn.jwplayerParse(domElement[0], options);
-		if (model.config.id === undefined) {
+		if ($.fn.jwplayerUtils.isNull(model.config.id)) {
 			model.config.id = "jwplayer_" + jwplayerid++;
 		}
 		model.sources = model.config.sources;
 		delete model.config.sources;
 		model.domelement = domElement;
 		for (var modelParam in modelParams) {
-			if (model.config[modelParam] !== undefined) {
+			if (!$.fn.jwplayerUtils.isNull(model.config[modelParam])) {
 				model[modelParam] = model.config[modelParam];
 			} else {
 				model[modelParam] = modelParams[modelParam];

@@ -100,10 +100,10 @@
 			var config = $.extend(true, {}, player.model.config, options);
 			flashvarString += "file=" + $.fn.jwplayerUtils.getAbsolutePath(player.model.sources[player.model.source].file) + "&image=" + $.fn.jwplayerUtils.getAbsolutePath(config.image) +"&";
 			for (var flashvar in config) {
-				if ((flashvar == "file") || (flashvar == "image")) {
+				if ((flashvar == "file") || (flashvar == "image") ||  (flashvar == "plugins")) {
 					continue;
 				}
-				if (!$.fn.jwplayerUtils.isNull(config[flashvar] === undefined)) {
+				if (!$.fn.jwplayerUtils.isNull(config[flashvar])){
 					flashvarString += flashvar + "=" + config[flashvar] + "&";
 				}
 			}

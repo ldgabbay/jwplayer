@@ -16,6 +16,8 @@
 		duration: 0,
 		source: 0,
 		buffer: 0,
+		// I hate javascript
+		//state: $.fn.jwplayer.states.IDLE
 		state: 'IDLE'
 	};
 

@@ -43,11 +43,10 @@
 		TRACE: "TRACE",
 		VOLUME: "VOLUME"
 	};
-
+	
 	
 	$.fn.jwplayerMediaFlash = function(player) {
 		var options = {};
-		//options.autostart = true;
 		options.controlbar = 'none';
 		options.icons = false;
 		$.fn.jwplayerView.embedFlash(player, options);
@@ -60,7 +59,6 @@
 			fullscreen: fullscreen(player),
 			load: load(player),
 			resize: resize(player),
-			mediaInfo: mediaInfo(player),
 			state: $.fn.jwplayer.states.IDLE
 		};
 		player.media = media;
@@ -83,19 +81,23 @@
 			}, 100);
 			return;
 		}
+		$.fn.jwplayerMediaFlash.forwarders[player.id] = {}
 		var video = player.model.domelement;
 		for (var controllerEvent in controllerEvents) {
-			$.fn.jwplayerMediaFlash.forwarders[controllerEvents[controllerEvent]] = forwardFactory(controllerEvents[controllerEvent], player);
-			video[0].addControllerListener(controllerEvent, "$.fn.jwplayerMediaFlash.forwarders."+controllerEvents[controllerEvent]);
+			$.fn.jwplayerMediaFlash.forwarders[player.id][controllerEvents[controllerEvent]] = forwardFactory(controllerEvents[controllerEvent], player);
+			video[0].addControllerListener(controllerEvent, "$.fn.jwplayerMediaFlash.forwarders." + player.id + "." + controllerEvents[controllerEvent]);
 		}
 		for (var modelEvent in modelEvents) {
-			$.fn.jwplayerMediaFlash.forwarders[modelEvents[modelEvent]] = forwardFactory(modelEvents[modelEvent], player);
-			video[0].addModelListener(modelEvent, "$.fn.jwplayerMediaFlash.forwarders."+modelEvents[modelEvent]);
+			$.fn.jwplayerMediaFlash.forwarders[player.id][modelEvents[modelEvent]] = forwardFactory(modelEvents[modelEvent], player);
+			video[0].addModelListener(modelEvent, "$.fn.jwplayerMediaFlash.forwarders." + player.id + "." + modelEvents[modelEvent]);
 		}
+		$.fn.jwplayerMediaFlash.forwarders[player.id][viewEvents.MUTE] = forwardFactory(viewEvents.MUTE, player);
+		video[0].addViewListener(viewEvents.MUTE, "$.fn.jwplayerMediaFlash.forwarders." + player.id + "." + viewEvents.MUTE);
+
 	}
 	
-	function forwardFactory(type, player){
-		return function(event){
+	function forwardFactory(type, player) {
+		return function(event) {
 			forward(event, type, player);
 		};
 	}
@@ -103,30 +105,55 @@
 	$.fn.jwplayerMediaFlash.forwarders = {};
 	
 	function forward(event, type, player) {
-		$.fn.jwplayerUtils.log(type, event);
 		switch (type) {
+			case $.fn.jwplayer.events.JWPLAYER_MEDIA_META:
+				//$.fn.jwplayerUtils.log(type, event);
+				player.sendEvent(type, event);
+				break;
+			case $.fn.jwplayer.events.JWPLAYER_MEDIA_MUTE:
+				player.model.mute = event.state;
+				event.mute = event.state;
+				player.sendEvent(type, event);
+				break;
+			case $.fn.jwplayer.events.JWPLAYER_MEDIA_VOLUME:
+				player.model.volume = event.percentage;
+				event.volume = event.percentage;
+				player.sendEvent(type, event);
+				break;
+			case $.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE:
+				player.model.fullscreen = event.fullscreen;
+				player.model.height = event.height;
+				player.model.width = event.width;
+				player.sendEvent(type, event);
+				break;
+			case $.fn.jwplayer.events.JWPLAYER_MEDIA_TIME:
+				if (player.model.duration === 0) {
+					player.model.duration = event.duration;
+				}
+				player.sendEvent(type, event);
+				break;
 			case $.fn.jwplayer.events.JWPLAYER_PLAYER_STATE:
 				if (event.newstate == "COMPLETED") {
-					sendEvent(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE);
+					player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE, event);
 				} else {
-					stateHandler(event, player);	
+					stateHandler(event, player);
 				}
 				break;
 			case $.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER:
-				event.bufferPercent = event.percentage; 
+				event.bufferPercent = event.percentage;
 				player.sendEvent(type, event);
 				break;
 			default:
 				player.sendEvent(type, event);
 				break;
-		}	
+		}
 	}
 	
 	function play(player) {
 		return function() {
 			try {
 				player.model.domelement[0].sendEvent("PLAY", true);
-			} catch (err){
+			} catch (err) {
 				$.fn.jwplayerUtils.log("There was an error", err);
 			}
 		};
@@ -135,7 +162,7 @@
 	/** Switch the pause state of the player. **/
 	function pause(player) {
 		return function() {
-			player.model.domelement[0].sendEvent("PAUSE");
+			player.model.domelement[0].sendEvent("PLAY", false);
 		};
 	}
 	
@@ -166,39 +193,36 @@
 	/** Switch the mute state of the player. **/
 	function mute(player) {
 		return function(state) {
-			player.model.domelement[0].sendEvent("MUTE");
+			player.model.domelement[0].sendEvent("MUTE", state);
 		};
 	}
 	
 	/** Switch the fullscreen state of the player. **/
 	function fullscreen(player) {
 		return function(state) {
-			//player.fullscreen = state;
+			player.model.fullscreen = state;
+			$.fn.jwplayerUtils.log("Fullscreen does not work for Flash media.");
 		};
 	}
+	
 	/** Load a new video into the player. **/
 	function load(player) {
 		return function(path) {
-			//TODO
+			player.model.domelement[0].sendEvent("LOAD", path);
 		};
 	}
 	
 	/** Resizes the video **/
 	function resize(player) {
 		return function(width, height) {
-			//TODO
-		};
-	}
-	
-	
-	/** Returns the media info **/
-	function mediaInfo(player) {
-		return function(){
-			return {
-				width: player.model.width,
-				player: player.model.height,
-				state: player.model.state 
-			};
+			player.model.width = width;
+			player.model.height = height;
+			player.css("width", width);
+			player.css("height", height);
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
+				width: width,
+				hieght: height
+			});
 		};
 	}
 	

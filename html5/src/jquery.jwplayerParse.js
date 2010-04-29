@@ -62,6 +62,7 @@
 				}
 			}
 			configuration.screencolor = ($(domElement).css("background-color") == "transparent") ? "#ffffff" : $(domElement).css("background-color");
+			configuration.plugins = {};
 			return configuration;
 		}
 	}
@@ -89,7 +90,11 @@
 	
 	function parseVideoElement(domElement, attributes) {
 		attributes = getAttributeList('video', attributes);
-		return parseMediaElement(domElement, attributes);
+		var result = parseMediaElement(domElement, attributes);
+		if (!$.fn.jwplayerUtils.isNull($(domElement).attr('poster'))){
+			$(domElement).removeAttr('poster');
+		}
+		return result;
 	}
 	
 	parsers.media = parseMediaElement;

@@ -26,8 +26,8 @@
 	};
 	
 	function finishSetup(player) {
-		$.fn.jwplayerControlbar(player);
-		player.sendEvent("JWPLAYER_READY");
+		$.fn.jwplayerControlbar($.jwplayer(player.id), player.model.domelement);
+		player.sendEvent($.fn.jwplayer.events.JWPLAYER_READY);
 	}
 	
 	
@@ -41,9 +41,10 @@
 		file: undefined,
 		height: 295,
 		image: undefined,
-		skin: 'http://developer.longtailvideo.com/player/trunk/html5/assets/five/five.xml',
+		skin: './assets/five/five.xml',
 		volume: 90,
 		width: 480,
+		mute: false,
 		flashplayer:'http://developer.longtailvideo.com/player/trunk/html5/assets/player.swf'
 	};
 	
@@ -52,7 +53,7 @@
 	function play(player) {
 		return function() {
 			$.fn.jwplayerController.play(player);
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -60,7 +61,7 @@
 	function pause(player) {
 		return function() {
 			$.fn.jwplayerController.pause(player);
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -69,7 +70,7 @@
 	function seek(player) {
 		return function(arg) {
 			$.fn.jwplayerController.seek(player, arg);
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -78,7 +79,7 @@
 	function stop(player) {
 		return function() {
 			$.fn.jwplayerController.stop(player);
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -99,12 +100,12 @@
 				default:
 					return $.fn.jwplayerController.volume(player);
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
 	/** Switch the mute state of the player. **/
-	function mute(player, state) {
+	function mute(player) {
 		return function(arg) {
 			switch ($.fn.jwplayerUtils.typeOf(arg)) {
 				case "function":
@@ -116,12 +117,12 @@
 				default:
 					return $.fn.jwplayerController.mute(player);
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
 	/** Resizing the player **/
-	function resize(player, state) {
+	function resize(player) {
 		return function(arg1, arg2) {
 			switch ($.fn.jwplayerUtils.typeOf(arg)) {
 				case "function":
@@ -133,12 +134,12 @@
 				default:
 					break;
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
 	/** Fullscreen the player **/
-	function fullscreen(player, state) {
+	function fullscreen(player) {
 		return function(arg) {
 			switch ($.fn.jwplayerUtils.typeOf(arg)) {
 				case "function":
@@ -150,7 +151,7 @@
 				default:
 					return $.fn.jwplayerController.fullscreen(player);
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -164,7 +165,7 @@
 				default:
 					return $.fn.jwplayerController.mediaInfo(player).state;
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -178,7 +179,7 @@
 				default:
 					return $.fn.jwplayerController.mediaInfo(player).buffer;
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -192,7 +193,7 @@
 				default:
 					return $.fn.jwplayerController.mediaInfo(player).time;
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -206,7 +207,7 @@
 				default:
 					$.fn.jwplayerController.load(player, arg);
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -214,7 +215,15 @@
 	function complete(player) {
 		return function(arg) {
 			addEventListener(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE, arg);
-			return jwplayer(player);
+			return jwplayer(player.id);
+		};
+	}
+	
+	/** Adds a listener for player ready **/
+	function ready(player) {
+		return function(arg) {
+			addEventListener(player, $.fn.jwplayer.events.JWPLAYER_READY, arg);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -229,7 +238,7 @@
 	function error(player) {
 		return function(arg) {
 			addEventListener(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_ERROR, arg);
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -259,7 +268,7 @@
 				default:
 					return $.fn.jwplayerController.mediaInfo(player);
 			}
-			return jwplayer(player);
+			return jwplayer(player.id);
 		};
 	}
 	
@@ -299,13 +308,22 @@
 	/** Send an event **/
 	function sendEvent(player) {
 		return function(type, data) {
+			data = $.extend({
+				id: player.id,
+				version: player.version
+			}, data);
+			//$.fn.jwplayerUtils.log(type, data);
 			for (var listener in player.model.listeners[type]) {
 				player.model.listeners[type][listener](data);
 			}
 		};
 	}
+		
 	
 	function api(player) {
+		if (!$.fn.jwplayerUtils.isNull(player.id)){
+			return player;
+		}
 		return {
 			id: player.model.config.id,
 			buffer: buffer(player),
@@ -319,12 +337,15 @@
 			pause: pause(player),
 			play: play(player),
 			resize: resize(player),
+			ready: ready(player),
 			seek: seek(player),
 			state: state(player),
 			stop: stop(player),
 			time: time(player),
 			volume: volume(player),
 			width: width(player),
+			skin: player.skin,
+			config: player.model.config,
 			addEventListener: apiAddEventListener(player),
 			removeEventListener: apiRemoveEventListener(player),
 			sendEvent: sendEvent(player),
@@ -333,12 +354,12 @@
 	}
 	
 	function jwplayer(selector) {
-		if (selector === undefined) {
+		if ($.fn.jwplayerUtils.isNull(selector)) {
 			for (var player in players) {
-				return players[player];
+				return api(players[player]);
 			}
 		} else {
-			return players[selector];
+			return api(players[selector]);
 		}
 		return null;
 	}
