@@ -421,7 +421,7 @@ package com.longtailvideo.jwplayer.view {
 
 
 		protected function loadImage(url:String):void {
-			_image.load(new URLRequest(url), new LoaderContext(true));
+			_image.load(new URLRequest(encodeURI(url)), new LoaderContext(true));
 		}
 
 

@@ -89,7 +89,7 @@ package com.longtailvideo.jwplayer.view {
 				loader = new Loader();
 				loader.contentLoaderInfo.addEventListener(Event.COMPLETE, loaderHandler);
 				loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
-				loader.load(new URLRequest(getConfigParam('file')));
+				loader.load(new URLRequest(encodeURI(getConfigParam('file'))));
 			}
 		}
 		

@@ -153,6 +153,7 @@ package com.longtailvideo.jwplayer.media {
 					_startparam = item.streamer;
 				}
 			}
+			url = encodeURI(url);
 			if (_mp4 || _startparam == 'starttime') {
 				off = _timeoffset;
 			}

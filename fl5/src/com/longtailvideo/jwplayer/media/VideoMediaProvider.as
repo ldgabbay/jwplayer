@@ -91,7 +91,7 @@
 					media = _video;
 				}
 				_stream.checkPolicyFile = true;
-				_stream.play(itm.file);
+				_stream.play(encodeURI(itm.file));
 				_stream.pause();
 			} else {
 				if (itm.duration <= 0) { itm.duration = item.duration; }
