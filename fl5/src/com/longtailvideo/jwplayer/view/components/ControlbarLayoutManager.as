@@ -26,7 +26,7 @@ package com.longtailvideo.jwplayer.view.components {
 				if (_controlbar.getButton('capRight')){
 					_currentRight -= _controlbar.getButton('capRight').width;
 				}
-				var controlbarPattern:RegExp = /\[(.+)\]\[(.+)\]\[(.+)\]/;
+				var controlbarPattern:RegExp = /\[(.*)\]\[(.*)\]\[(.*)\]/;
 				var result:Object = controlbarPattern.exec(_controlbar.layout);
 				positionLeft(result[1]);
 				positionRight(result[3]);

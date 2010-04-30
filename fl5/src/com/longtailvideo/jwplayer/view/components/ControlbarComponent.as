@@ -8,6 +8,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.player.PlayerState;
 	import com.longtailvideo.jwplayer.plugins.PluginConfig;
 	import com.longtailvideo.jwplayer.utils.Animations;
+	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.Strings;
 	import com.longtailvideo.jwplayer.view.interfaces.IControlbarComponent;
 	
@@ -92,6 +93,8 @@ package com.longtailvideo.jwplayer.view.components {
 		protected var _layoutManager:ControlbarLayoutManager;
 		protected var _width:Number;
 		protected var _height:Number;
+		protected var _timeSlider:Slider;
+		protected var _volSlider:Slider;
 
 		protected var controlbarConfig:PluginConfig;
 		protected var animations:Animations;
@@ -127,17 +130,17 @@ package com.longtailvideo.jwplayer.view.components {
 
 		private function lockHandler(evt:PlayerEvent):void {
 			if (_player.locked) {
-				getSlider('time').lock();
-				getSlider('volume').lock();
+				if (_timeSlider) _timeSlider.lock();
+				if (_volSlider) _volSlider.lock();
 			} else {
-				getSlider('time').unlock();
-				getSlider('volume').unlock();
+				if (_timeSlider) _timeSlider.unlock();
+				if (_volSlider) _volSlider.unlock();
 			}
 		}
 
 
 		private function playlistHandler(evt:PlaylistEvent):void {
-			getSlider('time').reset();
+			if (_timeSlider) _timeSlider.reset();
 			updateControlbarState();
 			redraw();
 		}
@@ -206,10 +209,12 @@ package com.longtailvideo.jwplayer.view.components {
 				newLayout = newLayout.replace('play', 'pause');
 				hideButton('play');
 			} else if (player.state == PlayerState.IDLE) {
-				getSlider('time').reset();
-				getSlider('time').thumbVisible = false;
-				if (_player.playlist.currentItem) {
-					setTime(0, _player.playlist.currentItem.duration);
+				if (_timeSlider) {
+					_timeSlider.reset();
+					_timeSlider.thumbVisible = false;
+					if (_player.playlist.currentItem) {
+						setTime(0, _player.playlist.currentItem.duration);
+					}
 				}
 				hideButton('pause');
 			} else {
@@ -256,7 +261,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		private function mediaHandler(evt:MediaEvent):void {
-			var scrubber:Slider = getSlider('time');
+			var scrubber:Slider = _timeSlider;
 			switch (evt.type) {
 				case MediaEvent.JWPLAYER_MEDIA_BUFFER:
 				case MediaEvent.JWPLAYER_MEDIA_TIME:
@@ -278,7 +283,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		private function updateVolumeSlider(evt:MediaEvent=null):void {
-			var volume:Slider = getSlider('volume');
+			var volume:Slider = _volSlider;
 			if (volume) {
 				if (!_player.config.mute) {
 					volume.setBuffer(100);
@@ -359,7 +364,9 @@ package com.longtailvideo.jwplayer.view.components {
 			addTextField('elapsed');
 			addTextField('duration');
 			addSlider('time', ViewEvent.JWPLAYER_VIEW_CLICK, seekHandler);
+			_timeSlider = getSlider('time');
 			addSlider('volume', ViewEvent.JWPLAYER_VIEW_CLICK, volumeHandler);
+			_volSlider = getSlider('volume');
 		}
 
 
@@ -383,11 +390,15 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		private function addSlider(name:String, event:String, callback:Function, margin:Number=0):void {
-			var slider:Slider = new Slider(getSkinElement(name + "SliderRail"), getSkinElement(name + "SliderBuffer"), getSkinElement(name + "SliderProgress"), getSkinElement(name + "SliderThumb"));
-			slider.addEventListener(event, callback);
-			slider.name = name;
-			slider.tabEnabled = false;
-			_buttons[name] = slider;
+			try {
+				var slider:Slider = new Slider(getSkinElement(name + "SliderRail"), getSkinElement(name + "SliderBuffer"), getSkinElement(name + "SliderProgress"), getSkinElement(name + "SliderThumb"));
+				slider.addEventListener(event, callback);
+				slider.name = name;
+				slider.tabEnabled = false;
+				_buttons[name] = slider;
+			} catch (e:Error) {
+				Logger.log("Could not create " + name + "slider");
+			}
 		}
 
 

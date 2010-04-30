@@ -35,6 +35,11 @@ package com.longtailvideo.jwplayer.view.components {
 		//protected var _height:Number;
 		public function Slider(rail:DisplayObject, buffer:DisplayObject, progress:DisplayObject, thumb:DisplayObject) {
 			super();
+			
+			if (!rail || !buffer || !progress) {
+				throw(new ArgumentError("Required slider elements missing"));
+			}
+			
 			this.buttonMode = true;
 			this.mouseChildren = false;
 			addEventListener(MouseEvent.MOUSE_DOWN, downHandler);
