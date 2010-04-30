@@ -174,6 +174,9 @@
 					case "number":
 						player.media.resize(arg1, arg2);
 						break;
+					case "string":
+						player.media.resize(arg1, arg2);
+						break;
 					default:
 						break;
 				}

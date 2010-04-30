@@ -241,11 +241,15 @@
 	/** Resize the player. **/
 	function resize(player) {
 		return function(width, height) {
-			player.model.width = width;
-			player.model.height = height;
-			player.css("width", width);
-			player.css("height", height);
+			/*$("#"+player.id+"_jwplayer").css("position", 'fixed');
+			$("#"+player.id+"_jwplayer").css("top", '0');
+			$("#"+player.id+"_jwplayer").css("left", '0');
+			$("#"+player.id+"_jwplayer").css("width", width);
+			$("#"+player.id+"_jwplayer").css("height", height);
+			player.model.width = $("#"+player.id+"_jwplayer").width;
+			player.model.height = $("#"+player.id+"_jwplayer").height;*/
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
+				fullscreen: player.model.fullscreen,
 				width: width,
 				hieght: height
 			});
@@ -257,14 +261,9 @@
 		return function(state) {
 			player.model.fullscreen = state;
 			if (state === true) {
-				//player.css("width", window.width);
-				//player.css("height", window.height);
-				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
-					width: player.model.width,
-					hieght: player.model.height
-				});
+				player.resize("100%", "100%");
 			} else {
-				// TODO: exit fullscreen
+				player.resize(player.model.config.width, player.model.config.height);				
 			}
 		};
 	}

@@ -96,6 +96,7 @@
 		bufferlength: 5,
 		start: 0,
 		position: 0,
+		debug: undefined,
 		flashplayer: 'http://developer.longtailvideo.com/player/trunk/html5/assets/player.swf'
 	};
 	
