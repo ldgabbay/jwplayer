@@ -65,12 +65,9 @@
 	**/
 
 	/** The complete list with all current flashvars. **/
-	var variables = {width:500,height:260};
+	var variables = {width:500,height:260,skin:'five'};
 	/** When jQuery is loaded, we initialize everything. **/
-	$().ready(function() { 
-		loadSettings(); 
-		setAPI();
-	});
+	$().ready(function() { loadSettings(); });
 	/** Load the settings and querystring. **/
 	function loadSettings() {
 		// load the settings.
@@ -88,15 +85,19 @@
 		window.top.location.search.replace(/\??(?:([^=]+)=([^&]*)&?)/g,function () {
 			variables[decodeURIComponent(arguments[1])] = decodeURIComponent(arguments[2]);
 		});
+		// Set the handlers on the API calls
+		$("#variablesform").submit(function(evt) { getVariable(evt); });
+		$("#sendeventform").submit(function(evt) { sendEvent(evt); });
+		$("#listenersform").submit(function(evt) { setListener(evt); });
 		// set the value and handler on player, skin and plugins.
 		if(variables['player']) { $('#players').val(variables['player']); }
 		$("#players").change(function(evt) { reloadFieldsets(evt); });
 		if(variables['skin']) { $('#skins').val(variables['skin']); }
-		$("#skins").change(function(evt) { insertPlayer(evt); });
+		$("#skins").change(function(evt) { reloadPage(evt); });
 		//if(variables['plugins']) { $('#plugins').val(variables['plugins'].split(',')); }
 		$("#plugins").change(function(evt) { reloadFieldsets(evt); });
 		// set the handler on the flashvars and load the whole bunch.
-		$("#flashvarsform").submit(function(evt) { insertPlayer(evt); });
+		$("#flashvarsform").submit(function(evt) { reloadPage(evt); });
 		reloadFieldsets();
 	};
 
@@ -213,35 +214,27 @@
 	**/
 
 	/** Print the player on the page. **/
-	function insertPlayer(evt) {
+	function insertPlayer() {
+		variables['skin'] = settings.skins[variables['skin']];
+		var lnk = 'http://developer.longtailvideo.com/player/trunk/html5/test/';
+		$("#permalink").val(lnk+'?'+$.param(variables));
+		$('#container').attr('src',variables['file']);
+		$('#container').jwplayer(variables);
+	};
+	/** Change the page URL. **/
+	function reloadPage(evt) {
 		if(evt) { evt.preventDefault(); }
-		var vrs = {};
 		variables = {}
 		if($("#skins").val() != 'none') {
-			vrs['skin'] = settings.skins[$("#skins").val()];
 			variables['skin'] = $("#skins").val();
-		}
-		if($("#plugins").val() != null) {
-			var plg = [];
-			var arr = $("#plugins").val();
-			for(var i=0; i<arr.length; i++) {
-				plg.push(settings[settings.plugin_api+'_plugins'][arr[i]]);
-			}
-			vrs['plugins'] = plg.join(',');
-			variables['plugins'] = arr.join(',');
 		}
 		var arr = $("#flashvarsform").find('input');
 		for(var i=0; i<arr.length; i++) {
 			if($(arr[i]).val()) {
-				vrs[$(arr[i]).attr('name')] = $(arr[i]).val();
 				variables[$(arr[i]).attr('name')] = $(arr[i]).val();
 			}
 		}
-		var ply = settings.players[$('#players').val()];
-		$('#preview').html('<video id="container" src="'+vrs['file']+'" width="'+vrs['width']+'" height="'+vrs['height']+'">Your browser supports neither HTML5 nor Flash</video>');
-		$('#container').jwplayer(vrs);
-		var lnk = 'http://developer.longtailvideo.com/player/trunk/html5/test/';
-		$("#permalink").val(lnk+'?'+$.param(variables));
+		window.top.location.href = window.top.location.pathname+'?'+$.param(variables);
 	};
 
 
@@ -251,23 +244,19 @@
 	* This section is executed when a user starts interacting with the player API.
 	**/
 
-	/** When the player is ready and the API forms can be shown, display them. **/
-	function setAPI(obj) {
-		$("#variablesform").submit(function(evt) { getVariable(evt); });
-		$("#sendeventform").submit(function(evt) { sendEvent(evt); });
-		$("#listenersform").submit(function(evt) { setListener(evt); });
-	};
 	/** Get a variable from the player. **/
 	function getVariable(evt) {
 		evt.preventDefault();
 		var typ = $('#vartype').val().toString();
 		var prp = $.jwplayer()[typ]();
+		alert(prp);
 	};
 	/** Send an event to the player. **/
 	function sendEvent(evt) {
 		evt.preventDefault();
 		var typ = $('#sendevent').val();
 		var pr1 = $('#sendeventdata1').val();
+		if(pr1 == 'true') { pr1 = true } else if (pr1 == 'false') { pr1 = false; }
 		var pr2 = $('#sendeventdata2').val();
 		if(pr2) {
 			$.jwplayer()[typ](pr1,pr2);
@@ -328,8 +317,8 @@
 				<option>fullscreen</option>
 				<option>height</option>
 				<option>mute</option>
+				<option>position</option>
 				<option>state</option>
-				<option>time</option>
 				<option>volume</option>
 				<option>width</option>
 			</select>
@@ -381,7 +370,9 @@
 
 
 <div id="preview">
-<p>Testing is simple: choose an example, change the flashvars and see if it works.</p>
+	<video id="container" width="400" height="200">
+		Your browser supports neither video nor flash.
+	</video>
 </div>
 
 
