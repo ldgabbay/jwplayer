@@ -7,10 +7,8 @@
  * @lastmodifieddate 2010-04-11
  */
 (function($) {
+	var controlbars = {};
 	
-	var controlbars = {}
-
-
 	/** Hooking the jwplayerControlbar up to jQuery. **/
 	$.fn.jwplayerControlbar = function(player, domelement) {
 		controlbars[player.id] = $.extend({}, $.fn.jwplayerControlbar.defaults, player.config.plugins.controlbar);
@@ -18,12 +16,18 @@
 		buildHandlers(player);
 	};
 	
+	$.fn.jwplayerControlbar.positions = {
+		BOTTOM: 'BOTTOM',
+		TOP: 'TOP',
+		OVER: 'OVER'
+	};
+	
 	
 	/** Map with config for the jwplayerControlbar plugin. **/
 	$.fn.jwplayerControlbar.defaults = {
 		fontsize: 10,
 		fontcolor: '000000',
-		position: 'bottom',
+		position: $.fn.jwplayerControlbar.positions.BOTTOM,
 		leftmargin: 0,
 		rightmargin: 0,
 		scrubber: 'none'
@@ -33,8 +37,17 @@
 	function buildElements(player, domelement) {
 		// Draw the background.
 		domelement.parents(":first").append('<div id="' + player.id + '_jwplayerControlbar"></div>');
-		$("#" + player.id + '_jwplayerControlbar').css('position', 'relative');
+		$("#" + player.id + '_jwplayerControlbar').css('position', 'absolute');
 		$("#" + player.id + '_jwplayerControlbar').css('height', player.skin.controlbar.elements.background.height);
+		switch (controlbars[player.id].position) {
+			case $.fn.jwplayerControlbar.positions.TOP:
+				$("#" + player.id + '_jwplayerControlbar').css('top', 0);
+				break;
+			default:
+				$("#" + player.id + '_jwplayerControlbar').css('top', player.height());
+				domelement.parents(":first").css('height', parseInt(domelement.parents(":first").css('height').replace('px', '')) + player.skin.controlbar.elements.background.height);
+				break;
+		}
 		$("#" + player.id + '_jwplayerControlbar').css('background', 'url(' + player.skin.controlbar.elements.background.src + ') repeat-x center left');
 		// Draw all elements on top of the bar.
 		buildElement('capLeft', 'left', true, player);
@@ -123,6 +136,15 @@
 			width: player.width(),
 			height: player.height()
 		});
+		timeHandler({
+			id: player.id,
+			time: 0,
+			duration: 0
+		});
+		bufferHandler({
+			id: player.id,
+			bufferProgress: 0
+		});
 		muteHandler({
 			id: player.id,
 			mute: player.mute()
@@ -186,13 +208,10 @@
 			evt.stopPropagation();
 			sliderUp(evt.pageX, player);
 		});
-		$(bar).mouseleave(function(evt) {
-			sliderUp(evt.pageX, player);
-			evt.stopPropagation();
-		});
 		$(bar).mousemove(function(evt) {
 			if (controlbars[player.id].scrubber == 'time') {
-				var xps = evt.pageX - $(bar).position().left;
+				controlbars[player.id].mousedown = true;
+				var xps = evt.pageX - $(bar).offset().left;
 				$('#' + player.id + '_timeSliderThumb').css('left', xps);
 			}
 		});
@@ -201,16 +220,20 @@
 	
 	/** The slider has been moved up. **/
 	function sliderUp(msx, player) {
+		controlbars[player.id].mousedown = false;
 		if (controlbars[player.id].scrubber == 'time') {
 			var xps = msx - $('#' + player.id + '_timeSliderRail').offset().left;
 			var wid = $('#' + player.id + '_timeSliderRail').width();
-			var pos = xps / wid * player.duration();
+			var pos = xps / wid * controlbars[player.id].currentDuration;
 			if (pos < 0) {
 				pos = 0;
-			} else if (pos > controlbars[player.id].duration) {
-				pos = controlbars[player.id].duration - 3;
+			} else if (pos > controlbars[player.id].currentDuration) {
+				pos = controlbars[player.id].currentDuration - 3;
 			}
 			player.seek(pos);
+			if (player.model.state != $.fn.jwplayer.states.PLAYING) {
+				player.play();
+			}
 		} else if (controlbars[player.id].scrubber == 'volume') {
 			var xps = msx - $('#' + player.id + '_volumeSliderRail').offset().left;
 			var wid = $('#' + player.id + '_volumeSliderRail').width();
@@ -272,13 +295,15 @@
 			$('#' + event.id + '_timeSliderThumb').css('display', 'none');
 		} else {
 			$('#' + event.id + '_timeSliderBuffer').css('display', 'block');
-			$('#' + event.id + '_timeSliderProgress').css('display', 'block');
-			$('#' + event.id + '_timeSliderThumb').css('display', 'block');
+			if (event.newstate != $.fn.jwplayer.states.BUFFERING) {
+				$('#' + event.id + '_timeSliderProgress').css('display', 'block');
+				$('#' + event.id + '_timeSliderThumb').css('display', 'block');
+			}
 		}
 	}
 	
 	/** Handles event completion **/
-	function completeHandler(event){
+	function completeHandler(event) {
 		timeHandler($.extend(event, {
 			position: 0,
 			duration: controlbars[event.id].currentDuration
@@ -300,7 +325,9 @@
 		var railLeft = $('#' + event.id + '_timeSliderRail').position().left;
 		
 		$('#' + event.id + '_timeSliderProgress').css('width', Math.round(railWidth * progress));
-		$('#' + event.id + '_timeSliderThumb').css('left', railLeft + Math.round((railWidth - thumbWidth) * progress));
+		if (!controlbars[event.id].mousedown) {
+			$('#' + event.id + '_timeSliderThumb').css('left', railLeft + Math.round((railWidth - thumbWidth) * progress));
+		}
 		
 		$('#' + event.id + '_durationText').html(timeFormat(controlbars[event.id].currentDuration));
 		$('#' + event.id + '_elapsedText').html(timeFormat(controlbars[event.id].currentPosition));

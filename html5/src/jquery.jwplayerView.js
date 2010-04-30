@@ -26,55 +26,15 @@
 			'width': player.model.config.width,
 			'margin': 'auto'
 		});
-		player.model.domelement.jwplayerCSS({
+		player.model.domelement.css({
 			'position': 'absolute',
 			'width': player.model.config.width,
 			'height': player.model.config.height,
-			'left': 0,
 			'top': 0,
-			'z-index': 0
-		});
-		player.model.domelement.before("<a href='" + $.fn.jwplayerUtils.getAbsolutePath(player.model.sources[player.model.source].file) + "'><img src='http://content.bitsontherun.com/staticfiles/play.png' alt='Click to play video' style='position:absolute; top:" + (player.model.height - 60) / 2 + "px; left:" + (player.model.width - 60) / 2 + "px; border:0;' /></a>");
-		player.model.domelement.prev("a").jwplayerCSS({
-			'display': 'block',
-			'background': '#ffffff url(' + $.fn.jwplayerUtils.getAbsolutePath(player.model.config.image) + ') no-repeat center center',
-			'width': player.model.width,
-			'height': player.model.height,
-			'position': 'relative',
-			'left': 0,
-			'top': 0,
-			'z-index': 50
-		});
-		player.model.domelement.prev("a").click(function(evt) {
-			if (typeof evt.preventDefault != 'undefined') {
-				evt.preventDefault(); // W3C
-			} else {
-				evt.returnValue = false; // IE
-			}
-			if (player.state() !== $.fn.jwplayer.states.PLAYING) {
-				player.play();
-			} else {
-				player.pause();
-			}
-			
-		});
-		player.state(function(obj) {
-			imageHandler(obj, player);
+			'z-index': 0,
+			margin: 'auto'
 		});
 	};
-	
-	function imageHandler(obj, player) {
-		switch (obj.newstate) {
-			case $.fn.jwplayer.states.IDLE:
-				player.model.domelement.css("z-index", "0");
-				player.model.domelement.prev("a").css("z-index", "50");
-				break;
-			case $.fn.jwplayer.states.PLAYING:
-				player.model.domelement.prev("a").css("z-index", "0");
-				player.model.domelement.css("z-index", "50");
-				break;
-		}
-	}
 	
 	$.fn.jwplayerView.switchMediaProvider = function() {
 	

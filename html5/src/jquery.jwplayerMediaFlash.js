@@ -66,6 +66,7 @@
 	};
 	
 	function stateHandler(event, player) {
+		$.fn.jwplayerUtils.log(event);
 		player.model.state = event.newstate;
 		player.sendEvent($.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, {
 			oldstate: event.oldstate,
@@ -208,7 +209,9 @@
 	/** Load a new video into the player. **/
 	function load(player) {
 		return function(path) {
+			path = $.fn.jwplayerUtils.getAbsolutePath(path);
 			player.model.domelement[0].sendEvent("LOAD", path);
+			player.model.domelement[0].sendEvent("PLAY");
 		};
 	}
 	

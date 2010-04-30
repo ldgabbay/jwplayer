@@ -14,6 +14,12 @@
 		});
 	};
 	
+	//http://old.nabble.com/jQuery-may-add-$.browser.isiPhone-td11163329s27240.html
+	$.fn.jwplayerUtils.isiPhone = function() {
+		var agent = navigator.userAgent.toLowerCase();
+		return agent.match(/iPhone/i);
+	};
+	
 	/** Check if this client supports Flash player 9.0.115+ (FLV/H264). **/
 	$.fn.jwplayerUtils.supportsFlash = function() {
 		var version = '0,0,0,0';
@@ -175,6 +181,9 @@
 	};
 	
 	function isAbsolutePath(path) {
+		if(path === undefined){
+			return;
+		}
 		var protocol = path.indexOf("://");
 		var queryparams = path.indexOf("?");
 		return (protocol > 0 && (queryparams < 0 || (queryparams > protocol)));

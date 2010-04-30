@@ -7,32 +7,80 @@
  * @lastmodifieddate 2010-04-11
  */
 (function($) {
+	/** Map with all players on the page. **/
+	var players = {};
+	
 	/** Hooking the controlbar up to jQuery. **/
 	$.fn.jwplayer = function(options) {
 		return this.each(function() {
-			$.fn.jwplayerUtils.log("setup", this);
-			var model = $.fn.jwplayerModel($(this), options);
-			var player = {
-				model: model
-			};
-			players[model.config.id] = player;
-			player = $.extend(player, api(player));
-			$.fn.jwplayerView(player);
-			$.fn.jwplayerModel.setActiveMediaProvider(player);
- 			$.fn.jwplayerSkinner(player, function() {
-				finishSetup(player);
-			});
+			$.fn.jwplayerUtils.log("Starting setup", this);
+			setupJWPlayer($(this), 0, options);
 		});
 	};
 	
-	function finishSetup(player) {
-		$.fn.jwplayerControlbar($.jwplayer(player.id), player.model.domelement);
-		player.sendEvent($.fn.jwplayer.events.JWPLAYER_READY);
+	function setupJWPlayer(player, step, options) {
+		$.fn.jwplayerUtils.log("Starting step " + step, {
+			player: player,
+			options: options
+		});
+		try {
+			switch (step) {
+				case 0:
+					var model = $.fn.jwplayerModel(player, options);
+					var player = {
+						model: model,
+						listeners: {}
+					};
+					setupJWPlayer(player, step + 1);
+					break;
+				case 1:
+					player.controller = $.fn.jwplayerController(player);
+					players[player.model.config.id] = player;
+					setupJWPlayer($.extend(player, api(player)), step + 1);
+					break;
+				case 2:
+					$.fn.jwplayerView(player);
+					setupJWPlayer(player, step + 1);
+					break;
+				case 3:
+					$.fn.jwplayerModel.setActiveMediaProvider(player);
+					setupJWPlayer(player, step + 1);
+					break;
+				case 4:
+					$.fn.jwplayerSkinner(player, function() {
+						$.fn.jwplayerUtils.log("Skin loading complete", player);
+						setupJWPlayer(player, step + 1);
+					});
+					break;
+				case 5:
+					$.fn.jwplayerDisplay($.jwplayer(player.id), player.model.domelement);
+					setupJWPlayer(player, step + 1);
+					break;
+				case 6:
+					$.fn.jwplayerControlbar($.jwplayer(player.id), player.model.domelement);
+					setupJWPlayer(player, step + 1);
+					break;
+				case 7:
+					player.sendEvent($.fn.jwplayer.events.JWPLAYER_READY);
+					setupJWPlayer(player, step + 1)
+					break;
+				default:
+					if (player.config.autostart === true) {
+						player.play();
+					}
+					if (player.config.repeat) {
+						if ((player.config.repeat.toLowerCase() == 'list') || (player.config.repeat.toLowerCase() == 'always') || (player.config.repeat.toLowerCase() == 'single')) {
+							player.complete(function() {
+								player.play();
+							});
+						}
+					}
+					break;
+			}
+		} catch (err) {
+			$.fn.jwplayerUtils.log("Setup failed at step " + step, err);
+		}
 	}
-	
-	
-	/** Map with all players on the page. **/
-	var players = {};
 	
 	
 	/** Map with config for the controlbar plugin. **/
@@ -45,311 +93,68 @@
 		volume: 90,
 		width: 480,
 		mute: false,
-		flashplayer:'http://developer.longtailvideo.com/player/trunk/html5/assets/player.swf'
+		bufferlength: 5,
+		start: 0,
+		position: 0,
+		flashplayer: 'http://developer.longtailvideo.com/player/trunk/html5/assets/player.swf'
 	};
 	
 	
-	/** Start playback or resume. **/
-	function play(player) {
-		return function() {
-			$.fn.jwplayerController.play(player);
-			return jwplayer(player.id);
-		};
-	}
-	
-	/** Switch the pause state of the player. **/
-	function pause(player) {
-		return function() {
-			$.fn.jwplayerController.pause(player);
-			return jwplayer(player.id);
-		};
-	}
-	
-	
-	/** Seek to a position in the video. **/
-	function seek(player) {
-		return function(arg) {
-			$.fn.jwplayerController.seek(player, arg);
-			return jwplayer(player.id);
-		};
-	}
-	
-	
-	/** Stop playback and loading of the video. **/
-	function stop(player) {
-		return function() {
-			$.fn.jwplayerController.stop(player);
-			return jwplayer(player.id);
-		};
-	}
-	
-	
-	/** Change the video's volume level. **/
-	function volume(player) {
+	/** A factory for API calls that either set listeners or return data **/
+	function dataListenerFactory(player, dataType, eventType) {
 		return function(arg) {
 			switch ($.fn.jwplayerUtils.typeOf(arg)) {
 				case "function":
-					addEventListener(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_VOLUME, arg);
-					break;
-				case "number":
-					$.fn.jwplayerController.volume(player, arg);
-					break;
-				case "string":
-					$.fn.jwplayerController.volume(player, parseInt(arg, 10));
+					if (!$.fn.jwplayerUtils.isNull(eventType)) {
+						player.addEventListener(eventType, arg);
+					}
 					break;
 				default:
-					return $.fn.jwplayerController.volume(player);
+					if (!$.fn.jwplayerUtils.isNull(dataType)) {
+						return player.controller.mediaInfo[dataType];
+					}
+					return player.controller.mediaInfo;
 			}
-			return jwplayer(player.id);
+			return $.jwplayer(player.id);
 		};
 	}
 	
-	/** Switch the mute state of the player. **/
-	function mute(player) {
-		return function(arg) {
-			switch ($.fn.jwplayerUtils.typeOf(arg)) {
-				case "function":
-					addEventListener(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_MUTE, arg);
-					break;
-				case "boolean":
-					$.fn.jwplayerController.mute(player, arg);
-					break;
-				default:
-					return $.fn.jwplayerController.mute(player);
-			}
-			return jwplayer(player.id);
-		};
-	}
-	
-	/** Resizing the player **/
-	function resize(player) {
-		return function(arg1, arg2) {
-			switch ($.fn.jwplayerUtils.typeOf(arg)) {
-				case "function":
-					addEventListener(player, $.fn.jwplayer.events.JWPLAYER_RESIZE, arg);
-					break;
-				case "number":
-					$.fn.jwplayerController.resize(player, arg1, arg2);
-					break;
-				default:
-					break;
-			}
-			return jwplayer(player.id);
-		};
-	}
-	
-	/** Fullscreen the player **/
-	function fullscreen(player) {
-		return function(arg) {
-			switch ($.fn.jwplayerUtils.typeOf(arg)) {
-				case "function":
-					addEventListener(player, $.fn.jwplayer.events.JWPLAYER_FULLSCREEN, arg);
-					break;
-				case "boolean":
-					$.fn.jwplayerController.fullscreen(player, arg);
-					break;
-				default:
-					return $.fn.jwplayerController.fullscreen(player);
-			}
-			return jwplayer(player.id);
-		};
-	}
-	
-	/** Adds a state listener **/
-	function state(player) {
-		return function(arg) {
-			switch ($.fn.jwplayerUtils.typeOf(arg)) {
-				case "function":
-					addEventListener(player, $.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, arg);
-					break;
-				default:
-					return $.fn.jwplayerController.mediaInfo(player).state;
-			}
-			return jwplayer(player.id);
-		};
-	}
-	
-	/** Adds a buffer listener **/
-	function buffer(player) {
-		return function(arg) {
-			switch ($.fn.jwplayerUtils.typeOf(arg)) {
-				case "function":
-					addEventListener(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, arg);
-					break;
-				default:
-					return $.fn.jwplayerController.mediaInfo(player).buffer;
-			}
-			return jwplayer(player.id);
-		};
-	}
-	
-	/** Returns the current time **/
-	function time(player) {
-		return function(arg) {
-			switch ($.fn.jwplayerUtils.typeOf(arg)) {
-				case "function":
-					addEventListener(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, arg);
-					break;
-				default:
-					return $.fn.jwplayerController.mediaInfo(player).time;
-			}
-			return jwplayer(player.id);
-		};
-	}
-	
-	/** Loads a new video into the player **/
-	function load(player) {
-		return function(arg) {
-			switch ($.fn.jwplayerUtils.typeOf(arg)) {
-				case "function":
-					addEventListener(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_LOADED, arg);
-					break;
-				default:
-					$.fn.jwplayerController.load(player, arg);
-			}
-			return jwplayer(player.id);
-		};
-	}
-	
-	/** Adds a listener for video completion **/
-	function complete(player) {
-		return function(arg) {
-			addEventListener(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE, arg);
-			return jwplayer(player.id);
-		};
-	}
-	
-	/** Adds a listener for player ready **/
-	function ready(player) {
-		return function(arg) {
-			addEventListener(player, $.fn.jwplayer.events.JWPLAYER_READY, arg);
-			return jwplayer(player.id);
-		};
-	}
-	
-	/** Returns the duration **/
-	function duration(player) {
-		return function() {
-			return $.fn.jwplayerController.mediaInfo(player).duration;
-		};
-	}
-	
-	/** Adds a listener for media errors. **/
-	function error(player) {
-		return function(arg) {
-			addEventListener(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_ERROR, arg);
-			return jwplayer(player.id);
-		};
-	}
-	
-	
-	/** Returns the width **/
-	function width(player) {
-		return function() {
-			return $.fn.jwplayerController.mediaInfo(player).width;
-		};
-	}
-	
-	
-	/** Returns the height **/
-	function height(player) {
-		return function() {
-			return $.fn.jwplayerController.mediaInfo(player).height;
-		};
-	}
-	
-	/** Returns the available meta-data **/
-	function meta(player) {
-		return function() {
-			switch ($.fn.jwplayerUtils.typeOf(arg)) {
-				case "function":
-					addEventListener(player, $.fn.jwplayer.events.JWPLAYER_MEDIA_META, arg);
-					break;
-				default:
-					return $.fn.jwplayerController.mediaInfo(player);
-			}
-			return jwplayer(player.id);
-		};
-	}
-	
-	/** Returns the API method for adding an event listener.**/
-	function apiAddEventListener(player) {
-		return function(type, listener) {
-			addEventListener(player, type, listener);
-		};
-	}
-	
-	/** Returns the API method for adding an event listener.**/
-	function apiRemoveEventListener(player) {
-		return function(type, listener) {
-			removeEventListener(player, type, listener);
-		};
-	}
-	
-	/** Add an event listener. **/
-	function addEventListener(player, type, listener) {
-		if (player.model.listeners[type] === undefined) {
-			player.model.listeners[type] = [];
-		}
-		player.model.listeners[type].push(listener);
-	}
-	
-	
-	/** Remove an event listener. **/
-	function removeEventListener(player, type, listener) {
-		for (var lisenterIndex in player.model.listeners[type]) {
-			if (player.model.listeners[type][lisenterIndex] == listener) {
-				player.model.listeners[type].slice(lisenterIndex, lisenterIndex + 1);
-				break;
-			}
-		}
-	}
-	
-	/** Send an event **/
-	function sendEvent(player) {
-		return function(type, data) {
-			data = $.extend({
-				id: player.id,
-				version: player.version
-			}, data);
-			//$.fn.jwplayerUtils.log(type, data);
-			for (var listener in player.model.listeners[type]) {
-				player.model.listeners[type][listener](data);
-			}
-		};
-	}
-		
 	
 	function api(player) {
-		if (!$.fn.jwplayerUtils.isNull(player.id)){
+		if (!$.fn.jwplayerUtils.isNull(player.id)) {
 			return player;
 		}
 		return {
+			play: player.controller.play,
+			pause: player.controller.pause,
+			stop: player.controller.stop,
+			seek: player.controller.seek,
+			
+			resize: player.controller.resize,
+			fullscreen: player.controller.fullscreen,
+			volume: player.controller.volume,
+			mute: player.controller.mute,
+			load: player.controller.load,
+			
+			addEventListener: player.controller.addEventListener,
+			removeEventListener: player.controller.removeEventListener,
+			sendEvent: player.controller.sendEvent,
+			
+			ready: dataListenerFactory(player, null, $.fn.jwplayer.events.JWPLAYER_READY),
+			error: dataListenerFactory(player, null, $.fn.jwplayer.events.JWPLAYER_ERROR),
+			complete: dataListenerFactory(player, null, $.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE),
+			state: dataListenerFactory(player, 'state', $.fn.jwplayer.events.JWPLAYER_PLAYER_STATE),
+			buffer: dataListenerFactory(player, 'buffer', $.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER),
+			time: dataListenerFactory(player, 'position', $.fn.jwplayer.events.JWPLAYER_MEDIA_TIME),
+			duration: dataListenerFactory(player, 'duration'),
+			width: dataListenerFactory(player, 'width'),
+			height: dataListenerFactory(player, 'height'),
+			meta: dataListenerFactory(player, null, $.fn.jwplayer.events.JWPLAYER_MEDIA_META),
+			
 			id: player.model.config.id,
-			buffer: buffer(player),
-			duration: duration(player),
-			complete: complete(player),
-			fullscreen: fullscreen(player),
-			height: buffer(player),
-			load: load(player),
-			meta: meta(player),
-			mute: mute(player),
-			pause: pause(player),
-			play: play(player),
-			resize: resize(player),
-			ready: ready(player),
-			seek: seek(player),
-			state: state(player),
-			stop: stop(player),
-			time: time(player),
-			volume: volume(player),
-			width: width(player),
-			skin: player.skin,
 			config: player.model.config,
-			addEventListener: apiAddEventListener(player),
-			removeEventListener: apiRemoveEventListener(player),
-			sendEvent: sendEvent(player),
-			version: '0.1-alpha'
+			version: '0.1-alpha',
+			skin: player.skin
 		};
 	}
 	
@@ -379,7 +184,7 @@
 		//JWPLAYER_UNLOCKED: 'jwplayerLocked',
 		JWPLAYER_ERROR: 'jwplayerError',
 		JWPLAYER_MEDIA_BUFFER: 'jwplayerMediaBuffer',
-		//JWPLAYER_MEDIA_BUFFER_FULL: 'jwplayerMediaBufferFull',
+		JWPLAYER_MEDIA_BUFFER_FULL: 'jwplayerMediaBufferFull',
 		JWPLAYER_MEDIA_ERROR: 'jwplayerMediaError',
 		JWPLAYER_MEDIA_LOADED: 'jwplayerMediaLoaded',
 		JWPLAYER_MEDIA_COMPLETE: 'jwplayerMediaComplete',

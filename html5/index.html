@@ -24,12 +24,19 @@
 <video
 	height="270"
 	id="player1"
-	class="jwplayer"
-	poster="./test/../test/files/bunny.jpg"
-	src="./test/files/bunny.mp4"
+	poster="http://developer.longtailvideo.com/player/trunk/html5/test/files/bunny.jpg"
 	width="480"
 >
+	<source src='test/files/bunny.mp4''>
+
 </video>
+
+<script type="text/javascript">
+	$('#player1').jwplayer({
+		skin:'assets/five/five.xml',
+		repeat: 'list'
+	});
+</script>
 
 <h4>Test 2: manual embed</h4>
 <video
@@ -41,12 +48,12 @@
 >
 </video>
 
+
 <script type="text/javascript">
 	$('#player2').jwplayer({
 		skin:'assets/five/five.xml'
 	});
 </script>
-
 <h4>Test 3: Theora</h4>
 <video
 	id="player3"

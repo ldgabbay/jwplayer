@@ -56,7 +56,8 @@
 			load: load(player),
 			resize: resize(player),
 			state: $.fn.jwplayer.states.IDLE,
-			interval: null
+			interval: null,
+			loadcount: 0
 		};
 		player.media = media;
 		media.mute(player.mute());
@@ -81,7 +82,12 @@
 	function setState(player, newstate) {
 		if (player.model.state != newstate) {
 			var oldstate = player.model.state;
+			player.media.state = newstate;
 			player.model.state = newstate;
+			$.fn.jwplayerUtils.log($.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, {
+				oldstate: oldstate,
+				newstate: newstate
+			});
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, {
 				oldstate: oldstate,
 				newstate: newstate
@@ -100,7 +106,7 @@
 			width: event.target.videoWidth,
 			duration: event.target.duration
 		};
-		if (player.model.duration === 0){
+		if (player.model.duration === 0) {
 			player.model.duration = event.target.duration;
 		}
 		player.model.sources[player.model.source] = $.extend(player.model.sources[player.model.source], meta);
@@ -108,31 +114,66 @@
 	}
 	
 	function positionHandler(event, player) {
-		if (player.media.interval === null) {
-			player.media.interval = window.setInterval(function() {
-				positionHandler(event, player);
-			}, 100);
+		if (!$.fn.jwplayerUtils.isNull(event.target)) {
+			if (player.model.duration === 0) {
+				player.model.duration = event.target.duration;
+			}
+			
+			if (!$.fn.jwplayerUtils.isNull(event.target.currentTime)) {
+				player.model.position = event.target.currentTime;
+			}
+			if (player.media.state == $.fn.jwplayer.states.PLAYING) {
+				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
+					position: event.target.currentTime,
+					duration: event.target.duration
+				});
+			}
 		}
-		if (player.model.duration  === 0){
-			player.model.duration = event.target.duration;
-		}
-		player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
-			position: event.target.currentTime,
-			duration: event.target.duration
-		});
+		
 	}
 	
 	function progressHandler(event, player) {
-		var buffer;
+		var bufferPercent, bufferTime, bufferFill;
 		if (!isNaN(event.loaded / event.total)) {
-			buffer = event.loaded / event.total * 100;
+			bufferPercent = event.loaded / event.total * 100;
+			bufferTime = bufferPercent / 100 * player.model.duration;
 		} else if (player.model.domelement[0].buffered !== undefined) {
-			buffer = player.model.domelement[0].buffered.end(0) / player.model.domelement[0].duration * 100;
+			maxBufferIndex = 0;
+			if (maxBufferIndex >= 0) {
+				bufferPercent = player.model.domelement[0].buffered.end(maxBufferIndex) / player.model.domelement[0].duration * 100;
+				bufferTime = player.model.domelement[0].buffered.end(maxBufferIndex) - player.model.position;
+			}
 		}
-		player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
-			'bufferPercent': buffer
-		});
+		
+		bufferFill = bufferTime / player.model.config.bufferlength * 100;
+		
+		if (bufferFill < 25 && player.media.state == $.fn.jwplayer.states.PLAYING) {
+			player.media.bufferFull = false;
+			player.model.domelement[0].pause();
+			setState(PlayerState.BUFFERING);
+		} else if (bufferFill > 95 && player.media.state == $.fn.jwplayer.states.BUFFERING && player.media.bufferFull === false && bufferTime > 0) {
+			player.media.bufferFull = true;
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER_FULL, {});
+		}
+		
+		if (!player.media.bufferingComplete) {
+			if (bufferPercent == 100 && player.media.bufferingComplete === false) {
+				player.media.bufferingComplete = true;
+			}
+			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
+				'bufferPercent': bufferPercent
+			});
+		}
 	}
+	
+	function startInterval(player) {
+		if (player.media.interval === null) {
+			player.media.interval = window.setInterval(function() {
+				positionHandler({}, player);
+			}, 100);
+		}
+	}
+	
 	
 	function errorHandler(event, player) {
 		player.sendEvent($.fn.jwplayer.events.JWPLAYER_ERROR, {});
@@ -140,7 +181,10 @@
 	
 	function play(player) {
 		return function() {
-			player.model.domelement[0].play();
+			if (player.media.state != $.fn.jwplayer.states.PLAYING) {
+				setState(player, $.fn.jwplayer.states.PLAYING);
+				player.model.domelement[0].play();
+			}
 		};
 	}
 	
@@ -166,7 +210,7 @@
 			player.model.domelement[0].pause();
 			player.model.domelement[0].currentTime = 0;
 			clearInterval(player.media.interval);
-			player.media.interval = null;
+			player.media.interval = undefined;
 			setState(player, $.fn.jwplayer.states.IDLE);
 		};
 	}
@@ -213,11 +257,11 @@
 		return function(state) {
 			player.model.fullscreen = state;
 			if (state === true) {
-				player.css("width", window.width);
-				player.css("height", window.height);
+				//player.css("width", window.width);
+				//player.css("height", window.height);
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
-					width: width,
-					hieght: height
+					width: player.model.width,
+					hieght: player.model.height
 				});
 			} else {
 				// TODO: exit fullscreen
@@ -228,7 +272,25 @@
 	/** Load a new video into the player. **/
 	function load(player) {
 		return function(path) {
+			path = $.fn.jwplayerUtils.getAbsolutePath(path);
+			$.fn.jwplayerUtils.log("replay:" + player.model.domelement[0].src + ":" + path + ":" + (path == player.model.domelement[0].src));
+			if (path == player.model.domelement[0].src && player.media.loadcount > 0) {
+				setState(player, $.fn.jwplayer.states.BUFFERING);
+				setState(player, $.fn.jwplayer.states.PLAYING);
+				player.model.domelement[0].currentTime = player.config.start;
+				//player.model.domelement[0].paused = false;
+				return;
+			} else if (path != player.model.domelement[0].src) {
+				player.media.loadcount = 0;
+			}
+			player.media.loadcount++;
+			player.media.bufferFull = false;
+			player.media.bufferingComplete = false;
+			setState(player, $.fn.jwplayer.states.BUFFERING);
 			player.model.domelement[0].src = path;
+			startInterval(player);
+			player.model.domelement[0].currentTime = player.config.start;
 		};
 	}
+	
 })(jQuery);

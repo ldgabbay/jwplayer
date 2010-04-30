@@ -34,8 +34,8 @@
 	
 	var parsers = {};
 	
-	$.fn.jwplayerParse = function(player, options) {
-		return $.extend(true, {}, $.fn.jwplayer.defaults, options, parseElement(player));
+	$.fn.jwplayerParse = function(player) {
+		return parseElement(player);
 	};
 	
 	function getAttributeList(elementType, attributes) {
@@ -79,6 +79,9 @@
 				'file': configuration.file
 			};
 		}
+		if (!$.fn.jwplayerUtils.isiPhone()) {
+			domElement.src = undefined;
+		} 
 		configuration.sources = sources;
 		return configuration;
 	}
@@ -91,7 +94,7 @@
 	function parseVideoElement(domElement, attributes) {
 		attributes = getAttributeList('video', attributes);
 		var result = parseMediaElement(domElement, attributes);
-		if (!$.fn.jwplayerUtils.isNull($(domElement).attr('poster'))){
+		if (!$.fn.jwplayerUtils.isNull($(domElement).attr('poster')) && !$.fn.jwplayerUtils.isiPhone()){
 			$(domElement).removeAttr('poster');
 		}
 		return result;

@@ -12,6 +12,7 @@
 		volume: 100,
 		fullscreen: false,
 		mute: false,
+		start: 0,
 		width: 480,
 		height: 320,
 		duration: 0
@@ -20,7 +21,6 @@
 	function createModel() {
 		return {
 			sources: {},
-			listeners: {},
 			state: $.fn.jwplayer.states.IDLE,
 			source: 0,
 			buffer: 0
@@ -30,7 +30,7 @@
 	
 	$.fn.jwplayerModel = function(domElement, options) {
 		var model = createModel();
-		model.config = $.fn.jwplayerParse(domElement[0], options);
+		model.config = $.extend(true, {}, $.fn.jwplayer.defaults, $.fn.jwplayerParse(domElement[0]), options);
 		if ($.fn.jwplayerUtils.isNull(model.config.id)) {
 			model.config.id = "jwplayer_" + jwplayerid++;
 		}
@@ -44,6 +44,7 @@
 				model[modelParam] = modelParams[modelParam];
 			}
 		}
+		//model = $.extend(true, {}, , model);
 		return model;
 	};
 	
