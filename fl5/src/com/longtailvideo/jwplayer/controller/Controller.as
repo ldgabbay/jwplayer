@@ -148,17 +148,17 @@ package com.longtailvideo.jwplayer.controller {
 			if (!locking && _setupComplete && !_setupFinalized) {
 				_setupFinalized = true;
 
-				_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, playlistLoadHandler);
 				_player.addEventListener(ErrorEvent.ERROR, errorHandler);
-				_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, playlistItemHandler);
-				
-				_model.addEventListener(MediaEvent.JWPLAYER_MEDIA_COMPLETE, completeHandler);
+
+				_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, playlistLoadHandler, false, 1000);
+				_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, playlistItemHandler, false, 1000);
+				_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_COMPLETE, completeHandler, false, 1000);
 				
 				dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_READY));
 
 				// Broadcast playlist loaded (which was swallowed during player setup);
 				if (_model.playlist.length > 0) {
-					dispatchEvent(new PlaylistEvent(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, _model.playlist));
+					_model.dispatchEvent(new PlaylistEvent(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, _model.playlist));
 				}
 
 				
@@ -195,6 +195,7 @@ package com.longtailvideo.jwplayer.controller {
 
 		protected function playlistItemHandler(evt:PlaylistEvent):void {
 			_model.config.item = _model.playlist.currentIndex;
+			load(_model.playlist.currentItem);
 		}
 
 
@@ -344,7 +345,6 @@ package com.longtailvideo.jwplayer.controller {
 			if (_model.playlist.currentItem) {
 				switch (_player.state) {
 					case PlayerState.IDLE:
-						load(_model.playlist.currentItem);
 						_model.media.addEventListener(MediaEvent.JWPLAYER_MEDIA_BUFFER_FULL, bufferFullHandler);
 						_model.media.load(_model.playlist.currentItem);
 						break;
@@ -598,7 +598,6 @@ package com.longtailvideo.jwplayer.controller {
 				_delayedItem = null;
 				play();
 			} else {
-				_delayedItem = null;
 				_model.setMediaProvider(_model.playlist.currentItem.provider, loader.loadedSource);				
 			}
 		}

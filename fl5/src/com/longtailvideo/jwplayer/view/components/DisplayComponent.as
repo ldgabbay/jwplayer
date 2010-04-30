@@ -2,6 +2,7 @@
 	import com.longtailvideo.jwplayer.events.MediaEvent;
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
 	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
+	import com.longtailvideo.jwplayer.events.PlaylistEvent;
 	import com.longtailvideo.jwplayer.events.ViewEvent;
 	import com.longtailvideo.jwplayer.player.IPlayer;
 	import com.longtailvideo.jwplayer.player.PlayerState;
@@ -30,6 +31,7 @@
 		protected var _rotateInterval:Number;
 		protected var _bufferIcon:Sprite;
 		protected var _rotate:Boolean = true;
+		protected var _youtubeMask:MovieClip;
 		
 		
 		public function DisplayComponent(player:IPlayer) {
@@ -40,10 +42,20 @@
 		}
 		
 		
+		private function itemHandler(evt:PlaylistEvent):void {
+			setDisplay(_icons['play'], '');
+			if (_player.playlist.currentItem && _player.playlist.currentItem.provider == "youtube") {
+				this.mask = _youtubeMask;
+			} else {
+				this.mask = null;
+			}
+		}
+		
 		private function addListeners():void {
 			player.addEventListener(MediaEvent.JWPLAYER_MEDIA_MUTE, stateHandler);
 			player.addEventListener(PlayerStateEvent.JWPLAYER_PLAYER_STATE, stateHandler);
 			player.addEventListener(PlayerEvent.JWPLAYER_ERROR, errorHandler);
+			player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, itemHandler);
 			addEventListener(MouseEvent.CLICK, clickHandler);
 			this.buttonMode = true;
 			this.mouseChildren = false;
@@ -71,6 +83,8 @@
 			text.transform.colorTransform = textColorTransform;
 			text.gridFitType = GridFitType.NONE;
 			addChildAt(text, 2);
+			
+			_youtubeMask = new MovieClip();
 		}
 		
 		
@@ -129,8 +143,15 @@
 		
 		
 		public function resize(width:Number, height:Number):void {
-			background.width = width;
-			background.height = height;
+			_background.width = width;
+			_background.height = height;
+			
+			_youtubeMask.graphics.clear();
+			_youtubeMask.graphics.beginFill(0x00AA00, 1);
+			_youtubeMask.graphics.drawRect(0, 0, width-90, height);
+			_youtubeMask.graphics.drawRect(0, 0, width, height-45);
+			_youtubeMask.graphics.endFill();
+			
 			positionIcon();
 			positionText();
 			stateHandler();
@@ -255,10 +276,8 @@
 			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_CLICK));
 			if (player.state == PlayerState.PLAYING || player.state == PlayerState.BUFFERING) {
 				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_PAUSE));
-				player.pause();
 			} else {
 				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_PLAY));
-				player.play();
 			}
 		}
 		

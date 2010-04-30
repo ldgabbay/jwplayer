@@ -35,6 +35,7 @@ package com.longtailvideo.jwplayer.view {
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
+	import flash.events.MouseEvent;
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
 
@@ -185,7 +186,7 @@ package com.longtailvideo.jwplayer.view {
 			_plugins = {};
 			
 		}
-		
+			
 		protected function setupLogo():void {
 			_logo = new Logo(_player);
 		}
@@ -224,14 +225,15 @@ package com.longtailvideo.jwplayer.view {
 
 
 		protected function setupComponents():void {
+			var n:Number = 0;
+			
 			_components = new PlayerComponents(_player);
 
-			setupComponent(_components.display, 0);
-			setupComponent(_components.playlist, 1);
-			setupComponent(_logo, 2);
-			setupComponent(_components.controlbar, 3);
-			setupComponent(_components.dock, 4);
-			
+			setupComponent(_components.display, n++);
+			setupComponent(_components.playlist, n++);
+			setupComponent(_logo, n++);
+			setupComponent(_components.controlbar, n++);
+			setupComponent(_components.dock, n++);
 		}
 
 
@@ -405,18 +407,16 @@ package com.longtailvideo.jwplayer.view {
 			while (_mediaLayer.numChildren) {
 				_mediaLayer.removeChildAt(0);
 			}
+			while (_imageLayer.numChildren) {
+				_imageLayer.removeChildAt(0);
+			}
 			if (_model.playlist.currentItem && _model.playlist.currentItem.image) {
 				loadImage(_model.playlist.currentItem.image);
-
 			}
 		}
 
 
 		protected function loadImage(url:String):void {
-			while (_imageLayer.numChildren) {
-				_imageLayer.removeChildAt(0);
-			}
-
 			_image.load(new URLRequest(url), new LoaderContext(true));
 		}
 

@@ -6,7 +6,9 @@ package com.longtailvideo.jwplayer.player {
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
 	import com.longtailvideo.jwplayer.utils.Logger;
 	
+	import flash.events.TimerEvent;
 	import flash.external.ExternalInterface;
+	import flash.utils.Timer;
 
 	public class JavascriptAPI {
 		private var _player:IPlayer;
@@ -29,20 +31,25 @@ package com.longtailvideo.jwplayer.player {
 			setupListeners();
 		}
 		
+		/** Delay the response to PlayerReady to allow the external interface to initialize in some browsers **/
 		private function playerReady(evt:PlayerEvent):void {
-			var callbacks:String = _player.config.playerready ? _player.config.playerready + "," + "playerReady" : "playerReady";  
-
-			if (ExternalInterface.available) {
-				for each (var callback:String in callbacks.replace(/\s/,"").split(",")) {
-					try {
-						ExternalInterface.call(callback,{
-							id:evt.id,
-							client:evt.client,
-							version:evt.version
-						});
-					} catch (e:Error) {}
+			var timer:Timer = new Timer(50, 1);
+			timer.addEventListener(TimerEvent.TIMER_COMPLETE, function(timerEvent:TimerEvent):void {
+				var callbacks:String = _player.config.playerready ? _player.config.playerready + "," + "playerReady" : "playerReady";  
+	
+				if (ExternalInterface.available) {
+					for each (var callback:String in callbacks.replace(/\s/,"").split(",")) {
+						try {
+							ExternalInterface.call(callback,{
+								id:evt.id,
+								client:evt.client,
+								version:evt.version
+							});
+						} catch (e:Error) {}
+					}
 				}
-			}			
+			});
+			timer.start();
 		}
 		
 		private function setupListeners():void {

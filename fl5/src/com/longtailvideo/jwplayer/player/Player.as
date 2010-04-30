@@ -81,8 +81,7 @@
 			view.addGlobalListener(forward);
 			controller.addGlobalListener(forward);
 
-			// Insert a delay to allow Javascript listeners to initialize 
-			setTimeout(forward, 50, evt);
+			forward(evt);
 		}
 		
 		

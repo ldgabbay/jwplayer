@@ -103,6 +103,11 @@ package com.longtailvideo.jwplayer.model {
 				return;
 			}
 			if (newList.length > 0) {
+				for each(var item:PlaylistItem in newList) {
+					if (!item.provider) {
+						item.provider = JWParser.getProvider(item);
+					}
+				}
 				list = newList;
 				index = 0;
 				dispatchEvent(new PlaylistEvent(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, this));
