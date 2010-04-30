@@ -254,7 +254,11 @@ package com.longtailvideo.jwplayer.view {
 
 
 		public function fullscreen(mode:Boolean=true):void {
-			RootReference.stage.displayState = mode ? StageDisplayState.FULL_SCREEN : StageDisplayState.NORMAL;
+			try {
+				RootReference.stage.displayState = mode ? StageDisplayState.FULL_SCREEN : StageDisplayState.NORMAL;
+			} catch (e:Error) {
+				Logger.log("Could not enter fullscreen mode: " + e.message);
+			}
 		}
 
 

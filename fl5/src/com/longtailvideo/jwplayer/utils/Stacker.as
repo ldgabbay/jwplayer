@@ -1,6 +1,7 @@
 package com.longtailvideo.jwplayer.utils {
     import flash.display.DisplayObject;
     import flash.display.MovieClip;
+    import flash.display.Sprite;
 
     public class Stacker {
         /** Reference to the clip to stack. **/
@@ -80,6 +81,7 @@ package com.longtailvideo.jwplayer.utils {
                 if (stack[i].w > width / 4) {
                     stack[i].c.width = Math.abs(stack[i].w + rdf + ldf);
                 }
+				stack[i].c.tabIndex = i + 1;
             }
             // if gaps were closed, move all rightside stuff to fill the width.
             var dif:Number = latest - width - rdf;

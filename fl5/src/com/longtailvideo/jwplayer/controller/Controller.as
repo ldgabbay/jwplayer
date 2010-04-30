@@ -150,9 +150,9 @@ package com.longtailvideo.jwplayer.controller {
 
 				_player.addEventListener(ErrorEvent.ERROR, errorHandler);
 
-				_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, playlistLoadHandler, false, 1000);
+				_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, playlistLoadHandler, false, -1);
 				_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, playlistItemHandler, false, 1000);
-				_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_COMPLETE, completeHandler, false, 1000);
+				_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_COMPLETE, completeHandler, false);
 				
 				dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_READY));
 

@@ -371,6 +371,7 @@ package com.longtailvideo.jwplayer.view.components {
 			button.setBackground(getSkinElement(name + "ButtonBack"));
 			button.outColor = player.config.lightcolor;
 			button.overColor = player.config.backcolor;
+			button.tabEnabled = true;
 			button.clickFunction = function():void {
 				forward(new ViewEvent(event, eventData));
 			}
@@ -385,6 +386,7 @@ package com.longtailvideo.jwplayer.view.components {
 			var slider:Slider = new Slider(getSkinElement(name + "SliderRail"), getSkinElement(name + "SliderBuffer"), getSkinElement(name + "SliderProgress"), getSkinElement(name + "SliderThumb"));
 			slider.addEventListener(event, callback);
 			slider.name = name;
+			slider.tabEnabled = false;
 			_buttons[name] = slider;
 		}
 

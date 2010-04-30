@@ -76,6 +76,8 @@ package com.longtailvideo.jwplayer.view.components {
 			skin = _player.skin.getSWFSkin().getChildByName('controlbar') as Sprite;
 			skin.x = 0;
 			skin.y = 0;
+			skin.tabChildren = true;
+			skin.tabEnabled = false;
 			addChild(skin);
 			_player.addEventListener(PlayerStateEvent.JWPLAYER_PLAYER_STATE, stateHandler);
 			_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_TIME, timeHandler);
@@ -114,7 +116,6 @@ package com.longtailvideo.jwplayer.view.components {
 				btn.name = name + 'Button';
 				btn.visible = true;
 				btn.tabEnabled = true;
-				btn.tabIndex = 6;
 				var acs:AccessibilityProperties = new AccessibilityProperties();
 				acs.name = name + 'Button';
 				btn.accessibilityProperties = acs;
@@ -310,6 +311,7 @@ package com.longtailvideo.jwplayer.view.components {
 			for (var sld:String in SLIDERS) {
 				if (getSkinComponent(sld)) {
 					(getSkinComponent(sld) as MovieClip).mouseChildren = false;
+					(getSkinComponent(sld) as MovieClip).tabEnabled = false;
 					(getSkinComponent(sld) as MovieClip).buttonMode = true;
 					getSkinComponent(sld).addEventListener(MouseEvent.MOUSE_DOWN, downHandler);
 					getSkinComponent(sld).addEventListener(MouseEvent.MOUSE_OVER, overHandler);
