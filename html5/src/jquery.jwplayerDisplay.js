@@ -62,11 +62,6 @@
 			case $.fn.jwplayer.states.BUFFERING:
 				displays[obj.id].displayIconBackground.css("display", "block");
 				displays[obj.id].displayIcon[0].src = player.skin.display.elements.bufferIcon.src;
-				$.fn.jwplayerUtils.log("offset", {
-					"display": "block",
-					top: (player.skin.display.elements.background.height - player.skin.display.elements.bufferIcon.height) / 2 + "px",
-					left: (player.skin.display.elements.background.width - player.skin.display.elements.bufferIcon.width) / 2 + "px"
-				});
 				displays[obj.id].displayIcon.css({
 					"display": "block",
 					top: (player.skin.display.elements.background.height - player.skin.display.elements.bufferIcon.height) / 2 + "px",

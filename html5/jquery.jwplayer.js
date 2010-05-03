@@ -735,10 +735,6 @@
 	};
 	
 	function setupJWPlayer(player, step, options) {
-		$.fn.jwplayerUtils.log("Starting step " + step, {
-			player: player,
-			options: options
-		});
 		try {
 			switch (step) {
 				case 0:
@@ -764,7 +760,6 @@
 					break;
 				case 4:
 					$.fn.jwplayerSkinner(player, function() {
-						$.fn.jwplayerUtils.log("Skin loading complete", player);
 						setupJWPlayer(player, step + 1);
 					});
 					break;
@@ -924,6 +919,20 @@
 	
 })(jQuery);
 /**
+ * JW Player Defaul
+ *
+ * @author jeroen
+ * @version 1.0alpha
+ * @lastmodifiedauthor zach
+ * @lastmodifieddate 2010-04-11
+ */
+(function($) {
+
+	/** Constructor **/
+	$.fn.jwplayerDefaultSkin = '<?xml version="1.0" ?><skin author="LongTail Video" name="Five" version="1.0"><settings><setting name="backcolor" value="0xFFFFFF"/><setting name="frontcolor" value="0x000000"/><setting name="lightcolor" value="0x000000"/><setting name="screencolor" value="0x000000"/></settings><components><component name="controlbar"><settings><setting name="margin" value="20"/><setting name="fontsize" value="11"/></settings><elements><element name="background" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAFJJREFUeNrslLENwAAIwxLU/09j5AiOgD5hVQzNAVY8JK4qEfHMIKBnd2+BQlBINaiRtL/aV2rdzYBsM6CIONbI1NZENTr3RwdB2PlnJgJ6BRgA4hwu5Qg5iswAAAAASUVORK5CYII=\')"/><element name="capLeft" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAYCAIAAAC0rgCNAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAD5JREFUeNosi8ENACAMAgnuv14H0Z8asI19XEjhOiKCMmibVgJTUt7V6fe9KXOtSQCfctJHu2q3/ot79hNgANc2OTz9uTCCAAAAAElFTkSuQmCC\')"/><element name="capRight" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAYCAIAAAC0rgCNAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAD5JREFUeNosi8ENACAMAgnuv14H0Z8asI19XEjhOiKCMmibVgJTUt7V6fe9KXOtSQCfctJHu2q3/ot79hNgANc2OTz9uTCCAAAAAElFTkSuQmCC\')"/><element name="divider" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAYCAIAAAC0rgCNAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAD5JREFUeNosi8ENACAMAgnuv14H0Z8asI19XEjhOiKCMmibVgJTUt7V6fe9KXOtSQCfctJHu2q3/ot79hNgANc2OTz9uTCCAAAAAElFTkSuQmCC\')"/><element name="playButton" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAYCAYAAAAVibZIAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAEhJREFUeNpiYqABYBo1dNRQ+hr6H4jvA3E8NS39j4SpZvh/LJig4YxEGEqy3kET+w+AOGFQRhTJhrEQkGcczfujhg4CQwECDADpTRWU/B3wHQAAAABJRU5ErkJggg==\')"/><element name="pauseButton" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAYCAYAAAAVibZIAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAChJREFUeNpiYBgFo2DwA0YC8v/R1P4nRu+ooaOGUtnQUTAKhgIACDAAFCwQCfAJ4gwAAAAASUVORK5CYII=\')"/><element name="prevButton" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAYCAYAAAAVibZIAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAEtJREFUeNpiYBgFo2Dog/9QDAPyQHweTYwiQ/2B+D0Wi8g2tB+JTdBQRiIMJVkvEy0iglhDF9Aq9uOpHVEwoE+NJDUKRsFgAAABBgDe2hqZcNNL0AAAAABJRU5ErkJggg==\')"/><element name="nextButton" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAYCAYAAAAVibZIAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAElJREFUeNpiYBgFo2Dog/9AfB6I5dHE/lNqKAi/B2J/ahsKw/3EGMpIhKEk66WJoaR6fz61IyqemhEFSlL61ExSo2AUDAYAEGAAiG4hj+5t7M8AAAAASUVORK5CYII=\')"/><element name="timeSliderRail" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAADxJREFUeNpiYBgFo2AU0Bwwzluw+D8tLWARFhKiqQ9YuLg4aWsBGxs7bS1gZ6e5BWyjSX0UjIKhDgACDABlYQOGh5pYywAAAABJRU5ErkJggg==\')"/><element name="timeSliderBuffer" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAD1JREFUeNpiYBgFo2AU0Bww1jc0/aelBSz8/Pw09QELOzs7bS1gY2OjrQWsrKy09gHraFIfBaNgqAOAAAMAvy0DChXHsZMAAAAASUVORK5CYII=\')"/><element name="timeSliderProgress" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAClJREFUeNpiYBgFo2AU0BwwAvF/WlrARGsfjFow8BaMglEwCugAAAIMAOHfAQunR+XzAAAAAElFTkSuQmCC\')"/><element name="timeSliderThumb" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAICAYAAAA870V8AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAABZJREFUeNpiZICA/yCCiQEJUJcDEGAAY0gBD1/m7Q0AAAAASUVORK5CYII=\')"/><element name="muteButton" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAYCAYAAADKx8xXAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAADFJREFUeNpiYBgFIw3MB+L/5Gj8j6yRiRTFyICJXHfTXyMLAXlGati4YDRFDj8AEGAABk8GSqqS4CoAAAAASUVORK5CYII=\')"/><element name="unmuteButton" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAYCAYAAADKx8xXAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAD1JREFUeNpiYBgFgxz8p7bm+cQa+h8LHy7GhEcjIz4bmAjYykiun/8j0fakGPIfTfPgiSr6aB4FVAcAAQYAWdwR1G1Wd2gAAAAASUVORK5CYII=\')"/><element name="volumeSliderRail" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAYCAYAAADkgu3FAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAGpJREFUeNpi/P//PwM9ABMDncCoRYPfIqqDZcuW1UPp/6AUDcNM1DQYKtRAlaAj1mCSLSLXYIIWUctgDItoZfDA5aOoqKhGEANIM9LVR7SymGDQUctikuOIXkFNdhHEOFrDjlpEd4sAAgwAriRMub95fu8AAAAASUVORK5CYII=\')"/><element name="volumeSliderProgress" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAYCAYAAADkgu3FAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAFtJREFUeNpi/P//PwM9ABMDncCoRYPfIlqAeij9H5SiYZiqBqPTlFqE02BKLSLaYFItIttgQhZRzWB8FjENiuRJ7aAbsMQwYMl7wDIsWUUQ42gNO2oR3S0CCDAAKhKq6MLLn8oAAAAASUVORK5CYII=\')"/><element name="fullscreenButton" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAE5JREFUeNpiYBgFo2DQA0YC8v/xqP1PjDlMRDrEgUgxkgHIlfZoriVGjmzLsLFHAW2D6D8eA/9Tw7L/BAwgJE90PvhPpNgoGAVDEQAEGAAMdhTyXcPKcAAAAABJRU5ErkJggg==\')"/><element name="normalscreenButton" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAEZJREFUeNpiYBgFo2DIg/9UUkOUAf8JiFFsyX88fJyAkcQgYMQjNkzBoAgiezyRbE+tFGSPxQJ7auYBmma0UTAKBhgABBgAJAEY6zON61sAAAAASUVORK5CYII=\')"/></elements></component><component name="display"><elements><element name="background" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAEpJREFUeNrszwENADAIA7DhX8ENoBMZ5KR10EryckCJiIiIiIiIiIiIiIiIiIiIiIh8GmkRERERERERERERERERERERERGRHSPAAPlXH1phYpYaAAAAAElFTkSuQmCC\')"/><element name="playIcon" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAALdJREFUeNrs18ENgjAYhmFouDOCcQJGcARHgE10BDcgTOIosAGwQOuPwaQeuFRi2p/3Sb6EC5L3QCxZBgAAAOCorLW1zMn65TrlkH4NcV7QNcUQt7Gn7KIhxA+qNIR81spOGkL8oFJDyLJRdosqKDDkK+iX5+d7huzwM40xptMQMkjIOeRGo+VkEVvIPfTGIpKASfYIfT9iCHkHrBEzf4gcUQ56aEzuGK/mw0rHpy4AAACAf3kJMACBxjAQNRckhwAAAABJRU5ErkJggg==\')"/><element name="muteIcon" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAHJJREFUeNrs1jEOgCAMBVAg7t5/8qaoIy4uoobyXsLCxA+0NCUAAADGUWvdQoQ41x4ixNBB2hBvBskdD3w5ZCkl3+33VqI0kjBBlh9rp+uTcyOP33TnolfsU85XX3yIRpQph8ZQY3wTZtU5AACASA4BBgDHoVuY1/fvOQAAAABJRU5ErkJggg==\')"/><element name="errorIcon" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAWlJREFUeNrsl+1twjAQhsHq/7BBYQLYIBmBDcoGMAIjtBPQTcII2SDtBDBBwrU6pGsUO7YbO470PtKJkz9iH++d4ywWAAAAAABgljRNsyWr2bZzDuJG1rLdZhcMbTjrBCGDyUKsqQLFciJb9bSvuG/WagRVRUVUI6gqy5HVeKWfSgRyJruKIU//TrZTSn2nmlaXThrloi/v9F2STC1W4+Aw5cBzkquRc09bofFNc6YLxEON0VUZS5FPTftO49vMjRsIF3RhOGr7/D/pJw+FKU+q0vDyq8W42jCunDqI3LC5XxNj2wHLU1XjaRnb0Lhykhqhhd8MtSF5J9tbjCv4mXGvKJz/65FF/qJryyaaIvzP2QRxZTX2nTuXjvV/VPFSwyLnW7mpH99yTh1FEVro6JBSd40/pMrRdV8vPtcKl28T2pT8TnFZ4yNosct3Q0io6JfBiz1FlGdqVQH3VHnepAEAAAAAADDzEGAAcTwB10jWgxcAAAAASUVORK5CYII=\')"/><element name="bufferIcon" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAuhJREFUeNrsWr9rU1EUznuNGqvFQh1ULOhiBx0KDtIuioO4pJuik3FxFfUPaAV1FTdx0Q5d2g4FFxehTnEpZHFoBy20tCIWtGq0TZP4HfkeHB5N8m6Sl/sa74XDybvv3vvOd8/Pe4lXrVZT3dD8VJc0B8QBcUAcEAfESktHGeR5XtMfqFQq/f92zPe/NbtGlKTdCY30kuxrpMGO94BlQCXs+rbh3ONgA6BlzP1p20d80gEI5hmA2A92Qua1Q2PtAFISM+bvjMG8U+Q7oA3rQGASwrYCU6WpNdLGYbA+Pq5jjXIiwi8EEa2UDbQSaKOIuV+SlkcCrfjY8XTI9EpKGwP0C2kru2hLtHqa4zoXtZRWyvi4CLwv9Opr6Hkn6A9HKgEANsQ1iqC3Ub/vRUk2JgmRkatK36kVrnt0qObunwUdUUMXMWYpakJsO5Am8tAw2GBIgwWA+G2S2dMpiw0gDioQRQJoKhRb1QiDwlHZUABYbaXWsm5ae6loTE4ZDxN4CZar8foVzOJ2iyZ2kWF3t7YIevffaMT5yJ70kQb2fQ1sE5SHr2wazs2wgMxgbsEKEAgxAvZUJbQLBGTSBMgNrncJbA6AljtS/eKDJ0Ez+DmrQEzXS2h1Ck25kAg0IZcUOaydCy4sYnN2fOA+2AP16gNoHALlQ+fwH7XO4CxLenUpgj4xr6ugY2roPMbMx+Xs18m/E8CVEIhxsNeg83XWOAN6grG3lGbk8uE5fr4B/WH3cJw+co/l9nTYsSGYCJ/lY5/qv0thn6nrIWmjeJcPSnWOeY++AkF8tpJHIMAUs/MaBBpj3znZfQo5psY+ZrG4gv5HickjEOymKjEeRpgyST6IuZcTcWbnjcgdPi5ghxciRKsl1lDSsgwA1i8fssonJgzmTSqfGUkCENndNdAL7PS6QQ7ZYISTo+1qq0LEWjTWcvY4isa4z+yfQB+7ooyHVg5RI7/i1Ijn/vnggDggDogD4oC00P4KMACd/juEHOrS4AAAAABJRU5ErkJggg==\')"/></elements></component><component name="dock"><elements><element name="button" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAFBJREFUeNrs0cEJACAQA8Eofu0fu/W6EM5ZSAFDRpKTBs00CQQEBAQEBAQEBAQEBAQEBATkK8iqbY+AgICAgICAgICAgICAgICAgIC86QowAG5PAQzEJ0lKAAAAAElFTkSuQmCC\')"/></elements></component><component name="playlist"><elements><element name="item" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAIAAAC1nk4lAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAHhJREFUeNrs2NEJwCAMBcBYuv/CFuIE9VN47WWCR7iocXR3pdWdGPqqwIoMjYfQeAiNh9B4JHc6MHQVHnjggQceeOCBBx77TifyeOY0iHi8DqIdEY8dD5cL094eePzINB5CO/LwcOTptNB4CP25L4TIbZzpU7UEGAA5wz1uF5rF9AAAAABJRU5ErkJggg==\')"/><element name="sliderRail" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAA8CAIAAADpFA0BAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAADhJREFUeNrsy6ENACAMAMHClp2wYxZLAg5Fcu9e3OjuOKqqfTMzbs14CIZhGIZhGIZhGP4VLwEGAK/BBnVFpB0oAAAAAElFTkSuQmCC\')"/><element name="sliderThumb" src="url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAA8CAIAAADpFA0BAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAADRJREFUeNrsy7ENACAMBLE8++8caFFKKiRffU53112SGs3ttOohGIZhGIZhGIZh+Fe8BRgAiaUGde6NOSEAAAAASUVORK5CYII=\')"/></elements></component></components></skin>';
+		
+})(jQuery);
+/**
  * JW Player view component
  *
  * @author zach
@@ -987,11 +996,6 @@
 			case $.fn.jwplayer.states.BUFFERING:
 				displays[obj.id].displayIconBackground.css("display", "block");
 				displays[obj.id].displayIcon[0].src = player.skin.display.elements.bufferIcon.src;
-				$.fn.jwplayerUtils.log("offset", {
-					"display": "block",
-					top: (player.skin.display.elements.background.height - player.skin.display.elements.bufferIcon.height) / 2 + "px",
-					left: (player.skin.display.elements.background.width - player.skin.display.elements.bufferIcon.width) / 2 + "px"
-				});
 				displays[obj.id].displayIcon.css({
 					"display": "block",
 					top: (player.skin.display.elements.background.height - player.skin.display.elements.bufferIcon.height) / 2 + "px",
@@ -1355,10 +1359,6 @@
 			var oldstate = player.model.state;
 			player.media.state = newstate;
 			player.model.state = newstate;
-			$.fn.jwplayerUtils.log($.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, {
-				oldstate: oldstate,
-				newstate: newstate
-			});
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, {
 				oldstate: oldstate,
 				newstate: newstate
@@ -1400,7 +1400,7 @@
 				});
 			}
 		}
-		
+		progressHandler({}, player);
 	}
 	
 	function progressHandler(event, player) {
@@ -1408,7 +1408,7 @@
 		if (!isNaN(event.loaded / event.total)) {
 			bufferPercent = event.loaded / event.total * 100;
 			bufferTime = bufferPercent / 100 * player.model.duration;
-		} else if (player.model.domelement[0].buffered !== undefined) {
+		} else if ((player.model.domelement[0].buffered !== undefined) &&(player.model.domelement[0].buffered.length > 0)) {
 			maxBufferIndex = 0;
 			if (maxBufferIndex >= 0) {
 				bufferPercent = player.model.domelement[0].buffered.end(maxBufferIndex) / player.model.domelement[0].duration * 100;
@@ -1432,7 +1432,9 @@
 				player.media.bufferingComplete = true;
 			}
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
-				'bufferPercent': bufferPercent
+				'bufferPercent': bufferPercent,
+				'bufferingComplete': player.media.bufferingComplete,
+				'bufferFull': player.media.bufferFull
 			});
 		}
 	}
@@ -1543,7 +1545,6 @@
 	function load(player) {
 		return function(path) {
 			path = $.fn.jwplayerUtils.getAbsolutePath(path);
-			$.fn.jwplayerUtils.log("replay:" + player.model.domelement[0].src + ":" + path + ":" + (path == player.model.domelement[0].src));
 			if (path == player.model.domelement[0].src && player.media.loadcount > 0) {
 				setState(player, $.fn.jwplayer.states.BUFFERING);
 				setState(player, $.fn.jwplayer.states.PLAYING);
@@ -1771,33 +1772,54 @@
 	
 	/** Load the skin **/
 	function load(player, completeHandler) {
-		$.get(player.model.config.skin, {}, function(xml) {
-			var skin = {
-				properties: {},
-				incompleteElements: 0
-			};
-			player.skin = skin;
-			var components = $('component', xml);
-			for (var componentIndex = 0; componentIndex < components.length; componentIndex++) {
-				var componentName = $(components[componentIndex]).attr('name');
-				var component = {
-					settings: {},
-					elements: {}
-				};
-				player.skin[componentName] = component;
-				var elements = $(components[componentIndex]).find('element');
-				player.skin.loading = true;
-				for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-					player.skin.incompleteElements++;
-					loadImage(elements[elementIndex], componentName, player, completeHandler);
+		$.ajax({
+			url: player.model.config.skin,
+			error: function() {
+				loadSkin(player, $.fn.jwplayerDefaultSkin, completeHandler);
+			},
+			complete: function(xmlrequest, textStatus) {
+				if (textStatus == "success") {
+					loadSkin(player, xmlrequest.responseText, completeHandler);
+				} else {
+					loadSkin(player, $.fn.jwplayerDefaultSkin, completeHandler);
 				}
-				var settings = $(components[componentIndex]).find('setting');
-				for (var settingIndex = 0; settingIndex < settings.length; settingIndex++) {
-					player.skin[componentName].settings[$(settings[settingIndex]).attr("name")] = $(settings[settingIndex]).attr("value");
-				}
-				player.skin.loading = false;
 			}
+			
 		});
+	}
+	
+	function loadSkin(player, xml, completeHandler) {
+		var skin = {
+			properties: {},
+			incompleteElements: 0
+		};
+		player.skin = skin;
+		var components = $('component', xml);
+		if (components.length === 0) {
+			return;
+		}
+		for (var componentIndex = 0; componentIndex < components.length; componentIndex++) {
+			var componentName = $(components[componentIndex]).attr('name');
+			var component = {
+				settings: {},
+				elements: {}
+			};
+			player.skin[componentName] = component;
+			var elements = $(components[componentIndex]).find('element');
+			player.skin.loading = true;
+			for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+				player.skin.incompleteElements++;
+				loadImage(elements[elementIndex], componentName, player, completeHandler);
+			}
+			var settings = $(components[componentIndex]).find('setting');
+			for (var settingIndex = 0; settingIndex < settings.length; settingIndex++) {
+				player.skin[componentName].settings[$(settings[settingIndex]).attr("name")] = $(settings[settingIndex]).attr("value");
+			}
+			player.skin.loading = false;
+			if (player.skin.incompleteElements === 0) {
+				completeHandler();
+			}
+		}
 	}
 	
 	/** Load the data for a single element. **/
@@ -1807,28 +1829,38 @@
 		var elementSource = $(element).attr('src');
 		var skinUrl = player.model.config.skin.substr(0, player.model.config.skin.lastIndexOf('/'));
 		$(img).error(function() {
+			$.fn.jwplayerUtils.log("img error", this.src);
 			player.skin.incompleteElements--;
-		});
-		$(img).bind('load', {
-			player: player,
-			elementName: elementName,
-			component: component,
-			completeHandler: completeHandler
-		}, function(event) {
-			event.data.player.skin[event.data.component].elements[event.data.elementName] = {
-				height: this.height,
-				width: this.width,
-				src: this.src
-			};
-			event.data.player.skin.incompleteElements--;
-			if ((event.data.player.skin.incompleteElements === 0) && (event.data.player.skin.loading === false)) {
-				event.data.completeHandler();
+			if ((player.skin.incompleteElements === 0) && (player.skin.loading === false)) {
+				completeHandler();
 			}
 		});
-		var src = [skinUrl, component, elementSource].join("/");
-		//$(img).attr('style', "filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);");
-		img.src = src;
-		img.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + src + "')";
+		if (elementSource.indexOf('url(\'data:image/png;base64,') === 0) {
+			img.src = elementSource;
+			player.skin[component].elements[elementName] = {
+				height: img.height,
+				width: img.width,
+				src: elementSource
+			};
+			player.skin.incompleteElements--;
+		} else {
+			$(img).load(completeImageLoad(img, elementName, component, player, completeHandler));
+			img.src = [skinUrl, component, elementSource].join("/");
+		}
+	}
+	
+	function completeImageLoad(img, element, component, player, completeHandler) {
+		return function() {
+			player.skin[component].elements[element] = {
+				height: img.height,
+				width: img.width,
+				src: img.src
+			};
+			player.skin.incompleteElements--;
+			if ((player.skin.incompleteElements === 0) && (player.skin.loading === false)) {
+				completeHandler();
+			}
+		};
 	}
 	
 	$.fn.jwplayerSkinner.hasComponent = function(player, component) {

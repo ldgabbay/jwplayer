@@ -84,10 +84,6 @@
 			var oldstate = player.model.state;
 			player.media.state = newstate;
 			player.model.state = newstate;
-			$.fn.jwplayerUtils.log($.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, {
-				oldstate: oldstate,
-				newstate: newstate
-			});
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, {
 				oldstate: oldstate,
 				newstate: newstate
@@ -129,7 +125,7 @@
 				});
 			}
 		}
-		
+		progressHandler({}, player);
 	}
 	
 	function progressHandler(event, player) {
@@ -137,7 +133,7 @@
 		if (!isNaN(event.loaded / event.total)) {
 			bufferPercent = event.loaded / event.total * 100;
 			bufferTime = bufferPercent / 100 * player.model.duration;
-		} else if (player.model.domelement[0].buffered !== undefined) {
+		} else if ((player.model.domelement[0].buffered !== undefined) &&(player.model.domelement[0].buffered.length > 0)) {
 			maxBufferIndex = 0;
 			if (maxBufferIndex >= 0) {
 				bufferPercent = player.model.domelement[0].buffered.end(maxBufferIndex) / player.model.domelement[0].duration * 100;
@@ -161,7 +157,9 @@
 				player.media.bufferingComplete = true;
 			}
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
-				'bufferPercent': bufferPercent
+				'bufferPercent': bufferPercent,
+				'bufferingComplete': player.media.bufferingComplete,
+				'bufferFull': player.media.bufferFull
 			});
 		}
 	}
@@ -272,7 +270,6 @@
 	function load(player) {
 		return function(path) {
 			path = $.fn.jwplayerUtils.getAbsolutePath(path);
-			$.fn.jwplayerUtils.log("replay:" + player.model.domelement[0].src + ":" + path + ":" + (path == player.model.domelement[0].src));
 			if (path == player.model.domelement[0].src && player.media.loadcount > 0) {
 				setState(player, $.fn.jwplayer.states.BUFFERING);
 				setState(player, $.fn.jwplayer.states.PLAYING);

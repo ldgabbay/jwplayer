@@ -19,10 +19,6 @@
 	};
 	
 	function setupJWPlayer(player, step, options) {
-		$.fn.jwplayerUtils.log("Starting step " + step, {
-			player: player,
-			options: options
-		});
 		try {
 			switch (step) {
 				case 0:
@@ -48,7 +44,6 @@
 					break;
 				case 4:
 					$.fn.jwplayerSkinner(player, function() {
-						$.fn.jwplayerUtils.log("Skin loading complete", player);
 						setupJWPlayer(player, step + 1);
 					});
 					break;

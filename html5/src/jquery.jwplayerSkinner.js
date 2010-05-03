@@ -15,33 +15,54 @@
 	
 	/** Load the skin **/
 	function load(player, completeHandler) {
-		$.get(player.model.config.skin, {}, function(xml) {
-			var skin = {
-				properties: {},
-				incompleteElements: 0
-			};
-			player.skin = skin;
-			var components = $('component', xml);
-			for (var componentIndex = 0; componentIndex < components.length; componentIndex++) {
-				var componentName = $(components[componentIndex]).attr('name');
-				var component = {
-					settings: {},
-					elements: {}
-				};
-				player.skin[componentName] = component;
-				var elements = $(components[componentIndex]).find('element');
-				player.skin.loading = true;
-				for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-					player.skin.incompleteElements++;
-					loadImage(elements[elementIndex], componentName, player, completeHandler);
+		$.ajax({
+			url: player.model.config.skin,
+			error: function() {
+				loadSkin(player, $.fn.jwplayerDefaultSkin, completeHandler);
+			},
+			complete: function(xmlrequest, textStatus) {
+				if (textStatus == "success") {
+					loadSkin(player, xmlrequest.responseText, completeHandler);
+				} else {
+					loadSkin(player, $.fn.jwplayerDefaultSkin, completeHandler);
 				}
-				var settings = $(components[componentIndex]).find('setting');
-				for (var settingIndex = 0; settingIndex < settings.length; settingIndex++) {
-					player.skin[componentName].settings[$(settings[settingIndex]).attr("name")] = $(settings[settingIndex]).attr("value");
-				}
-				player.skin.loading = false;
 			}
+			
 		});
+	}
+	
+	function loadSkin(player, xml, completeHandler) {
+		var skin = {
+			properties: {},
+			incompleteElements: 0
+		};
+		player.skin = skin;
+		var components = $('component', xml);
+		if (components.length === 0) {
+			return;
+		}
+		for (var componentIndex = 0; componentIndex < components.length; componentIndex++) {
+			var componentName = $(components[componentIndex]).attr('name');
+			var component = {
+				settings: {},
+				elements: {}
+			};
+			player.skin[componentName] = component;
+			var elements = $(components[componentIndex]).find('element');
+			player.skin.loading = true;
+			for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
+				player.skin.incompleteElements++;
+				loadImage(elements[elementIndex], componentName, player, completeHandler);
+			}
+			var settings = $(components[componentIndex]).find('setting');
+			for (var settingIndex = 0; settingIndex < settings.length; settingIndex++) {
+				player.skin[componentName].settings[$(settings[settingIndex]).attr("name")] = $(settings[settingIndex]).attr("value");
+			}
+			player.skin.loading = false;
+			if (player.skin.incompleteElements === 0) {
+				completeHandler();
+			}
+		}
 	}
 	
 	/** Load the data for a single element. **/
@@ -51,28 +72,38 @@
 		var elementSource = $(element).attr('src');
 		var skinUrl = player.model.config.skin.substr(0, player.model.config.skin.lastIndexOf('/'));
 		$(img).error(function() {
+			$.fn.jwplayerUtils.log("img error", this.src);
 			player.skin.incompleteElements--;
-		});
-		$(img).bind('load', {
-			player: player,
-			elementName: elementName,
-			component: component,
-			completeHandler: completeHandler
-		}, function(event) {
-			event.data.player.skin[event.data.component].elements[event.data.elementName] = {
-				height: this.height,
-				width: this.width,
-				src: this.src
-			};
-			event.data.player.skin.incompleteElements--;
-			if ((event.data.player.skin.incompleteElements === 0) && (event.data.player.skin.loading === false)) {
-				event.data.completeHandler();
+			if ((player.skin.incompleteElements === 0) && (player.skin.loading === false)) {
+				completeHandler();
 			}
 		});
-		var src = [skinUrl, component, elementSource].join("/");
-		//$(img).attr('style', "filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);");
-		img.src = src;
-		img.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + src + "')";
+		if (elementSource.indexOf('url(\'data:image/png;base64,') === 0) {
+			img.src = elementSource;
+			player.skin[component].elements[elementName] = {
+				height: img.height,
+				width: img.width,
+				src: elementSource
+			};
+			player.skin.incompleteElements--;
+		} else {
+			$(img).load(completeImageLoad(img, elementName, component, player, completeHandler));
+			img.src = [skinUrl, component, elementSource].join("/");
+		}
+	}
+	
+	function completeImageLoad(img, element, component, player, completeHandler) {
+		return function() {
+			player.skin[component].elements[element] = {
+				height: img.height,
+				width: img.width,
+				src: img.src
+			};
+			player.skin.incompleteElements--;
+			if ((player.skin.incompleteElements === 0) && (player.skin.loading === false)) {
+				completeHandler();
+			}
+		};
 	}
 	
 	$.fn.jwplayerSkinner.hasComponent = function(player, component) {
