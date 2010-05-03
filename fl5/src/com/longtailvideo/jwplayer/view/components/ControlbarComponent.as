@@ -4,6 +4,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
 	import com.longtailvideo.jwplayer.events.PlaylistEvent;
 	import com.longtailvideo.jwplayer.events.ViewEvent;
+	import com.longtailvideo.jwplayer.model.Color;
 	import com.longtailvideo.jwplayer.player.IPlayer;
 	import com.longtailvideo.jwplayer.player.PlayerState;
 	import com.longtailvideo.jwplayer.plugins.PluginConfig;
@@ -404,10 +405,18 @@ package com.longtailvideo.jwplayer.view.components {
 
 		private function addTextField(name:String):void {
 			var textFormat:TextFormat = new TextFormat();
-			textFormat.font = "_sans";
-			textFormat.size = 10;
-			textFormat.bold = true;
-			if (_player.config.frontcolor) { textFormat.color = _player.config.frontcolor.color; }
+			
+			if (fontColor) {
+				textFormat.color = fontColor.color;
+			} else if (_player.config.frontcolor) { 
+				textFormat.color = _player.config.frontcolor.color; 
+			}
+			
+			textFormat.size = fontSize ? fontSize : 10;
+			textFormat.font = fontFace ? fontFace : "_sans";
+			textFormat.bold = (!fontWeight || fontWeight == "bold");
+			textFormat.italic = (fontStyle && fontStyle == "italic");
+			
 			var textField:TextField = new TextField();
 			textField.defaultTextFormat = textFormat;
 			textField.selectable = false;
@@ -573,15 +582,6 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 
 
-		private function getFont(textField:TextField):String {
-			var result:String;
-			if (textField) {
-				textField.getTextFormat().font;
-			}
-			return result;
-		}
-
-
 		private function get background():DisplayObject {
 			if (_buttons['background']) {
 				return _buttons['background'];
@@ -589,13 +589,6 @@ package com.longtailvideo.jwplayer.view.components {
 			return (new Sprite());
 		}
 
-
-		/*private function get shade():DisplayObject {
-		   if (_buttons['shade']) {
-		   return _buttons['shade'];
-		   }
-		   return (new Sprite());
-		 }*/
 
 		private function get capLeft():DisplayObject {
 			if (_buttons['capLeft']) {

@@ -2,6 +2,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
 	import com.longtailvideo.jwplayer.events.PlaylistEvent;
 	import com.longtailvideo.jwplayer.events.ViewEvent;
+	import com.longtailvideo.jwplayer.model.Color;
 	import com.longtailvideo.jwplayer.model.PlaylistItem;
 	import com.longtailvideo.jwplayer.player.IPlayer;
 	import com.longtailvideo.jwplayer.player.PlayerState;
@@ -74,6 +75,8 @@ package com.longtailvideo.jwplayer.view.components {
 		private var pendingBuild:Boolean = false;
 		/** Map of images and loaders **/
 		private var imageLoaderMap:Dictionary;
+		/** Which field element can be colorized **/		
+		private var colorizableFields:Array = ["title", "duration", "description", "author", "tags"];
 		
 		public function PlaylistComponent(player:IPlayer) {
 			super(player, "playlist");
@@ -99,9 +102,10 @@ package com.longtailvideo.jwplayer.view.components {
 			
 			background = getSkinElement("background") as Sprite;
 			if (!background) {
+				var backColor:Color = getConfigParam("backgroundcolor") ? new Color(String(getConfigParam("backgroundcolor"))) : player.config.screencolor;
 				background = new Sprite();
 				background.name = "background";
-				background.graphics.beginFill(player.config.screencolor.color, 1);
+				background.graphics.beginFill(backColor.color, 1);
 				background.graphics.drawRect(0, 0, 1, 1);
 				background.graphics.endFill();
 			}
@@ -219,9 +223,10 @@ package com.longtailvideo.jwplayer.view.components {
 			addElement(img, btn, 0, 0);
 			
 			var titleTextFormat:TextFormat = new TextFormat();
-			titleTextFormat.size = 13;
-			titleTextFormat.font = "_sans";
-			titleTextFormat.bold = true;
+			titleTextFormat.size = fontSize ? fontSize : 13;
+			titleTextFormat.font = fontFace ? fontFace : "_sans";
+			titleTextFormat.bold = (!fontWeight || fontWeight == "bold");
+			titleTextFormat.italic = (fontStyle == "italic");
 			var title:TextField = new TextField();
 			title.name = "title";
 			//title.autoSize = TextFieldAutoSize.LEFT;
@@ -233,8 +238,10 @@ package com.longtailvideo.jwplayer.view.components {
 			addElement(title, btn, 85, 2);
 			
 			var descriptionTextFormat:TextFormat = new TextFormat();
-			descriptionTextFormat.size = 11;
-			descriptionTextFormat.font = "_sans";
+			descriptionTextFormat.size = fontSize ? fontSize : 11;
+			descriptionTextFormat.font = fontFace ? fontFace : "_sans";
+			descriptionTextFormat.bold = (fontWeight == "bold");
+			descriptionTextFormat.italic = (fontStyle == "italic");
 			var description:TextField = new TextField();
 			description.name = "description";
 			//description.autoSize = TextFieldAutoSize.LEFT;
@@ -249,7 +256,7 @@ package com.longtailvideo.jwplayer.view.components {
 			duration.name = "duration";
 			duration.width = 40;
 			duration.height = 20;
-			titleTextFormat.size = 11;
+			titleTextFormat.size = fontSize ? fontSize : 11;
 			duration.defaultTextFormat = titleTextFormat;
 			addElement(duration, btn, 335, 4);
 			
@@ -269,12 +276,26 @@ package com.longtailvideo.jwplayer.view.components {
 			doc.y = y;
 		}
 		
+		private function get overColor():Color {
+			return getConfigParam("overcolor") ? new Color(String(getConfigParam("overcolor"))) : null;
+		}
+		
+		private function get activeColor():Color {
+			return getConfigParam("activecolor") ? new Color(String(getConfigParam("activecolor"))) : null;
+		}
 		
 		/** Handle a button rollover. **/
 		private function overHandler(evt:MouseEvent):void {
 			var idx:Number = Number(evt.target.name);
-			if (front && back) {
-				for (var itm:String in _player.playlist.getItemAt(idx)) {
+
+			if (fontColor && overColor) {
+				for each (var itm:String in colorizableFields) {
+					if (getButton(idx).getChildByName(itm) && getButton(idx).getChildByName(itm) is TextField) {
+						(getButton(idx).getChildByName(itm) as TextField).textColor = overColor.color;
+					}
+				}
+			} else if (front && back) {
+				for (itm in colorizableFields) {
 					if (getButton(idx).getChildByName(itm) && getButton(idx).getChildByName(itm) is TextField) {
 						(getButton(idx).getChildByName(itm) as TextField).textColor = back.color;
 					}
@@ -292,24 +313,33 @@ package com.longtailvideo.jwplayer.view.components {
 		/** Handle a button rollover. **/
 		private function outHandler(evt:MouseEvent):void {
 			var idx:Number = Number(evt.target.name);
-			if (front && back) {
-				for (var itm:String in _player.playlist.getItemAt(idx)) {
-					if (getButton(idx).getChildByName(itm) && getButton(idx).getChildByName(itm) is TextField) {
-						if (idx == active) {
-							(getButton(idx).getChildByName(itm) as TextField).textColor = light.color;
+			for each (var itm:String in colorizableFields) {
+				var button:Sprite = getButton(idx); 
+				if (button && button.getChildByName(itm)) {
+					var field:TextField = (getButton(idx).getChildByName(itm) as TextField)
+					
+					if (idx == active) {
+						field.textColor = activeColor ? activeColor.color : (fontColor ? fontColor.color : light.color);
+					} else {
+						if (fontColor && overColor) {
+							field.textColor =  fontColor.color;
+						} else if (front && back) {
+							field.textColor =  front.color;
+						}
+					}
+					
+					if (front && back) {
+						if (swfSkinned) {
+							button.getChildByName("back").transform.colorTransform = back;
 						} else {
-							(getButton(idx).getChildByName(itm) as TextField).textColor = front.color;
+							button.setChildIndex(getButton(idx).getChildByName("backOver"), 0);
+							button.setChildIndex(getButton(idx).getChildByName("back"), 1);
 						}
 					}
 				}
-				if (swfSkinned) {
-					getButton(idx).getChildByName("back").transform.colorTransform = back;
-				} else {
-					getButton(idx).setChildIndex(getButton(idx).getChildByName("backOver"), 0);
-					getButton(idx).setChildIndex(getButton(idx).getChildByName("back"), 1);
-				}
 			}
-		}
+			
+		} 
 		
 		
 		/** Setup all buttons in the playlist **/
@@ -459,7 +489,9 @@ package com.longtailvideo.jwplayer.view.components {
 			if (duration && playlistItem.duration) {
 				if (playlistItem.duration > 0) {
 					duration.text = Strings.digits(playlistItem.duration);
-					if (front) {
+					if (fontColor) {
+						duration.textColor = fontColor.color;
+					} else if (front) {
 						duration.textColor = front.color;
 					}
 				}
@@ -477,7 +509,10 @@ package com.longtailvideo.jwplayer.view.components {
 				if (tags) { 
 					tags.htmlText = playlistItem.tags; 
 				}
-				if (front) {
+				if (fontColor) {
+					if (description) { description.textColor = fontColor.color; }
+					if (title) { title.textColor = fontColor.color; }
+				} else if (front) {
 					if (description) { description.textColor = front.color; }
 					if (title) { title.textColor = front.color; }
 				}
@@ -615,11 +650,11 @@ package com.longtailvideo.jwplayer.view.components {
 			if (proportion > 1.01) {
 				scrollInterval = setInterval(scrollEase, 50, idx * buttonheight / proportion, -idx * buttonheight + listmask.y);
 			}
-			if (light) {
-				for (var itm:String in _player.playlist.getItemAt(idx)) {
+			if (light || activeColor) {
+				for each (var itm:String in colorizableFields) {
 					if (getButton(idx).getChildByName(itm)) {
 						try {
-							(getButton(idx).getChildByName(itm) as TextField).textColor = light.color;
+							(getButton(idx).getChildByName(itm) as TextField).textColor = activeColor ? activeColor.color : light.color;
 						} catch (err:Error) {
 						}
 					}
@@ -629,11 +664,11 @@ package com.longtailvideo.jwplayer.view.components {
 				getButton(idx).getChildByName("back").transform.colorTransform = back;
 			}
 			if (!isNaN(active)) {
-				if (front) {
-					for (var act:String in _player.playlist.getItemAt(active)) {
+				if (front || fontColor) {
+					for each (var act:String in colorizableFields) {
 						if (getButton(active).getChildByName(act)) {
 							try {
-								(getButton(active).getChildByName(act) as TextField).textColor = front.color;
+								(getButton(active).getChildByName(act) as TextField).textColor = fontColor ? fontColor.color : front.color;
 							} catch (err:Error) {
 							}
 						}
