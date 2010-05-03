@@ -117,6 +117,9 @@
 			
 			if (!$.fn.jwplayerUtils.isNull(event.target.currentTime)) {
 				player.model.position = event.target.currentTime;
+				if (event.target.currentTime > 0){
+					setState(player, $.fn.jwplayer.states.PLAYING);	
+				}
 			}
 			if (player.media.state == $.fn.jwplayer.states.PLAYING) {
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
@@ -132,22 +135,27 @@
 		var bufferPercent, bufferTime, bufferFill;
 		if (!isNaN(event.loaded / event.total)) {
 			bufferPercent = event.loaded / event.total * 100;
-			bufferTime = bufferPercent / 100 * player.model.duration;
-		} else if ((player.model.domelement[0].buffered !== undefined) &&(player.model.domelement[0].buffered.length > 0)) {
+			bufferTime = bufferPercent / 100 * (player.model.duration - player.model.domelement[0].currentTime);
+		} else if ((player.model.domelement[0].buffered !== undefined) && (player.model.domelement[0].buffered.length > 0)) {
 			maxBufferIndex = 0;
 			if (maxBufferIndex >= 0) {
 				bufferPercent = player.model.domelement[0].buffered.end(maxBufferIndex) / player.model.domelement[0].duration * 100;
-				bufferTime = player.model.domelement[0].buffered.end(maxBufferIndex) - player.model.position;
+				bufferTime = player.model.domelement[0].buffered.end(maxBufferIndex) - player.model.domelement[0].currentTime;
 			}
 		}
 		
 		bufferFill = bufferTime / player.model.config.bufferlength * 100;
 		
-		if (bufferFill < 25 && player.media.state == $.fn.jwplayer.states.PLAYING) {
-			player.media.bufferFull = false;
-			player.model.domelement[0].pause();
-			setState(PlayerState.BUFFERING);
-		} else if (bufferFill > 95 && player.media.state == $.fn.jwplayer.states.BUFFERING && player.media.bufferFull === false && bufferTime > 0) {
+		/*if (bufferFill < 25 && player.media.state == $.fn.jwplayer.states.PLAYING) {
+		 setState($.fn.jwplayer.states.BUFFERING);
+		 player.media.bufferFull = false;
+		 if (!player.model.domelement[0].seeking) {
+		 player.model.domelement[0].pause();
+		 }
+		 } else if (bufferFill > 95 && player.media.state == $.fn.jwplayer.states.BUFFERING && player.media.bufferFull === false && bufferTime > 0) {
+		 player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER_FULL, {});
+		 }*/
+		if (player.media.bufferFull === false) {
 			player.media.bufferFull = true;
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER_FULL, {});
 		}
@@ -156,11 +164,17 @@
 			if (bufferPercent == 100 && player.media.bufferingComplete === false) {
 				player.media.bufferingComplete = true;
 			}
-			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
-				'bufferPercent': bufferPercent,
-				'bufferingComplete': player.media.bufferingComplete,
-				'bufferFull': player.media.bufferFull
-			});
+			
+			if (!$.fn.jwplayerUtils.isNull(bufferPercent)) {
+				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
+					bufferPercent: bufferPercent,
+					bufferingComplete: player.media.bufferingComplete,
+					bufferFull: player.media.bufferFull,
+					bufferFill: bufferFill,
+					bufferTime: bufferTime
+				});
+			}
+			
 		}
 	}
 	
@@ -180,7 +194,6 @@
 	function play(player) {
 		return function() {
 			if (player.media.state != $.fn.jwplayer.states.PLAYING) {
-				setState(player, $.fn.jwplayer.states.PLAYING);
 				player.model.domelement[0].play();
 			}
 		};
@@ -198,6 +211,7 @@
 	function seek(player) {
 		return function(position) {
 			player.model.domelement[0].currentTime = position;
+			player.model.domelement[0].play();
 		};
 	}
 	
@@ -240,12 +254,12 @@
 	function resize(player) {
 		return function(width, height) {
 			/*$("#"+player.id+"_jwplayer").css("position", 'fixed');
-			$("#"+player.id+"_jwplayer").css("top", '0');
-			$("#"+player.id+"_jwplayer").css("left", '0');
-			$("#"+player.id+"_jwplayer").css("width", width);
-			$("#"+player.id+"_jwplayer").css("height", height);
-			player.model.width = $("#"+player.id+"_jwplayer").width;
-			player.model.height = $("#"+player.id+"_jwplayer").height;*/
+			 $("#"+player.id+"_jwplayer").css("top", '0');
+			 $("#"+player.id+"_jwplayer").css("left", '0');
+			 $("#"+player.id+"_jwplayer").css("width", width);
+			 $("#"+player.id+"_jwplayer").css("height", height);
+			 player.model.width = $("#"+player.id+"_jwplayer").width;
+			 player.model.height = $("#"+player.id+"_jwplayer").height;*/
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
 				fullscreen: player.model.fullscreen,
 				width: width,
@@ -261,7 +275,7 @@
 			if (state === true) {
 				player.resize("100%", "100%");
 			} else {
-				player.resize(player.model.config.width, player.model.config.height);				
+				player.resize(player.model.config.width, player.model.config.height);
 			}
 		};
 	}
@@ -274,7 +288,6 @@
 				setState(player, $.fn.jwplayer.states.BUFFERING);
 				setState(player, $.fn.jwplayer.states.PLAYING);
 				player.model.domelement[0].currentTime = player.config.start;
-				//player.model.domelement[0].paused = false;
 				return;
 			} else if (path != player.model.domelement[0].src) {
 				player.media.loadcount = 0;
@@ -284,8 +297,9 @@
 			player.media.bufferingComplete = false;
 			setState(player, $.fn.jwplayer.states.BUFFERING);
 			player.model.domelement[0].src = path;
+			player.model.domelement[0].load();
 			startInterval(player);
-			player.model.domelement[0].currentTime = player.config.start;
+			player.model.domelement[0].currentTime = 0;
 		};
 	}
 	

@@ -28,7 +28,6 @@
 		});
 		
 		display.click(function(evt) {
-			$.fn.jwplayerUtils.log("click" + player.model.state, evt);
 			if (typeof evt.preventDefault != 'undefined') {
 				evt.preventDefault(); // W3C
 			} else {
@@ -90,6 +89,7 @@
 				break;
 			default:
 				if (player.mute()) {
+					displays[obj.id].displayImage.css("background", "transparent no-repeat center center");
 					displays[obj.id].displayIconBackground.css("display", "block");
 					displays[obj.id].displayIcon[0].src = player.skin.display.elements.muteIcon.src;
 					displays[obj.id].displayIcon.css({
