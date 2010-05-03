@@ -1,5 +1,6 @@
 package com.longtailvideo.jwplayer.view.components {
 	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
 	import flash.text.TextField;
 	
 	
@@ -58,7 +59,8 @@ package com.longtailvideo.jwplayer.view.components {
 					_controlbar.addChild(displayObject);
 				}
 				
-				if (displayObject is TextField || displayObject is Slider) {
+				var doc:DisplayObjectContainer = displayObject as DisplayObjectContainer;
+				if ((doc && doc.getChildByName('text') is TextField) || displayObject is Slider) {
 					_currentLeft = _currentLeft + 5;
 				}
 				
@@ -67,7 +69,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 				_currentLeft = _currentLeft + displayObject.width;								
 
-				if (displayObject is TextField || displayObject is Slider) {
+				if ((doc && doc.getChildByName('text') is TextField) || displayObject is Slider) {
 					_currentLeft = _currentLeft + 5;
 				}
 				
@@ -98,14 +100,16 @@ package com.longtailvideo.jwplayer.view.components {
 					_controlbar.addChild(displayObject);
 				}
 
-				if (displayObject is TextField || displayObject is Slider) {
+				var doc:DisplayObjectContainer = displayObject as DisplayObjectContainer;
+				if ((doc && doc.getChildByName('text') is TextField) || displayObject is Slider) {
 					_currentRight = _currentRight - 5;
 				}
 				
 				_currentRight = _currentRight - displayObject.width;
 				displayObject.x = _currentRight;
 				displayObject.y = (_height - displayObject.height) / 2;
-				if (displayObject is TextField || displayObject is Slider) {
+
+				if ((doc && doc.getChildByName('text') is TextField) || displayObject is Slider) {
 					_currentRight = _currentRight - 5;
 				}
 			}

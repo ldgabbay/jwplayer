@@ -18,6 +18,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.geom.ColorTransform;
+	import flash.text.StyleSheet;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
@@ -307,10 +308,10 @@ package com.longtailvideo.jwplayer.view.components {
 			if (duration < 0) {
 				duration = 0;
 			}
-			var elapsedText:TextField = getButton('elapsed') as TextField;
-			elapsedText.text = Strings.digits(position);
-			var durationField:TextField = getButton('duration') as TextField;
-			durationField.text = Strings.digits(duration);
+			var elapsedText:TextField = getTextField('elapsed');
+			if (elapsedText) elapsedText.text = Strings.digits(position);
+			var durationField:TextField = getTextField('duration');
+			if (durationField) durationField.text = Strings.digits(duration);
 			redraw();
 		}
 
@@ -421,9 +422,20 @@ package com.longtailvideo.jwplayer.view.components {
 			textField.defaultTextFormat = textFormat;
 			textField.selectable = false;
 			textField.autoSize = TextFieldAutoSize.LEFT;
-			textField.name = name;
-			addChild(textField);
-			_buttons[name] = textField;
+			textField.name = 'text';
+
+			var textContainer:Sprite = new Sprite();
+			textContainer.name = name;
+			
+			var textBackground:DisplayObject = getSkinElement(name + 'Background'); 
+			if (textBackground) {
+				textBackground.name = 'back';
+				textBackground.x = textBackground.y = 0;
+				textContainer.addChild(textBackground);
+			}
+			textContainer.addChild(textField);
+			addChild(textContainer);
+			_buttons[name] = textContainer;
 		}
 
 
@@ -520,6 +532,14 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 			return _buttons[buttonName];
 		}
+		
+		private function getTextField(textName:String):TextField {
+			var textContainer:Sprite = getButton(textName) as Sprite;
+			if (textContainer) {
+				return textContainer.getChildByName('text') as TextField;
+			}
+			return null;
+		}
 
 
 		public function getSlider(sliderName:String):Slider {
@@ -564,6 +584,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 		private function redraw():void {
 			clearDividers();
+			alignTextFields();
 			_layoutManager.resize(_width, _height);
 		}
 
@@ -574,6 +595,32 @@ package com.longtailvideo.jwplayer.view.components {
 				_dividers[i] = null;
 			}
 			_dividers = [];
+		}
+		
+		private function alignTextFields():void {
+			for each(var fieldName:String in ['elapsed','duration']) {
+				var textContainer:Sprite = getButton(fieldName) as Sprite;
+				var textField:DisplayObject = textContainer.getChildByName('text');
+				var textBackground:DisplayObject = textContainer.getChildByName('back');
+				
+				if (textField && textBackground) {
+					if (textField.width > textBackground.width) {
+						textField.x = 0;
+						textBackground.x = (textField.width - textBackground.width) / 2;
+					} else {
+						textBackground.x = 0;
+						textField.x = (textBackground.width - textField.width) / 2;
+					}
+
+					if (textField.height > textBackground.height) {
+						textField.y = 0;
+						textBackground.y = (textField.height - textBackground.height) / 2;
+					} else {
+						textBackground.y = 0;
+						textField.y = (textBackground.height - textField.height) / 2;
+					}
+				}
+			} 
 		}
 
 
