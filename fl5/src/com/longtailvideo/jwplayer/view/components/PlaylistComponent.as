@@ -105,7 +105,7 @@ package com.longtailvideo.jwplayer.view.components {
 				var backColor:Color = getConfigParam("backgroundcolor") ? new Color(String(getConfigParam("backgroundcolor"))) : player.config.screencolor;
 				background = new Sprite();
 				background.name = "background";
-				background.graphics.beginFill(backColor.color, 1);
+				background.graphics.beginFill(backColor ? backColor.color : 0, 1);
 				background.graphics.drawRect(0, 0, 1, 1);
 				background.graphics.endFill();
 			}
