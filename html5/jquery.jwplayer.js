@@ -139,7 +139,7 @@
 		timeHandler({
 			id: player.id,
 			time: 0,
-			duration: 0
+			position: 0
 		});
 		bufferHandler({
 			id: player.id,
@@ -254,12 +254,14 @@
 		if (!$.fn.jwplayerUtils.isNull(event.bufferPercent)) {
 			controlbars[event.id].currentBuffer = event.bufferPercent;
 		}
+		
 		if (event.bufferPercent === 0) {
 			$('#' + event.id + '_timeSliderBuffer').css('display', 'none');
-		} else {
-			var wid = $('#' + event.id + '_timeSliderRail').width();
-			$('#' + event.id + '_timeSliderBuffer').css('width', Math.round(wid * controlbars[event.id].currentBuffer / 100));
 		}
+		
+		var wid = $('#' + event.id + '_timeSliderRail').width();
+		var bufferWidth = isNaN(Math.round(wid * controlbars[event.id].currentBuffer / 100)) ? 0 : Math.round(wid * controlbars[event.id].currentBuffer / 100);
+		$('#' + event.id + '_timeSliderBuffer').css('width', bufferWidth);
 	}
 	
 	
@@ -323,10 +325,12 @@
 		var railWidth = $('#' + event.id + '_timeSliderRail').width();
 		var thumbWidth = $('#' + event.id + '_timeSliderThumb').width();
 		var railLeft = $('#' + event.id + '_timeSliderRail').position().left;
+		var progressWidth = isNaN(Math.round(railWidth * progress)) ? 0 : Math.round(railWidth * progress);
+		var thumbPosition = railLeft + progressWidth;
 		
-		$('#' + event.id + '_timeSliderProgress').css('width', Math.round(railWidth * progress));
+		$('#' + event.id + '_timeSliderProgress').css('width', progressWidth);
 		if (!controlbars[event.id].mousedown) {
-			$('#' + event.id + '_timeSliderThumb').css('left', railLeft + Math.round((railWidth - thumbWidth) * progress));
+			$('#' + event.id + '_timeSliderThumb').css('left', thumbPosition);
 		}
 		
 		$('#' + event.id + '_durationText').html(timeFormat(controlbars[event.id].currentDuration));

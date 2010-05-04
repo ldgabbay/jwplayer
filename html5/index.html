@@ -17,7 +17,6 @@
 </head>
 <body>
 
-
 <h3>HTML5 Player</h3>
 
 <h4>Test 1: $.document.ready embed</h4>
@@ -33,8 +32,8 @@
 
 <script type="text/javascript">
 	$('#player1').jwplayer({
-		skin:'assets/five/fve.xml',
-		repeat: 'list',
+		skin:'assets/five/five.xml',
+		flashplayer: 'http://player.longtailvideo.com/player.swf',
 		debug: 'CONSOLE'
 	});
 </script>
@@ -49,16 +48,17 @@
 >
 </video>
 
-
 <script type="text/javascript">
 	$('#player2').jwplayer({
-		skin:'assets/five/five.xml'
+		skin:'assets/five/five.xml',
+		flashplayer: 'http://player.longtailvideo.com/player.swf',
+		debug: 'CONSOLE'
 	});
 </script>
+
 <h4>Test 3: Theora</h4>
 <video
 	id="player3"
-	class="jwplayer"
 	width="480"
 	height="270"
 	poster="test/files/bunny.jpg"
@@ -66,11 +66,17 @@
 <source src='test/files/bunny.ogv' type='video/ogg; codecs="theora, vorbis"'>
 </video>
 
+<script type="text/javascript">
+	$('#player3').jwplayer({
+		skin:'assets/five/five.xml',
+		flashplayer: 'http://player.longtailvideo.com/player.swf',
+		debug: 'CONSOLE'
+	});
+</script>
 
 <h4>Test 4: Using multiple sources</h4>
 <video
 	id="player4"
-	class="jwplayer"
 	width="480"
 	height="270"
 	poster="test/files/bunny.jpg"
@@ -79,11 +85,17 @@
 <source src='test/files/bunny.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
 </video>
 
+<script type="text/javascript">
+	$('#player4').jwplayer({
+		skin:'assets/five/five.xml',
+		flashplayer: 'http://player.longtailvideo.com/player.swf',
+		debug: 'CONSOLE'
+	});
+</script>
 
 <h4>Test 5: Events</h4>
 <video
 	id="player5"
-	class="jwplayer"
 	width="480"
 	height="270"
 	poster="test/files/bunny.jpg"
@@ -92,59 +104,14 @@
 <source src='test/files/bunny.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
 </video>
 
-<!--<a id="play">play</a>
-<a id="pause">pause</a>
-<a id="stop">stop</a>
-<a id="mute">mute</a>
-<a id="unmute">unmute</a>
-<input type="text" id="seekposition" />
-<a id="seek">seek</a>
-<input type="text" id="volumeposition" />
-<a id="volume">volume</a>
-<input type="text" id="currenttime" />
-<input type="text" id="currentbuffer" />
-
 <script type="text/javascript">
-	$('#player5').jwplayer();
-	
-	/*$.jwplayer('#player5').buffer(function(parameters, extra){
-		$("#currentbuffer")[0].value = Math.round(extra.buffer*10)/10;
+	$('#player5').jwplayer({
+		skin:'assets/five/five.xml',
+		flashplayer: 'http://player.longtailvideo.com/player.swf',
+		debug: 'CONSOLE'
 	});
-	
-	$.jwplayer('#player5').time(function(parameters, extra){
-		$("#currenttime")[0].value = Math.round(extra.position*10)/10;
-	});*/
+</script>
 
-	$("#play").click(function(){
-		$.jwplayer('player5').play();
-	});
-
-	$("#pause").click(function(){
-		$.jwplayer('#player5').pause();
-	});
-
-	$("#stop").click(function(){
-		$.jwplayer('#player5').stop();
-	});
-	
-	$("#seek").click(function(){
-		$.jwplayer('#player5').seek($("#seekposition")[0].value);
-	});
-	
-	$("#volume").click(function(){
-		$.jwplayer('#player5').volume($("#volumeposition")[0].value);
-	});
-	
-	$("#mute").click(function(){
-		$.jwplayer('#player5').mute(true);
-	});
-
-	$("#unmute").click(function(){
-		$.jwplayer('#player5').mute(false);
-	});
-
-
-</script>-->
 
 </body>
 </html>
