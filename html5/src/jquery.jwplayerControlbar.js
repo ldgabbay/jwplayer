@@ -60,9 +60,9 @@
 		buildElement('timeSliderProgress', 'left', false, player);
 		buildElement('timeSliderThumb', 'left', false, player);
 		buildElement('capRight', 'right', true, player);
-		buildElement('fullscreenButton', 'right', false, player);
-		buildElement('normalscreenButton', 'right', true, player);
-		buildElement('divider2', 'right', true, player);
+		//buildElement('fullscreenButton', 'right', false, player);
+		//buildElement('normalscreenButton', 'right', true, player);
+		//buildElement('divider2', 'right', true, player);
 		buildElement('volumeSliderRail', 'right', false, player);
 		buildElement('volumeSliderProgress', 'right', true, player);
 		buildElement('muteButton', 'right', false, player);
@@ -194,9 +194,9 @@
 		var bar = '#' + player.id + '_jwplayerControlbar';
 		var trl = '#' + player.id + '_timeSliderRail';
 		var vrl = '#' + player.id + '_volumeSliderRail';
-		$(bar).css('cursor', 'hand');
-		$(trl).css('cursor', 'hand');
-		$(vrl).css('cursor', 'hand');
+		$(bar).css('cursor', 'pointer');
+		$(trl).css('cursor', 'pointer');
+		$(vrl).css('cursor', 'pointer');
 		$(bar).mousedown(function(evt) {
 			if (evt.pageX >= $(trl).offset().left && evt.pageX <= $(trl).offset().left + $(trl).width()) {
 				controlbars[player.id].scrubber = 'time';
@@ -398,11 +398,13 @@
 	
 	/** Update the volume level. **/
 	function volumeHandler(event) {
-		var rwd = $('#' + event.id + '_volumeSliderRail').width();
-		var wid = Math.round(event.volume / 100 * rwd);
-		var rig = $('#' + event.id + '_volumeSliderRail').css('right').substr(0, 2);
-		$('#' + event.id + '_volumeSliderProgress').css('width', wid);
-		$('#' + event.id + '_volumeSliderProgress').css('right', (1 * rig + rwd - wid));
+		var progress = isNaN(event.volume / 100) ? 1 : event.volume / 100;
+		var railWidth = $('#' + event.id + '_volumeSliderRail').width();
+		var railRight = parseInt($('#' + event.id + '_volumeSliderRail').css('right').toString().replace('px', ''), 10);
+		var progressWidth = isNaN(Math.round(railWidth * progress)) ? 0 : Math.round(railWidth * progress);
+		
+		$('#' + event.id + '_volumeSliderProgress').css('width', progressWidth);
+		$('#' + event.id + '_volumeSliderProgress').css('right', (railWidth + railRight - progressWidth));
 	}
 	
 	

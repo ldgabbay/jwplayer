@@ -120,7 +120,6 @@
 				'border': 'none',
 				'bottom': 'auto',
 				'clear': 'none',
-				'cursor': 'default',
 				'float': 'none',
 				'font-family': '"Arial", "Helvetica", sans-serif',
 				'font-size': 'medium',
@@ -161,6 +160,9 @@
 	
 	/** Gets an absolute file path based on a relative filepath **/
 	$.fn.jwplayerUtils.getAbsolutePath = function(path) {
+		if ($.fn.jwplayerUtils.isNull(path)){
+			return path;
+		}
 		if (isAbsolutePath(path)) {
 			return path;
 		}
@@ -181,7 +183,7 @@
 	};
 	
 	function isAbsolutePath(path) {
-		if(path === undefined){
+		if($.fn.jwplayerUtils.isNull(path)){
 			return;
 		}
 		var protocol = path.indexOf("://");

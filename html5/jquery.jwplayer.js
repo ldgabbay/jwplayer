@@ -60,9 +60,9 @@
 		buildElement('timeSliderProgress', 'left', false, player);
 		buildElement('timeSliderThumb', 'left', false, player);
 		buildElement('capRight', 'right', true, player);
-		buildElement('fullscreenButton', 'right', false, player);
-		buildElement('normalscreenButton', 'right', true, player);
-		buildElement('divider2', 'right', true, player);
+		//buildElement('fullscreenButton', 'right', false, player);
+		//buildElement('normalscreenButton', 'right', true, player);
+		//buildElement('divider2', 'right', true, player);
 		buildElement('volumeSliderRail', 'right', false, player);
 		buildElement('volumeSliderProgress', 'right', true, player);
 		buildElement('muteButton', 'right', false, player);
@@ -194,9 +194,9 @@
 		var bar = '#' + player.id + '_jwplayerControlbar';
 		var trl = '#' + player.id + '_timeSliderRail';
 		var vrl = '#' + player.id + '_volumeSliderRail';
-		$(bar).css('cursor', 'hand');
-		$(trl).css('cursor', 'hand');
-		$(vrl).css('cursor', 'hand');
+		$(bar).css('cursor', 'pointer');
+		$(trl).css('cursor', 'pointer');
+		$(vrl).css('cursor', 'pointer');
 		$(bar).mousedown(function(evt) {
 			if (evt.pageX >= $(trl).offset().left && evt.pageX <= $(trl).offset().left + $(trl).width()) {
 				controlbars[player.id].scrubber = 'time';
@@ -398,11 +398,13 @@
 	
 	/** Update the volume level. **/
 	function volumeHandler(event) {
-		var rwd = $('#' + event.id + '_volumeSliderRail').width();
-		var wid = Math.round(event.volume / 100 * rwd);
-		var rig = $('#' + event.id + '_volumeSliderRail').css('right').substr(0, 2);
-		$('#' + event.id + '_volumeSliderProgress').css('width', wid);
-		$('#' + event.id + '_volumeSliderProgress').css('right', (1 * rig + rwd - wid));
+		var progress = isNaN(event.volume / 100) ? 1 : event.volume / 100;
+		var railWidth = $('#' + event.id + '_volumeSliderRail').width();
+		var railRight = parseInt($('#' + event.id + '_volumeSliderRail').css('right').toString().replace('px', ''), 10);
+		var progressWidth = isNaN(Math.round(railWidth * progress)) ? 0 : Math.round(railWidth * progress);
+		
+		$('#' + event.id + '_volumeSliderProgress').css('width', progressWidth);
+		$('#' + event.id + '_volumeSliderProgress').css('right', (railWidth + railRight - progressWidth));
 	}
 	
 	
@@ -950,19 +952,20 @@
 		displays[player.id] = {};
 		displays[player.id].domelement = domelement;
 		var meta = player.meta();
-		domelement.before("<div id='" + player.id + "_display' style='width:" + meta.width + "px;height: " + meta.height + "px;position:relative;z-index:50' ><a id='" + player.id + "_displayImage' href='" + $.fn.jwplayerUtils.getAbsolutePath(meta.sources[meta.source].file) + "'>&nbsp;</a><div id='" + player.id + "_displayIconBackground' alt='Click to play video' style='position:absolute; top:" + (meta.height - player.skin.display.elements.background.height) / 2 + "px; left:" + (meta.width - player.skin.display.elements.background.width) / 2 + "px; border:0; background-image:url(" + player.skin.display.elements.background.src + "); width:" + player.skin.display.elements.background.width + "px;height:" + player.skin.display.elements.background.height + "px;' ><img id='" + player.id + "_displayIcon' src='" + player.skin.display.elements.playIcon.src + "' alt='Click to play video' style='position:absolute; top:" + (player.skin.display.elements.background.height - player.skin.display.elements.playIcon.height) / 2 + "px; left:" + (player.skin.display.elements.background.width - player.skin.display.elements.playIcon.width) / 2 + "px; border:0;' /></div></div>");
+		domelement.before("<div id='" + player.id + "_display' style='cursor:pointer;width:" + meta.width + "px;height: " + meta.height + "px;position:relative;z-index:50' ><a id='" + player.id + "_displayImage' href='" + $.fn.jwplayerUtils.getAbsolutePath(meta.sources[meta.source].file) + "'>&nbsp;</a><div id='" + player.id + "_displayIconBackground' alt='Click to play video' style='cursor:pointer;position:absolute; top:" + (meta.height - player.skin.display.elements.background.height) / 2 + "px; left:" + (meta.width - player.skin.display.elements.background.width) / 2 + "px; border:0; background-image:url(" + player.skin.display.elements.background.src + "); width:" + player.skin.display.elements.background.width + "px;height:" + player.skin.display.elements.background.height + "px;' ><img id='" + player.id + "_displayIcon' src='" + player.skin.display.elements.playIcon.src + "' alt='Click to play video' style='cursor:pointer;position:absolute; top:" + (player.skin.display.elements.background.height - player.skin.display.elements.playIcon.height) / 2 + "px; left:" + (player.skin.display.elements.background.width - player.skin.display.elements.playIcon.width) / 2 + "px; border:0;' /></div></div>");
 		var display = $("#" + player.id + "_display");
 		var displayImage = $("#" + player.id + "_displayImage");
 		var displayIcon = $("#" + player.id + "_displayIcon");
 		var displayIconBackground = $("#" + player.id + "_displayIconBackground");
 		displayImage.jwplayerCSS({
-			'display': "block",
-			'background': "#ffffff url('" + $.fn.jwplayerUtils.getAbsolutePath(player.config.image) + "') no-repeat center center",
-			'width': meta.width,
-			'height': meta.height,
-			'position': "relative",
-			'left': 0,
-			'top': 0
+			display: 'block',
+			background: '#ffffff url(\'' + $.fn.jwplayerUtils.getAbsolutePath(player.config.image) + '\') no-repeat center center',
+			width: meta.width,
+			height: meta.height,
+			position: 'relative',
+			cursor: 'pointer',
+			left: 0,
+			top: 0
 		});
 		
 		display.click(function(evt) {
@@ -993,17 +996,37 @@
 		$("#" + player.id + "_displayIcon")[0].src = path;
 	}
 	
+	function animate(element, state) {
+		var speed = 'slow';
+		if (!displays[player.id].animate) {
+			return;
+		}
+		if (state) {
+			element.slideDown(speed, function() {
+				animate(element);
+			});
+		} else {
+			element.slideUp(speed, function() {
+				animate(element, true);
+			});
+		}
+	}
+	
+	
 	function stateHandler(obj) {
 		player = $.jwplayer(obj.id);
+		displays[player.id].animate = false;
 		switch (player.model.state) {
 			case $.fn.jwplayer.states.BUFFERING:
-				displays[obj.id].displayIconBackground.css("display", "block");
 				displays[obj.id].displayIcon[0].src = player.skin.display.elements.bufferIcon.src;
 				displays[obj.id].displayIcon.css({
 					"display": "block",
 					top: (player.skin.display.elements.background.height - player.skin.display.elements.bufferIcon.height) / 2 + "px",
 					left: (player.skin.display.elements.background.width - player.skin.display.elements.bufferIcon.width) / 2 + "px"
 				});
+				displays[player.id].animate = true;
+				//animate(displays[obj.id].displayIconBackground);
+				displays[obj.id].displayIconBackground.css('display', 'none');
 				break;
 			case $.fn.jwplayer.states.PAUSED:
 				displays[obj.id].displayImage.css("background", "transparent no-repeat center center");
@@ -2011,7 +2034,6 @@
 				'border': 'none',
 				'bottom': 'auto',
 				'clear': 'none',
-				'cursor': 'default',
 				'float': 'none',
 				'font-family': '"Arial", "Helvetica", sans-serif',
 				'font-size': 'medium',
@@ -2052,6 +2074,9 @@
 	
 	/** Gets an absolute file path based on a relative filepath **/
 	$.fn.jwplayerUtils.getAbsolutePath = function(path) {
+		if ($.fn.jwplayerUtils.isNull(path)){
+			return path;
+		}
 		if (isAbsolutePath(path)) {
 			return path;
 		}
@@ -2072,7 +2097,7 @@
 	};
 	
 	function isAbsolutePath(path) {
-		if(path === undefined){
+		if($.fn.jwplayerUtils.isNull(path)){
 			return;
 		}
 		var protocol = path.indexOf("://");
