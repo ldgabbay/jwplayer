@@ -70,7 +70,6 @@
 	};
 	
 	function generalHandler(event, player) {
-		//$.fn.jwplayerUtils.log("general:" + event.type);
 	}
 	
 	function stateHandler(event, player) {

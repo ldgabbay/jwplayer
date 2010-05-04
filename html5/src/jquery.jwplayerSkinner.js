@@ -17,9 +17,6 @@
 	function load(player, completeHandler) {
 		$.ajax({
 			url: player.model.config.skin,
-			error: function() {
-				loadSkin(player, $.fn.jwplayerDefaultSkin, completeHandler);
-			},
 			complete: function(xmlrequest, textStatus) {
 				if (textStatus == "success") {
 					loadSkin(player, xmlrequest.responseText, completeHandler);
@@ -72,24 +69,14 @@
 		var elementSource = $(element).attr('src');
 		var skinUrl = player.model.config.skin.substr(0, player.model.config.skin.lastIndexOf('/'));
 		$(img).error(function() {
-			$.fn.jwplayerUtils.log("img error", this.src);
 			player.skin.incompleteElements--;
 			if ((player.skin.incompleteElements === 0) && (player.skin.loading === false)) {
 				completeHandler();
 			}
 		});
-		if (elementSource.indexOf('url(\'data:image/png;base64,') === 0) {
-			img.src = elementSource;
-			player.skin[component].elements[elementName] = {
-				height: img.height,
-				width: img.width,
-				src: elementSource
-			};
-			player.skin.incompleteElements--;
-		} else {
-			$(img).load(completeImageLoad(img, elementName, component, player, completeHandler));
-			img.src = [skinUrl, component, elementSource].join("/");
-		}
+		
+		$(img).load(completeImageLoad(img, elementName, component, player, completeHandler));
+		img.src = (elementSource.indexOf('data:image/png;base64,') === 0) ? elementSource : [skinUrl, component, elementSource].join("/");
 	}
 	
 	function completeImageLoad(img, element, component, player, completeHandler) {

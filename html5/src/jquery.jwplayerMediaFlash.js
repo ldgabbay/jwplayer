@@ -66,7 +66,6 @@
 	};
 	
 	function stateHandler(event, player) {
-		$.fn.jwplayerUtils.log(event);
 		player.model.state = event.newstate;
 		player.sendEvent($.fn.jwplayer.events.JWPLAYER_PLAYER_STATE, {
 			oldstate: event.oldstate,
@@ -108,7 +107,6 @@
 	function forward(event, type, player) {
 		switch (type) {
 			case $.fn.jwplayer.events.JWPLAYER_MEDIA_META:
-				//$.fn.jwplayerUtils.log(type, event);
 				player.sendEvent(type, event);
 				break;
 			case $.fn.jwplayer.events.JWPLAYER_MEDIA_MUTE:
@@ -152,11 +150,7 @@
 	
 	function play(player) {
 		return function() {
-			try {
-				player.model.domelement[0].sendEvent("PLAY", true);
-			} catch (err) {
-				$.fn.jwplayerUtils.log("There was an error", err);
-			}
+			player.model.domelement[0].sendEvent("PLAY", true);
 		};
 	}
 	
