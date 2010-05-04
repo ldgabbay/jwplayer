@@ -72,8 +72,10 @@
 			htmlString = htmlString.replace("%flashplayer%", player.model.config.flashplayer);
 			htmlString = htmlString.replace("%style%", "style='"+styleString+"width:"+player.model.config.width+"px;height:"+player.model.config.height+"px;'");
 			if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
+				htmlString = htmlString.replace("%style%", "style='"+styleString+"width:"+player.model.config.width+"px;height:"+player.model.config.height+"px;'");
 				player.model.domelement.before(htmlString);
 			} else {
+				htmlString = htmlString.replace("%style%", "style='"+styleString+"width:"+player.model.config.width+"px;height:"+(player.model.config.height+player.skin.controlbar.elements.background.height)+"px;'");
 				player.model.domelement.before("<div />");
 				player.model.domelement.prev()[0].outerHTML= htmlString;
 			}

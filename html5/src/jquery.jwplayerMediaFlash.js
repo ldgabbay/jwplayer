@@ -47,8 +47,10 @@
 	
 	$.fn.jwplayerMediaFlash = function(player) {
 		var options = {};
-		options.controlbar = 'none';
-		options.icons = false;
+		if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
+			options.controlbar = 'none';
+			options.icons = false;
+		}
 		$.fn.jwplayerView.embedFlash(player, options);
 		var media = {
 			play: play(player),

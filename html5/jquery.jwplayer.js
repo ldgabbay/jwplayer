@@ -748,11 +748,11 @@
 			switch (step) {
 				case 0:
 					var model = $.fn.jwplayerModel(player, options);
-					var player = {
+					var jwplayer = {
 						model: model,
 						listeners: {}
 					};
-					setupJWPlayer(player, step + 1);
+					setupJWPlayer(jwplayer, step + 1);
 					break;
 				case 1:
 					player.controller = $.fn.jwplayerController(player);
@@ -760,17 +760,21 @@
 					setupJWPlayer($.extend(player, api(player)), step + 1);
 					break;
 				case 2:
-					$.fn.jwplayerView(player);
-					setupJWPlayer(player, step + 1);
-					break;
-				case 3:
-					$.fn.jwplayerModel.setActiveMediaProvider(player);
-					setupJWPlayer(player, step + 1);
-					break;
-				case 4:
 					$.fn.jwplayerSkinner(player, function() {
 						setupJWPlayer(player, step + 1);
 					});
+					break;
+				case 3:
+					$.fn.jwplayerView(player);
+					setupJWPlayer(player, step + 1);
+					break;
+				case 4:
+					$.fn.jwplayerModel.setActiveMediaProvider(player);
+					if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
+						setupJWPlayer(player, step + 1);
+					} else {
+						player.sendEvent($.fn.jwplayer.events.JWPLAYER_READY);
+					}
 					break;
 				case 5:
 					$.fn.jwplayerDisplay($.jwplayer(player.id), player.model.domelement);
@@ -782,7 +786,7 @@
 					break;
 				case 7:
 					player.sendEvent($.fn.jwplayer.events.JWPLAYER_READY);
-					setupJWPlayer(player, step + 1)
+					setupJWPlayer(player, step + 1);
 					break;
 				default:
 					if (player.config.autostart === true) {
@@ -1120,8 +1124,10 @@
 	
 	$.fn.jwplayerMediaFlash = function(player) {
 		var options = {};
-		options.controlbar = 'none';
-		options.icons = false;
+		if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
+			options.controlbar = 'none';
+			options.icons = false;
+		}
 		$.fn.jwplayerView.embedFlash(player, options);
 		var media = {
 			play: play(player),
@@ -1813,7 +1819,7 @@
 			url: player.model.config.skin,
 			complete: function(xmlrequest, textStatus) {
 				if (textStatus == "success") {
-					loadSkin(player, xmlrequest.responseText, completeHandler);
+					loadSkin(player, xmlrequest.responseXML, completeHandler);
 				} else {
 					loadSkin(player, $.fn.jwplayerDefaultSkin, completeHandler);
 				}
@@ -2250,8 +2256,10 @@
 			htmlString = htmlString.replace("%flashplayer%", player.model.config.flashplayer);
 			htmlString = htmlString.replace("%style%", "style='"+styleString+"width:"+player.model.config.width+"px;height:"+player.model.config.height+"px;'");
 			if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
+				htmlString = htmlString.replace("%style%", "style='"+styleString+"width:"+player.model.config.width+"px;height:"+player.model.config.height+"px;'");
 				player.model.domelement.before(htmlString);
 			} else {
+				htmlString = htmlString.replace("%style%", "style='"+styleString+"width:"+player.model.config.width+"px;height:"+(player.model.config.height+player.skin.controlbar.elements.background.height)+"px;'");
 				player.model.domelement.before("<div />");
 				player.model.domelement.prev()[0].outerHTML= htmlString;
 			}

@@ -19,7 +19,7 @@
 			url: player.model.config.skin,
 			complete: function(xmlrequest, textStatus) {
 				if (textStatus == "success") {
-					loadSkin(player, xmlrequest.responseText, completeHandler);
+					loadSkin(player, xmlrequest.responseXML, completeHandler);
 				} else {
 					loadSkin(player, $.fn.jwplayerDefaultSkin, completeHandler);
 				}

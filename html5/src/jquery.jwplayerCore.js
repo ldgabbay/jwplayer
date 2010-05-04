@@ -23,11 +23,11 @@
 			switch (step) {
 				case 0:
 					var model = $.fn.jwplayerModel(player, options);
-					var player = {
+					var jwplayer = {
 						model: model,
 						listeners: {}
 					};
-					setupJWPlayer(player, step + 1);
+					setupJWPlayer(jwplayer, step + 1);
 					break;
 				case 1:
 					player.controller = $.fn.jwplayerController(player);
@@ -35,17 +35,21 @@
 					setupJWPlayer($.extend(player, api(player)), step + 1);
 					break;
 				case 2:
-					$.fn.jwplayerView(player);
-					setupJWPlayer(player, step + 1);
-					break;
-				case 3:
-					$.fn.jwplayerModel.setActiveMediaProvider(player);
-					setupJWPlayer(player, step + 1);
-					break;
-				case 4:
 					$.fn.jwplayerSkinner(player, function() {
 						setupJWPlayer(player, step + 1);
 					});
+					break;
+				case 3:
+					$.fn.jwplayerView(player);
+					setupJWPlayer(player, step + 1);
+					break;
+				case 4:
+					$.fn.jwplayerModel.setActiveMediaProvider(player);
+					if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
+						setupJWPlayer(player, step + 1);
+					} else {
+						player.sendEvent($.fn.jwplayer.events.JWPLAYER_READY);
+					}
 					break;
 				case 5:
 					$.fn.jwplayerDisplay($.jwplayer(player.id), player.model.domelement);
@@ -57,7 +61,7 @@
 					break;
 				case 7:
 					player.sendEvent($.fn.jwplayer.events.JWPLAYER_READY);
-					setupJWPlayer(player, step + 1)
+					setupJWPlayer(player, step + 1);
 					break;
 				default:
 					if (player.config.autostart === true) {
