@@ -243,6 +243,9 @@
 			} else if (pct > 100) {
 				pct = 100;
 			}
+			if (player.model.mute){
+				player.mute(false);	
+			}
 			player.volume(pct);
 		}
 		controlbars[player.id].scrubber = 'none';
