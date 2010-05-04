@@ -42,7 +42,7 @@
 	
 	/** Embeds a Flash Player at the specified location in the DOM. **/
 	$.fn.jwplayerView.embedFlash = function(player, options) {
-		if (player.model.config.flashplayer !== false) {
+		if (player.model.config.flashplayer) {
 			var htmlString, elementvarString = "", flashvarString = "";
 			if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
 				htmlString = embedString;

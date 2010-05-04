@@ -27,7 +27,7 @@
 
 
 	<flashvars section="Layout">
-		<flashvar type="select">
+		<!-- <flashvar type="select">
 			<name>controlbar</name>
 			<default>bottom</default>
 			<description>Position of the controlbar. Can be set to bottom, over and none.</description>
@@ -36,7 +36,7 @@
 				<option>top</option>
 				<option>over</option>
 			</select>
-		</flashvar>
+		</flashvar> -->
 		<flashvar type="field">
 			<name>height</name>
 			<default>280</default>
@@ -47,7 +47,7 @@
 			<default>000000</default>
 			<description>Background color (hex value) of the display as a hex code.</description>
 		</flashvar>
-		<flashvar type="select">
+		<!-- <flashvar type="select">
 			<name>stretching</name>
 			<default>uniform</default>
 			<description>Defines how to resize images in the display. Can be none (no stretching), exactfit (disproportionate), uniform (stretch with black borders) or fill (uniform, but completely fill the display).</description>
@@ -57,7 +57,7 @@
 				<option>none</option>
 				<option>uniform</option>
 			</select>
-		</flashvar>
+		</flashvar> -->
 		<flashvar type="field">
 			<name>width</name>
 			<default>400</default>

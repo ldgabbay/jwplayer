@@ -800,7 +800,7 @@
 		file: undefined,
 		height: 295,
 		image: undefined,
-		skin: './assets/five/five.xml',
+		skin: undefined,
 		volume: 90,
 		width: 480,
 		mute: false,
@@ -808,7 +808,7 @@
 		start: 0,
 		position: 0,
 		debug: undefined,
-		flashplayer: 'http://developer.longtailvideo.com/player/trunk/html5/assets/player.swf'
+		flashplayer: undefined
 	};
 	
 	
@@ -2208,7 +2208,7 @@
 	
 	/** Embeds a Flash Player at the specified location in the DOM. **/
 	$.fn.jwplayerView.embedFlash = function(player, options) {
-		if (player.model.config.flashplayer !== false) {
+		if (player.model.config.flashplayer) {
 			var htmlString, elementvarString = "", flashvarString = "";
 			if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
 				htmlString = embedString;

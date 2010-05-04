@@ -34,25 +34,46 @@
 			'': {},
 			'MP4 video': {
 				file:'files/bunny.mp4',
-				image:'files/bunny.jpg',
+				flashplayer:'../../fl5/player.swf',
+				skin:'five',
 				height:240,
-				width:400
+				width:500
 			},
 			'OGG video': {
 				file:'files/bunny.ogv',
-				image:'files/bunny.jpg',
+				flashplayer:'../../fl5/player.swf',
+				skin:'five',
 				height:240,
-				width:400
+				width:500
 			},
-			'MP3 audio': {
-				file:'files/bunny.mp3',
-				height:24,
-				width:400
+			'FLV video': {
+				file:'files/bunny.flv',
+				flashplayer:'../../fl5/player.swf',
+				skin:'five',
+				height:240,
+				width:500
 			},
-			'AAC audio':{
-				file:'files/bunny.m4a',
-				height:20,
-				width:400
+			' ': {},
+			'MP4 video with image': {
+				file:'files/bunny.mp4',
+				image:'files/bunny.jpg',
+				skin:'five',
+				height:240,
+				width:500
+			},
+			'OGG without flashplayer': {
+				file:'files/bunny.ogv',
+				skin:'five',
+				height:240,
+				width:500
+			},
+			'Long MP4 video with autostart': {
+				autostart: true,
+				file:'http://content.bitsontherun.com/videos/LJSVMnCF-327.mp4',
+				image:'http://content.bitsontherun.com/thumbs/LJSVMnCF-320.jpg',
+				skin:'five',
+				height:240,
+				width:500
 			}
 		}
 	};
@@ -65,7 +86,7 @@
 	**/
 
 	/** The complete list with all current flashvars. **/
-	var variables = {width:500,height:260,skin:'five'};
+	var variables = {};
 	/** When jQuery is loaded, we initialize everything. **/
 	$().ready(function() { loadSettings(); });
 	/** Load the settings and querystring. **/
@@ -219,6 +240,9 @@
 		var lnk = 'http://developer.longtailvideo.com/player/trunk/html5/test/';
 		$("#permalink").val(lnk+'?'+$.param(variables));
 		$('#container').attr('src',variables['file']);
+		for (itm in variables) {
+			variables[itm] = serialize(variables[itm]);
+		}
 		$('#container').jwplayer(variables);
 	};
 	/** Change the page URL. **/
@@ -236,6 +260,18 @@
 		}
 		window.top.location.href = window.top.location.pathname+'?'+$.param(variables);
 	};
+	/** Convert strings to booleans. **/
+	function serialize(str) {
+		if(str == 'true') {
+			return true;
+		} else if (str == 'false') {
+			return false;
+		} else if(isNaN(str/1) || str.length == 6) {
+			return str;
+		} else {
+			return Number(str);
+		}
+	}
 
 
 
@@ -255,9 +291,8 @@
 	function sendEvent(evt) {
 		evt.preventDefault();
 		var typ = $('#sendevent').val();
-		var pr1 = $('#sendeventdata1').val();
-		if(pr1 == 'true') { pr1 = true } else if (pr1 == 'false') { pr1 = false; }
-		var pr2 = $('#sendeventdata2').val();
+		var pr1 = serialize($('#sendeventdata1').val());
+		var pr2 = serialize($('#sendeventdata2').val());
 		if(pr2) {
 			$.jwplayer()[typ](pr1,pr2);
 		} else if (pr1) { 
@@ -285,7 +320,7 @@
 				txt += itm+': '+obj[itm]+'\n';
 			}
 		}
-		alert(txt);
+		console.log(txt);
 	};
 
 
@@ -314,13 +349,13 @@
 			<select type="text" id="vartype">
 				<option>buffer</option>
 				<option>duration</option>
-				<option>fullscreen</option>
-				<option>height</option>
+				<!-- <option>fullscreen</option> -->
+				<!-- <option>height</option> -->
 				<option>mute</option>
 				<option>position</option>
 				<option>state</option>
 				<option>volume</option>
-				<option>width</option>
+				<!-- <option>width</option> -->
 			</select>
 		</fieldset>
 		<button type="submit" id="variablesbutton">Get property</button>
@@ -329,20 +364,20 @@
 		<fieldset>
 			<label>Method</label>
 			<select type="text" id="sendevent">
-				<option>fullscreen</option>
-				<option>load</option>
+				<!-- <option>fullscreen</option> -->
+				<!-- <option>load</option> -->
 				<option>mute</option>
 				<option>pause</option>
 				<option>play</option>
-				<option>resize</option>
+				<!-- <option>resize</option> -->
 				<option>seek</option>
 				<option>stop</option>
 				<option>volume</option>
 			</select>
-			<label>Parameter 1</label>
+			<label>Parameter</label>
 			<input type="text" id="sendeventdata1" />
-			<label>Parameter 2</label>
-			<input type="text" id="sendeventdata2" />
+			<!-- <label>Parameter 2</label>
+			<input type="text" id="sendeventdata2" /> -->
 		</fieldset>
 		<button type="submit" id="sendeventbutton">Call method</button>
 	</form>
@@ -353,11 +388,11 @@
 				<option>buffer</option>
 				<option>complete</option>
 				<option>error</option>
-				<option>fullscreen</option>
-				<option>loaded</option>
+				<!-- <option>fullscreen</option> -->
+				<!-- <option>loaded</option> -->
 				<option>meta</option>
 				<option>mute</option>
-				<option>resize</option>
+				<!-- <option>resize</option> -->
 				<option>state</option>
 				<option>time</option>
 				<option>volume</option>
@@ -388,8 +423,8 @@
 		<select id="players"></select>
 		<label>skin</label>
 		<select id="skins"></select>
-		<label>plugins</label>
-		<select multiple="multiple" id="plugins"></select>
+		<!-- <label>plugins</label>
+		<select multiple="multiple" id="plugins"></select> -->
 	</fieldset>
 	<fieldset id="custom">
 		<p>

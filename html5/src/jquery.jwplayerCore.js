@@ -84,7 +84,7 @@
 		file: undefined,
 		height: 295,
 		image: undefined,
-		skin: './assets/five/five.xml',
+		skin: undefined,
 		volume: 90,
 		width: 480,
 		mute: false,
@@ -92,7 +92,7 @@
 		start: 0,
 		position: 0,
 		debug: undefined,
-		flashplayer: 'http://developer.longtailvideo.com/player/trunk/html5/assets/player.swf'
+		flashplayer: undefined
 	};
 	
 	
