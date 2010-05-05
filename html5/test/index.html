@@ -239,7 +239,12 @@
 		variables['skin'] = settings.skins[variables['skin']];
 		var lnk = 'http://developer.longtailvideo.com/player/trunk/html5/test/';
 		$("#permalink").val(lnk+'?'+$.param(variables));
-		$('#container').attr('src',variables['file']);
+		if(variables['file']) {
+			$('#container').attr('src',variables['file']);
+		}
+		if(variables['image']) { 
+			$('#container').attr('poster',variables['image']);
+		}
 		for (itm in variables) {
 			variables[itm] = serialize(variables[itm]);
 		}

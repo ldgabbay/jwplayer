@@ -1,0 +1,87 @@
+<html>
+<body>
+
+
+
+<h1>Multiple custom players.</h1>
+
+<p>Multiple players on one page. Different videos ánd different styles.</p>
+
+<h3>Player 1:</h3>
+<script type="text/javascript" src="/jw/js/jquery.jwplayer.js"></script>
+<video height="270" id="player1" poster="/jw/upload/bunny.jpg" src="/jw/upload/bunny.mp4" width="480">
+	<a href="/jw/upload/bunny.mp4">Click here</a> to download this video.
+</video>
+<script type="text/javascript">
+	$('#player1').jwplayer({
+		autostart:true,
+		flashplayer:'/files/player.swf',
+		mute:true,
+		skin:'/files/skins/icecreamsneaka/icecreamsneaka.xml'
+	});
+</script>
+
+
+<h3>Player 2:</h3>
+<video height="270" id="player2" poster="/jw/upload/corrie.jpg" src="/jw/upload/corrie.mp4" width="480">
+	<a href="/jw/upload/corrie.mp4">Click here</a> to download this video.
+</video>
+<script type="text/javascript">
+	$('#player2').jwplayer({
+		duration:45,
+		skin:'/files/skins/stormtrooper/stormtrooper.xml'
+	});
+</script>
+
+
+
+<h3>HTML code</h3>
+<p>Multiple players on one page. Different videos and <a href="/support/jw-player/html5-player/11289/configuration-options-of-the-jw-player-for-html5">different options</a>. The first player is set to autostart muted. The second player has pre-set duration, but no flashplayer fallback. Both have a custom skin.</p>
+
+
+<p>First, place this code in the <ems>&lt;head&gt;</ems> of your page:</p>
+<pre>&lt;script type="text/javascript" src="/scripts/jquery.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="/scripts/jquery.jwplayer.js"&gt;&lt;/script&gt;</pre>
+
+<p>Second, place this code where you want the first video to appear:</p>
+<pre>&lt;video 
+  height="270" 
+  id="player1"
+  poster="/files/bunny.jpg"
+  src="/files/bunny.mp4"
+  width="480" &gt;
+  &lt;a href="/files/bunny.mp4"&gt;Click here&lt;/a&gt; to download this video.
+&lt;/video&gt;
+
+&lt;script type="text/javascript"&gt;
+  $('#player1').jwplayer({
+    autostart:true,
+    flashplayer:'/files/player.swf',
+    mute:true,
+    repeat:true,
+    skin:'/files/icecreamsneaka.xml'
+});
+&lt;/script&gt;</pre>
+
+<p>Third, place this code where you want the second video to appear:</p>
+<pre>&lt;video
+  height="270"
+  id="player2"
+  src="/files/corrie.mp4"
+  width="480" &gt;
+  &lt;a href="/files/corrie.mp4"&gt;Click here&lt;/a&gt; to download this video.
+&lt;/video&gt;
+
+&lt;script type="text/javascript"&gt;
+  $('#player2').jwplayer({
+    duration:45,
+    skin:'/files/stormtrooper.xml'
+});
+&lt;/script&gt;</pre>
+
+<p>Note that the <i>jwplayer()</i> function is called twice. This allows us to set different options for the two players.</p>
+
+
+
+</body>
+</html>

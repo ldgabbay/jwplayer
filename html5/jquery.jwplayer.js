@@ -138,7 +138,7 @@
 		});
 		timeHandler({
 			id: player.id,
-			time: 0,
+			duration: player.duration(),
 			position: 0
 		});
 		bufferHandler({
@@ -648,16 +648,19 @@
 	
 	/** Returns the meta **/
 	function mediaInfo(player) {
-		try {
-			var result = {};
-			for (var mediaParam in mediaParams()) {
-				result[mediaParam] = player.model[mediaParam];
+		return function() {
+			try {
+				var result = {};
+				for (var mediaParam in mediaParams()) {
+					result[mediaParam] = player.model[mediaParam];
+				}
+				return result;
+			} catch (err) {
+				$.fn.jwplayerUtils.log("error", err);
 			}
-			return result;
-		} catch (err) {
-			$.fn.jwplayerUtils.log("error", err);
+			return false;
 		}
-		return false;
+		
 	}
 	
 	
@@ -836,9 +839,9 @@
 					break;
 				default:
 					if (!$.fn.jwplayerUtils.isNull(dataType)) {
-						return player.controller.mediaInfo[dataType];
+						return player.controller.mediaInfo()[dataType];
 					}
-					return player.controller.mediaInfo;
+					return player.controller.mediaInfo();
 			}
 			return $.jwplayer(player.id);
 		};
@@ -1083,6 +1086,8 @@
  * @lastmodifieddate 2010-04-12
  */
 (function($) {
+	
+	var players = {};
 
 	var controllerEvents = {
 		ERROR: $.fn.jwplayer.events.JWPLAYER_ERROR,
@@ -1128,7 +1133,6 @@
 			options.controlbar = 'none';
 			options.icons = false;
 		}
-		$.fn.jwplayerView.embedFlash(player, options);
 		var media = {
 			play: play(player),
 			pause: pause(player),
@@ -1141,7 +1145,8 @@
 			state: $.fn.jwplayer.states.IDLE
 		};
 		player.media = media;
-		addEventListeners(player);
+		//addEventListeners(player);
+		$.fn.jwplayerView.embedFlash(player, options);
 	};
 	
 	function stateHandler(event, player) {
@@ -1160,8 +1165,8 @@
 			}, 100);
 			return;
 		}
-		$.fn.jwplayerMediaFlash.forwarders[player.id] = {}
-		var video = player.model.domelement;
+		$.fn.jwplayerMediaFlash.forwarders[player.id] = {};
+		var video = $("#"+player.id);
 		for (var controllerEvent in controllerEvents) {
 			$.fn.jwplayerMediaFlash.forwarders[player.id][controllerEvents[controllerEvent]] = forwardFactory(controllerEvents[controllerEvent], player);
 			video[0].addControllerListener(controllerEvent, "$.fn.jwplayerMediaFlash.forwarders." + player.id + "." + controllerEvents[controllerEvent]);
@@ -1180,6 +1185,10 @@
 			forward(event, type, player);
 		};
 	}
+	
+	$.fn.jwplayerMediaFlash.playerReady = function(evt){
+		addEventListeners($.jwplayer(evt.id));
+	};
 	
 	$.fn.jwplayerMediaFlash.forwarders = {};
 	
@@ -1427,8 +1436,8 @@
 			}
 			if (player.media.state == $.fn.jwplayer.states.PLAYING) {
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
-					position: event.target.currentTime,
-					duration: event.target.duration
+					position: Math.round(event.target.currentTime*10) / 10,
+					duration: Math.round(event.target.duration*10) / 10
 				});
 			}
 		}
@@ -1471,11 +1480,11 @@
 			
 			if (!$.fn.jwplayerUtils.isNull(bufferPercent)) {
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
-					bufferPercent: bufferPercent,
-					bufferingComplete: player.media.bufferingComplete,
+					bufferPercent: Math.round(bufferPercent)
+					/*bufferingComplete: player.media.bufferingComplete,
 					bufferFull: player.media.bufferFull,
 					bufferFill: bufferFill,
-					bufferTime: bufferTime
+					bufferTime: bufferTime*/
 				});
 			}
 			
@@ -2234,12 +2243,12 @@
 				htmlString = objectString;
 			}
 			for (var elementvar in elementvars) {
-				if (!((player.model.config[elementvar] === undefined) || (player.model.config[elementvar] === "") || (player.model.config[elementvar] === null))) {
+				if (!$.fn.jwplayerUtils.isNull(player.model.config[elementvar])) {
 					elementvarString += elementvar + "='" + player.model.config[elementvar] + "' ";
 				}
 			}
-			if (elementvar.indexOf("name" ) < 0) {
-				elementvarString += "name" + "='" + player.id + "' ";
+			if (elementvarString.indexOf("name=" ) < 0) {
+				elementvarString += "name='" + player.id + "' ";
 			}
 			var config = $.extend(true, {}, player.model.config, options);
 			flashvarString += "file=" + $.fn.jwplayerUtils.getAbsolutePath(player.model.sources[player.model.source].file) + "&image=" + $.fn.jwplayerUtils.getAbsolutePath(config.image) +"&";
@@ -2251,6 +2260,9 @@
 					flashvarString += flashvar + "=" + config[flashvar] + "&";
 				}
 			}
+			
+			flashvarString += 'playerready=$.fn.jwplayerMediaFlash.playerReady';
+			
 			htmlString = htmlString.replace("%elementvars%", elementvarString);
 			htmlString = htmlString.replace("%flashvars%", flashvarString);
 			htmlString = htmlString.replace("%flashplayer%", player.model.config.flashplayer);

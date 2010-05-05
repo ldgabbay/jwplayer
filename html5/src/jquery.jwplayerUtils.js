@@ -54,26 +54,14 @@
 	
 	/** Filetypes supported by Flash **/
 	var flashFileTypes = {
-		'3g2': true,
-		'3gp': true,
 		'aac': true,
-		'f4b': true,
-		'f4p': true,
 		'f4v': true,
 		'flv': true,
-		'gif': true,
-		'jpg': true,
-		'jpeg': true,
 		'm4a': true,
 		'm4v': true,
 		'mov': true,
 		'mp3': true,
-		'mp4': true,
-		'png': true,
-		'rbs': true,
-		'sdp': true,
-		'swf': true,
-		'vp6': true
+		'mp4': true
 	};
 	
 	
