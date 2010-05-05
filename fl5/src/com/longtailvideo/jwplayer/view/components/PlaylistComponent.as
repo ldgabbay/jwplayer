@@ -317,14 +317,15 @@ package com.longtailvideo.jwplayer.view.components {
 				var button:Sprite = getButton(idx); 
 				if (button && button.getChildByName(itm)) {
 					var field:TextField = (getButton(idx).getChildByName(itm) as TextField)
-					
-					if (idx == active) {
-						field.textColor = activeColor ? activeColor.color : (fontColor ? fontColor.color : light.color);
-					} else {
-						if (fontColor && overColor) {
-							field.textColor =  fontColor.color;
-						} else if (front && back) {
-							field.textColor =  front.color;
+					if (field) {
+						if (idx == active && ((activeColor && fontColor) || light)) {
+							field.textColor = activeColor ? activeColor.color : (fontColor ? fontColor.color : light.color);
+						} else {
+							if (fontColor && overColor) {
+								field.textColor =  fontColor.color;
+							} else if (front && back) {
+								field.textColor =  front.color;
+							}
 						}
 					}
 					

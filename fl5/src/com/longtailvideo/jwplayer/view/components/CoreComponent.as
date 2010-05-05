@@ -54,7 +54,7 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		protected function get fontSize():Number {
-			return Number(getConfigParam("fontsize"));
+			return getConfigParam("fontsize") ? Number(getConfigParam("fontsize")) : 0;
 		}
 		
 		protected function get fontFace():String {
@@ -62,11 +62,11 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		protected function get fontWeight():String { 
-			return String(getConfigParam("fontweight")).toLowerCase();
+			return getConfigParam("fontweight") ? String(getConfigParam("fontweight")).toLowerCase() : "";
 		}
 		
 		protected function get fontStyle():String {
-			return String(getConfigParam("fontstyle")).toLowerCase();
+			return getConfigParam("fontstyle") ? String(getConfigParam("fontstyle")).toLowerCase() : "";
 		}
 
 		

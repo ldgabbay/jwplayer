@@ -90,6 +90,7 @@ package com.longtailvideo.jwplayer.view.components {
 	public class ControlbarComponent extends CoreComponent implements IControlbarComponent {
 		protected var _buttons:Object = {};
 		protected var _dividers:Array;
+		protected var _dividerElements:Object;
 		protected var _defaultLayout:String = "[play|stop|prev|next|elapsed][time][duration|blank|fullscreen|mute volume]";
 		protected var _currentLayout:String;
 		protected var _layoutManager:ControlbarLayoutManager;
@@ -106,6 +107,7 @@ package com.longtailvideo.jwplayer.view.components {
 			super(player, "controlbar");
 			_layoutManager = new ControlbarLayoutManager(this);
 			_dividers = [];
+			_dividerElements = {'divider': true};
 			setupBackground();
 			setupDefaultButtons();
 			addEventListeners();
@@ -203,9 +205,49 @@ package com.longtailvideo.jwplayer.view.components {
 			redraw();
 		}
 
+		
+		private function parseStructuredLayout(structuredLayout:Object):String {
+			var layoutString:String = "";
+			getTextField('elapsed').visible = false;
+			getTextField('duration').visible = false;
+			for each (var position:String in ['left','center','right']) {
+				layoutString += "[";
+				var layout:Array = structuredLayout[position] as Array;
+				if (layout) {
+					var lastWasDivider:Boolean = true;					
+					for each (var item:Object in layout) {
+						if (item['type'] == "divider") { 
+							if (item['element']) {
+								layoutString += "<" + item['element'] + ">";
+								_dividerElements[item['element']] = true;
+							} else if (item['width'] > 0) { 
+								layoutString += "<"+item['width']+">";
+							} else {
+								layoutString += "|";
+							}
+							lastWasDivider = true;
+						} else {
+							if (item['type'] == "text") {
+								getTextField(item['name']).visible = true;
+							}
+							if (!lastWasDivider) layoutString += " ";
+							layoutString += item['name'];
+							lastWasDivider = false;
+						}
+					}
+				}
+				layoutString += "]";
+			}
+			return layoutString;
+		}
+		
 
 		private function updateControlbarState():void {
 			var newLayout:String = _defaultLayout;
+			var controlbarLayout:Object = _player.skin.getSkinProperties().layout['controlbar'];
+			if (controlbarLayout) {
+				newLayout = parseStructuredLayout(controlbarLayout);
+			}
 			newLayout = removeButtonFromLayout("blank", newLayout);
 			if (player.state == PlayerState.PLAYING) {
 				newLayout = newLayout.replace('play', 'pause');
@@ -287,15 +329,17 @@ package com.longtailvideo.jwplayer.view.components {
 		private function updateVolumeSlider(evt:MediaEvent=null):void {
 			var volume:Slider = _volSlider;
 			if (volume) {
+				var volumeWidth:Number = getSkinElement("volumeSliderRail").width + volume.capsWidth;
+
 				if (!_player.config.mute) {
 					volume.setBuffer(100);
 					volume.setProgress(_player.config.volume);
 					volume.thumbVisible = true;
-					volume.resize(getSkinElement("volumeSliderRail").width, volume.height);
+					volume.resize(volumeWidth, volume.height);
 				} else {
 					volume.reset();
 					volume.thumbVisible = false;
-					volume.resize(getSkinElement("volumeSliderRail").width, volume.height);
+					volume.resize(volumeWidth, volume.height);
 				}
 			}
 		}
@@ -393,7 +437,14 @@ package com.longtailvideo.jwplayer.view.components {
 
 		private function addSlider(name:String, event:String, callback:Function, margin:Number=0):void {
 			try {
-				var slider:Slider = new Slider(getSkinElement(name + "SliderRail"), getSkinElement(name + "SliderBuffer"), getSkinElement(name + "SliderProgress"), getSkinElement(name + "SliderThumb"));
+				var slider:Slider = new Slider(
+					getSkinElement(name + "SliderRail"), 
+					getSkinElement(name + "SliderBuffer"), 
+					getSkinElement(name + "SliderProgress"), 
+					getSkinElement(name + "SliderThumb"),
+					getSkinElement(name + "SliderCapLeft"),
+					getSkinElement(name + "SliderCapRight")
+				);
 				slider.addEventListener(event, callback);
 				slider.name = name;
 				slider.tabEnabled = false;
@@ -467,7 +518,11 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		private function addButtonDisplayObject(icon:DisplayObject, name:String, handler:Function=null):MovieClip {
-			if (icon) {
+			if (icon is ComponentButton) {
+				icon.name = name;
+				_buttons[name] = icon;
+				return icon as ComponentButton;
+			} else if (icon) {
 				var clipMC:MovieClip = new MovieClip();
 				if (handler != null) {
 					clipMC.addEventListener(MouseEvent.CLICK, handler);
@@ -523,8 +578,8 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		public function getButton(buttonName:String):DisplayObject {
-			if (buttonName == "divider") {
-				var divider:DisplayObject = getSkinElement("divider");
+			if (_dividerElements[buttonName]) {
+				var divider:DisplayObject = getSkinElement(buttonName);
 				if (divider) {
 					_dividers.push(divider);
 				}
@@ -625,7 +680,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		public function get layout():String {
-			return _currentLayout;
+			return _currentLayout.replace(/\|/g, "<divider>");
 		}
 
 

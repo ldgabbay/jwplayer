@@ -29,25 +29,50 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 				var controlbarPattern:RegExp = /\[(.*)\]\[(.*)\]\[(.*)\]/;
 				var result:Object = controlbarPattern.exec(_controlbar.layout);
-				positionLeft(result[1]);
-				positionRight(result[3]);
+				position(result[1], "left");
+				position(result[3], "right");
 				positionCenter(result[2]);
 			}
 		}
 		
 		
-		private function positionLeft(left:String):void {
-			var dividers:Array = left.split("|");
-			for (var i:Number = 0; i < dividers.length; i++) {
-				if (i > 0) {
-					placeLeft(_controlbar.getButton("divider"));
+		private function position(group:String, align:String):void {
+			var items:Array = group.split(/(<[^>]*>)/);
+			if (align == "right") { items = items.reverse(); }
+			for  (var i:Number = 0; i < items.length; i++) {
+				var item:String = items[i];
+				if (item) {
+					var dividerMatch:Array = (/<(.*)>/).exec(item);
+					if (dividerMatch) {
+						if (isNaN(dividerMatch[1])) {
+							place(_controlbar.getButton(dividerMatch[1]), align);
+						} else {
+							var space:Number = Number(dividerMatch[1]);
+							if (align == "left") {
+								_currentLeft += space;
+							} else if (align == "right") {
+								_currentRight -= space;
+							}
+						}
+						
+					} else {
+						var spacers:Array = item.split(" ");
+						if (align == "right") { spacers = spacers.reverse(); }
+						for (var j:Number = 0; j < spacers.length; j++) {
+							var name:String = spacers[j];
+							var button:DisplayObject = _controlbar.getButton(spacers[j]);
+							place(_controlbar.getButton(spacers[j]), align);
+						}
+					}
 				}
-				var spacers:Array = (dividers[i] as String).split(" ");
-				for (var j:Number = 0; j < spacers.length; j++) {
-					var name:String = spacers[j];
-					var button:DisplayObject = _controlbar.getButton(spacers[j]);
-					placeLeft(_controlbar.getButton(spacers[j]));
-				}
+			}
+		}
+		
+		private function place(displayObject:DisplayObject, align:String):void {
+			if (align == "left") {
+				placeLeft(displayObject);
+			} else if (align == "right") {
+				placeRight(displayObject);
 			}
 		}
 		
@@ -60,8 +85,10 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 				
 				var doc:DisplayObjectContainer = displayObject as DisplayObjectContainer;
-				if ((doc && doc.getChildByName('text') is TextField) || displayObject is Slider) {
-					_currentLeft = _currentLeft + 5;
+				if (doc && doc.getChildByName('text') is TextField) {
+					_currentLeft += 5;
+				} else if (displayObject is Slider && (displayObject as Slider).capsWidth == 0) {
+					_currentLeft += 5;
 				}
 				
 				displayObject.x = _currentLeft;	
@@ -69,26 +96,12 @@ package com.longtailvideo.jwplayer.view.components {
 
 				_currentLeft = _currentLeft + displayObject.width;								
 
-				if ((doc && doc.getChildByName('text') is TextField) || displayObject is Slider) {
-					_currentLeft = _currentLeft + 5;
+				if (doc && doc.getChildByName('text') is TextField) {
+					_currentLeft += 5;
+				} else if (displayObject is Slider && (displayObject as Slider).capsWidth == 0) {
+					_currentLeft += 5;
 				}
 				
-			}
-		}
-		
-		
-		private function positionRight(right:String):void {
-			var dividers:Array = right.split("|");
-			for (var i:Number = dividers.length - 1; i >= 0; i--) {
-				if (i < dividers.length - 1) {
-					placeRight(_controlbar.getButton("divider"));
-				}
-				var spacers:Array = (dividers[i] as String).split(" ");
-				for (var j:Number = spacers.length - 1; j >= 0; j--) {
-					var name:String = spacers[j];
-					var button:DisplayObject = _controlbar.getButton(spacers[j]);
-					placeRight(_controlbar.getButton(spacers[j]));
-				}
 			}
 		}
 		
@@ -101,16 +114,20 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 
 				var doc:DisplayObjectContainer = displayObject as DisplayObjectContainer;
-				if ((doc && doc.getChildByName('text') is TextField) || displayObject is Slider) {
-					_currentRight = _currentRight - 5;
+				if (doc && doc.getChildByName('text') is TextField) {
+					_currentRight -= 5;
+				} else if (displayObject is Slider && (displayObject as Slider).capsWidth == 0) {
+					_currentRight -= 5;
 				}
 				
 				_currentRight = _currentRight - displayObject.width;
 				displayObject.x = _currentRight;
 				displayObject.y = (_height - displayObject.height) / 2;
 
-				if ((doc && doc.getChildByName('text') is TextField) || displayObject is Slider) {
-					_currentRight = _currentRight - 5;
+				if (doc && doc.getChildByName('text') is TextField) {
+					_currentRight -= 5;
+				} else if (displayObject is Slider && (displayObject as Slider).capsWidth == 0) {
+					_currentRight -= 5;
 				}
 			}
 		}
@@ -119,7 +136,7 @@ package com.longtailvideo.jwplayer.view.components {
 		private function positionCenter(center:String):void {
 			var centerPattern:RegExp = /\W/;
 			var elements:Array = center.split(centerPattern);
-			var dividers:Array = center.split("|");
+			var dividers:Array = center.split(/<[^\>]*>/);
 			var divider:DisplayObject = _controlbar.getButton("divider");
 			var dividerOffset:Number = 0;
 			if (divider) {

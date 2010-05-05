@@ -65,11 +65,13 @@ package com.longtailvideo.jwplayer.view.skins {
 		}
 
 		protected function parseSkin():void {
-//			use namespace skinNS;
-	
 			if (_skinXML.localName() != "skin") {
 				sendError("PNG skin descriptor file not correctly formatted");
 				return;
+			}
+			
+			for each (var attrib:XML in _skinXML.attributes()) {
+				_props[attrib.localName()] = attrib.toString();
 			}
 			
 			parseConfig(_skinXML.settings);
@@ -78,9 +80,29 @@ package com.longtailvideo.jwplayer.view.skins {
 				parseConfig(comp.settings, comp.@name.toString());
 				loadElements(comp.@name.toString(), comp..element);
 			}
+
+			var cbLayout:XML = (_skinXML.components.component.(@name=="controlbar").layout as XMLList)[0] as XML;
+			if (cbLayout) {
+				parseControlbarLayout(cbLayout);
+			}
 			
 		}
 
+		protected function parseControlbarLayout(layout:XML):void {
+			_props.layout['controlbar'] = {};
+			for each(var group:XML in layout.group) {
+				var groupArray:Array = new Array();
+				for each(var element:XML in group.*) {
+					groupArray.push({
+						type: element.localName(),
+						name: element.@name.toString(),
+						element: element.@element.toString(),
+						width: (element.localName() == "divider" ? Number(element.@width.toString()) : null)
+					});
+				}
+				_props.layout['controlbar'][group.@position.toString().toLowerCase()] = groupArray;
+			}
+		}
 		
 		protected function parseConfig(settings:XMLList, component:String=""):void {
 			for each(var setting:XML in settings.setting) {

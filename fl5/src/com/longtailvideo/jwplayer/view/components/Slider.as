@@ -14,6 +14,8 @@ package com.longtailvideo.jwplayer.view.components {
 		protected var _buffer:Sprite;
 		protected var _progress:Sprite;
 		protected var _thumb:Sprite;
+		protected var _capLeft:Sprite;
+		protected var _capRight:Sprite;
 		protected var _currentThumb:Number = 0;
 		protected var _currentProgress:Number = 0;
 		protected var _currentBuffer:Number = 0;
@@ -31,9 +33,7 @@ package com.longtailvideo.jwplayer.view.components {
 		/** If the buffer has a percentage offset **/
 		protected var _bufferOffset:Number = 0;
 
-
-		//protected var _height:Number;
-		public function Slider(rail:DisplayObject, buffer:DisplayObject, progress:DisplayObject, thumb:DisplayObject) {
+		public function Slider(rail:DisplayObject, buffer:DisplayObject, progress:DisplayObject, thumb:DisplayObject, capLeft:DisplayObject=null, capRight:DisplayObject=null) {
 			super();
 			
 			if (!rail || !buffer || !progress) {
@@ -49,6 +49,8 @@ package com.longtailvideo.jwplayer.view.components {
 			_buffer = addElement(buffer, "buffer");
 			_progress = addElement(progress, "progress");
 			_thumb = addElement(thumb, "thumb");
+			_capLeft = addElement(capLeft, "capleft", true);
+			_capRight = addElement(capRight, "capright", true); 
 		}
 
 
@@ -91,26 +93,31 @@ package com.longtailvideo.jwplayer.view.components {
 		public function resize(width:Number, height:Number):void {
 			var scale:Number = this.scaleX;
 			this.scaleX = 1;
-			_width = width * scale;
+			_width = width * scale - _capLeft.width - _capRight.width;
 			_height = height;
+			_capLeft.x = 0;
+			_capRight.x = width - _capRight.width;
+			
 			var railMap:DisplayObject = _rail.getChildByName("bitmap"); 
 			if (railMap) {
 				railMap.width = _width;
+				railMap.x = _capLeft.width;
 				resizeElement(railMap);
 			}
 			var bufferMap:DisplayObject = _buffer.getChildByName("bitmap"); 
 			if (bufferMap) {
 				bufferMap.width = _width;
-				bufferMap.x = _width * _bufferOffset / 100;
+				bufferMap.x = _capLeft.width + _width * _bufferOffset / 100;
 				resizeElement(bufferMap, _currentBuffer);
 			}
 			var progressMap:DisplayObject = _progress.getChildByName("bitmap"); 
 			if (progressMap && !_dragging) {
 				progressMap.width = _width;
+				progressMap.x = _capLeft.width;
 				resizeElement(progressMap, _currentProgress);
 			}
 			if (_thumb && !_dragging) {
-				_thumb.x = (_width-_thumb.width) * _currentThumb / 100;
+				_thumb.x = _capLeft.width + (_width-_thumb.width) * _currentThumb / 100;
 			}
 			verticalCenter();
 		}
@@ -205,6 +212,10 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		public function set thumbVisible(state:Boolean):void {
 			_thumb.visible = state;
+		}
+		
+		public function get capsWidth():Number {
+			return _capLeft.width + _capRight.width;
 		}
 	}
 }
