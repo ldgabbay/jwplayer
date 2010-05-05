@@ -298,9 +298,9 @@
 		var typ = $('#sendevent').val();
 		var pr1 = serialize($('#sendeventdata1').val());
 		var pr2 = serialize($('#sendeventdata2').val());
-		if(pr2) {
+		if((pr2 !== undefined) && (pr2 !== null)) {
 			$.jwplayer()[typ](pr1,pr2);
-		} else if (pr1) { 
+		} else if ((pr1 !== undefined) && (pr1 !== null)) { 
 			$.jwplayer()[typ](pr1);
 		} else { 
 			$.jwplayer()[typ]();

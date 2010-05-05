@@ -45,6 +45,7 @@
 	
 	
 	$.fn.jwplayerMediaVideo = function(player) {
+		player.model.domelement.attr('loop', player.config.repeat);
 		var media = {
 			play: play(player),
 			pause: pause(player),
@@ -79,6 +80,9 @@
 	}
 	
 	function setState(player, newstate) {
+		if (player.media.stopped) {
+			newstate = $.fn.jwplayer.states.IDLE;
+		}
 		if (player.model.state != newstate) {
 			var oldstate = player.model.state;
 			player.media.state = newstate;
@@ -92,7 +96,11 @@
 			clearInterval(player.media.interval);
 			player.media.interval = null;
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE);
+			if (player.config.repeat && !player.media.stopped) {
+				player.play();
+			}
 		}
+		player.media.stopped = false;
 	}
 	
 	function metaHandler(event, player) {
@@ -109,6 +117,9 @@
 	}
 	
 	function positionHandler(event, player) {
+		if (player.media.stopped) {
+			return;
+		}
 		if (!$.fn.jwplayerUtils.isNull(event.target)) {
 			if (player.model.duration === 0) {
 				player.model.duration = event.target.duration;
@@ -116,14 +127,11 @@
 			
 			if (!$.fn.jwplayerUtils.isNull(event.target.currentTime)) {
 				player.model.position = event.target.currentTime;
-				if (event.target.currentTime > 0){
-					setState(player, $.fn.jwplayer.states.PLAYING);	
-				}
 			}
 			if (player.media.state == $.fn.jwplayer.states.PLAYING) {
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
-					position: event.target.currentTime,
-					duration: event.target.duration
+					position: Math.round(event.target.currentTime * 10) / 10,
+					duration: Math.round(event.target.duration * 10) / 10
 				});
 			}
 		}
@@ -166,11 +174,11 @@
 			
 			if (!$.fn.jwplayerUtils.isNull(bufferPercent)) {
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
-					bufferPercent: bufferPercent,
-					bufferingComplete: player.media.bufferingComplete,
-					bufferFull: player.media.bufferFull,
-					bufferFill: bufferFill,
-					bufferTime: bufferTime
+					bufferPercent: Math.round(bufferPercent)
+					/*bufferingComplete: player.media.bufferingComplete,
+					 bufferFull: player.media.bufferFull,
+					 bufferFill: bufferFill,
+					 bufferTime: bufferTime*/
 				});
 			}
 			
@@ -193,6 +201,7 @@
 	function play(player) {
 		return function() {
 			if (player.media.state != $.fn.jwplayer.states.PLAYING) {
+				setState(player, $.fn.jwplayer.states.PLAYING);
 				player.model.domelement[0].play();
 			}
 		};
@@ -218,11 +227,11 @@
 	/** Stop playback and loading of the video. **/
 	function stop(player) {
 		return function() {
+			player.media.stopped = true;
 			player.model.domelement[0].pause();
-			player.model.domelement[0].currentTime = 0;
 			clearInterval(player.media.interval);
 			player.media.interval = undefined;
-			setState(player, $.fn.jwplayer.states.IDLE);
+			player.model.position = 0;
 		};
 	}
 	
@@ -233,7 +242,7 @@
 			player.model.volume = position;
 			player.model.domelement[0].volume = position / 100;
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_VOLUME, {
-				volume: player.model.domelement[0].volume * 100
+				volume: Math.round(player.model.domelement[0].volume * 100)
 			});
 		};
 	}
@@ -284,9 +293,13 @@
 		return function(path) {
 			path = $.fn.jwplayerUtils.getAbsolutePath(path);
 			if (path == player.model.domelement[0].src && player.media.loadcount > 0) {
+				player.model.position = 0;
+				player.model.domelement[0].currentTime = 0;
 				setState(player, $.fn.jwplayer.states.BUFFERING);
 				setState(player, $.fn.jwplayer.states.PLAYING);
-				player.model.domelement[0].currentTime = player.config.start;
+				if (player.model.domelement[0].paused){
+					player.model.domelement[0].play();
+				}
 				return;
 			} else if (path != player.model.domelement[0].src) {
 				player.media.loadcount = 0;

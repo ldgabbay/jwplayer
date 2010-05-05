@@ -138,7 +138,7 @@
 		});
 		timeHandler({
 			id: player.id,
-			time: 0,
+			duration: player.duration(),
 			position: 0
 		});
 		bufferHandler({

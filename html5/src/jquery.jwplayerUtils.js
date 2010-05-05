@@ -17,7 +17,7 @@
 	//http://old.nabble.com/jQuery-may-add-$.browser.isiPhone-td11163329s27240.html
 	$.fn.jwplayerUtils.isiPhone = function() {
 		var agent = navigator.userAgent.toLowerCase();
-		return agent.match(/iPhone/i);
+		return (agent.match(/iPhone/i) || agent.match(/iPad/i));
 	};
 	
 	/** Check if this client supports Flash player 9.0.115+ (FLV/H264). **/
@@ -36,15 +36,15 @@
 			version = new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version').replace(/\D+/g, ',').match(/^,?(.+),?$/)[1];
 		} catch (e) {
 			try {
-				if (navigator.mimeTypes["application/x-shockwave-flash"].enabledPlugin) {
-					version = (navigator.plugins["Shockwave Flash 2.0"] ||
-					navigator.plugins["Shockwave Flash"]).description.replace(/\D+/g, ",").match(/^,?(.+),?$/)[1];
+				if (navigator.mimeTypes['application/x-shockwave-flash'].enabledPlugin) {
+					version = (navigator.plugins['Shockwave Flash 2.0'] ||
+					navigator.plugins['Shockwave Flash']).description.replace(/\D+/g, ",").match(/^,?(.+),?$/)[1];
 				}
 			} catch (e) {
 			}
 		}
-		var major = parseInt(version.split(',')[0]);
-		var minor = parseInt(version.split(',')[2]);
+		var major = parseInt(version.split(',')[0], 10);
+		var minor = parseInt(version.split(',')[2], 10);
 		if (major > 9 || (major == 9 && minor > 97)) {
 			return true;
 		} else {

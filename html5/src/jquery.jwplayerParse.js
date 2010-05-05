@@ -61,7 +61,7 @@
 					}
 				}
 			}
-			configuration.screencolor = ($(domElement).css("background-color") == "transparent") ? "#ffffff" : $(domElement).css("background-color");
+			configuration.screencolor = ($(domElement).css("background-color") == "transparent") ? "black" : $(domElement).css("background-color");
 			configuration.plugins = {};
 			return configuration;
 		}
@@ -94,8 +94,10 @@
 	function parseVideoElement(domElement, attributes) {
 		attributes = getAttributeList('video', attributes);
 		var result = parseMediaElement(domElement, attributes);
-		if (!$.fn.jwplayerUtils.isNull($(domElement).attr('poster')) && !$.fn.jwplayerUtils.isiPhone()){
-			$(domElement).removeAttr('poster');
+		try {
+			$(domElement).removeAttr('poster');	
+		}catch (err) {
+			
 		}
 		return result;
 	}

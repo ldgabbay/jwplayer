@@ -67,13 +67,6 @@
 					if (player.config.autostart === true) {
 						player.play();
 					}
-					if (player.config.repeat) {
-						if ((player.config.repeat.toLowerCase() == 'list') || (player.config.repeat.toLowerCase() == 'always') || (player.config.repeat.toLowerCase() == 'single')) {
-							player.complete(function() {
-								player.play();
-							});
-						}
-					}
 					break;
 			}
 		} catch (err) {
@@ -96,7 +89,8 @@
 		start: 0,
 		position: 0,
 		debug: undefined,
-		flashplayer: undefined
+		flashplayer: undefined,
+		repeat: false
 	};
 	
 	
@@ -111,9 +105,9 @@
 					break;
 				default:
 					if (!$.fn.jwplayerUtils.isNull(dataType)) {
-						return player.controller.mediaInfo[dataType];
+						return player.controller.mediaInfo()[dataType];
 					}
-					return player.controller.mediaInfo;
+					return player.controller.mediaInfo();
 			}
 			return $.jwplayer(player.id);
 		};

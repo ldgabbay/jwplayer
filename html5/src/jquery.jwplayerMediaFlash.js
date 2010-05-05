@@ -51,7 +51,6 @@
 			options.controlbar = 'none';
 			options.icons = false;
 		}
-		$.fn.jwplayerView.embedFlash(player, options);
 		var media = {
 			play: play(player),
 			pause: pause(player),
@@ -64,7 +63,7 @@
 			state: $.fn.jwplayer.states.IDLE
 		};
 		player.media = media;
-		addEventListeners(player);
+		$.fn.jwplayerView.embedFlash(player, options);
 	};
 	
 	function stateHandler(event, player) {
@@ -83,8 +82,8 @@
 			}, 100);
 			return;
 		}
-		$.fn.jwplayerMediaFlash.forwarders[player.id] = {}
-		var video = player.model.domelement;
+		$.fn.jwplayerMediaFlash.forwarders[player.id] = {};
+		var video = $("#" + player.id);
 		for (var controllerEvent in controllerEvents) {
 			$.fn.jwplayerMediaFlash.forwarders[player.id][controllerEvents[controllerEvent]] = forwardFactory(controllerEvents[controllerEvent], player);
 			video[0].addControllerListener(controllerEvent, "$.fn.jwplayerMediaFlash.forwarders." + player.id + "." + controllerEvents[controllerEvent]);
@@ -95,7 +94,7 @@
 		}
 		$.fn.jwplayerMediaFlash.forwarders[player.id][viewEvents.MUTE] = forwardFactory(viewEvents.MUTE, player);
 		video[0].addViewListener(viewEvents.MUTE, "$.fn.jwplayerMediaFlash.forwarders." + player.id + "." + viewEvents.MUTE);
-
+		
 	}
 	
 	function forwardFactory(type, player) {
@@ -103,6 +102,10 @@
 			forward(event, type, player);
 		};
 	}
+	
+	$.fn.jwplayerMediaFlash.playerReady = function(evt) {
+		addEventListeners($.jwplayer(evt.id));
+	};
 	
 	$.fn.jwplayerMediaFlash.forwarders = {};
 	
@@ -190,7 +193,9 @@
 	/** Switch the mute state of the player. **/
 	function mute(player) {
 		return function(state) {
-			player.model.domelement[0].sendEvent("MUTE", state);
+			if (((player.model.domelement[0].getConfig().mute === true) && (state === false)) || state) {
+				player.model.domelement[0].sendEvent("MUTE", state);
+			}
 		};
 	}
 	

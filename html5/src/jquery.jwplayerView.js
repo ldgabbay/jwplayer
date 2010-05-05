@@ -21,16 +21,17 @@
 	$.fn.jwplayerView = function(player) {
 		player.model.domelement.wrap("<div id='" + player.model.config.id + "_jwplayer' />");
 		player.model.domelement.parent().jwplayerCSS({
-			'position': 'relative',
-			'height': player.model.config.height,
-			'width': player.model.config.width,
-			'margin': 'auto'
+			position: 'relative',
+			height: player.config.height,
+			width: player.config.width,
+			margin: 'auto',
+			'background-color': player.config.screencolor
 		});
 		player.model.domelement.css({
-			'position': 'absolute',
-			'width': player.model.config.width,
-			'height': player.model.config.height,
-			'top': 0,
+			position: 'absolute',
+			width: player.model.config.width,
+			height: player.model.config.height,
+			top: 0,
 			'z-index': 0,
 			margin: 'auto'
 		});
@@ -50,12 +51,12 @@
 				htmlString = objectString;
 			}
 			for (var elementvar in elementvars) {
-				if (!((player.model.config[elementvar] === undefined) || (player.model.config[elementvar] === "") || (player.model.config[elementvar] === null))) {
+				if (!$.fn.jwplayerUtils.isNull(player.model.config[elementvar])) {
 					elementvarString += elementvar + "='" + player.model.config[elementvar] + "' ";
 				}
 			}
-			if (elementvar.indexOf("name" ) < 0) {
-				elementvarString += "name" + "='" + player.id + "' ";
+			if (elementvarString.indexOf("name=" ) < 0) {
+				elementvarString += "name='" + player.id + "' ";
 			}
 			var config = $.extend(true, {}, player.model.config, options);
 			flashvarString += "file=" + $.fn.jwplayerUtils.getAbsolutePath(player.model.sources[player.model.source].file) + "&image=" + $.fn.jwplayerUtils.getAbsolutePath(config.image) +"&";
@@ -67,6 +68,9 @@
 					flashvarString += flashvar + "=" + config[flashvar] + "&";
 				}
 			}
+			
+			flashvarString += 'playerready=$.fn.jwplayerMediaFlash.playerReady';
+			
 			htmlString = htmlString.replace("%elementvars%", elementvarString);
 			htmlString = htmlString.replace("%flashvars%", flashvarString);
 			htmlString = htmlString.replace("%flashplayer%", player.model.config.flashplayer);

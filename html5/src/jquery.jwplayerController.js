@@ -27,7 +27,7 @@
 			play: play(player),
 			pause: pause(player),
 			seek: seek(player),
-			stop: pause(player),
+			stop: stop(player),
 			volume: volume(player),
 			mute: mute(player),
 			resize: resize(player),
@@ -234,16 +234,18 @@
 	
 	/** Returns the meta **/
 	function mediaInfo(player) {
-		try {
-			var result = {};
-			for (var mediaParam in mediaParams()) {
-				result[mediaParam] = player.model[mediaParam];
+		return function() {
+			try {
+				var result = {};
+				for (var mediaParam in mediaParams()) {
+					result[mediaParam] = player.model[mediaParam];
+				}
+				return result;
+			} catch (err) {
+				$.fn.jwplayerUtils.log("error", err);
 			}
-			return result;
-		} catch (err) {
-			$.fn.jwplayerUtils.log("error", err);
-		}
-		return false;
+			return false;
+		};
 	}
 	
 	
@@ -290,7 +292,7 @@
 				id: player.id,
 				version: player.version
 			}, data);
-			if (player.config.debug == 'CONSOLE') {
+			if ((player.config.debug !== undefined) && (player.config.debug.toString().toLowerCase() == 'console')) {
 				$.fn.jwplayerUtils.log(type, data);
 			}
 			for (var listenerIndex in player.listeners[type]) {
