@@ -325,7 +325,11 @@
 				txt += itm+': '+obj[itm]+'\n';
 			}
 		}
-		console.log(txt);
+		try {
+			console.log(txt);			
+		} catch(err) {
+			alert(txt);
+		}
 	};
 
 
