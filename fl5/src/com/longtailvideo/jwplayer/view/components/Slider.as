@@ -16,6 +16,7 @@ package com.longtailvideo.jwplayer.view.components {
 		protected var _thumb:Sprite;
 		protected var _capLeft:Sprite;
 		protected var _capRight:Sprite;
+		protected var _clickArea:Sprite;
 		protected var _currentThumb:Number = 0;
 		protected var _currentProgress:Number = 0;
 		protected var _currentBuffer:Number = 0;
@@ -36,21 +37,24 @@ package com.longtailvideo.jwplayer.view.components {
 		public function Slider(rail:DisplayObject, buffer:DisplayObject, progress:DisplayObject, thumb:DisplayObject, capLeft:DisplayObject=null, capRight:DisplayObject=null) {
 			super();
 			
-			if (!rail || !buffer || !progress) {
+			if (!rail || !progress) {
 				throw(new ArgumentError("Required slider elements missing"));
 			}
 			
 			this.buttonMode = true;
-			this.mouseChildren = false;
-			addEventListener(MouseEvent.MOUSE_DOWN, downHandler);
-			addEventListener(MouseEvent.MOUSE_OVER, overHandler);
-			addEventListener(MouseEvent.MOUSE_OUT, outHandler);
+			this.mouseChildren = true;
+			
 			_rail = addElement(rail, "rail", true);
 			_buffer = addElement(buffer, "buffer");
 			_progress = addElement(progress, "progress");
 			_thumb = addElement(thumb, "thumb");
 			_capLeft = addElement(capLeft, "capleft", true);
-			_capRight = addElement(capRight, "capright", true); 
+			_capRight = addElement(capRight, "capright", true);
+			_clickArea = addElement(null, "clickarea", true);
+			
+			_clickArea.addEventListener(MouseEvent.MOUSE_DOWN, downHandler);
+			_clickArea.addEventListener(MouseEvent.MOUSE_OVER, overHandler);
+			_clickArea.addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 		}
 
 
@@ -119,6 +123,9 @@ package com.longtailvideo.jwplayer.view.components {
 			if (_thumb && !_dragging) {
 				_thumb.x = _capLeft.width + (_width-_thumb.width) * _currentThumb / 100;
 			}
+			_clickArea.graphics.clear();
+			_clickArea.graphics.beginFill(0, 0);
+			_clickArea.graphics.drawRect(_capLeft.width, 0, _width, height); 
 			verticalCenter();
 		}
 
@@ -162,7 +169,7 @@ package com.longtailvideo.jwplayer.view.components {
 		/** Handle mouse downs. **/
 		private function downHandler(evt:MouseEvent):void {
 			if (_thumb && !_lock) {
-				var rct:Rectangle = new Rectangle(_rail.x, _thumb.y, _rail.width - _thumb.width, 0);
+				var rct:Rectangle = new Rectangle(_capLeft.width, _thumb.y, _rail.width - _thumb.width, 0);
 				_thumb.startDrag(true, rct);
 				_dragging = true;
 				RootReference.stage.addEventListener(MouseEvent.MOUSE_UP, upHandler);
@@ -175,7 +182,7 @@ package com.longtailvideo.jwplayer.view.components {
 			RootReference.stage.removeEventListener(MouseEvent.MOUSE_UP, upHandler);
 			_thumb.stopDrag();
 			_dragging = false;
-			var percent:Number = (_thumb.x - _rail.x) / (_rail.width - _thumb.width);
+			var percent:Number = (_thumb.x - _capLeft.width) / (_rail.width - _thumb.width);
 			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_CLICK, percent));
 			setThumb(percent * 100);
 		}

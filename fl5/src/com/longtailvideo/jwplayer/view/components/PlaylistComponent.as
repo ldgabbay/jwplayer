@@ -195,6 +195,13 @@ package com.longtailvideo.jwplayer.view.components {
 		private function buildButton():MovieClip {
 			var btn:MovieClip = new MovieClip();
 			
+			var backActive:Sprite = getSkinElement("itemActive") as Sprite;
+			if (!backActive) {
+				backActive = new Sprite();
+			}
+			backActive.name = "backActive";
+			addElement(backActive, btn, 0, 0);
+
 			var backOver:Sprite = getSkinElement("itemOver") as Sprite;
 			if (!backOver) {
 				backOver = new Sprite();
@@ -260,9 +267,7 @@ package com.longtailvideo.jwplayer.view.components {
 			duration.defaultTextFormat = titleTextFormat;
 			addElement(duration, btn, 335, 4);
 			
-
-			backOver.width = btn.width;			
-			back.width = btn.width;
+			backOver.width = backActive.width = back.width = btn.width;			
 			
 			return btn;
 		}
@@ -295,17 +300,20 @@ package com.longtailvideo.jwplayer.view.components {
 					}
 				}
 			} else if (front && back) {
-				for (itm in colorizableFields) {
+				for each (itm in colorizableFields) {
 					if (getButton(idx).getChildByName(itm) && getButton(idx).getChildByName(itm) is TextField) {
 						(getButton(idx).getChildByName(itm) as TextField).textColor = back.color;
 					}
 				}
-				if (swfSkinned) {
+			}
+			if (swfSkinned) {
+				if (light) {
 					getButton(idx).getChildByName("back").transform.colorTransform = light;
-				} else {
-					getButton(idx).setChildIndex(getButton(idx).getChildByName("back"), 0);
-					getButton(idx).setChildIndex(getButton(idx).getChildByName("backOver"), 1);
 				}
+			} else {
+				getButton(idx).setChildIndex(getButton(idx).getChildByName("backActive"), 0);
+				getButton(idx).setChildIndex(getButton(idx).getChildByName("back"), 1);
+				getButton(idx).setChildIndex(getButton(idx).getChildByName("backOver"), 2);
 			}
 		}
 		
@@ -333,8 +341,9 @@ package com.longtailvideo.jwplayer.view.components {
 						if (swfSkinned) {
 							button.getChildByName("back").transform.colorTransform = back;
 						} else {
-							button.setChildIndex(getButton(idx).getChildByName("backOver"), 0);
+							button.setChildIndex(getButton(idx).getChildByName("backActive"), (idx == active ? 2 : 0));
 							button.setChildIndex(getButton(idx).getChildByName("back"), 1);
+							button.setChildIndex(getButton(idx).getChildByName("backOver"), 0);
 						}
 					}
 				}
@@ -456,7 +465,7 @@ package com.longtailvideo.jwplayer.view.components {
 					}
 				} catch (err:Error) {
 				}
-				if (_player.config.lightcolor) {
+				if (_player.config.lightcolor && swfSkinned) {
 					light = new ColorTransform();
 					light.color = _player.config.lightcolor.color;
 				} else {
@@ -474,16 +483,17 @@ package com.longtailvideo.jwplayer.view.components {
 			var duration:TextField = getButton(idx).getChildByName("duration") as TextField;
 			var author:TextField = getButton(idx).getChildByName("author") as TextField;
 			var tags:TextField = getButton(idx).getChildByName("tags") as TextField;
-			if (playlistItem.image) {
-				if (getConfigParam('thumbs') != false && _player.config.playlist != 'none' && playlistItem.image) {
+			if (playlistItem.image || playlistItem['playlist.image']) {
+				var imageFile:String = playlistItem['playlist.image'] ? playlistItem['playlist.image'] : playlistItem.image;
+				if (getConfigParam('thumbs') != false && _player.config.playlist != 'none') {
 					var img:Sprite = getButton(idx).getChildByName("image") as Sprite;
-					if (img && playlistItem.image) {
+					if (img) {
 						img.alpha = 0;
 						var ldr:Loader = new Loader();
 						imageLoaderMap[ldr] = idx;
 						ldr.contentLoaderInfo.addEventListener(Event.COMPLETE, loaderHandler);
 						ldr.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
-						ldr.load(new URLRequest(encodeURI(playlistItem.image)), new LoaderContext(true));
+						ldr.load(new URLRequest(encodeURI(imageFile)), new LoaderContext(true));
 					}
 				}
 			}
@@ -519,7 +529,7 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 			} catch (e:Error) {
 			}
-			if (getButton(idx).getChildByName("image") && (!playlistItem.image || getConfigParam('thumbs') == false)) {
+			if (getButton(idx).getChildByName("image") && (!(playlistItem.image || playlistItem['playlist.image']) || getConfigParam('thumbs') == false)) {
 				getButton(idx).getChildByName("image").visible = false;
 			}
 			if (back && swfSkinned) {
@@ -661,9 +671,6 @@ package com.longtailvideo.jwplayer.view.components {
 					}
 				}
 			}
-			if (back && swfSkinned) {
-				getButton(idx).getChildByName("back").transform.colorTransform = back;
-			}
 			if (!isNaN(active)) {
 				if (front || fontColor) {
 					for each (var act:String in colorizableFields) {
@@ -675,8 +682,29 @@ package com.longtailvideo.jwplayer.view.components {
 						}
 					}
 				}
+
+				if (swfSkinned) {
+					if (back) {
+						getButton(idx).getChildByName("back").transform.colorTransform = back;
+					}
+				} else {
+					getButton(active).setChildIndex(getButton(active).getChildByName("back"), 2);
+					getButton(active).setChildIndex(getButton(active).getChildByName("backOver"), 1);
+					getButton(active).setChildIndex(getButton(active).getChildByName("backActive"), 0);
+				}
 			}
 			active = idx;
+
+			if (swfSkinned) {
+				
+			} else {
+				getButton(active).setChildIndex(getButton(active).getChildByName("backActive"), 2);
+				getButton(active).setChildIndex(getButton(active).getChildByName("back"), 1);
+				getButton(active).setChildIndex(getButton(active).getChildByName("backOver"), 0);
+			}
+			
+			
+
 		}
 		
 		

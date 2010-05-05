@@ -46,7 +46,7 @@ package com.longtailvideo.jwplayer.model {
 		protected var _icons:Boolean 		= true;
 		protected var _logo:String 			= null;
 		protected var _playlist:String 		= "none";
-		protected var _playlistsize:Number 	= 180;
+		protected var _playlistsize:String 	= "180";
 		protected var _skin:String 			= null;
 		protected var _width:Number 		= 280;
 		
@@ -257,8 +257,8 @@ package com.longtailvideo.jwplayer.model {
 		}
 
 		/** When below this refers to the height, when right this refers to the width of the playlist. @default 180 **/
-		public function get playlistsize():Number { return _playlistsize; }
-		public function set playlistsize(x:Number):void {
+		public function get playlistsize():String { return _playlistsize; }
+		public function set playlistsize(x:String):void {
 			_playlistsize = x;
 			setPluginProperty('playlist.size', x.toString());
 		}

@@ -1,5 +1,6 @@
 package com.longtailvideo.jwplayer.view.skins {
 	import com.longtailvideo.jwplayer.utils.AssetLoader;
+	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.Strings;
 	import com.longtailvideo.jwplayer.view.interfaces.ISkin;
 	
@@ -135,7 +136,7 @@ package com.longtailvideo.jwplayer.view.skins {
 				addSkinElement(elementInfo['componentName'], elementInfo['elementName'], bitmap);
 				delete _loaders[evt.target];
 			} catch (e:Error) {
-				if (_loaders.hasOwnProperty(evt.target)) {
+				if (_loaders[evt.target]) {
 					delete _loaders[evt.target];
 				}
 			} 
@@ -143,8 +144,9 @@ package com.longtailvideo.jwplayer.view.skins {
 		}
 		
 		protected function elementError(evt:ErrorEvent):void {
-			if (_loaders.hasOwnProperty(evt.target)) {
+			if (_loaders[evt.target]) {
 				delete _loaders[evt.target];
+				Logger.log("Skin element not loaded: " + evt.text);
 				checkComplete();
 			} else if (!_errorState) {
 				_errorState = true;

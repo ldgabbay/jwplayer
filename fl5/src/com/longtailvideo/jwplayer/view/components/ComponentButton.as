@@ -1,6 +1,7 @@
 package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.model.Color;
 	import com.longtailvideo.jwplayer.utils.Logger;
+	
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
@@ -14,6 +15,7 @@ package com.longtailvideo.jwplayer.view.components {
 		protected var _outIcon:DisplayObject;
 		protected var _overColor:Color;
 		protected var _overIcon:DisplayObject;
+		protected var _enabled:Boolean = true;
 
 				
 		public function ComponentButton () {
@@ -64,10 +66,12 @@ package com.longtailvideo.jwplayer.view.components {
 				
 		/** Handles mouse clicks **/
 		protected function clickHandler(event:MouseEvent):void {
-			try {
-				_clickFunction(event);
-			} catch (error:Error) {
-				Logger.log(error.message);
+			if (_enabled) {
+				try {
+					_clickFunction(event);
+				} catch (error:Error) {
+					Logger.log(error.message);
+				}
 			}
 		}
 
@@ -137,6 +141,15 @@ package com.longtailvideo.jwplayer.view.components {
 		public function set clickFunction(clickFunction:Function):void {
 			_clickFunction = clickFunction
 		}
+		
+		/** Enable / disable button **/
+		public override function set enabled(state:Boolean):void {
+			_enabled = state;
+		}
+		
+		public override function get enabled():Boolean {
+			return _enabled;
+		} 
 
 
 		private function nameDisplayObject(name:String, displayObject:DisplayObject):void {

@@ -42,11 +42,34 @@ package com.longtailvideo.jwplayer.view {
 			generateLayout();
 		} 
 
+		
+		private function pluginSize(config:PluginConfig):Number {
+			var confSize:String = String(config['size']);
+			var align:String = config['position'];
+			
+			if (!isNaN(config['size'])) {
+				return Number(config['size']);
+			}
+			
+			if (confSize.indexOf('%') == confSize.length-1) {
+				confSize = confSize.substr(0, confSize.length-1);
+			} else if (confSize.indexOf('pct') == confSize.length-3) {
+				confSize = confSize.substr(0, confSize.length-3);
+			} else {
+				return 0;
+			}
+			
+			if (align == LEFT || align == RIGHT) {
+				return remainingSpace.width * Number(confSize) / 100;
+			} else {
+				return remainingSpace.height * Number(confSize) / 100;
+			}
+		}
 
 		private function addLayout(plugin:String):void {
 			var cfg:PluginConfig = _player.config.pluginConfig(plugin);
 
-			if (!_player.config.fullscreen && testPosition(cfg['position']) && Number(cfg['size']) > 0 ) {
+			if (!_player.config.fullscreen && testPosition(cfg['position']) && pluginSize(cfg) > 0 ) {
 				toLayout.push(cfg);
 			} else {
 				noLayout.push(cfg);
@@ -59,18 +82,18 @@ package com.longtailvideo.jwplayer.view {
 				case TOP:
 					var controlbarConfig:PluginConfig = _player.config.pluginConfig('controlbar');
 					if (config['id'] != "controlbar" && (testPosition(controlbarConfig['position']) == TOP || testPosition(controlbarConfig['position']) == BOTTOM)) {
-						return ((remainingSpace.height - controlbarConfig['size']) > Number(config['size']) > 0);
+						return ((remainingSpace.height - pluginSize(controlbarConfig)) > pluginSize(config) > 0);
 					} else {
-						return (remainingSpace.height > Number(config['size']) > 0);
+						return (remainingSpace.height > pluginSize(config) > 0);
 					}
 					break;
 				case LEFT:
 				case RIGHT:
 					var playlistConfig:PluginConfig = _player.config.pluginConfig('playlist');
 					if (config['id'] != "playlist" && (testPosition(playlistConfig['position']) == LEFT || testPosition(playlistConfig['position']) == RIGHT)) {
-						return ((remainingSpace.width - playlistConfig['size']) > Number(config['size']) > 0);
+						return ((remainingSpace.width - pluginSize(playlistConfig)) > pluginSize(config) > 0);
 					} else {
-						return (remainingSpace.width > Number(config['size']) > 0);
+						return (remainingSpace.width > pluginSize(config) > 0);
 					}
 					break;
 			}
@@ -108,7 +131,7 @@ package com.longtailvideo.jwplayer.view {
 			
 			var config:PluginConfig = toLayout.shift() as PluginConfig;
 			var pluginSpace:Rectangle = new Rectangle();
-			var size:Number = config['size'];
+			var size:Number = pluginSize(config);
 			
 			if (fitsLayout(config)) {
 				switch (testPosition(config['position'])) {
