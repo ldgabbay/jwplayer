@@ -61,7 +61,7 @@
 					}
 				}
 			}
-			configuration.screencolor = ($(domElement).css("background-color") == "transparent") ? "black" : $(domElement).css("background-color");
+			configuration.screencolor = (($(domElement).css("background-color") == "transparent") || ($(domElement).css("background-color") == "rgba(0, 0, 0, 0)")) ? "black" : $(domElement).css("background-color");
 			configuration.plugins = {};
 			return configuration;
 		}
