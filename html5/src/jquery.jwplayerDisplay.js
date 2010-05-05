@@ -32,6 +32,9 @@
 			});
 			
 			display.click(function(evt) {
+				if (player.media === undefined){
+					return;
+				}
 				if (typeof evt.preventDefault != 'undefined') {
 					evt.preventDefault(); // W3C
 				} else {

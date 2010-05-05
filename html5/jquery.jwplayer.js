@@ -772,15 +772,17 @@
 					break;
 				case 4:
 					$.fn.jwplayerModel.setActiveMediaProvider(player);
-					if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
-						setupJWPlayer(player, step + 1);
-					} else {
-						player.sendEvent($.fn.jwplayer.events.JWPLAYER_READY);
-					}
+					setupJWPlayer(player, step + 1);
 					break;
 				case 5:
-					$.fn.jwplayerDisplay($.jwplayer(player.id), player.model.domelement);
-					setupJWPlayer(player, step + 1);
+					if ((navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) || (player.media === undefined)) {
+						$.fn.jwplayerDisplay($.jwplayer(player.id), player.model.domelement);
+					}
+					if (!(navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) || (player.media === undefined)) {
+						player.sendEvent($.fn.jwplayer.events.JWPLAYER_READY);
+					} else {
+						setupJWPlayer(player, step + 1);	
+					}
 					break;
 				case 6:
 					$.fn.jwplayerControlbar($.jwplayer(player.id), player.model.domelement);
@@ -975,6 +977,9 @@
 			});
 			
 			display.click(function(evt) {
+				if (player.media === undefined){
+					return;
+				}
 				if (typeof evt.preventDefault != 'undefined') {
 					evt.preventDefault(); // W3C
 				} else {
