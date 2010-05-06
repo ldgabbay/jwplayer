@@ -16,6 +16,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.view.interfaces.IPlaylistComponent;
 	import com.longtailvideo.jwplayer.view.interfaces.ISkin;
 	import com.longtailvideo.jwplayer.view.skins.DefaultSkin;
+	import com.longtailvideo.jwplayer.view.skins.PNGSkin;
 	import com.longtailvideo.jwplayer.view.skins.SWFSkin;
 	
 	import flash.display.Bitmap;
@@ -110,47 +111,16 @@ package com.longtailvideo.jwplayer.view.components {
 				background.graphics.endFill();
 			}
 			addElement(background);
-			slider = getSkinElement("slider") as Sprite;
-			if (!slider) {
-				slider = new Sprite();
-				
-				var sliderBack:Sprite = getSkinElement("sliderBackground") as Sprite;
-				if (!sliderBack) {
-					sliderBack = new Sprite();
-					sliderBack.graphics.beginFill(0, 1);
-					sliderBack.graphics.drawRect(0, 0, 1, 1);
-					sliderBack.graphics.endFill();
-				}
-				sliderBack.name = "back";
-				addElement(sliderBack,slider);
-				
-				var sliderRail:Sprite = getSkinElement("sliderRail") as Sprite;
-				if (!sliderRail){
-					sliderRail = new Sprite();
-					sliderRail.graphics.beginFill(0, 1);
-					sliderRail.graphics.drawRect(0, 0, 7, 22);
-					sliderRail.graphics.endFill();
-				}
-				sliderRail.name = "rail";
-				addElement(sliderRail,slider);
-				
-				var sliderThumb:Sprite = getSkinElement("sliderThumb") as Sprite;
-				if (!sliderThumb) {
-					sliderThumb = new Sprite();
-					sliderThumb.graphics.beginFill(0, 1);
-					sliderThumb.graphics.drawRect(0, 0, 5, 54);
-					sliderThumb.graphics.endFill();
-				}
-				sliderThumb.name = "icon";
-				addElement(sliderThumb,slider,(sliderRail.width - sliderThumb.width)/2);
-			}
-			addElement(slider);
+			
+			slider = buildSlider();
 			slider.buttonMode = true;
 			slider.mouseChildren = false;
 			slider.addEventListener(MouseEvent.MOUSE_DOWN, sdownHandler);
 			slider.addEventListener(MouseEvent.MOUSE_OVER, soverHandler);
 			slider.addEventListener(MouseEvent.MOUSE_OUT, soutHandler);
 			slider.visible = false;
+			addElement(slider);
+			
 			listmask = getSkinElement("masker") as Sprite;
 			if (!listmask) {
 				listmask = new Sprite();
@@ -159,6 +129,7 @@ package com.longtailvideo.jwplayer.view.components {
 				listmask.graphics.endFill();
 			}
 			addElement(listmask);
+			
 			list = getSkinElement("list") as Sprite;
 			if (!list) {
 				list = new Sprite();
@@ -174,6 +145,7 @@ package com.longtailvideo.jwplayer.view.components {
 			list.addEventListener(MouseEvent.MOUSE_OVER, overHandler);
 			list.addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 			addElement(list);
+			
 			buttons = new Array();
 			this.addEventListener(MouseEvent.MOUSE_WHEEL, wheelHandler);
 			try {
@@ -189,6 +161,49 @@ package com.longtailvideo.jwplayer.view.components {
 			if (pendingResize) {
 				resize(pendingResize.width, pendingResize.height);
 			}
+		}
+		
+		private function buildSlider():Sprite {
+			var newSlider:Sprite = getSkinElement("slider") as Sprite;
+
+			if (!newSlider) {
+				newSlider = new Sprite();
+				var sliderBack:Sprite = buildSliderElement('back', 'sliderBackground', 1, 1);
+				addElement(sliderBack, newSlider);
+				
+				var sliderRail:Sprite = buildSliderElement('rail', 'sliderRail', 7, 22);
+				addElement(sliderRail, newSlider);
+				
+				var sliderThumb:Sprite = buildSliderElement('icon', 'sliderThumb', 5, 54);
+				addElement(sliderThumb, newSlider, (sliderRail.width - sliderThumb.width) / 2);
+			}
+
+			/* These elements were never included in the swf skins, so add them even if the slider was in a SWF skin */
+			
+			var sliderCapTop:Sprite = buildSliderElement('captop', 'sliderCapTop');
+			addElement(sliderCapTop, newSlider);
+
+			var sliderCapBottom:Sprite = buildSliderElement('capbottom', 'sliderCapBottom');
+			addElement(sliderCapBottom, newSlider);
+			
+			return newSlider;
+		}
+		
+		private function buildSliderElement(name:String, skinElementName:String, width:Number=0, height:Number=0):Sprite {
+			var newElement:Sprite = getSkinElement(skinElementName) as Sprite;
+			if (!newElement) {
+				newElement = new Sprite();
+				if (width * height > 0) {
+					newElement.graphics.beginFill(0, 1);
+					newElement.graphics.drawRect(0, 0, width, height);
+					newElement.graphics.endFill();
+				}
+			}
+			try {
+				newElement.name = name;
+			} catch(e:Error) {} //This is not possible if the element was created and named from an FLA
+			
+			return newElement;
 		}
 		
 		
@@ -276,8 +291,8 @@ package com.longtailvideo.jwplayer.view.components {
 			if (!parent) {
 				parent = this;
 			}
-			parent.addChild(doc);
 			doc.x = x;
+			parent.addChild(doc);
 			doc.y = y;
 		}
 		
@@ -369,7 +384,7 @@ package com.longtailvideo.jwplayer.view.components {
 			proportion = _player.playlist.length * buttonheight / hei;
 			if (proportion > 1.01) {
 				wid -= slider.width;
-				buildSlider();
+				layoutSlider();
 			} else {
 				slider.visible = false;
 			}
@@ -410,13 +425,25 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		
 		/** Setup the scrollbar component **/
-		private function buildSlider():void {
+		private function layoutSlider():void {
 			slider.visible = true;
 			slider.x = getConfigParam("width") - slider.width;
-			var dif:Number = getConfigParam("height") - slider.height - slider.y;
-			slider.getChildByName("back").height += dif;
-			slider.getChildByName("rail").height += dif;
-			slider.getChildByName("icon").height = Math.round(slider.getChildByName("rail").height / proportion);
+			if (player.skin is PNGSkin) {
+				var capTop:DisplayObject = slider.getChildByName("captop");
+				var capBottom:DisplayObject = slider.getChildByName("capbottom");
+				slider.getChildByName("back").y = capTop.height;
+				slider.getChildByName("rail").y = capTop.height;
+				slider.getChildByName("icon").y = capTop.height;
+				slider.getChildByName("back").height = getConfigParam('height') - capBottom.height - capTop.height;
+				slider.getChildByName("rail").height = getConfigParam('height') - capBottom.height - capTop.height;
+				slider.getChildByName("icon").height = Math.round(slider.getChildByName("rail").height / proportion);
+				capBottom.y = getConfigParam('height') - capBottom.height; 
+			} else {
+				var dif:Number = getConfigParam("height") - slider.height - slider.y;
+				slider.getChildByName("back").height += dif;
+				slider.getChildByName("rail").height += dif;
+				slider.getChildByName("icon").height = Math.round(slider.getChildByName("rail").height / proportion);
+			}
 		}
 		
 		
