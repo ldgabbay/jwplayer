@@ -64,9 +64,14 @@ package com.longtailvideo.jwplayer.media {
 		}
 
 
-		/** xtract the current ID from a youtube URL **/
+		/** Extract the current ID from a youtube URL.  Supported values include:
+		 * http://www.youtube.com/watch?v=ylLzyHk54Z0
+		 * http://www.youtube.com/watch#!v=ylLzyHk54Z0
+		 * http://www.youtube.com/v/ylLzyHk54Z0
+		 * ylLzyHk54Z0
+		 **/
 		private function getID(url:String):String {
-			var arr:Array = url.split('?');
+			var arr:Array = url.split(/\?|\#\!/);
 			var str:String = '';
 			for (var i:String in arr) {
 				if (arr[i].substr(0, 2) == 'v=') {
@@ -74,7 +79,11 @@ package com.longtailvideo.jwplayer.media {
 				}
 			}
 			if (str == '') {
-				str = url.substr(url.indexOf('/v/') + 3);
+				if (url.indexOf('/v/') >= 0) {
+					str = url.substr(url.indexOf('/v/') + 3);
+				} else {
+					str = url;
+				}
 			}
 			if (str.indexOf('&') > -1) {
 				str = str.substr(0, str.indexOf('&'));
