@@ -130,5 +130,10 @@ package com.longtailvideo.jwplayer.utils {
 			forward(obj, 'textdata');
 		}
 		
+		/** TimeCode handler (see http://help.adobe.com/en_US/FlashMediaLiveEncoder/3.0/Using/WS5b3ccc516d4fbf351e63e3d11c104ba9cd-7ffe.html) **/
+		public function onFI(obj:Object):void {
+			forward(obj, 'timecode');
+		}
+		
 	}
 }
