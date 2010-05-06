@@ -17,7 +17,12 @@
 	//http://old.nabble.com/jQuery-may-add-$.browser.isiPhone-td11163329s27240.html
 	$.fn.jwplayerUtils.isiPhone = function() {
 		var agent = navigator.userAgent.toLowerCase();
-		return (agent.match(/iPhone/i) || agent.match(/iPad/i));
+		return agent.match(/iPhone/i);
+	};
+	
+	$.fn.jwplayerUtils.isiPad = function() {
+		var agent = navigator.userAgent.toLowerCase();
+		return agent.match(/iPad/i);
 	};
 	
 	/** Check if this client supports Flash player 9.0.115+ (FLV/H264). **/

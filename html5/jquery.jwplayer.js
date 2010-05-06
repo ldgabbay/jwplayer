@@ -786,7 +786,9 @@
 					}
 					break;
 				case 6:
-					$.fn.jwplayerControlbar($.jwplayer(player.id), player.model.domelement);
+					if (!$.fn.jwplayerUtils.isiPhone()) {
+						$.fn.jwplayerControlbar($.jwplayer(player.id), player.model.domelement);
+					}
 					setupJWPlayer(player, step + 1);
 					break;
 				case 7:
@@ -1837,7 +1839,7 @@
 		}
 		if (!$.fn.jwplayerUtils.isiPhone()) {
 			domElement.src = undefined;
-		} 
+		}
 		configuration.sources = sources;
 		return configuration;
 	}
@@ -1850,10 +1852,12 @@
 	function parseVideoElement(domElement, attributes) {
 		attributes = getAttributeList('video', attributes);
 		var result = parseMediaElement(domElement, attributes);
-		try {
-			$(domElement).removeAttr('poster');	
-		}catch (err) {
+		if (!$.fn.jwplayerUtils.isiPhone() && !$.fn.jwplayerUtils.isiPad()) {
+			try {
+				$(domElement).removeAttr('poster');
+			} catch (err) {
 			
+			}
 		}
 		return result;
 	}
@@ -2007,7 +2011,12 @@
 	//http://old.nabble.com/jQuery-may-add-$.browser.isiPhone-td11163329s27240.html
 	$.fn.jwplayerUtils.isiPhone = function() {
 		var agent = navigator.userAgent.toLowerCase();
-		return (agent.match(/iPhone/i) || agent.match(/iPad/i));
+		return agent.match(/iPhone/i);
+	};
+	
+	$.fn.jwplayerUtils.isiPad = function() {
+		var agent = navigator.userAgent.toLowerCase();
+		return agent.match(/iPad/i);
 	};
 	
 	/** Check if this client supports Flash player 9.0.115+ (FLV/H264). **/

@@ -58,7 +58,9 @@
 					}
 					break;
 				case 6:
-					$.fn.jwplayerControlbar($.jwplayer(player.id), player.model.domelement);
+					if (!$.fn.jwplayerUtils.isiPhone()) {
+						$.fn.jwplayerControlbar($.jwplayer(player.id), player.model.domelement);
+					}
 					setupJWPlayer(player, step + 1);
 					break;
 				case 7:
