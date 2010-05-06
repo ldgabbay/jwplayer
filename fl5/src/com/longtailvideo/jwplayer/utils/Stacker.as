@@ -1,5 +1,6 @@
 package com.longtailvideo.jwplayer.utils {
     import flash.display.DisplayObject;
+    import flash.display.InteractiveObject;
     import flash.display.MovieClip;
     import flash.display.Sprite;
 
@@ -29,7 +30,7 @@ package com.longtailvideo.jwplayer.utils {
             stack = new Array();
             for (var i:Number = 0; i < clip.numChildren; i++) {
                 var clp:DisplayObject = clip.getChildAt(i);
-                stack.push({c: clp, x: clp.x, n: clp.name, w: clp.width});
+                stack.push({c: clp, x: clp.x, n: clp.name, w: clp.width, nr: clp.hasOwnProperty('stacker.noresize')});
             }
             stack.sortOn([ 'x', 'n' ], [ Array.NUMERIC, Array.CASEINSENSITIVE ]);
         }
@@ -78,10 +79,12 @@ package com.longtailvideo.jwplayer.utils {
                         }
                     }
                 }
-                if (stack[i].w > width / 4) {
+                if (stack[i].w > width / 4 && !stack[i].nr) {
                     stack[i].c.width = Math.abs(stack[i].w + rdf + ldf);
                 }
-				stack[i].c.tabIndex = i + 1;
+				if (stack[i].c is InteractiveObject) {				
+					stack[i].c.tabIndex = i + 1;
+				}
             }
             // if gaps were closed, move all rightside stuff to fill the width.
             var dif:Number = latest - width - rdf;

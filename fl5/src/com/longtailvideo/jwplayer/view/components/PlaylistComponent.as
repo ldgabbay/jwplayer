@@ -237,11 +237,22 @@ package com.longtailvideo.jwplayer.view.components {
 			back.name = "back";
 			addElement(back, btn, 0, 0);
 			
-			var img:Sprite = new Sprite();
+			var img:MovieClip = new MovieClip;
+			var imgBG:Sprite = getSkinElement("itemImage") as Sprite;
+			var imageOffset:Number = 5;
 			img.name = "image";
-			img.graphics.beginFill(0, 1);
-			img.graphics.drawRect(0, 0, 80, back.height);
+			img.graphics.beginFill(0, 0);
+			if (imgBG) {
+				imgBG.name = "imageBackground";
+				img.addChild(imgBG);
+				imgBG.x = imgBG.y = (back.height - imgBG.height) / 2;
+				img.graphics.drawRect(0, 0, imgBG.width + 2 * imgBG.x, back.height);
+				imageOffset = 0;
+			} else {
+				img.graphics.drawRect(0, 0, 4 * back.height / 3, back.height);
+			}
 			img.graphics.endFill();
+			img['stacker.noresize'] = true;
 			addElement(img, btn, 0, 0);
 			
 			var titleTextFormat:TextFormat = new TextFormat();
@@ -257,7 +268,7 @@ package com.longtailvideo.jwplayer.view.components {
 			title.multiline = true;
 			title.width = 250;
 			title.height = 20;
-			addElement(title, btn, 85, 2);
+			addElement(title, btn, img.width + imageOffset, 2);
 			
 			var descriptionTextFormat:TextFormat = new TextFormat();
 			descriptionTextFormat.size = fontSize ? fontSize : 11;
@@ -272,7 +283,7 @@ package com.longtailvideo.jwplayer.view.components {
 			description.width= 290;
 			description.height = back.height - 20;
 			description.defaultTextFormat = descriptionTextFormat;
-			addElement(description, btn, 86, 20);
+			addElement(description, btn, img.width + imageOffset + 1, 20);
 			
 			var duration:TextField = new TextField();
 			duration.name = "duration";
@@ -556,8 +567,11 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 			} catch (e:Error) {
 			}
-			if (getButton(idx).getChildByName("image") && (!(playlistItem.image || playlistItem['playlist.image']) || getConfigParam('thumbs') == false)) {
-				getButton(idx).getChildByName("image").visible = false;
+			img = getButton(idx).getChildByName("image") as MovieClip;
+			if (img && (!(playlistItem.image || playlistItem['playlist.image']) || getConfigParam('thumbs') == false)) {
+				if (!img.getChildByName("imageBackground")) {
+					getButton(idx).getChildByName("image").visible = false;
+				}
 			}
 			if (back && swfSkinned) {
 				getButton(idx).getChildByName("back").transform.colorTransform = back;
@@ -573,10 +587,18 @@ package com.longtailvideo.jwplayer.view.components {
 					var button:Sprite = getButton(imageLoaderMap[ldr]);
 					delete imageLoaderMap[ldr];
 					var img:Sprite = button.getChildByName("image") as Sprite;
+					var bg:Sprite = img.getChildByName("imageBackground") as Sprite;
 					img.alpha = 1;
-					var msk:Sprite = Draw.rect(button, '0xFF0000', img.width, img.height, img.x, img.y);
-					img.mask = msk;
+					var msk:Sprite
+					if (bg) {
+					 	msk = Draw.rect(button, '0xFF0000', bg.width, bg.height, bg.x, bg.y);
+						ldr.x = bg.x;
+						ldr.y = bg.y;
+					} else {
+						msk = Draw.rect(button, '0xFF0000', img.width, img.height, img.x, img.y);
+					}
 					img.addChild(ldr);
+					img.mask = msk;
 					try {
 						Draw.smooth(ldr.content as Bitmap);
 					} catch (e:Error) {
@@ -596,7 +618,9 @@ package com.longtailvideo.jwplayer.view.components {
 				var ldr:Loader = (evt.target as LoaderInfo).loader;
 				var button:Sprite = getButton(imageLoaderMap[ldr]);
 				var img:Sprite = button.getChildByName("image") as Sprite;
-				img.visible = false;
+				if (!img.getChildByName("imageBackground")) {
+					img.visible = false;
+				}
 				if (proportion > 1.01) {
 					(buttons[imageLoaderMap[ldr]].s as Stacker).rearrange(getConfigParam("width")-slider.width);
 				} else {
