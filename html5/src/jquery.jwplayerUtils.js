@@ -155,7 +155,7 @@
 			return path;
 		}
 		var protocol = document.location.href.substr(0, document.location.href.indexOf("://") + 3);
-		var basepath = document.location.href.substring(protocol.length, (path.indexOf("/") === 0) ? document.location.href.indexOf('/') : document.location.href.lastIndexOf('/'));
+		var basepath = document.location.href.substring(protocol.length, (path.indexOf("/") === 0) ? document.location.href.indexOf('/', protocol.length) : document.location.href.lastIndexOf('/'));
 		var patharray = (basepath + "/" + path).split("/");
 		var result = [];
 		for (var i = 0; i < patharray.length; i++) {

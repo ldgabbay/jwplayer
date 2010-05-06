@@ -18,6 +18,7 @@
 			source: 0,
 			sources: [],
 			buffer: 0,
+			position: 0,
 			state: $.fn.jwplayer.states.IDLE
 		};
 	};

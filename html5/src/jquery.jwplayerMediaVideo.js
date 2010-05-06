@@ -124,11 +124,9 @@
 			if (player.model.duration === 0) {
 				player.model.duration = event.target.duration;
 			}
-			
-			if (!$.fn.jwplayerUtils.isNull(event.target.currentTime)) {
-				player.model.position = event.target.currentTime;
-			}
+
 			if (player.media.state == $.fn.jwplayer.states.PLAYING) {
+				player.model.position = Math.round(event.target.currentTime * 10) / 10;
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
 					position: Math.round(event.target.currentTime * 10) / 10,
 					duration: Math.round(event.target.duration * 10) / 10
@@ -173,6 +171,7 @@
 			}
 			
 			if (!$.fn.jwplayerUtils.isNull(bufferPercent)) {
+				player.model.buffer = Math.round(bufferPercent);
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
 					bufferPercent: Math.round(bufferPercent)
 					/*bufferingComplete: player.media.bufferingComplete,

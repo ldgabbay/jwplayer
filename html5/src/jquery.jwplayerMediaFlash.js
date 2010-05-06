@@ -134,6 +134,7 @@
 				if (player.model.duration === 0) {
 					player.model.duration = event.duration;
 				}
+				player.model.position = event.position;
 				player.sendEvent(type, event);
 				break;
 			case $.fn.jwplayer.events.JWPLAYER_PLAYER_STATE:
@@ -145,6 +146,7 @@
 				break;
 			case $.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER:
 				event.bufferPercent = event.percentage;
+				player.model.buffer = event.percentage;
 				player.sendEvent(type, event);
 				break;
 			default:

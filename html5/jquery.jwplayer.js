@@ -432,6 +432,7 @@
 			source: 0,
 			sources: [],
 			buffer: 0,
+			position: 0,
 			state: $.fn.jwplayer.states.IDLE
 		};
 	};
@@ -868,7 +869,8 @@
 			complete: dataListenerFactory(player, null, $.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE),
 			state: dataListenerFactory(player, 'state', $.fn.jwplayer.events.JWPLAYER_PLAYER_STATE),
 			buffer: dataListenerFactory(player, 'buffer', $.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER),
-			time: dataListenerFactory(player, 'position', $.fn.jwplayer.events.JWPLAYER_MEDIA_TIME),
+			time: dataListenerFactory(player, null, $.fn.jwplayer.events.JWPLAYER_MEDIA_TIME),
+			position: dataListenerFactory(player, 'position'),
 			duration: dataListenerFactory(player, 'duration'),
 			width: dataListenerFactory(player, 'width'),
 			height: dataListenerFactory(player, 'height'),
@@ -1216,6 +1218,7 @@
 				if (player.model.duration === 0) {
 					player.model.duration = event.duration;
 				}
+				player.model.position = event.position;
 				player.sendEvent(type, event);
 				break;
 			case $.fn.jwplayer.events.JWPLAYER_PLAYER_STATE:
@@ -1227,6 +1230,7 @@
 				break;
 			case $.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER:
 				event.bufferPercent = event.percentage;
+				player.model.buffer = event.percentage;
 				player.sendEvent(type, event);
 				break;
 			default:
@@ -1439,11 +1443,9 @@
 			if (player.model.duration === 0) {
 				player.model.duration = event.target.duration;
 			}
-			
-			if (!$.fn.jwplayerUtils.isNull(event.target.currentTime)) {
-				player.model.position = event.target.currentTime;
-			}
+
 			if (player.media.state == $.fn.jwplayer.states.PLAYING) {
+				player.model.position = Math.round(event.target.currentTime * 10) / 10;
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
 					position: Math.round(event.target.currentTime * 10) / 10,
 					duration: Math.round(event.target.duration * 10) / 10
@@ -1488,6 +1490,7 @@
 			}
 			
 			if (!$.fn.jwplayerUtils.isNull(bufferPercent)) {
+				player.model.buffer = Math.round(bufferPercent);
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
 					bufferPercent: Math.round(bufferPercent)
 					/*bufferingComplete: player.media.bufferingComplete,
@@ -2103,7 +2106,7 @@
 			return path;
 		}
 		var protocol = document.location.href.substr(0, document.location.href.indexOf("://") + 3);
-		var basepath = document.location.href.substring(protocol.length, (path.indexOf("/") === 0) ? document.location.href.indexOf('/') : document.location.href.lastIndexOf('/'));
+		var basepath = document.location.href.substring(protocol.length, (path.indexOf("/") === 0) ? document.location.href.indexOf('/', protocol.length) : document.location.href.lastIndexOf('/'));
 		var patharray = (basepath + "/" + path).split("/");
 		var result = [];
 		for (var i = 0; i < patharray.length; i++) {
