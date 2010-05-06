@@ -33,12 +33,17 @@
 		protected var _rotate:Boolean = true;
 		protected var _youtubeMask:MovieClip;
 		
+		protected var _bufferRotationTime:Number = 100;
+		protected var _bufferRotationAngle:Number = 15;
+		
 		
 		public function DisplayComponent(player:IPlayer) {
 			super(player, "display");
 			addListeners();
 			setupDisplayObjects();
 			setupIcons();
+			if (!isNaN(getConfigParam('bufferrotation'))) _bufferRotationAngle = Number(getConfigParam('bufferrotation'));
+			if (!isNaN(getConfigParam('bufferinterval'))) _bufferRotationTime = Number(getConfigParam('bufferinterval'));
 		}
 		
 		
@@ -247,14 +252,14 @@
 		
 		
 		protected function startRotation():void {
-			if (!_rotateInterval) {
-				_rotateInterval = setInterval(updateRotation, 100);
+			if (!_rotateInterval && _bufferRotationAngle > 0) {
+				_rotateInterval = setInterval(updateRotation, _bufferRotationTime);
 			}
 		}
 		
 		
 		protected function updateRotation():void {
-			if (_bufferIcon) _bufferIcon.rotation += 15;
+			if (_bufferIcon) _bufferIcon.rotation += _bufferRotationAngle;
 		}
 		
 		

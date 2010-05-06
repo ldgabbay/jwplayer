@@ -67,15 +67,15 @@ package com.longtailvideo.jwplayer.model {
 		public function setConfig(config:Object):void {
 			for (var item:String in config) {
 				item = item;
-				if (_singleItem.hasOwnProperty(item)) {
+				if (item.indexOf(".") > 0) {
+					setPluginProperty(item, config[item]);
+					_singleItem[item.toLowerCase()] = config[item];
+				} else if (_singleItem.hasOwnProperty(item)) {
 					if (item == "file" && Strings.extension(config[item]) == "xml") {
 						setProperty("playlistfile", config[item]);					
 					} else {
 						_singleItem[item.toLowerCase()] = config[item];
 					}
-				} else if (item.indexOf(".") > 0) {
-					setPluginProperty(item, config[item]);
-					_singleItem[item.toLowerCase()] = config[item]; 
 				} else if (config[item.toLowerCase()] != null) {
 					setProperty(item, config[item]);
 				}
