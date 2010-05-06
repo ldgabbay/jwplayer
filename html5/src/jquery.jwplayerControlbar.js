@@ -60,14 +60,19 @@
 		buildElement('timeSliderProgress', 'left', false, player);
 		buildElement('timeSliderThumb', 'left', false, player);
 		buildElement('capRight', 'right', true, player);
-		//buildElement('fullscreenButton', 'right', false, player);
-		//buildElement('normalscreenButton', 'right', true, player);
-		//buildElement('divider2', 'right', true, player);
-		buildElement('volumeSliderRail', 'right', false, player);
-		buildElement('volumeSliderProgress', 'right', true, player);
-		buildElement('muteButton', 'right', false, player);
-		buildElement('unmuteButton', 'right', true, player);
-		buildElement('divider3', 'right', true, player);
+		// TODO
+		if (false) {
+			buildElement('fullscreenButton', 'right', false, player);
+			buildElement('normalscreenButton', 'right', true, player);
+			buildElement('divider2', 'right', true, player);
+		}
+		if (!$.fn.jwplayerUtils.isiPad()) {
+			buildElement('volumeSliderRail', 'right', false, player);
+			buildElement('volumeSliderProgress', 'right', true, player);
+			buildElement('muteButton', 'right', false, player);
+			buildElement('unmuteButton', 'right', true, player);
+			buildElement('divider3', 'right', true, player);
+		}
 		buildElement('durationText', 'right', true, player);
 	}
 	
@@ -198,9 +203,9 @@
 		$(trl).css('cursor', 'pointer');
 		$(vrl).css('cursor', 'pointer');
 		$(bar).mousedown(function(evt) {
-			if (evt.pageX >= $(trl).offset().left && evt.pageX <= $(trl).offset().left + $(trl).width()) {
+			if (evt.pageX >= $(trl).offset().left - window.pageXOffset && evt.pageX <= $(trl).offset().left - window.pageXOffset + $(trl).width()) {
 				controlbars[player.id].scrubber = 'time';
-			} else if (evt.pageX >= $(vrl).offset().left && evt.pageX <= $(vrl).offset().left + $(trl).width()) {
+			} else if (evt.pageX >= $(vrl).offset().left - window.pageXOffset && evt.pageX <= $(vrl).offset().left - window.pageXOffset + $(trl).width()) {
 				controlbars[player.id].scrubber = 'volume';
 			}
 		});
@@ -211,7 +216,7 @@
 		$(bar).mousemove(function(evt) {
 			if (controlbars[player.id].scrubber == 'time') {
 				controlbars[player.id].mousedown = true;
-				var xps = evt.pageX - $(bar).offset().left;
+				var xps = evt.pageX - $(bar).offset().left - window.pageXOffset;
 				$('#' + player.id + '_timeSliderThumb').css('left', xps);
 			}
 		});
@@ -222,7 +227,7 @@
 	function sliderUp(msx, player) {
 		controlbars[player.id].mousedown = false;
 		if (controlbars[player.id].scrubber == 'time') {
-			var xps = msx - $('#' + player.id + '_timeSliderRail').offset().left;
+			var xps = msx - $('#' + player.id + '_timeSliderRail').offset().left + window.pageXOffset;
 			var wid = $('#' + player.id + '_timeSliderRail').width();
 			var pos = xps / wid * controlbars[player.id].currentDuration;
 			if (pos < 0) {
@@ -235,7 +240,7 @@
 				player.play();
 			}
 		} else if (controlbars[player.id].scrubber == 'volume') {
-			var xps = msx - $('#' + player.id + '_volumeSliderRail').offset().left;
+			var xps = msx - $('#' + player.id + '_volumeSliderRail').offset().left - window.pageXOffset;
 			var wid = $('#' + player.id + '_volumeSliderRail').width();
 			var pct = Math.round(xps / wid * 100);
 			if (pct < 0) {
@@ -243,8 +248,8 @@
 			} else if (pct > 100) {
 				pct = 100;
 			}
-			if (player.model.mute){
-				player.mute(false);	
+			if (player.model.mute) {
+				player.mute(false);
 			}
 			player.volume(pct);
 		}
@@ -359,13 +364,19 @@
 		if (event.fullscreen) {
 			$('#' + event.id + '_normalscreenButton').css('display', 'block');
 			$('#' + event.id + '_fullscreenButton').css('display', 'none');
-			/*$(window).resize(function() {
-			 resizeBar(player);
-			 });*/
+			// TODO
+			if (false) {
+				$(window).resize(function() {
+					resizeBar(player);
+				});
+			}
 		} else {
 			$('#' + event.id + '_normalscreenButton').css('display', 'none');
 			$('#' + event.id + '_fullscreenButton').css('display', 'block');
-			//$(window).resize(null);
+			// TODO
+			if (false) {
+				$(window).resize(null);
+			}
 		}
 		resizeBar(event);
 		timeHandler(event);

@@ -60,14 +60,19 @@
 		buildElement('timeSliderProgress', 'left', false, player);
 		buildElement('timeSliderThumb', 'left', false, player);
 		buildElement('capRight', 'right', true, player);
-		//buildElement('fullscreenButton', 'right', false, player);
-		//buildElement('normalscreenButton', 'right', true, player);
-		//buildElement('divider2', 'right', true, player);
-		buildElement('volumeSliderRail', 'right', false, player);
-		buildElement('volumeSliderProgress', 'right', true, player);
-		buildElement('muteButton', 'right', false, player);
-		buildElement('unmuteButton', 'right', true, player);
-		buildElement('divider3', 'right', true, player);
+		// TODO
+		if (false) {
+			buildElement('fullscreenButton', 'right', false, player);
+			buildElement('normalscreenButton', 'right', true, player);
+			buildElement('divider2', 'right', true, player);
+		}
+		if (!$.fn.jwplayerUtils.isiPad()) {
+			buildElement('volumeSliderRail', 'right', false, player);
+			buildElement('volumeSliderProgress', 'right', true, player);
+			buildElement('muteButton', 'right', false, player);
+			buildElement('unmuteButton', 'right', true, player);
+			buildElement('divider3', 'right', true, player);
+		}
 		buildElement('durationText', 'right', true, player);
 	}
 	
@@ -198,9 +203,9 @@
 		$(trl).css('cursor', 'pointer');
 		$(vrl).css('cursor', 'pointer');
 		$(bar).mousedown(function(evt) {
-			if (evt.pageX >= $(trl).offset().left && evt.pageX <= $(trl).offset().left + $(trl).width()) {
+			if (evt.pageX >= $(trl).offset().left - window.pageXOffset && evt.pageX <= $(trl).offset().left - window.pageXOffset + $(trl).width()) {
 				controlbars[player.id].scrubber = 'time';
-			} else if (evt.pageX >= $(vrl).offset().left && evt.pageX <= $(vrl).offset().left + $(trl).width()) {
+			} else if (evt.pageX >= $(vrl).offset().left - window.pageXOffset && evt.pageX <= $(vrl).offset().left - window.pageXOffset + $(trl).width()) {
 				controlbars[player.id].scrubber = 'volume';
 			}
 		});
@@ -211,7 +216,7 @@
 		$(bar).mousemove(function(evt) {
 			if (controlbars[player.id].scrubber == 'time') {
 				controlbars[player.id].mousedown = true;
-				var xps = evt.pageX - $(bar).offset().left;
+				var xps = evt.pageX - $(bar).offset().left - window.pageXOffset;
 				$('#' + player.id + '_timeSliderThumb').css('left', xps);
 			}
 		});
@@ -222,7 +227,7 @@
 	function sliderUp(msx, player) {
 		controlbars[player.id].mousedown = false;
 		if (controlbars[player.id].scrubber == 'time') {
-			var xps = msx - $('#' + player.id + '_timeSliderRail').offset().left;
+			var xps = msx - $('#' + player.id + '_timeSliderRail').offset().left + window.pageXOffset;
 			var wid = $('#' + player.id + '_timeSliderRail').width();
 			var pos = xps / wid * controlbars[player.id].currentDuration;
 			if (pos < 0) {
@@ -235,7 +240,7 @@
 				player.play();
 			}
 		} else if (controlbars[player.id].scrubber == 'volume') {
-			var xps = msx - $('#' + player.id + '_volumeSliderRail').offset().left;
+			var xps = msx - $('#' + player.id + '_volumeSliderRail').offset().left - window.pageXOffset;
 			var wid = $('#' + player.id + '_volumeSliderRail').width();
 			var pct = Math.round(xps / wid * 100);
 			if (pct < 0) {
@@ -243,8 +248,8 @@
 			} else if (pct > 100) {
 				pct = 100;
 			}
-			if (player.model.mute){
-				player.mute(false);	
+			if (player.model.mute) {
+				player.mute(false);
 			}
 			player.volume(pct);
 		}
@@ -359,13 +364,19 @@
 		if (event.fullscreen) {
 			$('#' + event.id + '_normalscreenButton').css('display', 'block');
 			$('#' + event.id + '_fullscreenButton').css('display', 'none');
-			/*$(window).resize(function() {
-			 resizeBar(player);
-			 });*/
+			// TODO
+			if (false) {
+				$(window).resize(function() {
+					resizeBar(player);
+				});
+			}
 		} else {
 			$('#' + event.id + '_normalscreenButton').css('display', 'none');
 			$('#' + event.id + '_fullscreenButton').css('display', 'block');
-			//$(window).resize(null);
+			// TODO
+			if (false) {
+				$(window).resize(null);
+			}
 		}
 		resizeBar(event);
 		timeHandler(event);
@@ -977,49 +988,116 @@
 		if ($.fn.jwplayerUtils.isiPhone()) {
 			domelement.attr('poster', $.fn.jwplayerUtils.getAbsolutePath(player.config.image));
 		} else {
-			var meta = player.meta();
-			var html = [];
-			html.push("<div id='" + player.id + "_display' style='cursor:pointer;width:" + meta.width + "px;height: " + meta.height + "px;position:relative;z-index:50' >");
-			html.push("<a id='" + player.id + "_displayImage' href='" + $.fn.jwplayerUtils.getAbsolutePath(meta.sources[meta.source].file) + "'>&nbsp;</a>");
-			html.push("<div id='" + player.id + "_displayIconBackground' alt='Click to play video' style='cursor:pointer;position:absolute; top:" + (meta.height - player.skin.display.elements.background.height) / 2 + "px; left:" + (meta.width - player.skin.display.elements.background.width) / 2 + "px; border:0; background-image:url(" + player.skin.display.elements.background.src + "); width:" + player.skin.display.elements.background.width + "px;height:" + player.skin.display.elements.background.height + "px;' >");
-			html.push("<img id='" + player.id + "_displayIcon' src='" + player.skin.display.elements.playIcon.src + "' alt='Click to play video' style='cursor:pointer;position:absolute; top:" + (player.skin.display.elements.background.height - player.skin.display.elements.playIcon.height) / 2 + "px; left:" + (player.skin.display.elements.background.width - player.skin.display.elements.playIcon.width) / 2 + "px; border:0;' />");
-			html.push('</div>');
-			var positions = logoDefaults.position.split("-");
-			positions[positions.length] = "";
-			html.push('<a id="' + player.id + '_logo" target="_blank" href="' + logoDefaults.link + '" style="position:absolute;width:' + logoDefaults.width + 'px;height:' + logoDefaults.height + 'px;' + positions.join(":" + logoDefaults.margin + "px;") + 'background-image:url(' + logoDefaults.prefix + logoDefaults.file + ');margin:0;padding:0;">&nbsp;</a>');
-			html.push('</div>');
-			domelement.before(html.join(''));
-			var display = $("#" + player.id + "_display");
-			var displayImage = $("#" + player.id + "_displayImage");
-			var displayIcon = $("#" + player.id + "_displayIcon");
-			var displayIconBackground = $("#" + player.id + "_displayIconBackground");
-			var logo = $("#" + player.id + "_logo");
-			displayImage.jwplayerCSS({
-				display: 'block',
-				background: '#ffffff url(\'' + $.fn.jwplayerUtils.getAbsolutePath(player.config.image) + '\') no-repeat center center',
-				width: meta.width,
-				height: meta.height,
-				position: 'relative',
-				cursor: 'pointer',
-				left: 0,
-				top: 0
-			});
-			
-			displayImage.click(clickHandler(player));
-			displayIcon.click(clickHandler(player));
-			displayIconBackground.click(clickHandler(player));
+			setupDisplay(player);
 			player.state(stateHandler);
 			player.mute(stateHandler);
 			player.error(function(obj) {
 			
 			});
-			displays[player.id].display = display;
-			displays[player.id].displayImage = displayImage;
-			displays[player.id].displayIcon = displayIcon;
-			displays[player.id].displayIconBackground = displayIconBackground;
-			displays[player.id].logo = logo;
 		}
 	};
+	
+	function setupDisplay(player) {
+		var meta = player.meta();
+		var html = [];
+		html.push("<div id='" + player.id + "_display'>");
+		html.push("<a id='" + player.id + "_displayImage' href='" + $.fn.jwplayerUtils.getAbsolutePath(meta.sources[meta.source].file) + "'>&nbsp;</a>");
+		html.push("<div id='" + player.id + "_displayIconBackground' alt='Click to play video'>");
+		html.push("<img id='" + player.id + "_displayIcon' src='" + player.skin.display.elements.playIcon.src + "' alt='Click to play video' />");
+		html.push('</div>');
+		html.push('<a id="' + player.id + '_logo" target="_blank" href="' + logoDefaults.link + '">&nbsp;</a>');
+		html.push('</div>');
+		displays[player.id].domelement.before(html.join(''));
+		setupDisplayElements(player);
+	}
+	
+	function setupDisplayElements(player) {
+		var displayElements = initializeDisplayElements(player);
+		for (var element in displayElements) {
+			var elementId = ['#', player.id, '_', element];
+			displays[player.id][element] = $(elementId.join(''));
+			displays[player.id][element].css(displayElements[element].style);
+			if (displayElements[element].click !== undefined) {
+				displays[player.id][element].click(displayElements[element].click);
+			}
+		}
+	}
+	
+	function initializeDisplayElements(player) {
+		var meta = player.meta();
+		var elements = {
+			display: {
+				style: {
+					cursor: 'pointer',
+					width: meta.width,
+					height: meta.height,
+					position: 'relative',
+					'z-index': 50,
+					margin: 0,
+					padding: 0
+				}
+			},
+			displayIcon: {
+				style: {
+					cursor: 'pointer',
+					position: 'absolute',
+					top: (player.skin.display.elements.background.height - player.skin.display.elements.playIcon.height) / 2,
+					left: (player.skin.display.elements.background.width - player.skin.display.elements.playIcon.width) / 2,
+					border: 0,
+					margin: 0,
+					padding: 0
+				},
+				click: clickHandler(player)
+			},
+			displayIconBackground: {
+				style: {
+					cursor: 'pointer',
+					position: 'absolute',
+					top: (meta.height - player.skin.display.elements.background.height) / 2,
+					left: (meta.width - player.skin.display.elements.background.width) / 2,
+					border: 0,
+					'background-image': (['url(', player.skin.display.elements.background.src, ')']).join(''),
+					width: player.skin.display.elements.background.width,
+					height: player.skin.display.elements.background.height,
+					margin: 0,
+					padding: 0
+				},
+				click: clickHandler(player)
+			},
+			displayImage: {
+				style: {
+					display: 'block',
+					background: ([player.config.screencolor, ' url(', $.fn.jwplayerUtils.getAbsolutePath(player.config.image), ') no-repeat center center']).join(''),
+					width: meta.width,
+					height: meta.height,
+					position: 'absolute',
+					cursor: 'pointer',
+					left: 0,
+					top: 0,
+					margin: 0,
+					padding: 0,
+					'text-decoration': 'none'
+				},
+				click: clickHandler(player)
+			},
+			logo: {
+				style: {
+					position: 'absolute',
+					width: logoDefaults.width,
+					height: logoDefaults.height,
+					'background-image': (['url(', logoDefaults.prefix, logoDefaults.file, ')']).join(''),
+					margin: 0,
+					padding: 0,
+					'text-decoration': 'none'
+				}
+			}
+		}
+		var positions = logoDefaults.position.split("-");
+		for (var position in positions) {
+			elements.logo.style[positions[position]] = logoDefaults.margin;
+		}
+		return elements;
+	}
 	
 	function clickHandler(player) {
 		return function(evt) {
@@ -1066,7 +1144,9 @@
 		switch (player.model.state) {
 			case $.fn.jwplayer.states.BUFFERING:
 				displays[obj.id].logo.fadeIn(0, function() {
-					displays[obj.id].logo.fadeOut(logoDefaults.timeout * 1000);
+					setTimeout(function() {
+						displays[obj.id].logo.fadeOut(logoDefaults.out * 1000);
+					}, logoDefaults.timeout * 1000)
 				});
 				displays[obj.id].displayIcon[0].src = player.skin.display.elements.bufferIcon.src;
 				displays[obj.id].displayIcon.css({
@@ -1075,7 +1155,10 @@
 					left: (player.skin.display.elements.background.width - player.skin.display.elements.bufferIcon.width) / 2 + "px"
 				});
 				displays[player.id].animate = true;
-				//animate(displays[obj.id].displayIconBackground);
+				// TODO: Buffer Icon rotation
+				if (false) {
+					animate(displays[obj.id].displayIconBackground);
+				}
 				displays[obj.id].displayIconBackground.css('display', 'none');
 				break;
 			case $.fn.jwplayer.states.PAUSED:
@@ -1112,7 +1195,9 @@
 					});
 				} else {
 					displays[obj.id].logo.clearQueue().fadeIn(0, function() {
-						displays[obj.id].logo.fadeOut(logoDefaults.timeout * 1000);
+						setTimeout(function() {
+							displays[obj.id].logo.fadeOut(logoDefaults.out * 1000);
+						}, logoDefaults.timeout * 1000)
 					});
 					displays[obj.id].displayImage.css("background", "transparent no-repeat center center");
 					displays[obj.id].displayIconBackground.css("display", "none");
@@ -1484,7 +1569,7 @@
 			if (player.model.duration === 0) {
 				player.model.duration = event.target.duration;
 			}
-
+			
 			if (player.media.state == $.fn.jwplayer.states.PLAYING) {
 				player.model.position = Math.round(event.target.currentTime * 10) / 10;
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
@@ -1511,15 +1596,19 @@
 		
 		bufferFill = bufferTime / player.model.config.bufferlength * 100;
 		
-		/*if (bufferFill < 25 && player.media.state == $.fn.jwplayer.states.PLAYING) {
-		 setState($.fn.jwplayer.states.BUFFERING);
-		 player.media.bufferFull = false;
-		 if (!player.model.domelement[0].seeking) {
-		 player.model.domelement[0].pause();
-		 }
-		 } else if (bufferFill > 95 && player.media.state == $.fn.jwplayer.states.BUFFERING && player.media.bufferFull === false && bufferTime > 0) {
-		 player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER_FULL, {});
-		 }*/
+		// TODO: Buffer underrun
+		if (false) {
+			if (bufferFill < 25 && player.media.state == $.fn.jwplayer.states.PLAYING) {
+				setState($.fn.jwplayer.states.BUFFERING);
+				player.media.bufferFull = false;
+				if (!player.model.domelement[0].seeking) {
+					player.model.domelement[0].pause();
+				}
+			} else if (bufferFill > 95 && player.media.state == $.fn.jwplayer.states.BUFFERING && player.media.bufferFull === false && bufferTime > 0) {
+				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER_FULL, {});
+			}
+		}
+		
 		if (player.media.bufferFull === false) {
 			player.media.bufferFull = true;
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER_FULL, {});
@@ -1534,10 +1623,10 @@
 				player.model.buffer = Math.round(bufferPercent);
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
 					bufferPercent: Math.round(bufferPercent)
-					/*bufferingComplete: player.media.bufferingComplete,
-					 bufferFull: player.media.bufferFull,
-					 bufferFill: bufferFill,
-					 bufferTime: bufferTime*/
+					//bufferingComplete: player.media.bufferingComplete,
+					//bufferFull: player.media.bufferFull,
+					//bufferFill: bufferFill,
+					//bufferTime: bufferTime
 				});
 			}
 			
@@ -1620,13 +1709,16 @@
 	/** Resize the player. **/
 	function resize(player) {
 		return function(width, height) {
-			/*$("#"+player.id+"_jwplayer").css("position", 'fixed');
-			 $("#"+player.id+"_jwplayer").css("top", '0');
-			 $("#"+player.id+"_jwplayer").css("left", '0');
-			 $("#"+player.id+"_jwplayer").css("width", width);
-			 $("#"+player.id+"_jwplayer").css("height", height);
-			 player.model.width = $("#"+player.id+"_jwplayer").width;
-			 player.model.height = $("#"+player.id+"_jwplayer").height;*/
+			// TODO: Fullscreen
+			if (false) {
+				$("#" + player.id + "_jwplayer").css("position", 'fixed');
+				$("#" + player.id + "_jwplayer").css("top", '0');
+				$("#" + player.id + "_jwplayer").css("left", '0');
+				$("#" + player.id + "_jwplayer").css("width", width);
+				$("#" + player.id + "_jwplayer").css("height", height);
+				player.model.width = $("#" + player.id + "_jwplayer").width;
+				player.model.height = $("#" + player.id + "_jwplayer").height;
+			}
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
 				fullscreen: player.model.fullscreen,
 				width: width,
@@ -1656,7 +1748,7 @@
 				player.model.domelement[0].currentTime = 0;
 				setState(player, $.fn.jwplayer.states.BUFFERING);
 				setState(player, $.fn.jwplayer.states.PLAYING);
-				if (player.model.domelement[0].paused){
+				if (player.model.domelement[0].paused) {
 					player.model.domelement[0].play();
 				}
 				return;
@@ -1766,27 +1858,27 @@
 (function($) {
 
 	var elementAttributes = {
-		'element': {
-			'width': 'width',
-			'height': 'height',
-			'id': 'id',
+		element: {
+			width: 'width',
+			height: 'height',
+			id: 'id',
 			'class': 'className',
-			'name': 'name'
+			name: 'name'
 		},
-		'media': {
-			'src': 'file',
-			'preload': 'preload',
-			'autoplay': 'autostart',
-			'loop': 'repeat',
-			'controls': 'controls'
+		media: {
+			src: 'file',
+			preload: 'preload',
+			autoplay: 'autostart',
+			loop: 'repeat',
+			controls: 'controls'
 		},
-		'source': {
-			'src': 'file',
-			'type': 'type',
-			'media': 'media'
+		source: {
+			src: 'file',
+			type: 'type',
+			media: 'media'
 		},
-		'video': {
-			'poster': 'image'
+		video: {
+			poster: 'image'
 		}
 	};
 	
@@ -2098,7 +2190,7 @@
 	};
 	
 	/** Resets an element's CSS **/
-	$.fn.jwplayerCSS = function(options) {
+	/*$.fn.jwplayerCSS = function(options) {
 		return this.each(function() {
 			var defaults = {
 				'margin': 0,
@@ -2139,7 +2231,7 @@
 				//alert($.fn.jwplayerUtils.dump(err));
 			}
 		});
-	};
+	};*/
 	
 	$.fn.jwplayerUtils.isNull = function(obj) {
 		return ((obj === null) || (obj === undefined) || (obj === ""));
@@ -2259,8 +2351,6 @@
 	var embedString = "<embed %elementvars% src='%flashplayer%' allowfullscreen='true' allowscriptaccess='always' flashvars='%flashvars%' %style% />";
 	var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars% %style% > <param name='movie' value='%flashplayer%'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
 	var elementvars = {
-		//width: true,
-		//height: true,
 		id: true,
 		name: true,
 		className: true
@@ -2268,11 +2358,12 @@
 	
 	$.fn.jwplayerView = function(player) {
 		player.model.domelement.wrap("<div id='" + player.model.config.id + "_jwplayer' />");
-		player.model.domelement.parent().jwplayerCSS({
+		player.model.domelement.parent().css({
 			position: 'relative',
 			height: player.config.height,
 			width: player.config.width,
 			margin: 'auto',
+			padding: 0,
 			'background-color': player.config.screencolor
 		});
 		player.model.domelement.css({

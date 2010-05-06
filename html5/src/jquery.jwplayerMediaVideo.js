@@ -124,7 +124,7 @@
 			if (player.model.duration === 0) {
 				player.model.duration = event.target.duration;
 			}
-
+			
 			if (player.media.state == $.fn.jwplayer.states.PLAYING) {
 				player.model.position = Math.round(event.target.currentTime * 10) / 10;
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_TIME, {
@@ -151,15 +151,19 @@
 		
 		bufferFill = bufferTime / player.model.config.bufferlength * 100;
 		
-		/*if (bufferFill < 25 && player.media.state == $.fn.jwplayer.states.PLAYING) {
-		 setState($.fn.jwplayer.states.BUFFERING);
-		 player.media.bufferFull = false;
-		 if (!player.model.domelement[0].seeking) {
-		 player.model.domelement[0].pause();
-		 }
-		 } else if (bufferFill > 95 && player.media.state == $.fn.jwplayer.states.BUFFERING && player.media.bufferFull === false && bufferTime > 0) {
-		 player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER_FULL, {});
-		 }*/
+		// TODO: Buffer underrun
+		if (false) {
+			if (bufferFill < 25 && player.media.state == $.fn.jwplayer.states.PLAYING) {
+				setState($.fn.jwplayer.states.BUFFERING);
+				player.media.bufferFull = false;
+				if (!player.model.domelement[0].seeking) {
+					player.model.domelement[0].pause();
+				}
+			} else if (bufferFill > 95 && player.media.state == $.fn.jwplayer.states.BUFFERING && player.media.bufferFull === false && bufferTime > 0) {
+				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER_FULL, {});
+			}
+		}
+		
 		if (player.media.bufferFull === false) {
 			player.media.bufferFull = true;
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER_FULL, {});
@@ -174,10 +178,10 @@
 				player.model.buffer = Math.round(bufferPercent);
 				player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER, {
 					bufferPercent: Math.round(bufferPercent)
-					/*bufferingComplete: player.media.bufferingComplete,
-					 bufferFull: player.media.bufferFull,
-					 bufferFill: bufferFill,
-					 bufferTime: bufferTime*/
+					//bufferingComplete: player.media.bufferingComplete,
+					//bufferFull: player.media.bufferFull,
+					//bufferFill: bufferFill,
+					//bufferTime: bufferTime
 				});
 			}
 			
@@ -260,13 +264,16 @@
 	/** Resize the player. **/
 	function resize(player) {
 		return function(width, height) {
-			/*$("#"+player.id+"_jwplayer").css("position", 'fixed');
-			 $("#"+player.id+"_jwplayer").css("top", '0');
-			 $("#"+player.id+"_jwplayer").css("left", '0');
-			 $("#"+player.id+"_jwplayer").css("width", width);
-			 $("#"+player.id+"_jwplayer").css("height", height);
-			 player.model.width = $("#"+player.id+"_jwplayer").width;
-			 player.model.height = $("#"+player.id+"_jwplayer").height;*/
+			// TODO: Fullscreen
+			if (false) {
+				$("#" + player.id + "_jwplayer").css("position", 'fixed');
+				$("#" + player.id + "_jwplayer").css("top", '0');
+				$("#" + player.id + "_jwplayer").css("left", '0');
+				$("#" + player.id + "_jwplayer").css("width", width);
+				$("#" + player.id + "_jwplayer").css("height", height);
+				player.model.width = $("#" + player.id + "_jwplayer").width;
+				player.model.height = $("#" + player.id + "_jwplayer").height;
+			}
 			player.sendEvent($.fn.jwplayer.events.JWPLAYER_MEDIA_RESIZE, {
 				fullscreen: player.model.fullscreen,
 				width: width,
@@ -296,7 +303,7 @@
 				player.model.domelement[0].currentTime = 0;
 				setState(player, $.fn.jwplayer.states.BUFFERING);
 				setState(player, $.fn.jwplayer.states.PLAYING);
-				if (player.model.domelement[0].paused){
+				if (player.model.domelement[0].paused) {
 					player.model.domelement[0].play();
 				}
 				return;

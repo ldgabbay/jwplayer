@@ -104,7 +104,7 @@
 	};
 	
 	/** Resets an element's CSS **/
-	$.fn.jwplayerCSS = function(options) {
+	/*$.fn.jwplayerCSS = function(options) {
 		return this.each(function() {
 			var defaults = {
 				'margin': 0,
@@ -145,7 +145,7 @@
 				//alert($.fn.jwplayerUtils.dump(err));
 			}
 		});
-	};
+	};*/
 	
 	$.fn.jwplayerUtils.isNull = function(obj) {
 		return ((obj === null) || (obj === undefined) || (obj === ""));

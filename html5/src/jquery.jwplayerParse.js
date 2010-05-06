@@ -8,27 +8,27 @@
 (function($) {
 
 	var elementAttributes = {
-		'element': {
-			'width': 'width',
-			'height': 'height',
-			'id': 'id',
+		element: {
+			width: 'width',
+			height: 'height',
+			id: 'id',
 			'class': 'className',
-			'name': 'name'
+			name: 'name'
 		},
-		'media': {
-			'src': 'file',
-			'preload': 'preload',
-			'autoplay': 'autostart',
-			'loop': 'repeat',
-			'controls': 'controls'
+		media: {
+			src: 'file',
+			preload: 'preload',
+			autoplay: 'autostart',
+			loop: 'repeat',
+			controls: 'controls'
 		},
-		'source': {
-			'src': 'file',
-			'type': 'type',
-			'media': 'media'
+		source: {
+			src: 'file',
+			type: 'type',
+			media: 'media'
 		},
-		'video': {
-			'poster': 'image'
+		video: {
+			poster: 'image'
 		}
 	};
 	

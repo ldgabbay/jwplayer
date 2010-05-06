@@ -11,8 +11,6 @@
 	var embedString = "<embed %elementvars% src='%flashplayer%' allowfullscreen='true' allowscriptaccess='always' flashvars='%flashvars%' %style% />";
 	var objectString = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' %elementvars% %style% > <param name='movie' value='%flashplayer%'> <param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'> <param name='flashvars' value='%flashvars%'> </object>";
 	var elementvars = {
-		//width: true,
-		//height: true,
 		id: true,
 		name: true,
 		className: true
@@ -20,11 +18,12 @@
 	
 	$.fn.jwplayerView = function(player) {
 		player.model.domelement.wrap("<div id='" + player.model.config.id + "_jwplayer' />");
-		player.model.domelement.parent().jwplayerCSS({
+		player.model.domelement.parent().css({
 			position: 'relative',
 			height: player.config.height,
 			width: player.config.width,
 			margin: 'auto',
+			padding: 0,
 			'background-color': player.config.screencolor
 		});
 		player.model.domelement.css({
