@@ -54,25 +54,30 @@
 				width:500
 			},
 			' ': {},
-			'MP4 video with image': {
+			'MP4 video with image and screencolor': {
 				file:'files/bunny.mp4',
 				image:'files/bunny.jpg',
 				skin:'five',
+				screencolor:'cc0000',
 				height:240,
 				width:500
 			},
-			'OGG without flashplayer': {
+			'OGG video with autostart, mute and repeat': {
+				autostart:true,
 				file:'files/bunny.ogv',
+				mute:true,
+				repeat:true,
 				skin:'five',
 				height:240,
 				width:500
 			},
-			'Long MP4 video with autostart': {
-				autostart: true,
+			'Long MP4 video with duration and low volume': {
+				duration:650,
 				file:'http://content.bitsontherun.com/videos/LJSVMnCF-327.mp4',
 				image:'http://content.bitsontherun.com/thumbs/LJSVMnCF-320.jpg',
 				skin:'five',
 				height:240,
+				volume:25,
 				width:500
 			}
 		}
@@ -415,8 +420,6 @@
 
 <div id="preview">
 	<video id="container" width="400" height="200">
-		Your browser supports neither video nor flash.
-	</video>
 </div>
 
 
