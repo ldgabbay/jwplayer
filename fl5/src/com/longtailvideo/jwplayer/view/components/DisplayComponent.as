@@ -63,7 +63,7 @@
 			player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, itemHandler);
 			addEventListener(MouseEvent.CLICK, clickHandler);
 			this.buttonMode = true;
-			this.mouseChildren = false;
+//			this.mouseChildren = false;
 		}
 		
 		
@@ -106,15 +106,28 @@
 		 * Takes in an icon from a PNG skin and rearranges its children so that it's centered around 0, 0 
 		 */
 		protected function centerIcon(icon:Sprite):void {
-			if (icon && icon.getChildAt(0) is Bitmap) {
-				icon.getChildAt(0).x = -Math.round(icon.getChildAt(0).width)/2;
-				icon.getChildAt(0).y = -Math.round(icon.getChildAt(0).height)/2;
+			if (icon) {
+				for (var i:Number=0; i < icon.numChildren; i++) {
+			 		if (icon.getChildAt(i) is Bitmap) {
+						icon.getChildAt(i).x = -Math.round(icon.getChildAt(i).width)/2;
+						icon.getChildAt(i).y = -Math.round(icon.getChildAt(i).height)/2;
+					}
+				}
 			}
 		}
 		
 		protected function setupIcon(name:String):void {
 			var icon:Sprite = getSkinElement(name + 'Icon') as Sprite;
-			if (_player.skin is PNGSkin) centerIcon(icon);
+			var iconOver:Sprite = getSkinElement(name + 'IconOver') as Sprite;
+
+			if (!icon) { return; }
+			
+			if (_player.skin is PNGSkin) {
+				centerIcon(icon);
+				centerIcon(iconOver);
+				icon.name = 'out';
+				if (iconOver) { iconOver.name = 'over'; }
+			}
 			
 			if (name == "buffer") {
 				if (icon is MovieClip && (icon as MovieClip).totalFrames > 1) {
@@ -134,18 +147,47 @@
 			}
 			
 			var back:Sprite = getSkinElement('background') as Sprite;
-
 			if (back) {
 				if (_player.skin is PNGSkin) centerIcon(back);
-				back.addChild(icon);
-				back.x = back.y = icon.x = icon.y = 0;
- 				_icons[name] = back;
 			} else {
-				_icons[name] = icon;
+				back = new Sprite();
 			}
+
+			if (iconOver && player.skin is PNGSkin && name != "buffer") {
+				iconOver.visible = false;
+				back.addChild(iconOver);
+				back.addEventListener(MouseEvent.MOUSE_OVER, overHandler);
+				back.addEventListener(MouseEvent.MOUSE_OUT, outHandler);
+			}
+			back.addChild(icon);
+			back.x = back.y = icon.x = icon.y = 0;
+			_icons[name] = back;
 
 		}
 		
+		protected function overHandler(evt:MouseEvent):void {
+			var button:Sprite = _icon as Sprite;
+			if (button) {
+				setIconHover(button, true);
+			}
+		}
+
+		protected function outHandler(evt:MouseEvent):void {
+			var button:Sprite = _icon as Sprite;
+			if (button) {
+				setIconHover(button, false);
+			}
+		}
+		
+		protected function setIconHover(icon:Sprite, state:Boolean):void {
+			var over:DisplayObject = icon.getChildByName('over'); 
+			var out:DisplayObject = icon.getChildByName('out'); 
+			
+			if (over && out) {
+				over.visible = state;
+				out.visible = !state;
+			}		
+		}
 		
 		public function resize(width:Number, height:Number):void {
 			_background.width = width;
@@ -169,6 +211,9 @@
 			} catch (err:Error) {
 			}
 			if (displayIcon && _player.config.icons) {
+				if (displayIcon is Sprite) {
+					setIconHover(displayIcon as Sprite, false);
+				}
 				_icon = displayIcon;
 				addChild(icon);
 				positionIcon();
