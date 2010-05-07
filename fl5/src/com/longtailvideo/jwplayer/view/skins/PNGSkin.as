@@ -6,6 +6,7 @@ package com.longtailvideo.jwplayer.view.skins {
 	
 	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
@@ -125,15 +126,25 @@ package com.longtailvideo.jwplayer.view.skins {
 				_loaders[newLoader] = {componentName:component, elementName:element.@name.toString()};
 				newLoader.addEventListener(Event.COMPLETE, elementHandler);
 				newLoader.addEventListener(ErrorEvent.ERROR, elementError);
-				newLoader.load(_urlPrefix + component + '/' + element.@src.toString(), Bitmap);  
+				newLoader.load(_urlPrefix + component + '/' + element.@src.toString());
 			}
 		}
 		
 		protected function elementHandler(evt:Event):void {
 			try {
 				var elementInfo:Object = _loaders[evt.target];
-				var bitmap:Bitmap = (evt.target as AssetLoader).loadedObject as Bitmap;
-				addSkinElement(elementInfo['componentName'], elementInfo['elementName'], bitmap);
+				var loader:AssetLoader = evt.target as AssetLoader;
+				var bitmap:Bitmap = loader.loadedObject as Bitmap;
+				if (loader.loadedObject is Bitmap) {
+					addSkinElement(elementInfo['componentName'], elementInfo['elementName'], loader.loadedObject as Bitmap);
+				} else if (loader.loadedObject is MovieClip) {
+					var mc:MovieClip = loader.loadedObject as MovieClip;
+					if (mc.numChildren == 1) {
+						addSkinElement(elementInfo['componentName'], elementInfo['elementName'], mc.getChildAt(0));
+					} else {
+						addSkinElement(elementInfo['componentName'], elementInfo['elementName'], mc);
+					}
+				}
 				delete _loaders[evt.target];
 			} catch (e:Error) {
 				if (_loaders[evt.target]) {
@@ -179,11 +190,15 @@ package com.longtailvideo.jwplayer.view.skins {
 		public override function getSkinElement(component:String, element:String):DisplayObject {
 			if (_components[component] && _components[component][element]){
 				var sprite:Sprite = _components[component][element] as Sprite;
-				var bitmap:Bitmap = new Bitmap((sprite.getChildAt(0) as Bitmap).bitmapData);
-				var newSprite:Sprite = new Sprite();
-				newSprite.addChild(bitmap);
-				bitmap.name = 'bitmap';
-				return newSprite;
+				if (sprite.getChildAt(0) is Bitmap) {
+					var bitmap:Bitmap = new Bitmap((sprite.getChildAt(0) as Bitmap).bitmapData);
+					var newSprite:Sprite = new Sprite();
+					newSprite.addChild(bitmap);
+					bitmap.name = 'bitmap';
+					return newSprite;
+				} else {
+					return sprite;
+				}
 			}
 			return null;
 		}
@@ -192,9 +207,13 @@ package com.longtailvideo.jwplayer.view.skins {
 			if (!_components[component]) {
 				_components[component] = {};
 			}
-			var sprite:Sprite = new Sprite();
-			sprite.addChild(element);
-			_components[component][name] = sprite;
+			if (element is MovieClip) {
+				_components[component][name] = element;
+			} else {
+				var sprite:Sprite = new Sprite();
+				sprite.addChild(element);
+				_components[component][name] = sprite;
+			}
 		}
 		
 		public override function hasComponent(component:String):Boolean {

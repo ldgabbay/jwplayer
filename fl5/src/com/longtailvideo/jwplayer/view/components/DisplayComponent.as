@@ -122,7 +122,7 @@
 
 			if (!icon) { return; }
 			
-			if (_player.skin is PNGSkin) {
+			if (_player.skin is PNGSkin && icon.getChildByName("bitmap")) {
 				centerIcon(icon);
 				centerIcon(iconOver);
 				icon.name = 'out';

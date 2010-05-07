@@ -561,9 +561,13 @@ package com.longtailvideo.jwplayer.view.components {
 				if (fontColor) {
 					if (description) { description.textColor = fontColor.color; }
 					if (title) { title.textColor = fontColor.color; }
+					if (author) { author.textColor = fontColor.color; }
+					if (tags) { tags.textColor = fontColor.color; }
 				} else if (front) {
 					if (description) { description.textColor = front.color; }
 					if (title) { title.textColor = front.color; }
+					if (author) { author.textColor = front.color; }
+					if (tags) { tags.textColor = front.color; }
 				}
 			} catch (e:Error) {
 			}
@@ -591,6 +595,7 @@ package com.longtailvideo.jwplayer.view.components {
 					img.alpha = 1;
 					var msk:Sprite
 					if (bg) {
+						bg.visible = false;
 					 	msk = Draw.rect(button, '0xFF0000', bg.width, bg.height, bg.x, bg.y);
 						ldr.x = bg.x;
 						ldr.y = bg.y;
