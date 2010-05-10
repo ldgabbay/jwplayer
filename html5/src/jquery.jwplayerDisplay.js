@@ -234,7 +234,12 @@
 						left: (player.skin.display.elements.background.width - player.skin.display.elements.muteIcon.width) / 2 + "px"
 					});
 				} else {
-					displays[obj.id].logo.clearQueue().fadeIn(0, function() {
+					try {
+						displays[obj.id].logo.clearQueue();
+					} catch (err){
+						
+					}
+					displays[obj.id].logo.fadeIn(0, function() {
 						setTimeout(function() {
 							displays[obj.id].logo.fadeOut(logoDefaults.out * 1000);
 						}, logoDefaults.timeout * 1000);

@@ -326,7 +326,11 @@
 				player.model.domelement[0].src = path;
 				player.model.domelement[0].load();
 				startInterval(player);
-				player.model.domelement[0].currentTime = 0;
+				try {
+					player.model.domelement[0].currentTime = 0;					
+				} catch (err){
+					
+				}
 			}, 25);
 		};
 	}
