@@ -45,16 +45,16 @@
 					break;
 				case 4:
 					$.fn.jwplayerModel.setActiveMediaProvider(player);
-					setupJWPlayer(player, step + 1);
+					if ((player.media === undefined) || !player.media.hasChrome) {
+						setupJWPlayer(player, step + 1);
+					}
 					break;
 				case 5:
-					if ((navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) || (player.media === undefined)) {
-						$.fn.jwplayerDisplay($.jwplayer(player.id), player.model.domelement);
-					}
-					if (!(navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) || (player.media === undefined)) {
+					$.fn.jwplayerDisplay($.jwplayer(player.id), player.model.domelement);
+					if (player.media === undefined) {
 						player.sendEvent($.fn.jwplayer.events.JWPLAYER_READY);
 					} else {
-						setupJWPlayer(player, step + 1);	
+						setupJWPlayer(player, step + 1);
 					}
 					break;
 				case 6:

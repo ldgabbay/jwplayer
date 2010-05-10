@@ -54,17 +54,19 @@
 					elementvarString += elementvar + "='" + player.model.config[elementvar] + "' ";
 				}
 			}
-			if (elementvarString.indexOf("name=" ) < 0) {
+			if (elementvarString.indexOf("name=") < 0) {
 				elementvarString += "name='" + player.id + "' ";
 			}
 			var config = $.extend(true, {}, player.model.config, options);
-			flashvarString += "file=" + $.fn.jwplayerUtils.getAbsolutePath(player.model.sources[player.model.source].file) + "&image=" + $.fn.jwplayerUtils.getAbsolutePath(config.image) +"&";
 			for (var flashvar in config) {
-				if ((flashvar == "file") || (flashvar == "image") ||  (flashvar == "plugins")) {
+				if (flashvar == 'plugins') {
 					continue;
 				}
-				if (!$.fn.jwplayerUtils.isNull(config[flashvar])){
-					flashvarString += flashvar + "=" + config[flashvar] + "&";
+				if (!$.fn.jwplayerUtils.isNull(config[flashvar])) {
+					if ((flashvar == 'file') || (flashvar == 'image')){
+						config[flashvar] = $.fn.jwplayerUtils.getAbsolutePath(config[flashvar]);
+					}
+					flashvarString += flashvar + '=' + config[flashvar] + '&';
 				}
 			}
 			
@@ -73,14 +75,14 @@
 			htmlString = htmlString.replace("%elementvars%", elementvarString);
 			htmlString = htmlString.replace("%flashvars%", flashvarString);
 			htmlString = htmlString.replace("%flashplayer%", player.model.config.flashplayer);
-			htmlString = htmlString.replace("%style%", "style='"+styleString+"width:"+player.model.config.width+"px;height:"+player.model.config.height+"px;'");
+			htmlString = htmlString.replace("%style%", "style='" + styleString + "width:" + player.model.config.width + "px;height:" + player.model.config.height + "px;'");
 			if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
-				htmlString = htmlString.replace("%style%", "style='"+styleString+"width:"+player.model.config.width+"px;height:"+player.model.config.height+"px;'");
+				htmlString = htmlString.replace("%style%", "style='" + styleString + "width:" + player.model.config.width + "px;height:" + player.model.config.height + "px;'");
 				player.model.domelement.before(htmlString);
 			} else {
-				htmlString = htmlString.replace("%style%", "style='"+styleString+"width:"+player.model.config.width+"px;height:"+(player.model.config.height+player.skin.controlbar.elements.background.height)+"px;'");
+				htmlString = htmlString.replace("%style%", "style='" + styleString + "width:" + player.model.config.width + "px;height:" + (player.model.config.height + player.skin.controlbar.elements.background.height) + "px;'");
 				player.model.domelement.before("<div />");
-				player.model.domelement.prev()[0].outerHTML= htmlString;
+				player.model.domelement.prev()[0].outerHTML = htmlString;
 			}
 			var oldDOMElement = player.model.domelement;
 			player.model.domelement = player.model.domelement.prev();

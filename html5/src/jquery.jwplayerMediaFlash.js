@@ -47,10 +47,6 @@
 	
 	$.fn.jwplayerMediaFlash = function(player) {
 		var options = {};
-		if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
-			options.controlbar = 'none';
-			options.icons = false;
-		}
 		var media = {
 			play: play(player),
 			pause: pause(player),
@@ -60,7 +56,9 @@
 			fullscreen: fullscreen(player),
 			load: load(player),
 			resize: resize(player),
-			state: $.fn.jwplayer.states.IDLE
+			state: $.fn.jwplayer.states.IDLE,
+			hasChrome: true
+			
 		};
 		player.media = media;
 		$.fn.jwplayerView.embedFlash(player, options);

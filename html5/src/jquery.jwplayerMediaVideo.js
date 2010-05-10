@@ -58,7 +58,8 @@
 			resize: resize(player),
 			state: $.fn.jwplayer.states.IDLE,
 			interval: null,
-			loadcount: 0
+			loadcount: 0,
+			hasChrome: false
 		};
 		player.media = media;
 		media.mute(player.mute());
