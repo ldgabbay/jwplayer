@@ -18,14 +18,9 @@
 			bluemetal:'../../../skins/bluemetal/bluemetal.xml',
 			classic:'../../../skins/classic/classic.xml',
 			five:'../../../skins/five/five.xml',
-			grungetape:'../../../skins/grungetape/grungetape.xml',
-			icecreamsneaka:'../../../skins/icecreamsneaka/icecreamsneaka.xml',
-			kleur:'../../../skins/kleur/kleur.xml',
 	        lulu:'../../../skins/lulu/lulu.xml',
 			modieus:'../../../skins/modieus/modieus.xml',
 			nacht:'../../../skins/nacht/nacht.xml',
-			playcasso:'../../../skins/playcasso/playcasso.xml',
-			schoon:'../../../skins/schoon/schoon.xml',
 			snel:'../../../skins/snel/snel.xml',
 	        stormtrooper:'../../../skins/stormtrooper/stormtrooper.xml'
 		},
@@ -33,15 +28,14 @@
 		examples: {
 			'': {},
 			'MP4 video': {
-				file:'files/bunny.mp4',
+				file:'http://content.bitsontherun.com/videos/nPripu9l-327.mp4',
 				flashplayer:'../../fl5/player.swf',
 				skin:'five',
 				height:240,
 				width:500
 			},
 			'OGG video': {
-				file:'files/bunny.ogv',
-				flashplayer:'../../fl5/player.swf',
+				file:'http://content.bitsontherun.com/videos/nPripu9l-239130.ogv',
 				skin:'five',
 				height:240,
 				width:500
@@ -54,9 +48,9 @@
 				width:500
 			},
 			' ': {},
-			'MP4 video with image and screencolor': {
-				file:'files/bunny.mp4',
-				image:'files/bunny.jpg',
+			'MP4 video with image and screencolor, no flashplayer': {
+				file:'http://content.bitsontherun.com/videos/nPripu9l-327.mp4',
+				image:'http://content.bitsontherun.com/videos/nPripu9l-320.jpg',
 				skin:'five',
 				screencolor:'cc0000',
 				height:240,
@@ -64,7 +58,7 @@
 			},
 			'OGG video with autostart, mute and repeat': {
 				autostart:true,
-				file:'files/bunny.ogv',
+				file:'http://content.bitsontherun.com/videos/nPripu9l-239130.ogv',
 				mute:true,
 				repeat:true,
 				skin:'five',
@@ -72,6 +66,7 @@
 				width:500
 			},
 			'Long MP4 video with duration and low volume': {
+				flashplayer:'../../fl5/player.swf',
 				duration:650,
 				file:'http://content.bitsontherun.com/videos/LJSVMnCF-327.mp4',
 				image:'http://content.bitsontherun.com/thumbs/LJSVMnCF-320.jpg',
@@ -331,7 +326,7 @@
 			}
 		}
 		try {
-			console.log(txt);			
+			console.log(txt);
 		} catch(err) {
 			alert(txt);
 		}
