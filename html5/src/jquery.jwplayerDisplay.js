@@ -87,7 +87,6 @@
 					margin: 0,
 					padding: 0
 				},
-				click: clickHandler(player)
 			},
 			displayIconBackground: {
 				style: {
