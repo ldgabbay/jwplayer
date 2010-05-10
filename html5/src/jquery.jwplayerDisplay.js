@@ -131,7 +131,7 @@
 					'text-decoration': 'none'
 				}
 			}
-		}
+		};
 		var positions = logoDefaults.position.split("-");
 		for (var position in positions) {
 			elements.logo.style[positions[position]] = logoDefaults.margin;

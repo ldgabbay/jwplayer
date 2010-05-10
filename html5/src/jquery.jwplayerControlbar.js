@@ -263,10 +263,6 @@
 			controlbars[event.id].currentBuffer = event.bufferPercent;
 		}
 		
-		if (event.bufferPercent === 0) {
-			$('#' + event.id + '_timeSliderBuffer').css('display', 'none');
-		}
-		
 		var wid = $('#' + event.id + '_timeSliderRail').width();
 		var bufferWidth = isNaN(Math.round(wid * controlbars[event.id].currentBuffer / 100)) ? 0 : Math.round(wid * controlbars[event.id].currentBuffer / 100);
 		$('#' + event.id + '_timeSliderBuffer').css('width', bufferWidth);
