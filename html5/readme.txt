@@ -3,7 +3,7 @@ JW Player for HTML5 Readme
 
 Thanks for downloading the beta release of our JW Player for HTML5! This player fully skinnable and configurable and based on the new <video> tag found in HTML5. It is built using javascript (jQuery) and includes a seamless fallback to the popular JW Player for Flash.
 
-Currently, the HTML5 player is in beta. Certain functionalities that we consider essential are missing in this beta version, but will be included in the 1.0 release. We very much value your feedback (both bugreports and feature suggestions), so please let us know!
+Currently, the HTML5 player is in beta. Certain functionalities that we consider essential are missing in this beta version, but will be included in the 1.0 release. We very much value your feedback (both bug reports and feature suggestions), so please let us know!
 
 http://www.longtailvideo.com/support/forums/jw-player
 
@@ -34,8 +34,8 @@ Second, place this code where you want the video to appear, replacing the "poste
 
   <script type="text/javascript">
     $('#player').jwplayer({
-      flashplayer:'/files/player.swf',
-      skin:'/files/five.xml'
+      flashplayer:'files/player.swf',
+      skin:'files/five.xml'
     });
   </script>
 
