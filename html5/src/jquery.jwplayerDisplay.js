@@ -128,6 +128,7 @@
 					'background-image': (['url(', logoDefaults.prefix, logoDefaults.file, ')']).join(''),
 					margin: 0,
 					padding: 0,
+					display: 'none',
 					'text-decoration': 'none'
 				}
 			}
@@ -213,7 +214,7 @@
 				});
 				break;
 			case $.fn.jwplayer.states.IDLE:
-				displays[obj.id].logo.fadeIn(0);
+				displays[obj.id].logo.fadeOut(0);
 				displays[obj.id].displayImage.css("background", "#ffffff url('" + $.fn.jwplayerUtils.getAbsolutePath(player.config.image) + "') no-repeat center center");
 				displays[obj.id].displayIconBackground.css("display", "block");
 				displays[obj.id].displayIcon[0].src = player.skin.display.elements.playIcon.src;
