@@ -31,6 +31,7 @@
 			width: player.model.config.width,
 			height: player.model.config.height,
 			top: 0,
+			left: 0,
 			'z-index': 0,
 			margin: 'auto'
 		});

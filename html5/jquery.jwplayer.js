@@ -749,7 +749,7 @@
 	$.fn.jwplayer = function(options) {
 		return this.each(function() {
 			$.fn.jwplayerUtils.log("Starting setup", this);
-			setupJWPlayer($(this), 0, options);
+			return setupJWPlayer($(this), 0, options);
 		});
 	};
 	
@@ -762,12 +762,13 @@
 						model: model,
 						listeners: {}
 					};
-					setupJWPlayer(jwplayer, step + 1);
+					return setupJWPlayer(jwplayer, step + 1);
 					break;
 				case 1:
 					player.controller = $.fn.jwplayerController(player);
 					players[player.model.config.id] = player;
 					setupJWPlayer($.extend(player, api(player)), step + 1);
+					return player;
 					break;
 				case 2:
 					$.fn.jwplayerSkinner(player, function() {
@@ -898,6 +899,9 @@
 				return api(players[player]);
 			}
 		} else {
+			if (selector.indexOf('#') === 0) {
+				selector = selector.substr(1, selector.length);
+			}
 			return api(players[selector]);
 		}
 		return null;
@@ -2367,6 +2371,7 @@
 			width: player.model.config.width,
 			height: player.model.config.height,
 			top: 0,
+			left: 0,
 			'z-index': 0,
 			margin: 'auto'
 		});
