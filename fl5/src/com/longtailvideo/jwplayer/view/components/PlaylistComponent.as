@@ -212,9 +212,16 @@ package com.longtailvideo.jwplayer.view.components {
 			
 			var backActive:Sprite = getSkinElement("itemActive") as Sprite;
 			if (!backActive) {
-				backActive = new Sprite();
+				backActive = getSkinElement("item") as Sprite;
+				if (!backActive) {
+					backActive = new Sprite();
+					backActive.graphics.beginFill(0, 1);
+					backActive.graphics.drawRect(0, 0, 100, 100);
+					backActive.graphics.endFill();
+				}
 			}
 			backActive.name = "backActive";
+			backActive.visible = false;
 			addElement(backActive, btn, 0, 0);
 
 			var backOver:Sprite = getSkinElement("itemOver") as Sprite;
@@ -225,6 +232,7 @@ package com.longtailvideo.jwplayer.view.components {
 				backOver.graphics.endFill();
 			}
 			backOver.name = "backOver";
+			backOver.visible = false;
 			addElement(backOver, btn, 0, 0);
 			
 			var back:Sprite = getSkinElement("item") as Sprite;
@@ -337,9 +345,9 @@ package com.longtailvideo.jwplayer.view.components {
 					getButton(idx).getChildByName("back").transform.colorTransform = light;
 				}
 			} else {
-				getButton(idx).setChildIndex(getButton(idx).getChildByName("backActive"), 0);
-				getButton(idx).setChildIndex(getButton(idx).getChildByName("back"), 1);
-				getButton(idx).setChildIndex(getButton(idx).getChildByName("backOver"), 2);
+				getButton(idx).getChildByName("backActive").visible = false;
+				getButton(idx).getChildByName("back").visible = false;
+				getButton(idx).getChildByName("backOver").visible = true;
 			}
 		}
 		
@@ -352,7 +360,7 @@ package com.longtailvideo.jwplayer.view.components {
 				if (button && button.getChildByName(itm)) {
 					var field:TextField = (getButton(idx).getChildByName(itm) as TextField)
 					if (field) {
-						if (idx == active && ((activeColor && fontColor) || light)) {
+						if (idx == active && (activeColor || (light && swfSkinned))) {
 							field.textColor = activeColor ? activeColor.color : (fontColor ? fontColor.color : light.color);
 						} else {
 							if (fontColor && overColor) {
@@ -363,14 +371,14 @@ package com.longtailvideo.jwplayer.view.components {
 						}
 					}
 					
-					if (front && back) {
-						if (swfSkinned) {
+					if (swfSkinned) {
+						if (front && back) {
 							button.getChildByName("back").transform.colorTransform = back;
-						} else {
-							button.setChildIndex(getButton(idx).getChildByName("backActive"), (idx == active ? 2 : 0));
-							button.setChildIndex(getButton(idx).getChildByName("back"), 1);
-							button.setChildIndex(getButton(idx).getChildByName("backOver"), 0);
-						}
+						} 
+					} else {
+						getButton(idx).getChildByName("backActive").visible = (idx == active);
+						getButton(idx).getChildByName("back").visible = (idx != active);
+						getButton(idx).getChildByName("backOver").visible = false;
 					}
 				}
 			}
@@ -717,11 +725,11 @@ package com.longtailvideo.jwplayer.view.components {
 			if (proportion > 1.01) {
 				scrollInterval = setInterval(scrollEase, 50, idx * buttonheight / proportion, -idx * buttonheight + listmask.y);
 			}
-			if (light || activeColor) {
+			if ((light && swfSkinned) || activeColor) {
 				for each (var itm:String in colorizableFields) {
 					if (getButton(idx).getChildByName(itm)) {
 						try {
-							(getButton(idx).getChildByName(itm) as TextField).textColor = activeColor ? activeColor.color : light.color;
+							(getButton(idx).getChildByName(itm) as TextField).textColor = swfSkinned ? light.color : activeColor.color;
 						} catch (err:Error) {
 						}
 					}
@@ -744,19 +752,17 @@ package com.longtailvideo.jwplayer.view.components {
 						getButton(idx).getChildByName("back").transform.colorTransform = back;
 					}
 				} else {
-					getButton(active).setChildIndex(getButton(active).getChildByName("back"), 2);
-					getButton(active).setChildIndex(getButton(active).getChildByName("backOver"), 1);
-					getButton(active).setChildIndex(getButton(active).getChildByName("backActive"), 0);
+					getButton(active).getChildByName("back").visible = true;
+					getButton(active).getChildByName("backOver").visible = false;
+					getButton(active).getChildByName("backActive").visible = false;
 				}
 			}
 			active = idx;
 
-			if (swfSkinned) {
-				
-			} else {
-				getButton(active).setChildIndex(getButton(active).getChildByName("backActive"), 2);
-				getButton(active).setChildIndex(getButton(active).getChildByName("back"), 1);
-				getButton(active).setChildIndex(getButton(active).getChildByName("backOver"), 0);
+			if (!swfSkinned) {
+				getButton(active).getChildByName("backActive").visible = true;
+				getButton(active).getChildByName("back").visible = false;
+				getButton(active).getChildByName("backOver").visible = false;
 			}
 			
 			

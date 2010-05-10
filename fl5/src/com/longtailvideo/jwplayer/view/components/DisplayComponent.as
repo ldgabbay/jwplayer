@@ -74,11 +74,7 @@
 			background.graphics.beginFill(0, 0);
 			background.graphics.drawRect(0, 0, 1, 1);
 			background.graphics.endFill();
-			if (player.config.screencolor) {
-				var colorTransform:ColorTransform = new ColorTransform();
-				colorTransform.color = player.config.screencolor.color;
-				background.transform.colorTransform = colorTransform;
-			}
+			
 			_icon = new MovieClip();
 			addChildAt(icon, 1);
 

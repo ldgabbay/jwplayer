@@ -6,6 +6,7 @@ package com.longtailvideo.jwplayer.view {
 	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
 	import com.longtailvideo.jwplayer.events.PlaylistEvent;
 	import com.longtailvideo.jwplayer.events.ViewEvent;
+	import com.longtailvideo.jwplayer.model.Color;
 	import com.longtailvideo.jwplayer.model.Model;
 	import com.longtailvideo.jwplayer.player.IPlayer;
 	import com.longtailvideo.jwplayer.player.PlayerState;
@@ -206,7 +207,15 @@ package com.longtailvideo.jwplayer.view {
 			var background:MovieClip = new MovieClip();
 			background.name = "background";
 			_backgroundLayer.addChild(background);
-			background.graphics.beginFill(_player.config.screencolor ? _player.config.screencolor.color : 0x000000, 1);
+			
+			var screenColor:Color;
+			if (_model.config.pluginConfig('display').hasOwnProperty('backgroundcolor')) {
+				screenColor = new Color(String(_model.config.pluginConfig('display')['backgroundcolor']));
+			} else if (_model.config.screencolor) {
+				screenColor = _model.config.screencolor;
+			}
+			
+			background.graphics.beginFill(screenColor ? screenColor.color : 0x000000, 1);
 			background.graphics.drawRect(0, 0, 1, 1);
 			background.graphics.endFill();
 		}
