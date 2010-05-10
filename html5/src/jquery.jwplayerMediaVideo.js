@@ -100,6 +100,9 @@
 			if (player.config.repeat && !player.media.stopped) {
 				player.play();
 			}
+			if (player.model.domelement.css('display') != 'none') {
+				player.model.domelement.css('display', 'none');
+			}
 		}
 		player.media.stopped = false;
 	}
@@ -298,27 +301,33 @@
 	/** Load a new video into the player. **/
 	function load(player) {
 		return function(path) {
-			path = $.fn.jwplayerUtils.getAbsolutePath(path);
-			if (path == player.model.domelement[0].src && player.media.loadcount > 0) {
-				player.model.position = 0;
-				player.model.domelement[0].currentTime = 0;
-				setState(player, $.fn.jwplayer.states.BUFFERING);
-				setState(player, $.fn.jwplayer.states.PLAYING);
-				if (player.model.domelement[0].paused) {
-					player.model.domelement[0].play();
-				}
-				return;
-			} else if (path != player.model.domelement[0].src) {
-				player.media.loadcount = 0;
+			if (player.model.domelement.css('display') == 'none') {
+				player.model.domelement.css('display', 'block');
 			}
-			player.media.loadcount++;
-			player.media.bufferFull = false;
-			player.media.bufferingComplete = false;
-			setState(player, $.fn.jwplayer.states.BUFFERING);
-			player.model.domelement[0].src = path;
-			player.model.domelement[0].load();
-			startInterval(player);
-			player.model.domelement[0].currentTime = 0;
+			
+			setTimeout(function() {
+				path = $.fn.jwplayerUtils.getAbsolutePath(path);
+				if (path == player.model.domelement[0].src && player.media.loadcount > 0) {
+					player.model.position = 0;
+					player.model.domelement[0].currentTime = 0;
+					setState(player, $.fn.jwplayer.states.BUFFERING);
+					setState(player, $.fn.jwplayer.states.PLAYING);
+					if (player.model.domelement[0].paused) {
+						player.model.domelement[0].play();
+					}
+					return;
+				} else if (path != player.model.domelement[0].src) {
+					player.media.loadcount = 0;
+				}
+				player.media.loadcount++;
+				player.media.bufferFull = false;
+				player.media.bufferingComplete = false;
+				setState(player, $.fn.jwplayer.states.BUFFERING);
+				player.model.domelement[0].src = path;
+				player.model.domelement[0].load();
+				startInterval(player);
+				player.model.domelement[0].currentTime = 0;
+			}, 25);
 		};
 	}
 	

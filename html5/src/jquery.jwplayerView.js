@@ -26,6 +26,7 @@
 			padding: 0,
 			'background-color': player.config.screencolor
 		});
+		var display = ($.fn.jwplayerUtils.isiPhone() || !(navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length)) ? 'block' : 'none' ;
 		player.model.domelement.css({
 			position: 'absolute',
 			width: player.model.config.width,
@@ -33,7 +34,8 @@
 			top: 0,
 			left: 0,
 			'z-index': 0,
-			margin: 'auto'
+			margin: 'auto',
+			display: display
 		});
 	};
 	
@@ -64,7 +66,7 @@
 					continue;
 				}
 				if (!$.fn.jwplayerUtils.isNull(config[flashvar])) {
-					if ((flashvar == 'file') || (flashvar == 'image')){
+					if ((flashvar == 'file') || (flashvar == 'image')) {
 						config[flashvar] = $.fn.jwplayerUtils.getAbsolutePath(config[flashvar]);
 					}
 					flashvarString += flashvar + '=' + config[flashvar] + '&';

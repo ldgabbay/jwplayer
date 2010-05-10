@@ -86,7 +86,7 @@
 					border: 0,
 					margin: 0,
 					padding: 0
-				},
+				}
 			},
 			displayIconBackground: {
 				style: {
@@ -186,7 +186,7 @@
 				displays[obj.id].logo.fadeIn(0, function() {
 					setTimeout(function() {
 						displays[obj.id].logo.fadeOut(logoDefaults.out * 1000);
-					}, logoDefaults.timeout * 1000)
+					}, logoDefaults.timeout * 1000);
 				});
 				displays[obj.id].displayIcon[0].src = player.skin.display.elements.bufferIcon.src;
 				displays[obj.id].displayIcon.css({
@@ -237,7 +237,7 @@
 					displays[obj.id].logo.clearQueue().fadeIn(0, function() {
 						setTimeout(function() {
 							displays[obj.id].logo.fadeOut(logoDefaults.out * 1000);
-						}, logoDefaults.timeout * 1000)
+						}, logoDefaults.timeout * 1000);
 					});
 					displays[obj.id].displayImage.css("background", "transparent no-repeat center center");
 					displays[obj.id].displayIconBackground.css("display", "none");
