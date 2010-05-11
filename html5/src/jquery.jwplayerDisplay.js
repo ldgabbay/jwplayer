@@ -20,11 +20,12 @@
 		height: 30
 	};
 	
-	displays = {};
+	var displays = {};
 	
 	$.fn.jwplayerDisplay = function(player, domelement) {
 		displays[player.id] = {};
 		displays[player.id].domelement = domelement;
+		displays[player.id].elements = initializeDisplayElements(player);
 		if ($.fn.jwplayerUtils.isiPhone()) {
 			domelement.attr('poster', $.fn.jwplayerUtils.getAbsolutePath(player.config.image));
 		} else {
@@ -40,15 +41,26 @@
 	function setupDisplay(player) {
 		var meta = player.meta();
 		var html = [];
-		html.push("<div id='" + player.id + "_display'>");
-		html.push("<a id='" + player.id + "_displayImage' href='" + $.fn.jwplayerUtils.getAbsolutePath(meta.sources[meta.source].file) + "'>&nbsp;</a>");
-		html.push("<div id='" + player.id + "_displayIconBackground' alt='Click to play video'>");
-		html.push("<img id='" + player.id + "_displayIcon' src='" + player.skin.display.elements.playIcon.src + "' alt='Click to play video' />");
+		html.push("<div id='" + player.id + "_display'" + getStyle(player, 'display') + ">");
+		html.push("<div id='" + player.id + "_displayImage'" + getStyle(player, 'displayImage') + ">&nbsp;</div>");
+		html.push("<div id='" + player.id + "_displayIconBackground' alt='Click to play video'" + getStyle(player, 'displayIconBackground') + ">");
+		html.push("<img id='" + player.id + "_displayIcon' src='" + player.skin.display.elements.playIcon.src + "' alt='Click to play video'" + getStyle(player, 'displayIcon') + "/>");
 		html.push('</div>');
-		html.push('<a id="' + player.id + '_logo" target="_blank" href="' + logoDefaults.link + '">&nbsp;</a>');
+		html.push('<a id="' + player.id + '_logo" target="_blank" href="' + logoDefaults.link + '"' + getStyle(player, 'logo') + '>&nbsp;</a>');
 		html.push('</div>');
 		displays[player.id].domelement.before(html.join(''));
 		setupDisplayElements(player);
+	}
+	
+	function getStyle(player, element) {
+		var result = '';
+		for (var style in displays[player.id].elements[element].style) {
+			result += style + ":" + displays[player.id].elements[element].style[style] + ";";
+		}
+		if (result === '') {
+			return ' ';
+		}
+		return ' style="' + result + '" ';
 	}
 	
 	function setupDisplayElements(player) {
@@ -56,7 +68,7 @@
 		for (var element in displayElements) {
 			var elementId = ['#', player.id, '_', element];
 			displays[player.id][element] = $(elementId.join(''));
-			displays[player.id][element].css(displayElements[element].style);
+			//displays[player.id][element].css(displayElements[element].style);
 			if (displayElements[element].click !== undefined) {
 				displays[player.id][element].click(displayElements[element].click);
 			}
@@ -75,7 +87,8 @@
 					'z-index': 50,
 					margin: 0,
 					padding: 0
-				}
+				},
+				click: displayClickHandler(player)
 			},
 			displayIcon: {
 				style: {
@@ -100,8 +113,7 @@
 					height: player.skin.display.elements.background.height,
 					margin: 0,
 					padding: 0
-				},
-				click: clickHandler(player)
+				}
 			},
 			displayImage: {
 				style: {
@@ -116,8 +128,7 @@
 					margin: 0,
 					padding: 0,
 					'text-decoration': 'none'
-				},
-				click: clickHandler(player)
+				}
 			},
 			logo: {
 				style: {
@@ -129,7 +140,8 @@
 					padding: 0,
 					display: 'none',
 					'text-decoration': 'none'
-				}
+				},
+				click: logoClickHandler()
 			}
 		};
 		var positions = logoDefaults.position.split("-");
@@ -139,9 +151,10 @@
 		return elements;
 	}
 	
-	function clickHandler(player) {
+	function displayClickHandler(player) {
 		return function(evt) {
 			if (player.media === undefined) {
+				document.location.href = $.fn.jwplayerUtils.getAbsolutePath(player.meta().sources[player.meta().source].file);
 				return;
 			}
 			if (typeof evt.preventDefault != 'undefined') {
@@ -154,6 +167,13 @@
 			} else {
 				player.pause();
 			}
+		};
+	}
+	
+	function logoClickHandler() {
+		return function(evt) {
+			evt.stopPropagation();
+			return;
 		};
 	}
 	
@@ -236,8 +256,8 @@
 				} else {
 					try {
 						displays[obj.id].logo.clearQueue();
-					} catch (err){
-						
+					} catch (err) {
+					
 					}
 					displays[obj.id].logo.fadeIn(0, function() {
 						setTimeout(function() {
