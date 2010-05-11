@@ -1939,9 +1939,11 @@
 		var sources = [];
 		if (!(navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length)){
 			var currentElement = $(domElement).next();
-			while(currentElement[0].tagName.toLowerCase() == "source") {
-				sources[sources.length] = parseSourceElement(currentElement[0]);
-				currentElement = currentElement.next();
+			if (currentElement[0] !== undefined){
+				while(currentElement[0].tagName.toLowerCase() == "source") {
+					sources[sources.length] = parseSourceElement(currentElement[0]);
+					currentElement = currentElement.next();
+				}				
 			}
 		} else {
 			$("source", domElement).each(function() {
