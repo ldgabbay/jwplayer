@@ -85,7 +85,7 @@
 			} else {
 				htmlString = htmlString.replace("%style%", "style='" + styleString + "width:" + player.model.config.width + "px;height:" + (player.model.config.height + player.skin.controlbar.elements.background.height) + "px;'");
 				player.model.domelement.before("<div />");
-				player.model.domelement.prev()[0].outerHTML = htmlString;
+				player.model.domelement.prev().html(htmlString);
 			}
 			var oldDOMElement = player.model.domelement;
 			player.model.domelement = player.model.domelement.prev();
