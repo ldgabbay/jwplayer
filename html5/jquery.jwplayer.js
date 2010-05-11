@@ -1937,9 +1937,17 @@
 	function parseMediaElement(domElement, attributes) {
 		attributes = getAttributeList('media', attributes);
 		var sources = [];
-		$("source", domElement).each(function() {
-			sources[sources.length] = parseSourceElement(this);
-		});
+		if (!(navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length)){
+			var currentElement = $(domElement).next();
+			while(currentElement[0].tagName.toLowerCase() == "source") {
+				sources[sources.length] = parseSourceElement(currentElement[0]);
+				currentElement = currentElement.next();
+			}
+		} else {
+			$("source", domElement).each(function() {
+				sources[sources.length] = parseSourceElement(this);
+			});
+		}
 		var configuration = parseElement(domElement, attributes);
 		if (configuration.file !== undefined) {
 			sources[0] = {
@@ -2418,14 +2426,17 @@
 				elementvarString += "name='" + player.id + "' ";
 			}
 			var config = $.extend(true, {}, player.model.config, options);
+			if (!$.fn.jwplayerUtils.isNull(player.model.sources[player.model.source])){
+				flashvarString += 'file=' + $.fn.jwplayerUtils.getAbsolutePath(player.model.sources[player.model.source].file) + '&';
+			}
+			if (!$.fn.jwplayerUtils.isNull(config.image)){
+				flashvarString += 'image=' + $.fn.jwplayerUtils.getAbsolutePath(config.image) + '&';
+			}
 			for (var flashvar in config) {
-				if (flashvar == 'plugins') {
+				if ((flashvar == 'file') || (flashvar == 'image') || (flashvar == 'plugins')) {
 					continue;
 				}
 				if (!$.fn.jwplayerUtils.isNull(config[flashvar])) {
-					if ((flashvar == 'file') || (flashvar == 'image')) {
-						config[flashvar] = $.fn.jwplayerUtils.getAbsolutePath(config[flashvar]);
-					}
 					flashvarString += flashvar + '=' + config[flashvar] + '&';
 				}
 			}
@@ -2434,7 +2445,7 @@
 			
 			htmlString = htmlString.replace("%elementvars%", elementvarString);
 			htmlString = htmlString.replace("%flashvars%", flashvarString);
-			htmlString = htmlString.replace("%flashplayer%", player.model.config.flashplayer);
+			htmlString = htmlString.replace("%flashplayer%", $.fn.jwplayerUtils.getAbsolutePath(player.model.config.flashplayer));
 			htmlString = htmlString.replace("%style%", "style='" + styleString + "width:" + player.model.config.width + "px;height:" + player.model.config.height + "px;'");
 			if (navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length) {
 				htmlString = htmlString.replace("%style%", "style='" + styleString + "width:" + player.model.config.width + "px;height:" + player.model.config.height + "px;'");
@@ -2443,6 +2454,7 @@
 				htmlString = htmlString.replace("%style%", "style='" + styleString + "width:" + player.model.config.width + "px;height:" + (player.model.config.height + player.skin.controlbar.elements.background.height) + "px;'");
 				player.model.domelement.before("<div />");
 				player.model.domelement.prev().html(htmlString);
+				
 			}
 			var oldDOMElement = player.model.domelement;
 			player.model.domelement = player.model.domelement.prev();

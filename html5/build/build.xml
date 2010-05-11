@@ -22,5 +22,15 @@
 			<arg line="-o '${basedir}/jquery.jwplayer.min.js'"/>
 		</java>
 	</target>
+	
+	<target name="build-zip" depends="concat">
+		 <zip destfile="${basedir}/mediaplayer-html5-beta.zip">
+		 	<fileset dir="." includes="license.txt"/>
+		 	<fileset dir="." includes="readme.txt"/>
+			<fileset dir="." includes="jquery.jwplayer.js"/>
+			<fileset dir="./lib" includes="jquery.js"/>
+		 	<fileset dir="./assets/" includes="**/*.*" excludes=".svn,*.zip"/>
+		 </zip>
+	</target>
 
 </project>

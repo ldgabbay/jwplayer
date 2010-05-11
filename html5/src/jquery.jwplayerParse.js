@@ -70,9 +70,17 @@
 	function parseMediaElement(domElement, attributes) {
 		attributes = getAttributeList('media', attributes);
 		var sources = [];
-		$("source", domElement).each(function() {
-			sources[sources.length] = parseSourceElement(this);
-		});
+		if (!(navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length)){
+			var currentElement = $(domElement).next();
+			while(currentElement[0].tagName.toLowerCase() == "source") {
+				sources[sources.length] = parseSourceElement(currentElement[0]);
+				currentElement = currentElement.next();
+			}
+		} else {
+			$("source", domElement).each(function() {
+				sources[sources.length] = parseSourceElement(this);
+			});
+		}
 		var configuration = parseElement(domElement, attributes);
 		if (configuration.file !== undefined) {
 			sources[0] = {
