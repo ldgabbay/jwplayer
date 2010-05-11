@@ -341,7 +341,7 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 			}
 			if (swfSkinned) {
-				if (light) {
+				if (front && back) {
 					getButton(idx).getChildByName("back").transform.colorTransform = light;
 				}
 			} else {
@@ -511,11 +511,13 @@ package com.longtailvideo.jwplayer.view.components {
 					}
 				} catch (err:Error) {
 				}
-				if (_player.config.lightcolor && swfSkinned) {
-					light = new ColorTransform();
-					light.color = _player.config.lightcolor.color;
-				} else {
-					light = front;
+				if (swfSkinned) {
+					if (_player.config.lightcolor) {
+						light = new ColorTransform();
+						light.color = _player.config.lightcolor.color;
+					} else {
+						light = front;
+					}
 				}
 			}
 		}
