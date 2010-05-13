@@ -191,8 +191,10 @@
 			
 			_youtubeMask.graphics.clear();
 			_youtubeMask.graphics.beginFill(0x00AA00, 1);
-			_youtubeMask.graphics.drawRect(0, 0, width-90, height);
-			_youtubeMask.graphics.drawRect(0, 0, width, height-45);
+			_youtubeMask.graphics.drawRect(0, 0, width-120, height);
+			_youtubeMask.graphics.endFill();
+			_youtubeMask.graphics.beginFill(0x00AA00, 1);
+			_youtubeMask.graphics.drawRect(0, 0, width, height-60);
 			_youtubeMask.graphics.endFill();
 			
 			positionIcon();

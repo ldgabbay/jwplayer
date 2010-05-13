@@ -252,25 +252,24 @@ package com.longtailvideo.jwplayer.media {
 				pos += _timeoffset;
 			}
 			
-			var bufferPercent:Number;
 			var bufferFill:Number;
 			if (item.duration > 0 && _stream && _stream.bytesTotal > 0) {
 				percentoffset =  _timeoffset /  item.duration * 100;
-				bufferPercent = (_stream.bytesLoaded / _stream.bytesTotal) * (1 - percentoffset/100) * 100;
 				var bufferTime:Number = _stream.bufferTime < (item.duration - pos) ? _stream.bufferTime : Math.round(item.duration - pos);
-				bufferFill = _stream.bufferTime == 0 ? 0 : Math.ceil(_stream.bufferLength / bufferTime * 100);
+				bufferFill = _stream.bufferTime ? Math.ceil(_stream.bufferLength / bufferTime * 100) : 0;
 			} else {
 				percentoffset = 0;
-				bufferPercent = 0;
-				bufferFill = _stream.bufferLength/_stream.bufferTime * 100;
+				bufferFill = _stream.bufferTime ? _stream.bufferLength/_stream.bufferTime * 100 : 0;
 			}
 	
+			var bufferPercent:Number = _stream.bytesTotal ? (_stream.bytesLoaded / _stream.bytesTotal) * (1 - percentoffset/100) * 100 : 0;
+
 			if (!_bandwidthChecked && _stream.bytesLoaded > 0 && _stream.bytesLoaded < _stream.bytesTotal) {
 				_bandwidthChecked = true;
 				clearTimeout(_bandwidthTimeout);
 				_bandwidthTimeout = setTimeout(checkBandwidth, _bandwidthDelay, _stream.bytesLoaded);
 			}
-			
+
 			if (bufferFill < 50 && state == PlayerState.PLAYING) {
 				_bufferFull = false;
 				_stream.pause();

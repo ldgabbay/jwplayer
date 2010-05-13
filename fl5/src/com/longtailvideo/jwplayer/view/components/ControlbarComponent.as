@@ -422,8 +422,6 @@ package com.longtailvideo.jwplayer.view.components {
 			button.setOutIcon(getSkinElement(name + "Button"));
 			button.setOverIcon(getSkinElement(name + "ButtonOver"));
 			button.setBackground(getSkinElement(name + "ButtonBack"));
-			button.outColor = player.config.lightcolor;
-			button.overColor = player.config.backcolor;
 			button.tabEnabled = true;
 			button.clickFunction = function():void {
 				forward(new ViewEvent(event, eventData));
@@ -535,6 +533,10 @@ package com.longtailvideo.jwplayer.view.components {
 			return null;
 		}
 
+		protected function get buttonColor():Color {
+			return getConfigParam("buttoncolor") ? new Color(String(getConfigParam("buttoncolor"))) : null;
+		}
+		
 
 		public function addButton(icon:DisplayObject, name:String, handler:Function=null):MovieClip {
 			_defaultLayout = _defaultLayout.replace("|blank","|blank|"+name);
@@ -545,9 +547,9 @@ package com.longtailvideo.jwplayer.view.components {
 			if (outBackground) {
 				var outImage:Sprite = new Sprite();
 				var outIcon:DisplayObject = icon;
-				if (_player.config.frontcolor){
+				if (buttonColor || _player.config.frontcolor){
 					var outTransform:ColorTransform = new ColorTransform();
-					outTransform.color = _player.config.frontcolor.color;
+					outTransform.color = buttonColor ? buttonColor.color : _player.config.frontcolor.color;
 					outIcon.transform.colorTransform = outTransform;
 				}
 				var outOffset:Number = Math.round((outBackground.height - outIcon.height) / 2);
