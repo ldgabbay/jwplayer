@@ -104,10 +104,8 @@
 		protected function centerIcon(icon:Sprite):void {
 			if (icon) {
 				for (var i:Number=0; i < icon.numChildren; i++) {
-			 		if (icon.getChildAt(i) is Bitmap) {
-						icon.getChildAt(i).x = -Math.round(icon.getChildAt(i).width)/2;
-						icon.getChildAt(i).y = -Math.round(icon.getChildAt(i).height)/2;
-					}
+					icon.getChildAt(i).x = -Math.round(icon.getChildAt(i).width)/2;
+					icon.getChildAt(i).y = -Math.round(icon.getChildAt(i).height)/2;
 				}
 			}
 		}
@@ -118,18 +116,33 @@
 
 			if (!icon) { return; }
 			
-			if (_player.skin is PNGSkin && icon.getChildByName("bitmap")) {
-				centerIcon(icon);
-				centerIcon(iconOver);
-				icon.name = 'out';
-				if (iconOver) { iconOver.name = 'over'; }
-			}
-			
-			if (name == "buffer") {
-				if (icon is MovieClip && (icon as MovieClip).totalFrames > 1) {
-					// Buffer is already animated; no need to rotate.
-					_rotate = false;
+			if (_player.skin is PNGSkin) {
+				if (icon.getChildByName("bitmap")) {
+					centerIcon(icon);
+					centerIcon(iconOver);
+					icon.name = 'out';
+					if (iconOver) { 
+						iconOver.name = 'over'; 
+					}
+				} else if (name == "buffer") {
+					if (icon.numChildren == 1 && icon.getChildAt(0) is MovieClip && (icon.getChildAt(0) as MovieClip).totalFrames > 1) {
+						icon = icon.getChildAt(0) as MovieClip;
+						_rotate = false;
+					} else if (icon is MovieClip && (icon as MovieClip).totalFrames > 1) {
+						_rotate = false;
+					}
 				} else {
+					var newClip:MovieClip = new MovieClip();
+					if (icon.numChildren == 1 && icon.getChildAt(0) is Sprite) {
+						// Handle the case where the icon is already the child element of the clip
+						icon = icon.getChildAt(0) as Sprite;
+					} 
+					newClip.addChild(icon);
+					icon = newClip;
+					centerIcon(icon);
+				}
+
+				if (name == "buffer" && _rotate) {
 					try {
 						_bufferIcon = icon;
 						var bufferBitmap:Bitmap = _bufferIcon.getChildByName('bitmap') as Bitmap;
@@ -140,6 +153,8 @@
 						_rotate = false;
 					}
 				}
+			} else {
+				_rotate = false;
 			}
 			
 			var back:Sprite = getSkinElement('background') as Sprite;
