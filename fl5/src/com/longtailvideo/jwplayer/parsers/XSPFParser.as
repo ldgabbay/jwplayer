@@ -53,6 +53,11 @@
 					case 'meta':
 						itm[Strings.xmlAttribute(i, 'rel')] = i.text().toString();
 						break;
+					case 'extension':
+						for each (var ext:XML in i.children()) {
+							itm[ext.localName().toLowerCase()] = ext.text().toString();
+						}
+						break;
 				}
 			}
 			itm = JWParser.parseEntry(obj, itm);
