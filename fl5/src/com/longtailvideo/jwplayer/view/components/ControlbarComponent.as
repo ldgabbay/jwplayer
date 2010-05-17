@@ -375,6 +375,9 @@ package com.longtailvideo.jwplayer.view.components {
 				back = newBackground as DisplayObject;
 			}
 
+			if (!capLeft) { capLeft = new Sprite(); }
+			if (!capRight) { capRight = new Sprite(); }
+			
 			_buttons['background'] = back;
 			addChild(back);
 			_height = back.height;
