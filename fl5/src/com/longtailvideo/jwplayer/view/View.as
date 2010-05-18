@@ -369,6 +369,9 @@ package com.longtailvideo.jwplayer.view {
 					_plugins[id] = plugDO;
 					_pluginsLayer.addChild(plugDO);
 				}
+				if (_player.config.pluginIds.indexOf(id) < 0) {
+					_player.config.plugins += "," + id;
+				}
 			} catch (e:Error) {
 				dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, e.message));
 			}

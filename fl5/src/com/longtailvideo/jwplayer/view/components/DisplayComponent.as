@@ -309,7 +309,7 @@
 		
 		
 		protected function startRotation():void {
-			if (!_rotateInterval && _bufferRotationAngle > 0) {
+			if (!_rotateInterval && (_bufferRotationAngle % 360) != 0) {
 				_rotateInterval = setInterval(updateRotation, _bufferRotationTime);
 			}
 		}
