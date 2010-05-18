@@ -138,6 +138,8 @@
 							var bufferBitmap:Bitmap = _bufferIcon.getChildByName('bitmap') as Bitmap;
 							if (bufferBitmap) {
 								Draw.smooth(bufferBitmap);
+							} else {
+								centerIcon(icon);
 							}
 						} catch (e:Error) {
 							_rotate = false;
@@ -163,7 +165,9 @@
 			}
 			back.addChild(icon);
 			if (player.skin is PNGSkin && !icon.getChildByName("bitmap")) {
-				centerIcon(back);
+				if (name != "buffer" || !_rotate) {
+					centerIcon(back);
+				}
 			} else {
 				back.x = back.y = icon.x = icon.y = 0;
 			}
