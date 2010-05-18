@@ -138,7 +138,12 @@ package com.longtailvideo.jwplayer.view.skins {
 				if (loader.loadedObject is Bitmap) {
 					addSkinElement(elementInfo['componentName'], elementInfo['elementName'], loader.loadedObject as Bitmap);
 				} else if (loader.loadedObject is MovieClip) {
-					addSkinElement(elementInfo['componentName'], elementInfo['elementName'], loader.loadedObject as MovieClip);
+					var clip:MovieClip = loader.loadedObject as MovieClip;
+					if (clip.totalFrames == 1 && clip.numChildren == 1 && clip.getChildAt(0) is MovieClip && (clip.getChildAt(0) as MovieClip).totalFrames > 1) {
+						addSkinElement(elementInfo['componentName'], elementInfo['elementName'], clip.getChildAt(0) as MovieClip);
+					}  else {
+						addSkinElement(elementInfo['componentName'], elementInfo['elementName'], clip);
+					}
 				}
 				delete _loaders[evt.target];
 			} catch (e:Error) {

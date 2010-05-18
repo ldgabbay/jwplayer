@@ -56,6 +56,7 @@
 			}
 		}
 		
+
 		private function addListeners():void {
 			player.addEventListener(MediaEvent.JWPLAYER_MEDIA_MUTE, stateHandler);
 			player.addEventListener(PlayerStateEvent.JWPLAYER_PLAYER_STATE, stateHandler);
@@ -63,7 +64,6 @@
 			player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, itemHandler);
 			addEventListener(MouseEvent.CLICK, clickHandler);
 			this.buttonMode = true;
-//			this.mouseChildren = false;
 		}
 		
 		
@@ -119,42 +119,33 @@
 			if (_player.skin is PNGSkin) {
 				if (icon.getChildByName("bitmap")) {
 					centerIcon(icon);
-					centerIcon(iconOver);
 					icon.name = 'out';
-					if (iconOver) { 
-						iconOver.name = 'over'; 
-					}
-				} else if (name == "buffer") {
-					if (icon.numChildren == 1 && icon.getChildAt(0) is MovieClip && (icon.getChildAt(0) as MovieClip).totalFrames > 1) {
-						icon = icon.getChildAt(0) as MovieClip;
+				}
+				if (iconOver && iconOver.getChildByName("bitmap")) {
+					centerIcon(iconOver);
+					iconOver.name = 'over';
+				}
+			}
+			
+			if (name == "buffer") {
+				if (player.skin is PNGSkin) {
+					if (icon is MovieClip && (icon as MovieClip).totalFrames > 1) {
+						// Buffer is already animated; no need to rotate.
 						_rotate = false;
-					} else if (icon is MovieClip && (icon as MovieClip).totalFrames > 1) {
-						_rotate = false;
+					} else {
+						try {
+							_bufferIcon = icon;
+							var bufferBitmap:Bitmap = _bufferIcon.getChildByName('bitmap') as Bitmap;
+							if (bufferBitmap) {
+								Draw.smooth(bufferBitmap);
+							}
+						} catch (e:Error) {
+							_rotate = false;
+						}
 					}
 				} else {
-					var newClip:MovieClip = new MovieClip();
-					if (icon.numChildren == 1 && icon.getChildAt(0) is Sprite) {
-						// Handle the case where the icon is already the child element of the clip
-						icon = icon.getChildAt(0) as Sprite;
-					} 
-					newClip.addChild(icon);
-					icon = newClip;
-					centerIcon(icon);
+					_rotate = false;
 				}
-
-				if (name == "buffer" && _rotate) {
-					try {
-						_bufferIcon = icon;
-						var bufferBitmap:Bitmap = _bufferIcon.getChildByName('bitmap') as Bitmap;
-						if (bufferBitmap) {
-							Draw.smooth(bufferBitmap);
-						}
-					} catch (e:Error) {
-						_rotate = false;
-					}
-				}
-			} else {
-				_rotate = false;
 			}
 			
 			var back:Sprite = getSkinElement('background') as Sprite;
@@ -171,7 +162,11 @@
 				back.addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 			}
 			back.addChild(icon);
-			back.x = back.y = icon.x = icon.y = 0;
+			if (player.skin is PNGSkin && !icon.getChildByName("bitmap")) {
+				centerIcon(back);
+			} else {
+				back.x = back.y = icon.x = icon.y = 0;
+			}
 			_icons[name] = back;
 
 		}

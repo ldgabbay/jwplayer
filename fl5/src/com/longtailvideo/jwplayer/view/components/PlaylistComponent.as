@@ -723,6 +723,9 @@ package com.longtailvideo.jwplayer.view.components {
 		/** Switch the currently active item */
 		protected function itemHandler(evt:PlaylistEvent = null):void {
 			var idx:Number = _player.playlist.currentIndex;
+			
+			if (!skinLoaded) return;
+			
 			clearInterval(scrollInterval);
 			if (proportion > 1.01) {
 				scrollInterval = setInterval(scrollEase, 50, idx * buttonheight / proportion, -idx * buttonheight + listmask.y);
