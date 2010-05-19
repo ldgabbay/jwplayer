@@ -168,7 +168,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 			if (!newSlider) {
 				newSlider = new Sprite();
-				var sliderBack:Sprite = buildSliderElement('back', 'sliderBackground', 1, 1);
+				var sliderBack:Sprite = buildSliderElement('back', 'sliderBackground');
 				addElement(sliderBack, newSlider);
 				
 				var sliderRail:Sprite = buildSliderElement('rail', 'sliderRail', 7, 22);
