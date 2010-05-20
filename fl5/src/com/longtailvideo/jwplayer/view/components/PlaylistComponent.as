@@ -603,16 +603,20 @@ package com.longtailvideo.jwplayer.view.components {
 					var img:Sprite = button.getChildByName("image") as Sprite;
 					var bg:Sprite = img.getChildByName("imageBackground") as Sprite;
 					img.alpha = 1;
-					var msk:Sprite
+					var msk:DisplayObject;
 					if (bg) {
-						bg.visible = false;
-					 	msk = Draw.rect(button, '0xFF0000', bg.width, bg.height, bg.x, bg.y);
+						msk = getSkinElement('itemImage');
+						msk.x = bg.x;
+						msk.y = bg.y;
+						msk.cacheAsBitmap = true;
+						button.addChild(msk);
 						ldr.x = bg.x;
 						ldr.y = bg.y;
 					} else {
 						msk = Draw.rect(button, '0xFF0000', img.width, img.height, img.x, img.y);
 					}
 					img.addChild(ldr);
+					img.cacheAsBitmap = true;
 					img.mask = msk;
 					try {
 						Draw.smooth(ldr.content as Bitmap);
