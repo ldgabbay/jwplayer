@@ -12,6 +12,14 @@ The JW Player for HTML5 is a fully skinneable and configurable player based upon
 The player can be skinned using PNG images, which makes it extremely easy to modify both the behaviour and looks. The player is fully compatible with the `PNG skinning model <http://www.longtailvideo.com/support/jw-player/jw-player-for-flash-v5/14/skinning-the-jw-player-5>`_ of our Flash player, so you can leverage the `existing repository <http://www.longtailvideo.com/addons/skins/>`_ of available skins.
 
 
+Video Tag Reference
+-------------------
+
+ .. toctree::
+    :maxdepth: 2
+
+    videotag
+
 Embedding
 ---------
 

@@ -159,7 +159,7 @@ html_static_path = ['_static']
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'JWPlayerforHTML5doc'
+htmlhelp_basename = 'JWPlayerHTML5'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -173,13 +173,13 @@ htmlhelp_basename = 'JWPlayerforHTML5doc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'JWPlayerHTML5.tex', u'JW Player for HTML5 Documentation',
-   u'Zachary Ozer, Jeroen Wijering','howto',True),
+  ('index', 'JWPlayerHTML5.tex', u'JW Player for HTML5',
+   u'www.longtailvideo.com','howto',True),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-#latex_logo = None
+latex_logo = '_static/longtail.png'
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.

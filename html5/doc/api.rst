@@ -18,7 +18,8 @@ Before you can interact with the player, you need to be able to reference it (ge
 
 .. code-block:: html
 
-   <video class="jwplayer" width="400" height="300" src="/static/video.mp4">
+   <video width="400" height="300" src="/static/video.mp4"></video>
+   
    <script type="text/javascript">
      var player = $.jwplayer();
      player.play();
@@ -28,8 +29,8 @@ If you have multiple players on a page, you can reference a single player by giv
 
 .. code-block:: html
 
-   <video class="jwplayer" id="player1" width="400" height="300" src="../video1.mp4">
-   <video class="jwplayer" id="player2" width="400" height="300" src="../video2.mp4">
+   <video id="player1" width="400" height="300" src="../video1.mp4"></video>
+   <video id="player2" width="400" height="300" src="../video2.mp4"></video>
 
    <script type="text/javascript">
      var player = $.jwplayer("#player1");
@@ -44,7 +45,7 @@ The player contains a number of properties (such as its *volume* or playback *st
 
 .. code-block:: html
 
-   <video class="jwplayer" width="400" height="300" src="/static/video.mp4">
+   <video width="400" height="300" src="/static/video.mp4"></video>
 
    <p onclick="alert($.jwplayer().volume())">Get player volume</p>
 
@@ -105,7 +106,8 @@ The player exposes a list of methods you can use to control it from javascript (
 
 .. code-block:: html
 
-   <video class="jwplayer" width="400" height="300" src="/static/video.mp4">
+   <video width="400" height="300" src="/static/video.mp4"></video>
+   
    <ul>
      <li> onclick="$.jwplayer().play()">play the video</li>
      <li> onclick="$.jwplayer().pause()">pause the video</li>
@@ -161,7 +163,7 @@ The player broadcasts an event whenever one of its properties change (e.g. the p
 
 .. code-block:: html
 
-   <video class="jwplayer" width="400" height="300" src="/static/video.mp4">
+   <video width="400" height="300" src="/static/video.mp4"></video>
 
    <p id="message"></p>
 
