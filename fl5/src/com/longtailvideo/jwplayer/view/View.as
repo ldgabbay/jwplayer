@@ -108,7 +108,7 @@ package com.longtailvideo.jwplayer.view {
 			RootReference.stage.removeEventListener(Event.ADDED_TO_STAGE, resizeStage);
 
 			loaderScreen.graphics.clear();
-			loaderScreen.graphics.beginFill(0, 1);
+			loaderScreen.graphics.beginFill(0, 0);
 			loaderScreen.graphics.drawRect(0, 0, RootReference.stage.stageWidth, RootReference.stage.stageHeight);
 			loaderScreen.graphics.endFill();
 

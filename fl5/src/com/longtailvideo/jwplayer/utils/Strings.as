@@ -123,7 +123,7 @@
 		 * 
 		 */
 		public static function extension(filename:String):String {
-			if (filename.lastIndexOf(".") > 0) {
+			if (filename && filename.lastIndexOf(".") > 0) {
 				if (filename.lastIndexOf("?") > 0){
 					return filename.substring(filename.lastIndexOf(".")+1, filename.lastIndexOf("?")).toLowerCase();	
 				} else {

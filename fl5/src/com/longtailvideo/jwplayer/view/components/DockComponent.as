@@ -51,7 +51,7 @@ package com.longtailvideo.jwplayer.view.components {
 			button.setOutIcon(icon);
 			button.outBackground = getSkinElement("button") as Sprite;
 			button.overBackground = getSkinElement("buttonOver") as Sprite;
-			button.assetColor = player.config.backcolor;
+			button.assetColor = fontColor ? fontColor : player.config.backcolor;
 			button.outColor = player.config.frontcolor;
 			button.overColor = player.config.lightcolor;
 			button.clickFunction = clickHandler;

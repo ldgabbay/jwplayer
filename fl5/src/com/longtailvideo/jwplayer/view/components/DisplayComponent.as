@@ -18,6 +18,7 @@
 	import flash.geom.ColorTransform;
 	import flash.text.GridFitType;
 	import flash.text.TextField;
+	import flash.text.TextFormat;
 	import flash.text.TextFormatAlign;
 	import flash.utils.clearInterval;
 	import flash.utils.setInterval;
@@ -27,6 +28,7 @@
 		protected var _icon:DisplayObject;
 		protected var _background:MovieClip;
 		protected var _text:TextField;
+		protected var _textBack:Sprite;
 		protected var _icons:Object;
 		protected var _rotateInterval:Number;
 		protected var _bufferIcon:Sprite;
@@ -75,15 +77,24 @@
 			background.graphics.drawRect(0, 0, 1, 1);
 			background.graphics.endFill();
 			
+			_textBack = new Sprite();
+			_textBack.name = "textBackground";
+			_textBack.graphics.beginFill(0, 0.8);
+			_textBack.graphics.drawRect(0, 0, 1, 1);
+			_textBack.visible = false;
+			addChild(_textBack);
+			
 			_icon = new MovieClip();
-			addChildAt(icon, 1);
+			addChildAt(icon, 2);
 
 			_text = new TextField();
 			var textColorTransform:ColorTransform = new ColorTransform();
-			textColorTransform.color = player.config.frontcolor ? player.config.frontcolor.color : 0x999999;
+			textColorTransform.color = 0xFFFFFF;
 			text.transform.colorTransform = textColorTransform;
 			text.gridFitType = GridFitType.NONE;
-			addChildAt(text, 2);
+			var textFormat:TextFormat = new TextFormat("_sans");
+			text.defaultTextFormat = textFormat;
+			addChildAt(text, 3);
 			
 			_youtubeMask = new MovieClip();
 		}
@@ -94,7 +105,6 @@
 			setupIcon('buffer');
 			setupIcon('play');
 			setupIcon('mute');
-			setupIcon('error');
 		}
 		
 		
@@ -253,6 +263,7 @@
 		private function positionText():void {
 			if (text.text) {
 				text.visible = true;
+				_textBack.visible = true;
 				if (text.width > background.scaleX * .75) {
 					text.width = background.scaleX * .75;
 					text.wordWrap = true;
@@ -265,8 +276,12 @@
 				} else {
 					text.y = (background.scaleY - text.textHeight) / 2;
 				}
+				_textBack.y = text.y - 2;
+				_textBack.width = getConfigParam('width');
+				_textBack.height = text.height + 4;
 			} else {
 				text.visible = false;
+				_textBack.visible = false;
 			}
 		}
 		
@@ -330,7 +345,7 @@
 		
 		
 		protected function errorHandler(event:PlayerEvent):void {
-			setDisplay(_icons['error'], event.message);
+			setDisplay(null, event.message);
 		}
 		
 		

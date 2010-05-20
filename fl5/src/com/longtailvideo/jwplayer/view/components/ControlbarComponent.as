@@ -89,6 +89,7 @@ package com.longtailvideo.jwplayer.view.components {
 	[Event(name="jwPlayerViewSeek", type="com.longtailvideo.jwplayer.events.ViewEvent")]
 	public class ControlbarComponent extends CoreComponent implements IControlbarComponent {
 		protected var _buttons:Object = {};
+		protected var _customButtons:Array = [];
 		protected var _dividers:Array;
 		protected var _dividerElements:Object;
 		protected var _defaultLayout:String = "[play|stop|prev|next|elapsed][time][duration|blank|fullscreen|mute volume]";
@@ -248,6 +249,7 @@ package com.longtailvideo.jwplayer.view.components {
 			if (controlbarLayout) {
 				newLayout = parseStructuredLayout(controlbarLayout);
 			}
+			newLayout = newLayout.replace("blank", _customButtons.join("|"));
 			newLayout = removeButtonFromLayout("blank", newLayout);
 			if (player.state == PlayerState.PLAYING) {
 				newLayout = newLayout.replace('play', 'pause');
@@ -299,7 +301,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 		private function removeButtonFromLayout(button:String, layout:String):String {
 			layout = layout.replace(button, "");
-			layout = layout.replace("||", "|");
+			layout = layout.replace(/\|\|/g, "|");
 			return layout;
 		}
 
@@ -542,10 +544,13 @@ package com.longtailvideo.jwplayer.view.components {
 		
 
 		public function addButton(icon:DisplayObject, name:String, handler:Function=null):MovieClip {
-			_defaultLayout = _defaultLayout.replace("|blank","|blank|"+name);
+			if (_customButtons.indexOf(name) < 0) {
+				_customButtons.push(name);
+			}
 			icon.x = icon.y = 0;
 			var button:ComponentButton = new ComponentButton();
 			button.name = name;
+			button.clickFunction = handler;
 			var outBackground:DisplayObject = getSkinElement("blankButton");
 			if (outBackground) {
 				var outImage:Sprite = new Sprite();
@@ -563,7 +568,7 @@ package com.longtailvideo.jwplayer.view.components {
 				button.setOutIcon(outImage);
 
 				button.init();
-				return addButtonDisplayObject(button, name, handler);
+				return addButtonDisplayObject(button, name);
 			}
 			return null;
 		}
