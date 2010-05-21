@@ -227,9 +227,6 @@ package com.longtailvideo.jwplayer.view.components {
 			var backOver:Sprite = getSkinElement("itemOver") as Sprite;
 			if (!backOver) {
 				backOver = new Sprite();
-				backOver.graphics.beginFill(0, 1);
-				backOver.graphics.drawRect(0, 0, 1, 1);
-				backOver.graphics.endFill();
 			}
 			backOver.name = "backOver";
 			backOver.visible = false;
