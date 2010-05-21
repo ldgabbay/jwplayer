@@ -100,6 +100,8 @@ package com.longtailvideo.jwplayer.view.components {
 		protected var _timeSlider:Slider;
 		protected var _volSlider:Slider;
 
+		protected var _bgColorSheet:Sprite;
+		
 		protected var controlbarConfig:PluginConfig;
 		protected var animations:Animations;
 		protected var hiding:Number;
@@ -371,7 +373,7 @@ package com.longtailvideo.jwplayer.view.components {
 			if (!back) {
 				var newBackground:Sprite = new Sprite();
 				newBackground.name = "background";
-				newBackground.graphics.beginFill(0, 1);
+				newBackground.graphics.beginFill(0, 0);
 				newBackground.graphics.drawRect(0, 0, 1, 1);
 				newBackground.graphics.endFill();
 				back = newBackground as DisplayObject;
@@ -379,6 +381,15 @@ package com.longtailvideo.jwplayer.view.components {
 
 			if (!capLeft) { capLeft = new Sprite(); }
 			if (!capRight) { capRight = new Sprite(); }
+			
+			_bgColorSheet = new Sprite(); 
+			if (backgroundColor) {
+				_bgColorSheet.graphics.beginFill(backgroundColor.color, 1);
+				_bgColorSheet.graphics.drawRect(0, 0, 1, 1);
+				_bgColorSheet.graphics.endFill();
+			}
+			addChildAt(_bgColorSheet, 0);
+			
 			
 			_buttons['background'] = back;
 			addChild(back);
@@ -640,6 +651,9 @@ package com.longtailvideo.jwplayer.view.components {
 			background.x = capLeft.width;
 			setChildIndex(capLeft, numChildren - 1);
 			setChildIndex(capRight, numChildren - 1);
+			
+			_bgColorSheet.width = _width;
+			_bgColorSheet.height = background.height;
 
 			stopFader();
 			stateHandler();

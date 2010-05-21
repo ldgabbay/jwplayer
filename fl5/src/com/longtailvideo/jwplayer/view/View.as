@@ -26,6 +26,7 @@ package com.longtailvideo.jwplayer.view {
 	
 	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
+	import flash.display.DisplayObjectContainer;
 	import flash.display.Loader;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
@@ -51,6 +52,7 @@ package com.longtailvideo.jwplayer.view {
 
 		protected var _root:MovieClip;
 
+		protected var _maskedLayers:MovieClip;
 		protected var _backgroundLayer:MovieClip;
 		protected var _mediaLayer:MovieClip;
 		protected var _imageLayer:MovieClip;
@@ -168,13 +170,15 @@ package com.longtailvideo.jwplayer.view {
 
 
 		protected function setupLayers():void {
-			_backgroundLayer = setupLayer("background", currentLayer++);
+			_maskedLayers = setupLayer("masked", currentLayer++);
+			
+			_backgroundLayer = setupLayer("background", 0, _maskedLayers);
 			setupBackground();
 
-			_mediaLayer = setupLayer("media", currentLayer++);
+			_mediaLayer = setupLayer("media", 1, _maskedLayers);
 			_mediaLayer.visible = false;
 
-			_imageLayer = setupLayer("image", currentLayer++);
+			_imageLayer = setupLayer("image", 1, _maskedLayers);
 			_image = new Loader();
 			_image.contentLoaderInfo.addEventListener(Event.COMPLETE, imageComplete);
 			_image.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, imageError);
@@ -193,9 +197,9 @@ package com.longtailvideo.jwplayer.view {
 		}
 
 
-		protected function setupLayer(name:String, index:Number):MovieClip {
+		protected function setupLayer(name:String, index:Number, parent:DisplayObjectContainer=null):MovieClip {
 			var layer:MovieClip = new MovieClip();
-			_root.addChildAt(layer, index);
+			parent ? parent.addChildAt(layer,index) : _root.addChildAt(layer, index);
 			layer.name = name;
 			layer.x = 0;
 			layer.y = 0;
@@ -209,13 +213,13 @@ package com.longtailvideo.jwplayer.view {
 			_backgroundLayer.addChild(background);
 			
 			var screenColor:Color;
-			if (_model.config.pluginConfig('display').hasOwnProperty('backgroundcolor')) {
-				screenColor = new Color(String(_model.config.pluginConfig('display')['backgroundcolor']));
-			} else if (_model.config.screencolor) {
+			if (_model.config.screencolor) {
 				screenColor = _model.config.screencolor;
+			} else if (_model.config.pluginConfig('display').hasOwnProperty('backgroundcolor')) {
+				screenColor = new Color(String(_model.config.pluginConfig('display')['backgroundcolor']));
 			}
 			
-			background.graphics.beginFill(screenColor ? screenColor.color : 0x000000, 1);
+			background.graphics.beginFill(screenColor ? screenColor.color : 0x000000, screenColor ? 1 : 0);
 			background.graphics.drawRect(0, 0, 1, 1);
 			background.graphics.endFill();
 		}
@@ -227,9 +231,7 @@ package com.longtailvideo.jwplayer.view {
 			_displayMasker.graphics.drawRect(0, 0, _player.config.width, _player.config.height);
 			_displayMasker.graphics.endFill();
 
-			_backgroundLayer.mask = _displayMasker;
-			_imageLayer.mask = _displayMasker;
-			_mediaLayer.mask = _displayMasker;
+			_maskedLayers.mask = _displayMasker;
 		}
 
 

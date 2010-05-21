@@ -49,6 +49,10 @@ package com.longtailvideo.jwplayer.view.components {
 		// Font style related helper getters
 		///////////////////////////////////////////		
 		
+		protected function get backgroundColor():Color {
+			return getConfigParam("backgroundcolor") ? new Color(String(getConfigParam("backgroundcolor"))) : null;
+		}
+
 		protected function get fontColor():Color {
 			return getConfigParam("fontcolor") ? new Color(String(getConfigParam("fontcolor"))) : null;
 		}

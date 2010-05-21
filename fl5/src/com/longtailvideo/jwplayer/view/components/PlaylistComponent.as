@@ -101,15 +101,20 @@ package com.longtailvideo.jwplayer.view.components {
 		protected function continueSetup(evt:Event=null):void {
 			skinLoaded = true;
 			
-			background = getSkinElement("background") as Sprite;
-			if (!background) {
-				var backColor:Color = getConfigParam("backgroundcolor") ? new Color(String(getConfigParam("backgroundcolor"))) : player.config.screencolor;
-				background = new Sprite();
-				background.name = "background";
-				background.graphics.beginFill(backColor ? backColor.color : 0, 1);
-				background.graphics.drawRect(0, 0, 1, 1);
-				background.graphics.endFill();
+			background = new Sprite();
+			var bgSkin:DisplayObject = getSkinElement("background") as Sprite;
+			if (bgSkin) { 
+				background.addChild(bgSkin);
 			}
+			
+			if (backgroundColor) {
+				var backgroundSheet:Sprite = new Sprite();
+				backgroundSheet.graphics.beginFill(backgroundColor.color, 1);
+				backgroundSheet.graphics.drawRect(0, 0, bgSkin ? bgSkin.width : 1, bgSkin ? bgSkin.height : 1);
+				backgroundSheet.graphics.endFill();
+				background.addChildAt(backgroundSheet, 0);
+			}
+			background.name = "background";
 			addElement(background);
 			
 			slider = buildSlider();
