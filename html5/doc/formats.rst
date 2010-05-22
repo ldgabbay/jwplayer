@@ -18,9 +18,13 @@ Generally, the following video formats are supported by the player:
 
     Supported for Safari 4+ and as part of the the Flash fallback.
 
-.. describe:: Theora video / Vorbis audio in the OGG container
+.. describe:: Theora video / Vorbis audio in the Ogg container
 
    Supported for Firefox 3.5+, Opera 10.5+, Chrome 4+ and as part of the the Flash fallback.
+
+.. describe:: VP8 video / Vorbis audio in the WebM (Matroska) container
+
+   Supported for Opera 10.54+; more browsers coming.
 
 .. describe:: VP6 video / MP3 audio in the FLV container
 
@@ -44,7 +48,7 @@ Note the use of the word **generally**, since support also depends upon such var
     Supported for Safari 4+, Chrome 3+, Internet Explorer 9+ and as part of the the Flash fallback.
     AAC audio, in the MP4 container (example). 
     Supported for Safari 4+, Chrome 3+, Internet Explorer 9+ and as part of the the Flash fallback.
-    Vorbis audio in the OGG container (example) 
+    Vorbis audio in the Ogg container (example) 
     Supported for Firefox 3.5+, Opera 10.5+ and Chrome 4+.
 
 
@@ -65,6 +69,7 @@ A codec listing looks like this:
 
    <video width="400" height="200" id="player">
      <source src="/static/video.mp4" type="video/mp4; codecs='avc1.42E01E, mp4a.40.2'">
+     <source src="/static/video.webm" type="video/webm; codecs='vp8, vorbis'">
      <source src="/static/video.ogv" type="video/ogg; codecs='theora, vorbis'">
    </video>
 
@@ -86,6 +91,10 @@ Here's a list of frequently-used codecs:
 
    Theora video and Vorbis audio.
 
+.. describe:: vp8, vorbis
+
+   VP8 video and Vorbis audio.
+
 Mimetypes
 ^^^^^^^^^
 
@@ -95,6 +104,7 @@ The mimetype tells the user agent what video container is being used. It's more 
 
    <video width="400" height="200" id="player">
      <source src="/static/video.mp4" type="video/mp4">
+     <source src="/static/video.webm" type="video/webm">
      <source src="/static/video.ogv" type="video/ogg">
    </video>
 
@@ -106,7 +116,11 @@ Here is a list of frequently-used mimetypes and the codecs the player presumes:
 
 .. describe:: video/ogg
 
-   OGG video. The player presumes Theora video and Vorbis audio.
+   Ogg video. The player presumes Theora video and Vorbis audio.
+
+.. describe:: video/webm
+
+   WebM video. The player presumes VP8 video and Vorbis audio.
 
 .. describe:: video/quicktime
 
@@ -133,7 +147,11 @@ Again, a list of frequently used file extensions and the mimetype/codecs the pla
 
 .. describe:: .ogg, .ogv
 
-   OGG video. The player presumes Theora video and Vorbis audio in an OGG container.
+   Ogg video. The player presumes Theora video and Vorbis audio in an Ogg container.
+
+.. describe: .webm
+
+   WebM video. The player presumes VP8 video and Vorbis audio in a WebM (Matroska) container.
 
 .. describe:: .mov
 
