@@ -102,7 +102,10 @@ package com.longtailvideo.jwplayer.view.components {
 			skinLoaded = true;
 			
 			background = new Sprite();
+			background.graphics.beginFill(0, 0);
+			background.graphics.drawRect(0, 0, 1, 1);
 			var bgSkin:DisplayObject = getSkinElement("background") as Sprite;
+
 			if (bgSkin) { 
 				background.addChild(bgSkin);
 			}
