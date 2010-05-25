@@ -12,7 +12,7 @@ What is a plugin?
 A JW Player plugin is a separate SWF file, written in Actionscript 3, which is loaded by the player at runtime. Plugins integrate seamlessly with the player, both in terms of coding (through the :ref:`api`) and graphics (stacked on top of the player). Plugins are loaded into player by setting the :ref:`plugins <options-api>` option. For example, if you wanted to load two plugins named **advertising.swf** and **delicious.swf**, the corresponding flashvar would be *plugins=advertising,delicious*.  If you used SWFObject 2.x to embed the JW Player, the code would look something like this:
 
 
-.. code-block:: javascript
+.. code-block:: html
 
 	<script type="text/javascript">
 		var flashvars = {
@@ -177,7 +177,7 @@ Loading Data
 
 Basic configuration parameters for a specific plugin can be loaded through the same flashvars mechanism the player uses itself. Variables for a specific plugin must be prepended with the name of the plugin and a dot. So if your plugin is called *delicious*, your variable names must start with the *delicious.* string. Example:
 
-.. code-block:: javascript
+.. code-block:: html
 
 	<script type="text/javascript">
 		var flashvars = {

@@ -16,6 +16,8 @@ Note that you must urlencode the three glyphs ? = & inside flashvars, because of
 
 So if, fore example, your *file* flashvar is at the location *getplaylist.php?id=123&type=flv*, you must set the file flashvar to *getplaylist.php%3Fid%3D123%26type%3Dflv*.
 
+.. _options-playlist:
+
 Playlist properties
 ===================
 
@@ -46,18 +48,17 @@ The following flashvars can be set instead of **playlistfile**, and are used to 
 
 In addition to these default **providers**, the player has specific support for certain streaming servers or CDNs. A full list of mediafile types can be found on the :ref:`supported filetypes <mediaformats>` page.
 
+.. _options-layout:
+
 Layout
 ======
 
 These flashvars control the look and layout of the player. 
 
- * **backcolor** (*undefined*): background color of the controlbar and playlist. This is white with the default skin.
  * **controlbar** (*bottom*): position of the controlbar. Can be set to *bottom*, *over* and *none*.
  * **dock** (*false*): set this to *true* to show the dock with large buttons in the top right of the player. Available since 4.5. 
- * **frontcolor** (*undefined*): color of all icons and texts in the controlbar and playlist.
  * **height** (*400*): height of the display in pixels. 
  * **icons** (*true*): set this to *false* to hide the play button and buffering icon in the middle of the video. Available since 4.2.
- * **lightcolor** (*undefined*): color of an icon or text when you rollover it with the mouse.
  * **logo.file** (*undefined*): location of an external jpg, png or gif image which replaces the watermark image (**Licensed players only**)
  * **logo.link** (*undefined*): link to direct to when the watermark image is clicked on (**Licensed players only**)
  * **logo.hide** (*true*): When set to true, the logo will auto-hide (**Licensed players only**)
@@ -65,10 +66,23 @@ These flashvars control the look and layout of the player.
  * **playlist** (*none*): position of the playlist. Can be set to *bottom*, *over*, *right* or *none*.
  * **playlistsize** (*180*): when *below* this refers to the height, when *right* this refers to the width of the playlist. 
  * **skin** (*undefined*): location of a [wiki:Player5Skinning skin file] containing the player graphics.  The [/browser SVN repository] contains [browser:skins a couple of example skins].
- * **screencolor** (*undefined*): background color of the display
  * **width** (*280*): width of the display in pixels.
 
-The four color flashvars must be entered using hexadecimal values, as is common for [http://en.wikipedia.org/wiki/Web_colors#Hex_triplet web colors] (e.g. *FFCC00* for bright yellow).  They are not supported by [wiki:Player5Skinning bitmap skins].
+.. _options-colors:
+
+Colors
+======
+
+These flashvars are available when using 4.x (SWF) skins.  They will be deprecated once SWF skinning support is dropped in a future release.
+
+ * **backcolor** (*undefined*): background color of the controlbar and playlist. This is white with the default skin.
+ * **frontcolor** (*undefined*): color of all icons and texts in the controlbar and playlist.
+ * **lightcolor** (*undefined*): color of an icon or text when you rollover it with the mouse.
+ * **screencolor** (*undefined*): background color of the display
+
+The four color flashvars must be entered using hexadecimal values, as is common for [http://en.wikipedia.org/wiki/Web_colors#Hex_triplet web colors] (e.g. *FFCC00* for bright yellow).
+
+.. _options-behavior:
 
 Behavior
 ========
@@ -99,7 +113,7 @@ These flashvars relate to the API of the player:
  * **plugins** (*undefined*): This is a comma-separated list of swf plugins to load (e.g. *yousearch,viral*). Each plugin has a unique ID and resides at *plugins.longtailvideo.com*. Go to [http://www.longtailvideo.com/AddOns/ the LongTailVideo AddOns section] to see all available plugins.
  * **id** (*undefined*): This flashvar is necessary for javascript interaction on linux platforms..  It should be set to the id of the player's DOM element.
 
-The former flashvars, **client**, **id** and **version** are sent as parameters with every [wiki:Player5Events event the player broadcasts].
+.. _options-config-xml:
 
 Config XML
 ==========
