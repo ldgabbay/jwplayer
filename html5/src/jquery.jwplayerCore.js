@@ -28,13 +28,11 @@
 						listeners: {}
 					};
 					return setupJWPlayer(jwplayer, step + 1);
-					break;
 				case 1:
 					player.controller = $.fn.jwplayerController(player);
 					players[player.model.config.id] = player;
 					setupJWPlayer($.extend(player, api(player)), step + 1);
 					return player;
-					break;
 				case 2:
 					$.fn.jwplayerSkinner(player, function() {
 						setupJWPlayer(player, step + 1);

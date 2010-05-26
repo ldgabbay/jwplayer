@@ -90,7 +90,7 @@
 			};
 		}
 		if (!$.fn.jwplayerUtils.isiPhone()) {
-			domElement.src = undefined;
+			domElement.removeAttribute('src');
 		}
 		configuration.sources = sources;
 		return configuration;
@@ -106,7 +106,7 @@
 		var result = parseMediaElement(domElement, attributes);
 		if (!$.fn.jwplayerUtils.isiPhone() && !$.fn.jwplayerUtils.isiPad()) {
 			try {
-				$(domElement).removeAttr('poster');
+				$(domElement)[0].removeAttribute('poster');
 			} catch (err) {
 			
 			}

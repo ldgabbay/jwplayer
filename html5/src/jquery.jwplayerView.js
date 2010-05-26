@@ -20,8 +20,8 @@
 		player.model.domelement.wrap("<div id='" + player.model.config.id + "_jwplayer' />");
 		player.model.domelement.parent().css({
 			position: 'relative',
-			height: player.config.height,
-			width: player.config.width,
+			height: player.config.height+'px',
+			width: player.config.width+'px',
 			margin: 'auto',
 			padding: 0,
 			'background-color': player.config.screencolor
@@ -29,8 +29,8 @@
 		var display = ($.fn.jwplayerUtils.isiPhone() || !(navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length)) ? 'block' : 'none' ;
 		player.model.domelement.css({
 			position: 'absolute',
-			width: player.model.config.width,
-			height: player.model.config.height,
+			width: player.model.config.width+'px',
+			height: player.model.config.height+'px',
 			top: 0,
 			left: 0,
 			'z-index': 0,

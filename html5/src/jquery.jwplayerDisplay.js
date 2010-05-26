@@ -23,18 +23,20 @@
 	var displays = {};
 	
 	$.fn.jwplayerDisplay = function(player, domelement) {
-		displays[player.id] = {};
-		displays[player.id].domelement = domelement;
-		displays[player.id].elements = initializeDisplayElements(player);
-		if ($.fn.jwplayerUtils.isiPhone()) {
-			domelement.attr('poster', $.fn.jwplayerUtils.getAbsolutePath(player.config.image));
-		} else {
-			setupDisplay(player);
-			player.state(stateHandler);
-			player.mute(stateHandler);
-			player.error(function(obj) {
-			
-			});
+		if (displays[player.id] === undefined) {
+			displays[player.id] = {};
+			displays[player.id].domelement = domelement;
+			displays[player.id].elements = initializeDisplayElements(player);
+			if ($.fn.jwplayerUtils.isiPhone()) {
+				domelement.attr('poster', $.fn.jwplayerUtils.getAbsolutePath(player.config.image));
+			} else {
+				setupDisplay(player);
+				player.state(stateHandler);
+				player.mute(stateHandler);
+				player.error(function(obj) {
+				
+				});
+			}
 		}
 	};
 	
@@ -43,10 +45,10 @@
 		var html = [];
 		html.push("<div id='" + player.id + "_display'" + getStyle(player, 'display') + ">");
 		html.push("<div id='" + player.id + "_displayImage'" + getStyle(player, 'displayImage') + ">&nbsp;</div>");
-		html.push("<div id='" + player.id + "_displayIconBackground' alt='Click to play video'" + getStyle(player, 'displayIconBackground') + ">");
+		html.push("<div id='" + player.id + "_displayIconBackground'" + getStyle(player, 'displayIconBackground') + ">");
 		html.push("<img id='" + player.id + "_displayIcon' src='" + player.skin.display.elements.playIcon.src + "' alt='Click to play video'" + getStyle(player, 'displayIcon') + "/>");
 		html.push('</div>');
-		html.push('<a id="' + player.id + '_logo" target="_blank" href="' + logoDefaults.link + '"' + getStyle(player, 'logo') + '>&nbsp;</a>');
+		html.push('<div id="' + player.id + '_logo" target="_blank"' + getStyle(player, 'logo') + '>&nbsp;</div>');
 		html.push('</div>');
 		displays[player.id].domelement.before(html.join(''));
 		setupDisplayElements(player);
@@ -68,7 +70,6 @@
 		for (var element in displayElements) {
 			var elementId = ['#', player.id, '_', element];
 			displays[player.id][element] = $(elementId.join(''));
-			//displays[player.id][element].css(displayElements[element].style);
 			if (displayElements[element].click !== undefined) {
 				displays[player.id][element].click(displayElements[element].click);
 			}
@@ -81,8 +82,8 @@
 			display: {
 				style: {
 					cursor: 'pointer',
-					width: meta.width,
-					height: meta.height,
+					width: meta.width + "px",
+					height: meta.height + "px",
 					position: 'relative',
 					'z-index': 50,
 					margin: 0,
@@ -94,8 +95,8 @@
 				style: {
 					cursor: 'pointer',
 					position: 'absolute',
-					top: (player.skin.display.elements.background.height - player.skin.display.elements.playIcon.height) / 2,
-					left: (player.skin.display.elements.background.width - player.skin.display.elements.playIcon.width) / 2,
+					top: ((player.skin.display.elements.background.height - player.skin.display.elements.playIcon.height) / 2) + "px",
+					left: ((player.skin.display.elements.background.width - player.skin.display.elements.playIcon.width) / 2) + "px",
 					border: 0,
 					margin: 0,
 					padding: 0
@@ -105,12 +106,12 @@
 				style: {
 					cursor: 'pointer',
 					position: 'absolute',
-					top: (meta.height - player.skin.display.elements.background.height) / 2,
-					left: (meta.width - player.skin.display.elements.background.width) / 2,
+					top: ((meta.height - player.skin.display.elements.background.height) / 2) + "px",
+					left: ((meta.width - player.skin.display.elements.background.width) / 2) + "px",
 					border: 0,
 					'background-image': (['url(', player.skin.display.elements.background.src, ')']).join(''),
-					width: player.skin.display.elements.background.width,
-					height: player.skin.display.elements.background.height,
+					width: player.skin.display.elements.background.width + "px",
+					height: player.skin.display.elements.background.height + "px",
 					margin: 0,
 					padding: 0
 				}
@@ -119,8 +120,8 @@
 				style: {
 					display: 'block',
 					background: ([player.config.screencolor, ' url(', $.fn.jwplayerUtils.getAbsolutePath(player.config.image), ') no-repeat center center']).join(''),
-					width: meta.width,
-					height: meta.height,
+					width: meta.width + "px",
+					height: meta.height + "px",
 					position: 'absolute',
 					cursor: 'pointer',
 					left: 0,
@@ -133,8 +134,8 @@
 			logo: {
 				style: {
 					position: 'absolute',
-					width: logoDefaults.width,
-					height: logoDefaults.height,
+					width: logoDefaults.width + "px",
+					height: logoDefaults.height + "px",
 					'background-image': (['url(', logoDefaults.prefix, logoDefaults.file, ')']).join(''),
 					margin: 0,
 					padding: 0,
@@ -146,7 +147,7 @@
 		};
 		var positions = logoDefaults.position.split("-");
 		for (var position in positions) {
-			elements.logo.style[positions[position]] = logoDefaults.margin;
+			elements.logo.style[positions[position]] = logoDefaults.margin + "px";
 		}
 		return elements;
 	}

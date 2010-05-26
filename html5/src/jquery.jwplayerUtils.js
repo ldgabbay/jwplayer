@@ -184,6 +184,22 @@
 		return (protocol > 0 && (queryparams < 0 || (queryparams > protocol)));
 	}
 	
+	$.fn.jwplayerUtils.mapEmpty = function (map){
+		for (var val in map){
+			return false;	
+		}
+		return true;
+	};
+	
+	$.fn.jwplayerUtils.mapLength = function (map){
+		var result = 0;
+		for (var val in map){
+			result++;	
+		}
+		return result;
+	};
+
+	
 	/** Dumps the content of an object to a string **/
 	$.fn.jwplayerUtils.dump = function(object, depth) {
 		if (object === null) {

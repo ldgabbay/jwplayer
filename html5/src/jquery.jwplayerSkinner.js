@@ -8,30 +8,34 @@
  */
 (function($) {
 
+	var players = {};
+	
 	/** Constructor **/
 	$.fn.jwplayerSkinner = function(player, completeHandler) {
-		load(player, completeHandler);
+		players[player.id] = {
+			completeHandler: completeHandler
+		};
+		load(player);
 	};
 	
 	/** Load the skin **/
-	function load(player, completeHandler) {
+	function load(player) {
 		$.ajax({
-			url: player.model.config.skin,
+			url: $.fn.jwplayerUtils.getAbsolutePath(player.model.config.skin),
 			complete: function(xmlrequest, textStatus) {
 				if (textStatus == "success") {
-					loadSkin(player, xmlrequest.responseXML, completeHandler);
+					loadSkin(player, xmlrequest.responseXML);
 				} else {
-					loadSkin(player, $.fn.jwplayerDefaultSkin, completeHandler);
+					loadSkin(player, $.fn.jwplayerDefaultSkin);
 				}
 			}
 			
 		});
 	}
 	
-	function loadSkin(player, xml, completeHandler) {
+	function loadSkin(player, xml) {
 		var skin = {
-			properties: {},
-			incompleteElements: 0
+			properties: {}
 		};
 		player.skin = skin;
 		var components = $('component', xml);
@@ -39,6 +43,8 @@
 			return;
 		}
 		for (var componentIndex = 0; componentIndex < components.length; componentIndex++) {
+			players[player.id].loading = true;
+			
 			var componentName = $(components[componentIndex]).attr('name');
 			var component = {
 				settings: {},
@@ -46,50 +52,75 @@
 			};
 			player.skin[componentName] = component;
 			var elements = $(components[componentIndex]).find('element');
-			player.skin.loading = true;
 			for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-				player.skin.incompleteElements++;
-				loadImage(elements[elementIndex], componentName, player, completeHandler);
+				loadImage(elements[elementIndex], componentName, player);
 			}
 			var settings = $(components[componentIndex]).find('setting');
 			for (var settingIndex = 0; settingIndex < settings.length; settingIndex++) {
 				player.skin[componentName].settings[$(settings[settingIndex]).attr("name")] = $(settings[settingIndex]).attr("value");
 			}
-			player.skin.loading = false;
-			if (player.skin.incompleteElements === 0) {
-				completeHandler();
-			}
+			
+			players[player.id].loading = false;
+			
+			resetCompleteIntervalTest(player);
 		}
 	}
 	
+	function resetCompleteIntervalTest(player) {
+		clearInterval(players[player.id].completeInterval);
+		players[player.id].completeInterval = setInterval(function() {
+			checkComplete(player);
+		}, 100);
+	}
+	
 	/** Load the data for a single element. **/
-	function loadImage(element, component, player, completeHandler) {
+	function loadImage(element, component, player) {
 		var img = new Image();
 		var elementName = $(element).attr('name');
 		var elementSource = $(element).attr('src');
-		var skinUrl = player.model.config.skin.substr(0, player.model.config.skin.lastIndexOf('/'));
+		var skinUrl = $.fn.jwplayerUtils.getAbsolutePath(player.model.config.skin);
+		var skinRoot = skinUrl.substr(0, skinUrl.lastIndexOf('/'));
+		var imgUrl = (elementSource.indexOf('data:image/png;base64,') === 0) ? elementSource : [skinRoot, component, elementSource].join('/');
+		
+		player.skin[component].elements[elementName] = {
+			height: 0,
+			width: 0,
+			src: '',
+			ready: false
+		};
+
+		$(img).load(completeImageLoad(img, elementName, component, player));		
 		$(img).error(function() {
-			player.skin.incompleteElements--;
-			if ((player.skin.incompleteElements === 0) && (player.skin.loading === false)) {
-				completeHandler();
-			}
+			player.skin[component].elements[elementName].ready = true;
+			resetCompleteIntervalTest(player);
 		});
 		
-		$(img).load(completeImageLoad(img, elementName, component, player, completeHandler));
-		img.src = (elementSource.indexOf('data:image/png;base64,') === 0) ? elementSource : [skinUrl, component, elementSource].join("/");
+		img.src = imgUrl;
 	}
 	
-	function completeImageLoad(img, element, component, player, completeHandler) {
-		return function() {
-			player.skin[component].elements[element] = {
-				height: img.height,
-				width: img.width,
-				src: img.src
-			};
-			player.skin.incompleteElements--;
-			if ((player.skin.incompleteElements === 0) && (player.skin.loading === false)) {
-				completeHandler();
+	function checkComplete(player) {
+		for (var component in player.skin) {
+			if (component != 'properties') {
+				for (var element in player.skin[component].elements) {
+					if (!player.skin[component].elements[element].ready) {
+						return;
+					}
+				}
 			}
+		}
+		if (players[player.id].loading === false) {
+			clearInterval(players[player.id].completeInterval);
+			players[player.id].completeHandler();
+		}
+	}
+	
+	function completeImageLoad(img, element, component, player) {
+		return function() {
+			player.skin[component].elements[element].height = img.height;
+			player.skin[component].elements[element].width = img.width;
+			player.skin[component].elements[element].src = img.src;
+			player.skin[component].elements[element].ready = true;
+			resetCompleteIntervalTest(player);
 		};
 	}
 	

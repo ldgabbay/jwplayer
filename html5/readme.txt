@@ -25,17 +25,17 @@ Getting started
 
 To quickly get started, upload the contents of this ZIP to your webserver. Include the two javascripts in the <head> of your page(s). For example:
 
-  <script type="text/javascript" src="/scripts/jquery.js"></script>
-  <script type="text/javascript" src="/scripts/jquery.jwplayer.js"></script>
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="jquery.jwplayer.js"></script>
 
 Second, place this code where you want the video to appear, replacing the "poster" and "src" attributes with your own poster image and video:
 
-  <video height="270" id="player" poster="/files/bunny.jpg" src="/files/bunny.mp4" width="480">
+  <video height="270" id="player" poster="image.jpg" src="video.mp4" width="480">
 
   <script type="text/javascript">
     $('#player').jwplayer({
-      flashplayer:'files/player.swf',
-      skin:'files/five.xml'
+      flashplayer:'player.swf',
+      skin:'five/five.xml'
     });
   </script>
 

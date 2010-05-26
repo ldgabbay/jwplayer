@@ -763,13 +763,11 @@
 						listeners: {}
 					};
 					return setupJWPlayer(jwplayer, step + 1);
-					break;
 				case 1:
 					player.controller = $.fn.jwplayerController(player);
 					players[player.model.config.id] = player;
 					setupJWPlayer($.extend(player, api(player)), step + 1);
 					return player;
-					break;
 				case 2:
 					$.fn.jwplayerSkinner(player, function() {
 						setupJWPlayer(player, step + 1);
@@ -983,18 +981,20 @@
 	var displays = {};
 	
 	$.fn.jwplayerDisplay = function(player, domelement) {
-		displays[player.id] = {};
-		displays[player.id].domelement = domelement;
-		displays[player.id].elements = initializeDisplayElements(player);
-		if ($.fn.jwplayerUtils.isiPhone()) {
-			domelement.attr('poster', $.fn.jwplayerUtils.getAbsolutePath(player.config.image));
-		} else {
-			setupDisplay(player);
-			player.state(stateHandler);
-			player.mute(stateHandler);
-			player.error(function(obj) {
-			
-			});
+		if (displays[player.id] === undefined) {
+			displays[player.id] = {};
+			displays[player.id].domelement = domelement;
+			displays[player.id].elements = initializeDisplayElements(player);
+			if ($.fn.jwplayerUtils.isiPhone()) {
+				domelement.attr('poster', $.fn.jwplayerUtils.getAbsolutePath(player.config.image));
+			} else {
+				setupDisplay(player);
+				player.state(stateHandler);
+				player.mute(stateHandler);
+				player.error(function(obj) {
+				
+				});
+			}
 		}
 	};
 	
@@ -1002,11 +1002,11 @@
 		var meta = player.meta();
 		var html = [];
 		html.push("<div id='" + player.id + "_display'" + getStyle(player, 'display') + ">");
-		html.push("<div id='" + player.id + "_displayImage' href='" + $.fn.jwplayerUtils.getAbsolutePath(meta.sources[meta.source].file) + "'" + getStyle(player, 'displayImage') + ">&nbsp;</div>");
-		html.push("<div id='" + player.id + "_displayIconBackground' alt='Click to play video'" + getStyle(player, 'displayIconBackground') + ">");
+		html.push("<div id='" + player.id + "_displayImage'" + getStyle(player, 'displayImage') + ">&nbsp;</div>");
+		html.push("<div id='" + player.id + "_displayIconBackground'" + getStyle(player, 'displayIconBackground') + ">");
 		html.push("<img id='" + player.id + "_displayIcon' src='" + player.skin.display.elements.playIcon.src + "' alt='Click to play video'" + getStyle(player, 'displayIcon') + "/>");
 		html.push('</div>');
-		html.push('<a id="' + player.id + '_logo" target="_blank" href="' + logoDefaults.link + '"' + getStyle(player, 'logo') + '>&nbsp;</a>');
+		html.push('<div id="' + player.id + '_logo" target="_blank"' + getStyle(player, 'logo') + '>&nbsp;</div>');
 		html.push('</div>');
 		displays[player.id].domelement.before(html.join(''));
 		setupDisplayElements(player);
@@ -1028,7 +1028,6 @@
 		for (var element in displayElements) {
 			var elementId = ['#', player.id, '_', element];
 			displays[player.id][element] = $(elementId.join(''));
-			//displays[player.id][element].css(displayElements[element].style);
 			if (displayElements[element].click !== undefined) {
 				displays[player.id][element].click(displayElements[element].click);
 			}
@@ -1041,8 +1040,8 @@
 			display: {
 				style: {
 					cursor: 'pointer',
-					width: meta.width,
-					height: meta.height,
+					width: meta.width + "px",
+					height: meta.height + "px",
 					position: 'relative',
 					'z-index': 50,
 					margin: 0,
@@ -1054,8 +1053,8 @@
 				style: {
 					cursor: 'pointer',
 					position: 'absolute',
-					top: (player.skin.display.elements.background.height - player.skin.display.elements.playIcon.height) / 2,
-					left: (player.skin.display.elements.background.width - player.skin.display.elements.playIcon.width) / 2,
+					top: ((player.skin.display.elements.background.height - player.skin.display.elements.playIcon.height) / 2) + "px",
+					left: ((player.skin.display.elements.background.width - player.skin.display.elements.playIcon.width) / 2) + "px",
 					border: 0,
 					margin: 0,
 					padding: 0
@@ -1065,12 +1064,12 @@
 				style: {
 					cursor: 'pointer',
 					position: 'absolute',
-					top: (meta.height - player.skin.display.elements.background.height) / 2,
-					left: (meta.width - player.skin.display.elements.background.width) / 2,
+					top: ((meta.height - player.skin.display.elements.background.height) / 2) + "px",
+					left: ((meta.width - player.skin.display.elements.background.width) / 2) + "px",
 					border: 0,
 					'background-image': (['url(', player.skin.display.elements.background.src, ')']).join(''),
-					width: player.skin.display.elements.background.width,
-					height: player.skin.display.elements.background.height,
+					width: player.skin.display.elements.background.width + "px",
+					height: player.skin.display.elements.background.height + "px",
 					margin: 0,
 					padding: 0
 				}
@@ -1079,8 +1078,8 @@
 				style: {
 					display: 'block',
 					background: ([player.config.screencolor, ' url(', $.fn.jwplayerUtils.getAbsolutePath(player.config.image), ') no-repeat center center']).join(''),
-					width: meta.width,
-					height: meta.height,
+					width: meta.width + "px",
+					height: meta.height + "px",
 					position: 'absolute',
 					cursor: 'pointer',
 					left: 0,
@@ -1093,8 +1092,8 @@
 			logo: {
 				style: {
 					position: 'absolute',
-					width: logoDefaults.width,
-					height: logoDefaults.height,
+					width: logoDefaults.width + "px",
+					height: logoDefaults.height + "px",
 					'background-image': (['url(', logoDefaults.prefix, logoDefaults.file, ')']).join(''),
 					margin: 0,
 					padding: 0,
@@ -1106,7 +1105,7 @@
 		};
 		var positions = logoDefaults.position.split("-");
 		for (var position in positions) {
-			elements.logo.style[positions[position]] = logoDefaults.margin;
+			elements.logo.style[positions[position]] = logoDefaults.margin + "px";
 		}
 		return elements;
 	}
@@ -1977,7 +1976,7 @@
 			};
 		}
 		if (!$.fn.jwplayerUtils.isiPhone()) {
-			domElement.src = undefined;
+			domElement.removeAttribute('src');
 		}
 		configuration.sources = sources;
 		return configuration;
@@ -1993,7 +1992,7 @@
 		var result = parseMediaElement(domElement, attributes);
 		if (!$.fn.jwplayerUtils.isiPhone() && !$.fn.jwplayerUtils.isiPad()) {
 			try {
-				$(domElement).removeAttr('poster');
+				$(domElement)[0].removeAttribute('poster');
 			} catch (err) {
 			
 			}
@@ -2018,30 +2017,34 @@
  */
 (function($) {
 
+	var players = {};
+	
 	/** Constructor **/
 	$.fn.jwplayerSkinner = function(player, completeHandler) {
-		load(player, completeHandler);
+		players[player.id] = {
+			completeHandler: completeHandler
+		};
+		load(player);
 	};
 	
 	/** Load the skin **/
-	function load(player, completeHandler) {
+	function load(player) {
 		$.ajax({
-			url: player.model.config.skin,
+			url: $.fn.jwplayerUtils.getAbsolutePath(player.model.config.skin),
 			complete: function(xmlrequest, textStatus) {
 				if (textStatus == "success") {
-					loadSkin(player, xmlrequest.responseXML, completeHandler);
+					loadSkin(player, xmlrequest.responseXML);
 				} else {
-					loadSkin(player, $.fn.jwplayerDefaultSkin, completeHandler);
+					loadSkin(player, $.fn.jwplayerDefaultSkin);
 				}
 			}
 			
 		});
 	}
 	
-	function loadSkin(player, xml, completeHandler) {
+	function loadSkin(player, xml) {
 		var skin = {
-			properties: {},
-			incompleteElements: 0
+			properties: {}
 		};
 		player.skin = skin;
 		var components = $('component', xml);
@@ -2049,6 +2052,8 @@
 			return;
 		}
 		for (var componentIndex = 0; componentIndex < components.length; componentIndex++) {
+			players[player.id].loading = true;
+			
 			var componentName = $(components[componentIndex]).attr('name');
 			var component = {
 				settings: {},
@@ -2056,50 +2061,75 @@
 			};
 			player.skin[componentName] = component;
 			var elements = $(components[componentIndex]).find('element');
-			player.skin.loading = true;
 			for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
-				player.skin.incompleteElements++;
-				loadImage(elements[elementIndex], componentName, player, completeHandler);
+				loadImage(elements[elementIndex], componentName, player);
 			}
 			var settings = $(components[componentIndex]).find('setting');
 			for (var settingIndex = 0; settingIndex < settings.length; settingIndex++) {
 				player.skin[componentName].settings[$(settings[settingIndex]).attr("name")] = $(settings[settingIndex]).attr("value");
 			}
-			player.skin.loading = false;
-			if (player.skin.incompleteElements === 0) {
-				completeHandler();
-			}
+			
+			players[player.id].loading = false;
+			
+			resetCompleteIntervalTest(player);
 		}
 	}
 	
+	function resetCompleteIntervalTest(player) {
+		clearInterval(players[player.id].completeInterval);
+		players[player.id].completeInterval = setInterval(function() {
+			checkComplete(player);
+		}, 100);
+	}
+	
 	/** Load the data for a single element. **/
-	function loadImage(element, component, player, completeHandler) {
+	function loadImage(element, component, player) {
 		var img = new Image();
 		var elementName = $(element).attr('name');
 		var elementSource = $(element).attr('src');
-		var skinUrl = player.model.config.skin.substr(0, player.model.config.skin.lastIndexOf('/'));
+		var skinUrl = $.fn.jwplayerUtils.getAbsolutePath(player.model.config.skin);
+		var skinRoot = skinUrl.substr(0, skinUrl.lastIndexOf('/'));
+		var imgUrl = (elementSource.indexOf('data:image/png;base64,') === 0) ? elementSource : [skinRoot, component, elementSource].join('/');
+		
+		player.skin[component].elements[elementName] = {
+			height: 0,
+			width: 0,
+			src: '',
+			ready: false
+		};
+
+		$(img).load(completeImageLoad(img, elementName, component, player));		
 		$(img).error(function() {
-			player.skin.incompleteElements--;
-			if ((player.skin.incompleteElements === 0) && (player.skin.loading === false)) {
-				completeHandler();
-			}
+			player.skin[component].elements[elementName].ready = true;
+			resetCompleteIntervalTest(player);
 		});
 		
-		$(img).load(completeImageLoad(img, elementName, component, player, completeHandler));
-		img.src = (elementSource.indexOf('data:image/png;base64,') === 0) ? elementSource : [skinUrl, component, elementSource].join("/");
+		img.src = imgUrl;
 	}
 	
-	function completeImageLoad(img, element, component, player, completeHandler) {
-		return function() {
-			player.skin[component].elements[element] = {
-				height: img.height,
-				width: img.width,
-				src: img.src
-			};
-			player.skin.incompleteElements--;
-			if ((player.skin.incompleteElements === 0) && (player.skin.loading === false)) {
-				completeHandler();
+	function checkComplete(player) {
+		for (var component in player.skin) {
+			if (component != 'properties') {
+				for (var element in player.skin[component].elements) {
+					if (!player.skin[component].elements[element].ready) {
+						return;
+					}
+				}
 			}
+		}
+		if (players[player.id].loading === false) {
+			clearInterval(players[player.id].completeInterval);
+			players[player.id].completeHandler();
+		}
+	}
+	
+	function completeImageLoad(img, element, component, player) {
+		return function() {
+			player.skin[component].elements[element].height = img.height;
+			player.skin[component].elements[element].width = img.width;
+			player.skin[component].elements[element].src = img.src;
+			player.skin[component].elements[element].ready = true;
+			resetCompleteIntervalTest(player);
 		};
 	}
 	
@@ -2317,6 +2347,22 @@
 		return (protocol > 0 && (queryparams < 0 || (queryparams > protocol)));
 	}
 	
+	$.fn.jwplayerUtils.mapEmpty = function (map){
+		for (var val in map){
+			return false;	
+		}
+		return true;
+	};
+	
+	$.fn.jwplayerUtils.mapLength = function (map){
+		var result = 0;
+		for (var val in map){
+			result++;	
+		}
+		return result;
+	};
+
+	
 	/** Dumps the content of an object to a string **/
 	$.fn.jwplayerUtils.dump = function(object, depth) {
 		if (object === null) {
@@ -2407,8 +2453,8 @@
 		player.model.domelement.wrap("<div id='" + player.model.config.id + "_jwplayer' />");
 		player.model.domelement.parent().css({
 			position: 'relative',
-			height: player.config.height,
-			width: player.config.width,
+			height: player.config.height+'px',
+			width: player.config.width+'px',
 			margin: 'auto',
 			padding: 0,
 			'background-color': player.config.screencolor
@@ -2416,8 +2462,8 @@
 		var display = ($.fn.jwplayerUtils.isiPhone() || !(navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length)) ? 'block' : 'none' ;
 		player.model.domelement.css({
 			position: 'absolute',
-			width: player.model.config.width,
-			height: player.model.config.height,
+			width: player.model.config.width+'px',
+			height: player.model.config.height+'px',
 			top: 0,
 			left: 0,
 			'z-index': 0,
