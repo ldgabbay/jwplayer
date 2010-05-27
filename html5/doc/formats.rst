@@ -145,6 +145,10 @@ Again, a list of frequently used file extensions and the mimetype/codecs the pla
 
    The player presumes H264 baseline video and AAC low-complexity audio in an MP4 container.
 
+.. describe:: .webm: 
+
+   The player presumes VP8 video and Vorbis in a WebM container.
+
 .. describe:: .ogg, .ogv
 
    Ogg video. The player presumes Theora video and Vorbis audio in an Ogg container.
