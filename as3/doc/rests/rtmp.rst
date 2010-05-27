@@ -3,7 +3,7 @@
 RTMP Streaming
 ==============
 
-RTMP (Real Time Messaging Protocol) is a system for delivering on-demand and live media to Adobe Flash applications (like the JW Player). RTMP supports video in both FLV and H.264 (MP4/MOV/F4V) :ref:`format <formats>` and audio in both MP3 and AAC (M4A) format. RTMP offers several advantages over regular HTTP video downloads:
+RTMP (Real Time Messaging Protocol) is a system for delivering on-demand and live media to Adobe Flash applications (like the JW Player). RTMP supports video in both FLV and H.264 (MP4/MOV/F4V) :ref:`format <media>` and audio in both MP3 and AAC (M4A) format. RTMP offers several advantages over regular HTTP video downloads:
 
 * RTMP can do live streaming - people can watch your video while it is being recorded.
 * With RTMP, viewers can seek to not-yet-downloaded parts of a video. This is especially useful for longer-form content (> 10 minutes).

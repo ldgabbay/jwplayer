@@ -16,7 +16,7 @@ Upload
 
 First, a primer on uploading. This may sound obvious, but for the JW Player to work on your website, you must upload the *player.swf* file from the download (or SVN checkout) to your webserver. If you want to play Youtube videos, you must also upload the **yt.swf** file - this is the bridge between the player and Youtube. No other files are needed.
 
-Your :ref:`media files <formats>` and :ref:`playlists <playlists>` can be hosted at any domain. Do note that :ref:`crossdomain` apply when loading these files from a different domain. In short, playing media files works, but loading playlists across domains will not work by default. Resolve this issue by hosting a :ref:`crossdomain.xml file <crossdomain>`.
+Your :ref:`media files <media>` and :ref:`playlists <playlists>` can be hosted at any domain. Do note that :ref:`crossdomain` apply when loading these files from a different domain. In short, playing media files works, but loading playlists across domains will not work by default. Resolve this issue by hosting a :ref:`crossdomain.xml file <crossdomain>`.
 
 
 SWFObject
@@ -59,7 +59,7 @@ It's a fairly sizeable chunk of code that contains the embed *container*, *flash
    * The ID of the container you want to embed the player into.
    * The width of the player, in pixels. Note the JW Player automatically stretches itself to fit.
    * The height of the player, in pixels. Note the JW Player automatically stretches itself to fit.
-   * The required version of Flash. We highly recommend setting *9.0.115*. This is the first version that supports :ref:`MP4 <formats>` and is currently installed at >95% of all computers. The only feature for which you might restricted to *10.0.0* is :ref:`RTMP dynamic streaming <rtmp>`.
+   * The required version of Flash. We highly recommend setting *9.0.115*. This is the first version that supports :ref:`MP4 <media>` and is currently installed at >95% of all computers. The only feature for which you might restricted to *10.0.0* is :ref:`RTMP dynamic streaming <rtmp>`.
    * The location of a Flash auto-upgrade script. We recommend to **not** use it. People that do not have Flash 9.0.115 either do not want or are not able (no admin rights) to upgrade.
    * Next, the *flashvars*, *params* and *attributes* are passed, in that order.
 

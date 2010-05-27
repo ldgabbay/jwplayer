@@ -7,7 +7,7 @@ First, note that playlist XML files are subject to the :ref:`crossdomain` of Fla
 
 If your playlist and player.swf are hosted on the same domain, these restrictions don't apply.
 
-Supported XML formats
+Supported XML Formats
 ---------------------
 
 That said, the following playlist formats are supported:

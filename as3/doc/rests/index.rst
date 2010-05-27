@@ -6,7 +6,7 @@
    intro
    embed
    options
-   formats
+   media
    playlists
    http
    rtmp

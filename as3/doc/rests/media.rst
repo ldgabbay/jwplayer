@@ -1,7 +1,7 @@
-.. _formats:
+.. _media:
 
-Supported Media Formats
-=======================
+Media Support
+=============
 
 This page lists all media file formats the JW Player supports: video, sound, images and Youtube clips. 
 
@@ -10,8 +10,8 @@ Single media files can be grouped using :ref:`playlists <playlists>` and streame
 .. note:: The player always tries to recognize a file format by its extension. If no suitable extension is found, **the player will presume you want to load a playlist**! Work around this issue by setting the :ref:`type option <options>`.
 
 
-Video formats
--------------
+Video
+-----
 
 The player supports video (*type=video*) in the following formats: 
 
@@ -42,8 +42,8 @@ The player supports video (*type=video*) in the following formats:
    Audio encoded with the `AAC <http://en.wikipedia.org/wiki/AAC>`_ codec. Indeed, this is not video! However, the player must use the **video** type to playback this audio, since the **sound** type only supports MP3. State of the art codec, widely supported.
 
 
-Sound formats
--------------
+Sound
+-----
 
 The player supports sounds (*type=sound*) in the following formats: 
 
@@ -55,8 +55,8 @@ The player supports sounds (*type=sound*) in the following formats:
 
       If you encounter too fast or too slow playback of MP3 files, it contains variable bitrate encoding or unsupported sample frequencies (eg 48Khz). Please stick to constant bitrate encoding and 44 kHz. The `free iTunes software <http://www.apple.com/itunes>`_ has an MP3 encoder built-in.
 
-Image formats
--------------
+Images
+------
 
 The player supports images (*type=image*) in the following formats:
 
@@ -86,8 +86,8 @@ The player supports images (*type=image*) in the following formats:
    Though SWF files load in the player, it is discouraged to use them. The player cannot read the duration and dimensions of SWF files. Custom scripts inside these SWF files might also interfere with (or break) playback.
 
 
-Youtube Videos
---------------
+Youtube
+-------
 
 The player includes native support for playing back Youtube videos (*type=youtube*). Youtube playback is automatically enabled when the **file** option is assigned to the URL of a Youtube video (e.g. *http://www.youtube.com/watch?v=WuQnd3d9IuA*).
 

@@ -11,7 +11,7 @@ This page gives a high level overview of the features and structure of the JW Pl
 Flashvars
 ---------
 
-First, all :ref:`options` are loaded, by the **Configger** utility class. Options are used to change the layout and behaviour of the player. You also use options to load :ref:`files <formats>` or plugins into the player. Options are set by adding a :ref:`flashvars <embed>` attribute to the HTML code that embeds the player in your site.
+First, all :ref:`options` are loaded, by the **Configger** utility class. Options are used to change the layout and behaviour of the player. You also use options to load :ref:`files <media>` or plugins into the player. Options are set by adding a :ref:`flashvars <embed>` attribute to the HTML code that embeds the player in your site.
 
 Skinning
 --------
@@ -26,7 +26,7 @@ When the skin is loaded, the player will initialize its internal framework, the 
 
 .. describe:: The Model
 
-   It manages the playback of the videos and contains a string of classes that can each playback a specific :ref:`file <formats>` (e.g. *video*) or :ref:`rtmp <rtmp>` or :ref:`http <http>` stream.
+   It manages the playback of the videos and contains a string of classes that can each playback a specific :ref:`file <media>` (e.g. *video*) or :ref:`rtmp <rtmp>` or :ref:`http <http>` stream.
 
 .. describe:: The View
 
@@ -63,7 +63,7 @@ File loading
 Because the JW Player handles a wide range of filetypes and formats, the file loading features a small decision list to determine which playback *model* to use:
 
  1. First, the player checks if a :ref:`type option <options>` is set (e.g. *type=rtmp*). If it is, the player loads the file and assigns the set playback type.
- 2. If there is no *type* option, the player looks at the extension of the *file* option. If it is a known media :ref:`format <formats>` (e.g. *.mp4**), the player will load the file and assigns the right playback type (e.g. *video*). If the extension is not a known media format (e.g. *.xml*), the player will presume the file is a playlist. It tries to load and parse the :ref:`playlist <playlists>`.
+ 2. If there is no *type* option, the player looks at the extension of the *file* option. If it is a known media :ref:`format <media>` (e.g. *.mp4**), the player will load the file and assigns the right playback type (e.g. *video*). If the extension is not a known media format (e.g. *.xml*), the player will presume the file is a playlist. It tries to load and parse the :ref:`playlist <playlists>`.
  3. When the playlist is loaded and parsed, the player repeats step 1 and 2 for every entry in the playlist. If any of these entries have no *type* option and no known extension, they are dropped.
  
 Next, if the file or playlist has loaded and the *autostart* option is turned on, the player will also immediately start playback.

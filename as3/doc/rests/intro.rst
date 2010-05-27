@@ -3,7 +3,7 @@
 Introduction
 ============
 
-The JW Player for Flash is the Internet’s most popular and flexible media player. It supports playback of :ref:`any format <formats>` the `Adobe Flash Player <http://www.adobe.com/products/flashplayer/>`_ can handle, both by using simple downloads, :ref:`http` and :ref:`rtmp`.
+The JW Player for Flash is the Internet’s most popular and flexible media player. It supports playback of :ref:`any media type <media>` the `Adobe Flash Player <http://www.adobe.com/products/flashplayer/>`_ can handle, both by using simple downloads, :ref:`http` and :ref:`rtmp`.
 
 
 The player supports various :ref:`playlist formats <playlists>` and a wide range of :ref:`options <options>` (flashvars) for changing its layout and behaviour. Embedding the player in a webpage :ref:`is a breeze <embed>`.

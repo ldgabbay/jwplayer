@@ -46,7 +46,7 @@ These options set different properties of the mediafile to load (e.g. the source
 
 .. describe:: start ( 0 )
 
-   Position in seconds where playback should start. This option works for :ref:`http`, :ref:`rtmp` and the MP3 and Youtube :ref:`files <formats>`. It does not work for regular videos.
+   Position in seconds where playback should start. This option works for :ref:`http`, :ref:`rtmp` and the MP3 and Youtube :ref:`files <media>`. It does not work for regular videos.
 
 .. describe:: streamer ( undefined )
 
@@ -56,10 +56,10 @@ These options set different properties of the mediafile to load (e.g. the source
 
    Set this flashvar to tell the player in which format (regular/streaming) the player is. By default, the type is detected by the player based upon the file extension. If there is no suiteable extension, it can be manually set. The following media types are supported:
 
-   * **video**: progressively downloaded FLV / MP4 video, but also AAC audio. See :ref:`formats`.
-   * **sound**: progressively downloaded MP3 files. See :ref:`formats`.
-   * **image**: JPG/GIF/PNG images. See :ref:`formats`.
-   * **youtube**: videos from Youtube. See :ref:`formats`.
+   * **video**: progressively downloaded FLV / MP4 video, but also AAC audio. See :ref:`media`.
+   * **sound**: progressively downloaded MP3 files. See :ref:`media`.
+   * **image**: JPG/GIF/PNG images. See :ref:`media`.
+   * **youtube**: videos from Youtube. See :ref:`media`.
    * **http**: FLV/MP4 videos using HTTP pseudo-streaming. See :ref:`http`.
    * **rtmp**: FLV/MP4/MP3 files or live streams using RTMP streaming. See :ref:`rtmp`.
 
