@@ -1,5 +1,5 @@
 ﻿/**
-* Manages playback of http streaming flv.
+* Wrapper for playback of progressively downloaded video.
 **/
 package com.jeroenwijering.models {
 
@@ -15,35 +15,21 @@ import flash.net.*;
 import flash.utils.*;
 
 
-public class HTTPModel extends AbstractModel {
+public class VideoModel extends AbstractModel {
 
 
-	/** Offset in bytes of the last seek. **/
-	private var byteoffset:Number = 0;
 	/** Save if the bandwidth checkin already occurs. **/
 	private var bwcheck:Boolean;
-	/** Bandwidth interval checking ID. **/
-	private var bwtimeout:Number;
-	/** Switch on startup if the bandwidth is not enough. **/
+	/** Switch if the bandwidth is not enough. **/
 	private var bwswitch:Boolean = true;
 	/** NetConnection object for setup of the video stream. **/
 	private var connection:NetConnection;
 	/** ID for the position interval. **/
 	private var interval:Number;
-	/** Object with keyframe times and positions. **/
-	private var keyframes:Object;
 	/** Interval ID for the loading. **/
-	private var loadinterval:Number;
-	/** Save whether metadata has already been sent. **/
-	private var meta:Boolean;
-	/** Boolean for mp4 / flv streaming. **/
-	private var mp4:Boolean;
-	/** Start parameter. **/
-	private var startparam:String = 'start';
+	private var loading:Number;
 	/** NetStream instance that handles the stream IO. **/
 	private var stream:NetStream;
-	/** Offset in seconds of the last seek. **/
-	private var timeoffset:Number = 0;
 	/** Sound control object. **/
 	private var transformer:SoundTransform;
 	/** Video object to be instantiated. **/
@@ -51,12 +37,11 @@ public class HTTPModel extends AbstractModel {
 
 
 	/** Constructor; sets up the connection and display. **/
-	public function HTTPModel(mod:Model):void {
+	public function VideoModel(mod:Model):void {
 		super(mod);
 		connection = new NetConnection();
 		connection.connect(null);
 		stream = new NetStream(connection);
-		stream.checkPolicyFile = true;
 		stream.addEventListener(NetStatusEvent.NET_STATUS,statusHandler);
 		stream.addEventListener(IOErrorEvent.IO_ERROR,errorHandler);
 		stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR,errorHandler);
@@ -70,19 +55,6 @@ public class HTTPModel extends AbstractModel {
 	};
 
 
-	/** Convert seekpoints to keyframes. **/
-	private function convertSeekpoints(dat:Object):Object {
-		var kfr:Object = new Object();
-		kfr.times = new Array();
-		kfr.filepositions = new Array();
-		for (var j:String in dat) {
-			kfr.times[j] = Number(dat[j]['time']);
-			kfr.filepositions[j] = Number(dat[j]['offset']);
-		}
-		return kfr;
-	};
-
-
 	/** Catch security errors. **/
 	private function errorHandler(evt:ErrorEvent):void {
 		stop();
@@ -90,7 +62,7 @@ public class HTTPModel extends AbstractModel {
 	};
 
 
-	/** Bandwidth is checked every two seconds as long as there's loading. **/
+	/** Bandwidth is checked every four seconds as long as there's loading. **/
 	private function getBandwidth(old:Number):void {
 		var ldd:Number = stream.bytesLoaded;
 		var bdw:Number = Math.round((ldd-old)*4/1000);
@@ -102,11 +74,13 @@ public class HTTPModel extends AbstractModel {
 			if(bwswitch) {
 				bwswitch = false;
 				if(item['levels'] && getLevel() != model.config['level']) {
+					model.config['level'] = getLevel();
+					item['file'] = item['levels'][model.config['level']].url;
 					load(item);
 					return;
 				}
 			}
-			bwtimeout = setTimeout(getBandwidth,2000,ldd);
+			setTimeout(getBandwidth,2000,ldd);
 		}
 	};
 
@@ -115,7 +89,7 @@ public class HTTPModel extends AbstractModel {
 	private function getLevel():Number {
 		var lvl:Number = item['levels'].length-1;
 		for (var i:Number=0; i<item['levels'].length; i++) {
-			if(model.config['width'] >= item['levels'][i].width*.9 && 
+			if(model.config['width'] >= item['levels'][i].width*.8 &&
 				model.config['bandwidth'] >= item['levels'][i].bitrate) {
 				lvl = i;
 				break;
@@ -125,81 +99,24 @@ public class HTTPModel extends AbstractModel {
 	};
 
 
-	/** Return a keyframe byteoffset or timeoffset. **/
-	private function getOffset(pos:Number,tme:Boolean=false):Number {
-		if(!keyframes) {
-			return 0;
-		}
-		for (var i:Number=0; i < keyframes.times.length - 1; i++) {
-			if(keyframes.times[i] <= pos && keyframes.times[i+1] >= pos) {
-				break;
-			}
-		}
-		if(tme == true) {
-			return keyframes.times[i];
-		} else { 
-			return keyframes.filepositions[i];
-		}
-	};
-
-
-	/** Create the video request URL. **/
-	private function getURL():String {
-		var url:String = item['file'];
-		var off:Number  = byteoffset;
-		if(item['http.startparam']) {
-			startparam = item['http.startparam'];
-		} else if (model.config['http.startparam']) {
-			startparam = model.config['http.startparam'];
-		}
-		if(item['streamer']) {
-			if(item['streamer'].indexOf('/') > -1) {
-				url = getURLConcat(item['streamer'],'file',item['file']);
-			} else { 
-				startparam = item['streamer'];
-			}
-		}
-		if(mp4 || startparam == 'starttime') {
-			off = timeoffset;
-		}
-		if(!mp4 || off > 0) {
-			url = getURLConcat(url,startparam,off);
-		}
-		if(model.config['token']) {
-			url = getURLConcat(url,'token',model.config['token']);
-		}
-		return url;
-	};
-
-
-	/** Concatenate a parameter to the url. **/
-	private function getURLConcat(url:String,prm:String,val:*):String {
-		if(url.indexOf('?') > -1) {
-			return url+'&'+prm+'='+val;
-		} else {
-			return url + '?'+prm+'='+val;
-		}
-	};
-
-
 	/** Load content. **/
 	override public function load(itm:Object):void {
 		item = itm;
-		position = timeoffset;
+		position = 0;
 		bwcheck = false;
 		if(item['levels']) {
 			model.config['level'] = getLevel();
 			item['file'] = item['levels'][model.config['level']].url;
 		}
-		stream.play(getURL());
+		stream.checkPolicyFile = true;
+		stream.play(item['file']);
 		clearInterval(interval);
 		interval = setInterval(positionInterval,100);
-		clearInterval(loadinterval);
-		loadinterval = setInterval(loadHandler,200);
-		clearTimeout(bwtimeout);
+		clearInterval(loading);
+		loading = setInterval(loadHandler,200);
 		model.config['mute'] == true ? volume(0): volume(model.config['volume']);
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
-		super.resize();
+		resize();
 	};
 
 
@@ -207,16 +124,13 @@ public class HTTPModel extends AbstractModel {
 	private function loadHandler():void {
 		var ldd:Number = stream.bytesLoaded;
 		var ttl:Number = stream.bytesTotal;
-		var pct:Number = timeoffset/(item['duration']+0.001);
-		var off:Number = Math.round(ttl*pct/(1-pct));
-		ttl += off;
-		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl,offset:off});
-		if(ldd+off >= ttl && ldd > 0) {
-			clearInterval(loadinterval);
+		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl});
+		if(ldd && ldd == ttl) {
+			clearInterval(loading);
 		}
 		if(ldd > 0 && !bwcheck) {
 			bwcheck = true;
-			bwtimeout = setTimeout(getBandwidth,2000,ldd);
+			setTimeout(getBandwidth,2000,ldd);
 		}
 	};
 
@@ -226,23 +140,10 @@ public class HTTPModel extends AbstractModel {
 		if(dat.width) {
 			video.width = dat.width;
 			video.height = dat.height;
-			super.resize();
+			resize();
 		}
-		if(dat.duration && !item['duration'] && timeoffset == 0) {
+		if(dat.duration && !item['duration']) {
 			item['duration'] = dat.duration;
-		}
-		if(dat['type'] == 'metadata' && !meta) {
-			meta = true;
-			if(dat.seekpoints) {
-				mp4 = true;
-				keyframes = convertSeekpoints(dat.seekpoints);
-			} else {
-				mp4 = false;
-				keyframes = dat.keyframes;
-			}
-			if(item['start'] > 0) {
-				seek(item['start']);
-			}
 		}
 		model.sendEvent(ModelEvent.META,dat);
 	};
@@ -267,11 +168,8 @@ public class HTTPModel extends AbstractModel {
 	/** Interval for the position progress **/
 	private function positionInterval():void {
 		var pos:Number = Math.round(stream.time*10)/10;
-		if (mp4) {
-			pos += timeoffset;
-		}
 		var bfr:Number = stream.bufferLength/stream.bufferTime;
-		if(bfr < 0.5 && pos < item['duration'] - 10 && model.config['state'] != ModelStates.BUFFERING) {
+		if(bfr < 0.5 && position < item['duration']-5 && model.config['state'] != ModelStates.BUFFERING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.BUFFERING});
 		} else if (bfr > 1 && model.config['state'] != ModelStates.PLAYING) {
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.PLAYING});
@@ -280,9 +178,9 @@ public class HTTPModel extends AbstractModel {
 			return;
 		}
 		if(pos < item['duration']) {
-			model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration']});
 			position = pos;
-		} else if (item['duration'] > 0) {
+			model.sendEvent(ModelEvent.TIME,{position:pos,duration:item['duration']});
+		} else if (item['duration']) {
 			stream.pause();
 			clearInterval(interval);
 			model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
@@ -290,35 +188,12 @@ public class HTTPModel extends AbstractModel {
 	};
 
 
-	/** The stage has been resize. **/
-	override public function resize():void {
-		super.resize();
-		if(item['levels'] && getLevel() != model.config['level']) {
-			byteoffset = getOffset(position);
-			timeoffset = position = getOffset(position,true);
-			load(item);
-		}
-	};
-
-
-	/** Seek to a specific second. **/
+	/** Seek to a new position. **/
 	override public function seek(pos:Number):void {
-		var off:Number = getOffset(pos);
-		clearInterval(interval);
-		if(off < byteoffset || off >= byteoffset+stream.bytesLoaded) {
-			timeoffset = position = getOffset(pos,true);
-			byteoffset = off;
-			load(item);
-		} else {
-			if(model.config['state'] == ModelStates.PAUSED) {
-				stream.resume();
-			}
+		if(stream && pos < stream.bytesLoaded/stream.bytesTotal*item['duration']) {
 			position = pos;
-			if(mp4) {
-				stream.seek(getOffset(position-timeoffset,true));
-			} else {
-				stream.seek(getOffset(position,true));
-			}
+			clearInterval(interval);
+			stream.seek(position);
 			play();
 		}
 	};
@@ -328,32 +203,30 @@ public class HTTPModel extends AbstractModel {
 	private function statusHandler(evt:NetStatusEvent):void {
 		switch (evt.info.code) {
 			case "NetStream.Play.Stop":
-				if(model.config['state'] == ModelStates.PLAYING) {
+				if(position > 1) {
 					clearInterval(interval);
 					model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.COMPLETED});
 				}
 				break;
 			case "NetStream.Play.StreamNotFound":
 				stop();
-				model.sendEvent(ModelEvent.ERROR,{message:'Video not found: '+item['file']});
+				model.sendEvent(ModelEvent.ERROR,{message:'Video not found or access denied: '+item['file']});
 				break;
 		}
-		model.sendEvent(ModelEvent.META,{info:evt.info.code});
+		//model.sendEvent(ModelEvent.META,{status:evt.info.code});
 	};
 
 
-	/** Destroy the HTTP stream. **/
+	/** Destroy the video. **/
 	override public function stop():void {
 		if(stream.bytesLoaded < stream.bytesTotal) {
 			stream.close();
 		} else {
 			stream.pause();
 		}
+		clearInterval(loading);
 		clearInterval(interval);
-		clearInterval(loadinterval);
-		byteoffset = timeoffset = position = 0;
-		keyframes = undefined;
-		meta = false;
+		position = 0;
 		model.sendEvent(ModelEvent.STATE,{newstate:ModelStates.IDLE});
 	};
 

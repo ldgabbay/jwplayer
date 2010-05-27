@@ -9,21 +9,6 @@
 
     <flashvars section="Properties">
         <flashvar type="field">
-            <name>author</name>
-            <default></default>
-            <description>Author of the video, shown in the display or playlist.</description>
-        </flashvar>
-        <flashvar type="field">
-            <name>date</name>
-            <default></default>
-            <description>Publish date of the media file.</description>
-        </flashvar>
-        <flashvar type="field">
-            <name>description</name>
-            <default></default>
-            <description>Text description of the file.</description>
-        </flashvar>
-        <flashvar type="field">
             <name>duration</name>
             <default></default>
             <description>duration of the file in seconds.</description>
@@ -52,16 +37,6 @@
             <name>streamer</name>
             <default></default>
             <description>location of an rtmp/http server instance to use for streaming. Can be an RTMP application or external PHP/ASP file.</description>
-        </flashvar>
-        <flashvar type="field">
-            <name>tags</name>
-            <default></default>
-            <description>keywords associated with the media file. Available since 4.3.</description>
-        </flashvar>
-        <flashvar type="field">
-            <name>title</name>
-            <default></default>
-            <description>title of the video, shown in the display or playlist.</description>
         </flashvar>
         <flashvar type="field">
             <name>type</name>
@@ -149,11 +124,6 @@
             <name>bufferlength</name>
             <default>1</default>
             <description>Number of seconds of the file that has to be loaded before starting. Set this to a low value to enable instant-start and to a high value to get less mid-stream buffering.</description>
-        </flashvar>
-        <flashvar type="field">
-            <name>item</name>
-            <default>0</default>
-            <description>PlaylistItem that should start to play. Use this to start the player with a specific item selected.</description>
         </flashvar>
         <flashvar type="field">
             <name>linktarget</name>

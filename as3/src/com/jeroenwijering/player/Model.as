@@ -183,6 +183,8 @@ public class Model extends EventDispatcher {
 					media.visible = !audioOnly();
 					break;
 			}
+		} else if(typ == ModelEvent.TIME) {
+			config['position'] = dat.position;
 		}
 		Logger.log(dat,typ);
 		dispatchEvent(new ModelEvent(typ,dat));

@@ -55,6 +55,7 @@ public class Player extends MovieClip {
 		linktarget:'_blank',
 		logo:undefined,
 		mute:false,
+		position:0,
 		repeat:'none',
 		shuffle:false,
 		smoothing:true,
@@ -68,7 +69,7 @@ public class Player extends MovieClip {
 		debug:'none',
 		id:undefined,
 		plugins:undefined,
-		version:'4.7.933'
+		version:'4.7.1015'
 	};
 	/** Reference to all stage graphics. **/
 	public var skin:MovieClip;
@@ -129,7 +130,6 @@ public class Player extends MovieClip {
 	protected function addModels():void {
 		model.addModel(new HTTPModel(model),'http');
 		model.addModel(new ImageModel(model),'image');
-		model.addModel(new LivestreamModel(model),'livestream');
 		model.addModel(new RTMPModel(model),'rtmp');
 		model.addModel(new SoundModel(model),'sound');
 		model.addModel(new VideoModel(model),'video');
