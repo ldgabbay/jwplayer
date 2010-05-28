@@ -123,7 +123,7 @@ The player's controls are broken into four components.  Each of these is defined
  
 In addition to player controls, it is also possible to define skinning elements for skinnable plugins as well.  These would be placed in another **<component>** tag, with the *name* attribute corresponding to the id of the plugin.
 
-.. image:: images/skinning/Components.png
+.. image:: ../images/skinning/Components.png
 	:alt: Components layout
  
 The Controlbar
@@ -335,7 +335,7 @@ Additional **timeSlider** elements:
 
 	Right-hand end-cap, placed to the right of the **timeSliderRail** element.
 
-.. image:: images/skinning/timeSlider.png
+.. image:: ../images/skinning/timeSlider.png
 	:alt: TimeSlider Screenshot
 
 
@@ -374,7 +374,7 @@ The **volumeSlider** element is quite similar to the **timeSlider**, except that
 
 	the handle to slide the volume, also indicates the volume level.
 
-.. image:: images/skinning/volumeSlider.png
+.. image:: ../images/skinning/volumeSlider.png
 	:alt: VolumeSlider Screenshot
 
 
@@ -493,7 +493,7 @@ The **<group>** tag can contain the following elements:
 Controlbar Composition
 ++++++++++++++++++++++
 
-.. image:: images/skinning/controlBar.png
+.. image:: ../images/skinning/controlBar.png
 	:alt: Controlbar Screenshot
 
 
@@ -531,7 +531,7 @@ Display Icons
 
 Display Icons are the buttons you see in the middle of the player.  You see the familiar triangular **play** icon before the movie is playing, and also when you pause.  When the user has muted the player, the **Mute** icon appears.  Display Icons come in two parts: a global background element to every icon, and the icon itself, which is programmatically centered over the background layer.  All images must reside in the *display* subdirectory of the skin.
 
-.. image:: images/skinning/Display.png
+.. image:: ../images/skinning/Display.png
 	:alt: Display Screenshot
 
 .. note:: By default, the **bufferIcon** will rotate clockwise while buffering.
@@ -584,7 +584,7 @@ Dock Icons elements sit at the top right corner of your player and can be both i
  * button
  * buttonOver (*the button's mouseover state*)
 
-.. image:: images/skinning/Dock.png
+.. image:: ../images/skinning/Dock.png
 	:alt: Dock Screenshot
 
  
@@ -620,7 +620,7 @@ Playlist
 There are two main Playlist skin elements; Playlist Items, and the Playlist Slider.  Item graphics scale horizontally and are placed behind the description/thumbnail of videos in your playlist.  The slider is a vertical scrollbar rail and handle (thumb), with optional top and bottom endcaps.  The *background* element serves as the default background of the playlist if there are fewer elements than the height of the playlist.
 
 
-.. image:: images/skinning/Playlist.png
+.. image:: ../images/skinning/Playlist.png
 	:alt: Playlist Screenshot
 
 The following Playlist elements are available:

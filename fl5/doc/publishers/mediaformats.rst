@@ -7,7 +7,7 @@ Media Formats
 Supported Media Files
 =====================
 
-The JW Player always tries to recognize a file format by its extension. If no suitable extension is found, **the player will presume you want to load a :ref:`playlist <playlistformats>`**! Get around this issue by setting the :ref:`provider  option <options>`, e.g. *provider=video*.
+The JW Player always tries to recognize a file format by its extension. If no suitable extension is found, **the player will presume you want to load a** :ref:`playlist <playlistformats>`! Get around this issue by setting the :ref:`provider  option <options>`, e.g. *provider=video*.
 
 .. csv-table:: Supported Media Formats
 	:widths: 5 5 5 10

@@ -23,8 +23,8 @@ The following XML-based playlist formats are supported by the JW Player:
 
 
  * ASX_ feeds (`example <http://developer.longtailvideo.com/player/testing/files/asx.xml>`_)
- * ATOM_ feeds with _MediaRSS extensions (`example <http://developer.longtailvideo.com/player/testing/files/atom.xml>`_)
- * RSS_ feeds with iTunes_ (`example <http://developer.longtailvideo.com/player/testing/files/irss.xml>`_) extensions and _MediaRSS extensions (`example <http://developer.longtailvideo.com/player/testing/files/mrss.xml>`_)
+ * ATOM_ feeds with MediaRSS_ extensions (`example <http://developer.longtailvideo.com/player/testing/files/atom.xml>`_)
+ * RSS_ feeds with iTunes_ (`example <http://developer.longtailvideo.com/player/testing/files/irss.xml>`_) extensions and MediaRSS_ extensions (`example <http://developer.longtailvideo.com/player/testing/files/mrss.xml>`_)
  * XSPF_ feeds (`example <http://developer.longtailvideo.com/player/testing/files/xspf.xml>`_)
 
 
@@ -32,7 +32,7 @@ Here is an overview of all the tags for each playlist format the player processe
 
 .. csv-table:: Playlist Properties for XML Formats
 	:widths: 25 10 10 10 10 10 10
-	:header: "Property", 				XSPF_,	 	RSS_, 			iTunes_, 	_MediaRSS, 		ASX_, 		ATOM_
+	:header: "Property", 				XSPF_,	 	RSS_, 			iTunes_, 	MediaRSS_, 		ASX_, 		ATOM_
 	
 	:ref:`author <playlistitem>`, 		creator,  	--,  			author,  	credit,  		author,		--
 	:ref:`date <playlistitem>`,  		--,  		pubDate,		--,  		--,  			--,  		published

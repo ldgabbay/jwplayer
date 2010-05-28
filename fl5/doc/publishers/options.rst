@@ -68,6 +68,8 @@ These flashvars control the look and layout of the player.
  * **skin** (*undefined*): location of a [wiki:Player5Skinning skin file] containing the player graphics.  The [/browser SVN repository] contains [browser:skins a couple of example skins].
  * **width** (*280*): width of the display in pixels.
 
+The player also has a :ref:`layout engine <layout>` which positions the controlbar, the playlist, and any positioned plugins.
+
 .. _options-colors:
 
 Colors

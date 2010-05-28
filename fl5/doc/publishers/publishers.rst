@@ -1,4 +1,8 @@
-.. _overview:
+.. _publishers:
+
+=======================
+Publisher Documentation
+=======================
 
 .. toctree::
    :maxdepth: 2
@@ -14,3 +18,7 @@
    javascriptapi
    architecture
    crossdomain
+   startup
+   releasenotes
+   layout
+   fmsdvr
