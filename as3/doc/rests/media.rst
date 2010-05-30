@@ -91,7 +91,7 @@ Youtube
 
 The player includes native support for playing back Youtube videos (*type=youtube*). Youtube playback is automatically enabled when the **file** option is assigned to the URL of a Youtube video (e.g. *http://www.youtube.com/watch?v=WuQnd3d9IuA*).
 
-The player uses the official `Youtube API <http://code.google.com/apis/youtube/>`_ for this functionality, so this is definetily not a hack. Youtube officially support playback of its content in third-party players like the JW Player.
+The player uses the official `Youtube API <http://code.google.com/apis/youtube/>`_ for this functionality, so this is definitely not a hack. Youtube officially support playback of its content in third-party players like the JW Player.
 
 The Youtube API is accessed through a bridge, the separate **yt.swf** file included in the player download. 
 

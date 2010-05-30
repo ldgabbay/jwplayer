@@ -134,7 +134,7 @@ These flashvars control the playback behaviour of the player.
 
    set this to **true** to list plugin buttons in display. By default (*false*), plugin buttons are shown in the controlbar.
 
-.. describe:: linktarget ( _blank)
+.. describe:: linktarget ( _blank )
 
    Browserframe where link from the display are opened in. Some possibilities are *_self* (same frame) or *_blank* (new browserwindow).
 
@@ -142,7 +142,7 @@ These flashvars control the playback behaviour of the player.
 
    Mute the sounds on startup. Is saved in a cookie.
 
-.. describe:: plugins ( undefined)
+.. describe:: plugins ( undefined )
 
    A powerful feature, this is a comma-separated list of plugins to load (e.g. **hd,viral**). Plugins are separate SWF files that extend the functionality of the player, e.g. with advertising, analytics or viral sharing features. Visit `our addons repository <http://www.longtailvideo.com/addons/plugins>`_ to browse the available plugins.
 
@@ -163,7 +163,7 @@ These flashvars control the playback behaviour of the player.
 
    This sets the smoothing of videos, so you won't see blocks when a video is upscaled. Set this to **false** to disable the feature and get performance improvements with old computers / big files.
 
-.. describe:: stretching ( uniform)
+.. describe:: stretching ( uniform )
 
    Defines how to resize the poster image and video to fit the display. Can be:
 

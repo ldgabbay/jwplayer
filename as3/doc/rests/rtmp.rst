@@ -207,10 +207,10 @@ Here is an example dynamic streaming playlist (only one item). It is similar to 
          <description>Big Buck Bunny is a short animated film by the Blender Institute, 
             part of the Blender Foundation.</description>
          <media:group>
-           <media:content bitrate="1800" url="videos/Qvxp3Jnv-486.mp4"  width="1280" />
-           <media:content bitrate="1100" url="videos/Qvxp3Jnv-485.mp4" width="720"/>
-           <media:content bitrate="700" url="videos/Qvxp3Jnv-484.mp4" width="480" />
-           <media:content bitrate="400" url="videos/Qvxp3Jnv-483.mp4" width="320" />
+           <media:content bitrate="1800" url="videos/Qvxp3Jnv-4.mp4"  width="1280" />
+           <media:content bitrate="1100" url="videos/Qvxp3Jnv-3.mp4" width="720"/>
+           <media:content bitrate="700" url="videos/Qvxp3Jnv-2.mp4" width="480" />
+           <media:content bitrate="400" url="videos/Qvxp3Jnv-1.mp4" width="320" />
          </media:group>
          <jwplayer:streamer>rtmp://www.myserver.com/ondemand/</jwplayer:streamer>
        </item>

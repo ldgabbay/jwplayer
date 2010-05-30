@@ -134,7 +134,7 @@ Note that the player will not do a bandwidth switch if extreme bandwidth changes
 Example
 ^^^^^^^
 
-Here is an example bitrate switching playlist (only one item). Note that it is similar to a *regular* HTTP Prseudostreaming playlist, with the exception of the multiple video elements per item. The mRSS extension is the only way to provide these multiple elements including *bitrate* and *width* attributes:
+Here is an example bitrate switching playlist (only one item). Note that it is similar to a *regular* HTTP Pseudostreaming playlist, with the exception of the multiple video elements per item. The mRSS extension is the only way to provide these multiple elements including *bitrate* and *width* attributes:
 
 .. code-block:: xml
 
@@ -148,10 +148,10 @@ Here is an example bitrate switching playlist (only one item). Note that it is s
          <description>Big Buck Bunny is a short animated film by the Blender Institute, 
             part of the Blender Foundation.</description>
          <media:group>
-           <media:content bitrate="1800" url="http://myserver.com/bbb-486.mp4"  width="1280" />
-           <media:content bitrate="1100" url="http://myserver.com/bbb-485.mp4" width="720"/>
-           <media:content bitrate="700" url="http://myserver.com/bbb-484.mp4" width="480" />
-           <media:content bitrate="400" url="http://myserver.com/bbb-483.mp4" width="320" />
+           <media:content bitrate="1800" url="http://myserver.com/bbb-4.mp4"  width="1280" />
+           <media:content bitrate="1100" url="http://myserver.com/bbb-3.mp4" width="720"/>
+           <media:content bitrate="700" url="http://myserver.com/bbb-2.mp4" width="480" />
+           <media:content bitrate="400" url="http://myserver.com/bbb-1.mp4" width="320" />
          </media:group>
          <jwplayer:type>http</jwplayer:type>
          <jwplayer:http.startparam>apstart</jwplayer:http.startparam>
