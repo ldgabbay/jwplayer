@@ -26,7 +26,7 @@ Instead of using a serverside module, pseudostreaming can also be enabled by usi
 Mechanism
 ---------
 
-Under water, HTTP pseudostreaming works as follows:
+Under the hood, HTTP pseudostreaming works as follows:
 
 When the video is initially loaded, the player reads and stores a list of *seekpoints* as part of the video's metadata. These seekpoints are offsets in the video (both in seconds and in bytes) at which a new *keyframe* starts. At these offsets, a request to the server can be made.
 

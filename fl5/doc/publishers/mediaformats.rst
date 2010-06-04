@@ -9,17 +9,17 @@ Supported Media Files
 
 The JW Player always tries to recognize a file format by its extension. If no suitable extension is found, **the player will presume you want to load a** :ref:`playlist <playlistformats>`! Get around this issue by setting the :ref:`provider  option <options>`, e.g. *provider=video*.
 
-.. csv-table:: Supported Media Formats
-	:widths: 5 5 5 10
-	:header: "Format",													"Media Type",		:ref:`Provider <playlistitem>`,	Notes
-
-	`FLV <http://en.wikipedia.org/wiki/Flv>`_,							Video,				video,							""
-	`MP4 <http://en.wikipedia.org/wiki/H.264>`_,						Video,				video,							"MP4 files must be encoded in the H.264 format"
-	`AAC <http://en.wikipedia.org/wiki/Advanced_Audio_Coding>`_,		Audio,				video,							"Audio in AAC format must use the *video* provider."
-	`MP3 <http://en.wikipedia.org/wiki/MP3>`_,							Audio,				sound,							""
-	`JPG <http://www.w3.org/Graphics/JPEG/>`_,							Image,				image,							""
-	`GIF <http://en.wikipedia.org/wiki/Gif>`_,							Image,				image,							""
-	`PNG <http://en.wikipedia.org/wiki/Portable_Network_Graphics>`_,	Image,				image,							""
+=================================================================  ==========  ==================================  ===================================================
+Format                                                             Media Type  :ref:`Provider <options-playlist>`  Notes
+=================================================================  ==========  ==================================  ===================================================
+`FLV <http://en.wikipedia.org/wiki/Flv>`_                          Video       video                           
+`MP4 <http://en.wikipedia.org/wiki/H.264>`_                        Video       video                               MP4 files must be encoded in the H.264 format
+`AAC <http://en.wikipedia.org/wiki/Advanced_Audio_Coding>`_        Audio       video                               Audio in AAC format must use the *video* provider.
+`MP3 <http://en.wikipedia.org/wiki/MP3>`_                          Audio       sound
+`JPG <http://www.w3.org/Graphics/JPEG/>`_                          Image       image
+`GIF <http://en.wikipedia.org/wiki/Gif>`_                          Image       image
+`PNG <http://en.wikipedia.org/wiki/Portable_Network_Graphics>`_    Image       image
+=================================================================  ==========  ==================================  ===================================================
 
 For example, to load an MP3 file, set the *provider* flashvar or playlist property to *sound*.
 	
@@ -45,21 +45,21 @@ The player currently does not support playback of high-quality YouTube videos.
 Streaming Video
 ===============
 
-The JW Player supports two types of streaming servers, :ref:`RTMP Streaming <rtmpstreaming>` and :ref:`HTTP Pseudo-Streaming <httpstreaming>`.  See :ref:`rtmpstreaming` and :ref:`httpstreaming` for information on how to configure the JW Player to play content from these types of streaming server.
+The JW Player supports two types of streaming servers, :ref:`RTMP Streaming <rtmp>` and :ref:`HTTP Pseudo-Streaming <http>`.  See :ref:`rtmp` and :ref:`http` for information on how to configure the JW Player to play content from these types of streaming server.
 
 CDNs
 ====
 
 Certain `CDNs <http://en.wikipedia.org/wiki/Content_delivery_network>`_ have special configuration options which have built-in shortcuts for the JW Player.  These are:
 
-.. csv-table:: CDN Provider Shortcuts
-	:widths: 5 5
-	:header: "CDN",								"Provider Shortcut"
-
-	`BitGravity <http://www.bitgravity.com/>`_, bitgravity
-	`EdgeCast <http://www.edgecast.com/>`_,		edgecast
-	`HighWinds <http://www.highwinds.com/>`_,	highwinds
-	`VDO-X <http://www.vdo-x.net/>`_,			vdox
+==========================================  =================
+CDN                                         Provider Shortcut
+==========================================  =================
+`BitGravity <http://www.bitgravity.com/>`_  bitgravity
+`EdgeCast <http://www.edgecast.com/>`_      edgecast
+`HighWinds <http://www.highwinds.com/>`_    highwinds
+`VDO-X <http://www.vdo-x.net/>`_            vdox
+==========================================  =================
 
 Custom Providers
 ================

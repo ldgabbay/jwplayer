@@ -17,9 +17,12 @@ Skinning Features
 Version 5.2 introduces a number of new features to the XML/PNG skinning model.
 
  * Support for customized font settings
+ 
   * Controlbar text fields (**elapsed**, **duration**) can specify font face (*_sans*, *_serif*, *_typewriter*), font weight (*bold*), font style (*italic*) and font color (*0x123456*)
   * Playlist text fields (**title**, **description**, **duration**) can specify font face (*_sans*, *_serif*, *_typewriter*), font weight (*bold*), font style (*italic*) and font color (*0x123456*)
+  
  * Customized controlbar layout
+ 
   * Allows placement of any button, text field or slider available in the controlbar
   * Adds the ability to insert arbitrary divider images
   * Adds the ability to insert arbitrary 'spacer' elements
@@ -72,26 +75,40 @@ Version 5.2 introduces a number of new features to the XML/PNG skinning model.
 	</component>
 
 * Replaces general SWF-skin colorization settings (*frontcolor*, *backcolor*, *lightcolor*, *screencolor*) with component-specific settings
+
  * Controlbar
+ 
   * *fontcolor*: Color for elapsed time and duration
   * *buttoncolor*: Colorization setting for controlbar icons
+  
  * Playlist
+ 
   * *fontcolor*: Color for all text fields
   * *overcolor*: Colorization for playlist text fields when the mouse moves over the playlist item
   * *activecolor*: Color for the text fields in the currently active playlist item
   * *backgroundcolor*: Color of the background that sits behind the playlist items.
+  
  * Display
+ 
   * *backgroundcolor*: replaces *screencolor* setting
+  
 * New skinning elements
+
  * Playlist
+ 
   * Active state for playlist item background (*itemActive* element)
   * Image placeholder for playlist images (*itemImage* element)
   * Top and bottom end caps for playlist slider (*sliderCapTop*, *sliderCapBottom*)
+  
  * Controlbar
+ 
   * Left and right end caps for time and volume sliders (*timeSliderCapLeft*, *timeSliderCapRight*, *volumeSliderCapLeft*, *volumeSliderCapRight*)
   * Background images for text fields (*elapsedBackground*, *durationBackground*)
+  
  * Display
+ 
   * Over states for display icons (*playIconOver*, *muteIconOver*, *errorIconOver*, *bufferIconOver*)
+  
 * Ability to use SWF assets in addition to JPGs and PNGs in XML skinning
 
 
@@ -114,8 +131,10 @@ New Features
 ++++++++++++
 
  * Since 5.0 branched off from 4.5, version 5.1 re-integrates changes from 4.6+ into the 5.x branch, including:
+ 
   * Bitrate Switching
   * Bandwidth detection
+  
  * DVR functionality for [wiki:FlashMediaServerDVR RTMP live streams].
 
 Major Bug Fixes
@@ -144,11 +163,14 @@ Features new to 5.0
 
  * Bitmap Skinning (PNG, JPG, GIF)
  * API Update for V5 plugins
+ 
   * Player resizes plugins when needed
   * Player sets X/Y coordinates of plugins
   * Plugins can request that the player block (stop playback) or lock (disable player controls).
+  
  * MXMLC can be used to [browser:/trunk/fl5/README.txt compile the player].
  * Backwards compatibility
+ 
   * SWF Skins
   * Version 4.x plugins
   * Version 4.x javascript

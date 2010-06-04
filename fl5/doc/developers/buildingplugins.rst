@@ -9,7 +9,7 @@ The JW Player supports an API which allows developers to build ActionScript plug
 What is a plugin?
 =================
 
-A JW Player plugin is a separate SWF file, written in Actionscript 3, which is loaded by the player at runtime. Plugins integrate seamlessly with the player, both in terms of coding (through the :ref:`api`) and graphics (stacked on top of the player). Plugins are loaded into player by setting the :ref:`plugins <options-api>` option. For example, if you wanted to load two plugins named **advertising.swf** and **delicious.swf**, the corresponding flashvar would be *plugins=advertising,delicious*.  If you used SWFObject 2.x to embed the JW Player, the code would look something like this:
+A JW Player plugin is a separate SWF file, written in Actionscript 3, which is loaded by the player at runtime. Plugins integrate seamlessly with the player, both in terms of coding (through the :ref:`pluginapi`) and graphics (stacked on top of the player). Plugins are loaded into player by setting the :ref:`plugins <options-api>` option. For example, if you wanted to load two plugins named **advertising.swf** and **delicious.swf**, the corresponding flashvar would be *plugins=advertising,delicious*.  If you used SWFObject 2.x to embed the JW Player, the code would look something like this:
 
 
 .. code-block:: html

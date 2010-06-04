@@ -1,4 +1,4 @@
-.. _playlistformats:
+.. _playlists:
 
 =============
 XML Playlists
@@ -22,31 +22,31 @@ The following XML-based playlist formats are supported by the JW Player:
 .. _MediaRSS: http://search.yahoo.com/mrss
 
 
- * ASX_ feeds (`example <http://developer.longtailvideo.com/player/testing/files/asx.xml>`_)
- * ATOM_ feeds with MediaRSS_ extensions (`example <http://developer.longtailvideo.com/player/testing/files/atom.xml>`_)
- * RSS_ feeds with iTunes_ (`example <http://developer.longtailvideo.com/player/testing/files/irss.xml>`_) extensions and MediaRSS_ extensions (`example <http://developer.longtailvideo.com/player/testing/files/mrss.xml>`_)
- * XSPF_ feeds (`example <http://developer.longtailvideo.com/player/testing/files/xspf.xml>`_)
+ * ASX_ feeds (`ASX example <http://developer.longtailvideo.com/player/testing/files/asx.xml>`_)
+ * ATOM_ feeds with MediaRSS_ extensions (`ATOM example <http://developer.longtailvideo.com/player/testing/files/atom.xml>`_)
+ * RSS_ feeds with iTunes_ (`iTunes RSS example <http://developer.longtailvideo.com/player/testing/files/irss.xml>`_) extensions and MediaRSS_ extensions (`MRSS example <http://developer.longtailvideo.com/player/testing/files/mrss.xml>`_)
+ * XSPF_ feeds (`XSPF example <http://developer.longtailvideo.com/player/testing/files/xspf.xml>`_)
 
 
-Here is an overview of all the tags for each playlist format the player processes, and the :ref:`Playlist Item <playlistitem>` property they correspond to:
+Here is an overview of all the tags for each playlist format the player processes, and the :ref:`Playlist Item <options-playlist>` property they correspond to:
 
-.. csv-table:: Playlist Properties for XML Formats
-	:widths: 25 10 10 10 10 10 10
-	:header: "Property", 				XSPF_,	 	RSS_, 			iTunes_, 	MediaRSS_, 		ASX_, 		ATOM_
-	
-	:ref:`author <playlistitem>`, 		creator,  	--,  			author,  	credit,  		author,		--
-	:ref:`date <playlistitem>`,  		--,  		pubDate,		--,  		--,  			--,  		published
-	:ref:`description <playlistitem>`,	annotation,	description,	summary,	description,  	abstract,  	summary
-	:ref:`duration <playlistitem>`, 	duration,  	--,  			duration,  	content,  		duration,  	--
-	:ref:`file <playlistitem>`,  		location,  	enclosure,  	--,  		content,  		ref,  		--
-	:ref:`link <playlistitem>`,  		info,  		link,  			--,  		--,  			moreinfo,  	link
-	:ref:`image <playlistitem>`,  		image,		--,				--,			thumbnail,		--,			--
-	:ref:`start <playlistitem>`,  		--,  		--,  			--,  		--,  			starttime,	--
-	:ref:`streamer <playlistitem>`,  	--,			--,				--,			--,				--,  		--
-	:ref:`tags <playlistitem>`,  		--,			category,		keywords,	keywords,		--,  		--
-	:ref:`title <playlistitem>`,  		title,		title,			--,			title,			title,		title
-	:ref:`provider <playlistitem>`,		--,			--,				--,			--,				--,			--		
 
+======================================  =========== ==============  ==========  ==============  ==========  ==========
+Property                                XSPF_       RSS_            iTunes_ 	MediaRSS_       ASX_        ATOM_
+======================================  =========== ==============  ==========  ==============  ==========  ==========
+:ref:`author <options-playlist>`        creator     (none)          author      credit          author      (none)
+:ref:`date <options-playlist>`          (none)      pubDate         (none)      (none)          (none)      published
+:ref:`description <options-playlist>`   annotation  description     summary     description     abstract    summary
+:ref:`duration <options-playlist>`      duration    (none)          duration    content         duration    (none)
+:ref:`file <options-playlist>`          location    enclosure       (none)      content         ref         (none)
+:ref:`link <options-playlist>`          info        link            (none)      (none)          moreinfo    link
+:ref:`image <options-playlist>`         image       (none)          (none)      thumbnail       (none)      (none)
+:ref:`start <options-playlist>`         (none)      (none)          (none)      (none)          starttime   (none)
+:ref:`streamer <options-playlist>`      (none)      (none)          (none)      (none)          (none)      (none)
+:ref:`tags <options-playlist>`          (none)      category        keywords    keywords        (none)      (none)
+:ref:`title <options-playlist>`         title       title           (none)      title           title       title
+:ref:`provider <options-playlist>`      (none)      (none)          (none)      (none)          (none)      (none)    
+======================================  =========== ==============  ==========  ==============  ==========  ==========
 
 All **media:** tags can be embedded in a **media:group** element. A **media:content** element can also act as a container. Additionally, iTunes_ and MediaRSS_ tags can be mixed in one RSS_ feed. The player will pick the last matching element for each property.
 
