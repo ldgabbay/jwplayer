@@ -1,117 +1,110 @@
-.. _playlists:
+.. _playlistformats:
 
-=============
-XML Playlists
-=============
+Playlist Support
+================
 
-The JW Player for Flash supports several XML-based playlist formats.  They are listed in the table below.
+First, note that playlist XML files are subject to the :ref:`crossdomain` of Flash. This means that a videoplayer on one domain cannot load a playlist from another domain. It can be fixed by placing a *crossdomain.xml* file at the server the playlist is loaded from. 
 
-First, note that playlist XML files are subject to the :ref:`crossdomain security restrictions <crossdomain>` of Flash. This means that a videoplayer on one domain cannot load a playlist from another domain. It can be fixed by placing a :ref:`crossdomain.xml <crossdomain>` file at the server the captions are loaded from. That said, the following playlist formats are supported:
-
-
-Supported Playlist Formats
-==========================
-
-The following XML-based playlist formats are supported by the JW Player:
-
-.. _XSPF: http://xspf.org/specs
-.. _ASX: http://msdn2.microsoft.com/en-us/library/ms910265.aspx
-.. _ATOM: http://code.google.com/apis/youtube/2.0/developers_guide_protocol.html#Understanding_Video_Entries
-.. _RSS: http://cyber.law.harvard.edu/rss/rss.html
-.. _iTunes: http://apple.com/itunes/store/podcaststechspecs.html
-.. _MediaRSS: http://search.yahoo.com/mrss
+If your playlist and player.swf are hosted on the same domain, these restrictions don't apply.
 
 
- * ASX_ feeds (`ASX example <http://developer.longtailvideo.com/player/testing/files/asx.xml>`_)
- * ATOM_ feeds with MediaRSS_ extensions (`ATOM example <http://developer.longtailvideo.com/player/testing/files/atom.xml>`_)
- * RSS_ feeds with iTunes_ (`iTunes RSS example <http://developer.longtailvideo.com/player/testing/files/irss.xml>`_) extensions and MediaRSS_ extensions (`MRSS example <http://developer.longtailvideo.com/player/testing/files/mrss.xml>`_)
- * XSPF_ feeds (`XSPF example <http://developer.longtailvideo.com/player/testing/files/xspf.xml>`_)
+
+Supported XML Formats
+---------------------
+
+That said, the following playlist formats are supported:
+
+* `ASX <http://msdn2.microsoft.com/en-us/library/ms910265.aspx>`_ feeds
+* `ATOM <http://code.google.com/apis/youtube/2.0/developers_guide_protocol.html#Understanding_Video_Entries>`_ feeds with `Media <http://search.yahoo.com/mrss>`_ extensions
+* `RSS <http://cyber.law.harvard.edu/rss/rss.html>`_ feeds with `iTunes <http://apple.com/itunes/store/podcaststechspecs.html>`_ extensions and `Media <http://search.yahoo.com/mrss>`_ extensions
+* `XSPF <http://xspf.org/specs>`_ feeds
+
+Here is an overview of all the tags of each format the player processes, and the entry in the JW Player playlist they correspond to:
+
+==============  ==============  ==============  ==============  ==============  ==============  ==============
+JW Player       XSPF            RSS             itunes:         media:          ASX             ATOM          
+==============  ==============  ==============  ==============  ==============  ==============  ==============
+author          creator         (none)          author          credit          author          (none)        
+date            (none)          pubDate         (none)          (none)          (none)          published     
+description     annotation      description     summary         description     abstract        summary       
+duration        duration        (none)          duration        content         duration        (none)        
+file            location        enclosure       (none)          content         ref             (none)        
+link            info            link            (none)          (none)          moreinfo        link          
+image           image           (none)          (none)          thumbnail       (none)          (none)        
+provider        (none)          (none)          (none)          (none)          (none)          (none)        
+start           (none)          (none)          (none)          (none)          starttime       (none)        
+streamer        (none)          (none)          (none)          (none)          (none)          (none)        
+tags            (none)          category        keywords        keywords        (none)          (none)        
+title           title           title           (none)          title           title           title         
+==============  ==============  ==============  ==============  ==============  ==============  ==============
+
+All **media:** tags can be embedded in a **media:group** element. A **media:content** element can also act as a container.
 
 
-Here is an overview of all the tags for each playlist format the player processes, and the :ref:`Playlist Item <options-playlist>` property they correspond to:
-
-
-======================================  =========== ==============  ==========  ==============  ==========  ==========
-Property                                XSPF_       RSS_            iTunes_ 	MediaRSS_       ASX_        ATOM_
-======================================  =========== ==============  ==========  ==============  ==========  ==========
-:ref:`author <options-playlist>`        creator     (none)          author      credit          author      (none)
-:ref:`date <options-playlist>`          (none)      pubDate         (none)      (none)          (none)      published
-:ref:`description <options-playlist>`   annotation  description     summary     description     abstract    summary
-:ref:`duration <options-playlist>`      duration    (none)          duration    content         duration    (none)
-:ref:`file <options-playlist>`          location    enclosure       (none)      content         ref         (none)
-:ref:`link <options-playlist>`          info        link            (none)      (none)          moreinfo    link
-:ref:`image <options-playlist>`         image       (none)          (none)      thumbnail       (none)      (none)
-:ref:`start <options-playlist>`         (none)      (none)          (none)      (none)          starttime   (none)
-:ref:`streamer <options-playlist>`      (none)      (none)          (none)      (none)          (none)      (none)
-:ref:`tags <options-playlist>`          (none)      category        keywords    keywords        (none)      (none)
-:ref:`title <options-playlist>`         title       title           (none)      title           title       title
-:ref:`provider <options-playlist>`      (none)      (none)          (none)      (none)          (none)      (none)    
-======================================  =========== ==============  ==========  ==============  ==========  ==========
-
-All **media:** tags can be embedded in a **media:group** element. A **media:content** element can also act as a container. Additionally, iTunes_ and MediaRSS_ tags can be mixed in one RSS_ feed. The player will pick the last matching element for each property.
 
 JWPlayer Namespace
-==================
+------------------
 
-In order to enable all JW Player file properties for all feed formats, the 4.4 player introduced a **jwplayer** namespace. By inserting this into your feed, file properties that are not supported by the feed format itself (such as the **provider** or **duration** in an RSS feed) can be amended without breaking validation.  Any of the flashvars listed in the above table can be inserted. Here's an example:
+In order to enable all JW Player file properties for all feed formats, the player contains a **jwplayer** namespace. By inserting this into your feed, properties that are not supported by the feed format itself (such as the **streamer**) can be amended without breaking validation.  Any of the entries listed in the above table can be inserted. Here's an example, of a video that uses :ref:`rtmpstreaming`:
+
+.. code-block:: html
+
+   <rss version="2.0" xmlns:jwplayer="http://developer.longtailvideo.com/">
+     <channel>
+       <title>Example RSS feed with jwplayer extensions</title>
+       <item>
+         <title>Big Buck Bunny</title>
+         <jwplayer:file>videos/nPripu9l-60830.mp4</jwplayer:file>
+         <jwplayer:streamer>rtmp://myserver.com/myApp/</jwplayer:streamer>
+         <jwplayer:duration>34</jwplayer:duration>
+       </item>
+     </channel>
+   </rss>
+
+**Pay attention to the top level tag, which describes the JW Player namespace with the xmlns attribute. This must be available in order to not break validity.**
+
+
+
+Mixing namespaces
+-----------------
+
+You can mix **jwplayer** elements with both the regular elements of a feed and elements from the mRSS and iTunes extensions. If multiple elements match the same playlist entry, the elements will be prioritized:
+
+* Elements that are defined by the feed format (e.g. the *enclosure* in RSS)  get the lowest priority.
+* Elements defined by the *itunes* namespace rank third.
+* Element defined by the *media* namespace (e.g. *media:content*) rank second.
+* Elements defined by the *jwplayer* extension always gets the highest priority.
+
+This feature allows you to set, for example, a specific video version or streaming features for the JW Player, while other feed aggregators will pick the default content. In the above example feed, we could insert a regular *enclosure* element that points to a download of the video. This would make the feed useful for both the JW Player and text-oriented aggregators such as Feedburner.
+
+
+
+Adding properties
+-----------------
+
+Certain plugins (e.g. *captions* and *hd*) and providers (:ref:`http <httpstreaming>` and :ref:`rtmp <rtmpstreaming>`) support item-specific configuration options. These are placed inside **jwplayer** tags as well, and are inserted like this:
 
 .. code-block:: xml
 
-	<rss version="2.0" xmlns:jwplayer="http://developer.longtailvideo.com/trac/wiki/FlashFormats">
-	  <channel>
-	    <title>Example RSS feed with jwplayer extensions</title>
-	    <item>
-	      <title>FLV Video</title>
-	      <link>http://www.bigbuckbunny.org/</link>
-	      <description>Big Buck Bunny is a short animated film by the Blender Institute, part of the Blender Foundation.</description>
-	      <enclosure url="../../testing/files/bunny.flv" type="video/x-flv" length="1192846" />
-	      <jwplayer:author>the Peach Open Movie Project</jwplayer:author>
-	      <jwplayer:provider>http</jwplayer:provider>
-	      <jwplayer:duration>34</jwplayer:duration>
-	    </item>
-	  </channel>
-	</rss>
-
-Pay attention to the top level tag, which describes the JW Player namespace with the **xmlns** attribute. This must be available in order to not break validity.
-
-You can mix **jwplayer** elements with both the regular elements of a feed and elements from other extensions (mrss/itunes). If multiple elements match the same property, the elements will be prioritized:
-
- * Elements defined by the **jwplayer** extension always gets the highest priority.
- * Element defined by the **media** namespace (e.g. **media:content**) rank second.
- * Elements defined by the **itunes** namespace rank third.
- * Elements that are defined by the feed format (e.g. the **enclosure** in RSS_)  get the lowest priority.
-
-This feature allows you to set, for example, a specific video version or streaming **provider** for the JW Player, while other feed aggregators will pick the default content.
-
-Adding Additional Properties
-============================
-
-Certain plugins, and some media-related player options, support item-specific configuration options.  These are placed inside **jwplayer** tags as well, and are inserted like this:
-
-.. code-block:: xml
-
-	<rss version="2.0" xmlns:jwplayer="http://developer.longtailvideo.com/trac/wiki/FlashFormats">
-	  <channel>
-	    <title>Example RSS feed with playlist item extensions</title>
-	    <item>
-	      <title>First Video</title>
-	      <link>http://www.bigbuckbunny.org/</link>
-	      <description>Big Buck Bunny is a short animated film by the Blender Institute, part of the Blender Foundation.</description>
-	      <enclosure url="../../testing/files/bunny.flv" type="video/x-flv" length="1192846" />
-	      <jwplayer:provider>http</jwplayer:provider>
-	      <jwplayer:http.startparam>start</jwplayer:http.startparam>
-	      <jwplayer:captions.file>testing/files/captions_1.xml</jwplayer:captions.file>
-	    </item>
-	    <item>
-	      <title>Second Video</title>
-	      <link>http://www.bigbuckbunny.org/</link>
-	      <description>Big Buck Bunny is a short animated film by the Blender Institute, part of the Blender Foundation.</description>
-	      <enclosure url="../../testing/files/bunny.mp4" type="video/mp4" length="1192846" />
-	      <jwplayer:provider>http</jwplayer:provider>
-	      <jwplayer:http.startparam>offset</jwplayer:http.startparam>
-	      <jwplayer:captions.file>testing/files/captions_2.xml</jwplayer:captions.file>
-	    </item>
-	  </channel>
-	</rss>
-	
-Notice that the **<jwplayer:http.startparam>** and **<jwplayer:captions.file>** properties are set differently for each of the playlist items.
+   <rss version="2.0" xmlns:jwplayer="http://developer.longtailvideo.com/">
+     <channel>
+       <title>Example RSS feed with playlistitem extensions</title>
+       <item>
+         <title>First video</title>
+         <enclosure url="/files/bunny.flv" type="video/x-flv" length="1192846" />
+         <jwplayer:provider>http</jwplayer:provider>
+         <jwplayer:http.startparam>start</jwplayer:http.startparam>
+         <jwplayer:captions.file>/files/captions_1.xml</jwplayer:captions.file>
+       </item>
+   
+       <item>
+         <title>Second Video</title>
+         <enclosure url="/files/bunny.mp4" type="video/mp4" length="1192846" />
+         <jwplayer:provider>http</jwplayer:provider>
+         <jwplayer:http.startparam>starttime</jwplayer:http.startparam>
+         <jwplayer:captions.file>/files/captions_2.xml</jwplayer:captions.file>
+       </item>
+     </channel>
+   </rss>
+   
+Notice that the **<jwplayer:http.startparam>** and **<jwplayer:captions.file>** properties are set differently for each of the playlist items. 

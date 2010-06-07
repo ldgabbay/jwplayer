@@ -1,6 +1,5 @@
 .. _startup:
 
-====================
 Player Startup Phase
 ====================
 

@@ -9,7 +9,7 @@ The JW Player for Flash supports a flexible javascript API. It is possible to re
 Initialization
 --------------
  
-Please note that the player will **NOT** be available the instant your HML page is loaded and the first javascript is executed. The SWF file (40k) has to be loaded and instantiated first! You can catch this issue by defining a simple global javascript function. It is called *playerReady()* and every player that's succesfully instantiated will call it. 
+Please note that the player will **NOT** be available the instant your HTML page is loaded and the first javascript is executed. The SWF file (90k) has to be loaded and instantiated first! You can catch this issue by defining a simple global javascript function. By default, it is called *playerReady()* and every player that's succesfully instantiated will call it. 
 
 .. code-block:: html
 
@@ -34,6 +34,27 @@ The *object* the player send to the function contain the following variables:
 
   Plugin version and platform the player uses, e.g. *FLASH WIN 10.0.47.0*.
 
+It is possible to ask the player to call a different javascript function after it completed its initialization. This can be done with an :ref:`option <options>` called **playerready**. Here is an example SWFObject :ref:` embed code <embedding>` using the function *registerPlayer()*:
+
+.. code-block:: html
+
+   <p id="container1">You don't have Flash ...</p>
+
+   <script type="text/javascript">
+     var flashvars = { file:'/data/bbb.mp4',playerready:'registerPlayer' };
+     var params = { allowfullscreen:'true', allowscriptaccess:'always' };
+     var attributes = { id:'player1', name:'player1' };
+     swfobject.embedSWF('player.swf','container1','480','270','9.0.115','false',
+       flashvars, params, attributes);
+
+     var player;
+     function registerPlayer(obj) { 
+       alert('The player with ID '+obj.id + 'is ready!');
+       player = document.getElementById(obj.id);
+     };
+   </script>
+
+
 If you are not interested in calling the player when the page is loading, you won't need the *playerReady()* function. You can then simply use the ID of the embed/object tag that embeds the player to get a reference. So for example with this embed tag:
 
 .. code-block:: html
@@ -48,7 +69,7 @@ You can get a pointer to the player with this line of code:
 
 .. note:: 
 
-   Note you must add both the **id** and **name** attributes in the *<embed>* in order to get back an ID in all browsers.
+   Note you must add both the **id** and **name** attributes in the *<embedding>* in order to get back an ID in all browsers.
 
 
 Reading variables
@@ -71,7 +92,7 @@ Here's the full list of state variables:
 
 .. describe:: bandwidth
 
-   Current bandwidth of the player to the server, in kbps (e.g. *1431*). This is only available for videos, :ref:`http` and :ref:`rtmp`.
+   Current bandwidth of the player to the server, in kbps (e.g. *1431*). This is only available for videos, :ref:`httpstreaming` and :ref:`rtmpstreaming`.
 
 .. describe:: fullscreen
 
@@ -87,7 +108,7 @@ Here's the full list of state variables:
 
 .. describe:: level
 
-   Currently active bitrate level, in case multipe bitrates are supplied to the player. This is only useful for  :ref:`http` and :ref:`rtmp`. Note that *0* always refers to the highest quality bitrate.
+   Currently active bitrate level, in case multipe bitrates are supplied to the player. This is only useful for  :ref:`httpstreaming` and :ref:`rtmpstreaming`. Note that *0* always refers to the highest quality bitrate.
 
 .. describe:: position
 
@@ -123,7 +144,7 @@ Here's the full list of state variables:
 getPlaylist()
 ^^^^^^^^^^^^^
 
-getPlaylist() returns the current playlist of the player as an array. Each entry of this array is in turn again a hashmap with all the :ref:`playlist properties <playlists>` the player recognizes. Here's a few examples:
+getPlaylist() returns the current playlist of the player as an array. Each entry of this array is in turn again a hashmap with all the :ref:`playlist properties <playlistformats>` the player recognizes. Here's a few examples:
 
 .. code-block:: html
 
@@ -132,7 +153,7 @@ getPlaylist() returns the current playlist of the player as an array. Each entry
    alert("The title of the first entry is " + playlist[0].title);
    alert("The poster image of the second entry is " + playlist[1].image);
    alert("The media file of the third entry is " + playlist[2].file);
-   alert("The media type of the fourth entry is " + playlist[3].type);
+   alert("The media provider of the fourth entry is " + playlist[3].provider);
 
 
 Sending events
@@ -188,7 +209,7 @@ Here's the full list of events you can send, plus their parameters:
 
       Seeking does not work if the player is in the *IDLE* state. Make sure to check the *state* variable before attempting to seek. 
 
-      Additionally, for the *video* media type, the player can only seek to portions of the video that are already loaded. All other media types (*sound*, *image*, *youtube*, *http* and *rtmp* streaming) do not have this additional restriction.
+      Additionally, for the *video* media :ref:`provider <mediaformats>`, the player can only seek to portions of the video that are already loaded. All other media providers do not have this additional restriction.
 
 .. describe:: stop
 
@@ -207,7 +228,7 @@ Setting listeners
 
 In order to let javascript respond to player updates, you can assign listener functions to various events the player fires. An example of such event is the *volume* one, when the volume of the player is changed. The player will call the listener function with one parameter, a *key:value* populated object that contains more info about the event.
 
-Both the *Model* and the *Controller* of the player's :ref:`MVC structure <architecture>` send events. You can subscribe to their events by resp. using the *addModelListener()* and *addControllerListener()* function. Here's a few examples:
+Both the *Model* and the *Controller* of the player's internal MVC structure send events. You can subscribe to their events by resp. using the *addModelListener()* and *addControllerListener()* function. Here's a few examples:
 
 .. code-block:: html
 
@@ -235,7 +256,7 @@ If you only need to listen to a certain event for a limited amount of time (or j
 Model events
 ^^^^^^^^^^^^
 
-Here's an overview of all events the *Model* sends. Note that the data of every event contains the *id*, *version* and *client* parameters that are also sent on :ref:`playerReady() <api>`.
+Here's an overview of all events the *Model* sends. Note that the data of every event contains the *id*, *version* and *client* parameters that are also sent on :ref:`playerReady <javascriptapi>`.
 
 .. describe:: error
 
@@ -245,22 +266,22 @@ Here's an overview of all events the *Model* sends. Note that the data of every 
 
 .. describe:: loaded
 
-   Fired while the player is busy loading the currently playing media item. This event is never sent for :ref:`rtmp`, since that protocol does not preload content. Data:
+   Fired while the player is busy loading the currently playing media item. This event is never sent for :ref:`rtmpstreaming`, since that protocol does not preload content. Data:
 
    * *loaded* ( Number ): the number of bytes of the media file that are currently loaded.
    * *total* ( Number ): the total filesize of the media file, in bytes.
-   * *offset* (Number): the byte position of the media file at which loading started. This is always 0, except when using :ref:`http`.
+   * *offset* (Number): the byte position of the media file at which loading started. This is always 0, except when using :ref:`httpstreaming`.
 
 .. describe:: meta
 
    Fired when metadata on the currently playing media file is received. The exact metadata that is sent with this event varies per individual media file. Here are some examples:
 
    * *duration* ( Number) : sent for *video*, *youtube*, *http* and *rtmp* media. In seconds.
-   * *height* ( Number ): sent for all media types, except for *youtube*. In pixels.
-   * *width* ( Number ): sent for all media types, except for *youtube*. In pixels.
+   * *height* ( Number ): sent for all media providers, except for *youtube*. In pixels.
+   * *width* ( Number ): sent for all media providers, except for *youtube*. In pixels.
    * Codecs, framerate, seekpoints, channels: sent for *video*, *http* and *rtmp* media.
    * TimedText, captions, cuepoints: additional metadata that is embedded at a certain position in the media file. Sent for *video*, *http* and *rtmp* media.
-   * ID3 info (genre, name, artist, track, year, comment): sent for MP3 files (the *sound* media type).
+   * ID3 info (genre, name, artist, track, year, comment): sent for MP3 files (the *sound* :ref:`media provider <mediaformats>`).
 
 
    .. note:: 
@@ -284,7 +305,7 @@ Here's an overview of all events the *Model* sends. Note that the data of every 
 Controller events
 ^^^^^^^^^^^^^^^^^
 
-Here's an overview of all events the *Controller* sends. Note that the data of every event contains the *id*, *version* and *client* parameters that are also sent on :ref:`playerReady() <api>`.
+Here's an overview of all events the *Controller* sends. Note that the data of every event contains the *id*, *version* and *client* parameters that are also sent on :ref:`playerReady <javascriptapi>`.
 
 .. describe:: item
 

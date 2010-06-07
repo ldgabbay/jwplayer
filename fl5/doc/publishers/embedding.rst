@@ -8,7 +8,7 @@ Like every other Flash object, the JW Player has to be embedded into the HTML of
 * Using a javascript (like `SWFObject <http://code.google.com/p/swfobject/>`_).
 * Using a HTML tag (like *<embed>*).
 
-We highly recommend the javascript method for Flash embedding. It can sniff if a browsers supports Flash, it ensures the player :ref:`api` works and it avoids browser compatibility issues. Detailed instructions can be found below.
+We highly recommend the javascript method for Flash embedding. It can sniff if a browsers supports Flash, it ensures the player :ref:`javascriptapi` works and it avoids browser compatibility issues. Detailed instructions can be found below.
 
 
 Upload
@@ -16,7 +16,7 @@ Upload
 
 First, a primer on uploading. This may sound obvious, but for the JW Player to work on your website, you must upload the *player.swf* file from the download (or SVN checkout) to your webserver. If you want to play Youtube videos, you must also upload the **yt.swf** file - this is the bridge between the player and Youtube. No other files are needed.
 
-Your :ref:`media files <formats>` and :ref:`playlists <playlists>` can be hosted at any domain. Do note that :ref:`crossdomain` apply when loading these files from a different domain. In short, playing media files works, but loading playlists across domains will not work by default. Resolve this issue by hosting a :ref:`crossdomain.xml file <crossdomain>`.
+Your :ref:`media files <mediaformats>` and :ref:`playlists <playlistformats>` can be hosted at any domain. Do note that :ref:`crossdomain` apply when loading these files from a different domain. In short, playing media files works, but loading playlists across domains will not work by default. Resolve this issue by hosting a :ref:`crossdomain.xml file <crossdomain>`.
 
 
 SWFObject
@@ -52,14 +52,14 @@ It's a fairly sizeable chunk of code that contains the embed *container*, *flash
 * The *container* is the HTML element where the player will be placed into. It should be a block-level element, like a <p> or <div>. If a user has a sufficient version of Flash, the text inside the container is removed and replaced by the videoplayer. Otherwise, the contents of the container will remain visible.
 * The *flashvars* object lists your player :ref:`options`. One option that should always be there is *file*, which points to the file to play. You can insert as many options as you want.
 * The *params* object includes the `Flash plugin parameters <http://kb2.adobe.com/cps/127/tn_12701.html>`_. The two parameters in the example (our recommendation) enable both the *fullscreen* and *javascript* functionality of Flash.
-* The *attributes* object include the HTML attributes of the player. We recommend always (and only) setting an *id* and *name*, to the same value. This will be the *id* of the player instance if you use its :ref:`api`.
+* The *attributes* object include the HTML attributes of the player. We recommend always (and only) setting an *id* and *name*, to the same value. This will be the *id* of the player instance if you use its :ref:`javascriptapi`.
 * The *instantiation* is where all things come together and the actual player embedding takes place. These are all parameters of the SWFObject call:
 
    * The URL of the *player.swf*, relative to the page URL.
    * The ID of the container you want to embed the player into.
    * The width of the player, in pixels. Note the JW Player automatically stretches itself to fit.
    * The height of the player, in pixels. Note the JW Player automatically stretches itself to fit.
-   * The required version of Flash. We highly recommend setting *9.0.115*. This is the first version that supports :ref:`MP4 <formats>` and is currently installed at >95% of all computers. The only feature for which you might restricted to *10.0.0* is :ref:`RTMP dynamic streaming <rtmp>`.
+   * The required version of Flash. We highly recommend setting *9.0.115*. This is the first version that supports :ref:`MP4 <mediaformats>` and is currently installed at >95% of all computers. The only feature for which you might restricted to *10.0.0* is :ref:`RTMP dynamic streaming <rtmpstreaming>`.
    * The location of a Flash auto-upgrade script. We recommend to **not** use it. People that do not have Flash 9.0.115 either do not want or are not able (no admin rights) to upgrade.
    * Next, the *flashvars*, *params* and *attributes* are passed, in that order.
 

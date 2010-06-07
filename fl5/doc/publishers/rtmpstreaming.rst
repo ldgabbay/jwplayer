@@ -1,18 +1,18 @@
-.. _rtmp:
+.. _rtmpstreaming:
 
 RTMP Streaming
 ==============
 
-RTMP (Real Time Messaging Protocol) is a system for delivering on-demand and live media to Adobe Flash applications (like the JW Player). RTMP supports video in both FLV and H.264 (MP4/MOV/F4V) :ref:`format <formats>` and audio in both MP3 and AAC (M4A) format. RTMP offers several advantages over regular HTTP video downloads:
+RTMP (Real Time Messaging Protocol) is a system for delivering on-demand and live media to Adobe Flash applications (like the JW Player). RTMP supports video in both FLV and H.264 (MP4/MOV/F4V) :ref:`format <mediaformats>` and audio in both MP3 and AAC (M4A) format. RTMP offers several advantages over regular HTTP video downloads:
 
 * RTMP can do live streaming - people can watch your video while it is being recorded.
 * With RTMP, viewers can seek to not-yet-downloaded parts of a video. This is especially useful for longer-form content (> 10 minutes).
 * Videos delivered over RTMP (and its secure brother, RTMPE) are harder to steal than videos delivered over regular HTTP.
 
-However, do note that RTMP has its disadvantages too. Especially since the introduction of :ref:`http` (which also offer seeking to not-yet-downloaded parts), RTMP is not the only option for professional video delivery. Some drawbacks to be aware of:
+However, do note that RTMP has its disadvantages too. Especially since the introduction of :ref:`httpstreaming` (which also offer seeking to not-yet-downloaded parts), RTMP is not the only option for professional video delivery. Some drawbacks to be aware of:
 
 * RTMP is a different protocol than HTTP and is sent over a different port (1935 instead of 80). Therefore, RTMP is frequently blocked by (corporate) firewalls. This can be circumvented by using RTMPT (tunneled), but this comes at a performance cost (longer buffer times - 2x in our experience).
-* RTMP is a *true* streaming protocol, which means that the bandwidth of the connection must always be larger than the datarate of the video. If the connection drops for just a few seconds, the stream will stutter. If the connection overall is just a little less than the video datarate, the video will not play at all. With :ref:`http` on the other hand, people can simply wait until more of the video is downloaded.
+* RTMP is a *true* streaming protocol, which means that the bandwidth of the connection must always be larger than the datarate of the video. If the connection drops for just a few seconds, the stream will stutter. If the connection overall is just a little less than the video datarate, the video will not play at all. With :ref:`httpstreaming` on the other hand, people can simply wait until more of the video is downloaded.
 
 The JW Player supports a wide array of features of the RTMP protocol.
 
@@ -37,7 +37,7 @@ RTMP servers are not solely used for one-to-many media streaming. They include s
 Options
 -------
 
-To play an RTMP stream in the player, both the *streamer* and *file* :ref:`options <options>` must be set. The *streamer* is set to the server + path of your RTMP application. The *file* is set to the internal URL of video or audio file you want to stream. Here is an example :ref:`embed code <embed>`:
+To play an RTMP stream in the player, both the *streamer* and *file* :ref:`options <options>` must be set. The *streamer* is set to the server + path of your RTMP application. The *file* is set to the internal URL of video or audio file you want to stream. Here is an example :ref:`embed code <embedding>`:
 
 .. code-block:: html
 
@@ -70,7 +70,7 @@ Additionally, the player will leave querystring variables (e.g. for certain CDN 
 Playlists
 ---------
 
-RTMP streams can also be included in playlists, by leveraging the :ref:`JWPlayer namespace <playlists>`. The *streamer*  option should be set for every RTMP entry in a playlist. You don't have to set them in the embed code (just point the *file* option to your playlist).
+RTMP streams can also be included in playlists, by leveraging the :ref:`JWPlayer namespace <playlistformats>`. The *streamer*  option should be set for every RTMP entry in a playlist. You don't have to set them in the embed code (just point the *file* option to your playlist).
 
 Here's an example, an RSS feed with an RTMP video and audio clip:
 
@@ -99,7 +99,7 @@ Here's an example, an RSS feed with an RTMP video and audio clip:
      </channel>
    </rss>
 
-Instead of the *enclosure* element, you can also use the *media:content* or *jwplayer:file* element. You could even set the *enclosure* to a regular http download of the video ánd *jwplayer:file* to the RTMP stream. That way, this single feed is useful for both regular RSS readers and the JW Player. More info in :ref:`playlists`.
+Instead of the *enclosure* element, you can also use the *media:content* or *jwplayer:file* element. You could even set the *enclosure* to a regular http download of the video ánd *jwplayer:file* to the RTMP stream. That way, this single feed is useful for both regular RSS readers and the JW Player. More info in :ref:`playlistformats`.
 
 .. note::
 
@@ -171,7 +171,7 @@ To solve this issue, also set the *duration* option to the total duration of you
 Dynamic Streaming
 -----------------
 
-Like with :ref:`http`, RTMP Streaming includes the ability to dynamically optimize the video quality for each individual viewer. Adobe calls this mechanism *dynamic streaming*. This functionality is supported for FMS 3.5+ and Wowza 2.0+.
+Like with :ref:`httpstreaming`, RTMP Streaming includes the ability to dynamically optimize the video quality for each individual viewer. Adobe calls this mechanism *dynamic streaming*. This functionality is supported for FMS 3.5+ and Wowza 2.0+.
 
 To use dynamic streaming, you need multiple copies of your MP4 or FLV video, each with a different quality (dimensions and bitrate). These multiple videos are loaded into the player using an mRSS playlist (see example below). The player recognizes the various *levels* of your video and automatically selects the highest quality one that:
 
@@ -253,7 +253,7 @@ Here's an example of such an XML file. It is in the SMIL format:
      </body> 
    </smil>
 
-Here's an example embed code for enabling this functionality in the player. Note the *type=rtmp* :ref:`option <options>` is needed in addition to *rtmp.loadbalance*, since otherwise the player thinks the XML file is a playlist.
+Here's an example embed code for enabling this functionality in the player. Note the *provider=rtmp* :ref:`option <options>` is needed in addition to *rtmp.loadbalance*, since otherwise the player thinks the XML file is a playlist.
 
 .. code-block:: html
 
@@ -262,7 +262,7 @@ Here's an example embed code for enabling this functionality in the player. Note
    <script type="text/javascript">
      swfobject.embedSWF('player.swf','container','480','270','9.0.115','false',{
        file:'http://www.mycdn.com/videos/myVideo.mp4.xml',
-       type:'rtmp',
+       provider:'rtmp',
        'rtmp.loadbalance':'true'
      });
    </script>
@@ -270,7 +270,7 @@ Here's an example embed code for enabling this functionality in the player. Note
 Playlists
 ^^^^^^^^^
 
-RTMP Load balancing in playlists works in a similar fashion: the *type=rtmp* and *rtmp.loadbalance=true* options can be set for every entry in the playlist that uses loadbalancing. Here's an example with one item:
+RTMP Load balancing in playlists works in a similar fashion: the *provider=rtmp* and *rtmp.loadbalance=true* options can be set for every entry in the playlist that uses loadbalancing. Here's an example with one item:
 
 .. code-block:: xml
 
@@ -283,7 +283,7 @@ RTMP Load balancing in playlists works in a similar fashion: the *type=rtmp* and
          <description>Big Buck Bunny is a short animated film by the Blender Institute, 
             part of the Blender Foundation.</description>
          <enclosure url="http://www.mycdn.com/videos/bbb.mp3.xml" type="text/xml" length="185" />
-         <jwplayer:type>rtmp</jwplayer:type>
+         <jwplayer:provider>rtmp</jwplayer:provider>
          <jwplayer:rtmp.loadbalance>true</jwplayer:rtmp.loadbalance>
        </item>
    

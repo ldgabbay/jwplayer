@@ -1,11 +1,11 @@
-.. _http:
+.. _httpstreaming:
 
 HTTP Pseudostreaming
 ====================
 
-Both MP4 and FLV videos can be played back with a mechanism called HTTP Pseudostreaming. This mechanism allows your viewers to seek to not-yet downloaded parts of a video. Youtube is an example site that offers this functionality. HTTP pseudostreaming is enabled by setting the :ref:`option <options>` *type=http* in your player.
+Both MP4 and FLV videos can be played back with a mechanism called HTTP Pseudostreaming. This mechanism allows your viewers to seek to not-yet downloaded parts of a video. Youtube is an example site that offers this functionality. HTTP pseudostreaming is enabled by setting the :ref:`option <options>` *provider=http* in your player.
 
-HTTP pseudostreaming combines the advantages of straight HTTP downloads (it passes any firewall, viewers on bad connections can simply wait for the download) with the ability to seek to non-downloaded parts. The only drawbacks of HTTP Pseudostreaming compared to Flash's official :ref:`rtmp` are its reduced security (HTTP is easier to sniff than RTMP) and long loading times when seeking in large videos (> 15 minutes).
+HTTP pseudostreaming combines the advantages of straight HTTP downloads (it passes any firewall, viewers on bad connections can simply wait for the download) with the ability to seek to non-downloaded parts. The only drawbacks of HTTP Pseudostreaming compared to Flash's official :ref:`rtmpstreaming` are its reduced security (HTTP is easier to sniff than RTMP) and long loading times when seeking in large videos (> 15 minutes).
 
 HTTP Pseudostreaming should not be confused with HTTP Dynamic Streaming. The latter is a brand-new mechanism currently being developed by Adobe that works by chopping up the original video in so-called *chunks* of a few seconds each. The videoplayer seamlessly glues these chunks together again. This version of the JW Player does **not** support HTTP Dynamic Streaming.
 
@@ -65,7 +65,7 @@ These names are most widely used by serverside modules and CDNs. However, someti
 * `Edgecast <http://www.edgecastcdn.com>`_ uses *http.startparam=ec_seek* for FLV videos.
 * `Limelight <http://llnw.com>`_ uses *http.startparam=fs* for FLV videos.
 
-Here's what an example SWFObject :ref:`embed code <embed>` looks like when both HTTP Pseudostreaming and a custom start parameter is enabled:
+Here's what an example SWFObject :ref:`embed code <embedding>` looks like when both HTTP Pseudostreaming and a custom start parameter is enabled:
 
 .. code-block:: html
 
@@ -74,7 +74,7 @@ Here's what an example SWFObject :ref:`embed code <embed>` looks like when both 
    <script type="text/javascript">
      swfobject.embedSWF('player.swf','container','480','270','9.0.115','false',{
        file:'http://bitcast-a.bitgravity.com/botr/bbb.mp4',
-       type:'http',
+       provider:'http',
        'http.startparam':'apstart'
      });
    </script>
@@ -83,7 +83,7 @@ Here's what an example SWFObject :ref:`embed code <embed>` looks like when both 
 Playlists
 ---------
 
-HTTP Pseudostreaming can also be enabled in playlists, by leveraging the :ref:`JWPlayer namespace <playlists>`. Both the *type* and *http.startparam* options can be set for every entry in a playlist. In this case, you don't have to set them in the embed code (just point the *file* to your playlist).
+HTTP Pseudostreaming can also be enabled in playlists, by leveraging the :ref:`JWPlayer namespace <playlistformats>`. Both the *provider* and *http.startparam* options can be set for every entry in a playlist. In this case, you don't have to set them in the embed code (just point the *file* to your playlist).
 
 Here's an example, an RSS feed with a single video:
 
@@ -98,14 +98,14 @@ Here's an example, an RSS feed with a single video:
          <description>Big Buck Bunny is a short animated film by the Blender Institute, 
             part of the Blender Foundation.</description>
          <enclosure url="http://myserver.com/botr/bbb.mp4" type="video/mp4" length="3192846" />
-         <jwplayer:type>http</jwplayer:type>
+         <jwplayer:provider>http</jwplayer:provider>
          <jwplayer:http.startparam>apstart</jwplayer:http.startparam>
    
        </item>
      </channel>
    </rss>
 
-Instead of the *enclosure* element, you can also use the *media:content* or *jwplayer:file* element. More info in :ref:`playlists`.
+Instead of the *enclosure* element, you can also use the *media:content* or *jwplayer:file* element. More info in :ref:`playlistformats`.
 
 .. note::
 
@@ -115,7 +115,7 @@ Instead of the *enclosure* element, you can also use the *media:content* or *jwp
 Bitrate Switching
 -----------------
 
-Like with :ref:`rtmp`, HTTP Pseudostreaming includes the ability to dynamically optimize the video quality for each individual viewer. We call this mechanism *bitrate switching*.
+Like with :ref:`rtmpstreaming`, HTTP Pseudostreaming includes the ability to dynamically optimize the video quality for each individual viewer. We call this mechanism *bitrate switching*.
 
 To use bitrate swiching, you need multiple copies of your MP4 or FLV video, each with a different quality (dimensions and bitrate). These multiple videos are loaded into the player using an mRSS playlist (see example below). The player recognizes the various *levels* of your video and automatically selects the highest quality one that:
 
@@ -153,7 +153,7 @@ Here is an example bitrate switching playlist (only one item). Note that it is s
            <media:content bitrate="700" url="http://myserver.com/bbb-484.mp4" width="480" />
            <media:content bitrate="400" url="http://myserver.com/bbb-483.mp4" width="320" />
          </media:group>
-         <jwplayer:type>http</jwplayer:type>
+         <jwplayer:provider>http</jwplayer:provider>
          <jwplayer:http.startparam>apstart</jwplayer:http.startparam>
        </item>
    

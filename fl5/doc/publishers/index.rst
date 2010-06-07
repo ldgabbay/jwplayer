@@ -1,9 +1,5 @@
 .. _publishers:
 
-=======================
-Publisher Documentation
-=======================
-
 .. toctree::
    :maxdepth: 2
    
@@ -14,11 +10,10 @@ Publisher Documentation
    playlistformats
    httpstreaming
    rtmpstreaming
-   skinning
    javascriptapi
-   architecture
+   skinning
+   
    crossdomain
    startup
-   releasenotes
    layout
-   fmsdvr
+   releasenotes
