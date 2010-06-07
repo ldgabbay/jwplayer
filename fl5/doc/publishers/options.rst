@@ -72,7 +72,7 @@ The following flashvars can be set instead of **playlistfile**. They are used to
       
       In addition to these built-in providers, it is possible to load custom providers into the JW Player, e.g. for *Livestream.com* channels. Custom providers are packed in a separate SWF file, much like a **plugin**. 
 
-      A number of custom providers is available from our `addons repository <http://www.longtailvideo.com/addons/>`_. Third party developers interested in building a custom provider should check our our `developer site <http://developer.longtailvideo.com/`_, which includes documentation and a MediaProvider SDK.
+      A number of custom providers is available from our `addons repository <http://www.longtailvideo.com/addons/>`_. Third party developers interested in building a custom provider should check our our `developer site <http://developer.longtailvideo.com/>`_, which includes documentation and a MediaProvider SDK.
 
 .. describe:: start ( 0 )
 
@@ -236,6 +236,10 @@ Unlicensed copies of the JW Player contain a small watermark that pops up when t
 .. describe:: logo.link ( undefined )
 
    HTTP link to jump to when the watermark image is clicked. If it is not set, a click on the watermark does nothing.
+
+.. describe:: logo.linktarget ( _blank )
+
+   Link target for logo click.  Can be *_self*, *_blank*, *_parent*, *_top* or a named frame.
 
 .. describe:: logo.hide ( true ) 
 

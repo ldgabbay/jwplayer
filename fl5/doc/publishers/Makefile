@@ -5,7 +5,7 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
-BUILDDIR      = ..
+BUILDDIR      = _build
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -66,7 +66,7 @@ qthelp:
 	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/JWPlayerforHTML5.qhc"
 
 latex:
-	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/
+	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 	@echo
 	@echo "Build finished; the LaTeX files are in $(BUILDDIR)/latex."
 	@echo "Run \`make all-pdf' or \`make all-ps' in that directory to" \
