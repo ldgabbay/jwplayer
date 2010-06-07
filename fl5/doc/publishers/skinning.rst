@@ -38,7 +38,7 @@ Basic XML Structure
 .. code-block:: xml
 
    <?xml version="1.0"?>
-   <skin version="1.0" name="SkinName" author="http://www.yoursite.com/">
+   <skin version="1.1" name="SkinName" author="http://www.yoursite.com/">
       <components>
          <component name="controlbar">
             <settings>
@@ -87,7 +87,7 @@ The opening declaration of your XML document declares that it *IS* an XML docume
 .. code-block:: xml
 
    <?xml version="1.0"?>
-   <skin version="1.0" name="SkinName" author="http://www.yoursite.com/">
+   <skin version="1.1" name="SkinName" author="http://www.yoursite.com/">
       
 You can replace these with your skin's name and your website, or your own name if you'd prefer not to have your URL in the *author* attribute.
 
