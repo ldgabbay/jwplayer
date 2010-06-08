@@ -119,8 +119,8 @@ The Controlbar
 
 The ControlBar component is used more than any of the other JW Player skin components. It controls video playback, shows you your point in time, toggles to full-screen mode and allows you to control the volume.
 
-XML Syntax
-^^^^^^^^^^
+Controlbar XML Syntax
+^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: xml
 
@@ -182,8 +182,8 @@ XML Syntax
    </component>
 
 
-Settings
-^^^^^^^^
+Controlbar Settings
+^^^^^^^^^^^^^^^^^^^
 
 In the example above, you will notice the bit of code containing the settings element for the ControlBar component. It looks like this:
 
@@ -238,8 +238,8 @@ Here is a list of the Controlbar settings, along with their default values:
 .. note: Color values are defined in a hexidecimal value for the color, just like in HTML/CSS. So, for instance, you can make a color red in HTML by assigning the corresponding HTML color code value of #FF0000. In this XML document, to make a color red you will input the value as 0xFF0000. As you can see, instead of # you use 0x.
 
 
-Background
-^^^^^^^^^^
+Controlbar Background
+^^^^^^^^^^^^^^^^^^^^^
 
 **background** is a graphic which stretches horizontally to fit the width of the Controlbar.  **capLeft** and **capRight** are placed to the left and right of the background.
 
@@ -366,8 +366,7 @@ The **volumeSlider** element is quite similar to the **timeSlider**, except that
    :alt: VolumeSlider Screenshot
 
 
-.. note:: JW Player 5's skinning model will add 5 pixels of padding to each side of the **volumeSlider** if no end-caps are specified.
-.. note:: JW Player 5.1 and below will fail to load without the **volumeSliderRail** element in the XML file.
+.. note:: JW Player 5.1's skinning model will add 5 pixels of padding to each side of the **volumeSlider** if no end-caps are specified.  JW Player 5.1 and below will fail to load without the **volumeSliderRail** element in the XML file.
   
 BlankButton
 ^^^^^^^^^^^
