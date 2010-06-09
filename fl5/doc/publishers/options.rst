@@ -93,7 +93,7 @@ These flashvars control the looks of the player.
 
 .. describe:: controlbar ( bottom )
 
-   Position of the controlbar. Can be set to *bottom*, *over* and *none*.
+   Position of the controlbar. Can be set to *bottom*, *top*, *over* and *none*.
 
 .. describe:: dock ( false )
 
@@ -101,7 +101,7 @@ These flashvars control the looks of the player.
 
 .. describe:: playlist ( none )
 
-   Position of the playlist. Can be set to **bottom**, **right**, **left**, **over** or **none**.
+   Position of the playlist. Can be set to *bottom*, *top*, *right*, *left*, *over* or *none*.
 
 .. describe:: playlistsize ( 180 )
 
