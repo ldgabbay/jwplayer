@@ -5,8 +5,8 @@ Crossdomain Security Restrictions
 
 The Adobe Flash Player contains a `crossdomain security mechanism <http://www.adobe.com/devnet/flashplayer/security.html>`_, similar to JavaScript's `Cross-Site Scripting <http://en.wikipedia.org/wiki/Cross-site_scripting>`_ restrictions. Flash's security model denies certain operations on files that are loaded from a different domain than the *player.swf*. Roughly speaking, three basic operations are denied:
 
- * Loading of data files (such as :ref:`playlistformats` and the :ref:`config XML <options>`).
- * Loading of SWF files (such as :ref:`skins <introduction>`).
+ * Loading of XML files (such as :ref:`playlists <playlistformats>` and :ref:`configs <options-config>`).
+ * Loading of SWF files (such as :ref:`SWF skins <introduction>`).
  * Accessing raw data of media files (such as :ref:`ID3 metadata <javascriptapi>`, sound waveform data or image bitmap data).
 
 Generally, file loads (XML or SWF) will fail if there's no crossdomain access. Attempts to access or manipulate data (ID3, waveforms, bitmaps) will abort. 
@@ -14,7 +14,7 @@ Generally, file loads (XML or SWF) will fail if there's no crossdomain access. A
 Crossdomain XML
 ---------------
 
-Crossdomain security restrictions can be lifted by hosting a `crossdomain.xml file <http://www.adobe.com/devnet/articles/crossdomain_policy_file_spec.html>`_ on the server that contains the files. This file must be placed in the root of your (sub)domain, for example:
+Crossdomain security restrictions can be lifted by hosting a `crossdomain.xml file <http://www.adobe.com/devnet/articles/crossdomain_policy_file_spec.html>`_ on the server that contains the files. This crossdomain file must be placed in the root of your (sub)domain, for example:
 
 .. code-block:: text
 
@@ -38,7 +38,7 @@ Here’s an example of a *crossdomain.xml* that allows access to the domain's da
    </cross-domain-policy>
 
 
-Our *plugins.longtailvideo.com* domain includes `such a crossdomain file <http://plugins.longtailvideo.com/crossdomain.xml>`_, so players from any domain cal load the plugins hosted there. 
+Our *plugins.longtailvideo.com* domain includes `such a crossdomain file <http://plugins.longtailvideo.com/crossdomain.xml>`_, so players from any domain can load the plugins hosted there. 
 
 Note that this example sets your server wide open. Any SWF file can load any data from your site, which might lead to sercurity issues.
 

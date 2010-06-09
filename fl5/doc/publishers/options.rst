@@ -29,11 +29,11 @@ The player will automatically URLdecode every option it receives.
 Playlist properties
 -------------------
 
-To load a playlist, only a single flashvars is required:
+To load a playlist, only a single flashvar is required:
 
 .. describe:: playlistfile ( undefined ) 
 
-   Location of an :ref:`XML playlist <playlistformats>` which will be loaded as the player :ref:`starts <startup>`.
+   Location of an :ref:`XML playlist <playlistformats>` to load into the player.
 
 The following flashvars can be set instead of **playlistfile**. They are used to create a playlist with a single item.  They set various properties of the :ref:`media item <playlistformats>` to load (e.g. the source file or preview image or title). Those properties are:
 
@@ -48,10 +48,6 @@ The following flashvars can be set instead of **playlistfile**. They are used to
 .. describe:: image ( undefined )
 
    Location of a preview (poster) image; shown in display before the video starts.
-
-.. describe:: link ( undefined )
-
-   URL to an external page the display can link to (see *displayclick* below). Sharing - related plugins also use this link.
 
 .. describe:: mediaid ( undefined )
 
@@ -70,9 +66,9 @@ The following flashvars can be set instead of **playlistfile**. They are used to
 
    .. note::
       
-      In addition to these built-in providers, it is possible to load custom providers into the JW Player, e.g. for *Livestream.com* channels. Custom providers are packed in a separate SWF file, much like a **plugin**. 
+      In addition to these built-in providers, it is possible to load custom providers into the JW Player, e.g. for specific CDN support. Custom providers are packed in a separate SWF file, much like a **plugin**. 
 
-      A number of custom providers is available from our `addons repository <http://www.longtailvideo.com/addons/>`_. Third party developers interested in building a custom provider should check our our `developer site <http://developer.longtailvideo.com/>`_, which includes documentation and a MediaProvider SDK.
+      A number of custom providers is available from our ` addons repository <http://www.longtailvideo.com/addons/>`_. Third party developers interested in building a custom provider should check our our `developer site <http://developer.longtailvideo.com>`_, which includes documentation and a MediaProvider SDK.
 
 .. describe:: start ( 0 )
 
@@ -84,8 +80,7 @@ The following flashvars can be set instead of **playlistfile**. They are used to
 
 .. note::
 
-   Technically, any playlist item property is also available as an option. In practice though, the properties *author*, *date*, *description*,tags* and *title* are not used anywhere if a single media file is loaded.
-
+   Technically, any playlist item property is also available as an option. In practice though, the properties *author*, *date*, *description*, *link*, *tags* and *title* are not used anywhere if a single media file is loaded.
 
 
 
@@ -114,10 +109,12 @@ These flashvars control the looks of the player.
 
 .. describe:: skin ( undefined )
 
-   Location of a so-called **skin**, an SWF file with the player graphics. Our `addons repository <http://www.longtailvideo.com/addons>`_ contains a list of available skins.
+   Location of a so-called **skin**, a file with graphics that drastically changes the look of the player. There are two types of skins available:
+   
+   * **XML/PNG skins**: These skins consist of an XML file with settings and a bunch of PNG images. The files are packed up in a ZIP, so they load fast over the internet. Building your own skin is extremely easy and can be done with any basic image and text editor. See :ref:`skinning` for more info.
+   * **SWF skins**: These skins consist of a single SWF file, built using Adobe Flash. This type of skins has been supported since the 4.0 player. Since SWF skins can only be built using Flash (a $500+ package) and since this skinning model can easily break, SWF skins are considered deprecated in favor of PNG skins.
 
-The player has a simple :ref:`layout engine <layout>` which positions the controlbar, the playlist, and any positioned plugins.
-
+   Our `addons repository <http://www.longtailvideo.com/addons>`_ contains a list of available skins.
 
 
 
@@ -136,13 +133,11 @@ These flashvars control the playback behaviour of the player.
 
    Number of seconds of the file that has to be loaded before the player starts playback. Set this to a low value to enable instant-start (good for fast connections) and to a high value to get less mid-stream buffering (good for slow connections).
 
-.. describe:: displayclick ( play )
+.. describe:: id ( undefined )
 
-   What to do when a user clicks the display. Can be:
+    Unique identifier of the player in the HTML DOM. You only need to set this option if you want to use the :ref:`javascriptapi` and want to target Linux users.
 
-   * **play**: toggle playback
-   * **link**: jump to the URL set by the *link* flashvar. 
-   * **none**: do nothing (the handcursor is also not shown).
+   The ID is needed by javascript to get a reference to the player. On Windows and MAC, the player automatically reads the ID from the *id* and *name* attributes of the player's `HTML embed code <embedding>`. On Linux however, this functionality does not work. Setting the **id** option in addition to the HTML attributes will fix this problem.
 
 .. describe:: item ( 0 )
 
@@ -192,36 +187,6 @@ These flashvars control the playback behaviour of the player.
 
 
 
-
-.. _options-colors:
-
-Colors
-------
-
-These flashvars are available when using 4.x (SWF) skins.  They will be deprecated once SWF skinning support is dropped in a future release.
-
-.. describe:: backcolor ( ffffff )
-
-   background color of the controlbar and playlist. This is white  by default.
-
-.. describe:: frontcolor ( 000000 )
-
-   color of all icons and texts in the controlbar and playlist. Is black by default.
-
-.. describe:: lightcolor ( 000000 )
-
-   Color of an icon or text when you rollover it with the mouse. Is black by default.
-
-.. describe:: screencolor ( 000000 )
-
-   Background color of the display. Is black by default.
-
-
-The four color flashvars must be entered using hexadecimal values, as is common for `web colors <http://en.wikipedia.org/wiki/Web_colors#Hex_triplet>`_ (e.g. *FFCC00* for bright yellow).
-
-
-
-
 .. _options-logo:
 
 Logo
@@ -261,6 +226,34 @@ Unlicensed copies of the JW Player contain a small watermark that pops up when t
 
 
 
+.. _options-colors:
+
+Colors
+------
+
+These options are available when either using no skin or when using skins built with the older SWF skinning model (these skins have the extension *.swf*).  These color options will be deprecated once SWF skinning support is dropped in a future release.
+
+.. describe:: backcolor ( ffffff )
+
+   background color of the controlbar and playlist. This is white  by default.
+
+.. describe:: frontcolor ( 000000 )
+
+   color of all icons and texts in the controlbar and playlist. Is black by default.
+
+.. describe:: lightcolor ( 000000 )
+
+   Color of an icon or text when you rollover it with the mouse. Is black by default.
+
+.. describe:: screencolor ( 000000 )
+
+   Background color of the display. Is black by default.
+
+
+The four color flashvars must be entered using hexadecimal values, as is common for `web colors <http://en.wikipedia.org/wiki/Web_colors#Hex_triplet>`_ (e.g. *FFCC00* for bright yellow).
+
+
+.. _options-config:
 
 Config XML
 ----------

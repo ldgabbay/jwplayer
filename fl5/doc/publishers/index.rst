@@ -10,10 +10,7 @@
    playlistformats
    httpstreaming
    rtmpstreaming
-   javascriptapi
    skinning
-   
+   javascriptapi
    crossdomain
-   startup
-   layout
    releasenotes

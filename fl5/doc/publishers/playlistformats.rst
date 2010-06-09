@@ -19,7 +19,7 @@ That said, the following playlist formats are supported:
 * `RSS <http://cyber.law.harvard.edu/rss/rss.html>`_ feeds with `iTunes <http://apple.com/itunes/store/podcaststechspecs.html>`_ extensions and `Media <http://search.yahoo.com/mrss>`_ extensions
 * `XSPF <http://xspf.org/specs>`_ feeds
 
-Here is an overview of all the tags of each format the player processes, and the entry in the JW Player playlist they correspond to:
+Here is an overview of all the tags of each format the player processes, and the property in the JW Player playlist they correspond to:
 
 ==============  ==============  ==============  ==============  ==============  ==============  ==============
 JW Player       XSPF            RSS             itunes:         media:          ASX             ATOM          
@@ -40,12 +40,36 @@ title           title           title           (none)          title           
 
 All **media:** tags can be embedded in a **media:group** element. A **media:content** element can also act as a container.
 
+Here is an example playlist (with one video) in the most widely used format: *RSS* with *media:* extensions:
+
+.. code-block:: html
+
+   <rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+     <channel>
+       <title>Example playlist</title>
+   
+       <item>
+         <title>Big Buck Bunny</title>
+         <link>http://www.bigbuckbunny.org/</link>
+         <description>Big Buck Bunny is a short animated film by the Blender Institute, 
+           part of the Blender Foundation.</description>
+         <pubDate>Sat, 07 Sep 2002 09:42:31 GMT</pubDate>
+         <media:content url="/videos/bbb.mp4" duration="33" />
+         <media:thumbnail url="/thumbs/bbb.jpg" />
+       </item>
+   
+     </channel>
+   </rss>
+
+
+In order to load this playlist into the player, save it as an XML file, upload it to your webserver and point the player to it using the :ref:`playlistfile option <options>`.
+
 
 
 JWPlayer Namespace
 ------------------
 
-In order to enable all JW Player file properties for all feed formats, the player contains a **jwplayer** namespace. By inserting this into your feed, properties that are not supported by the feed format itself (such as the **streamer**) can be amended without breaking validation.  Any of the entries listed in the above table can be inserted. Here's an example, of a video that uses :ref:`rtmpstreaming`:
+In order to enable all JW Player playlist properties for all feed formats, the player contains a **jwplayer** namespace. By inserting this into your feed, properties that are not supported by the feed format itself (such as the **streamer**) can be amended without breaking validation.  Any of the entries listed in the above table can be inserted. Here's an example, of a video that uses :ref:`rtmpstreaming`:
 
 .. code-block:: html
 
@@ -75,7 +99,7 @@ You can mix **jwplayer** elements with both the regular elements of a feed and e
 * Element defined by the *media* namespace (e.g. *media:content*) rank second.
 * Elements defined by the *jwplayer* extension always gets the highest priority.
 
-This feature allows you to set, for example, a specific video version or streaming features for the JW Player, while other feed aggregators will pick the default content. In the above example feed, we could insert a regular *enclosure* element that points to a download of the video. This would make the feed useful for both the JW Player and text-oriented aggregators such as Feedburner.
+This feature allows you to set, for example, a specific video version or HTTP/RTMP streaming for the JW Player, while other feed aggregators will pick the default content. In the above example feed, we could insert a regular *enclosure* element that points to a download of the video. This would make the feed useful for both the JW Player and text-oriented aggregators such as Feedburner.
 
 
 

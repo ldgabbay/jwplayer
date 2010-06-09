@@ -11,105 +11,36 @@ Version 5.2
 Build 1065
 ----------
 
-Skinning Features
-+++++++++++++++++
+New Features
+++++++++++++
 
 Version 5.2 introduces a number of new features to the XML/PNG skinning model.
 
- * Support for customized font settings
- 
-  * Controlbar text fields (**elapsed**, **duration**) can specify font face (*_sans*, *_serif*, *_typewriter*), font weight (*bold*), font style (*italic*) and font color (*0x123456*)
-  * Playlist text fields (**title**, **description**, **duration**) can specify font face (*_sans*, *_serif*, *_typewriter*), font weight (*bold*), font style (*italic*) and font color (*0x123456*)
-  
- * Customized controlbar layout
- 
+* Support for customized font settings (face, weight, style, color) in controlbar and playlist text fields.
+* Ability to set custom *backgroundcolor* for each element.
+* Ability to set custom *overcolor* and *activecolor* for playlist items.
+
+   These colorization settings replace the generic *backcolor*, *frontcolor*, *lightcolor* and *screencolor* :ref:`options <options>`, allowing for more fine-grained control.
+
+* Customized controlbar layout:
+
   * Allows placement of any button, text field or slider available in the controlbar
   * Adds the ability to insert arbitrary divider images
-  * Adds the ability to insert arbitrary 'spacer' elements
-  * Additional **<layout>** XML tag:
+  * Adds the ability to insert arbitrary *spacer* elements
 
-.. code-block:: xml
+* New skinning elements:
 
-	<layout>
-		<group position="left">
-			<button name="play" />
-			<!-- Standard divider (i.e. "divider" element) -->
-			<divider />
-			<button name="stop" />
-			<!-- Alternate divider -->
-			<divider element="divider2" />
-			<button name="next" />
-			<!-- 5-pixel spacer -->
-			<divider width="5" />
-			<button name="prev" />
-			<divider />
-			<text name="elapsed" />
-		</group>
-		<group position="center">
-			<slider name="time" />					
-		</group>
-		<group position="right">
-			<text name="duration" />
-			<divider />
-			<button name="blank" />
-			<divider />
-			<button name="mute" />
-			<slider name="volume" />
-			<divider />
-			<button name="fullscreen" />
-		</group>
-	</layout>
+   * Left and right end caps for time and volume sliders (*timeSliderCapLeft*, *timeSliderCapRight*, *volumeSliderCapLeft*, *volumeSliderCapRight*)
+   * Active state for playlist item background (*itemActive* element)
+   * Image placeholder for playlist item images (*itemImage* element)
+   * Top and bottom end caps for playlist slider (*sliderCapTop*, *sliderCapBottom*)
+   * Background images for text fields (*elapsedBackground*, *durationBackground*)
+   * Over states for display icons (*playIconOver*, *muteIconOver*, *bufferIconOver*)
 
-* Ability to control rate and amount of buffer rotation:
-
-.. code-block:: xml
-
-	<component name="display">
-		<settings>
-			<!-- Delay between buffer icon rotation, in milliseconds -->
-			<setting name="bufferinterval" value="10" />
-			<!-- Amount to rotate the buffer icon per interval, in degrees -->
-			<setting name="bufferrotation" value="5" />
-		</settings>
-	...
-	</component>
-
-* Replaces general SWF-skin colorization settings (*frontcolor*, *backcolor*, *lightcolor*, *screencolor*) with component-specific settings
-
- * Controlbar
- 
-  * *fontcolor*: Color for elapsed time and duration
-  * *buttoncolor*: Colorization setting for controlbar icons
-  
- * Playlist
- 
-  * *fontcolor*: Color for all text fields
-  * *overcolor*: Colorization for playlist text fields when the mouse moves over the playlist item
-  * *activecolor*: Color for the text fields in the currently active playlist item
-  * *backgroundcolor*: Color of the background that sits behind the playlist items.
-  
- * Display
- 
-  * *backgroundcolor*: replaces *screencolor* setting
-  
-* New skinning elements
-
- * Playlist
- 
-  * Active state for playlist item background (*itemActive* element)
-  * Image placeholder for playlist images (*itemImage* element)
-  * Top and bottom end caps for playlist slider (*sliderCapTop*, *sliderCapBottom*)
-  
- * Controlbar
- 
-  * Left and right end caps for time and volume sliders (*timeSliderCapLeft*, *timeSliderCapRight*, *volumeSliderCapLeft*, *volumeSliderCapRight*)
-  * Background images for text fields (*elapsedBackground*, *durationBackground*)
-  
- * Display
- 
-  * Over states for display icons (*playIconOver*, *muteIconOver*, *errorIconOver*, *bufferIconOver*)
-  
+* Ability to control rate and amount of display *bufferIcon* rotation.
 * Ability to use SWF assets in addition to JPGs and PNGs in XML skinning
+
+An in-depth walkthrough of all new skinning features can be found in the :ref:`XML/PNG Skinning Guide <skinning>`.
 
 Bug Fixes
 +++++++++

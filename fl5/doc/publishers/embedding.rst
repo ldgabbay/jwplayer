@@ -36,7 +36,7 @@ With the library set up, you can start embedding players. Here's an example:
 
 .. code-block:: html
 
-   <p id="container1">You don't have Flash ...</p>
+   <p id="container1">Please install the Flash Plugin</p>
 
    <script type="text/javascript">
      var flashvars = { file:'/data/bbb.mp4',autostart:'true' };

@@ -1,9 +1,9 @@
 .. _skinning:
 
-PNG Skinning
-============
+XML/PNG Skinning
+================
 
-With skins, you can customize the face of your JW player. You can alter the design of any of the player’s four component parts—ControlBar, Display, Dock and Playlist, as well as skinning-enabled plugins.  Before JW Player 5, it was only possible to build skins using Flash.  Now, with JW Player 5, designers can build skins in their graphical editor of choice, and save the visual elements as bitmaps. This allows for rapid prototyping without the need to compile a swf file, and opens up skinning to designers who don't have Flash experience or software.
+With skins, you can customize the face of your JW player. You can alter the design of any of the player’s four component parts—ControlBar, Display, Dock and Playlist, as well as skinning-enabled plugins.  Before JW Player 5, it was only possible to build skins using Adobe Flash (which was difficult and error-prone).  Now, with JW Player 5, designers can build skins in their graphical editor of choice, and save the visual elements as bitmaps. This allows for rapid prototyping without the need to compile a swf file, and opens up skinning to designers who don't have Flash experience or software.
 
 
 Supported Graphics Formats
@@ -125,6 +125,7 @@ Controlbar XML Syntax
 .. code-block:: xml
 
    <component name="controlbar">
+
       <settings>
          <setting name="backgroundcolor" value="0x000000"/>
          <setting name="margin" value="10" />
@@ -135,73 +136,44 @@ Controlbar XML Syntax
          <setting name="fontweight" value="normal" />
          <setting name="buttoncolor" value="0xFFFFFF" />
       </settings>
-      <layout>
-         ...
-      </layout>
+
       <elements>
          <element name="background" src="file.png" />
          <element name="capLeft" src="file.png" />
          <element name="capRight" src="file.png" />
          <element name="divider" src="file.png" />
-            
          <element name="playButton" src="file.png" />
          <element name="playButtonOver" src="file.png" />   
          <element name="pauseButton" src="file.png" />
          <element name="pauseButtonOver" src="file.png" />
-            
-         <element name="prevButton" src="file.png" />
-         <element name="prevButtonOver" src="file.png" />
-         <element name="nextButton" src="file.png" />
-         <element name="nextButtonOver" src="file.png" />
-            
-         <element name="stopButton" src="file.png" />
-         <element name="stopButtonOver" src="file.png" />
-            
          <element name="timeSliderRail" src="file.png" />
          <element name="timeSliderBuffer" src="file.png" />
          <element name="timeSliderProgress" src="file.png" />
          <element name="timeSliderThumb" src="file.png" />
-            
          <element name="fullscreenButton" src="file.png" />
          <element name="fullscreenButtonOver" src="file.png" />
          <element name="normalscreenButton" src="file.png" />
          <element name="normalscreenButtonOver" src="file.png" />
-            
          <element name="muteButton" src="file.png" />
          <element name="muteButtonOver" src="file.png" />
          <element name="unmuteButton" src="file.png" />
          <element name="unmuteButtonOver" src="file.png" />
-            
          <element name="volumeSliderRail" src="file.png" />
          <element name="volumeSliderBuffer" src="file.png" />
          <element name="volumeSliderProgress" src="file.png" />
-         
-         <element name="blankButton" src="file.png" />
-         <element name="blankButtonOver" src="file.png" />
+         ...
       </elements>
+
+      <layout>
+         ...
+      </layout>
    </component>
 
 
 Controlbar Settings
 ^^^^^^^^^^^^^^^^^^^
 
-In the example above, you will notice the bit of code containing the settings element for the ControlBar component. It looks like this:
-
-
-.. code-block:: xml
-
-   <settings>
-      <setting name="backgroundcolor" value="0x000000"/>
-      <setting name="margin" value="10" />
-      <setting name="font" value="_sans" />
-      <setting name="fontsize" value="10" />
-      <setting name="fontcolor" value="0x000000" />
-      <setting name="fontstyle" value="normal" />
-      <setting name="fontweight" value="normal" />
-      <setting name="buttoncolor" value="0xFFFFFF" />
-   </settings>
-
-Here is a list of the Controlbar settings, along with their default values:
+In the example above, you will notice the bit of code containing the settings element for the ControlBar component. Here is a list of the Controlbar settings, along with their default values:
 
 .. describe:: backgroundcolor (undefined)
    
@@ -238,16 +210,16 @@ Here is a list of the Controlbar settings, along with their default values:
 .. note: Color values are defined in a hexidecimal value for the color, just like in HTML/CSS. So, for instance, you can make a color red in HTML by assigning the corresponding HTML color code value of #FF0000. In this XML document, to make a color red you will input the value as 0xFF0000. As you can see, instead of # you use 0x.
 
 
-Controlbar Background
-^^^^^^^^^^^^^^^^^^^^^
+Controlbar Elements
+^^^^^^^^^^^^^^^^^^^
 
-**background** is a graphic which stretches horizontally to fit the width of the Controlbar.  **capLeft** and **capRight** are placed to the left and right of the background.
+The controlbar contains a single background element:
 
+.. describe:: background
 
-Caps and Dividers
-^^^^^^^^^^^^^^^^^
+   The background is a graphic which stretches horizontally to fit the width of the Controlbar.  *capLeft* and *capRight* (see below) are placed to the left and right of the background.
 
-The Controlbar has a few elements which allow you to add space between elements.  They are non-functioning bitmaps meant to give space to the right and left edges of the Controlbar.
+The Controlbar has a few elements which allow you to add space between elements. They are non-functioning bitmaps meant to give space to the right and left edges of the Controlbar.
 
 .. describe:: capLeft
    
@@ -263,39 +235,29 @@ The Controlbar has a few elements which allow you to add space between elements.
 
 .. note:: JW Player 5.1 and below will fail to load without the **capLeft**, **capRight** and **volumeSlider** elements in the XML File.  This issue was resolved in version 5.2.
     
-Buttons
-^^^^^^^
+Next, there are the buttons. Controlbar buttons have two states. The **button** state is visible when the mouse is not hovering over the button.  The **buttonOver** state -- which should have the same dimensions as **button** -- is shown when the user hovers the mouse above the button. Here's a list of all buttons with their states:
 
-Buttons have two states.  The **button** state is visible when the mouse is not hovering over the button.  The **buttonOver** state -- which should have the same dimensions as **button** -- is shown when the user hovers the mouse above the button.
+* **playButton** / playButtonOver
+* **pauseButton** / pauseButtonOver
+* **prevButton** / prevButtonOver
+* **nextButton** / nextButtonOver
+* **stopButton** / stopButtonOver
+* **fullscreenButton** / fullscreenButtonOver
+* **normalscreenButton** / normalscreenButtonOver
+* **muteButton** / muteButtonOver
+* **unmuteButton** / unmuteButtonOver
+* **blankButton** / blankButtonOver
 
-The two states of the button elements are:
-
- * **playButton** / playButtonOver
- * **pauseButton** / pauseButtonOver
- * **prevButton** / prevButtonOver
- * **nextButton** / nextButtonOver
- * **stopButton** / stopButtonOver
- * **fullscreenButton** / fullscreenButtonOver
- * **normalscreenButton** / normalscreenButtonOver
- * **muteButton** / muteButtonOver
- * **unmuteButton** / unmuteButtonOver
- * **blankButton** / blankButtonOver
+The **blankButton** element is used when plugins insert additional buttons into the Controlbar.  This element should simply be a button background; the foreground element will be added by the plugins.
  
-Toggle Buttons
-^^^^^^^^^^^^^^
-
-Certain buttons replace each other depending on the state of the JW Player. For instance, when a video is playing, the **playButton** is replaced by the **pauseButton** element.
-
-Toggle button pairs:
+Certain buttons replace each other depending on the state of the JW Player. For instance, when a video is playing, the **playButton** is replaced by the **pauseButton** element. Toggle button pairs:
 
  * **playButton** / pauseButton
  * **fullscreenButton** / normalscreenButton
  * **muteButton** / unmuteButton
 
-The TimeSlider
-^^^^^^^^^^^^^^
 
-The **timeSlider** element is a unique element which is really several elements stacked on top of each other.  Of those elements, three of them automatically scale to a width based on the free space in the player.  Those elements are: 
+Next to the caps and buttons, there's the two sliders (for time and volume). The **timeSlider** is a unique block built using several elements stacked on top of each other. Of those elements, three of them automatically scale to a width based on the free space in the player. Those elements are: 
 
 .. describe:: timeSliderRail
 
@@ -309,7 +271,8 @@ The **timeSlider** element is a unique element which is really several elements 
 
    the file's progress indicator
 
-Additional **timeSlider** elements:
+With that in mind it is important to design your elements to gracefully scale horizontally.  The **timeSliderBuffer** and **timeSliderProgress** elements dynamically scale to indicate a percentage of progress of the total file length. 
+Additional, non-scaling **timeSlider** elements are:
 
 .. describe:: timeSliderThumb
 
@@ -325,13 +288,6 @@ Additional **timeSlider** elements:
 
 .. image:: ../images/skinning/timeSlider.png
    :alt: TimeSlider Screenshot
-
-
-With that in mind it is important to design your elements to gracefully scale horizontally.  The **timeSliderBuffer** and **timeSliderProgress** elements dynamically scale to indicate a percentage of progress of the total file length. 
-
-
-The VolumeSlider
-^^^^^^^^^^^^^^^^
 
 The **volumeSlider** element is quite similar to the **timeSlider**, except that it does not scale automatically.  It will be as large as graphics you produce.  
 
@@ -368,14 +324,6 @@ The **volumeSlider** element is quite similar to the **timeSlider**, except that
 
 .. note:: JW Player 5.1's skinning model will add 5 pixels of padding to each side of the **volumeSlider** if no end-caps are specified.  JW Player 5.1 and below will fail to load without the **volumeSliderRail** element in the XML file.
   
-BlankButton
-^^^^^^^^^^^
-
-The **blankButton** element is used when plugins insert additional buttons into the Controlbar.  This element should simply be a button background; the foreground element will be added by the plugins.
-
-Text Fields
-^^^^^^^^^^^
-
 Two text fields can be laid out in the controlbar:
 
 .. describe:: elapsed
@@ -415,7 +363,7 @@ Inside the controlbar's **<component>** block, you can insert an optional **<lay
          <divider />
       </group>
       <group position="center">
-         <slider name="time" />               
+         <slider name="time" />
       </group>
       <group position="right">
          <text name="elapsed" />
@@ -464,22 +412,15 @@ The **<group>** tag can contain the following elements:
 .. code-block:: xml
 
          <divider element="alternate_divider" />
+
 * *width*: If this attribute is set, the specified number of pixels will be placed into the layout.  No graphical element will be used; the controlbar's **background** element will be visible.  Example:
    
 .. code-block:: xml
 
          <divider width="10" />
 
-
-Controlbar Composition
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. image:: ../images/skinning/controlBar.png
-   :alt: Controlbar Screenshot
-
-
-Default Element Order
-+++++++++++++++++++++
+Default Controlbar Layout
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If no **<layout>** block is included in the skin, the player will use a default layout, based on which skin elements have been defined in the **<elements>** block.  The elements will be layed out in the following order:
 
@@ -504,7 +445,11 @@ If no **<layout>** block is included in the skin, the player will use a default 
  * volumeSliderRail/volumeSliderBuffer/volumeSliderProgress/volumeSliderThumb
  * volumeSliderCapRight
  * capRight
-    
+
+.. image:: ../images/skinning/controlBar.png
+   :alt: Controlbar Screenshot
+
+
 
 
 The Display
@@ -515,7 +460,7 @@ The display largely consists of the buttons you see in the middle of the player.
 .. image:: ../images/skinning/Display.png
    :alt: Display Screenshot
 
-.. note:: By default, the **bufferIcon** will rotate clockwise while buffering.
+.. note:: By default, the **bufferIcon** will slowly rotate clockwise. There are settings to influence this rotation.
 
 Display XML Syntax
 ^^^^^^^^^^^^^^^^^^
@@ -560,14 +505,10 @@ Here is a list of Display settings, along with their default values:
 The Dock
 --------
 
-Dock Icons elements sit at the top right corner of your player and can be both informative or functional.  For instance, if you've installed the HD plugin, once you've toggled High Definition Playback to ON, a small HD Dock Icon will appear in top corner of your player, letting you know you're watching in HD.  The Dock Icon only has one element:
-
- * button
- * buttonOver (*the button's mouseover state*)
+Dock Icons elements sit at the top right corner of your player and can be both informative or functional.  For instance, if you've installed the HD plugin, once you've toggled High Definition Playback to ON, a small HD Dock Icon will appear in top corner of your player, letting you know you're watching in HD.
 
 .. image:: ../images/skinning/Dock.png
    :alt: Dock Screenshot
-
  
 Dock XML Syntax
 ^^^^^^^^^^^^^^^
@@ -588,59 +529,36 @@ Dock XML Syntax
 Dock Settings
 ^^^^^^^^^^^^^
 
-Here is a list of the settings that can be placed in the dock's **<settings>** block, along with their default values:
+The dock's *settings* block contains only one setting:
 
 .. describe:: fontcolor (0x000000)
    
-   The color for the Dock buttons' text fields.
+   The color for the Dock buttons' text fields. The dock itself does not set this color, but if a plugin wants to include text in the button it can pull the correct color from the dock's skinning options. An example plugin using this is HD.
+
+Dock elements
+^^^^^^^^^^^^^
+
+The Dock only has two elements:
+
+.. describe:: button 
+
+   The background image of a dock button when the mouse is not rolled over it.
+
+.. describe:: buttonOver 
+
+   The background image of a dock button when the mouse is rolled over it. Is not required.
+
 
 
 The Playlist
 ------------
 
-There are two main Playlist skin elements; Playlist Items, and the Playlist Slider.  Item graphics scale horizontally and are placed behind the description/thumbnail of videos in your playlist.  The slider is a vertical scrollbar rail and handle (thumb), with optional top and bottom endcaps.  The *background* element serves as the default background of the playlist if there are fewer elements than the height of the playlist.
+There are two main Playlist skin elements; Playlist Items, and the Playlist Slider.  Item graphics scale horizontally and are placed behind the description/thumbnail of videos in your playlist.  The slider is a vertical scrollbar rail and handle (thumb), with optional top and bottom endcaps.
 
 
 .. image:: ../images/skinning/Playlist.png
    :alt: Playlist Screenshot
 
-The following Playlist elements are available:
-
-.. describe:: background
-
-   Stretched behind the playlist items
-   
-.. describe:: item
-
-   Background graphic for each playlist item.  Stretch to the width of the playlist, minus the slider width (if necessary).
-
-.. describe:: itemOver
-
-   Over state for **item**.  Replaces **item** whenever the user mouses over.
-
-.. describe:: itemImage
-
-   Image placeholder.  This element is visible when the playlist item does not have an image associated with it.  If the playlist item image is present, **itemImage**'s shape serves as a mask around the playlist item image.  If the playlist item image has any transparency, **itemImage** will be visible behind it.
-   
-.. describe:: itemActive
-
-   Active state for **item**.  Replaces **item** whenever the corresponding playlist item is the currently playing/loaded playlist item.
-   
-.. describe:: sliderRail
-
-   Background of the vertical slider.  When the playlist's slider is visible, **sliderRail** is stretched to the height of the playlist, minus the height of any end caps.
-   
-.. describe:: sliderThumb
-
-   Draggable thumb for the vertical slider.  This element is stretched vertically, and is proportional to the visible area of the playlist versus its total size.  For example, if 50% of the playlist items are currently visible in the playlist, the thumb will be 50% of the height of the playlist.
-   
-.. describe:: sliderCapTop
-
-   Top end cap for the playlist slider.  Placed above **sliderRail**.
-
-.. describe:: sliderCapBottom
-
-   Bottom end cap for the playlist slider.  Placed below **sliderRail**.
 
 Playlist XML Syntax
 ^^^^^^^^^^^^^^^^^^^
@@ -658,6 +576,7 @@ Playlist XML Syntax
          <setting name="fontweight" value="normal" />
          <setting name="fontstyle" value="normal" />
       </settings>
+   
       <elements>
          <element name="background" src="background.png" />
          <element name="item" src="item.png" />
@@ -670,6 +589,7 @@ Playlist XML Syntax
          <element name="sliderCapBottom" src="sliderCapBottom.png" />
       </elements>
    </component>
+
 
 Playlist Settings
 ^^^^^^^^^^^^^^^^^
@@ -707,6 +627,48 @@ Here is a list of the settings that can be placed in the dock's **<settings>** b
 .. describe:: fontweight (normal)
    
    Can be used to set the font weight for the playlist's text fields (*normal*, *bold*)
+
+
+Playlist elements
+^^^^^^^^^^^^^^^^^
+
+The following Playlist elements are available:
+
+.. describe:: background
+
+   The *background* element serves as the default background of the playlist if there are fewer elements than the height of the playlist. It stretches in both the X and Y direction.
+
+.. describe:: item
+
+   Background graphic for each playlist item.  Stretch to the width of the playlist, minus the slider width (if necessary).
+
+.. describe:: itemOver
+
+   Over state for **item**.  Replaces **item** whenever the user mouses over.
+
+.. describe:: itemImage
+
+   Image placeholder.  This element is visible when the playlist item does not have an image associated with it.  If the playlist item image is present, **itemImage**'s shape serves as a mask around the playlist item image.  If the playlist item image has any transparency, **itemImage** will be visible behind it.
+   
+.. describe:: itemActive
+
+   Active state for **item**.  Replaces **item** whenever the corresponding playlist item is the currently playing/loaded playlist item.
+   
+.. describe:: sliderRail
+
+   Background of the vertical slider.  When the playlist's slider is visible, **sliderRail** is stretched to the height of the playlist, minus the height of any end caps.
+   
+.. describe:: sliderThumb
+
+   Draggable thumb for the vertical slider.  This element is stretched vertically, and is proportional to the visible area of the playlist versus its total size.  For example, if 50% of the playlist items are currently visible in the playlist, the thumb will be 50% of the height of the playlist.
+   
+.. describe:: sliderCapTop
+
+   Top end cap for the playlist slider.  Placed above **sliderRail**.
+
+.. describe:: sliderCapBottom
+
+   Bottom end cap for the playlist slider.  Placed below **sliderRail**.
 
 
 Plugins

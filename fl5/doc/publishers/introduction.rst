@@ -14,8 +14,6 @@ API
 
 For javascript developers, the player features an extensive :ref:`javascriptapi`. With this API, it is possible to both control the player (e.g. pause it) and respond to playback changes (e.g. when the video has ended).
 
-API developers might find the :ref:`startup` and :ref:`layout` references interesting as well; it describes in broad strokes how the player is initialized and resized.
-
 Addons
 ------
 
@@ -36,4 +34,4 @@ Plugins extend the functionality of the player, e.g. in the areas of analytics, 
 
 Providers are similar to plugins. They are externally loaded SWF files that can be installed with a single :ref:`option <options>`. Whereas plugins are used to add functionality on top of the player, providers are used to extend the low-level playback functionality of the player, e.g. to support advanced features of a specific CDN or video portal. Providers are new to the 5.x player; a couple of are already available from our `addons repository <http://www.longtailvideo.com/addons/>`_.
 
-It is possible to create your own plugins and providers using Adobe Flash and actionscript, but this is not covered by these publisher-focussed documents. Instead, visit `developer.longtailvideo.com <http://developer.longtailvideo.com>`_ to learn more and download the plugin and/or provider SDK.
+It is possible to create your own plugins and providers using Adobe Flash and actionscript, but this is not covered by these publisher-focused documents. Instead, visit `developer.longtailvideo.com <http://developer.longtailvideo.com>`_ to learn more and download the plugin and/or provider SDK.

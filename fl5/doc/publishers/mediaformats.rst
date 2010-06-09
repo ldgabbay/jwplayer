@@ -4,7 +4,7 @@
 Media Support
 =============
 
-This page lists all media file formats the JW Player supports: video, sound, images and Youtube clips. 
+This document lists all media file formats the JW Player supports: video, sound, images and Youtube clips. 
 
 Single media files can be grouped using :ref:`playlists <playlistformats>` and streamed over :ref:`http <httpstreaming>` or :ref:`rtmp <rtmpstreaming>` instead of downloaded. Both options do not change the set of supported media formats.
 
@@ -46,11 +46,11 @@ The player supports video (*provider=video*) in the following formats:
 Sound
 -----
 
-The player supports sounds (*provider=sound*) in the following formats: 
+The player supports sounds (*provider=sound*) in the following format: 
 
 .. describe:: MP3 ( .mp3 )
 
-   Audio encoded with the `MP3 <http://en.wikipedia.org/wiki/MP3>`_ codec. Though not as good as AAC, MP3 is very widely used. It is also support by nearly any device that can play audio.
+   Audio encoded with the `MP3 <http://en.wikipedia.org/wiki/MP3>`_ codec. Though not as good as AAC, MP3 is very widely used. It is also supported by nearly any device that can play audio.
 
    .. note::
 
@@ -107,7 +107,7 @@ Custom Providers
 
 The JW Player has built-in support for two distinct streaming providers, :ref:`RTMP Streaming <rtmpstreaming>` and :ref:`HTTP Pseudo-Streaming <httpstreaming>`.
 
-In addition to the built-in media support, it is possible to load custom media playback **providers** into the JW Player, e.g. for *Livestream.com* channels. Custom providers are packed in a separate SWF file, much like a *plugin*.
+In addition to the built-in media support, it is possible to load custom media playback **providers** into the JW Player, e.g. to support specific features of a certain CDN. Custom providers are packed in a separate SWF file, much like a *plugin*.
 
 A number of custom providers is available from our `addons repository <http://www.longtailvideo.com/addons/>`_. 
 

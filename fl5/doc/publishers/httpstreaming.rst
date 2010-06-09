@@ -7,7 +7,7 @@ Both MP4 and FLV videos can be played back with a mechanism called HTTP Pseudost
 
 HTTP pseudostreaming combines the advantages of straight HTTP downloads (it passes any firewall, viewers on bad connections can simply wait for the download) with the ability to seek to non-downloaded parts. The only drawbacks of HTTP Pseudostreaming compared to Flash's official :ref:`rtmpstreaming` are its reduced security (HTTP is easier to sniff than RTMP) and long loading times when seeking in large videos (> 15 minutes).
 
-HTTP Pseudostreaming should not be confused with HTTP Dynamic Streaming. The latter is a brand-new mechanism currently being developed by Adobe that works by chopping up the original video in so-called *chunks* of a few seconds each. The videoplayer seamlessly glues these chunks together again. This version of the JW Player does **not** support HTTP Dynamic Streaming.
+HTTP Pseudostreaming should not be confused with HTTP Dynamic Streaming. The latter is a brand-new mechanism currently being developed by Adobe that works by chopping up the original video in so-called *chunks* of a few seconds each. The videoplayer seamlessly glues these chunks together again. The JW Player does **not yet** support HTTP Dynamic Streaming.
 
 
 Servers
@@ -52,16 +52,17 @@ The server will return the video, starting from the offset. Because the first fr
 Startparam
 ----------
 
-When the player requests a video with an offset, it uses *start* as the offset parameter name for FLV videos and *starttime* as the offset parameter name for MP4 videos:
+When the player requests a video with an offset, it uses *start* as the default offset parameter:
 
 .. code-block:: html
 
    http://www.mywebsite.com/videos/bbb.flv?start=219476905
-   http://www.mywebsite.com/videos/bbb.mp4?starttime=30.4
+   http://www.mywebsite.com/videos/bbb.mp4?start=30.4
 
-These names are most widely used by serverside modules and CDNs. However, sometimes a CDN might use a different name for this parameter. In that case, use the option *http.startparam* to set a custom offset parameter name. Here are some examples of CDNs that use a different name:
+This name is most widely used by serverside modules and CDNs. However, sometimes a CDN uses a different name for this parameter. In that case, use the option *http.startparam* to set a custom offset parameter name. Here are some examples of CDNs that use a different name:
 
-* `Bitgravity <http://www.bitgravity.com>`_ uses *http.startparam=apstart* for MP4 videos.
+* The `H264 streaming module <http://h264.code-shop.com/trac/wiki>`_ uses *http.startparam=starttime* for MP4 videos.
+* `Bitgravity <http://www.bitgravity.com>`_ uses *http.startparam=apstart* for FLV videos and *http.startparam=starttime* for MP4 videos.
 * `Edgecast <http://www.edgecastcdn.com>`_ uses *http.startparam=ec_seek* for FLV videos.
 * `Limelight <http://llnw.com>`_ uses *http.startparam=fs* for FLV videos.
 
@@ -72,12 +73,18 @@ Here's what an example SWFObject :ref:`embed code <embedding>` looks like when b
    <div id='container'>The player will be placed here</div>
 
    <script type="text/javascript">
-     swfobject.embedSWF('player.swf','container','480','270','9.0.115','false',{
+     var flashvars = { 
        file:'http://bitcast-a.bitgravity.com/botr/bbb.mp4',
        provider:'http',
-       'http.startparam':'apstart'
-     });
+       'http.startparam':'starttime'
+     };
+
+     swfobject.embedSWF('player.swf','container','480','270','9.0.115','false', flashvars, 
+      {allowfullscreen:'true',allowscriptaccess:'always'},
+      {id:'jwplayer',name:'jwplayer'}
+     );
    </script>
+
 
 
 Playlists
@@ -112,10 +119,11 @@ Instead of the *enclosure* element, you can also use the *media:content* or *jwp
    Do not forget the **xmlns** at the top of the feed. It is needed by the player (and any other feed reader you might use) to understand the *jwplayer:* elements.
 
 
+
 Bitrate Switching
 -----------------
 
-Like with :ref:`rtmpstreaming`, HTTP Pseudostreaming includes the ability to dynamically optimize the video quality for each individual viewer. We call this mechanism *bitrate switching*.
+Like :ref:`rtmpstreaming`, HTTP Pseudostreaming includes the ability to dynamically adjust the video quality for each individual viewer. We call this mechanism *bitrate switching*.
 
 To use bitrate swiching, you need multiple copies of your MP4 or FLV video, each with a different quality (dimensions and bitrate). These multiple videos are loaded into the player using an mRSS playlist (see example below). The player recognizes the various *levels* of your video and automatically selects the highest quality one that:
 
@@ -128,13 +136,13 @@ As a viewer continues to watch the video, the player re-examines its decision (a
 * On a **fullscreen** switch, since the *width* of the display then drastically changes. For example, when a viewer goes fullscreen and has sufficient bandwidth, the player might serve an HD version of the video.
 * On every **seek** in the video. Since the player has to rebuffer-the stream anyway, it takes the opportunity to also check if bandwidth conditions have not changed.
 
-Note that the player will not do a bandwidth switch if extreme bandwidth changes cause the video to re-buffer. In practice, we found such a heuristic to cause continous switching and an awful viewing experience.
+Note that the player will not do a bandwidth switch if extreme bandwidth changes cause the video to re-buffer. In practice, we found such a heuristic to cause continous switching and an awful viewing experience. :ref:`rtmpstreaming` on the other hand, is able to switch seamlessly in response to bandwidth fluctuations.
 
 
 Example
 ^^^^^^^
 
-Here is an example bitrate switching playlist (only one item). Note that it is similar to a *regular* HTTP Prseudostreaming playlist, with the exception of the multiple video elements per item. The mRSS extension is the only way to provide these multiple elements including *bitrate* and *width* attributes:
+Here is an example bitrate switching playlist (only one item). Note that it is similar to a *regular* HTTP Pseudostreaming playlist, with the exception of the multiple video elements per item. The mRSS extension is the only way to provide these multiple elements including *bitrate* and *width* attributes:
 
 .. code-block:: xml
 

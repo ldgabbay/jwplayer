@@ -3,7 +3,7 @@
 RTMP Streaming
 ==============
 
-RTMP (Real Time Messaging Protocol) is a system for delivering on-demand and live media to Adobe Flash applications (like the JW Player). RTMP supports video in both FLV and H.264 (MP4/MOV/F4V) :ref:`format <mediaformats>` and audio in both MP3 and AAC (M4A) format. RTMP offers several advantages over regular HTTP video downloads:
+RTMP (Real Time Messaging Protocol) is a system for delivering on-demand and live media to Adobe Flash applications (like the JW Player). RTMP supports video in FLV and H.264 (MP4/MOV/F4V) :ref:`formats <mediaformats>` and audio in  MP3 and AAC (M4A) :ref:`formats  <mediaformats>`. RTMP offers several advantages over regular HTTP video downloads:
 
 * RTMP can do live streaming - people can watch your video while it is being recorded.
 * With RTMP, viewers can seek to not-yet-downloaded parts of a video. This is especially useful for longer-form content (> 10 minutes).
@@ -20,7 +20,7 @@ The JW Player supports a wide array of features of the RTMP protocol.
 Servers
 -------
 
-In order to use RTMP, your webhoster or CDN needs to have a dedicated RTMP webserver installed. There are three offerings, each one of them supported by the JW Player:
+In order to use RTMP, your webhoster or CDN needs to have a dedicated RTMP webserver installed. There are three major offerings, all supported by the JW Player:
 
 * The `Flash Media Server <http://www.adobe.com/products/flashmediaserver/>`_ from Adobe is the de facto standard. Since Flash is also developed by Adobe, new video functionalities always find their way in FMS first.
 * The `Wowza Media Server <http://www.wowzamedia.com>`_ from Wowza is a great alternative, because it includes support for other streaming protocols than RTMP (for e.g. Shoutcast, the iPhone or Silverlight).
@@ -44,10 +44,15 @@ To play an RTMP stream in the player, both the *streamer* and *file* :ref:`optio
    <div id='container'>The player will be placed here</div>
 
    <script type="text/javascript">
-     swfobject.embedSWF('player.swf','container','480','270','9.0.115','false',{
+     var flashvars = { 
        file:'library/clip.mp4',
        streamer:'rtmp://www.myserver.com/ondemand/'
-     });
+     };
+
+     swfobject.embedSWF('player.swf','container','480','270','9.0.115','false', flashvars, 
+      {allowfullscreen:'true',allowscriptaccess:'always'},
+      {id:'jwplayer',name:'jwplayer'}
+     );
    </script>
 
 
@@ -60,11 +65,7 @@ Note that the documentation of RTMP servers tell you to set the *file* option in
 
 You do not have to do this with the JW Player, since the player takes care of stripping the extension or adding the prefix. If you do add the prefix yourself, the player will recognize it and not modify the URL.
 
-Additionally, the player will leave querystring variables (e.g. for certain CDN security mechanisms) untouched. It basically ignores everything after the **?** character.
-
-.. note:: 
-
-   Because of the way options are loaded into Flash, it is not possible to use querystring delimiters (*?*, *=*, *&*) inside a single option. This issue can be circumvented by URL encoding these three characters. More info can be found in :ref:`options`.
+Additionally, the player will leave querystring variables (e.g. for certain CDN security mechanisms) untouched. It basically ignores everything after the **?** character. However, because of the way options are :ref:`loaded <options>` into Flash, it is not possible to plainly use querystring delimiters (*?*, *=*, *&*) inside the *file* or *streamer* option. This issue can be circumvented by :ref:`URL encoding these characters <options>`.
 
 
 Playlists
@@ -118,10 +119,15 @@ A live stream can be embedded in the player using the same options as an on-dema
    <div id='container'>The player will be placed here</div>
 
    <script type="text/javascript">
-     swfobject.embedSWF('player.swf','container','480','270','9.0.115','',{
+     var flashvars = { 
        file:'livepresentation',
        streamer:'rtmp://www.myserver.com/live/'
-     });
+     };
+
+     swfobject.embedSWF('player.swf','container','480','270','9.0.115','false', flashvars, 
+      {allowfullscreen:'true',allowscriptaccess:'always'},
+      {id:'jwplayer',name:'jwplayer'}
+     );
    </script>
 
 
@@ -135,11 +141,16 @@ When streaming live streams using the Akamai or Limelight CDN, players cannot si
    <div id='container'>The player will be placed here</div>
 
    <script type="text/javascript">
-     swfobject.embedSWF('player.swf','container','480','270','9.0.115','false',{
+     var flashvars = {
        file:'livepresentation',
        streamer:'rtmp://www.myserver.com/live/',
        'rtmp.subscribe':'true'
-     });
+     };
+
+     swfobject.embedSWF('player.swf','container','480','270','9.0.115','false', flashvars, 
+      {allowfullscreen:'true',allowscriptaccess:'always'},
+      {id:'jwplayer',name:'jwplayer'}
+     );
    </script>
 
 
@@ -157,13 +168,19 @@ To solve this issue, also set the *duration* option to the total duration of you
    <div id='container'>The player will be placed here</div>
 
    <script type="text/javascript">
-     swfobject.embedSWF('player.swf','container','480','270','9.0.115','',{
+     var flashvars = {
        file:'livepresentation',
        streamer:'rtmp://www.myserver.com/live/',
        'rtmp.dvr':'true',
        'duration':'3600'
-     });
+     };
+
+     swfobject.embedSWF('player.swf','container','480','270','9.0.115','false', flashvars, 
+      {allowfullscreen:'true',allowscriptaccess:'always'},
+      {id:'jwplayer',name:'jwplayer'}
+     );
    </script>
+
 
 .. note:: DVR Live Streaming only works in combination with Adobe's Live Media Encoder and an RTMP server that has DVR enabled.
 
@@ -183,7 +200,7 @@ As a viewer continues to watch the video, the player re-examines its decision (a
 * On a **bandwidth** increase or decrease - the bandwidth is re-calculated at an interval of 2 seconds.
 * On a **resize** of the player. For example, when a viewer goes fullscreen and has sufficient bandwidth, the player might serve an HD version of the video.
 
-A dynamic streaming switch is unobtrusive. There'll be no re-buffering or audible/visible hickup. It does take a few seconds for a switch to occur in response to a bandwidth change / player resize, since the server has to wait for a *keyframe* to do a smooth switch and the player always has a few seconds of the old stream in its buffer. To keep stream switches fast, make sure your videos are encoded with a small (2 to 4 seconds) keyframe interval.
+Unlike with :ref:`httpstreaming`, a dynamic streaming switch is unobtrusive. There'll be no re-buffering or audible/visible hickup. It does take a few seconds for a switch to occur in response to a bandwidth change / player resize, since the server has to wait for a *keyframe* to do a smooth switch and the player always has a few seconds of the old stream in its buffer. To keep stream switches fast, make sure your videos are encoded with a small (2 to 4 seconds) keyframe interval.
 
 .. note:: 
 
@@ -230,9 +247,9 @@ Some hints:
 Load Balancing
 --------------
 
-For high-volume publishers who maintain several RTMP servers, the player supports load-balancing by means of an intermediate XML file. This is used by e.g. the `Highwinds <http://www.highwinds.com/>`_ and `VDO-X <http://www.vdo-x.net>`_  CDNs. Load balancing works like this:
+For high-volume publishers who maintain several RTMP servers, the player supports load-balancing by means of an intermediate XML file. This is used by e.g. the `Highwinds <http://www.highwinds.com/>`_ and `Streamzilla <http://www.streamzilla.eu>`_  CDNs. Load balancing works like this:
 
-* The player first requests the XML file (typically from single a *master* server).
+* The player first requests the XML file (typically from a single *master* server).
 * The server returns the XML file, which includes the location of the RTMP server to use (typically the server that's least busy).
 * The player parses the XML file, connects to the server and starts the stream.
 
@@ -260,12 +277,19 @@ Here's an example embed code for enabling this functionality in the player. Note
    <div id='container'>The player will be placed here</div>
 
    <script type="text/javascript">
-     swfobject.embedSWF('player.swf','container','480','270','9.0.115','false',{
+     var flashvars = {
        file:'http://www.mycdn.com/videos/myVideo.mp4.xml',
        provider:'rtmp',
        'rtmp.loadbalance':'true'
-     });
+     };
+
+     swfobject.embedSWF('player.swf','container','480','270','9.0.115','false', flashvars, 
+      {allowfullscreen:'true',allowscriptaccess:'always'},
+      {id:'jwplayer',name:'jwplayer'}
+     );
    </script>
+
+
 
 Playlists
 ^^^^^^^^^

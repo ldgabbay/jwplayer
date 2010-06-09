@@ -1,7 +1,7 @@
 .. _javascriptapi:
 
-Javascript API Reference
-========================
+Javascript API
+==============
 
 The JW Player for Flash supports a flexible javascript API. It is possible to read the config/playlist variables of the player, send events to the player (e.g. to pause or load a new video) and listen (and respond) to player events. A small initialization routine is needed to connect your apps to the player.
 
@@ -9,7 +9,7 @@ The JW Player for Flash supports a flexible javascript API. It is possible to re
 Initialization
 --------------
  
-Please note that the player will **NOT** be available the instant your HTML page is loaded and the first javascript is executed. The SWF file (90k) has to be loaded and instantiated first! You can catch this issue by defining a simple global javascript function. By default, it is called *playerReady()* and every player that's succesfully instantiated will call it. 
+Please note that the player will **NOT** be available the instant your HTML page is loaded and the first javascript is executed. The SWF file (90k) has to be loaded and instantiated first! You can catch this issue by defining a simple global javascript function. By default, it is called *playerReady()* and every player that's successfully instantiated will call it. 
 
 .. code-block:: html
 
@@ -34,6 +34,16 @@ The *object* the player send to the function contain the following variables:
 
   Plugin version and platform the player uses, e.g. *FLASH WIN 10.0.47.0*.
 
+.. describe:: id ( undefined )
+
+    Unique identifier of the player in the HTML DOM. You only need to set this option if you want to use the :ref:`javascriptapi` and want to target Linux users.
+
+.. note:: On Windows and MAC, the player automatically reads its *ID* from the *id* and *name* attributes of the player's `HTML embed code <embedding>`. On Linux however, this functionality **does not work**. If you target Linux users with your scripting, you can circumvent this issue by including an  ref:`id option <options-behaviour>` in your list of flashvars in the embed code.
+
+
+Custom playerready
+^^^^^^^^^^^^^^^^^^
+
 It is possible to ask the player to call a different javascript function after it completed its initialization. This can be done with an :ref:`option <options>` called **playerready**. Here is an example SWFObject :ref:` embed code <embedding>` using the function *registerPlayer()*:
 
 .. code-block:: html
@@ -54,6 +64,8 @@ It is possible to ask the player to call a different javascript function after i
      };
    </script>
 
+No playerready
+^^^^^^^^^^^^^^
 
 If you are not interested in calling the player when the page is loading, you won't need the *playerReady()* function. You can then simply use the ID of the embed/object tag that embeds the player to get a reference. So for example with this embed tag:
 
@@ -92,7 +104,7 @@ Here's the full list of state variables:
 
 .. describe:: bandwidth
 
-   Current bandwidth of the player to the server, in kbps (e.g. *1431*). This is only available for videos, :ref:`httpstreaming` and :ref:`rtmpstreaming`.
+   Current bandwidth of the player to the server, in kbps (e.g. *1431*). This is only available for the :ref:video  <mediaformats>`, :ref:`http <httpstreaming>` and :ref:`rtmp <rtmpstreaming>` providers.
 
 .. describe:: fullscreen
 
@@ -122,7 +134,6 @@ Here's the full list of state variables:
    * *BUFFERING*: the current playlistitem is loading. When sufficient data has loaded, it will automatically start playing.
    * *PLAYING*: the current playlist item is playing.
    * *PAUSED*: playback of the current playlistitem is not paused by the player.
-   * *COMPLETED*: the current playlist item has completed playback. This state differs from the *IDLE* state in that the item is now already loaded.
 
 .. describe:: mute
 
@@ -155,6 +166,17 @@ getPlaylist() returns the current playlist of the player as an array. Each entry
    alert("The media file of the third entry is " + playlist[2].file);
    alert("The media provider of the fourth entry is " + playlist[3].provider);
 
+Playlist items can contain properties supported by the provider. Examples of such properties are:
+
+* **http.startparam**, when using the :ref:`HTTP provider <httpstreaming>`.
+* **rtmp.loadbalance**, when using the :ref:`RTMP provider <rtmpstreaming>`.
+
+Playlist items can  also contain properties supported by certain plugins. Examples of such properties are:
+
+* **hd.file**, which is used by the HD plugin.
+* **captions.file**, which is used by the Captions plugin.
+
+More information, and the full list of 12 default playlist properties, can be found in :ref:`playlistformats`.
 
 Sending events
 --------------
@@ -168,7 +190,7 @@ The player can be controlled from javascript by sending events (e.g. to pause it
    // this sets the volume to 90%
    player.sendEvent("volume","true");
    // This loads a new video in the player
-   player.sendEvent('load','http://content.bitsontherun.com/videos/nPripu9l-60830.mp4');
+   player.sendEvent('load','http://www.mysite.com/videos/bbb.mp4');
 
 Here's the full list of events you can send, plus their parameters:
 
@@ -207,9 +229,7 @@ Here's the full list of events you can send, plus their parameters:
 
    .. note::
 
-      Seeking does not work if the player is in the *IDLE* state. Make sure to check the *state* variable before attempting to seek. 
-
-      Additionally, for the *video* media :ref:`provider <mediaformats>`, the player can only seek to portions of the video that are already loaded. All other media providers do not have this additional restriction.
+      Seeking does not work if the player is in the *IDLE* state. Make sure to check the *state* variable before attempting to seek. Additionally, for the *video* media :ref:`provider <mediaformats>`, the player can only seek to portions of the video that are already loaded. Other media providers do not have this additional restriction.
 
 .. describe:: stop
 
@@ -228,7 +248,13 @@ Setting listeners
 
 In order to let javascript respond to player updates, you can assign listener functions to various events the player fires. An example of such event is the *volume* one, when the volume of the player is changed. The player will call the listener function with one parameter, a *key:value* populated object that contains more info about the event.
 
-Both the *Model* and the *Controller* of the player's internal MVC structure send events. You can subscribe to their events by resp. using the *addModelListener()* and *addControllerListener()* function. Here's a few examples:
+In the naming of the listener functions, the internal architecture of the JW Player sines through a little. Internally, the player is built using a Mode-View-Controller design pattern:
+
+* The *Model* takes care of the actual media playback. It sends events to the View.
+* The *View* distributes all events from the Model to the plugins and API. It also collects all input from the plugins and API.
+* The *Controller* receives and checks all events from the View. In turn, it sends events to the Model.
+
+Basically, the events from the View are those you send out using the *sendEvent()* API function. With two other API functions, you can listen to events from the Model (playback updates) and Controller (control updates). These API functions are  *addModelListener()* and *addControllerListener()*. Here's a few examples:
 
 .. code-block:: html
 
@@ -293,7 +319,11 @@ Here's an overview of all events the *Model* sends. Note that the data of every 
    Fired when the playback state of the video changes. Data:
 
    * *oldstate* ( 'IDLE','BUFFERING','PLAYING','PAUSED','COMPLETED' ): the previous playback state.
-   * *newstate* ( 'IDLE','BUFFERING','PLAYING','PAUSED','COMPLETED' ): the new playback state. 
+   * *newstate* ( 'IDLE','BUFFERING','PLAYING','PAUSED','COMPLETED' ): the new playback state.
+
+   .. note:: 
+
+      You will not be able to check if a video is completed by polling for *getConfig().state*. The player will only be in the COMPLETED state for a very short time, before jumping to IDLE again. Always use *addModelListener('state',...)* if you want to check if a video is completed.
 
 .. describe:: time
 
