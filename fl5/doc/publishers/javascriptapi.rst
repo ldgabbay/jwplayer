@@ -1,26 +1,26 @@
 .. _javascriptapi:
 
-Javascript API
+JavaScript API
 ==============
 
-The JW Player for Flash supports a flexible javascript API. It is possible to read the config/playlist variables of the player, send events to the player (e.g. to pause or load a new video) and listen (and respond) to player events. A small initialization routine is needed to connect your apps to the player.
+The JW Player for Flash supports a flexible JavaScript API. It is possible to read the config/playlist variables of the player, send events to the player (e.g. to pause or load a new video) and listen (and respond) to player events. A small initialization routine is needed to connect your apps to the player.
 
 
 Initialization
 --------------
  
-Please note that the player will **NOT** be available the instant your HTML page is loaded and the first javascript is executed. The SWF file (90k) has to be loaded and instantiated first! You can catch this issue by defining a simple global javascript function. By default, it is called *playerReady()* and every player that's successfully instantiated will call it. 
+Please note that the player will **NOT** be available the instant your HTML page is loaded and the first JavaScript is executed. The SWF file (90k) has to be loaded and instantiated first! You can catch this issue by defining a simple global JavaScript function. By default, it is called *playerReady()* and every player that's successfully instantiated will call it. 
 
 .. code-block:: html
 
    var player;
-   function playerReady(*object*) {
+   function playerReady(object) {
      alert('the player is ready');
      player = document.getElementById(object.id);
    };
 
 
-The *object* the player send to the function contain the following variables:
+The *object* the player sends to the function contains the following properties:
 
 .. describe:: id
 
@@ -28,7 +28,7 @@ The *object* the player send to the function contain the following variables:
 
 .. describe:: version
 
-   Exact version of the player in MAJOR.MINOR.REVISION format *e.g. 4.7.1017*.
+   Exact version of the player in MAJOR.MINOR.REVISION format *e.g. 5.2.1065*.
 
 .. describe:: client
 
@@ -38,13 +38,13 @@ The *object* the player send to the function contain the following variables:
 
     Unique identifier of the player in the HTML DOM. You only need to set this option if you want to use the :ref:`javascriptapi` and want to target Linux users.
 
-.. note:: On Windows and MAC, the player automatically reads its *ID* from the *id* and *name* attributes of the player's `HTML embed code <embedding>`. On Linux however, this functionality **does not work**. If you target Linux users with your scripting, you can circumvent this issue by including an  ref:`id option <options-behaviour>` in your list of flashvars in the embed code.
+.. note:: On Windows and Mac OS X, the player automatically reads its *ID* from the *id* and *name* attributes of the player's `HTML embed code <embedding>`. On Linux however, this functionality **does not work**. If you target Linux users with your scripting, you can circumvent this issue by including an  ref:`id option <options-behavior>` in your list of flashvars in the embed code.
 
 
 Custom playerready
 ^^^^^^^^^^^^^^^^^^
 
-It is possible to ask the player to call a different javascript function after it completed its initialization. This can be done with an :ref:`option <options>` called **playerready**. Here is an example SWFObject :ref:` embed code <embedding>` using the function *registerPlayer()*:
+It is possible to ask the player to call a different javascript function after it completes its initialization. This can be done with an :ref:`option <options>` called **playerready**. Here is an example SWFObject :ref:` embed code <embedding>` using the function *registerPlayer()*:
 
 .. code-block:: html
 
@@ -67,7 +67,7 @@ It is possible to ask the player to call a different javascript function after i
 No playerready
 ^^^^^^^^^^^^^^
 
-If you are not interested in calling the player when the page is loading, you won't need the *playerReady()* function. You can then simply use the ID of the embed/object tag that embeds the player to get a reference. So for example with this embed tag:
+If you are not interested in calling the player immediately after the page loads, you won't need the *playerReady()* function. You can then simply use the ID of the embed/object tag that embeds the player to get a reference. So for example with this embed tag:
 
 .. code-block:: html
 
@@ -181,7 +181,7 @@ More information, and the full list of 12 default playlist properties, can be fo
 Sending events
 --------------
 
-The player can be controlled from javascript by sending events (e.g. to pause it or change the volume). Sending events to the player is done through the *sendEvent()* call. Some of the event need a parameter and some don't. Here's a few examples:
+The player can be controlled from JavaScript by sending events (e.g. to pause it or change the volume). Sending events to the player is done through the *sendEvent()* call. Some of the event need a parameter and some don't. Here's a few examples:
 
 .. code-block:: html
 
@@ -241,12 +241,12 @@ Here's the full list of events you can send, plus their parameters:
 
 .. note:: 
 
-   Due to anti-phishing restrictions in the Adobe Flash runtime, it is not possible to enable/disable fullscreen playback of the player from javascript.
+   Due to anti-phishing restrictions in the Adobe Flash runtime, it is not possible to enable/disable fullscreen playback of the player from JavaScript.
 
 Setting listeners
 -----------------
 
-In order to let javascript respond to player updates, you can assign listener functions to various events the player fires. An example of such event is the *volume* one, when the volume of the player is changed. The player will call the listener function with one parameter, a *key:value* populated object that contains more info about the event.
+In order to let JavaScript respond to player updates, you can assign listener functions to various events the player fires. An example of such event is the *volume* one, when the volume of the player is changed. The player will call the listener function with one parameter, a *key:value* populated object that contains more info about the event.
 
 In the naming of the listener functions, the internal architecture of the JW Player sines through a little. Internally, the player is built using a Mode-View-Controller design pattern:
 

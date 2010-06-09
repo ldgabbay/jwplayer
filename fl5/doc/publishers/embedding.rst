@@ -5,10 +5,10 @@ Embedding the player
 
 Like every other Flash object, the JW Player has to be embedded into the HTML of a webpage using specific embed codes. Overall, there are two methods for embedding Flash: 
 
-* Using a javascript (like `SWFObject <http://code.google.com/p/swfobject/>`_).
+* Using a JavaScript (like `SWFObject <http://code.google.com/p/swfobject/>`_).
 * Using a HTML tag (like *<embed>*).
 
-We highly recommend the javascript method for Flash embedding. It can sniff if a browsers supports Flash, it ensures the player :ref:`javascriptapi` works and it avoids browser compatibility issues. Detailed instructions can be found below.
+We highly recommend the JavaScript method for Flash embedding. It can sniff if a browsers supports Flash, it ensures the player :ref:`javascriptapi` works and it avoids browser compatibility issues. Detailed instructions can be found below.
 
 
 Upload
@@ -22,7 +22,7 @@ Your :ref:`media files <mediaformats>` and :ref:`playlists <playlistformats>` ca
 SWFObject
 ---------
 
-The preferred way to embed the JW Player on a webpage is javascript. There's a wide array of good, open source libraries available for doing so. We recommend **SWFObject**, the most widely used one. It has `excellent documentation <http://code.google.com/p/swfobject/wiki/documentation>`_.
+The preferred way to embed the JW Player on a webpage is JavaScript. There's a wide array of good, open source libraries available for doing so. We recommend **SWFObject**, the most widely used one. It has `excellent documentation <http://code.google.com/p/swfobject/wiki/documentation>`_.
 
 Before embedding any players on the page, make sure to include the *swfobject.js* script in the *<head>* of your HTML. You can download the script and host it yourself, or leverage the copy `provided by Google <http://code.google.com/apis/ajaxlibs/documentation/>`_:
 
@@ -51,7 +51,7 @@ It's a fairly sizeable chunk of code that contains the embed *container*, *flash
 
 * The *container* is the HTML element where the player will be placed into. It should be a block-level element, like a <p> or <div>. If a user has a sufficient version of Flash, the text inside the container is removed and replaced by the videoplayer. Otherwise, the contents of the container will remain visible.
 * The *flashvars* object lists your player :ref:`options`. One option that should always be there is *file*, which points to the file to play. You can insert as many options as you want.
-* The *params* object includes the `Flash plugin parameters <http://kb2.adobe.com/cps/127/tn_12701.html>`_. The two parameters in the example (our recommendation) enable both the *fullscreen* and *javascript* functionality of Flash.
+* The *params* object includes the `Flash plugin parameters <http://kb2.adobe.com/cps/127/tn_12701.html>`_. The two parameters in the example (our recommendation) enable both the *fullscreen* and *JavaScript* functionality of Flash.
 * The *attributes* object include the HTML attributes of the player. We recommend always (and only) setting an *id* and *name*, to the same value. This will be the *id* of the player instance if you use its :ref:`javascriptapi`.
 * The *instantiation* is where all things come together and the actual player embedding takes place. These are all parameters of the SWFObject call:
 
@@ -70,7 +70,7 @@ It is no problem to embed multiple players on a page. However, make sure to give
 Embed tag
 ---------
 
-In cases where a javascript embed method is not possible (e.g. if your CMS does not allow including javascripts), the player can be embedded using plain HTML. There are various combinations of tags for embedding a SWF player:
+In cases where a JavaScript embed method is not possible (e.g. if your CMS does not allow including JavaScripts), the player can be embedded using plain HTML. There are various combinations of tags for embedding a SWF player:
 
 * A single *<embed>* tag (for IE + other browsers).
 * An *<object>* tag with nested *<embed>* tag (the first one for IE, the second for other browsers).

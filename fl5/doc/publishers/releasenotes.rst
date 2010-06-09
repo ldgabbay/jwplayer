@@ -85,7 +85,7 @@ Major Bug Fixes
  * Fixes some RTMP live/recorded streaming issues
  * Fixes an issue where the *volume* flashvar is not respected when using RTMP
  * Fixes issue where adjusting volume for YouTube videos doesn't work in Internet Explorer
- * Various Javascript API fixes
+ * Various JavaScript API fixes
  * Various visual tweaks
  * Brings back icons=false functionality
  * Brings back *id* flashvar, for Linux compatibility
@@ -114,7 +114,7 @@ Features new to 5.0
  
   * SWF Skins
   * Version 4.x plugins
-  * Version 4.x javascript
+  * Version 4.x JavaScript
 
 4.x features not available in 5.0
 +++++++++++++++++++++++++++++++++

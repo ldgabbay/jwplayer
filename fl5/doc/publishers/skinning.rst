@@ -3,7 +3,7 @@
 XML/PNG Skinning
 ================
 
-With skins, you can customize the face of your JW player. You can alter the design of any of the player’s four component parts—ControlBar, Display, Dock and Playlist, as well as skinning-enabled plugins.  Before JW Player 5, it was only possible to build skins using Adobe Flash (which was difficult and error-prone).  Now, with JW Player 5, designers can build skins in their graphical editor of choice, and save the visual elements as bitmaps. This allows for rapid prototyping without the need to compile a swf file, and opens up skinning to designers who don't have Flash experience or software.
+With skins, you can customize the face of your JW player. You can alter the design of any of the player's four component parts -- ControlBar, Display, Dock and Playlist, as well as skinning-enabled plugins.  Before JW Player 5, it was only possible to build skins using Adobe Flash (which was difficult and error-prone).  Now, with JW Player 5, designers can build skins in their graphical editor of choice, and save the visual elements as bitmaps. This allows for rapid prototyping without the need to compile a swf file, and opens up skinning to designers who don't have Flash experience or software.
 
 
 Supported Graphics Formats
@@ -28,7 +28,7 @@ JW Player 5.2 and up support the use of SWF assets in the XML skinning format.  
 The XML Document
 ----------------
 
-The XML (Extensible Markup Language) file, or document, contains all the settings for your skin—the color settings for text and dock elements; margins and font-sizes for the ControlBar; and paths to images for every element in the skin.
+The XML (Extensible Markup Language) file, or document, contains all the settings for your skin -- the color settings for text and dock elements; margins and font-sizes for the ControlBar; and paths to images for every element in the skin.
 
 A player skin consists of its own settings and its components. Here is an example of an XML document before the elements have been defined:
 
@@ -533,7 +533,7 @@ The dock's *settings* block contains only one setting:
 
 .. describe:: fontcolor (0x000000)
    
-   The color for the Dock buttons' text fields. The dock itself does not set this color, but if a plugin wants to include text in the button it can pull the correct color from the dock's skinning options. An example plugin using this is HD.
+   The color for the Dock buttons' text fields.
 
 Dock elements
 ^^^^^^^^^^^^^
@@ -594,19 +594,19 @@ Playlist XML Syntax
 Playlist Settings
 ^^^^^^^^^^^^^^^^^
 
-Here is a list of the settings that can be placed in the dock's **<settings>** block, along with their default values:
+Here is a list of the settings that can be placed in the playlist's **<settings>** block, along with their default values:
 
 .. describe:: fontcolor (undefined)
    
-   The color for the Dock buttons' text fields.
+   The color for the playlist's text fields.
 
 .. describe:: overcolor (undefined)
    
-   The color for the Dock buttons' text fields when the mouse is hovering over that item.
+   The color for the playlist item's text fields when the mouse is hovering over an item.
 
 .. describe:: activecolor (undefined)
    
-   The color for the Dock buttons' text fields when that item is the currently active item.
+   The color for the playlist item's text fields when that item is the currently active item.
 
 .. describe:: backgroundcolor (undefined)
    

@@ -20,11 +20,11 @@ When the Player is loaded by the browser, it completes the following steps befor
  5. Initialize Plugins:
  Depends on **2, 3, 4**.  The plugins' **initPlugin()** method is called.  The plugins have the opportunity to lock the player at this point.
 
- 6. Javascript CallBacks:
- Depends on **5**.  Once the plugins are initialized, and after all plugins have released their locks, the Javascript method called for by the **playerready** FlashVar is executed.
+ 6. JavaScript CallBacks:
+ Depends on **5**.  Once the plugins are initialized, and after all plugins have released their locks, the JavaScript method called for by the **playerready** FlashVar is executed.
 
  7. Begin Playback if Autostart:
- Depends on **5, 6**.  When plugins have been loaded, and the Javascript **playerready** callback has been executed, the player can begin playback.  If the **autostart** FlashVar is set, playback begins immediately.  Otherwise, the player's loading screen fades out, and the user interface controls are displayed.
+ Depends on **5, 6**.  When plugins have been loaded, and the JavaScript **playerready** callback has been executed, the player can begin playback.  If the **autostart** FlashVar is set, playback begins immediately.  Otherwise, the player's loading screen fades out, and the user interface controls are displayed.
 
  8. Load MediaProviders:
  Depends on **7**.  If the playlist contains any files that require external MediaProviders, they are loaded and initialized before the first playlist item that requires them is played.

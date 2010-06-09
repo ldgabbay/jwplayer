@@ -114,16 +114,16 @@ These flashvars control the looks of the player.
    * **XML/PNG skins**: These skins consist of an XML file with settings and a bunch of PNG images. The files are packed up in a ZIP, so they load fast over the internet. Building your own skin is extremely easy and can be done with any basic image and text editor. See :ref:`skinning` for more info.
    * **SWF skins**: These skins consist of a single SWF file, built using Adobe Flash. This type of skins has been supported since the 4.0 player. Since SWF skins can only be built using Flash (a $500+ package) and since this skinning model can easily break, SWF skins are considered deprecated in favor of PNG skins.
 
-   Our `addons repository <http://www.longtailvideo.com/addons>`_ contains a list of available skins.
+   Our `AddOns repository <http://www.longtailvideo.com/addons>`_ contains a list of available skins.
 
 
 
 .. _options-behavior:
 
-Behaviour
+Behavior
 ---------
 
-These flashvars control the playback behaviour of the player. 
+These flashvars control the playback behavior of the player. 
 
 .. describe:: autostart ( false )
 
@@ -137,7 +137,7 @@ These flashvars control the playback behaviour of the player.
 
     Unique identifier of the player in the HTML DOM. You only need to set this option if you want to use the :ref:`javascriptapi` and want to target Linux users.
 
-   The ID is needed by javascript to get a reference to the player. On Windows and MAC, the player automatically reads the ID from the *id* and *name* attributes of the player's `HTML embed code <embedding>`. On Linux however, this functionality does not work. Setting the **id** option in addition to the HTML attributes will fix this problem.
+   The ID is needed by JavaScript to get a reference to the player. On Windows and Mac OS X, the player automatically reads the ID from the *id* and *name* attributes of the player's `HTML embed code <embedding>`. On Linux however, this functionality does not work. Setting the **id** option in addition to the HTML attributes will fix this problem.
 
 .. describe:: item ( 0 )
 
@@ -149,7 +149,7 @@ These flashvars control the playback behaviour of the player.
 
 .. describe:: playerready ( undefined )
 
-   By default, the player calls a :ref:`playerReady() <javascriptapi>` javascript function when it is initialized. This option is used to let the player call a different function after it's initialized (e.g. *registerPlayer()*).
+   By default, the player calls a :ref:`playerReady() <javascriptapi>` JavaScript function when it is initialized. This option is used to let the player call a different function after it's initialized (e.g. *registerPlayer()*).
 
 .. describe:: plugins ( undefined )
 

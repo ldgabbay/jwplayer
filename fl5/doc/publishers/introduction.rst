@@ -6,18 +6,18 @@ Introduction
 The JW Player for Flash is the Internet’s most popular and flexible media player. It supports playback of :ref:`any media type <mediaformats>` the `Adobe Flash Player <http://www.adobe.com/products/flashplayer/>`_ can handle, both by using simple downloads, :ref:`httpstreaming` and :ref:`rtmpstreaming`.
 
 
-The player supports various :ref:`playlist formats <playlistformats>` and a wide range of :ref:`options <options>` (flashvars) for changing its layout and behaviour. Embedding the player in a webpage :ref:`is a breeze <embedding>`.
+The player supports various :ref:`playlist formats <playlistformats>` and a wide range of :ref:`options <options>` (flashvars) for changing its layout and behavior. Embedding the player in a webpage :ref:`is a breeze <embedding>`.
 
 
 API
 ---
 
-For javascript developers, the player features an extensive :ref:`javascriptapi`. With this API, it is possible to both control the player (e.g. pause it) and respond to playback changes (e.g. when the video has ended).
+For JavaScript developers, the player features an extensive :ref:`javascriptapi`. With this API, it is possible to both control the player (e.g. pause it) and respond to playback changes (e.g. when the video has ended).
 
 Addons
 ------
 
-Both the layout and the behaviour of the player can be extended with a range of so-called addons. These addons are available on the `LongTail Video website <http://www.longtailvideo.com/addons/>`_. There are three categories: skins, plugins and providers
+Both the layout and the behavior of the player can be extended with a range of so-called AddOns. These AddOns are available on the `LongTail Video website <http://www.longtailvideo.com/addons/>`_. There are three categories: skins, plugins and providers
 
 Skins
 ^^^^^
