@@ -207,7 +207,7 @@ public class HTTPModel extends AbstractModel {
 	private function loadHandler():void {
 		var ldd:Number = stream.bytesLoaded;
 		var ttl:Number = stream.bytesTotal;
-		var pct:Number = timeoffset/(item['duration']+0.001);
+		var pct:Number = timeoffset/(Number(item['duration'])+0.001);
 		var off:Number = Math.round(ttl*pct/(1-pct));
 		ttl += off;
 		model.sendEvent(ModelEvent.LOADED,{loaded:ldd,total:ttl,offset:off});
