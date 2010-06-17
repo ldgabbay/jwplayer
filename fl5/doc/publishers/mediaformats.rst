@@ -18,11 +18,11 @@ The player supports video (*provider=video*) in the following formats:
 
 .. describe:: H.264 ( .mp4, .mov, .f4v )
 
-   Video in either the  `MP4 <http://en.wikipedia.org/wiki/MP4>`_ or `Quicktime <http://en.wikipedia.org/wiki/Quicktime>` container format. These files must contain video encoded with the `H.264 <http://en.wikipedia.org/wiki/H.264>`_ codec and audio encoded with the `AAC <http://en.wikipedia.org/wiki/AAC>`_ codec. H264/AAC video is today's format of choice. It can also be played on a wide range of (mobile) devices.
+   Video in either the  `MP4 <http://en.wikipedia.org/wiki/MP4>`_ or `Quicktime <http://en.wikipedia.org/wiki/Quicktime>`_ container format. These files must contain video encoded with the `H.264 <http://en.wikipedia.org/wiki/H.264>`_ codec and audio encoded with the `AAC <http://en.wikipedia.org/wiki/AAC>`_ codec. H264/AAC video is today's format of choice. It can also be played on a wide range of (mobile) devices.
 
    .. note::
 
-      If you cannot seek within an MP4 file be before it is completely downloaded, the cause of this problem is that the so-called MOOV atom (which contains the seeking information) is located at the end of your video.  Check out `this little application <http://renaun.com/blog/2007/08/22/234/>`_ to parse your videos and fix it.
+      If you cannot seek within an MP4 file be before it is completely downloaded, the cause of this problem is that the so-called MOOV atom (which contains the seeking information) is located at the end of your video.  Check out `this little application <http://renaun.com/blog/2010/06/qtindexswapper-2/>`_ to parse your videos and fix it.
 
 
 .. describe:: FLV ( .flv )

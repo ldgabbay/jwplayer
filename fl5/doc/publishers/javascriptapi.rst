@@ -34,11 +34,7 @@ The *object* the player sends to the function contains the following properties:
 
   Plugin version and platform the player uses, e.g. *FLASH WIN 10.0.47.0*.
 
-.. describe:: id ( undefined )
-
-    Unique identifier of the player in the HTML DOM. You only need to set this option if you want to use the :ref:`javascriptapi` and want to target Linux users.
-
-.. note:: On Windows and Mac OS X, the player automatically reads its *ID* from the *id* and *name* attributes of the player's `HTML embed code <embedding>`. On Linux however, this functionality **does not work**. If you target Linux users with your scripting, you can circumvent this issue by including an  ref:`id option <options-behavior>` in your list of flashvars in the embed code.
+.. note:: On Windows and Mac OS X, the player automatically reads its *ID* from the *id* and *name* attributes of the player's `HTML embed code <embedding>`. On Linux however, this functionality **does not work**. If you target Linux users with your scripting, you can circumvent this issue by including an  :ref:`id option <options-behavior>` in your list of flashvars in the embed code.
 
 
 Custom playerready

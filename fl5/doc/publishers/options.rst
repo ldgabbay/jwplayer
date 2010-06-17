@@ -68,7 +68,7 @@ The following flashvars can be set instead of **playlistfile**. They are used to
       
       In addition to these built-in providers, it is possible to load custom providers into the JW Player, e.g. for specific CDN support. Custom providers are packed in a separate SWF file, much like a **plugin**. 
 
-      A number of custom providers is available from our ` addons repository <http://www.longtailvideo.com/addons/>`_. Third party developers interested in building a custom provider should check our our `developer site <http://developer.longtailvideo.com>`_, which includes documentation and a MediaProvider SDK.
+      A number of custom providers is available from our `AddOns repository <http://www.longtailvideo.com/addons/>`_. Third party developers interested in building a custom provider should check our our `developer site <http://developer.longtailvideo.com>`_, which includes documentation and a MediaProvider SDK.
 
 .. describe:: start ( 0 )
 

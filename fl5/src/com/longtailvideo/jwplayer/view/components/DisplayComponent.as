@@ -88,12 +88,8 @@
 			addChildAt(icon, 2);
 
 			_text = new TextField();
-			var textColorTransform:ColorTransform = new ColorTransform();
-			textColorTransform.color = 0xFFFFFF;
-			text.transform.colorTransform = textColorTransform;
 			text.gridFitType = GridFitType.NONE;
-			var textFormat:TextFormat = new TextFormat("_sans");
-			text.defaultTextFormat = textFormat;
+			text.defaultTextFormat = new TextFormat("_sans", null, 0xFFFFFF);
 			addChildAt(text, 3);
 			
 			_youtubeMask = new MovieClip();

@@ -517,7 +517,6 @@ package com.longtailvideo.jwplayer.controller {
 				if (!setProvider(item) && item.file) {
 					_model.playlist.load(item.file); 
 				} else if(_mediaLoader) {
-					_delayedItem = item;
 					_model.setActiveMediaProvider('default');
 					dispatchEvent(new PlayerStateEvent(PlayerStateEvent.JWPLAYER_PLAYER_STATE, PlayerState.BUFFERING, PlayerState.IDLE));
 				}
@@ -595,10 +594,12 @@ package com.longtailvideo.jwplayer.controller {
 			_mediaLoader = null;
 			if (_delayedItem) {
 				_model.setMediaProvider(_delayedItem.provider, loader.loadedSource);
+				_model.setActiveMediaProvider(_delayedItem.provider);
 				_delayedItem = null;
 				play();
 			} else {
 				_model.setMediaProvider(_model.playlist.currentItem.provider, loader.loadedSource);				
+				_model.setActiveMediaProvider(_model.playlist.currentItem.provider);				
 			}
 		}
 

@@ -22,7 +22,7 @@ Crossdomain security restrictions can be lifted by hosting a `crossdomain.xml fi
    http://videos.myserver.com/crossdomain.xml
 
 
-Before the Flash Player attempts to load XML files, SWF files or raw data from any domain other than the one hosting the *player.swf*, it checks the remote site for the existence of such a *crossdomain.xml* file. If Flash finds it, and if the configuration permits external access of its data, then the data is loaded. The file is not loaded or the data is not shown. 
+Before the Flash Player attempts to load XML files, SWF files or raw data from any domain other than the one hosting the *player.swf*, it checks the remote site for the existence of such a *crossdomain.xml* file. If Flash finds it, and if the configuration permits external access of its data, then the data is loaded.  If not, the secure operation will not be allowed. 
 
 Allow All Example
 ^^^^^^^^^^^^^^^^^

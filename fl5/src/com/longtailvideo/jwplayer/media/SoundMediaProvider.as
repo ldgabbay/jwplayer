@@ -67,7 +67,7 @@ package com.longtailvideo.jwplayer.media {
 						artist: id3.artist, comment: id3.comment,
 						genre: id3.genre, name: id3.songName, track: id3.track,
 						year: id3.year}
-				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, obj);
+				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata:obj});
 			} catch (err:Error) {
 			}
 		}
