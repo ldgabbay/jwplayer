@@ -60,7 +60,7 @@ package com.longtailvideo.jwplayer.parsers {
 		public static function getProvider(item:Object):String {
 			if (item['type']) {
 				return item['type'];
-			} else if (item['file'].indexOf('youtube.com/w') > -1) {
+			} else if (item['file'].indexOf('youtube.com/w') > -1 || item['file'].indexOf('youtube.com/v') > -1) {
 				return "youtube";
 			} else if (item['streamer'] && item['streamer'].indexOf('rtmp') == 0) {
 				return "rtmp";
