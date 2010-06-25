@@ -250,13 +250,7 @@
 			controller.fullscreen(on);
 		}
 
-		/**
-		 * @inheritDoc
-		 */
-		public function link(index:Number = NaN):Boolean {
-			return controller.link(index);
-		}
-
+		
 		/**
 		 * @inheritDoc
 		 */

@@ -89,16 +89,20 @@ The following flashvars can be set instead of **playlistfile**. They are used to
 Layout
 ------
 
-These flashvars control the looks of the player. 
+These flashvars control the look and layout of the player. 
 
 .. describe:: controlbar ( bottom )
 
    Position of the controlbar. Can be set to *bottom*, *top*, *over* and *none*.
 
-.. describe:: dock ( false )
+.. describe:: dock ( true )
 
-   set this to **true** to list plugin buttons in display. By default (*false*), plugin buttons are shown in the controlbar.
+   set this to **false** to show plugin buttons in controlbar. By default (*true*), plugin buttons are shown in the display.
 
+.. describe:: icons ( true )
+
+   set this to false to hide the play button and buffering icons in the display.
+   
 .. describe:: playlist ( none )
 
    Position of the playlist. Can be set to *bottom*, *top*, *right*, *left*, *over* or *none*.
@@ -109,9 +113,9 @@ These flashvars control the looks of the player.
 
 .. describe:: skin ( undefined )
 
-   Location of a so-called **skin**, a file with graphics that drastically changes the look of the player. There are two types of skins available:
+   Location of a **skin** file, containing graphics which change the look of the player. There are two types of skins available:
    
-   * **XML/PNG skins**: These skins consist of an XML file with settings and a bunch of PNG images. The files are packed up in a ZIP, so they load fast over the internet. Building your own skin is extremely easy and can be done with any basic image and text editor. See :ref:`skinning` for more info.
+   * **XML/PNG skins**: These skins consist of an XML file with settings and a bunch of PNG images. The files are packed up in a ZIP, which improves the time it takes for them to load over the network. Building your own skin is extremely easy and can be done with any basic image and text editor. See :ref:`skinning` for more info.
    * **SWF skins**: These skins consist of a single SWF file, built using Adobe Flash. This type of skins has been supported since the 4.0 player. Since SWF skins can only be built using Flash (a $500+ package) and since this skinning model can easily break, SWF skins are considered deprecated in favor of PNG skins.
 
    Our `AddOns repository <http://www.longtailvideo.com/addons>`_ contains a list of available skins.
@@ -178,8 +182,8 @@ These flashvars control the playback behavior of the player.
 
    * **none**: keep the original dimensions.
    * **exactfit**: disproportionally stretch the video/image to exactly fit the display.
-   * **uniform**: stretch the image/video while maintaining its aspect ratio. There'll be black borders.
-   * **fill**: stretch the image/video while maintaining its aspect ratio, completely filling the display.
+   * **uniform**: stretch the image/video while maintaining its aspect ratio. Borders will appear around the image/video.
+   * **fill**: stretch the image/video while maintaining its aspect ratio, completely filling the display.  This results in cropping the media.
 
 .. describe:: volume ( 90 )
 
@@ -269,12 +273,12 @@ Here is an example of such an XML file:
 .. code-block:: xml
 
    <config>
-     <file>files/bunny.mp4</file>
-     <image>files/bunny.jpg</image>
-     <repeat>true</repeat>
-     <backcolor>333333</backcolor>
-     <volume>40</volume>
-     <controlbar>over</controlbar>
+	   <image>files/bunny.jpg</image>
+	   <repeat>true</repeat>
+	   <volume>40</volume>
+	   <playlist>right</playlist>
+	   <playlist.size>150</playlist.size>
+	   <controlbar>over</controlbar>
    </config>
 
 Options set in the embed code will overwrite those set in the config XML.

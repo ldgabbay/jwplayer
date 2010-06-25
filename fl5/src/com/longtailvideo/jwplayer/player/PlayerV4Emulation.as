@@ -25,6 +25,8 @@ package com.longtailvideo.jwplayer.player {
 	
 	import flash.display.DisplayObject;
 	import flash.events.EventDispatcher;
+	import flash.net.URLRequest;
+	import flash.net.navigateToURL;
 	import flash.utils.describeType;
 
 	/**
@@ -262,7 +264,7 @@ package com.longtailvideo.jwplayer.player {
 					_player.playlistItem(Number(prm));
 					break;
 				case com.jeroenwijering.events.ViewEvent.LINK:
-					_player.link(Number(prm));
+					link(Number(prm));
 					break;
 				case com.jeroenwijering.events.ViewEvent.LOAD:
 					_player.load(prm);
@@ -446,6 +448,15 @@ package com.longtailvideo.jwplayer.player {
 					} catch (e:Error) {}
 			}
 			return result;
+		}
+		
+		private function link(playlistIndex:Number):void {
+			if (isNaN(playlistIndex))
+				playlistIndex = _player.playlist.currentIndex;
+			
+			if (playlistIndex >= 0 && playlistIndex < _player.playlist.length) {
+				navigateToURL(new URLRequest(_player.playlist.getItemAt(playlistIndex).link), _player.config.linktarget);
+			}
 		}
 	}
 }

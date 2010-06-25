@@ -71,7 +71,5 @@ package com.longtailvideo.jwplayer.player {
 		function fullscreen(on:Boolean):void;
 		function get controls():IPlayerComponents;
 		function overrideComponent(plugin:IPlayerComponent):void
-		/** This method is deprecated; it will be removed when support is dropped for v4 compatibility **/
-		function link(index:Number=NaN):Boolean;
 	}
 }

@@ -14,7 +14,7 @@ package com.longtailvideo.jwplayer.media {
     import com.longtailvideo.jwplayer.utils.Configger;
     import com.longtailvideo.jwplayer.utils.Logger;
     import com.longtailvideo.jwplayer.utils.NetClient;
-    import com.longtailvideo.jwplayer.utils.TEA;
+    import com.wowza.encryptionAS3.TEA;
     
     import flash.events.*;
     import flash.media.*;

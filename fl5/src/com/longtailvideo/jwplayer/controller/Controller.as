@@ -629,22 +629,6 @@ package com.longtailvideo.jwplayer.controller {
 		}
 
 
-		public function link(playlistIndex:Number=NaN):Boolean {
-			if (locking) {
-				return false;
-			}
-			if (isNaN(playlistIndex))
-				playlistIndex = _model.playlist.currentIndex;
-
-			if (playlistIndex >= 0 && playlistIndex < _model.playlist.length) {
-				navigateToURL(new URLRequest(_model.playlist.getItemAt(playlistIndex).link), _model.config.linktarget);
-				return true;
-			}
-
-			return false;
-		}
-
-
 		protected function setCookie(name:String, value:*):void {
 			Configger.saveCookie(name, value);
 		}
