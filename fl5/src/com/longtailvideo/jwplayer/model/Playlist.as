@@ -140,7 +140,11 @@ package com.longtailvideo.jwplayer.model {
 		
 		
 		protected function playlistError(message:String):void {
-			dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_ERROR, "Playlist could not be loaded: " + message));
+			if (message.indexOf("Error #2048") >= 0) {
+				dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_ERROR, "Playlist could not be loaded due to crossdomain policy restrictions."));
+			} else {
+				dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_ERROR, "Playlist could not be loaded: " + message));
+			}
 		}
 		
 		

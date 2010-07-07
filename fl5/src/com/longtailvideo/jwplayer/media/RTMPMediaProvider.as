@@ -158,15 +158,15 @@ package com.longtailvideo.jwplayer.media {
         private function getID(url:String):String {
 			var parts:Array = url.split("?");
             var ext:String = parts[0].substr(-4);
+			parts[0] = parts[0].substr(0, parts[0].length-4);
             if (url.indexOf(':') > -1) {
                 return url;
             } else if (ext == '.mp3') {
-                return 'mp3:' + url.substr(0, url.length - 4);
+                return 'mp3:' + parts.join("?");
             } else if (ext == '.mp4' || ext == '.mov' || ext == '.m4v' || ext == '.aac' || ext == '.m4a' || ext == '.f4v') {
                 return 'mp4:' + url;
             } else if (ext == '.flv') {
-				parts[0] = parts[0].substr(0, parts[0].length-4);
-                return parts.length > 1 ? parts.join("?") : parts[0];
+                return parts.join("?");
             } else {
                 return url;
             }
@@ -228,7 +228,11 @@ package com.longtailvideo.jwplayer.media {
 				media = _video;
 			}
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_LOADED);
-			_connection.connect(item.streamer);
+			try {
+				_connection.connect(item.streamer);
+			} catch(e:Error) {
+				error("Could not connect to streamer: " + e.message);
+			}
 		}
 		
         /** Get the streamer / file from the loadbalancing XML. **/

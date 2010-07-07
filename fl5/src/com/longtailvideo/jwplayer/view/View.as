@@ -40,6 +40,8 @@ package com.longtailvideo.jwplayer.view {
 	import flash.events.MouseEvent;
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
+	import flash.text.TextField;
+	import flash.text.TextFormat;
 
 
 	public class View extends GlobalEventDispatcher {
@@ -162,9 +164,19 @@ package com.longtailvideo.jwplayer.view {
 			} else {
 				loaderScreen.removeChild(loaderAnim);
 				var errorScreen:DisplayObject = new ErrorScreen() as DisplayObject;
+				var errorMessage:TextField = new TextField();
+				errorMessage.defaultTextFormat = new TextFormat("_sans", 12, 0xffffff);
+				errorMessage.text = errorMsg;
+				errorMessage.width = loaderScreen.width - 60;
+				errorMessage.wordWrap = true;
+				errorMessage.height = errorMessage.textHeight + 10;
+
 				errorScreen.x = (loaderScreen.width - errorScreen.width) / 2;
-				errorScreen.y = (loaderScreen.height - errorScreen.height) / 2;
+				errorScreen.y = (loaderScreen.height - errorScreen.height - errorMessage.height - 10) / 2;
+				errorMessage.x = (loaderScreen.width - errorMessage.width) / 2;
+				errorMessage.y = errorScreen.y + errorScreen.height + 10;
 				loaderScreen.addChild(errorScreen);
+				loaderScreen.addChild(errorMessage);
 			}
 		}
 
