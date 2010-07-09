@@ -372,6 +372,19 @@ package com.longtailvideo.jwplayer.media {
 			_meta = false;
 			super.stop();
 		}
+		
+		override protected function complete():void {
+			if (state != PlayerState.IDLE) {
+				clearInterval(_positionInterval);
+				_positionInterval = undefined;
+				_position = _byteoffset = _timeoffset = 0;
+				_keyframes = undefined;
+				_bandwidthChecked = false;
+				_meta = false;
+				super.stop();
+				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_COMPLETE);
+			}
+		}
 
 
 		/** Set the volume level. **/
