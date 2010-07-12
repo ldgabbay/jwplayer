@@ -4,9 +4,26 @@
 Release Notes
 =============
 
-
 Version 5.2
 ===========
+
+Build 1151
+----------
+
+Bug Fixes
++++++++++
+
+ * Fixes problem initializing externally-loaded MediaProviders
+ * Fixes minor issue sending sound metadata events to javascript 
+ * Support for an alternate YouTube URL scheme (http://www.youtube.com/v/{video_id})
+ * Fixes black-on-black error messages in FireFox with Flash 10.1 
+
+Other Changes
++++++++++++++
+
+ * Replaces encryption logic for Wowza secure token with Wowza's own class
+ * Pre-loading error screen now displays error message instead of simply showing an error icon
+ 
 
 Build 1065
 ----------
