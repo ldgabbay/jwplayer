@@ -478,7 +478,9 @@ Display XML Syntax
       <elements>
          <element name="background" src="file.png" />
          <element name="playIcon" src="file.png" />
+         <element name="playIconOver" src="file.png" />
          <element name="muteIcon" src="file.png" />
+         <element name="muteIconOver" src="file.png" />
          <element name="bufferIcon" src="file.png" />
       </elements>
    </component>
@@ -500,6 +502,34 @@ Here is a list of Display settings, along with their default values:
    
    The amount of time, in milliseconds between each buffer icon rotation.
 
+Display Elements
+^^^^^^^^^^^^^^^^
+
+The following elements are available for the Display.  All of the elements are optional, and will be excluded from the player if they are not
+
+.. describe:: background
+
+   The background is a graphic which is placed behind the display icons, and is centered inside the Display. 
+
+.. describe:: playIcon
+
+   This element is displayed when the player is paused or idle.
+   
+.. describe:: playIconOver
+
+   This element replaces the *playIcon* element when the user hovers the mouse over it.
+   
+.. describe:: muteIcon
+
+   This element is displayed when the player is muted. 
+
+.. describe:: muteIconOver
+
+   This element replaces the *muteIcon* element when the user hovers the mouse over it.
+
+.. describe:: bufferIcon
+
+   This element is displayed when the player is in a buffering state.  If *bufferIcon* is a static image, it will be rotated around its center.  If it is an animated SWF file, it will simply be placed in the center of the display.  
 
 
 The Dock
