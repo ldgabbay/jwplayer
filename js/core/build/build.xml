@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<project name="JW Player Core JavaScript Library" default="build-debug" basedir="..">
+
+	<target name="clean">
+		<delete file="${basedir}/bin-debug/jwplayercore.js" quiet="true"/>
+		<delete file="${basedir}/jwplayercore.min.js" quiet="true"/>
+	</target>
+
+	<target name="concat" depends="clean">
+		<concat destfile="${basedir}/bin-debug/jwplayercore.js">
+			<fileset dir="${basedir}/src/" includes="*.js" />
+		</concat>
+	</target>
+
+	<target name="build-debug">
+		<antcall target="concat" />
+	</target>
+
+	<target name="build-release" depends="concat">
+		<java jar="${basedir}/build/yuicompressor-2.4.2.jar" fork="true">
+			<arg line="'${basedir}/bin-debug/jwplayercore.js'"/>
+			<arg line="-o '${basedir}/jwplayercore.min.js'"/>
+		</java>
+	</target>
+</project>
