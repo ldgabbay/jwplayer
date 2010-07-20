@@ -1,0 +1,2 @@
+jwplayer = function() {};
+
