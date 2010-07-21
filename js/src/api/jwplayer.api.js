@@ -1,9 +1,21 @@
 jwplayer.players = [];
 
-jwplayer.prototype = {
+jwplayer.constuctor = function(x) {
+	if (!x) { return {}; }
+	else {
+		return jwplayer.api.selectPlayer(x);
+	}
+};
+
+jwplayer.api = function(container) {
+	this.container = container;
+};
+
+jwplayer.api.prototype = jwplayer.constructor.prototype = {
 	container: undefined,
 	player: undefined,
 	config: undefined,
+	id: undefined,
 	
 	getBuffer: function() { return undefined; },
 	getFullscreen: function() { return undefined; },
@@ -49,40 +61,48 @@ jwplayer.prototype = {
 	onTime: function() { return this; },
 	onVolume: function() { return this; }
 };
-jwplayer.utils = function(){};
-jwplayer.utils.selectors = function(selector){
-	selector = jwplayer.utils.strings.trim(selector);
-	var selectType = selector.charAt(0);
-	if (selectType == "#"){
-		return document.getElementById(selector.substr(1));
-	} else if (selectType == "."){
-		if (document.getElementsByClassName) {
-			return document.getElementsByClassName(selector.substr(1));
-		} else {
-			return jwplayer.utils.selectors.getElementsByTagAndClass("*", selector.substr(1));
-		}
-	} else {
-		if (selector.indexOf(".") > 0){
-			selectors = selector.split(".");
-			return jwplayer.utils.selectors.getElementsByTagAndClass(selectors[0], selectors[1]);
-		} else {
-			return document.getElementsByTagName(selector);
-		}
+
+jwplayer.api.selectPlayer = function(identifier) {
+	var _container;
+	
+	if (identifier.nodeType) {
+		// Handle DOM Element
+		_container = identifier;
+	} else if (typeof identifier == 'string') {
+		// Find container by ID
+		_container = document.getElementById(identifier);
 	}
-	return null;
+	
+	if (!_container) { return undefined; } 
+
+	var foundPlayer = jwplayer.api.playerByContainer(_container);
+	if (foundPlayer) { 
+		return foundPlayer; 
+	} else { 
+		return new jwplayer.api(_container); 
+	}
 };
 
-jwplayer.utils.selectors.getElementsByTagAndClass = function(tagName, className){
-	elements = [];
-	for (element in document.getElementsByTagName(tagName)){
-		if ((element.className !== undefined) && (element.className.indexOf(className) > 1)){
-			elements.push(element);
-		}			
+jwplayer.api.playerByContainer = function(cont) {
+	for(var p in jwplayer.players) {
+		if (jwplayer.players[p].container == cont) {
+			return jwplayer.players[p];
+		}
 	}
-	return elements;
+	return undefined;
 };
-jwplayer.utils.strings = function(){};
 
-jwplayer.utils.strings.trim = function(inputString){
-	return inputString.replace(/^\s*/, "").replace(/\s*$/, "");
+jwplayer.api.addPlayer = function(player) {
+	for (var i in jwplayer.players) {
+		if (jwplayer.players[i] == player) {
+			return player; // Player is already in the list;
+		}
+	}
+
+	jwplayer.players.push(player);
+	return player;
+};
+
+jwplayer.register = jwplayer.api.registerPlayer = function(player) {
+	return jwplayer.api.addPlayer(player);
 };
