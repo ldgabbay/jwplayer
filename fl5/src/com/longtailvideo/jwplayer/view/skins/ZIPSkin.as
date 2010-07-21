@@ -40,17 +40,35 @@ package com.longtailvideo.jwplayer.view.skins {
 			var data:URLStream = URLStream(evt.target);
 			_zipFile = new ZipFile(data);
 			try {
-				var zipEntry:ZipEntry = _zipFile.getEntry(_urlPrefix + '.xml');
+				var zipEntry:ZipEntry = getXMLEntry(_zipFile, _urlPrefix);
 				if (!zipEntry) {
-					zipEntry =  _zipFile.getEntry(_urlPrefix+'/'+_urlPrefix + '.xml');
-				} else {
-					_urlPrefix = null;
+					sendError("No XML file found in skin ZIP");
+					return;
 				}
+				_urlPrefix = zipEntry.name.substring(0, zipEntry.name.lastIndexOf('/')); 
 				_skinXML = XML(String(_zipFile.getInput(zipEntry)));
 				parseSkin();
 			} catch (e:Error) {
 				sendError(e.message);
 			}
+		}
+		
+		protected function getXMLEntry(file:ZipFile, prefix:String=""):ZipEntry {
+			var entry:ZipEntry = file.getEntry(prefix + '.xml');
+			if (entry) { return entry; }
+			
+			entry = file.getEntry(prefix + '/' + prefix + '.xml');
+			if (entry) { return entry; }
+			
+			for each (entry in file.entries) {
+				if (Strings.extension(entry.name) == "xml") {
+					if (XML(String(file.getInput(entry))).localName() == "skin") {
+						return entry;
+					}
+				}
+			}
+			
+			return null;
 		}
 
 
