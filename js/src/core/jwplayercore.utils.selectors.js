@@ -22,10 +22,16 @@ jwplayer.utils.selectors = function(selector){
 
 jwplayer.utils.selectors.getElementsByTagAndClass = function(tagName, className){
 	elements = [];
-	for (element in document.getElementsByTagName(tagName)){
-		if ((element.className !== undefined) && (element.className.indexOf(className) > 1)){
-			elements.push(element);
-		}			
+	var selected = document.getElementsByTagName(tagName);
+	for (var i = 0; i < selected.length; i++){
+		if (selected[i].className !== undefined){
+			var classes = selected[i].className.split(" ");
+			for (var classIndex = 0; classIndex < classes.length; classIndex++){
+				if (classes[classIndex] == className){
+					elements.push(selected[i]);
+				}
+			}
+		}
 	}
 	return elements;
 };

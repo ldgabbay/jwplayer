@@ -12,16 +12,22 @@
 			function getClass(className){
 				var selected = jwplayer.utils.selectors(className);
 				for (var i = 0; i < selected.length; i++){
-					print(element.innerHTML);
+					print(selected[i].innerHTML);
 				}				
 			}
 			
 			function getId(idName){
-				print(jwplayer.utils.selectors(idName));
+				var selected = jwplayer.utils.selectors(idName);
+				if (selected !== null){
+					print(selected.innerHTML);					
+				}
 			}
 			
 			function getTagAndClass(tagAndClassName){
-				print(jwplayer.utils.selectors(tagAndClassName).innerHTML);
+				var selected = jwplayer.utils.selectors(tagAndClassName);
+				for (var i = 0; i < selected.length; i++){
+					print(selected[i].innerHTML);
+				}
 			}
 			
 			function print(msg){
