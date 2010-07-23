@@ -1,0 +1,24 @@
+<html>
+	<head>
+		<script type="text/javascript" src="jwplayer.js"></script>
+		<script type="text/javascript">	
+		</script>
+		<title>JWPlayer JS API Testing Page</title>
+	</head>
+	<body>
+		<h1>JWPlayer JS API Testing Page</h1>
+		<div class="class1" id="div1">
+			This is &lt;div&gt; 1.
+		</div>
+		<div class="class2" id="div2">
+			This is &lt;div&gt; 2.
+		</div>
+
+		<h3>Selector Tests</h3>
+		<a href="#" onclick="($jw('.class') == undefined) ? this.innerHTML='Pass' : this.innerHTML='Fail';">Select by class - should be null</a><br />
+		<a href="#" onclick="(typeof $jw('div1') == 'object') ? this.innerHTML='Pass: ' + $jw('div1') : this.innerHTML='Fail';">Select by ID</a><br />
+		<a href="#" onclick="(typeof $jw(document.getElementById('div1')) == 'object') ? this.innerHTML='Pass: ' + $jw('div1') : this.innerHTML='Fail';">Select by DOM</a><br />
+
+
+	</body>
+</html>

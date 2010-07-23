@@ -8,7 +8,8 @@
 
 	<target name="concat" depends="clean">
 		<concat destfile="${basedir}/bin-debug/jwplayer.js">
-			<fileset dir="${basedir}/src/core" includes="**/*.js" />
+			<fileset dir="${basedir}/src" includes="jwplayer.js" />
+			<fileset dir="${basedir}/src/utils" includes="**/*.js" />
 			<fileset dir="${basedir}/src/api" includes="**/*.js" />
 			<fileset dir="${basedir}/src/embed" includes="**/*.js" />
 		</concat>

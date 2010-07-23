@@ -1,3 +1,5 @@
-jwplayer = function(x) { return new jwplayer.constuctor(x); };
+jwplayer = function(container) { return jwplayer.constuctor(container); };
 
-jwplayer.constructor = function(x) { return {}; };
+jwplayer.constructor = function(container) {};
+
+$jw = jwplayer;
