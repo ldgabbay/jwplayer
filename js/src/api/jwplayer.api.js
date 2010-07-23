@@ -6,16 +6,16 @@ jwplayer.api = function() {};
 
 jwplayer.api._players = [];
 
-jwplayer.api.Player = function(container) {
+jwplayer.api.PlayerAPI = function(container) {
 	this.container = container;
 	this.id = container.id;
 };
 
-jwplayer.api.Player.prototype = {
+jwplayer.api.PlayerAPI.prototype = {
 	// Player properties
 	container: undefined,
 	player: undefined,
-	config: undefined,
+	options: undefined,
 	id: undefined,
 	
 	// Player Getters
@@ -87,7 +87,7 @@ jwplayer.api.selectPlayer = function(identifier) {
 		if (foundPlayer) {
 			return foundPlayer; 
 		} else {
-			return new jwplayer.api.Player(_container); 
+			return new jwplayer.api.PlayerAPI(_container); 
 		}
 	} else if (typeof identifier == 'number') {
 		return jwplayer.players[identifier];

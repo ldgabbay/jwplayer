@@ -86,16 +86,16 @@ jwplayer.api = function() {};
 
 jwplayer.api._players = [];
 
-jwplayer.api.Player = function(container) {
+jwplayer.api.PlayerAPI = function(container) {
 	this.container = container;
 	this.id = container.id;
 };
 
-jwplayer.api.Player.prototype = {
+jwplayer.api.PlayerAPI.prototype = {
 	// Player properties
 	container: undefined,
 	player: undefined,
-	config: undefined,
+	options: undefined,
 	id: undefined,
 	
 	// Player Getters
@@ -167,7 +167,7 @@ jwplayer.api.selectPlayer = function(identifier) {
 		if (foundPlayer) {
 			return foundPlayer; 
 		} else {
-			return new jwplayer.api.Player(_container); 
+			return new jwplayer.api.PlayerAPI(_container); 
 		}
 	} else if (typeof identifier == 'number') {
 		return jwplayer.players[identifier];
@@ -203,4 +203,36 @@ jwplayer.register = jwplayer.api.registerPlayer = function(player) {
 jwplayer.__defineGetter__('players', function() { return jwplayer.api._players.slice(0); });
 jwplayer.embed = function() {};
 
-jwplayer.embed.setup = function(player, options) {};
+jwplayer.embed.Embedder = function(playerApi) {
+	this.constructor(playerApi);
+};
+
+jwplayer.embed.Embedder.prototype = {
+	api: undefined,
+	events: {},
+
+	constructor: function(playerApi) {
+		api = playerApi;
+		console.log(this.api);
+		console.log(api);
+		this.parseConfig(api.config);
+	},
+
+	embedPlayer: function() {
+		return api;
+	},
+	
+	parseConfig: function(config) {
+		if(config.events) {
+			this.events = config.events;
+		}
+		return config;
+	}
+
+};
+
+jwplayer.api.PlayerAPI.prototype.setup = function(options, player) {
+	this.config = options;
+	this.player = player;
+	return (new jwplayer.embed.Embedder(this)).embedPlayer();
+};
