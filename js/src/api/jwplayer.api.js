@@ -87,13 +87,14 @@ jwplayer.api.selectPlayer = function(identifier) {
 		if (foundPlayer) {
 			return foundPlayer; 
 		} else {
-			return new jwplayer.api.PlayerAPI(_container); 
+			// Todo: register new object
+			return jwplayer.api.addPlayer(new jwplayer.api.PlayerAPI(_container)); 
 		}
 	} else if (typeof identifier == 'number') {
 		return jwplayer.players[identifier];
 	}
 
-	return undefined;
+	return null;
 };
 
 jwplayer.api.playerByContainer = function(cont) {
@@ -102,7 +103,7 @@ jwplayer.api.playerByContainer = function(cont) {
 			return jwplayer.players[p];
 		}
 	}
-	return undefined;
+	return null;
 };
 
 jwplayer.api.addPlayer = function(player) {
@@ -116,8 +117,7 @@ jwplayer.api.addPlayer = function(player) {
 	return player;
 };
 
-jwplayer.register = jwplayer.api.registerPlayer = function(player) {
-	return jwplayer.api.addPlayer(player);
-};
+// Can't make this a read-only getter, thanks to IE incompatibility.
+jwplayer.players = jwplayer.api._players;
 
-jwplayer.__defineGetter__('players', function() { return jwplayer.api._players.slice(0); });
+//TODO: playerReady; register new players
