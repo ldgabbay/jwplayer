@@ -163,6 +163,8 @@ Here's the full list of events you can send, plus their parameters:
 .. describe:: load ( url:String )
 
    Load a new media file or playlist into the player. The *url* must always be sent.
+   
+   .. note:: Instead of a URL, it is also possible to send a full playlist object along with this call. For more info, see *Loading playlists* below.
 
 .. describe:: mute ( state:Boolean )
 
@@ -201,6 +203,45 @@ Here's the full list of events you can send, plus their parameters:
 .. note:: 
 
    Due to anti-phishing restrictions in the Adobe Flash runtime, it is not possible to enable/disable fullscreen playback of the player from javascript.
+
+
+Loading playlists
+^^^^^^^^^^^^^^^^^
+
+The ***load*** event is mostly used for loading a single video or a single playlist into the player. This is done setting the second parameter of the event to the URL of the video:
+
+.. code-block:: html
+
+   player.sendEvent("load","http://www.mysite.com/video.mp4");
+
+The player will inspect the URL, decide which :ref:`media format <media>` or :ref:`playlist format <playlists>` it is and setup its internal playlist accordingly.
+
+It is also possible to load an already preformatted playlist in the player using this same **load** call. This is useful in situations where e.g. you want to create or manipulate the playlist in javascript.
+
+The preformatted playlist should be an *array* that contains one or more *object* blocks. Each *object* block in turn contains multiple :ref:`playlistitem properties <playlists>` as key:value pairs. Here are two examples of playlist loading; one with a single entry and one with multiple entries:
+
+.. code-block:: javascript
+
+   // Here we load a single-entry playlist. 
+   // We set the video to RTMP streaming, plus we set the start position.
+   var list1 = new Array(
+       { file:"video.mp4", type:"rtmp", start: 56, streamer: "rtmp://mysite.com/definst" }
+   );
+   player.sendEvent("load",list1);
+   
+   // Here we load a full playlist. 
+   // For each entry, we set a title.
+   var list2 = new Array(
+       { file:"/static/bbb.mp4", type:"video", title: "Big Buck Bunny Trailer" },
+       { file:"/static/ed.mp3", type:"sound", title: "Elephant's Dream Podcast" },
+       { file:"/static/sintel.jpg", type:"image", title: "Sintel Movie Poster" }
+   );
+   player.sendEvent("load",list2);
+
+.. note::
+
+   Both the **file** and the **type** properties are required for each playlistitem. If one of the two is missing, the playlistitem will not be loaded. The **type** property can be *video*, *sound*, *image*, *youtube*, *http* and *rtmp*.
+
 
 Setting listeners
 -----------------
