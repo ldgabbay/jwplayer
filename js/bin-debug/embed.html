@@ -1,0 +1,27 @@
+<html>
+	<head>
+		<script type="text/javascript" src="jwplayer.js"></script>
+		<script type="text/javascript">
+			var options = {
+				file:		'/testing/files/bunny.mp4',
+				image:		'/testing/files/bunny.jpg',
+				
+				players: [{type:'flash', src: '/trunk/fl5/player.swf'}]
+			}; 
+			function embedPlayer() {
+				return $jw('div1').setup(options);
+			}	
+		</script>
+		<title>JWPlayer JS Embedder Testing Page</title>
+	</head>
+	<body>
+		<h1>JWPlayer JS Embedder Testing Page</h1>
+		<div id="div1">
+			This is &lt;div&gt; 1.
+		</div>
+
+		<h3>Embed a player</h3>
+		<a href="#" onclick="embedPlayer(); return false;">Click here to embed player</a><br />
+
+	</body>
+</html>
