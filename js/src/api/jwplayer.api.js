@@ -17,6 +17,7 @@ jwplayer.api.PlayerAPI.prototype = {
 	player: undefined,
 	options: undefined,
 	id: undefined,
+	callbacks: {},
 	
 	// Player Getters
 	getBuffer: function() { return undefined; },
@@ -120,4 +121,16 @@ jwplayer.api.addPlayer = function(player) {
 // Can't make this a read-only getter, thanks to IE incompatibility.
 jwplayer.players = jwplayer.api._players;
 
-//TODO: playerReady; register new players
+var _userPlayerReady = playerReady;
+
+function playerReady(obj) {
+	var cont = jwplayer(obj['id']);
+	var api = jwplayer.api.playerByContainer(cont);
+	api.player = cont;
+	// Todo: setup event callbacks
+	// Todo: run any queued up commands 
+	
+	if (_userPlayerReady && _userPlayerReady.call) {
+		_userPlayerReady.call(this, obj);
+	}		
+}

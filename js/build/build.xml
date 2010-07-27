@@ -21,8 +21,8 @@
 
 	<target name="build-release" depends="concat">
 		<java jar="${basedir}/build/yuicompressor-2.4.2.jar" fork="true">
-			<arg line="'${basedir}/bin-debug/jwplayercore.js'"/>
-			<arg line="-o '${basedir}/jwplayercore.min.js'"/>
+			<arg line="'${basedir}/bin-debug/jwplayer.js'"/>
+			<arg line="-o '${basedir}/jwplayer.min.js'"/>
 		</java>
 	</target>
 </project>
