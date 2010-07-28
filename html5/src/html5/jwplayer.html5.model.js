@@ -5,77 +5,60 @@
  * @version 1.0alpha
  * @lastmodifieddate 2010-04-11
  */
-(function($) {
-	var jwplayerid = 1;
-	
-	var modelParams = {
-		volume: 100,
-		fullscreen: false,
-		mute: false,
-		start: 0,
+jwplayer.html5.model = function(options) {
+	$.extend(this.config, options);
+	this.sources = this.config.sources;
+	delete this.config.sources;
+	for (var index in jwplayer.html5.model._configurableStateVariables) {
+		var configurableStateVariable = jwplayer.html5.model._configurableStateVariables[index];
+		this[configurableStateVariable] = this.config[configurableStateVariable];
+	}
+	return this;
+};
+
+jwplayer.html5.model.prototype = {
+	components: {},
+	sources: {},
+	state: jwplayer.html5.states.IDLE,
+	source: 0,
+	position: 0,
+	buffer: 0,
+	config: {
 		width: 480,
 		height: 320,
-		duration: 0
-	};
-	
-	function createModel() {
-		return {
-			sources: {},
-			state: $.fn.jwplayer.states.IDLE,
-			source: 0,
-			buffer: 0
-		};
+		skin: undefined,
+		file: undefined,
+		image: undefined,
+		start: 0,
+		duration: 0,
+		bufferlength: 5,
+		volume: 90,
+		mute: false,
+		fullscreen: false,
+		repeat: false,
+		autostart: false,
+		debug: undefined
 	}
-	
-	
-	$.fn.jwplayerModel = function(domElement, options) {
-		var model = createModel();
-		model.config = $.extend(true, {}, $.fn.jwplayer.defaults, $.fn.jwplayerParse(domElement[0]), options);
-		if ($.fn.jwplayerUtils.isNull(model.config.id)) {
-			model.config.id = "jwplayer_" + jwplayerid++;
-		}
-		model.sources = model.config.sources;
-		delete model.config.sources;
-		model.domelement = domElement;
-		for (var modelParam in modelParams) {
-			if (!$.fn.jwplayerUtils.isNull(model.config[modelParam])) {
-				model[modelParam] = model.config[modelParam];
-			} else {
-				model[modelParam] = modelParams[modelParam];
+};
+
+jwplayer.html5.model._configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen"];
+
+jwplayer.html5.model.setActiveMediaProvider = function(player) {
+	var source, sourceIndex;
+	for (sourceIndex in player._model.sources) {
+		source = player._model.sources[sourceIndex];
+		if (source.type === undefined) {
+			var extension = jwplayer.html5.utils.extension(source.file);
+			if (extension == "ogv") {
+				extension = "ogg";
 			}
+			source.type = 'video/' + extension + ';';
 		}
-		//model = $.extend(true, {}, , model);
-		return model;
-	};
-	
-	$.fn.jwplayerModel.setActiveMediaProvider = function(player) {
-		var source, sourceIndex;
-		for (sourceIndex in player.model.sources) {
-			source = player.model.sources[sourceIndex];
-			if (source.type === undefined) {
-				var extension = $.fn.jwplayerUtils.extension(source.file);
-				if (extension == "ogv") {
-					extension = "ogg";
-				}
-				source.type = 'video/' + extension + ';';
-			}
-			if ($.fn.jwplayerUtils.supportsType(source.type)) {
-				player.model.source = sourceIndex;
-				$.fn.jwplayerMediaVideo(player);
-				return true;
-			}
+		if (jwplayer.html5.utils.supportsType(source.type)) {
+			player._model.source = sourceIndex;
+			jwplayer.html5.mediaVideo(player);
+			return true;
 		}
-		if ($.fn.jwplayerUtils.supportsFlash && player.state != $.fn.jwplayer.states.PLAYING) {
-			for (sourceIndex in player.model.sources) {
-				source = player.model.sources[sourceIndex];
-				if ($.fn.jwplayerUtils.flashCanPlay(source.file)) {
-					player.model.source = sourceIndex;
-					$.fn.jwplayerMediaFlash(player);
-					return true;
-				}
-			}
-		}
-		return false;
-	};
-	
-})(jQuery);
+	}
+	return false;
+};

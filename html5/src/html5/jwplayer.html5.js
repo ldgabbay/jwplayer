@@ -1,209 +1,88 @@
 /**
  * Core component of the JW Player (initialization, API).
  *
- * @author jeroen
- * @version 1.0alpha
- * @lastmodifiedauthor zach
- * @lastmodifieddate 2010-04-11
+ * @author zach
+ * @version 1.0
  */
-(function($) {
-	/** Map with all players on the page. **/
-	var players = {};
-	
-	/** Hooking the controlbar up to jQuery. **/
-	$.fn.jwplayer = function(options) {
-		return this.each(function() {
-			$.fn.jwplayerUtils.log("Starting setup", this);
-			return setupJWPlayer($(this), 0, options);
-		});
-	};
-	
-	function setupJWPlayer(player, step, options) {
-		try {
-			switch (step) {
-				case 0:
-					var model = $.fn.jwplayerModel(player, options);
-					var jwplayer = {
-						model: model,
-						listeners: {}
-					};
-					return setupJWPlayer(jwplayer, step + 1);
-				case 1:
-					player.controller = $.fn.jwplayerController(player);
-					players[player.model.config.id] = player;
-					setupJWPlayer($.extend(player, api(player)), step + 1);
-					return player;
-				case 2:
-					$.fn.jwplayerSkinner(player, function() {
-						setupJWPlayer(player, step + 1);
-					});
-					break;
-				case 3:
-					$.fn.jwplayerView(player);
-					setupJWPlayer(player, step + 1);
-					break;
-				case 4:
-					$.fn.jwplayerModel.setActiveMediaProvider(player);
-					if ((player.media === undefined) || !player.media.hasChrome) {
-						setupJWPlayer(player, step + 1);
-					}
-					break;
-				case 5:
-					$.fn.jwplayerDisplay($.jwplayer(player.id), player.model.domelement);
-					if (player.media === undefined) {
-						player.sendEvent($.fn.jwplayer.events.JWPLAYER_READY);
-					} else {
-						setupJWPlayer(player, step + 1);
-					}
-					break;
-				case 6:
-					if (!$.fn.jwplayerUtils.isiPhone()) {
-						$.fn.jwplayerControlbar($.jwplayer(player.id), player.model.domelement);
-					}
-					setupJWPlayer(player, step + 1);
-					break;
-				case 7:
-					player.sendEvent($.fn.jwplayer.events.JWPLAYER_READY);
-					setupJWPlayer(player, step + 1);
-					break;
-				default:
-					if (player.config.autostart === true) {
-						player.play();
-					}
-					break;
-			}
-		} catch (err) {
-			$.fn.jwplayerUtils.log("Setup failed at step " + step, err);
+
+jwplayer = function(){};
+
+jwplayer.html5 = function(domelement) {
+	this._domelement = domelement;
+	this.id = domelement.id;
+	return this.html5;
+};
+
+jwplayer.html5.prototype = {
+	id: undefined,
+	version: "1.0",
+	skin: undefined,
+	_model: undefined,
+	_view: undefined,
+	_controller: undefined,
+	_listeners: undefined,
+	_media: undefined,
+	_domelement: undefined
+};
+
+jwplayer.html5.setup = function(options){
+	jwplayer.html5.utils.log("Starting setup", this);
+	jwplayer.html5._setup(this, 0, options);
+	return this;
+};
+
+jwplayer.html5._setup = function(player, step, options) {
+	try {
+		switch (step) {
+			case 0:
+				player._model = new jwplayer.html5.model(options);
+				player._model.domelement = $(player.domelement);
+				jwplayer.html5._setup(player, step + 1);
+				break;
+			case 1:
+				player._controller = jwplayer.html5.controller(player);
+				jwplayer.html5._setup($.extend(player, jwplayer.html5._api(player)), step + 1);
+				break;
+			case 2:
+				jwplayer.html5.skinner(player, function() {
+					jwplayer.html5._setup(player, step + 1);
+				});
+				break;
+			case 3:
+				jwplayer.html5.view(player);
+				jwplayer.html5._setup(player, step + 1);
+				break;
+			case 4:
+				jwplayer.html5.model.setActiveMediaProvider(player);
+				if ((player._media === undefined) || !player._media.hasChrome) {
+					jwplayer.html5._setup(player, step + 1);
+				}
+				break;
+			case 5:
+				jwplayer.html5.display(player, player._model.domelement);
+				if (player._media === undefined) {
+					player.sendEvent(jwplayer.html5.events.JWPLAYER_READY);
+				} else {
+					jwplayer.html5._setup(player, step + 1);
+				}
+				break;
+			case 6:
+				if (!jwplayer.html5.utils.isiPhone()) {
+					jwplayer.html5.controlbar(player, player._model.domelement);
+				}
+				jwplayer.html5._setup(player, step + 1);
+				break;
+			case 7:
+				player.sendEvent(jwplayer.html5.events.JWPLAYER_READY);
+				jwplayer.html5._setup(player, step + 1);
+				break;
+			default:
+				if (player.config.autostart === true) {
+					player.play();
+				}
+				break;
 		}
+	} catch (err) {
+		jwplayer.html5.utils.log("Setup failed at step " + step, err);
 	}
-	
-	
-	/** Map with config for the controlbar plugin. **/
-	$.fn.jwplayer.defaults = {
-		autostart: false,
-		file: undefined,
-		height: 295,
-		image: undefined,
-		skin: undefined,
-		volume: 90,
-		width: 480,
-		mute: false,
-		bufferlength: 5,
-		start: 0,
-		position: 0,
-		debug: undefined,
-		flashplayer: undefined,
-		repeat: false
-	};
-	
-	
-	/** A factory for API calls that either set listeners or return data **/
-	function dataListenerFactory(player, dataType, eventType) {
-		return function(arg) {
-			switch ($.fn.jwplayerUtils.typeOf(arg)) {
-				case "function":
-					if (!$.fn.jwplayerUtils.isNull(eventType)) {
-						player.addEventListener(eventType, arg);
-					}
-					break;
-				default:
-					if (!$.fn.jwplayerUtils.isNull(dataType)) {
-						return player.controller.mediaInfo()[dataType];
-					}
-					return player.controller.mediaInfo();
-			}
-			return $.jwplayer(player.id);
-		};
-	}
-	
-	
-	function api(player) {
-		if (!$.fn.jwplayerUtils.isNull(player.id)) {
-			return player;
-		}
-		return {
-			play: player.controller.play,
-			pause: player.controller.pause,
-			stop: player.controller.stop,
-			seek: player.controller.seek,
-			
-			resize: player.controller.resize,
-			fullscreen: player.controller.fullscreen,
-			volume: player.controller.volume,
-			mute: player.controller.mute,
-			load: player.controller.load,
-			
-			addEventListener: player.controller.addEventListener,
-			removeEventListener: player.controller.removeEventListener,
-			sendEvent: player.controller.sendEvent,
-			
-			ready: dataListenerFactory(player, null, $.fn.jwplayer.events.JWPLAYER_READY),
-			error: dataListenerFactory(player, null, $.fn.jwplayer.events.JWPLAYER_ERROR),
-			complete: dataListenerFactory(player, null, $.fn.jwplayer.events.JWPLAYER_MEDIA_COMPLETE),
-			state: dataListenerFactory(player, 'state', $.fn.jwplayer.events.JWPLAYER_PLAYER_STATE),
-			buffer: dataListenerFactory(player, 'buffer', $.fn.jwplayer.events.JWPLAYER_MEDIA_BUFFER),
-			time: dataListenerFactory(player, null, $.fn.jwplayer.events.JWPLAYER_MEDIA_TIME),
-			position: dataListenerFactory(player, 'position'),
-			duration: dataListenerFactory(player, 'duration'),
-			width: dataListenerFactory(player, 'width'),
-			height: dataListenerFactory(player, 'height'),
-			meta: dataListenerFactory(player, null, $.fn.jwplayer.events.JWPLAYER_MEDIA_META),
-			
-			id: player.model.config.id,
-			config: player.model.config,
-			version: '0.1-alpha',
-			skin: player.skin
-		};
-	}
-	
-	function jwplayer(selector) {
-		if ($.fn.jwplayerUtils.isNull(selector)) {
-			for (var player in players) {
-				return api(players[player]);
-			}
-		} else {
-			if (selector.indexOf('#') === 0) {
-				selector = selector.substr(1, selector.length);
-			}
-			return api(players[selector]);
-		}
-		return null;
-	}
-	
-	$.fn.jwplayer.states = {
-		IDLE: 'IDLE',
-		BUFFERING: 'BUFFERING',
-		PLAYING: 'PLAYING',
-		PAUSED: 'PAUSED'
-	};
-	
-	$.fn.jwplayer.events = {
-		JWPLAYER_READY: 'jwplayerReady',
-		JWPLAYER_FULLSCREEN: 'jwplayerFullscreen',
-		JWPLAYER_RESIZE: 'jwplayerResize',
-		//JWPLAYER_LOCKED: 'jwplayerLocked',
-		//JWPLAYER_UNLOCKED: 'jwplayerLocked',
-		JWPLAYER_ERROR: 'jwplayerError',
-		JWPLAYER_MEDIA_BUFFER: 'jwplayerMediaBuffer',
-		JWPLAYER_MEDIA_BUFFER_FULL: 'jwplayerMediaBufferFull',
-		JWPLAYER_MEDIA_ERROR: 'jwplayerMediaError',
-		JWPLAYER_MEDIA_LOADED: 'jwplayerMediaLoaded',
-		JWPLAYER_MEDIA_COMPLETE: 'jwplayerMediaComplete',
-		JWPLAYER_MEDIA_TIME: 'jwplayerMediaTime',
-		JWPLAYER_MEDIA_VOLUME: 'jwplayerMediaVolume',
-		JWPLAYER_MEDIA_META: 'jwplayerMediaMeta',
-		JWPLAYER_MEDIA_MUTE: 'jwplayerMediaMute',
-		JWPLAYER_PLAYER_STATE: 'jwplayerPlayerState'
-	};
-	
-	/** Extending jQuery **/
-	$.extend({
-		'jwplayer': jwplayer
-	});
-	
-	/** Automatically initializes the player for all <video> tags with the JWPlayer class. **/
-	$(document).ready(function() {
-		$("video.jwplayer").jwplayer();
-	});
-	
-})(jQuery);
+};
