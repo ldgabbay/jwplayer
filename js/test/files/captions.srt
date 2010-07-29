@@ -1,0 +1,40 @@
+1
+00:00:01 --> 00:00:04
+cc: (en espanol) Message #1
+
+2
+00:00:04 --> 00:00:07
+cc: (en espanol) <u>Message #2</u>
+
+3
+00:00:07 --> 00:00:10
+cc: (en espanol) <b>Message #3</b>
+
+4
+00:00:10 --> 00:00:13
+cc: (en espanol) <i>Message #4</i>
+
+5
+00:00:13 --> 00:00:16
+cc: (en espanol) <b><u>Message #5</u></b>
+
+6
+00:00:16 --> 00:00:19
+cc: (en espanol) <i><b>Message #6</b></i>
+
+7
+00:00:19 --> 00:00:22
+cc: (en espanol) <u><i>Message #7</i></u>
+
+8
+00:00:22 --> 00:00:25
+cc: (en espanol) <font color="#ff00ff">Message #8</font>
+
+9
+00:00:25 --> 00:00:28
+cc: (en espanol) <font size="+3">Message #9</font>
+
+10
+00:00:28 --> 00:00:31
+cc: (en espanol) <font color="#ffff00" size="+6">Message #10</font>
+

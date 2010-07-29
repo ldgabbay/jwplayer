@@ -1,0 +1,31 @@
+<rss version="2.0" xmlns:jwplayer="http://developer.longtailvideo.com/trac/wiki/FlashFormats">
+	<channel>
+		<title>Playlist with audiodescription/captions</title>
+
+		<item>
+			<title>Coronation Street</title>
+			<description>This clip has captions and an audiodescription</description>
+			<jwplayer:file>/player/testing/files/corrie.flv</jwplayer:file>
+			<jwplayer:image>/player/testing/files/corrie.jpg</jwplayer:image>
+			<jwplayer:audiodescription.file>/player/testing/files/corrie.mp3</jwplayer:audiodescription.file>
+			<jwplayer:captions.file>/player/testing/files/corrie.xml</jwplayer:captions.file>
+		</item>
+
+		<item>
+			<title>Big buck bunny</title>
+			<description>This clip has no accessibility features</description>
+			<jwplayer:file>/player/testing/files/bunny.flv</jwplayer:file>
+			<jwplayer:image>/player/testing/files/bunny.jpg</jwplayer:image>
+		</item>
+
+		<item>
+			<title>Oorlogswinter</title>
+			<description>This clip has captions and an audiodescription</description>
+			<jwplayer:file>/player/testing/files/oorlogswinter.mp4</jwplayer:file>
+			<jwplayer:image>/player/testing/files/oorlogswinter.png</jwplayer:image>
+			<jwplayer:audiodescription.file>/player/testing/files/oorlogswinter.mp3</jwplayer:audiodescription.file>
+			<jwplayer:captions.file>/player/testing/files/oorlogswinter.xml</jwplayer:captions.file>
+		</item>
+
+	</channel>
+</rss>

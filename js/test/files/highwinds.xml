@@ -1,0 +1,22 @@
+<rss version="2.0"
+	xmlns:media="http://search.yahoo.com/mrss/" 
+	xmlns:jwplayer="http://developer.longtailvideo.com/trac/wiki/FlashFormats">
+	<channel>
+		<title>Playlist with bitrate switches</title>
+
+		<item>
+			<title>RTMP streaming (loadbalanced)</title>
+			<description>Bitrate switching for RTMP streaming is done on startup and with every seek and fullscreen switch.</description>
+			<media:group>
+				<media:content bitrate="1600" width="1080" url="http://hwcdn.net/i6s8g7u7/fms/dynamic/8Juv1MVa-67727.mp4?dopproto=rtmpte" />
+				<media:content bitrate="1200" width="720" url="http://hwcdn.net/i6s8g7u7/fms/dynamic/8Juv1MVa-485.mp4?dopproto=rtmpte" />
+				<media:content bitrate="800" width="480" url="http://hwcdn.net/i6s8g7u7/fms/dynamic/8Juv1MVa-484.mp4?dopproto=rtmpte" />
+				<media:content bitrate="400" width="320" url="http://hwcdn.net/i6s8g7u7/fms/dynamic/8Juv1MVa-483.mp4?dopproto=rtmpte" />
+				<media:thumbnail url="http://content.bitsontherun.com/thumbs/8Juv1MVa-480.jpg" />
+			</media:group>
+			<jwplayer:type>rtmp</jwplayer:type>
+			<jwplayer:rtmp.loadbalance>true</jwplayer:rtmp.loadbalance>
+		</item>
+
+	</channel>
+</rss>

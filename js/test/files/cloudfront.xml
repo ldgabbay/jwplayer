@@ -1,0 +1,50 @@
+<rss version="2.0" 
+	xmlns:media="http://search.yahoo.com/mrss/" 
+	xmlns:jwplayer="http://developer.longtailvideo.com/trac/wiki/FlashFormats">
+	<channel>
+		<title>Cloudfront streaming playlist</title>
+
+		<item>
+			<title>Bunny (flv)</title>
+			<link>http://www.bigbuckbunny.org/</link>
+			<description>Big Buck Bunny is a short animated film by the Blender Institute, part of the Blender Foundation.</description>
+			<pubDate>Sat, 07 Sep 2002 09:42:31 GMT</pubDate>
+			<media:credit role="author">the Peach Open Movie Project</media:credit>
+			<media:content url="bunny.flv" />
+			<jwplayer:streamer>rtmp://s37pvs8v39ibrr.cloudfront.net/cfx/st</jwplayer:streamer>
+		</item>
+
+		<item>
+			<title>Bunny (mp4)</title>
+			<link>http://www.bigbuckbunny.org/</link>
+			<description>Big Buck Bunny is a short animated film by the Blender Institute, part of the Blender Foundation.</description>
+			<pubDate>Sat, 07 Sep 2002 09:42:31 GMT</pubDate>
+			<media:credit role="author">the Peach Open Movie Project</media:credit>
+			<media:content url="bunny.mp4" />
+			<jwplayer:streamer>rtmp://s37pvs8v39ibrr.cloudfront.net/cfx/st</jwplayer:streamer>
+		</item>
+
+		<item>
+			<title>Bunny (mp3)</title>
+			<link>http://www.bigbuckbunny.org/</link>
+			<description>Big Buck Bunny is a short animated film by the Blender Institute, part of the Blender Foundation.</description>
+			<pubDate>Sat, 07 Sep 2002 09:42:31 GMT</pubDate>
+			<media:credit role="author">the Peach Open Movie Project</media:credit>
+			<media:content url="bunny.mp3" />
+			<jwplayer:streamer>rtmp://s37pvs8v39ibrr.cloudfront.net/cfx/st</jwplayer:streamer>
+			<media:thumbnail url="files/bunny.jpg" />
+		</item>
+
+		<item>
+			<title>Bunny (aac)</title>
+			<link>http://www.bigbuckbunny.org/</link>
+			<description>Big Buck Bunny is a short animated film by the Blender Institute, part of the Blender Foundation.</description>
+			<pubDate>Sat, 07 Sep 2002 09:42:31 GMT</pubDate>
+			<media:credit role="author">the Peach Open Movie Project</media:credit>
+			<media:content url="bunny.m4a" />
+			<jwplayer:streamer>rtmp://s37pvs8v39ibrr.cloudfront.net/cfx/st</jwplayer:streamer>
+			<media:thumbnail url="files/bunny.png" />
+		</item>
+
+	</channel>
+</rss>

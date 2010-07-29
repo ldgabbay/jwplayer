@@ -1,0 +1,95 @@
+<rss version="2.0" 
+	xmlns:media="http://search.yahoo.com/mrss/" 
+	xmlns:jwplayer="http://developer.longtailvideo.com/trac/wiki/FlashFormats">
+	<channel>
+		<title>Example media RSS playlist with HD</title>
+
+		<item>
+			<title>FLV Video with MP4 HD</title>
+			<link>http://www.bigbuckbunny.org/</link>
+			<description>Big Buck Bunny is a short animated film by the Blender Institute, part of the Blender Foundation.</description>
+			<pubDate>Sat, 07 Sep 2002 09:42:31 GMT</pubDate>
+			<media:credit role="author">the Peach Open Movie Project</media:credit>
+			<media:content url="../../testing/files/bunny.flv" />
+			<media:thumbnail url="http://content.bitsontherun.com/thumbs/nPripu9l-320.jpg" />
+			<jwplayer:hd.file>../../testing/files/bunny.mp4</jwplayer:hd.file>
+		</item>
+
+		<item>
+			<title>MP3 Audio with thumb</title>
+			<link>http://www.bigbuckbunny.org/</link>
+			<description>Big Buck Bunny is a short animated film by the Blender Institute, part of the Blender Foundation.</description>
+			<pubDate>Sat, 07 Sep 2002 09:42:31 GMT</pubDate>
+			<media:credit role="author">the Peach Open Movie Project</media:credit>
+			<media:content url="files/bunny.mp3" />
+			<media:thumbnail url="files/bunny.jpg" />
+		</item>
+
+		<item>
+			<title>PNG Image with duration</title>
+			<description>Big Buck Bunny is a short animated film by the Blender Institute, part of the Blender Foundation.</description>
+			<pubDate>Sat, 07 Sep 2002 09:42:31 GMT</pubDate>
+			<media:group>
+				<media:credit role="author">the Peach Open Movie Project</media:credit>
+				<media:content url="files/bunny.png" duration="10" />
+			</media:group>
+		</item>
+
+		<item>
+			<title>Nonworking video</title>
+			<link>http://www.bigbuckbunny.org/</link>
+			<description>The link to this video is broken, so the display error icon can be tested.</description>
+			<pubDate>Sat, 07 Sep 2002 09:42:31 GMT</pubDate>
+			<media:group>
+				<media:credit role="author">the Peach Open Movie Project</media:credit>
+				<media:content url="http://youtube.com/watch?v=oBTE-RoMsvw" />
+			</media:group>
+			<jwplayer:start>10</jwplayer:start>
+		</item>
+
+		<item>
+			<title>Long HTTP video</title>
+			<link>http://orange.blender.org/</link>
+			<pubDate>Fri, 04 Apr 2008 00:00:00 -0000</pubDate>
+			<description>Elephants Dream is the world’s first open movie, made entirely with open source graphics software such as Blender, and with all production files freely available to use however you please, under a Creative Commons license.</description>
+			<media:content bitrate="630" url="http://content.bitsontherun.com/videos/LJSVMnCF-327.mp4" width="320" />
+			<jwplayer:type>http</jwplayer:type>
+			<jwplayer:hd.file>http://content.bitsontherun.com/videos/LJSVMnCF-67067.mp4</jwplayer:hd.file>
+			<jwplayer:http.startparam>starttime</jwplayer:http.startparam>
+			<jwplayer:duration>653</jwplayer:duration>
+			<jwplayer:image>http://content.bitsontherun.com/thumbs/LJSVMnCF.jpg</jwplayer:image>
+			<jwplayer:playlist.image>http://content.bitsontherun.com/thumbs/LJSVMnCF-120.jpg</jwplayer:playlist.image>
+		</item>
+
+		<item>
+			<title>FLV Video with MP4 HD</title>
+			<link>http://www.bigbuckbunny.org/</link>
+			<description>Big Buck Bunny is a short animated film by the Blender Institute, part of the Blender Foundation.</description>
+			<pubDate>Sat, 07 Sep 2002 09:42:31 GMT</pubDate>
+			<media:credit role="author">the Peach Open Movie Project</media:credit>
+			<media:content url="../../testing/files/bunny.flv" />
+			<jwplayer:hd.file>../../testing/files/bunny.mp4</jwplayer:hd.file>
+		</item>
+
+		<item>
+			<title>MP3 Audio with thumb</title>
+			<link>http://www.bigbuckbunny.org/</link>
+			<description>Big Buck Bunny is a short animated film by the Blender Institute, part of the Blender Foundation.</description>
+			<pubDate>Sat, 07 Sep 2002 09:42:31 GMT</pubDate>
+			<media:credit role="author">the Peach Open Movie Project</media:credit>
+			<media:content url="files/bunny.mp3" />
+			<media:thumbnail url="files/bunny.jpg" />
+		</item>
+
+		<item>
+			<title>PNG Image with duration</title>
+			<description>Big Buck Bunny is a short animated film by the Blender Institute, part of the Blender Foundation.</description>
+			<pubDate>Sat, 07 Sep 2002 09:42:31 GMT</pubDate>
+			<media:group>
+				<media:credit role="author">the Peach Open Movie Project</media:credit>
+				<media:content url="files/bunny.png" duration="10" />
+			</media:group>
+		</item>
+
+	</channel>
+</rss>

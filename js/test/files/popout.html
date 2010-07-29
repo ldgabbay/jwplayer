@@ -1,0 +1,25 @@
+<html>
+<head>
+	<title>Big Buck Bunny</title>
+	<script type="text/javascript" src="swfobject.js"></script>
+</head>
+<body style="padding:0; margin:0; background-color:#000;">
+
+	<div id="container">Player here</div>
+
+	<script type="text/javascript">
+		swfobject.embedSWF(
+			'../../trunk/as3/player.swf',
+			'container',
+			'100%',
+			'100%',
+			'9.0.0',
+			null,
+			{file:'../../testing/files/bunny.flv',autostart:'true',controlbar:'over'},
+			{allowfullscreen:'true',allowscriptaccess:'always'},
+			{id:'player',name:'player'}
+		);
+	</script>
+	
+</body>
+</html>

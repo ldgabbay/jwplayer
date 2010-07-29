@@ -1,0 +1,72 @@
+<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/"
+	xmlns:jwplayer="http://developer.longtailvideo.com/trac/wiki/FlashFormats">
+	<channel>
+		<title>Example media RSS playlist for the JW Player</title>
+		<link>http://developer.longtailvideo.com/trac</link>
+
+		<item>
+			<title>Opening credits</title>
+			<media:content url="http://content.bitsontherun.com/videos/LJSVMnCF-60830.mp4" type="video/mp4" start="00:00" />
+			<description>In which we meet Proog and Emo, the two characters of this movie.</description>
+			<link>http://orange.blender.org/</link>
+			<jwplayer:type>bitgravity</jwplayer:type>
+		</item>
+
+		<item>
+			<title>Wire attack</title>
+			<media:content url="http://content.bitsontherun.com/videos/LJSVMnCF-60830.mp4" type="video/mp4" start="00:26" />
+			<description>In which the computer world of our actors is being introduced.</description>
+			<link>http://orange.blender.org/</link>
+			<jwplayer:type>bitgravity</jwplayer:type>
+		</item>
+
+		<item>
+			<title>The bird cave</title>
+			<media:content url="http://content.bitsontherun.com/videos/LJSVMnCF-60830.mp4" type="video/mp4" start="01:10" />
+			<description>In which Proog takes upon his role as a guide and savely sees Emo across.</description>
+			<link>http://orange.blender.org/</link>
+			<jwplayer:type>bitgravity</jwplayer:type>
+		</item>
+
+		<item>
+			<title>Answer the phone</title>
+			<media:content url="http://content.bitsontherun.com/videos/LJSVMnCF-60830.mp4" type="video/mp4" start="02:30" />
+			<description>In which Emo and Proog have their first argument.</description>
+			<link>http://orange.blender.org/</link>
+			<jwplayer:type>bitgravity</jwplayer:type>
+		</item>
+
+		<item>
+			<title>Across the gap</title>
+			<media:content url="http://content.bitsontherun.com/videos/LJSVMnCF-60830.mp4" type="video/mp4" start="03:44" />
+			<description>In which we learn that not everything here is what it looks like.</description>
+			<link>http://orange.blender.org/</link>
+			<jwplayer:type>bitgravity</jwplayer:type>
+		</item>
+
+		<item>
+			<title>Elevator Ride</title>
+			<media:content url="http://content.bitsontherun.com/videos/LJSVMnCF-60830.mp4" type="video/mp4" start="04:53" />
+			<description>In which Proog and Emo jump into space, and fall back again.</description>
+			<link>http://orange.blender.org/</link>
+			<jwplayer:type>bitgravity</jwplayer:type>
+		</item>
+
+		<item>
+			<title>Final Conflict</title>
+			<media:content url="http://content.bitsontherun.com/videos/LJSVMnCF-60830.mp4" type="video/mp4" start="06:25" />
+			<description>In which Emo does not tolerate Proogs guidance anymore, with fatal consequence.</description>
+			<link>http://orange.blender.org/</link>
+			<jwplayer:type>bitgravity</jwplayer:type>
+		</item>
+
+		<item>
+			<title>Ending Credits</title>
+			<media:content url="http://content.bitsontherun.com/videos/LJSVMnCF-60830.mp4" type="video/mp4" start="09:25" />
+			<description>In which the huge list of contributers to this project passes by.</description>
+			<link>http://orange.blender.org/</link>
+			<jwplayer:type>bitgravity</jwplayer:type>
+		</item>
+
+	</channel>
+</rss>
