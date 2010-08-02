@@ -3,13 +3,14 @@ var settings = {
   "html":{
     "default": "<div id='preview'><p>Testing is simple: choose an example, change the flashvars and see if it works.</p></div>",
     "object": "<embed id='preview' name='preview' src='players/player-5.2.swf' width='470' height='320' bgcolor='#000000' allowscriptaccess='always' allowfullscreen='true' flashvars='file=http://content.longtailvideo.com/videos/flvplayer.flv' />",
-    "embed": "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' width='470' height='320' id='single1' name='single1'><param name='movie' value='players/player-5.2.swf'><param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'>  <param name='flashvars' value='file=http://content.longtailvideo.com/videos/flvplayer.flv'>",
+    "embed": "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' width='470' height='320' id='preview' name='preview'><param name='movie' value='players/player-5.2.swf'><param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'>  <param name='flashvars' value='file=http://content.longtailvideo.com/videos/flvplayer.flv'>",
     "video": "<video id='preview' height='270' poster='files/bunny.jpg' src='files/bunny.mp4' width='480'></video>"
   },
   /** The embed script to use **/
   "script":{
-    "none":"",
-    "swfobject":"swfobjectembed"
+    "none":"(function() {})",
+    "swfobject":"swfobjectembed",
+    "jwembed":"jwplayersetup"
   },
 	/** Player versions to test. **/
 	"players": {
@@ -67,13 +68,13 @@ var settings = {
 	"examples": {
 		" ": {},
 		"FLV video": {
-			"file":"../../testing/files/bunny.flv",
+			"file":"../files/bunny.flv",
 			"image":"files/bunny.jpg",
 			"height":240,
 			"width":400
 		},
 		"MP4 video": {
-			"file":"../../testing/files/bunny.mp4",
+			"file":"../files/bunny.mp4",
 			"image":"files/bunny.jpg",
 			"height":240,
 			"width":400
@@ -84,7 +85,7 @@ var settings = {
 			"width":400
 		},
 		"AAC audio":{
-			"file":"../../testing/files/bunny.m4a",
+			"file":"../files/bunny.m4a",
 			"image":"files/bunny.jpg",
 			"height":240,
 			"width":400
@@ -205,14 +206,14 @@ var settings = {
 		},
 		" ": {},
 		"Agegate plugin": {
-			"file":"../../testing/files/corrie.flv",
+			"file":"../files/corrie.flv",
 			"height":240,
 			"width":500,
 			"plugins":"agegate",
 			"agegate.minage":18
 		},
 		"Audiodescription and captions plugins": {
-			"file":"../../testing/files/corrie.flv",
+			"file":"../files/corrie.flv",
 			"height":240,
 			"width":500,
 			"plugins":"audiodescription,captions",
@@ -234,12 +235,12 @@ var settings = {
 			"captions.fontsize":18
 		},
 		"HD plugin": {
-			"file":"../../testing/files/bunny.flv",
+			"file":"../files/bunny.flv",
 			"height":240,
 			"width":500,
 			"plugins":"hd",
 			"dock":"true",
-			"hd.file":"../../testing/files/bunny.mp4"
+			"hd.file":"../files/bunny.mp4"
 		},
 		"Searchbar plugin": {
 			"file":"http://gdata.youtube.com/feeds/api/standardfeeds/recently_featured?v=2",
@@ -251,7 +252,7 @@ var settings = {
 		},
 		"Sharing plugin": {
 			"dock":true,
-			"file":"../../testing/files/bunny.flv",
+			"file":"../files/bunny.flv",
 			"height":260,
 			"width":460,
 			"plugins":"sharing",

@@ -1,30 +1,53 @@
 <html>
 	<head>
+		<script type="text/javascript" src="jquery.js"></script>
+		<script type="text/javascript" src="jquery.jwplayerParse.js"></script>
 		<script type="text/javascript" src="jwplayer.js"></script>
+		<script type="text/javascript" src="jwplayer.html5.js"></script>
 		<script type="text/javascript">
 			var options = {
 				file:		'../../../testing/files/bunny.mp4',
 				image:		'../../../testing/files/bunny.jpg',
-				
-				players: [{type:'flash', src: '../../../trunk/fl5/player.swf'}]
+		        sources: [{
+		            file:"http://content.bitsontherun.com/videos/nPripu9l-327.mp4",
+		            type: "video/mp4"
+		        }],				
+				plugins:	{
+					'sharing-1': {},
+					'viral-2d': {
+						link: 'http://www.longtailvideo.com',
+						'viral.allowmenu': 'true'
+					},
+					'fbit-1': {}
+				},
+				players: [
+					{type:'flash', src: '../../../trunk/fl5/player.swf'},
+					{type:'html5'},
+				]
 			}; 
-			function embedPlayer() {
-				return $jw('div1').setup(options);
+			function embedPlayer(id) {
+				return $jw(id).setup(options);
 			}	
 		</script>
 		<title>JWPlayer JS Embedder Testing Page</title>
 	</head>
 	<body>
 		<h1>JWPlayer JS Embedder Testing Page</h1>
-		<div id="div1">
-			This is &lt;div&gt; 1.
+		<div id="something">
+			<video id="div1" src="../test/files/bunny.ogv">
+				This is &lt;div&gt; 1.
+			</video>
+		</div>
+		<div id="something_else">
+			<div id="div2">
+				This is &lt;div&gt; 2
+			</div>
 		</div>
 		<script type="text/javascript">
-			embedPlayer();
+			embedPlayer('div1');
 		</script>
-
 		<h3>Embed a player</h3>
-		<a href="#" onclick="embedPlayer(); return false;">Click here to embed player</a><br />
+		<a href="#" onclick="embedPlayer('div2'); return false;">Click here to embed player</a><br />
 
 	</body>
 </html>

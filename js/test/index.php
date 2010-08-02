@@ -5,9 +5,8 @@
 <script type="text/javascript" src="files/jquery.js"></script>
 <script type="text/javascript" src="files/swfobject.js"></script>
 <script type="text/javascript" src="settings.js"></script>
+<script type="text/javascript" src="../bin-debug/jwplayer.js"></script>
 <script type="text/javascript">
-
-
 
 
 	/**
@@ -232,6 +231,18 @@
 		);
 		var lnk = 'http://developer.longtailvideo.com/trac/testing/';
 		$("#permalink").val(lnk+'?'+$.param(variables));
+   }
+
+   function jwplayersetup() {
+   	var temp = getVariables();
+   	var vrs = temp['vrs'];
+   	var variables = temp['variables'];
+
+	jwplayer('preview').setup($.extend(vrs, {
+		players:[
+			{type:'flash',src:settings.players[$('#players').val()]}
+		]
+	}));
    }
 
 
