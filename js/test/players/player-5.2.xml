@@ -74,6 +74,94 @@
             <description>title of the video, shown in the display or playlist.</description>
         </flashvar>
     </flashvars>
+	
+	  <flashvars section="Events">
+        <flashvar type="field">
+            <name>onBuffer</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onBufferChange</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onBufferFull</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onComplete</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onError</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onFullScreen</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onIdle</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onMeta</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onMute</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onPause</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onPlay</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onPlaylist</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onPlaylistItem</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onPosition</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onReady</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onResize</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+        <flashvar type="field">
+            <name>onVolume</name>
+            <default></default>
+            <description></description>
+        </flashvar>
+    </flashvars>
 
     <flashvars section="Layout">
         <flashvar type="field">

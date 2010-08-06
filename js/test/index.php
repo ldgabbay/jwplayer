@@ -29,6 +29,11 @@
 		$("#examples").change(function(evt) {
 			evt.preventDefault();
 			var obj = settings.examples[$('#examples').val()];
+			for (var o in obj){
+				if (o.indexOf('on') === 0){
+					obj[o] = escape(obj[o]); 
+				}
+			}
 			window.top.location.href = window.top.location.pathname+'?'+$.param(obj);
 		 });
 		// get the options from the querystring.
@@ -36,8 +41,17 @@
 			variables[decodeURIComponent(arguments[1])] = decodeURIComponent(arguments[2]);
 		});
 		// set the value and handler on player, skin and plugins.
-		if(variables['player']) { $('#players').val(variables['player']); }
-		$("#players").change(function(evt) { reloadFieldsets(evt); });
+		if(variables['players']) { $('#players').val(variables['players']); }
+		if(variables['player']) { 
+			$('#player').val(variables['player']); 
+		} else {
+			$('#player').val(dump(settings['players'][$('#players').val()]));
+		}
+		$("#players").change(function(evt) {
+			if(evt) { evt.preventDefault(); }
+			$("#player").val(dump(settings.players[$("#players").val()]));
+			insertPlayer(evt);
+		});
 		if(variables['skin']) { 
 			if(!settings['skins'][variables['skin']]) { 
 				$("#skins").prepend("<option>"+variables['skin']+"</option>");
@@ -84,7 +98,7 @@
 		$("#custom > .removable").remove();
 		parsing = 1;
 		prefilled = {plugins:'',player:'',skin:''};
-		var swf = settings.players[$("#players").val()];
+		var swf = settings.players[$("#players").val()][0]['src'];
 		var xml = swf.substr(0,swf.length-4) + '.xml';
 		parsePlayerXML(xml);
 		var str = $("#plugins").val();
@@ -134,8 +148,13 @@
 			if(plg) { val = nam+'.'+val; }
 			set +='<label>'+val+'</label><input type="text" name="'+val+'" ';
 			if(variables[val]) {
-				set += 'value="'+variables[val]+'" ';
-				prefilled[val] = variables[val];
+				if (nam == 'events') {
+					set += 'value="'+unescape(variables[val]).replace(/"/g, "'")+'" ';
+					prefilled[val] = unescape(variables[val]);	
+				} else {
+					set += 'value="'+variables[val]+'" ';
+					prefilled[val] = variables[val];
+				}
 			}
 			set += "/>";
 		}
@@ -177,7 +196,8 @@
    function getVariables(){
 		var vrs = {};
 		variables = {}
-		variables['player'] = $('#players').val();
+		variables['players'] = $('#players').val();
+		variables['player'] = $('#player').val();
 		var skn = $("#skins").val();
 		if(skn != ' ') {
 			variables['skin'] = skn;
@@ -202,8 +222,13 @@
 		var arr = $("#flashvarsform").find('input');
 		for(var i=0; i<arr.length; i++) {
 			if($(arr[i]).val()) {
-				vrs[$(arr[i]).attr('name')] = $(arr[i]).val();
-				variables[$(arr[i]).attr('name')] = $(arr[i]).val();
+				if ($(arr[i]).attr('name').indexOf('on') != 0) {
+					vrs[$(arr[i]).attr('name')] = $(arr[i]).val();
+					variables[$(arr[i]).attr('name')] = $(arr[i]).val();
+				} else {
+					vrs[$(arr[i]).attr('name')] = escape($(arr[i]).val());
+					variables[$(arr[i]).attr('name')] = escape($(arr[i]).val());
+				}
 			}
 		}
 		variables['htmlblock'] = $('#htmlblock').val();
@@ -218,8 +243,15 @@
    		var variables = temp['variables'];
    		$('#preview').css('height',vrs['height']);
 		$('#preview').html('<div id="container"></div>');
+		var player = "";
+		var players = eval($('#player').val());
+		for (var plr in players){
+			if (players[plr]['type'] == 'flash'){
+				player = players[plr]['src'];
+			}
+		}
 		swfobject.embedSWF(
-			settings.players[$('#players').val()],
+			player,
 			'container',
 			vrs['width'],
 			vrs['height'],
@@ -237,11 +269,18 @@
    	var temp = getVariables();
    	var vrs = temp['vrs'];
    	var variables = temp['variables'];
+	var events = {};
+
+	for (var v in vrs){
+		if (v.indexOf("on") === 0){
+			eval("var tmp ="+unescape(vrs[v]));
+			events[v] = tmp;
+		}
+	}
 
 	jwplayer('preview').setup($.extend(vrs, {
-		players:[
-			{type:'flash',src:settings.players[$('#players').val()]}
-		]
+		"players": eval($('#player').val()),
+		"events": events
 	}));
    }
 
@@ -274,17 +313,7 @@
 	/** Get a variable from the player. **/
 	function getVariable(evt) {
 		evt.preventDefault();
-		switch($('#vartype').val().toString()) {
-			case 'config':
-				var obj = player.getConfig();
-				break;
-			case 'playlist':
-				var obj = player.getPlaylist();
-				break;
-			case 'plugin.config':
-				var obj = player.getPluginConfig($('#configplugin').val());
-				break;
-		}
+		var obj = eval("player.get"+$('#vartype').val().toString()+"();");
 		alertValue(obj);
 	};
 	/** Send an event to the player. **/
@@ -309,7 +338,7 @@
 				dat = obj;
 			}
 		}
-		player.sendEvent(typ,dat);
+		player[typ](dat);
 	};
 	/** Set a listener to the player. **/
 	function setListener(evt) {
@@ -346,7 +375,50 @@
 		}
 		alert(txt);
 	};
+	
+		function typeOf(value) {
+		var s = typeof value;
+		if (s === 'object') {
+			if (value) {
+				if (value instanceof Array) {
+					s = 'array';
+				}
+			} else {
+				s = 'null';
+			}
+		}
+		return s;
+	}
+	
+function dump (object) {
+  if (object == null) {
+    return 'null';
+  } else if (typeof(object) != 'object') {
+    if (typeof(object) == 'string'){
+      return"\""+object+"\"";
+    }
+    return object;
+  }
 
+  var type = typeOf(object);
+
+  var result = (type == "array") ? "[" : "{";
+
+  var loopRan = false;
+  for (var i in object) {
+    loopRan = true;
+    if (type == "object") { result += "\""+i+"\":"};
+    result += dump(object[i])+",";
+  }
+
+  if (loopRan) {
+    result = result.substring(0, result.length-1);
+  }
+
+  result  += (type == "array") ? "]" : "}";
+
+  return result;
+}
 
 
 
@@ -355,7 +427,7 @@
 <body>
 
 <?php
-  $selectedScript = 'none';
+  $selectedScript = 'swfobject';
   if (isset($_GET['scripts'])){
   	$selectedScript = $_GET['scripts'];
   }
@@ -403,12 +475,19 @@
 		<fieldset>
 			<label>Variable</label>
 			<select type="text" id="vartype">
-				<option>config</option>
-				<option>playlist</option>
-				<option>plugin.config</option>
+				<option>Buffer</option>
+				<option>Duration</option>
+				<option>Fullscreen</option>
+				<option>Height</option>
+				<option>Meta</option>
+				<option>Mute</option>
+				<option>Playlist</option>
+				<option>PlaylistItem</option>
+				<option>Position</option>
+				<option>State</option>
+				<option>Volume</option>
+				<option>Width</option>
 			</select>
-			<label>Plugin</label>
-			<input type="text" id="configplugin" />
 		</fieldset>
 		<button type="submit" id="variablesbutton">Get variable</button>
 	</form>
@@ -416,51 +495,23 @@
 		<fieldset>
 			<label>Event</label>
 			<select type="text" id="sendevent">
-				<option>ITEM</option>
-				<option>LINK</option>
-				<option>LOAD</option>
-				<option>MUTE</option>
-				<option>NEXT</option>
-				<option>PLAY</option>
-				<option>PREV</option>
-				<option>REDRAW</option>
-				<option>SEEK</option>
-				<option>STOP</option>
-				<option>VOLUME</option>
+				<option>load</option>
+				<option>pause</option>
+				<option>play</option>
+				<option>playlistItem</option>
+				<option>playlistNext</option>
+				<option>playlistPrev</option>
+				<option>resize</option>
+				<option>seek</option>
+				<option>stop</option>
+				<option>setMute</option>
+				<option>setFullscreen</option>
+				<option>setVolume</option>				
 			</select>
 			<label>Data</label>
 			<input type="text" id="sendeventdata" />
 		</fieldset>
 		<button type="submit" id="sendeventbutton">Send event</button>
-	</form>
-	<form id="listenersform">
-		<fieldset>
-			<label>Type</label>
-			<select type="text" id="addremove">
-				<option>add</option>
-				<option>remove</option>
-			</select>
-			<label>Event</label>
-			<select type="text" id="eventtype">
-				<option>Controller: ERROR</option>
-				<option>Controller: ITEM</option>
-				<option>Controller: MUTE</option>
-				<option>Controller: PLAY</option>
-				<option>Controller: PLAYLIST</option>
-				<option>Controller: RESIZE</option>
-				<option>Controller: SEEK</option>
-				<option>Controller: STOP</option>
-				<option>Controller: VOLUME</option>
-				<option></option>
-				<option>Model: BUFFER</option>
-				<option>Model: ERROR</option>
-				<option>Model: LOADED</option>
-				<option>Model: META</option>
-				<option>Model: STATE</option>
-				<option>Model: TIME</option>
-			</select>
-		</fieldset>
-		<button type="submit" id="listenersbutton">Set listener</button>
 	</form>
 </div>
 
@@ -483,12 +534,12 @@
     <select id="htmlblock"><?=$htmlblockselectoroptions?></select>
     <label>scripts</label>
     <select id="scripts"><?=$scriptselectoroptions?></select>
-    <label>player</label>
+    <label>players</label>
     <select id="players"></select>
-		<label>skin</label>
-		<select id="skins"></select>
-		<label>plugins</label>
-		<select multiple="multiple" id="plugins"></select>
+    <label>player</label>
+    <input id="player" name="player" type="text" />
+	<label>skin</label>
+	<select id="skins"></select>
 	</fieldset>
 	<fieldset id="custom">
 		<p>

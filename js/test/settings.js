@@ -14,29 +14,19 @@ var settings = {
   },
 	/** Player versions to test. **/
 	"players": {
-		"5.2":"players/player-5.2.swf",
-		"5.1":"players/player-5.1.swf",
-		"5.0":"players/player-5.0.swf",
-		"4.7":"players/player-4.7.swf",
-		"4.6":"players/player-4.6.swf",
-		"4.5":"players/player-4.5.swf",
-		"4.4":"players/player-4.4.swf",
-		"4.3":"players/player-4.3.swf",
-		"4.2":"players/player-4.2.swf",
-		"4.1":"players/player-4.1.swf"
+		"flash-5.2":[{"type":"flash","src":"players/player-5.2.swf"}],
+		"flash-5.1":[{"type":"flash","src":"players/player-5.1.swf"}],
+		"flash-5.0":[{"type":"flash","src":"players/player-5.0.swf"}],
+		"flash-4.7":[{"type":"flash","src":"players/player-4.7.swf"}],
+		"flash-4.6":[{"type":"flash","src":"players/player-4.6.swf"}],
+		"flash-4.5":[{"type":"flash","src":"players/player-4.5.swf"}],
+		"flash-4.4":[{"type":"flash","src":"players/player-4.4.swf"}],
+		"flash-4.3":[{"type":"flash","src":"players/player-4.3.swf"}],
+		"flash-4.2":[{"type":"flash","src":"players/player-4.2.swf"}],
+		"flash-4.1":[{"type":"flash","src":"players/player-4.1.swf"}]
 	},
 	/** Available plugins to test. **/
 	"plugins": {
-		"agegate":"../plugins/agegate/v5/agegate.swf",
-		"audiodescription":"../plugins/audiodescription/v4/audiodescription.swf",
-		"captions":"../plugins/captions/v4/captions.swf",
-		"hd":"../plugins/hd/v5/trunk/hd.swf",
-		"livestream":"../plugins/livestream/livestream.swf",
-		"metaviewer":"../plugins/metaviewer/metaviewer.swf",
-		"qualitymonitor":"../plugins/qualitymonitor/qualitymonitor.swf",
-		"revolt":"../plugins/revolt/revolt.swf",
-		"searchbar":"../plugins/searchbar/searchbar.swf",
-		"sharing":"../plugins/sharing/v5/sharing.swf"
 	},
 	/** Avaliable skins to test. **/
 	"skins": {
@@ -71,7 +61,8 @@ var settings = {
 			"file":"../files/bunny.flv",
 			"image":"files/bunny.jpg",
 			"height":240,
-			"width":400
+			"width":400,
+			"onBuffer": "function(){'hi how are %20?'}"
 		},
 		"MP4 video": {
 			"file":"../files/bunny.mp4",
