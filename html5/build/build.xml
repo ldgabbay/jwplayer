@@ -7,7 +7,7 @@
 	</target>
 
 	<target name="concat" depends="clean">
-		<concat destfile="${basedir}/jwplayer.js">
+		<concat destfile="${basedir}/jwplayer.html5.js">
 			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.js" />
 			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.states.js" />
 			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.events.js" />
@@ -21,8 +21,8 @@
 
 	<target name="build-release" depends="concat">
 		<java jar="${basedir}/build/yuicompressor-2.4.2.jar" fork="true">
-			<arg line="'${basedir}/jwplayer.js'"/>
-			<arg line="-o '${basedir}/jwplayer.min.js'"/>
+			<arg line="'${basedir}/jwplayer.html5.js'"/>
+			<arg line="-o '${basedir}/jwplayer.html5.min.js'"/>
 		</java>
 	</target>
 	
@@ -30,7 +30,7 @@
 		 <zip destfile="${basedir}/mediaplayer-html5.zip">
 		 	<fileset dir="." includes="license.txt"/>
 		 	<fileset dir="." includes="readme.txt"/>
-			<fileset dir="." includes="jwplayer.js"/>
+			<fileset dir="." includes="jwplayer.html5.js"/>
 		 	<fileset dir="./assets/" includes="**/*.*" excludes=".svn,*.zip"/>
 		 </zip>
 	</target>
