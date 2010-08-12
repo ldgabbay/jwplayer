@@ -155,7 +155,8 @@ package com.longtailvideo.jwplayer.media {
 			}
 			url = encodeURI(url);
 			if (_mp4 || _startparam == 'starttime') {
-				off = _timeoffset;
+				off = Math.ceil(_timeoffset*100)/100;
+				_mp4 = true;
 			}
 			if (!_mp4 || off > 0) {
 				url = getURLConcat(url, _startparam, off);
@@ -270,7 +271,7 @@ package com.longtailvideo.jwplayer.media {
 				_bandwidthTimeout = setTimeout(checkBandwidth, _bandwidthDelay, _stream.bytesLoaded);
 			}
 
-			if (bufferFill < 50 && state == PlayerState.PLAYING) {
+			if (bufferFill < 50 && state == PlayerState.PLAYING && item.duration - pos > _stream.bufferTime) {
 				_bufferFull = false;
 				_stream.pause();
 				setState(PlayerState.BUFFERING);
@@ -353,7 +354,7 @@ package com.longtailvideo.jwplayer.media {
 					}
 					break;
 			}
-			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {status: evt.info.code}});
+			// sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {status: evt.info.code}});
 		}
 
 
