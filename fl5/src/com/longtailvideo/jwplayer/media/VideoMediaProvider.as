@@ -3,6 +3,7 @@
 	import com.longtailvideo.jwplayer.model.PlayerConfig;
 	import com.longtailvideo.jwplayer.model.PlaylistItem;
 	import com.longtailvideo.jwplayer.player.PlayerState;
+	import com.longtailvideo.jwplayer.utils.Configger;
 	import com.longtailvideo.jwplayer.utils.NetClient;
 	import com.longtailvideo.jwplayer.utils.Strings;
 	
@@ -194,6 +195,7 @@
 			if (currentLoaded < _stream.bytesTotal) {
 				if (bandwidth > 0) {
 					config.bandwidth = bandwidth;
+					Configger.saveCookie('bandwidth',bandwidth);
 					var obj:Object = {bandwidth:bandwidth};
 					if (item.duration > 0 && _stream.bytesTotal > 0) {
 						obj.bitrate = Math.ceil(_stream.bytesTotal / 1024 * 8 / item.duration);
