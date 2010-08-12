@@ -34,23 +34,36 @@
 	};
 	
 	jwplayer.api.PlayerAPI = function(container) {
+		this.container = container;
+		this.id = container.id;
+		
 		var _listeners = {};
 		var _stateListeners = {};
 		var _player = undefined;
 		
-		this.container = container;
-		this.id = container.id;
+		var _itemMeta = {};
+		
+		/** Use this function to set the internal low-level player.  This is a javascript object which contains the low-level API calls. **/
+		this.setPlayer = function(player) {
+			if (_player) {
+				//remove all former _player event listeners
+			}
+			_player = player;
+			for (var eventType in _listeners) {
+				this.addInternalListener(_player, eventType);
+			}
+		};
 		
 		this.stateListener = function(state, callback) {
 			if (!_stateListeners[state]) { 
 				_stateListeners[state] = []; 
-				this.eventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, this.stateCallback(state));
+				this.eventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, stateCallback(state));
 			} 
 			_stateListeners[state].push(callback);
 			return this;
 		};
 		
-		this.stateCallback = function(state) {
+		function stateCallback(state) {
 			return function(newstate, oldstate) {
 				if (newstate == state) {
 					var callbacks = _stateListeners[newstate];
@@ -65,8 +78,17 @@
 			};
 		};
 		
+		this.addInternalListener = function(player, type) {
+			player.addEventListener(type, 'function(dat) { jwplayer("'+this.id+'").dispatchEvent("'+type+'", dat); }');
+		};
+		
 		this.eventListener = function(type, callback) {
-			if (!_listeners[type]) { _listeners[type] = []; }
+			if (!_listeners[type]) { 
+				_listeners[type] = []; 
+				if (_player) {
+					this.addInternalListener(_player, type);
+				}
+			}
 			_listeners[type].push(callback);
 			return this;
 		};
@@ -75,16 +97,40 @@
 			if (_listeners[type]) {
 				for (var l in _listeners[type]) {
 					if (typeof _listeners[type][l] == 'function') {
-						_listeners[type][l].apply(this, slice(arguments, 1));
+						_listeners[type][l].call(this, arguments[1]);
 					}
 				}
 			}
 		};
 		
-		this.playerReady = function() {
-			_player = this.container;
+		this.playerReady = function(obj) {
+			this.eventListener('jwplayerMediaMeta', function(data) {
+				jwplayer.utils.extend(_itemMeta, data.metadata);
+			});
+			
+			this.dispatchEvent.call(this, "jwplayerReady", obj);
+			
+			// Todo: setup event callbacks
+			// Todo: run any queued up commands 
+			
 		};
 		
+		this.callInternal = function(funcName, args) {
+			if (_player && typeof _player[funcName] == "function") {
+				if (args !== undefined) {
+					return (_player[funcName])(args);
+				} else {
+					return (_player[funcName])();
+				}
+			}
+			return null;
+		};
+		
+		this.getItemMeta = function() {
+			return _itemMeta;
+		};
+		
+
 		/** Using this function instead of array.slice since Arguments are not an array **/
 		function slice(list, from, to) {
 			var ret = [];
@@ -95,6 +141,7 @@
 			}
 			return ret;
 		}
+		
 	};
 
 	jwplayer.api.PlayerAPI.prototype = {
@@ -104,45 +151,63 @@
 		id: undefined,
 		
 		// Player Getters
-		getBuffer: function() { return undefined; },
-		getFullscreen: function() { return undefined; },
-		getLockState: function() { return undefined; },
-		getMeta: function() { return undefined; },
-		getMute: function() { return undefined; },
-		getPlaylist: function() { return undefined; },
-		getPlaylistItem: function() { return undefined; },
-		getHeight: function() { return undefined; },
-		getWidth: function() { return undefined; },
-		getState: function() { return undefined; },
-		getPosition: function() { return undefined; },
-		getDuration: function() { return undefined; },
-		getVolume: function() { return undefined; },
+		getBuffer: function() { return this.callInternal('getBuffer'); },
+		getDuration: function() { return this.callInternal('getDuration'); },
+		getFullscreen: function() { return this.callInternal('getFullscreen'); },
+		getHeight: function() { return this.container.height; },
+		getLockState: function() { return this.callInternal('getLockState'); },
+		getMeta: function() { return this.getItemMeta(); },
+		getMute: function() { return this.callInternal('getMute'); },
+		getPlaylist: function() { return this.callInternal('getPlaylist'); },
+		getPlaylistItem: function(item) { return this.callInternal('getPlaylist')[item]; },
+		getPosition: function() { return this.callInternal('getPosition'); },
+		getState: function() { return this.callInternal('getState'); },
+		getVolume: function() { return this.callInternal('getVolume'); },
+		getWidth: function() { return this.container.width; },
 		
 		// Player Public Methods
-		setFullscreen: function() { return this; },
-		setMute: function() { return this; },
+		setFullscreen: function(fullscreen) { this.callInternal("setFullscreen", fullscreen); return this;},
+		setMute: function(mute) { this.callInternal("mute", mute); return this; },
 		lock: function() { return this; },
 		unlock: function() { return this; },
-		load: function() { return this; },
-		playlistItem: function() { return this; },
-		playlistPrev: function() { return this; },
-		playlistNext: function() { return this; },
-		resize: function() { return this; },
-		play: function() { 
-			this.dispatchEvent(jwplayer.api.events.JWPLAYER_PLAYER_STATE, 'BUFFERING', 'IDLE'); 
-			this.dispatchEvent(jwplayer.api.events.JWPLAYER_PLAYER_STATE, 'PLAYING', 'BUFFERING'); 
+		load: function(toLoad) { this.callInternal("load", toLoad); return this; },
+		playlistItem: function(item) { this.callInternal("playlistItem", item); return this; },
+		playlistPrev: function() { this.callInternal("playlistPrev"); return this; },
+		playlistNext: function() { this.callInternal("playlistNext"); return this; },
+		resize: function(width, height) { 
+			this.container.width = width; 
+			this.container.height = height; 
 			return this; 
 		},
-		pause: function() { 
-			this.dispatchEvent(jwplayer.api.events.JWPLAYER_PLAYER_STATE, 'PAUSED', 'PLAYING'); 
+		play: function(state) {
+			if (typeof state === "undefined") {
+				var state = this.getState();
+				if (state == jwplayer.api.events.state.PLAYING || state == jwplayer.api.events.state.BUFFERING) {
+					this.callInternal("pause");
+				} else {
+					this.callInternal("play");
+				}
+			} else {
+				this.callInternal("play", state); 
+			}
 			return this; 
 		},
-		stop: function() { 
-			this.dispatchEvent(jwplayer.api.events.JWPLAYER_PLAYER_STATE, 'IDLE', 'PLAYING'); 
+		pause: function(state) {
+			if (typeof state === "undefined") {
+				var state = this.getState();
+				if (state == jwplayer.api.events.state.PAUSED) {
+					this.callInternal("play");
+				} else {
+					this.callInternal("pause");
+				}
+			} else {
+				this.callInternal("pause", state); 
+			}
 			return this; 
 		},
-		seek: function() { return this; },
-		setVolume: function() { return this; },
+		stop: function() { this.callInternal("stop"); return this; }, 
+		seek: function(position) { this.callInternal("seek", position); return this; },
+		setVolume: function(volume) { this.callInternal("volume", volume); return this; },
 		
 		// Player Events
 		onBufferProgress: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, callback); },
@@ -183,7 +248,7 @@
 		}
 		
 		if (_container) {  
-			var foundPlayer = jwplayer.api.playerByContainer(_container);
+			var foundPlayer = jwplayer.api.playerById(_container.id);
 			if (foundPlayer) {
 				return foundPlayer; 
 			} else {
@@ -197,9 +262,9 @@
 		return null;
 	};
 	
-	jwplayer.api.playerByContainer = function(cont) {
+	jwplayer.api.playerById = function(id) {
 		for(var p in _players) {
-			if (_players[p].container == cont) {
+			if (_players[p].container.id == id) {
 				return _players[p];
 			}
 		}
@@ -222,18 +287,15 @@
 		return _players.slice(0); 
 	};
 	
-	var _userPlayerReady = (typeof playerReady == 'function') ? playerReady : undefined;
-	
-	playerReady = function(obj) {
-		var api = jwplayer(obj['id']);
-		api.playerReady();
-		
-		// Todo: setup event callbacks
-		// Todo: run any queued up commands 
-		
-		if (_userPlayerReady) {
-			_userPlayerReady.call(this, obj);
-		}		
-	};
-	
 })(jwplayer);
+
+var _userPlayerReady = (typeof playerReady == 'function') ? playerReady : undefined;
+
+playerReady = function(obj) {
+	var api = jwplayer(obj['id']);
+	api.playerReady(obj);
+	
+	if (_userPlayerReady) {
+		_userPlayerReady.call(this, obj);
+	}		
+};

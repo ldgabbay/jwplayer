@@ -20,9 +20,12 @@ jwplayer.utils.selectors = function(selector){
 	return null;
 };
 
-jwplayer.utils.selectors.getElementsByTagAndClass = function(tagName, className){
+jwplayer.utils.selectors.getElementsByTagAndClass = function(tagName, className, parent) {
 	elements = [];
-	var selected = document.getElementsByTagName(tagName);
+	if (parent === undefined) {
+		parent = document;
+	}
+	var selected = parent.getElementsByTagName(tagName);
 	for (var i = 0; i < selected.length; i++){
 		if (selected[i].className !== undefined){
 			var classes = selected[i].className.split(" ");

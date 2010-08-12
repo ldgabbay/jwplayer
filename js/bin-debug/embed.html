@@ -6,23 +6,18 @@
 		<script type="text/javascript" src="jwplayer.html5.js"></script>
 		<script type="text/javascript">
 			var options = {
-				file:		'../../../testing/files/bunny.mp4',
 				image:		'../../../testing/files/bunny.jpg',
-		        sources: [{
-		            file:"http://content.bitsontherun.com/videos/nPripu9l-327.mp4",
-		            type: "video/mp4"
-		        }],				
 				plugins:	{
 					'sharing-1': {},
 					'viral-2d': {
 						link: 'http://www.longtailvideo.com',
-						'viral.allowmenu': 'true'
+						'allowmenu': 'true'
 					},
 					'fbit-1': {}
 				},
 				players: [
-					{type:'flash', src: '../../../trunk/fl5/player.swf'},
 					{type:'html5'},
+					{type:'flash', src: '../../../trunk/fl5/player.swf'},
 				]
 			}; 
 			function embedPlayer(id) {
@@ -34,7 +29,8 @@
 	<body>
 		<h1>JWPlayer JS Embedder Testing Page</h1>
 		<div id="something">
-			<video id="div1" src="../test/files/bunny.ogv">
+			<video id="div1" width=500 height=300>
+				<source src="../../../testing/files/bunny.mp4" />
 				This is &lt;div&gt; 1.
 			</video>
 		</div>

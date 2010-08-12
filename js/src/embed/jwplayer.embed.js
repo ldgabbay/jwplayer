@@ -6,15 +6,15 @@
 		var events = {},
 			players = {},
 			config = undefined,
-			api = undefined;
-		
+			api = undefined;		
 		this.constructor(playerApi);
 	};
 	
 	jwplayer.embed.Embedder.prototype = {
 		constructor: function(playerApi) {
 			this.api = playerApi;
-			this.config = this.parseConfig(this.api.config);
+			var mediaConfig = jwplayer.utils.mediaparser.parseMedia(this.api.container);
+			this.config = this.parseConfig(jwplayer.utils.extend({}, mediaConfig, this.api.config));
 		},
 	
 		embedPlayer: function() {
@@ -22,15 +22,37 @@
 			if (player && player.type) {
 				switch (player.type) {
 				case 'flash':
-					this.api.container = jwplayer.embed.embedFlash(this.api.container, player, this.config);
+					if (jwplayer.utils.hasFlash()) {
+						if (this.config.levels || this.config.playlist) {
+							this.api.onReady(this.loadAfterReady(this.config));
+						}
+						var flashPlayer = jwplayer.embed.embedFlash(this.api.container, player, this.config);
+						this.api.setPlayer(flashPlayer);
+					} else {
+						this.players.splice(0, 1);
+						embedPlayer();
+					}
 					break;
 				case 'html5':
-					this.api.player = jwplayer.embed.embedHTML5(this.api.container, player, this.config);
-					playerReady({id:this.api.container.id});
+					var html5player = jwplayer.embed.embedHTML5(this.api.container, player, this.config);
+					this.api.setPlayer(html5player);
+					this.api.playerReady({id:this.api.container.id});
 					break;
 				}
 			}
-			return jwplayer.register(this.api);
+			return this.api;
+		},
+		
+		loadAfterReady: function(loadParams) {
+			return function(obj) {
+				if (loadParams.playlist) {
+					this.load(loadParams.playlist);
+				} else if (loadParams.levels) {
+					var item = this.getPlaylistItem(0);
+					item.levels = loadParams.levels;
+					this.load(item);
+				}
+			};
 		},
 		
 		parseConfig: function(config) {
@@ -67,6 +89,14 @@
 		var height = params.height; 
 		delete params['height'];
 		
+		// These properties are loaded after playerready; not sent in as flashvars.
+		if (params.levels && params.levels.length && params.file === undefined) {
+			params.file = params.levels[0]['file'];
+		}
+		
+		delete params['levels'];
+		delete params['playlist'];
+		
 		if (jwplayer.utils.isIE()) {
 			var html = '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" ' + 
 				'width="' + width + '" height="' + height + '" ' +
@@ -93,12 +123,14 @@
 			container.parentNode.replaceChild(obj, container);
 			return obj;
 		}
+		
 	};
 	
 	jwplayer.embed.embedHTML5 = function(container, player, options) {
 		if (jwplayer.html5) {
-			var player = new (jwplayer.html5(container)).setup(jwplayer.utils.extend({}, jwplayer.embed.defaults, options));
-			return player;
+			container.innerHTML = "<p>Embedded HTML5 player goes here</p>";
+			// TODO: remove this requirement from the html5 player (sources instead of levels)
+			return new (jwplayer.html5(container)).setup(jwplayer.utils.extend({sources:options.levels, playerready:'playerReady'}, jwplayer.embed.defaults, options));
 		} else {
 			return null;
 		}
@@ -139,7 +171,6 @@
 	
 	jwplayer.api.PlayerAPI.prototype.setup = function(options, player) {
 		this.config = options;
-		if(player) { this.player = player; }
 		jwplayer.register(this);
 		return (new jwplayer.embed.Embedder(this)).embedPlayer();
 	};
