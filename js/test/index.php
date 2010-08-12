@@ -6,6 +6,7 @@
 <script type="text/javascript" src="files/swfobject.js"></script>
 <script type="text/javascript" src="settings.js"></script>
 <script type="text/javascript" src="../bin-debug/jwplayer.js"></script>
+<script type="text/javascript" src="../../html5/jwplayer.html5.js"></script>
 <script type="text/javascript">
 
 
@@ -236,6 +237,10 @@
 		return {'vrs':vrs,'variables':variables};
    }
    
+   function registerobjectembed() {
+   	   player = jwplayer('preview');
+   	   player.setPlayer(document.getElementById('preview'));
+   }
    
    function swfobjectembed(){
    		var temp = getVariables();
@@ -243,15 +248,15 @@
    		var variables = temp['variables'];
    		$('#preview').css('height',vrs['height']);
 		$('#preview').html('<div id="container"></div>');
-		var player = "";
+		var playerLocation = "";
 		var players = eval($('#player').val());
 		for (var plr in players){
 			if (players[plr]['type'] == 'flash'){
-				player = players[plr]['src'];
+				playerLocation = players[plr]['src'];
 			}
 		}
 		swfobject.embedSWF(
-			player,
+			playerLocation,
 			'container',
 			vrs['width'],
 			vrs['height'],
@@ -259,10 +264,12 @@
 			null,
 			vrs,
 			{allowfullscreen:'true',allowscriptaccess:'always'},
-			{id:'player',name:'player'}
+			{id:'newPlayer',name:'newPlayer'}
 		);
 		var lnk = 'http://developer.longtailvideo.com/trac/testing/';
 		$("#permalink").val(lnk+'?'+$.param(variables));
+		player = jwplayer('newPlayer');
+		player.setPlayer(document.getElementById('newPlayer'));
    }
 
    function jwplayersetup() {
@@ -278,7 +285,7 @@
 		}
 	}
 
-	jwplayer('preview').setup($.extend(vrs, {
+	player = jwplayer('preview').setup($.extend(vrs, {
 		"players": eval($('#player').val()),
 		"events": events
 	}));
@@ -306,10 +313,7 @@
 
 	/** Reference to the player **/
 	var player;
-	/** When the player is ready and the API forms can be shown, display them. **/
-	function playerReady(obj) {
-		player = document.getElementById(obj['id']);
-	};
+
 	/** Get a variable from the player. **/
 	function getVariable(evt) {
 		evt.preventDefault();
@@ -338,7 +342,11 @@
 				dat = obj;
 			}
 		}
-		player[typ](dat);
+		if (dat.toString == "") {
+			player[typ]();
+		} else {
+			player[typ](dat);
+		}
 	};
 	/** Set a listener to the player. **/
 	function setListener(evt) {
@@ -363,17 +371,21 @@
 	/** Alert responses from the player. **/
 	function alertValue(obj) {
 		var txt = '';
-		for (itm in obj) {
-			if(typeof(obj[itm]) == 'object') {
-				txt += itm+':\n';
-				for (ent in obj[itm]) {
-					txt += '  '+ent+': '+obj[itm][ent]+'\n';
+		if (typeof obj == "object") {
+			for (itm in obj) {
+				if(typeof(obj[itm]) == 'object') {
+					txt += itm+':\n';
+					for (ent in obj[itm]) {
+						txt += '  '+ent+': '+obj[itm][ent]+'\n';
+					}
+				} else {
+					txt += itm+': '+obj[itm]+'\n';
 				}
-			} else {
-				txt += itm+': '+obj[itm]+'\n';
 			}
+			alert(txt);
+		} else {
+			alert(obj)
 		}
-		alert(txt);
 	};
 	
 		function typeOf(value) {

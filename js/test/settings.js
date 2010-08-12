@@ -2,18 +2,19 @@ var settings = {
   /** The HTML element which will be embedded over  **/
   "html":{
     "default": "<div id='preview'><p>Testing is simple: choose an example, change the flashvars and see if it works.</p></div>",
-    "object": "<embed id='preview' name='preview' src='players/player-5.2.swf' width='470' height='320' bgcolor='#000000' allowscriptaccess='always' allowfullscreen='true' flashvars='file=http://content.longtailvideo.com/videos/flvplayer.flv' />",
-    "embed": "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' width='470' height='320' id='preview' name='preview'><param name='movie' value='players/player-5.2.swf'><param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'>  <param name='flashvars' value='file=http://content.longtailvideo.com/videos/flvplayer.flv'>",
-    "video": "<video id='preview' height='270' poster='files/bunny.jpg' src='files/bunny.mp4' width='480'></video>"
+    "object": "<embed id='preview' name='preview' src='players/player-5.3.swf' width='470' height='320' bgcolor='#000000' allowscriptaccess='always' allowfullscreen='true' flashvars='file=http://content.longtailvideo.com/videos/flvplayer.flv' />",
+    "embed": "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' width='470' height='320' id='preview' name='preview'><param name='movie' value='players/player-5.3.swf'><param name='allowfullscreen' value='true'> <param name='allowscriptaccess' value='always'> <param name='wmode' value='transparent'>  <param name='flashvars' value='file=http://content.longtailvideo.com/videos/flvplayer.flv'>",
+    "video": "<video id='preview' height='270' poster='files/bunny.jpg' width='480'><source src='files/bunny.mp4'/></video>"
   },
   /** The embed script to use **/
   "script":{
-    "none":"(function() {})",
+    "none":"registerobjectembed",
     "swfobject":"swfobjectembed",
     "jwembed":"jwplayersetup"
   },
 	/** Player versions to test. **/
 	"players": {
+		"flash-5.3":[{"type":"flash","src":"players/player-5.3.swf"}],
 		"flash-5.2":[{"type":"flash","src":"players/player-5.2.swf"}],
 		"flash-5.1":[{"type":"flash","src":"players/player-5.1.swf"}],
 		"flash-5.0":[{"type":"flash","src":"players/player-5.0.swf"}],

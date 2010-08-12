@@ -83,7 +83,10 @@ jwplayer.utils.hasFlash = function() {
 		source: {
 			src: 'file',
 			type: 'type',
-			media: 'media'
+			media: 'media',
+			'data-jw-width': 'width',
+			'data-jw-bitrate': 'bitrate'
+				
 		},
 		video: {
 			poster: 'image'
@@ -159,8 +162,8 @@ jwplayer.utils.hasFlash = function() {
 	function parseSourceElement(domElement, attributes) {
 		attributes = getAttributeList('source', attributes);
 		var result = parseElement(domElement, attributes);
-		result.width = 0;
-		result.bitrate = 0;
+		result.width = result.width ? result.width : 0;
+		result.bitrate = result.bitrate ? result.bitrate : 0;
 		return result;
 	}
 	
@@ -339,7 +342,7 @@ jwplayer.utils.strings.trim = function(inputString){
 		};
 		
 		this.callInternal = function(funcName, args) {
-			if (_player && typeof _player[funcName] == "function") {
+			if (typeof _player != "undefined" && typeof _player[funcName] == "function") {
 				if (args !== undefined) {
 					return (_player[funcName])(args);
 				} else {
@@ -382,7 +385,10 @@ jwplayer.utils.strings.trim = function(inputString){
 		getMeta: function() { return this.getItemMeta(); },
 		getMute: function() { return this.callInternal('getMute'); },
 		getPlaylist: function() { return this.callInternal('getPlaylist'); },
-		getPlaylistItem: function(item) { return this.callInternal('getPlaylist')[item]; },
+		getPlaylistItem: function(item) {
+			if (item == undefined) item = 0;
+			return this.getPlaylist()[item]; 
+		},
 		getPosition: function() { return this.callInternal('getPosition'); },
 		getState: function() { return this.callInternal('getState'); },
 		getVolume: function() { return this.callInternal('getVolume'); },
@@ -415,16 +421,16 @@ jwplayer.utils.strings.trim = function(inputString){
 			}
 			return this; 
 		},
-		pause: function(state) {
-			if (typeof state === "undefined") {
-				var state = this.getState();
-				if (state == jwplayer.api.events.state.PAUSED) {
-					this.callInternal("play");
-				} else {
-					this.callInternal("pause");
-				}
-			} else {
-				this.callInternal("pause", state); 
+		pause: function() {
+			var state = this.getState();
+			switch (state) {
+			case jwplayer.api.events.state.PLAYING:
+			case jwplayer.api.events.state.BUFFERING:
+				this.callInternal("pause");
+				break;
+			case jwplayer.api.events.state.PAUSED:
+				this.callInternal("play");
+				break;
 			}
 			return this; 
 		},
@@ -476,7 +482,7 @@ jwplayer.utils.strings.trim = function(inputString){
 				return foundPlayer; 
 			} else {
 				// Todo: register new object
-				return new jwplayer.api.PlayerAPI(_container); 
+				return jwplayer.api.addPlayer(new jwplayer.api.PlayerAPI(_container));
 			}
 		} else if (typeof identifier == 'number') {
 			return jwplayer.getPlayers()[identifier];
@@ -494,7 +500,7 @@ jwplayer.utils.strings.trim = function(inputString){
 		return null;
 	};
 	
-	jwplayer.register = jwplayer.api.addPlayer = function(player) {
+	jwplayer.api.addPlayer = function(player) {
 		for (var i in _players) {
 			if (_players[i] == player) {
 				return player; // Player is already in the list;
@@ -560,6 +566,7 @@ playerReady = function(obj) {
 				case 'html5':
 					var html5player = jwplayer.embed.embedHTML5(this.api.container, player, this.config);
 					this.api.setPlayer(html5player);
+					//TODO: Remove this once HTML5 player calls playerReady()
 					this.api.playerReady({id:this.api.container.id});
 					break;
 				}
@@ -654,7 +661,9 @@ playerReady = function(obj) {
 		if (jwplayer.html5) {
 			container.innerHTML = "<p>Embedded HTML5 player goes here</p>";
 			// TODO: remove this requirement from the html5 player (sources instead of levels)
-			return new (jwplayer.html5(container)).setup(jwplayer.utils.extend({sources:options.levels, playerready:'playerReady'}, jwplayer.embed.defaults, options));
+			var playerOptions = jwplayer.utils.extend({}, jwplayer.embed.defaults, options);
+			if (playerOptions.levels && !playerOptions.sources) playerOptions.sources = options.levels;
+			return new (jwplayer.html5(container)).setup(playerOptions);
 		} else {
 			return null;
 		}
@@ -695,7 +704,6 @@ playerReady = function(obj) {
 	
 	jwplayer.api.PlayerAPI.prototype.setup = function(options, player) {
 		this.config = options;
-		jwplayer.register(this);
 		return (new jwplayer.embed.Embedder(this)).embedPlayer();
 	};
 	

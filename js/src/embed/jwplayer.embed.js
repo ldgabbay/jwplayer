@@ -36,6 +36,7 @@
 				case 'html5':
 					var html5player = jwplayer.embed.embedHTML5(this.api.container, player, this.config);
 					this.api.setPlayer(html5player);
+					//TODO: Remove this once HTML5 player calls playerReady()
 					this.api.playerReady({id:this.api.container.id});
 					break;
 				}
@@ -130,7 +131,9 @@
 		if (jwplayer.html5) {
 			container.innerHTML = "<p>Embedded HTML5 player goes here</p>";
 			// TODO: remove this requirement from the html5 player (sources instead of levels)
-			return new (jwplayer.html5(container)).setup(jwplayer.utils.extend({sources:options.levels, playerready:'playerReady'}, jwplayer.embed.defaults, options));
+			var playerOptions = jwplayer.utils.extend({}, jwplayer.embed.defaults, options);
+			if (playerOptions.levels && !playerOptions.sources) playerOptions.sources = options.levels;
+			return new (jwplayer.html5(container)).setup(playerOptions);
 		} else {
 			return null;
 		}
@@ -171,7 +174,6 @@
 	
 	jwplayer.api.PlayerAPI.prototype.setup = function(options, player) {
 		this.config = options;
-		jwplayer.register(this);
 		return (new jwplayer.embed.Embedder(this)).embedPlayer();
 	};
 	

@@ -116,7 +116,7 @@
 		};
 		
 		this.callInternal = function(funcName, args) {
-			if (_player && typeof _player[funcName] == "function") {
+			if (typeof _player != "undefined" && typeof _player[funcName] == "function") {
 				if (args !== undefined) {
 					return (_player[funcName])(args);
 				} else {
@@ -159,7 +159,10 @@
 		getMeta: function() { return this.getItemMeta(); },
 		getMute: function() { return this.callInternal('getMute'); },
 		getPlaylist: function() { return this.callInternal('getPlaylist'); },
-		getPlaylistItem: function(item) { return this.callInternal('getPlaylist')[item]; },
+		getPlaylistItem: function(item) {
+			if (item == undefined) item = 0;
+			return this.getPlaylist()[item]; 
+		},
 		getPosition: function() { return this.callInternal('getPosition'); },
 		getState: function() { return this.callInternal('getState'); },
 		getVolume: function() { return this.callInternal('getVolume'); },
@@ -192,16 +195,16 @@
 			}
 			return this; 
 		},
-		pause: function(state) {
-			if (typeof state === "undefined") {
-				var state = this.getState();
-				if (state == jwplayer.api.events.state.PAUSED) {
-					this.callInternal("play");
-				} else {
-					this.callInternal("pause");
-				}
-			} else {
-				this.callInternal("pause", state); 
+		pause: function() {
+			var state = this.getState();
+			switch (state) {
+			case jwplayer.api.events.state.PLAYING:
+			case jwplayer.api.events.state.BUFFERING:
+				this.callInternal("pause");
+				break;
+			case jwplayer.api.events.state.PAUSED:
+				this.callInternal("play");
+				break;
 			}
 			return this; 
 		},
@@ -253,7 +256,7 @@
 				return foundPlayer; 
 			} else {
 				// Todo: register new object
-				return new jwplayer.api.PlayerAPI(_container); 
+				return jwplayer.api.addPlayer(new jwplayer.api.PlayerAPI(_container));
 			}
 		} else if (typeof identifier == 'number') {
 			return jwplayer.getPlayers()[identifier];
@@ -271,7 +274,7 @@
 		return null;
 	};
 	
-	jwplayer.register = jwplayer.api.addPlayer = function(player) {
+	jwplayer.api.addPlayer = function(player) {
 		for (var i in _players) {
 			if (_players[i] == player) {
 				return player; // Player is already in the list;
