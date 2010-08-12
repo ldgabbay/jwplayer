@@ -222,7 +222,10 @@ package com.longtailvideo.jwplayer.media {
 		
 		/** Finalizes the loading process **/
 		private function finishLoad():void {
-			if (item.file.substr(-4) == '.mp3') {
+			if (item.file.substr(-4) == '.mp3' || 
+				item.file.substr(0,4) == 'mp3:' ||
+				item.file.substr(-4) == '.aac' ||
+				item.file.substr(-4) == '.m4a') {
 				media = null;
 			} else if (!media) {
 				media = _video;
