@@ -278,6 +278,9 @@
    	var variables = temp['variables'];
 	var events = {};
 
+ 	$('#preview').css('height',vrs['height']);
+	$('#preview').html('<div id="container"></div>');
+
 	for (var v in vrs){
 		if (v.indexOf("on") === 0){
 			eval("var tmp ="+unescape(vrs[v]));
@@ -285,7 +288,7 @@
 		}
 	}
 
-	player = jwplayer('preview').setup($.extend(vrs, {
+	player = jwplayer('container').setup($.extend(vrs, {
 		"players": eval($('#player').val()),
 		"events": events
 	}));
