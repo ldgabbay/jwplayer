@@ -212,7 +212,7 @@ Unlicensed copies of the JW Player contain a small watermark that pops up when t
 
 .. describe:: logo.hide ( true ) 
 
-   By default, the logo will automatically show when the player buffers and hide 5 seconds later. When this option is set *false*, the logo will stay visible all the time.
+   By default, the logo will automatically show when the player buffers and hide 3 seconds later. When this option is set *false*, the logo will stay visible all the time.
 
 .. describe:: logo.position ( bottom-left )
 
@@ -223,6 +223,9 @@ Unlicensed copies of the JW Player contain a small watermark that pops up when t
    * **top-left**
    * **top-right**
 
+.. describe:: logo.timeout ( 3 )
+
+   When logo.hide is set to *true*, this option sets the number of seconds the logo is visible after it appears.
 
 .. note::
 

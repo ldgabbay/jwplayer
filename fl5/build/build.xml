@@ -110,6 +110,9 @@
 			<!-- Enable incremental compilation -->
 			<arg line="-incremental=true" />
 
+			<!-- Needed for Flex 4.x -->
+			<arg line="-static-link-runtime-shared-libraries=true" />
+
 			<!-- Compile with network sandbox -->
 			<arg line="-use-network=true" />
 
@@ -189,6 +192,9 @@
 
 			<!-- Enable incremental compilation -->
 			<arg line="${incrementLine}" />
+
+			<!-- Needed for Flex 4.x -->
+			<arg line="-static-link-runtime-shared-libraries=true" />
 
 			<!-- Optimize for size -->
 			<arg line="${optimizeLine}" />

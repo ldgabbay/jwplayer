@@ -16,6 +16,7 @@ package com.longtailvideo.jwplayer.player {
 	import com.longtailvideo.jwplayer.plugins.IPlugin;
 	import com.longtailvideo.jwplayer.plugins.PluginConfig;
 	import com.longtailvideo.jwplayer.plugins.V4Plugin;
+	import com.longtailvideo.jwplayer.utils.JavascriptSerialization;
 	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.Strings;
 	import com.longtailvideo.jwplayer.view.interfaces.IControlbarComponent;
@@ -225,7 +226,7 @@ package com.longtailvideo.jwplayer.player {
 		}
 
 		private function playlistLoad(evt:PlaylistEvent):void {
-			controllerEventDispatcher.dispatchEvent(new ControllerEvent(ControllerEvent.PLAYLIST, {playlist:playlistToArray(_player.playlist), id:id, client:client, version:version}));
+			controllerEventDispatcher.dispatchEvent(new ControllerEvent(ControllerEvent.PLAYLIST, {playlist:JavascriptSerialization.playlistToArray(_player.playlist), id:id, client:client, version:version}));
 		}
 		
 		
@@ -358,48 +359,7 @@ package com.longtailvideo.jwplayer.player {
 		} 
 
 		public override function get playlist():Array {
-			return playlistToArray(_player.playlist);
-		}
-		
-		private function playlistToArray(list:IPlaylist):Array {
-			var arry:Array = [];
-			
-			for (var i:Number=0; i < list.length; i++) {
-				arry.push(playlistItemToObject(list.getItemAt(i)));
-			}
-			
-			return arry;
-		}
-		
-		private function playlistItemToObject(item:PlaylistItem):Object {
-			var obj:Object = {
-				'author':		item.author,
-				'date':			item.date,
-				'description':	item.description,
-				'duration':		item.duration,
-				'file':			item.file,
-				'image':		item.image,
-				'link':			item.link,
-				'mediaid':		item.mediaid,
-				'start':		item.start,
-				'streamer':		item.streamer,
-				'tags':			item.tags,
-				'title':		item.title,
-				'type':			item.provider
-			};
-			
-			for (var i:String in item) {
-				obj[i] = item[i];
-			}
-			
-			if (item.levels.length > 0) {
-				obj['levels'] = [];
-				for each (var level:PlaylistItemLevel in item.levels) {
-					obj['levels'].push({url:level.file, bitrate:level.bitrate, width:level.width});
-				}
-			}
-			
-			return obj;
+			return JavascriptSerialization.playlistToArray(_player.playlist);
 		}
 		
 		public override function getPluginConfig(plugin:Object):Object {

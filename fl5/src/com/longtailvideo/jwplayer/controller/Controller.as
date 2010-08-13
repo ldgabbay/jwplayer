@@ -553,7 +553,7 @@ package com.longtailvideo.jwplayer.controller {
 
 
 		protected function loadObject(item:Object):Boolean {
-			if ((item as Object).hasOwnProperty('file')) {
+			if (item.hasOwnProperty('file') || item.hasOwnProperty('levels')) {
 				_model.playlist.load(new PlaylistItem(item));
 				return true;
 			}
