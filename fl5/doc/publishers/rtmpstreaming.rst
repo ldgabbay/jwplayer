@@ -11,7 +11,8 @@ RTMP (Real Time Messaging Protocol) is a system for delivering on-demand and liv
 
 However, do note that RTMP has its disadvantages too. Especially since the introduction of :ref:`httpstreaming` (which also offer seeking to not-yet-downloaded parts), RTMP is not the only option for professional video delivery. Some drawbacks to be aware of:
 
-* RTMP is a different protocol than HTTP and is sent over a different port (1935 instead of 80). Therefore, RTMP is frequently blocked by (corporate) firewalls. This can be circumvented by using RTMPT (tunneled), but this comes at a performance cost (longer buffer times - 2x in our experience).
+* RTMP is a different protocol than HTTP and is sent over a different port (1935 instead of 80). Therefore, RTMP is frequently blocked by (corporate) firewalls. The JW Player 5.3 :ref:`detects and circumvents this issue <rtmpt>`.
+
 * RTMP is a *true* streaming protocol, which means that the bandwidth of the connection must always be larger than the datarate of the video. If the connection drops for just a few seconds, the stream will stutter. If the connection overall is just a little less than the video datarate, the video will not play at all. With :ref:`httpstreaming` on the other hand, people can simply wait until more of the video is downloaded.
 
 The JW Player supports a wide array of features of the RTMP protocol.
@@ -134,7 +135,7 @@ A live stream can be embedded in the player using the same options as an on-dema
 Subscribing
 ^^^^^^^^^^^
 
-When streaming live streams using the Akamai or Limelight CDN, players cannot simply connect to the live stream. Instead, they have to *subscribe* to it, by sending an **FCSubscribe call** to the server. The JW Player includes support for this functionality. Simply add the *rtmp.subscribe=true* option to your embed code to enable:
+When streaming live streams using the Akamai, Edgecast or Limelight CDN, players cannot simply connect to the live stream. Instead, they have to *subscribe* to it, by sending an **FCSubscribe call** to the server. The JW Player includes support for this functionality. Simply add the *rtmp.subscribe=true* option to your embed code to enable:
 
 .. code-block:: html
 
@@ -319,3 +320,21 @@ See the playlist section above for more information on format and element suppor
 .. note:: 
 
    A combination of load balancing + dynamic streaming is not possible yet. We are working on such a functionality, which will be included in a future version of the player.
+
+
+.. _rtmpt:
+
+RTMP Tunnelling
+---------------
+
+A frequent issue with RTMP streaming is the protocol being blocked by corporate firewalls. RTMP uses the UDP transmission protocol over port 1935, whereas regular HTTP traffic uses the TCP protocol over port 80.
+
+All current-day RTMP servers have a way to circumvent this issue, by **tunnelling** the RTMP data in HTTP packets, over TCP and port 80. Performance will degrade - especially the buffer times, which may double - but the video can be pushed through corporate firewalls.
+
+The 5.3 player introduced a mechanism that automatically detects and circumvents firewall issues for RTMP streaming. Here's how it works:
+
+* First, the player connects to the regular application, either RTMP or RTMPe (encrypted).
+* 500 milliseconds later, the player connects to the same application over a tunneled connection, either RTMPT or RTMPTe (tunnelled and encrypted).
+* Whichever connection is established first is used for streaming the video.
+
+In most cases the player is connected to the application over RTMP within 500 milliseconds, cancelling the second connection. This functionality is fully automated (no need to set port numbers or **t** in your *streamer* flashvar) and works for all flavors of RTMP streaming (on-demand, live, dvr and dynamic).
