@@ -1177,7 +1177,7 @@
 	function _displayClickHandler(player) {
 		return function(evt) {
 			if (player._media === undefined) {
-				document.location.href = jwplayer.html5.utils.getAbsolutePath(player.getPlaylist()[player.getConfig().item].sources[0]);
+				document.location.href = jwplayer.html5.utils.getAbsolutePath(player.getPlaylist()[player.getConfig().item].levels[0]);
 				return;
 			}
 			if (typeof evt.preventDefault != 'undefined') {
@@ -1654,8 +1654,8 @@
 		} else if (vid.autoplay){
 			vid.autoplay = player._model.config.autoplay;
 		}
-		for (var sourceIndex in playlistItem.sources){
-			var sourceModel = playlistItem.sources[sourceIndex];
+		for (var sourceIndex in playlistItem.levels){
+			var sourceModel = playlistItem.levels[sourceIndex];
 			var source = div1.ownerDocument.createElement("source");
 			source.src = jwplayer.html5.utils.getAbsolutePath(sourceModel.file);
 			if (sourceModel.type === undefined) {
@@ -1705,14 +1705,17 @@
 		$.extend(this.config, options);
 		if (this.config.playlist && this.config.playlist.length > 0){
 			this.playlist = this.config.playlist;
-			delete this.config.playlist;
-		} else if (this.config.sources && this.config.sources.length > 0) {
-			this.playlist = [{"sources": this.config.sources}];
-			delete this.config.sources;
+		} else if (this.config.levels && this.config.levels.length > 0) {
+			this.playlist = [{"levels": this.config.levels}];
+		} else if (this.config.file){
+			this.playlist = [{"levels": [{"file":this.config.file}]}];
 		}
 		for (var index in _configurableStateVariables) {
 			var configurableStateVariable = _configurableStateVariables[index];
 			this[configurableStateVariable] = this.config[configurableStateVariable];
+		}
+		if (this.config.skin.length === 0){
+			this.config.skin = "1.xml";
 		}
 		return this;
 	};
