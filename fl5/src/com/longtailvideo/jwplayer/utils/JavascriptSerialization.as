@@ -46,7 +46,23 @@ package com.longtailvideo.jwplayer.utils
 				}
 			}
 			
-			return obj;
+			return stripDots(obj);
 		}
+		
+		public static function stripDots(obj:Object):Object {
+			var newObj:Object = (obj is Array) ? new Array() : new Object();
+			for (var i:String in obj) {
+				if (i.indexOf(".") < 0) {
+					if (typeof(obj[i]) == "object") {
+						newObj[i] = stripDots(obj[i]);
+					} else {
+						newObj[i] = obj[i];
+					}
+				}
+			}
+			return newObj;
+		}
+		
+		
 	}
 }

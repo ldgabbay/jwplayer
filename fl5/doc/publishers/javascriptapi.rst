@@ -118,10 +118,6 @@ Here's the full list of state variables:
 
    Currently active bitrate level, in case multipe bitrates are supplied to the player. This is only useful for  :ref:`httpstreaming` and :ref:`rtmpstreaming`. Note that *0* always refers to the highest quality bitrate.
 
-.. describe:: position
-
-   current playback position, in seconds (e.g. *13.2*).
-
 .. describe:: state
 
    Current playback state of the player, as an uppercase string. It can be one of the following:
@@ -191,35 +187,35 @@ The player can be controlled from JavaScript by sending events (e.g. to pause it
 Here's the full list of events you can send, plus their parameters:
 
 
-.. describe:: item ( index:Number )
+.. describe:: ITEM ( index:Number )
 
    Start playback of a specific item in the playlist. If *index* isn't set, the current playlistitem will start.
 
-.. describe:: link ( index:Number )
+.. describe:: LINK ( index:Number )
 
    Navigate to the *link* of a specific item in the playlist. If *index* is not set, the player will navigate to the link of the current playlistitem.
 
-.. describe:: load ( url:String )
+.. describe:: LOAD ( url:String )
 
    Load a new media file or playlist into the player. The *url* must always be sent.
 
-.. describe:: mute ( state:Boolean )
+.. describe:: MUTE ( state:Boolean )
 
    Mute or unmute the player's sound. If the *state* is not set, muting will be toggled.
 
-.. describe:: next
+.. describe:: NEXT
 
    Jump to the next entry in the playlist.  No parameters.
 
-.. describe:: play ( state:Boolean )
+.. describe:: PLAY ( state:Boolean )
 
    Play (set *state* to *true*) or pause (set *state* to *false*) playback. If the *state* is not set, the player will toggle playback.
 
-.. describe:: prev
+.. describe:: PREV
 
    Jump to the previous entry in the playlist.  No parameters.
 
-.. describe:: seek ( position:Number )
+.. describe:: SEEK ( position:Number )
 
    Seek to a certain position in the currently playing media file. The *position* must be in seconds (e.g. *65* for one minute and five seconds). 
 
@@ -227,11 +223,11 @@ Here's the full list of events you can send, plus their parameters:
 
       Seeking does not work if the player is in the *IDLE* state. Make sure to check the *state* variable before attempting to seek. Additionally, for the *video* media :ref:`provider <mediaformats>`, the player can only seek to portions of the video that are already loaded. Other media providers do not have this additional restriction.
 
-.. describe:: stop
+.. describe:: STOP
 
    Stop playback of the current playlist entry and unload it. The player will revert to the *IDLE* state and the poster image will be shown. No parameters.
 
-.. describe:: volume ( percentage:Number )
+.. describe:: VOLUME ( percentage:Number )
 
    Change the audio volume of the player to a certain percentage (e.g. *90*). If the player is muted, it will automatically be unmuted when a volume event is sent.
 
@@ -242,7 +238,7 @@ Here's the full list of events you can send, plus their parameters:
 Setting listeners
 -----------------
 
-In order to let JavaScript respond to player updates, you can assign listener functions to various events the player fires. An example of such event is the *volume* one, when the volume of the player is changed. The player will call the listener function with one parameter, a *key:value* populated object that contains more info about the event.
+In order to let JavaScript respond to player updates, you can assign listener functions to various events the player fires. An example of such event is the *VOLUME* event, when the volume of the player is changed. The player will call the listener function with one parameter, a *key:value* populated object that contains more info about the event.
 
 In the naming of the listener functions, the internal architecture of the JW Player sines through a little. Internally, the player is built using a Mode-View-Controller design pattern:
 
@@ -257,19 +253,19 @@ Basically, the events from the View are those you send out using the *sendEvent(
    function stateTracker(obj) { 
       alert('the playback state is changed from '+obj.oldstate+' to '+obj.newstate);
    };
-   player.addModelListener("state","stateTracker");
+   player.addModelListener("STATE","stateTracker");
 
    function volumeTracker(obj) {
       alert('the audio volume is changed to: '+obj.percentage'+ percent');
    };
-   player.addControllerListener("volume","volumeTracker");
+   player.addControllerListener("VOLUME","volumeTracker");
 
 If you only need to listen to a certain event for a limited amount of time (or just once), use the *removeModelListener()* and removeControllerListener()* functions to unsubscribe your listener function. The syntax is exactly the same:
 
 .. code-block:: html
 
-   player.removeModelListener("state","stateTracker");
-   player.removeControllerListener("volume","volumeTracker");
+   player.removeModelListener("STATE","stateTracker");
+   player.removeControllerListener("VOLUME","volumeTracker");
 
 .. note:: 
 
@@ -280,21 +276,19 @@ Model events
 
 Here's an overview of all events the *Model* sends. Note that the data of every event contains the *id*, *version* and *client* parameters that are also sent on :ref:`playerReady <javascriptapi>`.
 
-.. describe:: error
+.. describe:: ERROR
 
    Fired when a playback error occurs (e.g. when the video is not found or the stream is dropped). Data:
 
    * *message* ( String ): the error message, e.g. *file not found*  or *no suiteable playback codec found*.
 
-.. describe:: loaded
+.. describe:: BUFFER
 
-   Fired while the player is busy loading the currently playing media item. This event is never sent for :ref:`rtmpstreaming`, since that protocol does not preload content. Data:
+   Fired when the player loads some media into its buffer.
 
-   * *loaded* ( Number ): the number of bytes of the media file that are currently loaded.
-   * *total* ( Number ): the total filesize of the media file, in bytes.
-   * *offset* (Number): the byte position of the media file at which loading started. This is always 0, except when using :ref:`httpstreaming`.
+   * *percentage* ( Number ): The percentage (0-100) of seconds buffered versus the media's duration.  i.e. if the media is 60 seconds long, and half of the video has been buffered, a buffer event will be fired with percentage=50.
 
-.. describe:: meta
+.. describe:: META
 
    Fired when metadata on the currently playing media file is received. The exact metadata that is sent with this event varies per individual media file. Here are some examples:
 
@@ -333,31 +327,31 @@ Controller events
 
 Here's an overview of all events the *Controller* sends. Note that the data of every event contains the *id*, *version* and *client* parameters that are also sent on :ref:`playerReady <javascriptapi>`.
 
-.. describe:: item
+.. describe:: ITEM
 
    Fired when the player switches to a new playlist entry. The new item will immediately start playing. Data:
 
   * *index* ( Number ): playlist index of the media file that starts playing.
 
-.. describe:: mute
+.. describe:: MUTE
 
    Fired when the player's audio is muted or unmuted. Data:
 
    * *state* ( Boolean ): the new mute state. If *true*, the player is muted.
  
-.. describe:: play
+.. describe:: PLAY
 
    Fired when the player toggles playback (playing/paused). Data:
 
    * *state* ( Boolean ): the new playback state. If *true*, the player plays. If *false*, the player pauses.
 
-.. describe:: playlist
+.. describe:: PLAYLIST
 
    Fired when a new playlist (a single file is also pushed as a playlist!) has been loaded into the player. Data:
 
    * *playlist* ( Array ): The new playlist. It has exactly the same structure as the return of the *getPlaylist()* call.
 
-.. describe:: resize
+.. describe:: RESIZE
 
    Fired when the player is resized. This includes entering/leaving fullscreen mode. Data:
 
@@ -365,17 +359,17 @@ Here's an overview of all events the *Controller* sends. Note that the data of e
    * *height* ( Number ): The overall height of the player.
    * *width* ( Number ): The overall width of the player.
 
-.. describe:: seek
+.. describe:: SEEK
 
    Fired when the player is seeking to a new position in the video/sound/image. Parameters:
 
    * *position* ( Number ): the new position in the file, in seconds (e.g. *150* for two and a half minute).
 
-.. describe:: stop
+.. describe:: STOP
 
    Fired when the player stops loading and playing. The playback state will turn to *IDLE* and the position of a video will be set to 0. No data.
 
-.. describe:: volume
+.. describe:: VOLUME
 
    Fired when the volume level is changed. Data:
 

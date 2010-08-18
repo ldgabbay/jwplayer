@@ -233,24 +233,24 @@ package com.longtailvideo.jwplayer.player {
 		// Listeners
 
 		public override function addModelListener(type:String, listener:Function):void {
-			modelEventDispatcher.addEventListener(type, listener);
+			modelEventDispatcher.addEventListener(type.toUpperCase(), listener);
 		} 
 		public override function removeModelListener(type:String, listener:Function):void {
-			modelEventDispatcher.removeEventListener(type, listener);
+			modelEventDispatcher.removeEventListener(type.toUpperCase(), listener);
 		} 
 
 		public override function addViewListener(type:String, listener:Function):void {
-			viewEventDispatcher.addEventListener(type, listener);
+			viewEventDispatcher.addEventListener(type.toUpperCase(), listener);
 		} 
 		public override function removeViewListener(type:String, listener:Function):void {
-			viewEventDispatcher.removeEventListener(type, listener);
+			viewEventDispatcher.removeEventListener(type.toUpperCase(), listener);
 		} 
 
 		public override function addControllerListener(type:String, listener:Function):void {
-			controllerEventDispatcher.addEventListener(type, listener);
+			controllerEventDispatcher.addEventListener(type.toUpperCase(), listener);
 		} 
 		public override function removeControllerListener(type:String, listener:Function):void {
-			controllerEventDispatcher.removeEventListener(type, listener);
+			controllerEventDispatcher.removeEventListener(type.toUpperCase(), listener);
 		}
 		
 		// Event "dispatcher"
