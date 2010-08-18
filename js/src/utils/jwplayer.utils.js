@@ -36,6 +36,74 @@ jwplayer.utils.html = function(element, content) {
 	element.innerHTML = content;
 };
 
+/** Appends an HTML element to another element HTML element **/
+jwplayer.utils.append = function(originalElement, appendedElement) {
+	originalElement.appendChild(appendedElement);
+};
+
+/** Wraps an HTML element with another element **/
+jwplayer.utils.wrap = function(originalElement, appendedElement) {
+	originalElement.parentNode.replaceChild(appendedElement, originalElement);
+	appendedElement.appendChild(originalElement);
+};
+
+/** Loads an XML file into a DOM object **/
+jwplayer.utils.ajax = function(xmldocpath, completecallback, errorcallback){
+	var xmlhttp;
+	if (window.XMLHttpRequest){
+	// IE>7, Firefox, Chrome, Opera, Safari
+		xmlhttp = new XMLHttpRequest();
+	} else {
+	// IE6
+		xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange = function() {
+		if (xmlhttp.readyState === 4){
+			if (xmlhttp.status === 200){
+				if (completecallback) {
+					completecallback(xmlhttp);
+				}
+			} else {
+				if (errorcallback) {
+					errorcallback(xmldocpath);
+				}
+			}
+		}
+	};
+	xmlhttp.open("GET", xmldocpath, false);
+	xmlhttp.send();
+	return xmlhttp;
+};
+
+/** Loads a file **/
+jwplayer.utils.load = function(domelement, completecallback, errorcallback){
+	domelement.onreadystatechange = function() {
+		if (domelement.readyState === 4){
+			if (domelement.status === 200){
+				if (completecallback) {
+					completecallback();
+				}
+			} else {
+				if (errorcallback) {
+					errorcallback();
+				}
+			}
+		}
+	};
+};
+
+/** Finds tags in a DOM, returning a new DOM **/
+jwplayer.utils.find = function(dom, tag){
+	return dom.getElementsByTagName(tag);
+};
+
+/** **/
+
+/** Appends an HTML element to another element HTML element **/
+jwplayer.utils.append = function(originalElement, appendedElement) {
+	originalElement.appendChild(appendedElement);
+};
+
 /**
  * Detects whether the current browser is IE.
  * Technique from http://webreflection.blogspot.com/2009/01/32-bytes-to-know-if-your-browser-is-ie.html 
