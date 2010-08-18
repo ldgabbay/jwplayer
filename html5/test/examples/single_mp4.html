@@ -8,17 +8,11 @@
 
 <p>This is the basic setup for a video that plays on Safari,iPhone/iPad and Chrome. Firefox, IE and Opera will fallback to Flash. A poster image is included.</p>
 
-<p><video height="270" id="player" poster="http://content.bitsontherun.com/thumbs/nPripu9l-320.jpg" src="http://content.bitsontherun.com/videos/nPripu9l-327.mp4" width="480"></video></p>
+<p><video height="270" id="player" poster="/jw/upload/bunny.jpg" src="/jw/upload/bunny.mp4" width="480"></video></p>
 
-<script type="text/javascript" src="../../lib/jquery.js"></script>
-<script type="text/javascript" src="../../jwplayer.js"></script>
+<script type="text/javascript" src="/jw/js/jquery.jwplayer.js"></script>
 <script type="text/javascript">
-	var player = new jwplayer.html5(document.getElementById("player"));
-	player.setup({
-		sources: [{
-			file:"http://content.bitsontherun.com/videos/nPripu9l-327.mp4",
-			type: "video/mp4"
-		}],
+	$('#player').jwplayer({
 		flashplayer:'/files/player.swf',
 		skin:'/files/skins/five/five.xml'
 	});
@@ -27,7 +21,7 @@
 <h3>HTML code</h3>
 <p>Here is the code for this setup. Make sure to change all links to the scripts, player, image and video. They must refer to the correct files on your server.</p>
 
-<p>First, place this code in the <strong>&lt;head&gt;</strong> of your page:</p>
+<p>First, place this code in the <ems>&lt;head&gt;</ems> of your page:</p>
 <pre>&lt;script type="text/javascript" src="/scripts/jquery.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="/scripts/jquery.jwplayer.js"&gt;&lt;/script&gt;</pre>
 
