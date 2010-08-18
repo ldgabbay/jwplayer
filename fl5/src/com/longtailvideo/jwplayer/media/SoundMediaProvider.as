@@ -7,6 +7,7 @@ package com.longtailvideo.jwplayer.media {
 	import com.longtailvideo.jwplayer.model.PlayerConfig;
 	import com.longtailvideo.jwplayer.model.PlaylistItem;
 	import com.longtailvideo.jwplayer.player.PlayerState;
+	import com.longtailvideo.jwplayer.utils.Logger;
 	
 	import flash.events.*;
 	import flash.media.*;
@@ -132,36 +133,35 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Interval for the _position progress **/
 		protected function positionHandler(progressEvent:ProgressEvent=null):void {
-			var bufferPercent:Number;
+			var bufferPercent:Number = 0;
 			
-			if (_sound.bytesTotal > 0 && _sound.bytesLoaded / _sound.bytesTotal > 0.1 && (_item.duration <= 0 || _userDuration < 0)) {
-				_item.duration = _sound.length / 1000 / _sound.bytesLoaded * _sound.bytesTotal;
+			if (_item.duration <= 0 || _userDuration < 0) {
+				if (_sound.bytesTotal > 0 && _sound.bytesLoaded / _sound.bytesTotal > 0.1) {
+					_item.duration = _sound.length / 1000 / _sound.bytesLoaded * _sound.bytesTotal;
+				} else if (_sound.length > 0) {
+					_item.duration = _sound.length / 1000;
+				}
 			}
 			
-			if (_channel && _sound && _sound.bytesTotal > 0) {
+			if (_channel && _sound) {
 				_position = Math.round(_channel.position / 100) / 10;
-				bufferPercent = Math.floor(_sound.bytesLoaded / _sound.bytesTotal * 100);
+				if (_sound.bytesTotal > 0) {
+					bufferPercent = Math.floor(_sound.bytesLoaded / _sound.bytesTotal * 100);
+				}
 			} else if (!_channel && progressEvent && progressEvent.bytesTotal > 0) {
 				bufferPercent = Math.floor(progressEvent.bytesLoaded / progressEvent.bytesTotal * 100);
-			} else {
-				bufferPercent = 0;
 			}
+
 			
-			if (_sound.isBuffering == true && _sound.bytesTotal > _sound.bytesLoaded) {
-				if (state != PlayerState.BUFFERING) {
-					_bufferFull = false;
-					if (_channel) {
-						_channel.stop();
-					}
-					if (!progressEvent) {
-						setState(PlayerState.BUFFERING);
-					}
-				}
+			if (state == PlayerState.PLAYING && _sound.isBuffering == true) {
+				// Buffer underrun condition
+				_bufferFull = false;
+				setState(PlayerState.BUFFERING);
+				return
 			} else if (state == PlayerState.BUFFERING && _sound.bytesLoaded > 0 && !_bufferFull) {
 				_bufferFull = true;
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_BUFFER_FULL);
 			}
-			
 			
 			if (!isNaN(bufferPercent) && !_bufferingComplete){
 				if (bufferPercent == 100 && _bufferingComplete == false) {

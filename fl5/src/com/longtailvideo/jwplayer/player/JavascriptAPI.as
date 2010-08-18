@@ -7,6 +7,7 @@ package com.longtailvideo.jwplayer.player {
 	import com.longtailvideo.jwplayer.model.Playlist;
 	import com.longtailvideo.jwplayer.utils.JavascriptSerialization;
 	import com.longtailvideo.jwplayer.utils.Logger;
+	import com.longtailvideo.jwplayer.utils.RootReference;
 	import com.longtailvideo.jwplayer.utils.Strings;
 	
 	import flash.events.Event;
@@ -175,7 +176,7 @@ package com.longtailvideo.jwplayer.player {
 
 			if (evt.bufferPercent >= 0) 		returnObj.bufferPercent = evt.bufferPercent;
 			if (evt.duration >= 0)		 		returnObj.duration = evt.duration;
-			if (evt.message != undefined)		returnObj.message = evt.message;
+			if (evt.message != "")				returnObj.message = evt.message;
 			if (evt.metadata != null)	 		returnObj.metadata = evt.metadata;
 			if (evt.offset >= 0)				returnObj.offset = evt.offset;
 			if (evt.position >= 0)				returnObj.position = evt.position;
@@ -217,7 +218,7 @@ package com.longtailvideo.jwplayer.player {
 		}
 
 		protected function js_getHeight():Number {
-			return _player.config.height;
+			return RootReference.stage.stageHeight;
 		}
 		
 		protected function js_getLevel():Number {
@@ -245,7 +246,7 @@ package com.longtailvideo.jwplayer.player {
 		}
 
 		protected function js_getWidth():Number {
-			return _player.config.width;
+			return RootReference.stage.stageWidth;
 		}
 
 		protected function js_getVersion():String {
