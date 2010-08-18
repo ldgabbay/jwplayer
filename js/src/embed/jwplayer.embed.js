@@ -27,19 +27,27 @@
 							this.api.onReady(this.loadAfterReady(this.config));
 						}
 						var flashPlayer = jwplayer.embed.embedFlash(this.api.container, player, this.config);
+						this.api.container = flashPlayer;
 						this.api.setPlayer(flashPlayer);
 					} else {
 						this.players.splice(0, 1);
-						embedPlayer();
+						this.embedPlayer();
 					}
 					break;
 				case 'html5':
-					var html5player = jwplayer.embed.embedHTML5(this.api.container, player, this.config);
-					this.api.setPlayer(html5player);
-					//TODO: Remove this once HTML5 player calls playerReady()
-					this.api.playerReady({id:this.api.container.id});
+					if (!jwplayer.utils.isIE()) {
+						var html5player = jwplayer.embed.embedHTML5(this.api.container, player, this.config);
+						this.api.setPlayer(html5player);
+						//TODO: Remove this once HTML5 player calls playerReady()
+						this.api.playerReady({id:this.api.container.id});
+					} else {
+						this.players.splice(0, 1);
+						this.embedPlayer();
+					}
 					break;
 				}
+			} else {
+				this.api.container.innerHTML = "<p>No suitable players found</p>";
 			}
 			return this.api;
 		},
@@ -81,8 +89,8 @@
 		height: 300
 	};
 	
-	jwplayer.embed.embedFlash = function(container, player, options) {
-		var params = jwplayer.utils.extend({}, jwplayer.embed.defaults, options);
+	jwplayer.embed.embedFlash = function(_container, _player, _options) {
+		var params = jwplayer.utils.extend({}, jwplayer.embed.defaults, _options);
 		
 		var width = params.width; 
 		delete params['width'];
@@ -101,27 +109,27 @@
 		if (jwplayer.utils.isIE()) {
 			var html = '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" ' + 
 				'width="' + width + '" height="' + height + '" ' +
-				'id="' + container.id + '" name="' + container.id +
+				'id="' + _container.id + '" name="' + _container.id +
 				'">';
-			html += '<param name="movie" value="' + player.src + '">';
+			html += '<param name="movie" value="' + _player.src + '">';
 			html += '<param name="allowfullscreen" value="true">';
 			html += '<param name="allowscriptaccess" value="always">';
 			html += '<param name="flashvars" value="' + jwplayer.embed.jsonToFlashvars(params) +'">';
 			html += '</object>';
-			container.outerHTML = html;
-			return container;
+			_container.outerHTML = html;
+			return document.getElementById(_container.id);
 		} else {
 			var obj = document.createElement('object');
 			obj.setAttribute('type', 'application/x-shockwave-flash');
-			obj.setAttribute('data', player.src);
+			obj.setAttribute('data', _player.src);
 			obj.setAttribute('width', width);
 			obj.setAttribute('height', height);
-			obj.setAttribute('id', container.id);
-			obj.setAttribute('name', container.id);
+			obj.setAttribute('id', _container.id);
+			obj.setAttribute('name', _container.id);
 			jwplayer.embed.appendAttribute(obj, 'allowfullscreen', 'true');
 			jwplayer.embed.appendAttribute(obj, 'allowscriptaccess', 'always');
 			jwplayer.embed.appendAttribute(obj, 'flashvars', jwplayer.embed.jsonToFlashvars(params));
-			container.parentNode.replaceChild(obj, container);
+			_container.parentNode.replaceChild(obj, _container);
 			return obj;
 		}
 		
@@ -172,7 +180,7 @@
 		return flat;
 	};
 	
-	jwplayer.api.PlayerAPI.prototype.setup = function(options, player) {
+	jwplayer.api.PlayerAPI.prototype.setup = function(options) {
 		this.config = options;
 		return (new jwplayer.embed.Embedder(this)).embedPlayer();
 	};

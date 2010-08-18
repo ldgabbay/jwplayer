@@ -1,27 +1,25 @@
 <html>
 	<head>
 		<script type="text/javascript" src="jquery.js"></script>
-		<script type="text/javascript" src="jquery.jwplayerParse.js"></script>
 		<script type="text/javascript" src="jwplayer.js"></script>
 		<script type="text/javascript" src="jwplayer.html5.js"></script>
 		<script type="text/javascript">
 			var options = {
 				image:		'../../../testing/files/bunny.jpg',
-				plugins:	{
-					'sharing-1': {},
-					'viral-2d': {
-						link: 'http://www.longtailvideo.com',
-						'allowmenu': 'true'
-					},
-					'fbit-1': {}
-				},
 				players: [
 					{type:'html5'},
 					{type:'flash', src: '../../../trunk/fl5/player.swf'},
+				],
+				skin: '',
+				levels: [
+					{file: '../../../testing/files/bunny.mp4'}
 				]
 			}; 
 			function embedPlayer(id) {
-				return $jw(id).setup(options);
+				$jw(id).setup(options);
+				$jw(id).onPlay(function() {
+					alert("Playing!");
+				});
 			}	
 		</script>
 		<title>JWPlayer JS Embedder Testing Page</title>
@@ -29,21 +27,15 @@
 	<body>
 		<h1>JWPlayer JS Embedder Testing Page</h1>
 		<div id="something">
-			<video id="div1" width=500 height=300>
-				<source src="../../../testing/files/bunny.mp4" />
-				This is &lt;div&gt; 1.
-			</video>
+			<div id="div1"></div>
 		</div>
 		<div id="something_else">
 			<div id="div2">
 				This is &lt;div&gt; 2
 			</div>
 		</div>
-		<script type="text/javascript">
-			embedPlayer('div1');
-		</script>
 		<h3>Embed a player</h3>
-		<a href="#" onclick="embedPlayer('div2'); return false;">Click here to embed player</a><br />
+		<a href="#" onclick="embedPlayer('div1'); return false;">Click here to embed player</a><br />
 
 	</body>
 </html>

@@ -116,6 +116,5 @@ jwplayer.utils.isIE = function() {
  * Detects whether or not the current player has flash capabilities
  */
 jwplayer.utils.hasFlash = function() {
-	var nav = navigator;
-	return (typeof nav.plugins != "undefined" && typeof nav.plugins['Shockwave Flash'] != "undefined");
+	return (typeof navigator.plugins != "undefined" && typeof navigator.plugins['Shockwave Flash'] != "undefined") || (typeof window.ActiveXObject != "undefined");
 };

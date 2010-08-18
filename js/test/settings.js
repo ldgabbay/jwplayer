@@ -14,17 +14,10 @@ var settings = {
   },
 	/** Player versions to test. **/
 	"players": {
-		"flash-5.3":[{"type":"flash","src":"players/player-5.3.swf"}],
-		"flash-5.2":[{"type":"flash","src":"players/player-5.2.swf"}],
-		"flash-5.1":[{"type":"flash","src":"players/player-5.1.swf"}],
-		"flash-5.0":[{"type":"flash","src":"players/player-5.0.swf"}],
-		"flash-4.7":[{"type":"flash","src":"players/player-4.7.swf"}],
-		"flash-4.6":[{"type":"flash","src":"players/player-4.6.swf"}],
-		"flash-4.5":[{"type":"flash","src":"players/player-4.5.swf"}],
-		"flash-4.4":[{"type":"flash","src":"players/player-4.4.swf"}],
-		"flash-4.3":[{"type":"flash","src":"players/player-4.3.swf"}],
-		"flash-4.2":[{"type":"flash","src":"players/player-4.2.swf"}],
-		"flash-4.1":[{"type":"flash","src":"players/player-4.1.swf"}]
+		"flash-html5-fallback":[{"type":"flash","src":"player-5.3.swf"},{"type":"html5"}],
+		"html5-flash-fallback":[{"type":"html5"},{"type":"flash","src":"player-5.3.swf"}],
+		"flash-only":[{"type":"flash","src":"player-5.3.swf"}],
+		"html5-only":[{"type":"html5"}]
 	},
 	/** Available plugins to test. **/
 	"plugins": {
@@ -59,14 +52,14 @@ var settings = {
 	"examples": {
 		" ": {},
 		"FLV video": {
-			"file":"../files/bunny.flv",
+			"file":"files/bunny.flv",
 			"image":"files/bunny.jpg",
 			"height":240,
 			"width":400,
 			"onBuffer": "function(){'hi how are %20?'}"
 		},
 		"MP4 video": {
-			"file":"../files/bunny.mp4",
+			"file":"files/bunny.mp4",
 			"image":"files/bunny.jpg",
 			"height":240,
 			"width":400
@@ -77,7 +70,7 @@ var settings = {
 			"width":400
 		},
 		"AAC audio":{
-			"file":"../files/bunny.m4a",
+			"file":"files/bunny.m4a",
 			"image":"files/bunny.jpg",
 			"height":240,
 			"width":400
@@ -198,14 +191,14 @@ var settings = {
 		},
 		" ": {},
 		"Agegate plugin": {
-			"file":"../files/corrie.flv",
+			"file":"files/corrie.flv",
 			"height":240,
 			"width":500,
 			"plugins":"agegate",
 			"agegate.minage":18
 		},
 		"Audiodescription and captions plugins": {
-			"file":"../files/corrie.flv",
+			"file":"files/corrie.flv",
 			"height":240,
 			"width":500,
 			"plugins":"audiodescription,captions",
@@ -227,12 +220,12 @@ var settings = {
 			"captions.fontsize":18
 		},
 		"HD plugin": {
-			"file":"../files/bunny.flv",
+			"file":"files/bunny.flv",
 			"height":240,
 			"width":500,
 			"plugins":"hd",
 			"dock":"true",
-			"hd.file":"../files/bunny.mp4"
+			"hd.file":"files/bunny.mp4"
 		},
 		"Searchbar plugin": {
 			"file":"http://gdata.youtube.com/feeds/api/standardfeeds/recently_featured?v=2",
@@ -244,7 +237,7 @@ var settings = {
 		},
 		"Sharing plugin": {
 			"dock":true,
-			"file":"../files/bunny.flv",
+			"file":"files/bunny.flv",
 			"height":260,
 			"width":460,
 			"plugins":"sharing",

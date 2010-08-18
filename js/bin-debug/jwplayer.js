@@ -120,8 +120,7 @@ jwplayer.utils.isIE = function() {
  * Detects whether or not the current player has flash capabilities
  */
 jwplayer.utils.hasFlash = function() {
-	var nav = navigator;
-	return (typeof nav.plugins != "undefined" && typeof nav.plugins['Shockwave Flash'] != "undefined");
+	return (typeof navigator.plugins != "undefined" && typeof navigator.plugins['Shockwave Flash'] != "undefined") || (typeof window.ActiveXObject != "undefined");
 };/**
  * Parser for the JW Player.
  *
@@ -334,6 +333,7 @@ jwplayer.utils.strings.trim = function(inputString){
 		var _listeners = {};
 		var _stateListeners = {};
 		var _player = undefined;
+		var _playerReady = false;
 		
 		var _itemMeta = {};
 		
@@ -343,9 +343,6 @@ jwplayer.utils.strings.trim = function(inputString){
 				//remove all former _player event listeners
 			}
 			_player = player;
-			for (var eventType in _listeners) {
-				this.addInternalListener(_player, eventType);
-			}
 		};
 		
 		this.stateListener = function(state, callback) {
@@ -358,7 +355,9 @@ jwplayer.utils.strings.trim = function(inputString){
 		};
 		
 		function stateCallback(state) {
-			return function(newstate, oldstate) {
+			return function(args) {
+				var newstate = args['newstate'],
+					oldstate = args['oldstate'];
 				if (newstate == state) {
 					var callbacks = _stateListeners[newstate];
 					if (callbacks) {
@@ -373,13 +372,13 @@ jwplayer.utils.strings.trim = function(inputString){
 		};
 		
 		this.addInternalListener = function(player, type) {
-			player.addEventListener(type, 'function(dat) { jwplayer("'+this.id+'").dispatchEvent("'+type+'", dat); }');
+			player.jwAddEventListener(type, 'function(dat) { jwplayer("'+this.id+'").dispatchEvent("'+type+'", dat); }');
 		};
 		
 		this.eventListener = function(type, callback) {
 			if (!_listeners[type]) { 
 				_listeners[type] = []; 
-				if (_player) {
+				if (_player && _playerReady) {
 					this.addInternalListener(_player, type);
 				}
 			}
@@ -398,6 +397,15 @@ jwplayer.utils.strings.trim = function(inputString){
 		};
 		
 		this.playerReady = function(obj) {
+			_playerReady = true;
+			if (!_player) {
+				this.setPlayer(document.getElementById(obj['id']));
+			}
+			
+			for (var eventType in _listeners) {
+				this.addInternalListener(_player, eventType);
+			}
+
 			this.eventListener('jwplayerMediaMeta', function(data) {
 				jwplayer.utils.extend(_itemMeta, data.metadata);
 			});
@@ -445,32 +453,32 @@ jwplayer.utils.strings.trim = function(inputString){
 		id: undefined,
 		
 		// Player Getters
-		getBuffer: function() { return this.callInternal('getBuffer'); },
-		getDuration: function() { return this.callInternal('getDuration'); },
-		getFullscreen: function() { return this.callInternal('getFullscreen'); },
+		getBuffer: function() { return this.callInternal('jwGetBuffer'); },
+		getDuration: function() { return this.callInternal('jwGetDuration'); },
+		getFullscreen: function() { return this.callInternal('jwGetFullscreen'); },
 		getHeight: function() { return this.container.height; },
-		getLockState: function() { return this.callInternal('getLockState'); },
+		getLockState: function() { return this.callInternal('jwGetLockState'); },
 		getMeta: function() { return this.getItemMeta(); },
-		getMute: function() { return this.callInternal('getMute'); },
-		getPlaylist: function() { return this.callInternal('getPlaylist'); },
+		getMute: function() { return this.callInternal('jwGetMute'); },
+		getPlaylist: function() { return this.callInternal('jwGetPlaylist'); },
 		getPlaylistItem: function(item) {
 			if (item == undefined) item = 0;
 			return this.getPlaylist()[item]; 
 		},
-		getPosition: function() { return this.callInternal('getPosition'); },
-		getState: function() { return this.callInternal('getState'); },
-		getVolume: function() { return this.callInternal('getVolume'); },
+		getPosition: function() { return this.callInternal('jwGetPosition'); },
+		getState: function() { return this.callInternal('jwGetState'); },
+		getVolume: function() { return this.callInternal('jwGetVolume'); },
 		getWidth: function() { return this.container.width; },
 		
 		// Player Public Methods
-		setFullscreen: function(fullscreen) { this.callInternal("setFullscreen", fullscreen); return this;},
-		setMute: function(mute) { this.callInternal("mute", mute); return this; },
+		setFullscreen: function(fullscreen) { this.callInternal("jwSetFullscreen", fullscreen); return this;},
+		setMute: function(mute) { this.callInternal("jwMute", mute); return this; },
 		lock: function() { return this; },
 		unlock: function() { return this; },
-		load: function(toLoad) { this.callInternal("load", toLoad); return this; },
-		playlistItem: function(item) { this.callInternal("playlistItem", item); return this; },
-		playlistPrev: function() { this.callInternal("playlistPrev"); return this; },
-		playlistNext: function() { this.callInternal("playlistNext"); return this; },
+		load: function(toLoad) { this.callInternal("jwLoad", toLoad); return this; },
+		playlistItem: function(item) { this.callInternal("jwPlaylistItem", item); return this; },
+		playlistPrev: function() { this.callInternal("jwPlaylistPrev"); return this; },
+		playlistNext: function() { this.callInternal("jwPlaylistNext"); return this; },
 		resize: function(width, height) { 
 			this.container.width = width; 
 			this.container.height = height; 
@@ -494,17 +502,17 @@ jwplayer.utils.strings.trim = function(inputString){
 			switch (state) {
 			case jwplayer.api.events.state.PLAYING:
 			case jwplayer.api.events.state.BUFFERING:
-				this.callInternal("pause");
+				this.callInternal("jwPause");
 				break;
 			case jwplayer.api.events.state.PAUSED:
-				this.callInternal("play");
+				this.callInternal("jwPlay");
 				break;
 			}
 			return this; 
 		},
-		stop: function() { this.callInternal("stop"); return this; }, 
-		seek: function(position) { this.callInternal("seek", position); return this; },
-		setVolume: function(volume) { this.callInternal("volume", volume); return this; },
+		stop: function() { this.callInternal("jwStop"); return this; }, 
+		seek: function(position) { this.callInternal("jwSeek", position); return this; },
+		setVolume: function(volume) { this.callInternal("jwVolume", volume); return this; },
 		
 		// Player Events
 		onBufferProgress: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, callback); },
@@ -579,6 +587,25 @@ jwplayer.utils.strings.trim = function(inputString){
 		return player;
 	};
 	
+	jwplayer.api.destroyPlayer = function(playerId) {
+		var index = -1;
+		for(var p in _players) {
+			if (_players[p].container.id == playerId) {
+				index = p;
+				continue;
+			}
+		}
+		if (index >= 0) {
+			var toDestroy = _players[index];
+			var replacement = document.createElement('div');
+			replacement.setAttribute('id', toDestroy.id);
+			toDestroy.container.parentNode.replaceChild(replacement, toDestroy.container);
+			_players.splice(index, 1);
+		}
+		
+		return null;		
+	};
+	
 	// Can't make this a read-only getter, thanks to IE incompatibility.
 	jwplayer.getPlayers = function() { 
 		return _players.slice(0); 
@@ -625,19 +652,27 @@ playerReady = function(obj) {
 							this.api.onReady(this.loadAfterReady(this.config));
 						}
 						var flashPlayer = jwplayer.embed.embedFlash(this.api.container, player, this.config);
+						this.api.container = flashPlayer;
 						this.api.setPlayer(flashPlayer);
 					} else {
 						this.players.splice(0, 1);
-						embedPlayer();
+						this.embedPlayer();
 					}
 					break;
 				case 'html5':
-					var html5player = jwplayer.embed.embedHTML5(this.api.container, player, this.config);
-					this.api.setPlayer(html5player);
-					//TODO: Remove this once HTML5 player calls playerReady()
-					this.api.playerReady({id:this.api.container.id});
+					if (!jwplayer.utils.isIE()) {
+						var html5player = jwplayer.embed.embedHTML5(this.api.container, player, this.config);
+						this.api.setPlayer(html5player);
+						//TODO: Remove this once HTML5 player calls playerReady()
+						this.api.playerReady({id:this.api.container.id});
+					} else {
+						this.players.splice(0, 1);
+						this.embedPlayer();
+					}
 					break;
 				}
+			} else {
+				this.api.container.innerHTML = "<p>No suitable players found</p>";
 			}
 			return this.api;
 		},
@@ -679,8 +714,8 @@ playerReady = function(obj) {
 		height: 300
 	};
 	
-	jwplayer.embed.embedFlash = function(container, player, options) {
-		var params = jwplayer.utils.extend({}, jwplayer.embed.defaults, options);
+	jwplayer.embed.embedFlash = function(_container, _player, _options) {
+		var params = jwplayer.utils.extend({}, jwplayer.embed.defaults, _options);
 		
 		var width = params.width; 
 		delete params['width'];
@@ -699,27 +734,27 @@ playerReady = function(obj) {
 		if (jwplayer.utils.isIE()) {
 			var html = '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" ' + 
 				'width="' + width + '" height="' + height + '" ' +
-				'id="' + container.id + '" name="' + container.id +
+				'id="' + _container.id + '" name="' + _container.id +
 				'">';
-			html += '<param name="movie" value="' + player.src + '">';
+			html += '<param name="movie" value="' + _player.src + '">';
 			html += '<param name="allowfullscreen" value="true">';
 			html += '<param name="allowscriptaccess" value="always">';
 			html += '<param name="flashvars" value="' + jwplayer.embed.jsonToFlashvars(params) +'">';
 			html += '</object>';
-			container.outerHTML = html;
-			return container;
+			_container.outerHTML = html;
+			return document.getElementById(_container.id);
 		} else {
 			var obj = document.createElement('object');
 			obj.setAttribute('type', 'application/x-shockwave-flash');
-			obj.setAttribute('data', player.src);
+			obj.setAttribute('data', _player.src);
 			obj.setAttribute('width', width);
 			obj.setAttribute('height', height);
-			obj.setAttribute('id', container.id);
-			obj.setAttribute('name', container.id);
+			obj.setAttribute('id', _container.id);
+			obj.setAttribute('name', _container.id);
 			jwplayer.embed.appendAttribute(obj, 'allowfullscreen', 'true');
 			jwplayer.embed.appendAttribute(obj, 'allowscriptaccess', 'always');
 			jwplayer.embed.appendAttribute(obj, 'flashvars', jwplayer.embed.jsonToFlashvars(params));
-			container.parentNode.replaceChild(obj, container);
+			_container.parentNode.replaceChild(obj, _container);
 			return obj;
 		}
 		
@@ -770,7 +805,7 @@ playerReady = function(obj) {
 		return flat;
 	};
 	
-	jwplayer.api.PlayerAPI.prototype.setup = function(options, player) {
+	jwplayer.api.PlayerAPI.prototype.setup = function(options) {
 		this.config = options;
 		return (new jwplayer.embed.Embedder(this)).embedPlayer();
 	};

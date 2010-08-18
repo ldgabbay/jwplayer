@@ -100,8 +100,12 @@
 		parsing = 1;
 		prefilled = {plugins:'',player:'',skin:''};
 		var swf = settings.players[$("#players").val()][0]['src'];
-		var xml = swf.substr(0,swf.length-4) + '.xml';
-		parsePlayerXML(xml);
+		if (swf) {
+			var xml = swf.substr(0,swf.length-4) + '.xml';
+			parsePlayerXML(xml);
+	    } else {
+	    	parsePlayerXML("jwplayer.html5.xml");
+	    }
 		var str = $("#plugins").val();
 		if(str != null) {
 			arr = str.toString().split(',');
@@ -279,7 +283,12 @@
 	var events = {};
 
  	$('#preview').css('height',vrs['height']);
-	$('#preview').html('<div id="container"></div>');
+ 	if ($('#container').length) {
+ 		// This is necessary for IE when calling setup on top of an existing flash player
+//		jwplayer.api.destroyPlayer('container');
+ 	} else {
+		$('#preview').html('<div id="container"></div>');
+ 	}
 
 	for (var v in vrs){
 		if (v.indexOf("on") === 0){
@@ -442,7 +451,7 @@ function dump (object) {
 <body>
 
 <?php
-  $selectedScript = 'swfobject';
+  $selectedScript = 'jwembed';
   if (isset($_GET['scripts'])){
   	$selectedScript = $_GET['scripts'];
   }
