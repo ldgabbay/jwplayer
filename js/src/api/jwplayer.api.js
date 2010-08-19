@@ -1,7 +1,7 @@
 (function(jwplayer) {
 	var _players = [];
 
-	jwplayer.constuctor = function(container) {
+	jwplayer.constructor = function(container) {
 		return jwplayer.api.selectPlayer(container);
 	};
 	
@@ -117,6 +117,8 @@
 				jwplayer.utils.extend(_itemMeta, data.metadata);
 			});
 			
+			//TODO: queue up player calls as well
+			
 			this.dispatchEvent.call(this, "jwplayerReady", obj);
 			
 			// Todo: setup event callbacks
@@ -163,7 +165,7 @@
 		getBuffer: function() { return this.callInternal('jwGetBuffer'); },
 		getDuration: function() { return this.callInternal('jwGetDuration'); },
 		getFullscreen: function() { return this.callInternal('jwGetFullscreen'); },
-		getHeight: function() { return this.container.height; },
+		getHeight: function() { return this.callInternal('jwGetHeight'); },
 		getLockState: function() { return this.callInternal('jwGetLockState'); },
 		getMeta: function() { return this.getItemMeta(); },
 		getMute: function() { return this.callInternal('jwGetMute'); },
@@ -175,7 +177,7 @@
 		getPosition: function() { return this.callInternal('jwGetPosition'); },
 		getState: function() { return this.callInternal('jwGetState'); },
 		getVolume: function() { return this.callInternal('jwGetVolume'); },
-		getWidth: function() { return this.container.width; },
+		getWidth: function() { return this.callInternal('jwGetWidth'); },
 		
 		// Player Public Methods
 		setFullscreen: function(fullscreen) { this.callInternal("jwSetFullscreen", fullscreen); return this;},
@@ -195,12 +197,12 @@
 			if (typeof state === "undefined") {
 				var state = this.getState();
 				if (state == jwplayer.api.events.state.PLAYING || state == jwplayer.api.events.state.BUFFERING) {
-					this.callInternal("pause");
+					this.callInternal("jwPause");
 				} else {
-					this.callInternal("play");
+					this.callInternal("jwPlay");
 				}
 			} else {
-				this.callInternal("play", state); 
+				this.callInternal("jwPlay", state); 
 			}
 			return this; 
 		},
@@ -276,7 +278,7 @@
 	
 	jwplayer.api.playerById = function(id) {
 		for(var p in _players) {
-			if (_players[p].container.id == id) {
+			if (_players[p].id == id) {
 				return _players[p];
 			}
 		}

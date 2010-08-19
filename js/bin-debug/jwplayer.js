@@ -1,4 +1,4 @@
-jwplayer = function(container) { return jwplayer.constuctor(container); };
+jwplayer = function(container) { return jwplayer.constructor(container); };
 
 jwplayer.constructor = function(container) {};
 
@@ -118,6 +118,7 @@ jwplayer.utils.isIE = function() {
 
 /**
  * Detects whether or not the current player has flash capabilities
+ * TODO: Add minimum flash version constraint: 9.0.115
  */
 jwplayer.utils.hasFlash = function() {
 	return (typeof navigator.plugins != "undefined" && typeof navigator.plugins['Shockwave Flash'] != "undefined") || (typeof window.ActiveXObject != "undefined");
@@ -294,7 +295,7 @@ jwplayer.utils.strings.trim = function(inputString){
 (function(jwplayer) {
 	var _players = [];
 
-	jwplayer.constuctor = function(container) {
+	jwplayer.constructor = function(container) {
 		return jwplayer.api.selectPlayer(container);
 	};
 	
@@ -410,6 +411,8 @@ jwplayer.utils.strings.trim = function(inputString){
 				jwplayer.utils.extend(_itemMeta, data.metadata);
 			});
 			
+			//TODO: queue up player calls as well
+			
 			this.dispatchEvent.call(this, "jwplayerReady", obj);
 			
 			// Todo: setup event callbacks
@@ -456,7 +459,7 @@ jwplayer.utils.strings.trim = function(inputString){
 		getBuffer: function() { return this.callInternal('jwGetBuffer'); },
 		getDuration: function() { return this.callInternal('jwGetDuration'); },
 		getFullscreen: function() { return this.callInternal('jwGetFullscreen'); },
-		getHeight: function() { return this.container.height; },
+		getHeight: function() { return this.callInternal('jwGetHeight'); },
 		getLockState: function() { return this.callInternal('jwGetLockState'); },
 		getMeta: function() { return this.getItemMeta(); },
 		getMute: function() { return this.callInternal('jwGetMute'); },
@@ -468,7 +471,7 @@ jwplayer.utils.strings.trim = function(inputString){
 		getPosition: function() { return this.callInternal('jwGetPosition'); },
 		getState: function() { return this.callInternal('jwGetState'); },
 		getVolume: function() { return this.callInternal('jwGetVolume'); },
-		getWidth: function() { return this.container.width; },
+		getWidth: function() { return this.callInternal('jwGetWidth'); },
 		
 		// Player Public Methods
 		setFullscreen: function(fullscreen) { this.callInternal("jwSetFullscreen", fullscreen); return this;},
@@ -488,12 +491,12 @@ jwplayer.utils.strings.trim = function(inputString){
 			if (typeof state === "undefined") {
 				var state = this.getState();
 				if (state == jwplayer.api.events.state.PLAYING || state == jwplayer.api.events.state.BUFFERING) {
-					this.callInternal("pause");
+					this.callInternal("jwPause");
 				} else {
-					this.callInternal("play");
+					this.callInternal("jwPlay");
 				}
 			} else {
-				this.callInternal("play", state); 
+				this.callInternal("jwPlay", state); 
 			}
 			return this; 
 		},
@@ -569,7 +572,7 @@ jwplayer.utils.strings.trim = function(inputString){
 	
 	jwplayer.api.playerById = function(id) {
 		for(var p in _players) {
-			if (_players[p].container.id == id) {
+			if (_players[p].id == id) {
 				return _players[p];
 			}
 		}
@@ -643,11 +646,13 @@ playerReady = function(obj) {
 		},
 	
 		embedPlayer: function() {
+			// TODO: Parse playlist for playable content
 			var player = this.players[0];
 			if (player && player.type) {
 				switch (player.type) {
 				case 'flash':
 					if (jwplayer.utils.hasFlash()) {
+						//TODO: serialize levels & playlist, de-serialize in Flash
 						if (this.config.levels || this.config.playlist) {
 							this.api.onReady(this.loadAfterReady(this.config));
 						}
@@ -660,11 +665,10 @@ playerReady = function(obj) {
 					}
 					break;
 				case 'html5':
+					// todo: Check for presence of HTML5
 					if (!jwplayer.utils.isIE()) {
 						var html5player = jwplayer.embed.embedHTML5(this.api.container, player, this.config);
 						this.api.setPlayer(html5player);
-						//TODO: Remove this once HTML5 player calls playerReady()
-						this.api.playerReady({id:this.api.container.id});
 					} else {
 						this.players.splice(0, 1);
 						this.embedPlayer();
@@ -714,6 +718,22 @@ playerReady = function(obj) {
 		height: 300
 	};
 	
+	jwplayer.embed.parseComponents = function(options) {
+		if (options['components']) {
+			var components = options['components'];
+			for (var name in components) {
+				var component = components[name];
+				if (typeof component == "string") {
+					options[name] = component;
+				} else {
+					for (var option in component) {
+						options[name+'.'+option] = component[option];
+					}
+				}
+			}
+		}
+	};
+	
 	jwplayer.embed.embedFlash = function(_container, _player, _options) {
 		var params = jwplayer.utils.extend({}, jwplayer.embed.defaults, _options);
 		
@@ -730,6 +750,8 @@ playerReady = function(obj) {
 		
 		delete params['levels'];
 		delete params['playlist'];
+		
+		jwplayer.embed.parseComponents(params);
 		
 		if (jwplayer.utils.isIE()) {
 			var html = '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" ' + 

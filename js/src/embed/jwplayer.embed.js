@@ -18,11 +18,13 @@
 		},
 	
 		embedPlayer: function() {
+			// TODO: Parse playlist for playable content
 			var player = this.players[0];
 			if (player && player.type) {
 				switch (player.type) {
 				case 'flash':
 					if (jwplayer.utils.hasFlash()) {
+						//TODO: serialize levels & playlist, de-serialize in Flash
 						if (this.config.levels || this.config.playlist) {
 							this.api.onReady(this.loadAfterReady(this.config));
 						}
@@ -35,11 +37,10 @@
 					}
 					break;
 				case 'html5':
+					// todo: Check for presence of HTML5
 					if (!jwplayer.utils.isIE()) {
 						var html5player = jwplayer.embed.embedHTML5(this.api.container, player, this.config);
 						this.api.setPlayer(html5player);
-						//TODO: Remove this once HTML5 player calls playerReady()
-						this.api.playerReady({id:this.api.container.id});
 					} else {
 						this.players.splice(0, 1);
 						this.embedPlayer();
@@ -89,6 +90,22 @@
 		height: 300
 	};
 	
+	jwplayer.embed.parseComponents = function(options) {
+		if (options['components']) {
+			var components = options['components'];
+			for (var name in components) {
+				var component = components[name];
+				if (typeof component == "string") {
+					options[name] = component;
+				} else {
+					for (var option in component) {
+						options[name+'.'+option] = component[option];
+					}
+				}
+			}
+		}
+	};
+	
 	jwplayer.embed.embedFlash = function(_container, _player, _options) {
 		var params = jwplayer.utils.extend({}, jwplayer.embed.defaults, _options);
 		
@@ -105,6 +122,8 @@
 		
 		delete params['levels'];
 		delete params['playlist'];
+		
+		jwplayer.embed.parseComponents(params);
 		
 		if (jwplayer.utils.isIE()) {
 			var html = '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" ' + 

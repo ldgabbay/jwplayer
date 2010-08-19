@@ -114,6 +114,7 @@ jwplayer.utils.isIE = function() {
 
 /**
  * Detects whether or not the current player has flash capabilities
+ * TODO: Add minimum flash version constraint: 9.0.115
  */
 jwplayer.utils.hasFlash = function() {
 	return (typeof navigator.plugins != "undefined" && typeof navigator.plugins['Shockwave Flash'] != "undefined") || (typeof window.ActiveXObject != "undefined");
