@@ -285,7 +285,7 @@
  	$('#preview').css('height',vrs['height']);
  	if ($('#container').length) {
  		// This is necessary for IE when calling setup on top of an existing flash player
-//		jwplayer.api.destroyPlayer('container');
+		jwplayer.api.destroyPlayer('container');
  	} else {
 		$('#preview').html('<div id="container"></div>');
  	}

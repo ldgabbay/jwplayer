@@ -113,6 +113,14 @@ jwplayer.utils.isIE = function() {
 };
 
 /**
+ * Detects whether the browser can handle HTML5 video. 
+ * Using this as a proxy for detecting all HTML5 features needed for the JW HTML5 Player.  Do we need more granularity?
+ */
+jwplayer.utils.hasHTML5 = function() {
+	return !!document.createElement('video').canPlayType;
+};
+
+/**
  * Detects whether or not the current player has flash capabilities
  * TODO: Add minimum flash version constraint: 9.0.115
  */

@@ -7,8 +7,8 @@
 			var options = {
 				image:		'../../../testing/files/bunny.jpg',
 				players: [
-					{type:'html5'},
 					{type:'flash', src: '../../../trunk/fl5/player.swf'},
+					{type:'html5'},
 				],
 				skin: '',
 				levels: [
@@ -16,8 +16,7 @@
 				]
 			}; 
 			function embedPlayer(id) {
-				$jw(id).setup(options);
-				$jw(id).onPlay(function() {
+				$jw(id).setup(options).play().onPlay(function() {
 					alert("Playing!");
 				});
 			}	

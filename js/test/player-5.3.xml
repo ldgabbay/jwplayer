@@ -102,7 +102,7 @@
             <description></description>
         </flashvar>
         <flashvar type="field">
-            <name>onFullScreen</name>
+            <name>onFullscreen</name>
             <default></default>
             <description></description>
         </flashvar>
@@ -142,7 +142,7 @@
             <description></description>
         </flashvar>
         <flashvar type="field">
-            <name>onPosition</name>
+            <name>onTime</name>
             <default></default>
             <description></description>
         </flashvar>

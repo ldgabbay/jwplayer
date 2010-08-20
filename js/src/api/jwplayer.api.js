@@ -41,6 +41,7 @@
 		var _stateListeners = {};
 		var _player = undefined;
 		var _playerReady = false;
+		var _queuedCalls = [];
 		
 		var _itemMeta = {};
 		
@@ -70,7 +71,7 @@
 					if (callbacks) {
 						for (var c in callbacks) {
 							if (typeof callbacks[c] == 'function') {
-								callbacks[c].call(this, oldstate);
+								callbacks[c].call(this, {oldstate:oldstate, newstate:newstate});
 							}
 						}
 					}
@@ -95,11 +96,41 @@
 		
 		this.dispatchEvent = function(type) {
 			if (_listeners[type]) {
+				var args = translateEventResponse(type, arguments[1]);
 				for (var l in _listeners[type]) {
 					if (typeof _listeners[type][l] == 'function') {
-						_listeners[type][l].call(this, arguments[1]);
+						_listeners[type][l].call(this, args);
 					}
 				}
+			}
+		};
+		
+		function translateEventResponse(type, eventProperties) {
+			var translated = jwplayer.utils.extend({}, eventProperties);
+			if (type == jwplayer.api.events.JWPLAYER_FULLSCREEN) {
+				translated['fullscreen'] = translated['message'];
+				delete translated['message'];
+			} else if (typeof translated['data'] == "object") {
+				// Takes ViewEvent "data" block and moves it up a level
+				translated = jwplayer.utils.extend(translated, translated['data']);
+				delete translated['data'];
+			}
+				
+			return translated;
+		}
+		
+		this.callInternal = function(funcName, args) {
+			if (_playerReady) {
+				if (typeof _player != "undefined" && typeof _player[funcName] == "function") {
+					if (args !== undefined) {
+						return (_player[funcName])(args);
+					} else {
+						return (_player[funcName])();
+					}
+				}
+				return null;
+			} else {
+				_queuedCalls.push({method:funcName, parameters:args});
 			}
 		};
 		
@@ -113,28 +144,20 @@
 				this.addInternalListener(_player, eventType);
 			}
 
-			this.eventListener('jwplayerMediaMeta', function(data) {
-				jwplayer.utils.extend(_itemMeta, data.metadata);
+			this.eventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, function(data) {
+				_itemMeta = {};
 			});
 			
-			//TODO: queue up player calls as well
-			
+			this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, function(data) {
+				jwplayer.utils.extend(_itemMeta, data.metadata);
+			});
+
 			this.dispatchEvent.call(this, "jwplayerReady", obj);
 			
-			// Todo: setup event callbacks
-			// Todo: run any queued up commands 
-			
-		};
-		
-		this.callInternal = function(funcName, args) {
-			if (typeof _player != "undefined" && typeof _player[funcName] == "function") {
-				if (args !== undefined) {
-					return (_player[funcName])(args);
-				} else {
-					return (_player[funcName])();
-				}
+			while (_queuedCalls.length > 0) {
+				var call = _queuedCalls.shift();
+				this.callInternal(call.method, call.args);
 			}
-			return null;
 		};
 		
 		this.getItemMeta = function() {
@@ -224,7 +247,7 @@
 		setVolume: function(volume) { this.callInternal("jwVolume", volume); return this; },
 		
 		// Player Events
-		onBufferProgress: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, callback); },
+		onBufferChange: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, callback); },
 		onBufferFull: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, callback); },
 		onError: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_ERROR, callback); },
 		onFullscreen: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_FULLSCREEN, callback); },
@@ -242,7 +265,7 @@
 		onBuffer: function(callback) { return this.stateListener(jwplayer.api.events.state.BUFFERING, callback); },
 		onPause: function(callback) { return this.stateListener(jwplayer.api.events.state.PAUSED, callback); },
 		onPlay: function(callback) { return this.stateListener(jwplayer.api.events.state.PLAYING, callback); },
-		onStop: function(callback) { return this.stateListener(jwplayer.api.events.state.IDLE, callback); },
+		onIdle: function(callback) { return this.stateListener(jwplayer.api.events.state.IDLE, callback); },
 
 		// Player plugin API
 		initializePlugin: function(pluginName, pluginCode) { return this; }
@@ -299,16 +322,16 @@
 	jwplayer.api.destroyPlayer = function(playerId) {
 		var index = -1;
 		for(var p in _players) {
-			if (_players[p].container.id == playerId) {
+			if (_players[p].id == playerId) {
 				index = p;
 				continue;
 			}
 		}
 		if (index >= 0) {
-			var toDestroy = _players[index];
+			var toDestroy = document.getElementById(_players[index].id);
 			var replacement = document.createElement('div');
 			replacement.setAttribute('id', toDestroy.id);
-			toDestroy.container.parentNode.replaceChild(replacement, toDestroy.container);
+			toDestroy.parentNode.replaceChild(replacement, toDestroy);
 			_players.splice(index, 1);
 		}
 		
