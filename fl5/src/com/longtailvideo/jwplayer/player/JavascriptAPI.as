@@ -1,4 +1,6 @@
 package com.longtailvideo.jwplayer.player {
+	import com.longtailvideo.jwplayer.events.GlobalEventDispatcher;
+	import com.longtailvideo.jwplayer.events.IGlobalEventDispatcher;
 	import com.longtailvideo.jwplayer.events.MediaEvent;
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
 	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
@@ -21,7 +23,9 @@ package com.longtailvideo.jwplayer.player {
 		protected var _playerPosition:Number = 0;
 		
 		protected var _listeners:Object;
+		protected var _queuedEvents:Array = [];
 
+		
 		public function JavascriptAPI(player:IPlayer) {
 			_listeners = {};
 			
@@ -34,7 +38,10 @@ package com.longtailvideo.jwplayer.player {
 		
 		/** Delay the response to PlayerReady to allow the external interface to initialize in some browsers **/
 		protected function playerReady(evt:PlayerEvent):void {
+			(_player as IGlobalEventDispatcher).addGlobalListener(queueEvents);
+			
 			var timer:Timer = new Timer(50, 1);
+			
 			timer.addEventListener(TimerEvent.TIMER_COMPLETE, function(timerEvent:TimerEvent):void {
 				var callbacks:String = _player.config.playerready ? _player.config.playerready + "," + "playerReady" : "playerReady";  
 				if (ExternalInterface.available) {
@@ -47,9 +54,22 @@ package com.longtailvideo.jwplayer.player {
 							});
 						} catch (e:Error) {}
 					}
+					
+					for each (var queuedEvent:PlayerEvent in _queuedEvents) {
+						listenerCallback(queuedEvent);
+					}
+					_queuedEvents = null;
+					
 				}
+				
+				(_player as IGlobalEventDispatcher).removeGlobalListener(queueEvents);
+
 			});
 			timer.start();
+		}
+
+		protected function queueEvents(evt:PlayerEvent):void {
+			_queuedEvents.push(evt);
 		}
 		
 		protected function setupPlayerListeners():void {
@@ -78,13 +98,10 @@ package com.longtailvideo.jwplayer.player {
 				ExternalInterface.addCallback("jwRemoveEventListener", js_removeEventListener);
 				
 				// Getters
-				ExternalInterface.addCallback("jwGetBandwidth", js_getBandwidth);
 				ExternalInterface.addCallback("jwGetBuffer", js_getBuffer);
 				ExternalInterface.addCallback("jwGetDuration", js_getDuration);
 				ExternalInterface.addCallback("jwGetFullscreen", js_getFullscreen);
 				ExternalInterface.addCallback("jwGetHeight", js_getHeight);
-				ExternalInterface.addCallback("jwGetLevel", js_getLevel);
-				ExternalInterface.addCallback("jwGetLockState", js_getLockState);
 				ExternalInterface.addCallback("jwGetMute", js_getMute);
 				ExternalInterface.addCallback("jwGetPlaylist", js_getPlaylist);
 				ExternalInterface.addCallback("jwGetPosition", js_getPosition);
@@ -104,7 +121,11 @@ package com.longtailvideo.jwplayer.player {
 				ExternalInterface.addCallback("jwPlaylistPrev", js_playlistPrev);
 				ExternalInterface.addCallback("jwMute", js_mute);
 				ExternalInterface.addCallback("jwVolume", js_volume);
-				
+
+				// UNIMPLEMENTED
+				//ExternalInterface.addCallback("jwGetBandwidth", js_getBandwidth); 
+				//ExternalInterface.addCallback("jwGetLevel", js_getLevel);
+				//ExternalInterface.addCallback("jwGetLockState", js_getLockState);
 				
 			} catch(e:Error) {
 				Logger.log("Could not initialize JavaScript API: "  + e.message);
@@ -144,8 +165,12 @@ package com.longtailvideo.jwplayer.player {
 				args = listnerCallbackMedia(evt as MediaEvent);
 			else if (evt is PlayerStateEvent)
 				args = listenerCallbackState(evt as PlayerStateEvent);
+			else if (evt is PlaylistEvent)
+				args = listenerCallbackPlaylist(evt as PlaylistEvent);
 			else if (evt is ViewEvent && (evt as ViewEvent).data != null)
-				args['data'] = (evt as ViewEvent).data;
+				args = {data: (evt as ViewEvent).data};
+			else
+				args = {message: evt.message};
 			
 			var callbacks:Array = _listeners[evt.type] as Array;
 			
@@ -176,9 +201,10 @@ package com.longtailvideo.jwplayer.player {
 
 			if (evt.bufferPercent >= 0) 		returnObj.bufferPercent = evt.bufferPercent;
 			if (evt.duration >= 0)		 		returnObj.duration = evt.duration;
-			if (evt.message != "")				returnObj.message = evt.message;
+			if (evt.message)					returnObj.message = evt.message;
+			// todo: strip out 'name.properties' named properties
 			if (evt.metadata != null)	 		returnObj.metadata = evt.metadata;
-			if (evt.offset >= 0)				returnObj.offset = evt.offset;
+			if (evt.offset > 0)					returnObj.offset = evt.offset;
 			if (evt.position >= 0)				returnObj.position = evt.position;
 
 			if (evt.type == MediaEvent.JWPLAYER_MEDIA_MUTE)
@@ -192,11 +218,19 @@ package com.longtailvideo.jwplayer.player {
 		
 		
 		protected function listenerCallbackState(evt:PlayerStateEvent):Object {
-			 if (evt.type == PlayerStateEvent.JWPLAYER_PLAYER_STATE) {
+			if (evt.type == PlayerStateEvent.JWPLAYER_PLAYER_STATE) {
 				return { newstate: evt.newstate, oldstate: evt.oldstate };
-			 } else return {};
+			} else return {};
 		}
-		
+
+		protected function listenerCallbackPlaylist(evt:PlaylistEvent):Object {
+			if (evt.type == PlaylistEvent.JWPLAYER_PLAYLIST_LOADED) {
+				return { playlist: JavascriptSerialization.playlistToArray(_player.playlist) };
+			} else if (evt.type == PlaylistEvent.JWPLAYER_PLAYLIST_ITEM) {
+				return { index: _player.playlist.currentIndex };
+			} else return {};
+		}
+
 		/***********************************************
 		 **                 GETTERS                   **
 		 ***********************************************/
@@ -210,7 +244,7 @@ package com.longtailvideo.jwplayer.player {
 		}
 		
 		protected function js_getDuration():Number {
-			return _player.playlist.currentItem.duration;
+			return _player.playlist.currentItem ? _player.playlist.currentItem.duration : 0;
 		}
 		
 		protected function js_getFullscreen():Boolean {
@@ -222,7 +256,7 @@ package com.longtailvideo.jwplayer.player {
 		}
 		
 		protected function js_getLevel():Number {
-			return _player.playlist.currentItem.currentLevel;
+			return _player.playlist.currentItem ? _player.playlist.currentItem.currentLevel : 0;
 		}
 		
 		protected function js_getLockState():Boolean {

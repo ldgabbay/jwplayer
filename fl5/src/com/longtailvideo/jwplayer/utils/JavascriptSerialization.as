@@ -50,6 +50,8 @@ package com.longtailvideo.jwplayer.utils
 		}
 		
 		public static function stripDots(obj:Object):Object {
+			// Todo: create nested objects instead of removing the dots
+			
 			var newObj:Object = (obj is Array) ? new Array() : new Object();
 			for (var i:String in obj) {
 				if (i.indexOf(".") < 0) {

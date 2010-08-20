@@ -271,7 +271,8 @@ package com.longtailvideo.jwplayer.view {
 			if (_model.fullscreen != currentFSMode) {
 				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_FULLSCREEN, currentFSMode));
 			}
-
+			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_RESIZE, {width: RootReference.stage.stageWidth, height: RootReference.stage.stageHeight}));
+			
 			redraw();
 		}
 

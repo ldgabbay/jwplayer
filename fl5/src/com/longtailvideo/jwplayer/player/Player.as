@@ -1,5 +1,7 @@
 ﻿package com.longtailvideo.jwplayer.player {
 	import com.longtailvideo.jwplayer.controller.Controller;
+	import com.longtailvideo.jwplayer.events.GlobalEventDispatcher;
+	import com.longtailvideo.jwplayer.events.IGlobalEventDispatcher;
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
 	import com.longtailvideo.jwplayer.model.IPlaylist;
 	import com.longtailvideo.jwplayer.model.Model;
@@ -29,10 +31,12 @@
 	 *
 	 * @author Pablo Schklowsky
 	 */
-	public class Player extends Sprite implements IPlayer {
+	public class Player extends Sprite implements IPlayer, IGlobalEventDispatcher {
 		protected var model:Model;
 		protected var view:View;
 		protected var controller:Controller;
+		
+		protected var _dispatcher:GlobalEventDispatcher;
 		
 		/** Player constructor **/
 		public function Player() {
@@ -50,6 +54,7 @@
 			} catch (err:Error) {
 			}
 			new RootReference(this);
+			_dispatcher = new GlobalEventDispatcher();
 			model = newModel();
 			view = newView(model);
 			controller = newController(model, view);
@@ -292,6 +297,34 @@
 		/** The player should not accept any calls referencing its display stack **/
 		public override function removeChildAt(index:int):DisplayObject {
 			return null;
+		}
+		
+		
+		///////////////////////////////////////////		
+		/// IGlobalEventDispatcher implementation
+		///////////////////////////////////////////		
+		/**
+		 * @inheritDoc
+		 */
+		public function addGlobalListener(listener:Function):void {
+			_dispatcher.addGlobalListener(listener);
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		public function removeGlobalListener(listener:Function):void {
+			_dispatcher.removeGlobalListener(listener);
+		}
+		
+		
+		/**
+		 * @inheritDoc
+		 */
+		public override function dispatchEvent(event:Event):Boolean {
+			_dispatcher.dispatchEvent(event);
+			return super.dispatchEvent(event);
 		}
 		
 	}

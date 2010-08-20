@@ -37,6 +37,27 @@ package com.longtailvideo.jwplayer.controller {
 	[Event(name="jwplayerError", type = "com.longtailvideo.jwplayer.events.PlayerEvent")]
 
 	/**
+	 * Sent when the player has been locked
+	 *
+	 * @eventType com.longtailvideo.jwplayer.events.PlayerEvent.JWPLAYER_LOCKED
+	 */
+	[Event(name="jwplayerLocked", type = "com.longtailvideo.jwplayer.events.PlayerEvent")]
+
+	/**
+	 * Sent when the player has been unlocked
+	 *
+	 * @eventType com.longtailvideo.jwplayer.events.PlayerEvent.JWPLAYER_UNLOCKED
+	 */
+	[Event(name="jwplayerUnlocked", type = "com.longtailvideo.jwplayer.events.PlayerEvent")]
+
+	/**
+	 * Sent when the player has gone into or out of fullscreen mode
+	 *
+	 * @eventType com.longtailvideo.jwplayer.events.PlayerEvent.JWPLAYER_FULLSCREEN
+	 */
+	[Event(name="jwplayerFullscreen", type = "com.longtailvideo.jwplayer.events.PlayerEvent")]
+
+	/**
 	 * The Controller is responsible for handling Model / View events and calling the appropriate responders
 	 *
 	 * @author Pablo Schklowsky
@@ -282,11 +303,13 @@ package com.longtailvideo.jwplayer.controller {
 				}
 				if (!locking && (_lockingResume || _unlockAutostart)) {
 					_lockingResume = false;
+					if (_unlockAndLoad) {
+						load(_player.playlist.currentItem);
+						_unlockAndLoad = false;
+					}
 					play();
 					if (_unlockAutostart) {
 						_unlockAutostart = false;
-					} else if (_unlockAndLoad) {
-						_unlockAndLoad = false;
 					}
 				}
 				return true;
@@ -625,6 +648,7 @@ package com.longtailvideo.jwplayer.controller {
 		public function fullscreen(mode:Boolean):Boolean {
 			_model.fullscreen = mode;
 			_view.fullscreen(mode);
+			dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_FULLSCREEN, mode.toString()));
 			return true;
 		}
 
