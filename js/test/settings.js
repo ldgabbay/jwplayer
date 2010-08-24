@@ -30,7 +30,7 @@ var settings = {
 		"bluemetal":"../skins/bluemetal/bluemetal.xml",
 		"classic":"../skins/classic/classic.xml",
 		"five":"../skins/five/five.xml",
-		"glow":"../skins/glow/glow.xml",
+		"glow":"../../../skins/glow/glow.xml",
 		"lulu":"../skins/lulu/lulu.xml",
 		"modieus":"../skins/modieus/modieus.xml",
 		"playcasso":"../skins/playcasso/playcasso.xml",
@@ -51,6 +51,31 @@ var settings = {
 	/** All the setup examples with their flashvars. **/
 	"examples": {
 		" ": {},
+		
+		"Single video with event listeners": {
+			"file":"files/bunny.mp4",
+			"image":"files/bunny.jpg",
+			"height":240,
+			"width":400,
+			"onBuffer":"function() { alert('Buffering'); }",
+			"onBufferFull":"function() { alert('Buffer full'); }",
+			"onError":"function() { alert('Error'); }",
+			"onMeta":"function() { alert('Metadata received'); }",
+			"onMute":"function(evt) { alert('Player ' + (evt.mute ? 'muted' : 'unmuted')); }",
+			"onPlaylist":"function() { alert('Playlist loaded'); }",
+			"onPlaylistItem":"function() { alert('New playlist item'); }",
+			"onReady":"function() { alert('Player is ready'); }",
+			"onResize":"function() { alert('Player has been resized'); }",
+			"onPlay":"function() { alert('Playing'); }",
+			"onPause":"function() { alert('Paused'); }",
+			"onIdle":"function() { alert('Idle'); }",
+			"onComplete":"function() { alert('Complete'); }",
+			"onTime":"function(evt) { if (window.console && console.log) { console.log('Time: ' . evt.position); } }",
+			"onVolume":"function(evt) { alert('Volume changed to ' + evt.volume); }"
+			
+			
+		},
+		
 		"FLV video": {
 			"file":"files/bunny.flv",
 			"image":"files/bunny.jpg",

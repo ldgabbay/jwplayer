@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<script type="text/javascript" src="jwplayer.js"></script>
+		<script type="text/javascript" src="../bin-debug/jwplayer.js"></script>
 		<script type="text/javascript" src="../../../branches/html5/jwplayer.html5.js"></script>
 		<script type="text/javascript">	
 		</script>
@@ -27,16 +27,22 @@
 	        <script type="text/javascript">
 	        	function setup(id) { 
 	        		$jw(id).setup({
-	        			players:[{type:'html5'},{type:'flash',src:'../test/player-5.3.swf'}],
+	        			players:[
+	        				{type:'html5'},
+	        				{type:'flash',src:'../test/player-5.3.swf'},
+	        			],
 	        			components: {
 	        				playlist: {
 	        					position: 'right',
 	        					size: '200'
 	        				},
-	        				controlbar: 'over'
+	        				controlbar: {
+	        					position: 'over'	
+	        				}
 	        			},
 	        			width:'550',
-	        			height:'300'
+	        			height:'300',
+	        			skin: ''
 	        		}); 
 	        	}
 	        </script>
@@ -44,12 +50,12 @@
 	        
 	        <h3>API test</h3>
 	        <script type="text/javascript">
-	        	function loadSingle(id) { $jw(id).load({file:'files/bunny.mp4', image:'../test/files/bunny.jpg'}); }
+	        	function loadSingle(id) { $jw(id).load({file:'files/bunny.mp4', image:'files/bunny.jpg'}); }
 	        	function loadList(id) { 
 	        		$jw(id).load([
-	        			{file:'files/bunny.mp4', image:'../test/files/bunny.jpg'},
-	        			{file:'files/bunny.mp4', image:'../test/files/bunny.jpg'},
-	        			{file:'files/bunny.mp4', image:'../test/files/bunny.jpg'}
+	        			{file:'files/bunny.mp4', image:'files/bunny.jpg'},
+	        			{file:'files/bunny.mp4', image:'files/bunny.jpg'},
+	        			{file:'files/bunny.mp4', image:'files/bunny.jpg'}
 	        		]); 
 	        	}
 	        	function play(id) { 

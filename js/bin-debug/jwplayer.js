@@ -764,7 +764,12 @@ playerReady = function(obj) {
 
 	jwplayer.embed.defaults = {
 		width : 400,
-		height : 300
+		height : 300,
+		components: {
+			controlbar: {
+				position: "over"
+			}
+		}
 	};
 
 	jwplayer.embed.embedFlash = function(_container, _player, _options) {
@@ -826,9 +831,10 @@ playerReady = function(obj) {
 	jwplayer.embed.embedHTML5 = function(container, player, options) {
 		if (jwplayer.html5) {
 			container.innerHTML = "<p>Embedded HTML5 player goes here</p>";
+			var playerOptions = jwplayer.utils.extend( {}, jwplayer.embed.defaults, options);
+			jwplayer.embed.parseConfigBlock(playerOptions, 'components');
 			// TODO: remove this requirement from the html5 player (sources
 			// instead of levels)
-			var playerOptions = jwplayer.utils.extend( {}, jwplayer.embed.defaults, options);
 			if (playerOptions.levels && !playerOptions.sources)
 				playerOptions.sources = options.levels;
 			return new (jwplayer.html5(container)).setup(playerOptions);
@@ -875,13 +881,16 @@ playerReady = function(obj) {
 			for ( var name in components) {
 				var component = components[name];
 				if (typeof component == "string") {
+					// i.e. controlbar="over"
 					options[name] = component;
 				} else {
+					// i.e. controlbar.position="over"
 					for ( var option in component) {
 						options[name + '.' + option] = component[option];
 					}
 				}
 			}
+			delete options[blockName];
 		}
 	};
 
