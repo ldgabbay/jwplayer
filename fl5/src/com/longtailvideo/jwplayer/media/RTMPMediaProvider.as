@@ -131,10 +131,30 @@ package com.longtailvideo.jwplayer.media {
         }; 
 
 
+		/** Try pulling info from a DVRCast application. **/
+		private function doDVRInfo(id:String):void {
+				_connections[_connection].call("DVRGetStreamInfo", new Responder(doDVRInfoCallback), id);
+				Logger.log("calling DVRGetStreamInfo for "+id);
+		};
+
+
+		/** Callback from the DVRCast application. **/
+		private function doDVRInfoCallback(info:Object):void {
+			if(info.code == "NetStream.DVRStreamInfo.Success") {
+				setStream();
+				Logger.log(info.data.currLen,"DVRCast");
+			} else if (info.code == "NetStream.DVRStreamInfo.Retry") {
+				setTimeout(doDVRInfo,2000,getID(item.file));
+			}
+			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: info});
+		};
+
+
         /** Try subscribing to livestream **/
         private function doSubscribe(id:String):void {
-            _connections[_connection].call("FCSubscribe", null, id);
+			_connections[_connection].call("FCSubscribe", null, id);
         }
+
 
 		/** If there's a DVR stream, calcluate the position by incrementing it via a setInterval(). **/
 		private function dvrPosition():void {
@@ -367,7 +387,7 @@ package com.longtailvideo.jwplayer.media {
 
         /** Interval for the position progress. **/
         private function positionInterval():void {
-            var pos:Number = Math.round((_stream.time) * 10) / 10;
+            var pos:Number = Math.round((_stream.time) * 100) / 100;
 			var bfr:Number = _stream.bufferLength / _stream.bufferTime;
 
 			if (bfr < 0.25 && pos < duration - 5 && state != PlayerState.BUFFERING) {
@@ -506,9 +526,13 @@ package com.longtailvideo.jwplayer.media {
                     if (evt.info.data) {
                         checkDynamic(evt.info.data.version);
 					}
-                    if (getConfigProperty('subscribe')) {
-                        _subscribeInterval = setInterval(doSubscribe, 1000, getID(item.file));
-                        return;
+					if (getConfigProperty('subscribe')) {
+						if(isDVR) {
+							_connections[_connection].call("DVRSubscribe", null, getID(item.file));
+							setTimeout(doDVRInfo,2000,getID(item.file));
+						} else {
+							_subscribeInterval = setInterval(doSubscribe, 2000, getID(item.file));
+						}
                     } else {
                         if (item.levels.length > 0) {
                             if (_dynamic || _bandwidthChecked) {
@@ -595,8 +619,10 @@ package com.longtailvideo.jwplayer.media {
             }
             _isStreaming = false;
             _currentFile = undefined;
-            _connections[_connection].close();
-            _connection = -1;
+			if(_connection > -1) {
+            	_connections[_connection].close();
+            	_connection = -1;
+			}
             clearInterval(_positionInterval);
             clearInterval(_bandwidthInterval);
             _position = 0;
