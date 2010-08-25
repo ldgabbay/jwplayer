@@ -38,6 +38,7 @@ package com.longtailvideo.jwplayer.view {
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.events.MouseEvent;
+	import flash.geom.Rectangle;
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
 	import flash.text.TextField;
@@ -267,9 +268,9 @@ package com.longtailvideo.jwplayer.view {
 
 
 		protected function resizeHandler(event:Event):void {
-			var currentFSMode:Boolean = (RootReference.stage.displayState == StageDisplayState.FULL_SCREEN);
-			if (_model.fullscreen != currentFSMode) {
-				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_FULLSCREEN, currentFSMode));
+			_fullscreen = (RootReference.stage.displayState == StageDisplayState.FULL_SCREEN);
+			if (_model.fullscreen != _fullscreen) {
+				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_FULLSCREEN, _fullscreen));
 			}
 			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_RESIZE, {width: RootReference.stage.stageWidth, height: RootReference.stage.stageHeight}));
 			
@@ -304,7 +305,14 @@ package com.longtailvideo.jwplayer.view {
 			if (_mediaLayer.numChildren && _model.media.display) {
 				_mediaLayer.x = _components.display.x;
 				_mediaLayer.y = _components.display.y;
-				_model.media.resize(_player.config.width, _player.config.height);
+				if (_fullscreen && _model.config.stretching == Stretcher.EXACTFIT) {
+					var dimensions:Rectangle = Stretcher.stretchDimensions(_model.media.display, _player.config.width, _player.config.height, Stretcher.UNIFORM);
+					_model.media.resize(dimensions.width, dimensions.height);
+					_mediaLayer.x = dimensions.x;
+					_mediaLayer.y = dimensions.y;
+				} else {
+					_model.media.resize(_player.config.width, _player.config.height);
+				}
 			}
 
 			if (_logo) {

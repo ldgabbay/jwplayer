@@ -70,7 +70,7 @@ package com.longtailvideo.jwplayer.media {
 		 * http://www.youtube.com/v/ylLzyHk54Z0
 		 * ylLzyHk54Z0
 		 **/
-		private function getID(url:String):String {
+		public static function getID(url:String):String {
 			var arr:Array = url.split(/\?|\#\!/);
 			var str:String = '';
 			for (var i:String in arr) {

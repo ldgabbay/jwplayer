@@ -2,6 +2,7 @@ package com.longtailvideo.jwplayer.model {
 	import com.longtailvideo.jwplayer.events.GlobalEventDispatcher;
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
 	import com.longtailvideo.jwplayer.events.PlaylistEvent;
+	import com.longtailvideo.jwplayer.media.YouTubeMediaProvider;
 	import com.longtailvideo.jwplayer.parsers.IPlaylistParser;
 	import com.longtailvideo.jwplayer.parsers.JWParser;
 	import com.longtailvideo.jwplayer.parsers.ParserFactory;
@@ -106,6 +107,9 @@ package com.longtailvideo.jwplayer.model {
 				for each(var item:PlaylistItem in newList) {
 					if (!item.provider) {
 						item.provider = JWParser.getProvider(item);
+					}
+					if (item.provider == "youtube" && !item.image) {
+						item.image = 'http://i.ytimg.com/vi/' + YouTubeMediaProvider.getID(item.file) + '/0.jpg';
 					}
 				}
 				list = newList;

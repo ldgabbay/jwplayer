@@ -95,6 +95,10 @@ These flashvars control the look and layout of the player.
 
    Position of the controlbar. Can be set to *bottom*, *top*, *over* and *none*.
 
+.. describe:: controlbar.idlehide ( false )
+
+   If **controlbar.position** is set to *over*, this option determines whether the controlbar stays hidden when the player is paused or stopped.
+
 .. describe:: dock ( true )
 
    set this to **false** to show plugin buttons in controlbar. By default (*true*), plugin buttons are shown in the display.

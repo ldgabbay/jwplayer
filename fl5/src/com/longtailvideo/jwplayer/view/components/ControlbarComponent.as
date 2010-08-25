@@ -10,12 +10,14 @@ package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.plugins.PluginConfig;
 	import com.longtailvideo.jwplayer.utils.Animations;
 	import com.longtailvideo.jwplayer.utils.Logger;
+	import com.longtailvideo.jwplayer.utils.RootReference;
 	import com.longtailvideo.jwplayer.utils.Strings;
 	import com.longtailvideo.jwplayer.view.interfaces.IControlbarComponent;
 	
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.ColorTransform;
 	import flash.text.StyleSheet;
@@ -102,12 +104,20 @@ package com.longtailvideo.jwplayer.view.components {
 
 		protected var _bgColorSheet:Sprite;
 		
+		protected var _fullscreen:Boolean = false;
+		
 		protected var controlbarConfig:PluginConfig;
 		protected var animations:Animations;
 		protected var hiding:Number;
 		
 		public function ControlbarComponent(player:IPlayer) {
 			super(player, "controlbar");
+			controlbarConfig = _player.config.pluginConfig(_name);
+			animations = new Animations(this);
+			if (controlbarConfig['position'] == "over" && hideOnIdle) {
+				alpha = 0;
+			}
+			
 			_layoutManager = new ControlbarLayoutManager(this);
 			_dividers = [];
 			_dividerElements = {'divider': true};
@@ -117,8 +127,6 @@ package com.longtailvideo.jwplayer.view.components {
 			updateControlbarState();
 			setTime(0, 0);
 			updateVolumeSlider();
-			controlbarConfig = _player.config.pluginConfig(_name);
-			animations = new Animations(this);
 		}
 
 		private function addEventListeners():void {
@@ -132,6 +140,8 @@ package com.longtailvideo.jwplayer.view.components {
 			player.addEventListener(MediaEvent.JWPLAYER_MEDIA_TIME, mediaHandler);
 			player.addEventListener(PlayerEvent.JWPLAYER_LOCKED, lockHandler);
 			player.addEventListener(PlayerEvent.JWPLAYER_UNLOCKED, lockHandler);
+			RootReference.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeftStage);
+			RootReference.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
 		}
 
 
@@ -152,45 +162,53 @@ package com.longtailvideo.jwplayer.view.components {
 			redraw();
 		}
 
+		private function get fadeOnTimeout():Boolean {
+			return controlbarConfig['position'] == 'over' || (_player.config.fullscreen && controlbarConfig['position'] != 'none');
+		}
+		
+		private function get hideOnIdle():Boolean {
+			return String(controlbarConfig['idlehide']) == "true";
+		}
 		
 		private function startFader():void {
-			if (controlbarConfig['position'] == 'over' || (_player.config.fullscreen && controlbarConfig['position'] != 'none')) {
+			if (fadeOnTimeout) {
 				if (!isNaN(hiding)) {
 					clearTimeout(hiding);
 				}
 				hiding = setTimeout(moveTimeout, 2000);
-				_player.controls.display.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
-				addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
 			}
 		}
 		
 		private function stopFader():void {
-			if (!isNaN(hiding)) {
-				clearTimeout(hiding);
-				try {
-					_player.controls.display.removeEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
-					removeEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
-				} catch (e:Error) {}
-			}
-			Mouse.show();
-			animations.fade(1, 0.5);
-		}
-		
-		/** Show above controlbar on mousemove. **/
-		private function moveHandler(evt:MouseEvent=null):void {
 			if (alpha == 0) {
 				animations.fade(1, 0.5);
 			}
-			clearTimeout(hiding);
-			hiding = setTimeout(moveTimeout, 2000);
-			Mouse.show();
+			if (!isNaN(hiding)) {
+				clearTimeout(hiding);
+				Mouse.show();
+			}
 		}
 		
+		/** Show above controlbar on mousemove and restart the countdown. **/
+		private function moveHandler(evt:MouseEvent=null):void {
+			if (alpha == 0) {
+				stopFader();
+				startFader();
+			}
+		}
 		
 		/** Hide above controlbar again when move has timed out. **/
-		private function moveTimeout():void {
+		private function moveTimeout(evt:Event=null):void {
 			animations.fade(0, 0.5);
 			Mouse.hide();
+		}
+		
+		/** If the mouse leaves the stage, hide the controlbar if position is 'over' **/
+		private function mouseLeftStage(evt:Event=null):void {
+			if (fadeOnTimeout) {
+				if (_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING || hideOnIdle)
+				animations.fade(0);
+			}
 		}
 		
 		private function stateHandler(evt:PlayerEvent=null):void {
@@ -201,7 +219,11 @@ package com.longtailvideo.jwplayer.view.components {
 					break;
 				case PlayerState.PAUSED:
 				case PlayerState.IDLE:
-					stopFader();
+					if (hideOnIdle) {
+						mouseLeftStage();
+					} else {
+						stopFader();
+					}
 					break;
 			}
 			updateControlbarState();
@@ -655,7 +677,10 @@ package com.longtailvideo.jwplayer.view.components {
 			_bgColorSheet.width = _width;
 			_bgColorSheet.height = background.height;
 
-			stopFader();
+			if (_fullscreen && !_player.config.fullscreen) {
+				stopFader();
+			}
+			_fullscreen = _player.config.fullscreen;
 			stateHandler();
 			redraw();
 		}

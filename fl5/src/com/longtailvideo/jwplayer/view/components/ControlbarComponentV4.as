@@ -10,6 +10,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.utils.Animations;
 	import com.longtailvideo.jwplayer.utils.Draw;
 	import com.longtailvideo.jwplayer.utils.Logger;
+	import com.longtailvideo.jwplayer.utils.RootReference;
 	import com.longtailvideo.jwplayer.utils.Stacker;
 	import com.longtailvideo.jwplayer.utils.Strings;
 	import com.longtailvideo.jwplayer.view.PlayerLayoutManager;
@@ -19,6 +20,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.ColorTransform;
 	import flash.geom.Rectangle;
@@ -62,6 +64,10 @@ package com.longtailvideo.jwplayer.view.components {
 			super(player, "controlbar");
 			animations = new Animations(this);
 			controlbarConfig = _player.config.pluginConfig("controlbar");
+			if (controlbarConfig['position'] == "over" && String(controlbarConfig['idlehide']) == "true") {
+				alpha = 0;
+			}
+			
 			if (!controlbarConfig['margin']) controlbarConfig['margin'] = 0;	
 			// TODO: Remove Link button
 			BUTTONS = {playButton: ViewEvent.JWPLAYER_VIEW_PLAY,
@@ -87,6 +93,8 @@ package com.longtailvideo.jwplayer.view.components {
 			_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, itemHandler);
 			_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_UPDATED, itemHandler);
 			_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, itemHandler);
+			RootReference.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeftStage);
+			RootReference.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
 			stacker = new Stacker(skin as MovieClip);
 			try {
 				getSkinComponent("linkButton").visible = false;
@@ -365,78 +373,76 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 
 		
+		private function get fadeOnTimeout():Boolean {
+			return controlbarConfig['position'] == 'over' || (_player.config.fullscreen && controlbarConfig['position'] != 'none');
+		}
+		
+		private function get hideOnIdle():Boolean {
+			return String(controlbarConfig['idlehide']) == "true";
+		}
+		
 		private function startFader():void {
-			if (controlbarConfig['position'] == 'over' || (_player.config.fullscreen && controlbarConfig['position'] != 'none')) {
+			if (fadeOnTimeout) {
 				if (!isNaN(hiding)) {
 					clearTimeout(hiding);
 				}
 				hiding = setTimeout(moveTimeout, 2000);
-				_player.controls.display.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
-				addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
 			}
 		}
 		
 		private function stopFader():void {
+			if (alpha == 0) {
+				animations.fade(1, 0.5);
+			}
 			if (!isNaN(hiding)) {
 				clearTimeout(hiding);
-				try {
-					_player.controls.display.removeEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
-					removeEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
-				} catch (e:Error) {}
+				Mouse.show();
 			}
-			Mouse.show();
-			animations.fade(1);
 		}
 		
-		/** Show above controlbar on mousemove. **/
+		/** Show above controlbar on mousemove and restart the countdown. **/
 		private function moveHandler(evt:MouseEvent=null):void {
 			if (alpha == 0) {
-				animations.fade(1);
+				stopFader();
+				startFader();
 			}
-			clearTimeout(hiding);
-			hiding = setTimeout(moveTimeout, 2000);
-			Mouse.show();
 		}
 		
-		
 		/** Hide above controlbar again when move has timed out. **/
-		private function moveTimeout():void {
-			animations.fade(0);
+		private function moveTimeout(evt:Event=null):void {
+			animations.fade(0, 0.5);
 			Mouse.hide();
 		}
 		
-		/** Process state changes **/
-		private function stateHandler(evt:PlayerEvent=null):void {
-			// TODO: Fix non-working fading
-			clearTimeout(hiding);
-			try {
-				switch (_player.state) {
-					case PlayerState.PLAYING:
-						getSkinComponent('playButton').visible = false;
-						getSkinComponent('pauseButton').visible = true;
-						startFader();
-						break;
-					case PlayerState.PAUSED:
-						getSkinComponent('playButton').visible = true;
-						getSkinComponent('pauseButton').visible = false;
-						stopFader();
-						break;
-					case PlayerState.BUFFERING:
-						getSkinComponent('playButton').visible = false;
-						getSkinComponent('pauseButton').visible = true;
-						stopFader();
-						break;
-					case PlayerState.IDLE:
-						getSkinComponent('playButton').visible = true;
-						getSkinComponent('pauseButton').visible = false;
-						timeHandler();
-						stopFader();
-						break;
-				}
-			} catch (e:Error) {
+		/** If the mouse leaves the stage, hide the controlbar if position is 'over' **/
+		private function mouseLeftStage(evt:Event=null):void {
+			if (fadeOnTimeout) {
+				if (_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING || hideOnIdle)
+					animations.fade(0);
 			}
 		}
+		
 
+		private function stateHandler(evt:PlayerEvent=null):void {
+			switch(_player.state) {
+				case PlayerState.BUFFERING:
+				case PlayerState.PLAYING:
+					getSkinComponent('playButton').visible = false;
+					getSkinComponent('pauseButton').visible = true;
+					startFader();
+					break;
+				case PlayerState.PAUSED:
+				case PlayerState.IDLE:
+					getSkinComponent('playButton').visible = true;
+					getSkinComponent('pauseButton').visible = false;
+					if (hideOnIdle) {
+						mouseLeftStage();
+					} else {
+						stopFader();
+					}
+					break;
+			}
+		}
 
 		/** Process time updates given by the model. **/
 		private function timeHandler(evt:MediaEvent=null):void {
