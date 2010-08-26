@@ -51,6 +51,7 @@ package com.longtailvideo.jwplayer.view {
 		protected var _skin:ISkin;
 		protected var _components:IPlayerComponents;
 		protected var _fullscreen:Boolean = false;
+		protected var _normalScreen:Rectangle;
 		protected var stage:Stage;
 
 		protected var _root:MovieClip;
@@ -105,6 +106,7 @@ package com.longtailvideo.jwplayer.view {
 			}
 
 			_root = new MovieClip();
+			_normalScreen = new Rectangle();
 		}
 
 
@@ -273,7 +275,7 @@ package com.longtailvideo.jwplayer.view {
 				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_FULLSCREEN, _fullscreen));
 			}
 			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_RESIZE, {width: RootReference.stage.stageWidth, height: RootReference.stage.stageHeight}));
-			
+
 			redraw();
 		}
 
@@ -292,28 +294,20 @@ package com.longtailvideo.jwplayer.view {
 			layoutManager.resize(RootReference.stage.stageWidth, RootReference.stage.stageHeight);
 
 			_components.resize(_player.config.width, _player.config.height);
+			if (!_fullscreen) {
+				_normalScreen.width = _player.config.width;
+				_normalScreen.height = _player.config.height;
+			} 
 
 			resizeBackground();
 			resizeMasker();
 
-			if (_imageLayer.numChildren) {
-				_imageLayer.x = _components.display.x;
-				_imageLayer.y = _components.display.y;
-				Stretcher.stretch(_image, _player.config.width, _player.config.height, _player.config.stretching);
-			}
+			_imageLayer.x = _mediaLayer.x = _components.display.x;
+			_imageLayer.y = _mediaLayer.y = _components.display.y;
 
-			if (_mediaLayer.numChildren && _model.media.display) {
-				_mediaLayer.x = _components.display.x;
-				_mediaLayer.y = _components.display.y;
-				if (_fullscreen && _model.config.stretching == Stretcher.EXACTFIT) {
-					var dimensions:Rectangle = Stretcher.stretchDimensions(_model.media.display, _player.config.width, _player.config.height, Stretcher.UNIFORM);
-					_model.media.resize(dimensions.width, dimensions.height);
-					_mediaLayer.x = dimensions.x;
-					_mediaLayer.y = dimensions.y;
-				} else {
-					_model.media.resize(_player.config.width, _player.config.height);
-				}
-			}
+			resizeImage(_player.config.width, _player.config.height);
+			resizeMedia(_player.config.width, _player.config.height);
+			
 
 			if (_logo) {
 				_logo.x = _components.display.x;
@@ -344,6 +338,45 @@ package com.longtailvideo.jwplayer.view {
 			PlayerV4Emulation.getInstance(_player).resize(_player.config.width, _player.config.height);
 		}
 
+		protected function resizeMedia(width:Number, height:Number):void {
+			if (_mediaLayer.numChildren > 0 && _model.media.display) {
+				if (_player.config.stretching == Stretcher.EXACTFIT) {
+					if (_fullscreen) {
+						_model.media.resize(_normalScreen.width, _normalScreen.height);
+						Stretcher.stretch(_mediaLayer, width, height, Stretcher.UNIFORM);
+					} else {
+						_model.media.resize(width, height);
+						_mediaLayer.scaleX = _mediaLayer.scaleY = 1;
+						_mediaLayer.x = _mediaLayer.y = 0;
+					}
+				} else {
+					_model.media.resize(width, height);
+					_mediaLayer.x = _mediaLayer.y = 0;
+				}
+				_mediaLayer.x += _components.display.x;
+				_mediaLayer.y += _components.display.y;
+			}
+		}
+
+		protected function resizeImage(width:Number, height:Number):void {
+			if (_imageLayer.numChildren > 0) {
+				if (_player.config.stretching == Stretcher.EXACTFIT) {
+					if (_fullscreen) {
+						Stretcher.stretch(_imageLayer, width, height, Stretcher.UNIFORM);
+						Stretcher.stretch(_image, _normalScreen.width, _normalScreen.height, _player.config.stretching);
+					} else {
+						Stretcher.stretch(_image, width, height, _player.config.stretching);
+						Stretcher.stretch(_imageLayer, width, height, Stretcher.NONE);
+					}
+				} else {
+					Stretcher.stretch(_image, width, height, _player.config.stretching);
+					_imageLayer.x = _imageLayer.y = 0;
+				}
+				_imageLayer.x += _components.display.x;
+				_imageLayer.y += _components.display.y;
+			}
+			
+		}
 
 		protected function resizeBackground():void {
 			var bg:DisplayObject = _backgroundLayer.getChildByName("background");
@@ -433,11 +466,9 @@ package com.longtailvideo.jwplayer.view {
 
 
 		protected function mediaLoaded(evt:MediaEvent):void {
-			_mediaLayer.x = _components.display.x;
-			_mediaLayer.y = _components.display.y;
 			if (_model.media.display) {
-				_model.media.resize(_player.config.width, _player.config.height);
 				_mediaLayer.addChild(_model.media.display);
+				resizeMedia(_player.config.width, _player.config.height);
 			}
 		}
 
@@ -463,9 +494,7 @@ package com.longtailvideo.jwplayer.view {
 		protected function imageComplete(evt:Event):void {
 			if (_image) {
 				_imageLayer.addChild(_image);
-				_imageLayer.x = _components.display.x;
-				_imageLayer.y = _components.display.y;
-				Stretcher.stretch(_image, _player.config.width, _player.config.height, _player.config.stretching);
+				resizeImage(_player.config.width, _player.config.height);
 				try {
 					Draw.smooth(_image.content as Bitmap);
 				} catch (e:Error) {

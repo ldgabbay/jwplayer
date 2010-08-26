@@ -60,33 +60,10 @@ package com.longtailvideo.jwplayer.utils {
 			}
 			clp.x = Math.round(wid / 2 - clp.width / 2);
 			clp.y = Math.round(hei / 2 - clp.height / 2);
-			clp.width = Math.ceil(clp.width);
-			clp.height = Math.ceil(clp.height);
+			if (clp.width > 0) clp.width = Math.ceil(clp.width);
+			if (clp.height > 0) clp.height = Math.ceil(clp.height);
 		}
 		
-		/**
-		 * Calculates the stretching dimensions of a clip without modifying it
-		 *
-		 * @param clp	The display element to resize.
-		 * @param wid	The target width.
-		 * @param hei	The target height.
-		 * @param typ	The stretching type.
-		 **/
-		public static function stretchDimensions(clp:DisplayObject, wid:Number, hei:Number, typ:String='uniform'):Rectangle {
-			var tempParent:Sprite = new Sprite();
-			tempParent.graphics.beginFill(1, 1);
-			tempParent.graphics.drawRect(0, 0, wid, hei);
-			
-			var tempChild:Sprite = new Sprite();
-			tempChild.graphics.beginFill(1, 1);
-			tempChild.graphics.drawRect(0, 0, clp.width, clp.height);
-			tempParent.addChild(tempChild);
-			
-			stretch(tempChild, wid, hei, typ);
-			
-			return new Rectangle(tempChild.x, tempChild.y, tempChild.width, tempChild.height);
-		}
-
 	}
 
 }

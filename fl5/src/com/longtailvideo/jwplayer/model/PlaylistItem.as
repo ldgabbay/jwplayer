@@ -78,19 +78,37 @@ package com.longtailvideo.jwplayer.model {
 		
 		/** Insert an additional bitrate level, keeping the array sorted from highest to lowest. **/
 		public function addLevel(newLevel:PlaylistItemLevel):void {
-			if (_currentLevel < 0) _currentLevel = 0;
-			for (var i:Number = 0; i < _levels.length; i++) {
-				var level:PlaylistItemLevel = _levels[i] as PlaylistItemLevel;
-				if (newLevel.bitrate > level.bitrate) {
-					_levels.splice(i, 0, newLevel);
-					return;
-				} else if (newLevel.bitrate == level.bitrate && newLevel.width > level.width) {
-					_levels.splice(i, 0, newLevel);
-					return;
+			if (validExtension(newLevel.file)) {
+
+				if (_currentLevel < 0) _currentLevel = 0;
+				for (var i:Number = 0; i < _levels.length; i++) {
+					var level:PlaylistItemLevel = _levels[i] as PlaylistItemLevel;
+					if (newLevel.bitrate > level.bitrate) {
+						_levels.splice(i, 0, newLevel);
+						return;
+					} else if (newLevel.bitrate == level.bitrate && newLevel.width > level.width) {
+						_levels.splice(i, 0, newLevel);
+						return;
+					}
 				}
+				_levels.push(newLevel);
 			}
-			
-			_levels.push(newLevel);
+		}
+		
+		/**
+		 * Determines whether this file extension can be played in the Flash player.  If not, ignore the level.
+		 * This is useful for unified HTML5 / Flash failover setups.
+		 **/
+		protected function validExtension(filename:String):Boolean {
+			var foo:String = Strings.extension(filename); 
+			switch(Strings.extension(filename)) {
+				case "ogv":
+				case "ogg":
+				case "webm":
+					return false;
+				default:
+					return true;
+			}
 		}
 
 		public function get currentLevel():Number {
