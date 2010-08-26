@@ -66,16 +66,10 @@ package com.longtailvideo.jwplayer.media {
         private var _video:Video;
 		/** Whether or not the buffer is full **/
 		private var _bufferFull:Boolean = false;
-		/** Duration of the DVR stream (grows with a timer). **/
-		private var _dvrDuration:Number = 0;
-		/** Total duration of the DVR stream (set by configuration). **/
-		private var _dvrTotalDuration:Number = 0;
-		/** If the item's duration should be set back to 0 on load. **/
-		private var _dvrResetDuration:Boolean = false;
-		/** How long to wait between updates to DVR duration **/
-		private var _dvrCheckDelay:Number = 1000;
-		/** Interval ID for growing the DVR duration. **/
-		private var _dvrInterval:Number;
+		/** Duration of the DVR stream at the time the client connects. **/
+		private var _dvrStartDuration:Number = 0;
+		/** Is the DVR stream currently recording? **/
+		private var _dvrStartDate:Number = 0;
 		/** Whether we should pause the stream when we first connect to it **/
 		private var	_lockOnStream:Boolean = false;
 
@@ -133,19 +127,32 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Try pulling info from a DVRCast application. **/
 		private function doDVRInfo(id:String):void {
-				_connections[_connection].call("DVRGetStreamInfo", new Responder(doDVRInfoCallback), id);
-				Logger.log("calling DVRGetStreamInfo for "+id);
+			_connections[_connection].call("DVRGetStreamInfo", new Responder(doDVRInfoCallback), id);
 		};
 
 
 		/** Callback from the DVRCast application. **/
 		private function doDVRInfoCallback(info:Object):void {
 			if(info.code == "NetStream.DVRStreamInfo.Success") {
-				setStream();
-				Logger.log(info.data.currLen,"DVRCast");
+				if(info.data.currLen < 60) {
+					setTimeout(doDVRInfo,5000,getID(item.file))
+				} else { 
+					_dvrStartDuration = info.data.currLen - 10;
+					if(info.data.isRec) {
+						_dvrStartDate = new Date().valueOf();
+						if(_dvrStartDuration > 60) {
+							_timeoffset = _dvrStartDuration - 60;
+						}
+					}
+					setStream();
+				}
 			} else if (info.code == "NetStream.DVRStreamInfo.Retry") {
 				setTimeout(doDVRInfo,2000,getID(item.file));
 			}
+			for (var itm:String in info.data) { 
+				info[itm] = info.data[itm];
+			}
+			delete info.data;
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: info});
 		};
 
@@ -155,18 +162,6 @@ package com.longtailvideo.jwplayer.media {
 			_connections[_connection].call("FCSubscribe", null, id);
         }
 
-
-		/** If there's a DVR stream, calcluate the position by incrementing it via a setInterval(). **/
-		private function dvrPosition():void {
-			_dvrDuration += Math.ceil(_dvrCheckDelay / 1000);
-			if(_dvrTotalDuration > 0) {
-				var bufferPct:Number = Math.min(100, Math.ceil(100 * _dvrDuration / _dvrTotalDuration));
-				sendBufferEvent(bufferPct);			
-			} else {
-				if (item.duration == 0) { _dvrResetDuration = true; }
-				item.duration = _dvrDuration;
-			}
-		}
 
         /** Catch security errors. **/
         private function errorHandler(evt:ErrorEvent):void {
@@ -220,16 +215,10 @@ package com.longtailvideo.jwplayer.media {
             _item = itm;
             _position = 0;
 			_bufferFull = false;
-			_bandwidthSwitch = false;			
-			_lockOnStream = false;			
+			_bandwidthSwitch = false;
+			_lockOnStream = false;
             _timeoffset = item.start;
 			if (item.levels.length > 0) { item.setLevel(item.getLevel(config.bandwidth, config.width)); }
-			
-			if (_dvrResetDuration) { item.duration = 0; }
-			_dvrTotalDuration = item.duration;
-			_dvrDuration = 0;
-			clearInterval(_dvrInterval);
-			_dvrInterval = 0;
 			
 			clearInterval(_positionInterval);
             if (getConfigProperty('loadbalance')) {
@@ -328,14 +317,9 @@ package com.longtailvideo.jwplayer.media {
 			if (dat.code == 'NetStream.Play.TransitionComplete') {
 				if (_transitionLevel >= 0) { _transitionLevel = -1; }
 			} else {
-            	if (dat.duration) {
-					if (isDVR) {
-						// Save the DVR duration differently, adding a small buffer.
-						_dvrDuration = dat.duration + 3;
-					} else if (duration <= 0) {
-	                	item.duration = dat.duration;
-					}
-            	}
+				if (dat.duration) {
+					item.duration = dat.duration;
+				}
 			}
             if (dat.type == 'complete') {
                 clearInterval(_positionInterval);
@@ -355,14 +339,14 @@ package com.longtailvideo.jwplayer.media {
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: dat});
         }
 
+
         /** Pause playback. **/
         override public function pause():void {
 			if (isLivestream) {
 				stop();
 				return;
 			}
-			
-			clearInterval(_positionInterval);
+			//clearInterval(_positionInterval);
 			super.pause();
             if (_stream) {
 				_stream.pause(); 
@@ -370,6 +354,7 @@ package com.longtailvideo.jwplayer.media {
 				_lockOnStream = true;
 			}
         }
+
 
         /** Resume playing. **/
         override public function play():void {
@@ -400,14 +385,13 @@ package com.longtailvideo.jwplayer.media {
 				}
             }
 			
-            if (state != PlayerState.PLAYING) {
+            if (!getConfigProperty('dvr') && state != PlayerState.PLAYING) {
                 return;
             }
-			
             if (pos < duration) {
 				_position = pos;
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_TIME, {position: position, duration: duration});
-            } else if (position > 0 && duration > 0 && (!isDVR || _dvrTotalDuration > 0)) {
+            } else if (position > 0 && duration > 0) {
                 _stream.pause();
                 clearInterval(_positionInterval);
 				complete();
@@ -430,9 +414,11 @@ package com.longtailvideo.jwplayer.media {
 
         /** Seek to a new position. **/
         override public function seek(pos:Number):void {
-			if (isDVR && pos > _dvrDuration) { pos = _dvrDuration; }
             _transitionLevel = -1;
 			_transitionPlanned = false;
+			if(getConfigProperty('dvr') && _dvrStartDate && pos > duration - 60) { 
+				pos = duration - 60;
+			}
 			_timeoffset = pos;
             clearInterval(_positionInterval);
             clearInterval(_bandwidthInterval);
@@ -448,40 +434,29 @@ package com.longtailvideo.jwplayer.media {
 			if (state == PlayerState.PAUSED) {
 				play();
 			}
-			
-			if(isDVR) {
-				if(state != PlayerState.PLAYING) {
-					try {
-						_stream.play(getID(item.file),0,-1);
-					} catch(e:Error) {
-						error("Could not play DVR stream: " + e.message);
+
+			if (_currentFile != item.file) {
+				_currentFile = item.file;
+				try {
+					if(_dvrStartDate) {
+						_stream.play(getID(item.file),10);
+					} else {
+						_stream.play(getID(item.file));
 					}
+				} catch(e:Error) {
+					Logger.log("Error: " + e.message);
 				}
-				if(_timeoffset > 0) {
-					_stream.seek(_timeoffset);
-				}
-				if (!_dvrInterval) { _dvrInterval = setInterval(dvrPosition,1000); }
-            } else {
-                if (_currentFile != item.file) {
-                    _currentFile = item.file;
-					try {
-                    	_stream.play(getID(item.file));
-					} catch(e:Error) {
-						Logger.log("Error: " + e.message);
-					}
-                }
-                if (_timeoffset > 0 || state == PlayerState.IDLE) {
-                    if (_stream) {
-						_stream.seek(_timeoffset);
-					}
-                }
-                if (_dynamic) {
-                    _bandwidthInterval = setInterval(getBandwidth, 1000);
-                }
-            }
-            _isStreaming = true;
-            _positionInterval = setInterval(positionInterval, 100);
-        }
+			}
+			if ((_timeoffset > 0 || state == PlayerState.IDLE) && _stream) {
+				_stream.seek(_timeoffset);
+			}
+			if (_dynamic) {
+				_bandwidthInterval = setInterval(getBandwidth, 1000);
+			}
+			_isStreaming = true;
+			_positionInterval = setInterval(positionInterval, 100);
+		}
+
 
         /** Start the netstream object. **/
         private function setStream():void {
@@ -526,14 +501,12 @@ package com.longtailvideo.jwplayer.media {
                     if (evt.info.data) {
                         checkDynamic(evt.info.data.version);
 					}
-					if (getConfigProperty('subscribe')) {
-						if(isDVR) {
-							_connections[_connection].call("DVRSubscribe", null, getID(item.file));
-							setTimeout(doDVRInfo,2000,getID(item.file));
-						} else {
-							_subscribeInterval = setInterval(doSubscribe, 2000, getID(item.file));
-						}
-                    } else {
+					if(getConfigProperty('dvr')) {
+						_connections[_connection].call("DVRSubscribe", null, getID(item.file));
+						setTimeout(doDVRInfo,2000,getID(item.file));
+					} else if (getConfigProperty('subscribe')) {
+						_subscribeInterval = setInterval(doSubscribe, 2000, getID(item.file));
+					} else {
                         if (item.levels.length > 0) {
                             if (_dynamic || _bandwidthChecked) {
                                 setStream();
@@ -605,7 +578,7 @@ package com.longtailvideo.jwplayer.media {
 					onClientData(evt.info);
 					break;
 				case 'NetStream.Play.Stop':
-					if(isDVR) { stop(); }
+					if(getConfigProperty('dvr')) { stop(); }
 					break;
 					
             }
@@ -627,6 +600,7 @@ package com.longtailvideo.jwplayer.media {
             clearInterval(_bandwidthInterval);
             _position = 0;
             _timeoffset = item ? item.start : -1;
+			_dvrStartDuration = _dvrStartDate = 0;
 			super.stop();
 			if (item && item.hasOwnProperty('smil')) {
 				/** Replace file values with original redirects **/
@@ -642,14 +616,12 @@ package com.longtailvideo.jwplayer.media {
 			}
 		}
 
-        /** Get the streamlength returned from the connection. **/
-        private function streamlengthHandler(len:Number):void {
-			if (isDVR && _dvrTotalDuration > 0) {
-				_dvrDuration = len;
-			} else if (!isDVR && len && duration <= 0) {
-                item.duration = len;
-            }
-        }
+
+		/** Get the streamlength returned from the connection. **/
+		private function streamlengthHandler(len:Number):void {
+			item.duration = len;
+		}
+
 
         /** Dynamically switch streams **/
         private function swap(newLevel:Number):void {
@@ -689,15 +661,16 @@ package com.longtailvideo.jwplayer.media {
 			// We assume it's a livestream until we hear otherwise.
 			return (!(duration > 0) && _stream && _stream.bufferLength > 0);
 		}
-		
-		protected function get isDVR():Boolean {
-			return Boolean(getConfigProperty('dvr'));
-		}
-		
+
+
 		protected function get duration():Number {
-			if (isDVR) {
-				return _dvrTotalDuration > 0 ? _dvrTotalDuration : item.duration;
-			} else {
+			if(getConfigProperty('dvr')) {
+				var dur:Number = _dvrStartDuration;
+				if(_dvrStartDate) { 
+					dur += (new Date().valueOf() - _dvrStartDate) / 1000;
+				}
+				return Math.round(dur);
+			} else { 
 				return item.duration;
 			}
 		}
