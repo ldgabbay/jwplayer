@@ -75,7 +75,7 @@
 				return true;
 			} else if (val == 'false') {
 				return false;
-			} else if (isNaN(Number(val)) || val.length > 5) {
+			} else if (isNaN(Number(val)) || val.length > 5 || val.length == 0) {
 				return val;
 			} else {
 				return Number(val);

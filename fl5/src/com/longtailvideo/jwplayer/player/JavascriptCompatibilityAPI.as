@@ -8,6 +8,7 @@ package com.longtailvideo.jwplayer.player {
 	import com.longtailvideo.jwplayer.utils.Logger;
 	
 	import flash.external.ExternalInterface;
+	import flash.utils.setTimeout;
 
 
 	public class JavascriptCompatibilityAPI extends JavascriptAPI {
@@ -45,6 +46,13 @@ package com.longtailvideo.jwplayer.player {
 				Logger.log("Could not start up JavasScript API: " + e.message);
 			}
 
+		}
+		
+		override protected function clearQueuedEvents():void {
+			super.clearQueuedEvents();
+			var eventInfo:PlayerEvent = new PlayerEvent("");
+			forwardControllerEvents(new ControllerEvent(ControllerEvent.PLAYLIST, {playlist:JavascriptSerialization.playlistToArray(_player.playlist), id:eventInfo.id, client:eventInfo.client, version:eventInfo.version}));
+			forwardControllerEvents(new ControllerEvent(ControllerEvent.ITEM, {index:_player.playlist.currentIndex, id:eventInfo.id, client:eventInfo.client, version:eventInfo.version}));
 		}
 		
 		private function addJSControllerListener(type:String,callback:String):Boolean {
@@ -132,33 +140,42 @@ package com.longtailvideo.jwplayer.player {
 		}
 		
 		private function forwardControllerEvents(evt:ControllerEvent):void {
-			if (controllerCallbacks.hasOwnProperty(evt.type)) {
-				for each (var callback:String in controllerCallbacks[evt.type]) {
-					if (ExternalInterface.available) {
-						ExternalInterface.call(callback, JavascriptSerialization.stripDots(evt.data));
+			//Insert 1ms delay to allow all Flash listeners to complete before notifying JavaScript
+			setTimeout(function():void {
+				if (controllerCallbacks.hasOwnProperty(evt.type)) {
+					for each (var callback:String in controllerCallbacks[evt.type]) {
+						if (ExternalInterface.available) {
+							ExternalInterface.call(callback, JavascriptSerialization.stripDots(evt.data));
+						}
 					}
 				}
-			}
+			}, 1);
 		}
 
 		private function forwardModelEvents(evt:ModelEvent):void {
-			if (modelCallbacks.hasOwnProperty(evt.type)) {
-				for each (var callback:String in modelCallbacks[evt.type]) {
-					if (ExternalInterface.available) {
-						ExternalInterface.call(callback, JavascriptSerialization.stripDots(evt.data));
+			//Insert 1ms delay to allow all Flash listeners to complete before notifying JavaScript
+			setTimeout(function():void {
+				if (modelCallbacks.hasOwnProperty(evt.type)) {
+					for each (var callback:String in modelCallbacks[evt.type]) {
+						if (ExternalInterface.available) {
+							ExternalInterface.call(callback, JavascriptSerialization.stripDots(evt.data));
+						}
 					}
 				}
-			}
+			}, 1);
 		}
 
 		private function forwardViewEvents(evt:ViewEvent):void {
-			if (viewCallbacks.hasOwnProperty(evt.type)) {
-				for each (var callback:String in viewCallbacks[evt.type]) {
-					if (ExternalInterface.available) {
-						ExternalInterface.call(callback, JavascriptSerialization.stripDots(evt.data));
+			//Insert 1ms delay to allow all Flash listeners to complete before notifying JavaScript
+			setTimeout(function():void {
+				if (viewCallbacks.hasOwnProperty(evt.type)) {
+					for each (var callback:String in viewCallbacks[evt.type]) {
+						if (ExternalInterface.available) {
+							ExternalInterface.call(callback, JavascriptSerialization.stripDots(evt.data));
+						}
 					}
 				}
-			}
+			}, 1);
 		}
 
 	}

@@ -1,6 +1,4 @@
 package com.longtailvideo.jwplayer.player {
-	import com.longtailvideo.jwplayer.events.GlobalEventDispatcher;
-	import com.longtailvideo.jwplayer.events.IGlobalEventDispatcher;
 	import com.longtailvideo.jwplayer.events.MediaEvent;
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
 	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
@@ -16,6 +14,7 @@ package com.longtailvideo.jwplayer.player {
 	import flash.events.TimerEvent;
 	import flash.external.ExternalInterface;
 	import flash.utils.Timer;
+	import flash.utils.setTimeout;
 	
 	public class JavascriptAPI {
 		protected var _player:IPlayer;
@@ -34,15 +33,16 @@ package com.longtailvideo.jwplayer.player {
 
 			setupPlayerListeners();
 			setupJSListeners();
+			_player.addGlobalListener(queueEvents);
+			
 		}
 		
 		/** Delay the response to PlayerReady to allow the external interface to initialize in some browsers **/
 		protected function playerReady(evt:PlayerEvent):void {
-			(_player as IGlobalEventDispatcher).addGlobalListener(queueEvents);
-			
 			var timer:Timer = new Timer(50, 1);
 			
 			timer.addEventListener(TimerEvent.TIMER_COMPLETE, function(timerEvent:TimerEvent):void {
+				_player.removeGlobalListener(queueEvents);
 				var callbacks:String = _player.config.playerready ? _player.config.playerready + "," + "playerReady" : "playerReady";  
 				if (ExternalInterface.available) {
 					for each (var callback:String in callbacks.replace(/\s/,"").split(",")) {
@@ -55,14 +55,9 @@ package com.longtailvideo.jwplayer.player {
 						} catch (e:Error) {}
 					}
 					
-					for each (var queuedEvent:PlayerEvent in _queuedEvents) {
-						listenerCallback(queuedEvent);
-					}
-					_queuedEvents = null;
-					
+					clearQueuedEvents();
 				}
 				
-				(_player as IGlobalEventDispatcher).removeGlobalListener(queueEvents);
 
 			});
 			timer.start();
@@ -70,6 +65,13 @@ package com.longtailvideo.jwplayer.player {
 
 		protected function queueEvents(evt:PlayerEvent):void {
 			_queuedEvents.push(evt);
+		}
+		
+		protected function clearQueuedEvents():void {
+			for each (var queuedEvent:PlayerEvent in _queuedEvents) {
+				listenerCallback(queuedEvent);
+			}
+			_queuedEvents = null;
 		}
 		
 		protected function setupPlayerListeners():void {
@@ -174,11 +176,14 @@ package com.longtailvideo.jwplayer.player {
 			
 			var callbacks:Array = _listeners[evt.type] as Array;
 			
-			if (callbacks) {
-				for each (var call:String in callbacks) {
-					ExternalInterface.call(call, args);
+			//Insert 1ms delay to allow all Flash listeners to complete before notifying JavaScript
+			setTimeout(function():void {
+				if (callbacks) {
+					for each (var call:String in callbacks) {
+						ExternalInterface.call(call, args);
+					}
 				}
-			}
+			}, 1);
 			
 		}
 		

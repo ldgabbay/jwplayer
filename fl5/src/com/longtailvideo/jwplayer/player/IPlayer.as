@@ -1,11 +1,12 @@
 package com.longtailvideo.jwplayer.player {
+	import com.longtailvideo.jwplayer.events.IGlobalEventDispatcher;
 	import com.longtailvideo.jwplayer.model.IPlaylist;
 	import com.longtailvideo.jwplayer.model.PlayerConfig;
 	import com.longtailvideo.jwplayer.plugins.IPlugin;
 	import com.longtailvideo.jwplayer.view.IPlayerComponents;
 	import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
 	import com.longtailvideo.jwplayer.view.interfaces.ISkin;
-
+	
 	import flash.events.IEventDispatcher;
 
 
@@ -14,7 +15,7 @@ package com.longtailvideo.jwplayer.player {
 	 *
 	 * @author Zachary Ozer
 	 */
-	public interface IPlayer extends IEventDispatcher {
+	public interface IPlayer extends IEventDispatcher, IGlobalEventDispatcher {
 		/**
 		 * The player's current configuration
 		 */

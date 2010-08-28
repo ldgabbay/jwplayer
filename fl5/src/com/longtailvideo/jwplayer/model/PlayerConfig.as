@@ -67,7 +67,6 @@ package com.longtailvideo.jwplayer.model {
 		
 		public function setConfig(config:Object):void {
 			for (var item:String in config) {
-				item = item;
 				if (item.indexOf(".") > 0) {
 					setPluginProperty(item, config[item]);
 					_singleItem[item.toLowerCase()] = config[item];

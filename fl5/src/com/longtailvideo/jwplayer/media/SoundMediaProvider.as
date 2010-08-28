@@ -28,7 +28,7 @@ package com.longtailvideo.jwplayer.media {
 		protected var _positionInterval:Number;
 		/** Whether the buffer has filled **/
 		private var _bufferFull:Boolean;
-		/** Whether the enitre video has been buffered **/
+		/** Whether the enitre sound file has been buffered **/
 		private var _bufferingComplete:Boolean;
 		/** User-defined item duration **/
 		private var _userDuration:Number = -1;
@@ -78,9 +78,9 @@ package com.longtailvideo.jwplayer.media {
 		override public function load(itm:PlaylistItem):void {
 			_position = 0;
 			_bufferFull = false;
-			_bufferingComplete = false;
 			_userDuration = itm.duration > 0 ? itm.duration : -1;
-			if (!_item || _item.file != itm.file) {
+			if (!_item || _item.file != itm.file || !_bufferingComplete) {
+				_bufferingComplete = false;
 				_item = itm;
 				_sound = new Sound();
 				_sound.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);

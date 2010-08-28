@@ -42,9 +42,13 @@ package com.longtailvideo.jwplayer.controller {
 		}
 		
 		public function loadPlugins(pluginList:String):void {
-			var plugins:Array = pluginList.replace(/\s*/g,"").split(",");
-			for each(var plugin:String in plugins) {
-				loadLocalPlugin(plugin); //Testing
+			if (pluginList) {
+				var plugins:Array = pluginList.replace(/\s*/g,"").split(",");
+				for each(var plugin:String in plugins) {
+					loadLocalPlugin(plugin); //Testing
+				}
+			} else {
+				dispatchEvent(new Event(Event.COMPLETE));
 			}
 		}
 		

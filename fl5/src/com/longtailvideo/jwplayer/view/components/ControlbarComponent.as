@@ -191,8 +191,8 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** Show above controlbar on mousemove and restart the countdown. **/
 		private function moveHandler(evt:MouseEvent=null):void {
-			if (alpha == 0) {
-				stopFader();
+			stopFader();
+			if (_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING || hideOnIdle) {
 				startFader();
 			}
 		}
@@ -206,8 +206,9 @@ package com.longtailvideo.jwplayer.view.components {
 		/** If the mouse leaves the stage, hide the controlbar if position is 'over' **/
 		private function mouseLeftStage(evt:Event=null):void {
 			if (fadeOnTimeout) {
-				if (_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING || hideOnIdle)
-				animations.fade(0);
+				if (_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING || hideOnIdle) {
+					animations.fade(0);
+				}
 			}
 		}
 		

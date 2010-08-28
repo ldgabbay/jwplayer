@@ -76,11 +76,6 @@ package com.longtailvideo.jwplayer.player {
 		}
 		
 		private function setupListeners():void {
-			
-			var m:Model;
-			var v:IControlbarComponent;
-			var c:Controller
-			
 			_player.addEventListener(PlayerEvent.JWPLAYER_ERROR, errorHandler);
 			
 			_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_BUFFER, mediaBuffer);
