@@ -9,6 +9,7 @@ package com.longtailvideo.jwplayer.media {
     import com.longtailvideo.jwplayer.model.PlayerConfig;
     import com.longtailvideo.jwplayer.model.PlaylistItem;
     import com.longtailvideo.jwplayer.model.PlaylistItemLevel;
+	import com.longtailvideo.jwplayer.parsers.LoadbalanceParser;
     import com.longtailvideo.jwplayer.player.PlayerState;
     import com.longtailvideo.jwplayer.utils.AssetLoader;
     import com.longtailvideo.jwplayer.utils.Configger;
@@ -72,6 +73,8 @@ package com.longtailvideo.jwplayer.media {
 		private var _dvrStartDate:Number = 0;
 		/** Whether we should pause the stream when we first connect to it **/
 		private var	_lockOnStream:Boolean = false;
+		/** Do we need to request loadbalance SMILs on switch. **/
+		private var _loadbalanceOnSwitch = true;
 
 
         public function RTMPMediaProvider() {
@@ -105,7 +108,7 @@ package com.longtailvideo.jwplayer.media {
             var clt:Number = Number((new PlayerEvent('')).client.split(' ')[2].split(',')[0]);
             var mjr:Number = Number(str.split(',')[0]);
             var mnr:Number = Number(str.split(',')[1]);
-            if (!getConfigProperty('loadbalance') && clt > 9 && (mjr > 3 || (mjr == 3 && mnr > 4))) {
+            if (!_loadbalanceOnSwitch && clt > 9 && (mjr > 3 || (mjr == 3 && mnr > 4))) {
                 _dynamic = true;
             } else {
                 _dynamic = false;
@@ -270,23 +273,28 @@ package com.longtailvideo.jwplayer.media {
 				error("Could not connect to streamer: " + e.message);
 			}
 		}
-		
-        /** Get the streamer / file from the loadbalancing XML. **/
-        private function loaderHandler(evt:Event):void {
-            var xml:XML = XML((evt.target as AssetLoader).loadedObject);
-			var fileLocation:String = xml.body.video.@src.toString();
+
+
+		/** Get one or more levels from the loadbalancing XML. **/
+		private function loaderHandler(evt:Event):void {
+			var arr:Array = LoadbalanceParser.parse((evt.target as AssetLoader).loadedObject);
 			var smilLocation:String = _xmlLoaders[evt.target];
 			delete _xmlLoaders[evt.target];
-			if (item.levels.length > 0) {
-				var level:PlaylistItemLevel = item.levels[(item.smil as Array).indexOf(smilLocation)] as PlaylistItemLevel; 
-				level.streamer = xml.head.meta.@base.toString();
-				level.file = fileLocation;
+			if(arr.length > 1) { 
+				for(var i=0; i<arr.length; i++) { item.addLevel(arr[i]); }
+				item.setLevel(item.getLevel(config.bandwidth, config.width));
+				_loadbalanceOnSwitch = false
+			} else if (item.levels.length > 0) {
+				var level:PlaylistItemLevel = item.levels[(item.smil as Array).indexOf(smilLocation)] as PlaylistItemLevel;
+				level.streamer = arr[0].streamer;
+				level.file = arr[0].file;
 			} else {
-				item.streamer = xml.head.meta.@base.toString();
-           		item.file = fileLocation;
+				item.streamer = arr[0].streamer;;
+				item.file = arr[0].file;
 			}
 			finishLoad();
-        }
+		};
+
 
         /** Get metadata information from netstream class. **/
         public function onClientData(dat:Object):void {
@@ -424,7 +432,7 @@ package com.longtailvideo.jwplayer.media {
             clearInterval(_bandwidthInterval);
 			if (item.levels.length > 0 && item.getLevel(config.bandwidth, config.width) != item.currentLevel) {
                 item.setLevel(item.getLevel(config.bandwidth, config.width));
-                if (getConfigProperty('loadbalance')) {
+                if (_loadbalanceOnSwitch) {
                     item.start = pos;
                     load(item);
                     return;
