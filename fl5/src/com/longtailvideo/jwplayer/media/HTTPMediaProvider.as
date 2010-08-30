@@ -37,8 +37,6 @@ package com.longtailvideo.jwplayer.media {
 		protected var _timeoffset:Number = 0;
 		/** Boolean for mp4 / flv streaming. **/
 		protected var _mp4:Boolean;
-		/** Variable that takes reloading into account. **/
-		protected var _iterator:Number;
 		/** Start parameter. **/
 		private var _startparam:String = 'start';
 		/** Whether the buffer has filled **/
@@ -57,6 +55,10 @@ package com.longtailvideo.jwplayer.media {
 		private var _dvroffset:Number = 0;
 		/** Loaded amount for DVR streaming. **/
 		private var _dvrloaded:Number = 0;
+		/** Number of frames dropped at present. **/
+		private var _droppedFrames:Array;
+		/** ID for the framedrop checking interval. **/
+		private var _droppedFramesInterval:Number;
 		
 		
 		/** Constructor; sets up the connection and display. **/
@@ -105,7 +107,6 @@ package com.longtailvideo.jwplayer.media {
 		private function checkBandwidth(lastLoaded:Number):void {
 			var currentLoaded:Number = _stream.bytesLoaded;
 			var bandwidth:Number = Math.ceil((currentLoaded - lastLoaded) / 1024) * 8 / (_bandwidthDelay / 1000);
-			
 			if (currentLoaded < _stream.bytesTotal) {
 				if (bandwidth > 0) {
 					config.bandwidth = bandwidth;
@@ -128,7 +129,24 @@ package com.longtailvideo.jwplayer.media {
 				_bandwidthTimeout = setTimeout(checkBandwidth, _bandwidthDelay, currentLoaded);
 			}
 		}
-		
+
+
+		/** Check the number and percentage of dropped frames per playback session. **/
+		private function checkFramedrop():void {
+			_droppedFrames.push(_stream.info.droppedFrames);
+			var len:Number = _droppedFrames.length;
+			if(len > 5) {
+				var drp:Number = (_droppedFrames[len-1] - _droppedFrames[len-6])/5;
+				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {droppedFrames:drp}});
+				if(drp > 8 && item.currentLevel < item.levels.length - 1) {
+					item.blacklistLevel(item.currentLevel);
+					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {type:'blacklist',level:item.currentLevel}});
+					load(item);
+				}
+			}
+		};
+
+
 		/** Return a keyframe byteoffset or timeoffset. **/
 		protected function getOffset(pos:Number, tme:Boolean=false):Number {
 			if (!_keyframes) {
@@ -209,7 +227,10 @@ package com.longtailvideo.jwplayer.media {
 			
 			clearInterval(_positionInterval);
 			_positionInterval = setInterval(positionInterval, 100);
-			
+			_droppedFrames = new Array();
+			clearInterval(_droppedFramesInterval);
+			_droppedFramesInterval = setInterval(checkFramedrop,1000);
+
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_LOADED);
 			setState(PlayerState.BUFFERING);
 			sendBufferEvent(0, 0);
@@ -313,7 +334,6 @@ package com.longtailvideo.jwplayer.media {
 				return;
 			}
 			
-				
 			if (pos < item.duration) {
 				_position = pos;
 				if (_position >= 0) {
@@ -340,7 +360,7 @@ package com.longtailvideo.jwplayer.media {
 			var off:Number = getOffset(pos);
 			super.seek(pos);
 			clearInterval(_positionInterval);
-			_positionInterval = undefined; 
+			_positionInterval = undefined;
 			if (off < _byteoffset || off >= _byteoffset + _stream.bytesLoaded) {
 				_timeoffset = _position = getOffset(pos, true);
 				_byteoffset = off;
@@ -392,8 +412,11 @@ package com.longtailvideo.jwplayer.media {
 				_stream.pause();
 			}
 			clearInterval(_positionInterval);
+			clearInterval(_droppedFramesInterval);
 			_positionInterval = undefined;
-			_position = _byteoffset = _timeoffset = _dvroffset = _dvrloaded = 0;
+			_position = _byteoffset = _timeoffset = 0;
+			_dvroffset = _dvrloaded = 0;
+			_droppedFrames = new Array();
 			_keyframes = undefined;
 			_bandwidthChecked = false;
 			_meta = false;

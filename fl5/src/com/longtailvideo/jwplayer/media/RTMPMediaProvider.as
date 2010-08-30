@@ -31,8 +31,6 @@ package com.longtailvideo.jwplayer.media {
     public class RTMPMediaProvider extends MediaProvider {
 		/** Save if the bandwidth checkin already occurs. **/
 		private var _bandwidthChecked:Boolean;
-        /** Interval for bw checking - with dynamic streaming. **/
-        private var _bandwidthInterval:Number;
 		/** Whether to connect to a stream when bandwidth is detected. **/
 		private var _bandwidthSwitch:Boolean;
 		/** Save that we're connected to either the tunneled or untunneled connection. **/
@@ -61,8 +59,6 @@ package com.longtailvideo.jwplayer.media {
         private var _isStreaming:Boolean;
         /** Level to which we're transitioning. **/
         private var _transitionLevel:Number = -1;
-        /** Save if we want to transition. **/
-        private var _transitionPlanned:Boolean = false;
         /** Video object to be instantiated. **/
         private var _video:Video;
 		/** Whether or not the buffer is full **/
@@ -74,7 +70,11 @@ package com.longtailvideo.jwplayer.media {
 		/** Whether we should pause the stream when we first connect to it **/
 		private var	_lockOnStream:Boolean = false;
 		/** Do we need to request loadbalance SMILs on switch. **/
-		private var _loadbalanceOnSwitch = true;
+		private var _loadbalanceOnSwitch;
+		/** Number of frames dropped at present. **/
+		private var _streamInfo:Array;
+		/** Interval for bw checking - with dynamic streaming. **/
+		private var _streamInfoInterval:Number;
 
 
         public function RTMPMediaProvider() {
@@ -108,7 +108,7 @@ package com.longtailvideo.jwplayer.media {
             var clt:Number = Number((new PlayerEvent('')).client.split(' ')[2].split(',')[0]);
             var mjr:Number = Number(str.split(',')[0]);
             var mnr:Number = Number(str.split(',')[1]);
-            if (!_loadbalanceOnSwitch && clt > 9 && (mjr > 3 || (mjr == 3 && mnr > 4))) {
+            if (clt > 9 && (mjr > 3 || (mjr == 3 && mnr > 4))) {
                 _dynamic = true;
             } else {
                 _dynamic = false;
@@ -172,28 +172,29 @@ package com.longtailvideo.jwplayer.media {
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: evt.text});
 		}
 
-        /** Bandwidth checking for dynamic streaming. **/
-        private function getBandwidth():void {
-            try {
-                var bdw:Number = Math.round(_stream.info.maxBytesPerSecond * 8 / 1024);
-            } catch (err:Error) {
-                clearInterval(_bandwidthInterval);
-                return;
-            }
-            if (bdw < 99 || bdw > 99999) { return; }
-            config.bandwidth = bdw;
-            Configger.saveCookie('bandwidth', bdw);
-            if (item.levels.length > 0 && item.getLevel(config.bandwidth, config.width) != item.currentLevel) {
-				if(_transitionPlanned) {
-					swap(item.getLevel(config.bandwidth, config.width));
-					_transitionPlanned = false;
-				} else { 
-					_transitionPlanned = true;
+
+		/** Bandwidth and Framedrop checking for dynamic streaming. **/
+		private function getStreamInfo():void {
+			var bwd:Number = Math.round(_stream.info.maxBytesPerSecond * 8 / 1024);
+			var drf:Number = _stream.info.droppedFrames;
+			_streamInfo.push({bwd:bwd,drf:drf});
+			var len = _streamInfo.length;
+			if(len > 5) {
+				bwd = Math.round((_streamInfo[len-1].bwd + _streamInfo[len-2].bwd + _streamInfo[len-3].bwd + 
+					_streamInfo[len-4].bwd+ + _streamInfo[len-5].bwd)/5);
+				drf = Math.round((_streamInfo[len-1].drf - _streamInfo[len-5].drf)*2)/10;
+				if(item.levels.length > 0 && item.getLevel(bwd, config.width) != item.currentLevel) {
+					swap(item.getLevel(bwd, config.width));
 				}
-			} else {
-				_transitionPlanned = false;
+				if(item.levels.length > 0 && drf > 8 && item.currentLevel < item.levels.length-1) {
+					item.blacklistLevel(item.currentLevel);
+					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {type:'blacklist',level:item.currentLevel}});
+					swap(item.getLevel(bwd, config.width));
+				}
+				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {bandwidth:bwd,droppedFrames:drf}});
 			}
-        }
+		};
+
 
         /** Extract the correct rtmp syntax from the file string. **/
         private function getID(url:String):String {
@@ -283,13 +284,13 @@ package com.longtailvideo.jwplayer.media {
 			if(arr.length > 1) { 
 				for(var i=0; i<arr.length; i++) { item.addLevel(arr[i]); }
 				item.setLevel(item.getLevel(config.bandwidth, config.width));
-				_loadbalanceOnSwitch = false
 			} else if (item.levels.length > 0) {
 				var level:PlaylistItemLevel = item.levels[(item.smil as Array).indexOf(smilLocation)] as PlaylistItemLevel;
 				level.streamer = arr[0].streamer;
 				level.file = arr[0].file;
+				_loadbalanceOnSwitch = true;
 			} else {
-				item.streamer = arr[0].streamer;;
+				item.streamer = arr[0].streamer;
 				item.file = arr[0].file;
 			}
 			finishLoad();
@@ -421,15 +422,13 @@ package com.longtailvideo.jwplayer.media {
         }
 
         /** Seek to a new position. **/
-        override public function seek(pos:Number):void {
-            _transitionLevel = -1;
-			_transitionPlanned = false;
+		override public function seek(pos:Number):void {
+			_transitionLevel = -1;
 			if(getConfigProperty('dvr') && _dvrStartDate && pos > duration - 60) { 
 				pos = duration - 60;
 			}
 			_timeoffset = pos;
             clearInterval(_positionInterval);
-            clearInterval(_bandwidthInterval);
 			if (item.levels.length > 0 && item.getLevel(config.bandwidth, config.width) != item.currentLevel) {
                 item.setLevel(item.getLevel(config.bandwidth, config.width));
                 if (_loadbalanceOnSwitch) {
@@ -448,8 +447,14 @@ package com.longtailvideo.jwplayer.media {
 				try {
 					if(_dvrStartDate) {
 						_stream.play(getID(item.file),10);
+						Logger.log("dvring "+item.file,"rtmp");
 					} else {
 						_stream.play(getID(item.file));
+						if (_dynamic) {
+							_streamInfo = new Array();
+							clearInterval(_streamInfoInterval);
+							_streamInfoInterval = setInterval(getStreamInfo, 1000);
+						}
 					}
 				} catch(e:Error) {
 					Logger.log("Error: " + e.message);
@@ -457,9 +462,6 @@ package com.longtailvideo.jwplayer.media {
 			}
 			if ((_timeoffset > 0 || state == PlayerState.IDLE) && _stream) {
 				_stream.seek(_timeoffset);
-			}
-			if (_dynamic) {
-				_bandwidthInterval = setInterval(getBandwidth, 1000);
 			}
 			_isStreaming = true;
 			_positionInterval = setInterval(positionInterval, 100);
@@ -593,22 +595,23 @@ package com.longtailvideo.jwplayer.media {
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: evt.info});
         }
 
-        /** Destroy the stream. **/
-        override public function stop():void {
-            if (_stream && _stream.time) {
+		/** Destroy the stream. **/
+		override public function stop():void {
+			if (_stream && _stream.time) {
 				_stream.close();
-            }
-            _isStreaming = false;
-            _currentFile = undefined;
-			if(_connection > -1) {
-            	_connections[_connection].close();
-            	_connection = -1;
 			}
-            clearInterval(_positionInterval);
-            clearInterval(_bandwidthInterval);
-            _position = 0;
-            _timeoffset = item ? item.start : -1;
+			_isStreaming = false;
+			_currentFile = undefined;
+			if(_connection > -1) {
+				_connections[_connection].close();
+				_connection = -1;
+			}
+			clearInterval(_positionInterval);
+			_position = 0;
+			_timeoffset = item ? item.start : -1;
 			_dvrStartDuration = _dvrStartDate = 0;
+			_streamInfo = new Array();
+			clearInterval(_streamInfoInterval);
 			super.stop();
 			if (item && item.hasOwnProperty('smil')) {
 				/** Replace file values with original redirects **/
@@ -631,17 +634,20 @@ package com.longtailvideo.jwplayer.media {
 		}
 
 
-        /** Dynamically switch streams **/
-        private function swap(newLevel:Number):void {
-            if (_transitionLevel == -1) {
-                _transitionLevel = newLevel;
+		/** Dynamically switch streams **/
+		private function swap(newLevel:Number):void {
+			if (_transitionLevel == -1) {
+				_transitionLevel = newLevel;
 				item.setLevel(newLevel);
-                var nso:NetStreamPlayOptions = new NetStreamPlayOptions();
-                nso.streamName = getID(item.file);
-                nso.transition = NetStreamPlayTransitions.SWITCH;
-                _stream.play2(nso);
-            }
-        }
+				var nso:NetStreamPlayOptions = new NetStreamPlayOptions();
+				nso.streamName = getID(item.file);
+				nso.transition = NetStreamPlayTransitions.SWITCH;
+				clearInterval(_streamInfoInterval);
+				_streamInfo = new Array();
+				_streamInfoInterval = setInterval(getStreamInfo, 1000);
+				_stream.play2(nso);
+			}
+		}
 
         /** Set the volume level. **/
         override public function setVolume(vol:Number):void {

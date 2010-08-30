@@ -6,6 +6,7 @@ package com.longtailvideo.jwplayer.model {
 		public var bitrate:Number	= 0;
 		public var width:Number		= 0;
 		public var streamer:String	= "";
+		public var blacklisted:Boolean = false;
 		
 		/**
 		 * @param file - The location of the file to play

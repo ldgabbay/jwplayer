@@ -48,7 +48,7 @@ package com.longtailvideo.jwplayer.model {
 		/** File property is now a getter, to take levels into account **/
 		public function get file():String {
 			if (_levels.length > 0 && _currentLevel > -1 && _currentLevel < _levels.length) {
-				var level:PlaylistItemLevel = _levels[_currentLevel] as PlaylistItemLevel; 
+				var level:PlaylistItemLevel = _levels[_currentLevel] as PlaylistItemLevel;
 				return level.file ? level.file : _file;
 			} else {
 				return _file;
@@ -98,7 +98,15 @@ package com.longtailvideo.jwplayer.model {
 				_levels.push(newLevel);
 			}
 		}
-		
+
+
+		/** Blacklist a level from usage (e.g. if it cannot be played or drops too many frames). **/
+		public function blacklistLevel(level:Number):void {
+			if(levels[level]) {
+				levels[level].blacklisted = true;
+			}
+		};
+
 		/**
 		 * Determines whether this file extension can be played in the Flash player.  If not, ignore the level.
 		 * This is useful for unified HTML5 / Flash failover setups.
@@ -122,7 +130,7 @@ package com.longtailvideo.jwplayer.model {
 		public function getLevel(bitrate:Number, width:Number):Number {
 			for (var i:Number=0; i < _levels.length; i++) {
 				var level:PlaylistItemLevel = _levels[i] as PlaylistItemLevel;
-				if (bitrate >= level.bitrate * 1.2 && width >= level.width * 0.9) {
+				if (bitrate >= level.bitrate * 1.2 && width >= level.width * 0.8 && !level.blacklisted) {
 					return i;
 				}
 			}
