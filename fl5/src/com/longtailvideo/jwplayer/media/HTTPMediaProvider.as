@@ -274,11 +274,15 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Resume playing. **/
 		override public function play():void {
-			_stream.resume();
 			if (!_positionInterval) {
 				_positionInterval = setInterval(positionInterval, 100);
 			}
-			super.play();
+			if (_bufferFull) {
+				_stream.resume();
+				super.play();
+			} else {
+				setState(PlayerState.BUFFERING);
+			}
 		}
 
 

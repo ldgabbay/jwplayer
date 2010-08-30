@@ -140,8 +140,12 @@
 			if (!_positionInterval) {
 				_positionInterval = setInterval(positionHandler, 100);
 			}
-			_stream.resume();
-			super.play();
+			if (_bufferFull) {
+				_stream.resume();
+				super.play();
+			} else {
+				setState(PlayerState.BUFFERING);
+			}
 		}
 
 
@@ -151,12 +155,18 @@
 				_bandwidthChecked = true;
 				setTimeout(checkBandwidth, _bandwidthTimeout, _stream.bytesLoaded);
 			}
-			
-			var _streamTime:Number = Math.min(_stream.time, item.duration);
-			var bufferPercent:Number = _stream.bytesTotal > 0 ? _stream.bytesLoaded / _stream.bytesTotal * 100 : 0;
-			var bufferTime:Number = _stream.bufferTime < (item.duration - _streamTime) ? _stream.bufferTime : Math.floor(Math.abs(item.duration - _streamTime));
-			var bufferFill:Number = bufferTime == 0 ? 100 : Math.floor(_stream.bufferLength / bufferTime * 100);
 
+			var pos:Number = Math.round(Math.min(_stream.time, Math.max(item.duration, 0)) * 100) / 100;
+			var timeRemaining:Number = item.duration > 0 ? (item.duration - pos) : pos;
+			var bufferTime:Number;
+			var bufferFill:Number;
+			if (item.duration > 0 && _stream && _stream.bytesTotal > 0) {
+				bufferTime = _stream.bufferTime < timeRemaining ? _stream.bufferTime : Math.round(timeRemaining);
+				bufferFill = _stream.bufferTime ? Math.ceil(_stream.bufferLength / bufferTime * 100) : 0;
+			} else {
+				bufferFill = _stream.bufferTime ? _stream.bufferLength/_stream.bufferTime * 100 : 0;
+				bufferTime = (_stream.bytesTotal > 0) ? 100 : 0;
+			}
 			
 			if (bufferFill < 50 && state == PlayerState.PLAYING) {
 				_bufferFull = false;
@@ -168,6 +178,12 @@
 			}
 
 			if (!_bufferingComplete) {
+				var bufferPercent:Number;
+				if (_stream.bytesTotal > 0) {
+					bufferPercent = 100 * (_stream.bytesLoaded / _stream.bytesTotal);
+				} else {
+					bufferPercent = _stream.bytesLoaded > 0 ? 100 : 0; 
+				}
 				if (bufferPercent == 100 && _bufferingComplete == false) {
 					_bufferingComplete = true;
 				}
@@ -178,7 +194,7 @@
 				return;
 			}
 
-			_position = Math.round(_streamTime * 10) / 10;
+			_position = pos;
 			
 			if (position < item.duration) {
 				if (position >= 0) {

@@ -9,7 +9,7 @@ package com.longtailvideo.jwplayer.media {
     import com.longtailvideo.jwplayer.model.PlayerConfig;
     import com.longtailvideo.jwplayer.model.PlaylistItem;
     import com.longtailvideo.jwplayer.model.PlaylistItemLevel;
-	import com.longtailvideo.jwplayer.parsers.LoadbalanceParser;
+    import com.longtailvideo.jwplayer.parsers.LoadbalanceParser;
     import com.longtailvideo.jwplayer.player.PlayerState;
     import com.longtailvideo.jwplayer.utils.AssetLoader;
     import com.longtailvideo.jwplayer.utils.Configger;
@@ -70,11 +70,13 @@ package com.longtailvideo.jwplayer.media {
 		/** Whether we should pause the stream when we first connect to it **/
 		private var	_lockOnStream:Boolean = false;
 		/** Do we need to request loadbalance SMILs on switch. **/
-		private var _loadbalanceOnSwitch;
+		private var _loadbalanceOnSwitch:Boolean;
 		/** Number of frames dropped at present. **/
 		private var _streamInfo:Array;
 		/** Interval for bw checking - with dynamic streaming. **/
 		private var _streamInfoInterval:Number;
+		/** Set if the duration comes from the configuration **/
+		private var _userDuration:Boolean;
 
 
         public function RTMPMediaProvider() {
@@ -178,7 +180,7 @@ package com.longtailvideo.jwplayer.media {
 			var bwd:Number = Math.round(_stream.info.maxBytesPerSecond * 8 / 1024);
 			var drf:Number = _stream.info.droppedFrames;
 			_streamInfo.push({bwd:bwd,drf:drf});
-			var len = _streamInfo.length;
+			var len:Number = _streamInfo.length;
 			if(len > 5) {
 				bwd = Math.round((_streamInfo[len-1].bwd + _streamInfo[len-2].bwd + _streamInfo[len-3].bwd + 
 					_streamInfo[len-4].bwd+ + _streamInfo[len-5].bwd)/5);
@@ -217,11 +219,14 @@ package com.longtailvideo.jwplayer.media {
         /** Load content. **/
         override public function load(itm:PlaylistItem):void {
             _item = itm;
+			_userDuration = (_item.duration > 0);
             _position = 0;
 			_bufferFull = false;
 			_bandwidthSwitch = false;
 			_lockOnStream = false;
-            _timeoffset = item.start;
+			if (_timeoffset < 0) {
+            	_timeoffset = item.start;
+			}
 			if (item.levels.length > 0) { item.setLevel(item.getLevel(config.bandwidth, config.width)); }
 			
 			clearInterval(_positionInterval);
@@ -282,7 +287,7 @@ package com.longtailvideo.jwplayer.media {
 			var smilLocation:String = _xmlLoaders[evt.target];
 			delete _xmlLoaders[evt.target];
 			if(arr.length > 1) { 
-				for(var i=0; i<arr.length; i++) { item.addLevel(arr[i]); }
+				for(var i:Number=0; i<arr.length; i++) { item.addLevel(arr[i]); }
 				item.setLevel(item.getLevel(config.bandwidth, config.width));
 			} else if (item.levels.length > 0) {
 				var level:PlaylistItemLevel = item.levels[(item.smil as Array).indexOf(smilLocation)] as PlaylistItemLevel;
@@ -326,7 +331,7 @@ package com.longtailvideo.jwplayer.media {
 			if (dat.code == 'NetStream.Play.TransitionComplete') {
 				if (_transitionLevel >= 0) { _transitionLevel = -1; }
 			} else {
-				if (dat.duration) {
+				if (dat.duration && !_userDuration) {
 					item.duration = dat.duration;
 				}
 			}
@@ -384,6 +389,8 @@ package com.longtailvideo.jwplayer.media {
             var pos:Number = Math.round((_stream.time) * 100) / 100;
 			var bfr:Number = _stream.bufferLength / _stream.bufferTime;
 
+			if (item.start > 0 && _userDuration) { pos = pos - item.start; }
+			
 			if (bfr < 0.25 && pos < duration - 5 && state != PlayerState.BUFFERING) {
 				_bufferFull = false;
 				setState(PlayerState.BUFFERING);
@@ -426,13 +433,14 @@ package com.longtailvideo.jwplayer.media {
 			_transitionLevel = -1;
 			if(getConfigProperty('dvr') && _dvrStartDate && pos > duration - 60) { 
 				pos = duration - 60;
+			} else if (_userDuration) {
+				pos = pos + item.start - _timeoffset;
 			}
 			_timeoffset = pos;
             clearInterval(_positionInterval);
 			if (item.levels.length > 0 && item.getLevel(config.bandwidth, config.width) != item.currentLevel) {
                 item.setLevel(item.getLevel(config.bandwidth, config.width));
                 if (_loadbalanceOnSwitch) {
-                    item.start = pos;
                     load(item);
                     return;
                 }
@@ -460,7 +468,7 @@ package com.longtailvideo.jwplayer.media {
 					Logger.log("Error: " + e.message);
 				}
 			}
-			if ((_timeoffset > 0 || state == PlayerState.IDLE) && _stream) {
+			if ((_timeoffset > 0 || _position > _timeoffset || state == PlayerState.IDLE) && _stream) {
 				_stream.seek(_timeoffset);
 			}
 			_isStreaming = true;
@@ -608,7 +616,7 @@ package com.longtailvideo.jwplayer.media {
 			}
 			clearInterval(_positionInterval);
 			_position = 0;
-			_timeoffset = item ? item.start : -1;
+			_timeoffset = -1;
 			_dvrStartDuration = _dvrStartDate = 0;
 			_streamInfo = new Array();
 			clearInterval(_streamInfoInterval);
