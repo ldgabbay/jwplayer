@@ -215,7 +215,9 @@ package com.longtailvideo.jwplayer.media {
 		/** Load content. **/
 		override public function load(itm:PlaylistItem):void {
 			_item = itm;
-			_position = _timeoffset;
+			if (_timeoffset == 0) {
+				_timeoffset = _item.start;
+			}
 			_bufferFull = false;
 			_bufferingComplete = false;
 			_bandwidthSwitch = true;
@@ -257,8 +259,8 @@ package com.longtailvideo.jwplayer.media {
 					_mp4 = false;
 					_keyframes = dat['keyframes'];
 				}
-				if (item.start > 0) {
-					seek(item.start);
+				if (_timeoffset > 0) {
+					seek(_timeoffset);
 				}
 			}
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: dat});
@@ -366,7 +368,12 @@ package com.longtailvideo.jwplayer.media {
 			clearInterval(_positionInterval);
 			_positionInterval = undefined;
 			if (off < _byteoffset || off >= _byteoffset + _stream.bytesLoaded) {
-				_timeoffset = _position = getOffset(pos, true);
+				if (_keyframes) {
+					_timeoffset = _position = getOffset(pos, true);
+				} else {
+					/* Keyframes not yet available; queue up the time offset so the seek occurs when the keyframes arrive */
+					_timeoffset = pos;
+				}
 				_byteoffset = off;
 				load(item);
 			} else {

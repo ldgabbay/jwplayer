@@ -43,6 +43,7 @@ package com.longtailvideo.jwplayer.media {
 
 		public override function initializeMediaProvider(cfg:PlayerConfig):void {
 			super.initializeMediaProvider(cfg);
+			stretch = false;
 			Security.allowDomain('*');
 			_outgoing = new LocalConnection();
 			_outgoing.allowDomain('*');
@@ -228,6 +229,7 @@ package com.longtailvideo.jwplayer.media {
 		/** Resize the YT player. **/
 		public override function resize(wid:Number, hei:Number):void {
 			_outgoing.send('AS3_' + _unique, "setSize", wid, hei);
+			super.resize(wid, hei);
 		}
 
 

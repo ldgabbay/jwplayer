@@ -468,7 +468,7 @@ package com.longtailvideo.jwplayer.media {
 					Logger.log("Error: " + e.message);
 				}
 			}
-			if ((_timeoffset > 0 || _position > _timeoffset || state == PlayerState.IDLE) && _stream) {
+			if ((_timeoffset > 0 || _position > _timeoffset || state == PlayerState.IDLE)) {
 				_stream.seek(_timeoffset);
 			}
 			_isStreaming = true;

@@ -82,6 +82,8 @@ package com.longtailvideo.jwplayer.media {
 		private var _bufferPercent:Number;
 		/** Handles event dispatching **/
 		private var _dispatcher:GlobalEventDispatcher;
+		/** Whether or not to stretchthe media **/
+		private var _stretch:Boolean;
 		
 		protected var _width:Number;
 		protected var _height:Number;
@@ -90,6 +92,7 @@ package com.longtailvideo.jwplayer.media {
 		public function MediaProvider(provider:String) {
 			_provider = provider;
 			_dispatcher = new GlobalEventDispatcher();
+			_stretch = true;
 		}
 		
 		
@@ -170,12 +173,15 @@ package com.longtailvideo.jwplayer.media {
 		 *
 		 * @param width		The new width of the display.
 		 * @param height	The new height of the display.
+		 * @param stretch	Whether or not to stretch the media 
 		 **/
 		public function resize(width:Number, height:Number):void {
-			_width = width;
-			_height = height;
-			if (_media) {
-				Stretcher.stretch(_media, width, height, _config.stretching);
+			if (_stretch) {
+				_width = width;
+				_height = height;
+				if (_media) {
+					Stretcher.stretch(_media, width, height, _config.stretching);
+				}
 			}
 		}
 		
@@ -336,7 +342,20 @@ package com.longtailvideo.jwplayer.media {
 			}
 		}
 		
-		
+		/**
+		 * Allows MediaProviders to specify whether or not super.resize() should stretch the media
+		 **/
+		protected function set stretch(stretch:Boolean):void {
+			_stretch = stretch;
+		}
+
+		/**
+		 * Whether or not the media should be streched by the player on resize()
+		 **/
+		public function get stretchMedia():Boolean {
+			return _stretch;
+		}
+
 		///////////////////////////////////////////		
 		/// IGlobalEventDispatcher implementation
 		///////////////////////////////////////////		

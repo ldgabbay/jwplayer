@@ -83,7 +83,8 @@ package com.longtailvideo.jwplayer.controller {
 		protected var _unlockAndLoad:Boolean;
 		/** Whether the playlist has been loaded yet **/
 		protected var _playlistReady:Boolean = false;
-		
+		/** Set this value if a seek request comes in before the seek is possible **/		
+		protected var _queuedSeek:Number = -1;
 		
 		/** A list with legacy CDN classes that are now redirected to buit-in ones. **/
 		protected var cdns:Object = {
@@ -372,7 +373,12 @@ package com.longtailvideo.jwplayer.controller {
 						_model.media.load(_model.playlist.currentItem);
 						break;
 					case PlayerState.PAUSED:
-						_model.media.play();
+						if (_queuedSeek >= 0) {
+							_model.media.seek(_queuedSeek);
+							_queuedSeek = -1;
+						} else {
+							_model.media.play();
+						}
 						break;
 				}
 			}
@@ -477,20 +483,24 @@ package com.longtailvideo.jwplayer.controller {
 			return false;
 		}
 
-
 		public function seek(pos:Number):Boolean {
 			if (locking) {
 				return false;
 			}
-			if (!_model.media)
+			if (!_model.media) {
+				_queuedSeek = pos;
 				return false;
+			}
 
 			switch (_model.media.state) {
 				case PlayerState.PLAYING:
-				case PlayerState.BUFFERING:
 				case PlayerState.PAUSED:
 					_model.media.seek(pos);
 					return true;
+					break;
+				case PlayerState.BUFFERING:
+				case PlayerState.IDLE:
+					_queuedSeek = pos;
 					break;
 			}
 
@@ -629,7 +639,12 @@ package com.longtailvideo.jwplayer.controller {
 
 		private function bufferFullHandler(evt:MediaEvent):void {
 			if (!locking) {
-				_model.media.play();
+				if (_queuedSeek >= 0) {
+					_model.media.seek(_queuedSeek);
+					_queuedSeek = -1;
+				} else {
+					_model.media.play();
+				}
 			} else {
 				_lockingResume = true;
 			}
@@ -646,8 +661,8 @@ package com.longtailvideo.jwplayer.controller {
 
 
 		public function fullscreen(mode:Boolean):Boolean {
-			_model.fullscreen = mode;
 			_view.fullscreen(mode);
+			_model.fullscreen = mode;
 			dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_FULLSCREEN, mode.toString()));
 			return true;
 		}

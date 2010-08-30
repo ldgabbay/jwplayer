@@ -51,6 +51,7 @@ package com.longtailvideo.jwplayer.view {
 		protected var _skin:ISkin;
 		protected var _components:IPlayerComponents;
 		protected var _fullscreen:Boolean = false;
+		protected var _preserveAspect:Boolean = false;
 		protected var _normalScreen:Rectangle;
 		protected var stage:Stage;
 
@@ -273,6 +274,11 @@ package com.longtailvideo.jwplayer.view {
 			_fullscreen = (RootReference.stage.displayState == StageDisplayState.FULL_SCREEN);
 			if (_model.fullscreen != _fullscreen) {
 				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_FULLSCREEN, _fullscreen));
+				if (_fullscreen && _player.config.stretching == Stretcher.EXACTFIT) {
+					_preserveAspect = true;
+				} else {
+					_preserveAspect = false;
+				}
 			}
 			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_RESIZE, {width: RootReference.stage.stageWidth, height: RootReference.stage.stageHeight}));
 
@@ -308,7 +314,10 @@ package com.longtailvideo.jwplayer.view {
 			resizeImage(_player.config.width, _player.config.height);
 			resizeMedia(_player.config.width, _player.config.height);
 			
-
+			if (_preserveAspect && (!_fullscreen || _player.config.stretching != Stretcher.EXACTFIT)) {
+				_preserveAspect = false;
+			}
+			
 			if (_logo) {
 				_logo.x = _components.display.x;
 				_logo.y = _components.display.y;
@@ -340,8 +349,8 @@ package com.longtailvideo.jwplayer.view {
 
 		protected function resizeMedia(width:Number, height:Number):void {
 			if (_mediaLayer.numChildren > 0 && _model.media.display) {
-				if (_player.config.stretching == Stretcher.EXACTFIT) {
-					if (_fullscreen) {
+				if (_preserveAspect && _model.media.stretchMedia) {
+					if (_fullscreen && _player.config.stretching == Stretcher.EXACTFIT) {
 						_model.media.resize(_normalScreen.width, _normalScreen.height);
 						Stretcher.stretch(_mediaLayer, width, height, Stretcher.UNIFORM);
 					} else {
@@ -360,8 +369,8 @@ package com.longtailvideo.jwplayer.view {
 
 		protected function resizeImage(width:Number, height:Number):void {
 			if (_imageLayer.numChildren > 0) {
-				if (_player.config.stretching == Stretcher.EXACTFIT) {
-					if (_fullscreen) {
+				if (_preserveAspect) {
+					if (_fullscreen && _player.config.stretching == Stretcher.EXACTFIT) {
 						Stretcher.stretch(_imageLayer, width, height, Stretcher.UNIFORM);
 						Stretcher.stretch(_image, _normalScreen.width, _normalScreen.height, _player.config.stretching);
 					} else {
