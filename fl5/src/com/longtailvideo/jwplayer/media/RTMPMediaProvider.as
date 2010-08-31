@@ -74,9 +74,8 @@ package com.longtailvideo.jwplayer.media {
 		private var _streamInfo:Array;
 		/** Interval for bw checking - with dynamic streaming. **/
 		private var _streamInfoInterval:Number;
-		/** Set if the duration comes from the configuration **/
-		private var _userDuration:Boolean;
-
+		/** Set if the duration comes from the configuration **/ 
+		private var _userDuration:Boolean; 
 
         public function RTMPMediaProvider() {
             super('rtmp');
@@ -234,22 +233,26 @@ package com.longtailvideo.jwplayer.media {
         /** Load content. **/
         override public function load(itm:PlaylistItem):void {
             _item = itm;
-			_userDuration = (_item.duration > 0);
             _position = 0;
 			_bufferFull = false;
 			_bandwidthSwitch = false;
 			_lockOnStream = false;
+			_userDuration = (_item.duration > 0);
+			
 			if (_timeoffset < 0) {
             	_timeoffset = item.start;
 			}
+			
 			if (item.levels.length > 0) { item.setLevel(item.getLevel(config.bandwidth, config.width)); }
 			
 			clearInterval(_positionInterval);
-            if (getConfigProperty('loadbalance')) {
+			
+			if (getConfigProperty('loadbalance')) {
 				loadSmil();
 			} else {
 				finishLoad();
 			}
+			
 			setState(PlayerState.BUFFERING);
 			sendBufferEvent(0);
         }
@@ -345,7 +348,7 @@ package com.longtailvideo.jwplayer.media {
             }
 			if (dat.code == 'NetStream.Play.TransitionComplete') {
 				if (_transitionLevel >= 0) { _transitionLevel = -1; }
-			} else {
+			} else if (dat.type == "metadata") {
 				if (dat.duration && !_userDuration) {
 					item.duration = dat.duration;
 				}
@@ -387,7 +390,6 @@ package com.longtailvideo.jwplayer.media {
 
         /** Resume playing. **/
         override public function play():void {
-			clearInterval(_positionInterval);
 			if (!_stream) return;
 			if (_lockOnStream) {
 				_lockOnStream = false;
@@ -396,6 +398,7 @@ package com.longtailvideo.jwplayer.media {
 				_stream.resume();
 			}
 			super.play();
+			clearInterval(_positionInterval);
 			_positionInterval = setInterval(positionInterval, 100);
         }
 
@@ -404,8 +407,6 @@ package com.longtailvideo.jwplayer.media {
             var pos:Number = Math.round((_stream.time) * 100) / 100;
 			var bfr:Number = _stream.bufferLength / _stream.bufferTime;
 
-			if (item.start > 0 && _userDuration) { pos = pos - item.start; }
-			
 			if (bfr < 0.25 && pos < duration - 5 && state != PlayerState.BUFFERING) {
 				_bufferFull = false;
 				setState(PlayerState.BUFFERING);
@@ -448,8 +449,6 @@ package com.longtailvideo.jwplayer.media {
 			_transitionLevel = -1;
 			if(getConfigProperty('dvr') && _dvrStartDate && pos > duration - 10) { 
 				pos = duration - 10;
-			} else if (_userDuration) {
-				pos = pos + item.start - _timeoffset;
 			}
 			_timeoffset = pos;
             clearInterval(_positionInterval);
@@ -487,6 +486,7 @@ package com.longtailvideo.jwplayer.media {
 				_stream.seek(_timeoffset);
 			}
 			_isStreaming = true;
+			clearInterval(_positionInterval);
 			_positionInterval = setInterval(positionInterval, 100);
 		}
 
@@ -625,8 +625,10 @@ package com.longtailvideo.jwplayer.media {
 			if (_stream && _stream.time) {
 				_stream.close();
 			}
+			_stream = null;
 			_isStreaming = false;
 			_currentFile = undefined;
+			_video.clear();
 			if(_connection > -1) {
 				_connections[_connection].close();
 				_connection = -1;
@@ -692,7 +694,6 @@ package com.longtailvideo.jwplayer.media {
 		override protected function complete():void {
 			stop();
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_COMPLETE);
-			setState(PlayerState.IDLE);
 		}
 		
 		/** Determines if the stream is a live stream **/

@@ -274,11 +274,6 @@ package com.longtailvideo.jwplayer.view {
 			_fullscreen = (RootReference.stage.displayState == StageDisplayState.FULL_SCREEN);
 			if (_model.fullscreen != _fullscreen) {
 				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_FULLSCREEN, _fullscreen));
-				if (_fullscreen && _player.config.stretching == Stretcher.EXACTFIT) {
-					_preserveAspect = true;
-				} else {
-					_preserveAspect = false;
-				}
 			}
 			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_RESIZE, {width: RootReference.stage.stageWidth, height: RootReference.stage.stageHeight}));
 
@@ -311,12 +306,18 @@ package com.longtailvideo.jwplayer.view {
 			_imageLayer.x = _mediaLayer.x = _components.display.x;
 			_imageLayer.y = _mediaLayer.y = _components.display.y;
 
+			if (_preserveAspect) {
+				if(!_fullscreen && _player.config.stretching != Stretcher.EXACTFIT) {
+					_preserveAspect = false;
+				}
+			} else {
+				if (_fullscreen && _player.config.stretching == Stretcher.EXACTFIT) {
+					_preserveAspect = true;
+				}
+			}
+
 			resizeImage(_player.config.width, _player.config.height);
 			resizeMedia(_player.config.width, _player.config.height);
-			
-			if (_preserveAspect && (!_fullscreen || _player.config.stretching != Stretcher.EXACTFIT)) {
-				_preserveAspect = false;
-			}
 			
 			if (_logo) {
 				_logo.x = _components.display.x;
@@ -371,11 +372,12 @@ package com.longtailvideo.jwplayer.view {
 			if (_imageLayer.numChildren > 0) {
 				if (_preserveAspect) {
 					if (_fullscreen && _player.config.stretching == Stretcher.EXACTFIT) {
-						Stretcher.stretch(_imageLayer, width, height, Stretcher.UNIFORM);
 						Stretcher.stretch(_image, _normalScreen.width, _normalScreen.height, _player.config.stretching);
+						Stretcher.stretch(_imageLayer, width, height, Stretcher.UNIFORM);
 					} else {
 						Stretcher.stretch(_image, width, height, _player.config.stretching);
 						Stretcher.stretch(_imageLayer, width, height, Stretcher.NONE);
+						_imageLayer.x = _imageLayer.y = 0;
 					}
 				} else {
 					Stretcher.stretch(_image, width, height, _player.config.stretching);
