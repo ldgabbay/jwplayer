@@ -24,9 +24,6 @@ package com.longtailvideo.jwplayer.media {
 
     /**
      * Wrapper for playback of video streamed over RTMP. Can playback MP4, FLV, MP3, AAC and live streams.
-     * Server-specific features are:
-     * - The SecureToken functionality of Wowza (with the 'token' flahvar).
-     * - Load balancing with SMIL files (with the 'rtmp.loadbalance=true' flashvar).
      **/
     public class RTMPMediaProvider extends MediaProvider {
 		/** Save if the bandwidth checkin already occurs. **/
@@ -49,6 +46,8 @@ package com.longtailvideo.jwplayer.media {
         private var _xmlLoaders:Dictionary;
         /** NetStream instance that handles the stream IO. **/
         private var _stream:NetStream;
+        /** Number of subcription attempts. **/
+        private var _subscribeCount:Number = 0;
         /** Interval ID for subscription pings. **/
         private var _subscribeInterval:Number;
         /** Offset in seconds of the last seek. **/
@@ -138,9 +137,10 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Callback from the DVRCast application. **/
 		private function doDVRInfoCallback(info:Object):void {
+			_subscribeCount++;
 			if(info.code == "NetStream.DVRStreamInfo.Success") {
 				if(info.data.currLen < 60) {
-					setTimeout(doDVRInfo,5000,getID(item.file))
+					setTimeout(doDVRInfo,2000,getID(item.file))
 				} else { 
 					_dvrStartDuration = info.data.currLen - 10;
 					if(info.data.isRec) {
@@ -152,7 +152,14 @@ package com.longtailvideo.jwplayer.media {
 					setStream();
 				}
 			} else if (info.code == "NetStream.DVRStreamInfo.Retry") {
-				setTimeout(doDVRInfo,2000,getID(item.file));
+				if(_subscribeCount > 3) {
+					clearInterval(_subscribeInterval);
+					stop();
+					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, 
+						{message: "Subscribing to the dvr stream timed out."});
+				} else { 
+					setTimeout(doDVRInfo,2000,getID(item.file));
+				}
 			}
 			for (var itm:String in info.data) { 
 				info[itm] = info.data[itm];
@@ -162,10 +169,18 @@ package com.longtailvideo.jwplayer.media {
 		};
 
 
-        /** Try subscribing to livestream **/
-        private function doSubscribe(id:String):void {
-			_connections[_connection].call("FCSubscribe", null, id);
-        }
+	/** Try subscribing to livestream **/
+		private function doSubscribe(id:String):void {
+			_subscribeCount++;
+			if(_subscribeCount > 3) {
+				clearInterval(_subscribeInterval);
+				stop();
+				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, 
+					{message: "Subscribing to the live stream timed out."});
+			} else { 
+				_connections[_connection].call("FCSubscribe", null, id);
+			}
+		};
 
 
         /** Catch security errors. **/
@@ -617,7 +632,7 @@ package com.longtailvideo.jwplayer.media {
 			clearInterval(_positionInterval);
 			_position = 0;
 			_timeoffset = -1;
-			_dvrStartDuration = _dvrStartDate = 0;
+			_dvrStartDuration = _dvrStartDate = _subscribeCount = 0;
 			_streamInfo = new Array();
 			clearInterval(_streamInfoInterval);
 			super.stop();
