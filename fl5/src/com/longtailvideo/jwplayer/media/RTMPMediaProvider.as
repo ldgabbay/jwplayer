@@ -139,14 +139,14 @@ package com.longtailvideo.jwplayer.media {
 		private function doDVRInfoCallback(info:Object):void {
 			_subscribeCount++;
 			if(info.code == "NetStream.DVRStreamInfo.Success") {
-				if(info.data.currLen < 60) {
-					setTimeout(doDVRInfo,2000,getID(item.file))
+				if(info.data.currLen < 10) {
+					setTimeout(doDVRInfo,4000,getID(item.file))
 				} else { 
 					_dvrStartDuration = info.data.currLen - 10;
 					if(info.data.isRec) {
 						_dvrStartDate = new Date().valueOf();
-						if(_dvrStartDuration > 60) {
-							_timeoffset = _dvrStartDuration - 60;
+						if(_dvrStartDuration > 20) {
+							_timeoffset = _dvrStartDuration - 10;
 						}
 					}
 					setStream();
@@ -446,8 +446,8 @@ package com.longtailvideo.jwplayer.media {
         /** Seek to a new position. **/
 		override public function seek(pos:Number):void {
 			_transitionLevel = -1;
-			if(getConfigProperty('dvr') && _dvrStartDate && pos > duration - 60) { 
-				pos = duration - 60;
+			if(getConfigProperty('dvr') && _dvrStartDate && pos > duration - 10) { 
+				pos = duration - 10;
 			} else if (_userDuration) {
 				pos = pos + item.start - _timeoffset;
 			}
@@ -491,23 +491,25 @@ package com.longtailvideo.jwplayer.media {
 		}
 
 
-        /** Start the netstream object. **/
-        private function setStream():void {
+		/** Start the netstream object. **/
+		private function setStream():void {
 			_stream = new NetStream(_connections[_connection]);
 			_stream.checkPolicyFile = true;
 			_stream.addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
 			_stream.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
 			_stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, errorHandler);
-			_stream.bufferTime = config.bufferlength;
+			if(getConfigProperty('dvr')) {
+				_stream.bufferTime = 5;
+			} else { 
+				_stream.bufferTime = config.bufferlength;
+			}
 			_stream.client = new NetClient(this);
 			_video.attachNetStream(_stream);
-
 			streamVolume(config.mute ? 0 : config.volume);
-
 			if (!_lockOnStream) {
 				seek(_timeoffset);
 			}
-        }
+		};
 
         /** Receive NetStream status updates. **/
         private function statusHandler(evt:NetStatusEvent):void {
