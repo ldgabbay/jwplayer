@@ -141,7 +141,7 @@ package com.longtailvideo.jwplayer.media {
 				if(info.data.currLen < 10) {
 					setTimeout(doDVRInfo,4000,getID(item.file))
 				} else { 
-					_dvrStartDuration = info.data.currLen - 10;
+					_dvrStartDuration = info.data.currLen - 20;
 					if(info.data.isRec) {
 						_dvrStartDate = new Date().valueOf();
 						if(_dvrStartDuration > 20) {
@@ -199,16 +199,26 @@ package com.longtailvideo.jwplayer.media {
 				bwd = Math.round((_streamInfo[len-1].bwd + _streamInfo[len-2].bwd + _streamInfo[len-3].bwd + 
 					_streamInfo[len-4].bwd+ + _streamInfo[len-5].bwd)/5);
 				drf = Math.round((_streamInfo[len-1].drf - _streamInfo[len-5].drf)*2)/10;
-				if(item.levels.length > 0 && item.getLevel(bwd, config.width) != item.currentLevel) {
+				if(item.levels.length > 0 && item.getLevel(bwd,config.width) != item.currentLevel) {
+					Logger.log("swapping to another level b/c of bandwidth",bwd.toString());
 					swap(item.getLevel(bwd, config.width));
 				}
-				if(item.levels.length > 0 && drf > 8 && item.currentLevel < item.levels.length-1) {
-					item.blacklistLevel(item.currentLevel);
-					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {type:'blacklist',level:item.currentLevel}});
+				if(item.levels.length > 0 && drf > 7 && item.currentLevel < item.levels.length-1) {
+					var lvl:Number = item.currentLevel;
+					item.blacklistLevel(lvl);
+					setTimeout(unBlacklist,30000,lvl);
+					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {type:'blacklist',level:lvl,state:true}});
+					Logger.log("swapping to another level b/c of framedrops",drf.toString());
 					swap(item.getLevel(bwd, config.width));
 				}
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {bandwidth:bwd,droppedFrames:drf}});
 			}
+		};
+
+
+		private function unBlacklist(level:Number) {
+			item.blacklistLevel(level,false);
+			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {type:'blacklist',level:level,state:false}});
 		};
 
 
@@ -344,7 +354,7 @@ package com.longtailvideo.jwplayer.media {
             if (dat.width) {
 				_video.width = dat.width;
 				_video.height = dat.height;
-				resize(_width, _height);
+				super.resize(_width, _height);
             }
 			if (dat.code == 'NetStream.Play.TransitionComplete') {
 				if (_transitionLevel >= 0) { _transitionLevel = -1; }
@@ -436,6 +446,7 @@ package com.longtailvideo.jwplayer.media {
 			if (state == PlayerState.PLAYING) {
             	if (item.levels.length > 0 && item.currentLevel != item.getLevel(config.bandwidth, config.width)) {
                 	if (_dynamic) {
+						Logger.log("swapping to another level b/c of size");
 	                    swap(item.getLevel(config.bandwidth, config.width));
                 	} else {
 	                    seek(position);

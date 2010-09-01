@@ -138,7 +138,7 @@ package com.longtailvideo.jwplayer.media {
 			if(len > 5) {
 				var drp:Number = (_droppedFrames[len-1] - _droppedFrames[len-6])/5;
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {droppedFrames:drp}});
-				if(drp > 8 && item.currentLevel < item.levels.length - 1) {
+				if(drp > 7 && item.currentLevel < item.levels.length - 1) {
 					item.blacklistLevel(item.currentLevel);
 					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {type:'blacklist',level:item.currentLevel}});
 					load(item);

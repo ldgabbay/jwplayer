@@ -101,11 +101,12 @@ package com.longtailvideo.jwplayer.model {
 
 
 		/** Blacklist a level from usage (e.g. if it cannot be played or drops too many frames). **/
-		public function blacklistLevel(level:Number):void {
+		public function blacklistLevel(level:Number,state:Boolean=true):void {
 			if(levels[level]) {
-				levels[level].blacklisted = true;
+				levels[level].blacklisted = state;
 			}
 		};
+
 
 		/**
 		 * Determines whether this file extension can be played in the Flash player.  If not, ignore the level.
