@@ -466,6 +466,11 @@ jwplayer.utils.strings.trim = function(inputString){
 			return _itemMeta;
 		};
 		
+		this.removeListeners = function() {
+			_listeners = {};
+			_queuedCalls = {};
+		};
+		
 
 		/** Using this function instead of array.slice since Arguments are not an array **/
 		function slice(list, from, to) {
@@ -569,6 +574,12 @@ jwplayer.utils.strings.trim = function(inputString){
 		onPlay: function(callback) { return this.stateListener(jwplayer.api.events.state.PLAYING, callback); },
 		onIdle: function(callback) { return this.stateListener(jwplayer.api.events.state.IDLE, callback); },
 
+		setup: function(options) { return this; },
+		remove: function() {
+			this.removeListeners();
+			jwplayer.api.destroyPlayer(this.id); 
+		}, 
+		
 		// Player plugin API
 		initializePlugin: function(pluginName, pluginCode) { return this; }
 	};
@@ -894,7 +905,16 @@ playerReady = function(obj) {
 		}
 	};
 
-	jwplayer.api.PlayerAPI.prototype.setup = function(options) {
+	jwplayer.api.PlayerAPI.prototype.setup = function(options, players) {
+		if (players && !options['players']) {
+			if (typeof players == "string") {
+				options['players'] = [{type:"flash", src:players}];
+			} else if (players instanceof Array) {
+				options['players'] = players;
+			} else if (typeof players == "object" && players.type) {
+				options['players'] = [players];
+			}
+		}
 		this.config = options;
 		return (new jwplayer.embed.Embedder(this)).embedPlayer();
 	};

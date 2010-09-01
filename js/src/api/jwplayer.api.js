@@ -164,6 +164,11 @@
 			return _itemMeta;
 		};
 		
+		this.removeListeners = function() {
+			_listeners = {};
+			_queuedCalls = {};
+		};
+		
 
 		/** Using this function instead of array.slice since Arguments are not an array **/
 		function slice(list, from, to) {
@@ -267,6 +272,12 @@
 		onPlay: function(callback) { return this.stateListener(jwplayer.api.events.state.PLAYING, callback); },
 		onIdle: function(callback) { return this.stateListener(jwplayer.api.events.state.IDLE, callback); },
 
+		setup: function(options) { return this; },
+		remove: function() {
+			this.removeListeners();
+			jwplayer.api.destroyPlayer(this.id); 
+		}, 
+		
 		// Player plugin API
 		initializePlugin: function(pluginName, pluginCode) { return this; }
 	};

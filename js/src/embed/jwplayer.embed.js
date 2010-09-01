@@ -235,7 +235,16 @@
 		}
 	};
 
-	jwplayer.api.PlayerAPI.prototype.setup = function(options) {
+	jwplayer.api.PlayerAPI.prototype.setup = function(options, players) {
+		if (players && !options['players']) {
+			if (typeof players == "string") {
+				options['players'] = [{type:"flash", src:players}];
+			} else if (players instanceof Array) {
+				options['players'] = players;
+			} else if (typeof players == "object" && players.type) {
+				options['players'] = [players];
+			}
+		}
 		this.config = options;
 		return (new jwplayer.embed.Embedder(this)).embedPlayer();
 	};
