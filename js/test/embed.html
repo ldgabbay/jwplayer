@@ -1,24 +1,19 @@
 <html>
 	<head>
-		<script type="text/javascript" src="jquery.js"></script>
-		<script type="text/javascript" src="jwplayer.js"></script>
+		<script type="text/javascript" src="../bin-debug/jwplayer.js"></script>
 		<script type="text/javascript" src="jwplayer.html5.js"></script>
 		<script type="text/javascript">
 			var options = {
 				image:		'../../../testing/files/bunny.jpg',
-				players: [
-					{type:'flash', src: '../../../trunk/fl5/player.swf'},
-					{type:'html5'},
-				],
 				skin: '',
 				levels: [
 					{file: '../../../testing/files/bunny.mp4'}
 				]
 			}; 
 			function embedPlayer(id) {
-				$jw(id).setup(options).play().onPlay(function() {
+				$jw(id).setup(options, '../../../trunk/fl5/player.swf').onPlay(function() {
 					alert("Playing!");
-				});
+				}).play();
 			}	
 		</script>
 		<title>JWPlayer JS Embedder Testing Page</title>
@@ -33,8 +28,12 @@
 				This is &lt;div&gt; 2
 			</div>
 		</div>
-		<h3>Embed a player</h3>
+		<h3>Embed a player on a div</h3>
 		<a href="#" onclick="embedPlayer('div1'); return false;">Click here to embed player</a><br />
-
+		<h3>Embed a player on a video tag</h3>
+		<div>
+			<video id="a_video" src="/testing/files/bunny.mp4" width="320" height="240" poster="/testing/files/bunny.png"></video>
+		</div>
+		<a href="#" onclick="console.log($jw('a_video').setup().options); return false;">Click here to embed player</a><br />
 	</body>
 </html>

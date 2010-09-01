@@ -8,6 +8,7 @@
 	jwplayer.api = function() {};
 
 	jwplayer.api.events = {
+		API_READY: 'jwplayerAPIReady',
 		JWPLAYER_READY: 'jwplayerReady',
 		JWPLAYER_FULLSCREEN: 'jwplayerFullscreen',
 		JWPLAYER_RESIZE: 'jwplayerResize',
@@ -39,9 +40,12 @@
 		
 		var _listeners = {};
 		var _stateListeners = {};
+		var _readyListeners = [];
 		var _player = undefined;
 		var _playerReady = false;
 		var _queuedCalls = [];
+		
+		var _originalHTML = container.outerHTML;
 		
 		var _itemMeta = {};
 		
@@ -104,7 +108,7 @@
 				}
 			}
 		};
-		
+
 		function translateEventResponse(type, eventProperties) {
 			var translated = jwplayer.utils.extend({}, eventProperties);
 			if (type == jwplayer.api.events.JWPLAYER_FULLSCREEN) {
@@ -152,7 +156,7 @@
 				jwplayer.utils.extend(_itemMeta, data.metadata);
 			});
 
-			this.dispatchEvent.call(this, "jwplayerReady", obj);
+			this.dispatchEvent(jwplayer.api.events.API_READY);
 			
 			while (_queuedCalls.length > 0) {
 				var call = _queuedCalls.shift();
@@ -164,9 +168,10 @@
 			return _itemMeta;
 		};
 		
-		this.removeListeners = function() {
+		this.destroy = function() {
 			_listeners = {};
-			_queuedCalls = {};
+			_queuedCalls = [];
+			jwplayer.api.destroyPlayer(this.id, _originalHTML); 
 		};
 		
 
@@ -260,7 +265,7 @@
 		onMute: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, callback); },
 		onPlaylist: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, callback); },
 		onPlaylistItem: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, callback); },
-		onReady: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_READY, callback); },
+		onReady: function(callback) { return this.eventListener(jwplayer.api.events.API_READY, callback); },
 		onResize: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_RESIZE, callback); },
 		onComplete: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, callback); },
 		onTime: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, callback); },
@@ -274,8 +279,7 @@
 
 		setup: function(options) { return this; },
 		remove: function() {
-			this.removeListeners();
-			jwplayer.api.destroyPlayer(this.id); 
+			this.destroy();
 		}, 
 		
 		// Player plugin API
@@ -330,7 +334,7 @@
 		return player;
 	};
 	
-	jwplayer.api.destroyPlayer = function(playerId) {
+	jwplayer.api.destroyPlayer = function(playerId, replacementHTML) {
 		var index = -1;
 		for(var p in _players) {
 			if (_players[p].id == playerId) {
@@ -340,9 +344,15 @@
 		}
 		if (index >= 0) {
 			var toDestroy = document.getElementById(_players[index].id);
-			var replacement = document.createElement('div');
-			replacement.setAttribute('id', toDestroy.id);
-			toDestroy.parentNode.replaceChild(replacement, toDestroy);
+			if (toDestroy) {
+				if (replacementHTML) {
+					toDestroy.outerHTML = replacementHTML;
+				} else {
+					var replacement = document.createElement('div');
+					replacement.setAttribute('id', toDestroy.id);
+					toDestroy.parentNode.replaceChild(replacement, toDestroy);
+				}
+			}
 			_players.splice(index, 1);
 		}
 		

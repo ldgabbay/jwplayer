@@ -28,25 +28,17 @@
 (function(jwplayer) {
 
 	jwplayer.html5.utils = function() {
-		return this.each(function() {
-		});
 	};
-	
-	
 	
 	/** Returns the extension of a file name **/
 	jwplayer.html5.utils.extension = function(path) {
-		return path.substr(path.lastIndexOf('.') + 1, path.length);
-	};
-	
-	jwplayer.html5.utils.isNull = function(obj) {
-		return ((obj === null) || (obj === undefined) || (obj === ""));
+		return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
 	};
 	
 	/** Gets an absolute file path based on a relative filepath **/
 	jwplayer.html5.utils.getAbsolutePath = function(path) {
-		if (jwplayer.html5.utils.isNull(path)) {
-			return path;
+		if (path === undefined) {
+			return undefined;
 		}
 		if (isAbsolutePath(path)) {
 			return path;
@@ -57,7 +49,7 @@
 		var patharray = (basepath + "/" + path).split("/");
 		var result = [];
 		for (var i = 0; i < patharray.length; i++) {
-			if (jwplayer.html5.utils.isNull(patharray[i]) || patharray[i] == ".") {
+			if (patharray[i] === undefined || patharray[i] == ".") {
 				continue;
 			} else if (patharray[i] == "..") {
 				result.pop();
@@ -69,7 +61,7 @@
 	};
 	
 	function isAbsolutePath(path) {
-		if (jwplayer.html5.utils.isNull(path)) {
+		if (path === null) {
 			return;
 		}
 		var protocol = path.indexOf("://");
@@ -93,75 +85,19 @@
 		return result;
 	};
 	
-	
-	/** Dumps the content of an object to a string **/
-	jwplayer.html5.utils.dump = function(object, depth) {
-		if (object === null) {
-			return 'null';
-		} else if (jwplayer.html5.utils.typeOf(object) != 'object') {
-			if (jwplayer.html5.utils.typeOf(object) == 'string') {
-				return "\"" + object + "\"";
-			}
-			return object;
-		}
-		
-		var type = jwplayer.html5.utils.typeOf(object);
-		
-		depth = (depth === undefined) ? 1 : depth + 1;
-		var indent = "";
-		for (var indentCount = 0; indentCount < depth; indentCount++) {
-			indent += "\t";
-		}
-		
-		var result = (type == "array") ? "[" : "{";
-		result += "\n" + indent;
-		
-		for (var key in object) {
-			if (type == "object") {
-				result += "\"" + key + "\": ";
-			}
-			result += jwplayer.html5.utils.dump(object[key], depth) + ",\n" + indent;
-		}
-		
-		result = result.substring(0, result.length - 2 - depth) + "\n";
-		
-		result += indent.substring(0, indent.length - 1);
-		result += (type == "array") ? "]" : "}";
-		
-		return result;
-	};
-	
-	/** Returns the true type of an object **/
-	jwplayer.html5.utils.typeOf = function(value) {
-		var s = typeof value;
-		if (s === 'object') {
-			if (value) {
-				if (value instanceof Array) {
-					s = 'array';
-				}
-			} else {
-				s = 'null';
-			}
-		}
-		return s;
-	};
-	
-	
 	/** Logger **/
 	jwplayer.html5.utils.log = function(msg, obj) {
-		//try {
 		if (obj) {
-			console.log("%s: %o", msg, obj);
+			obj.message = msg;
+			console.log(obj);
 		} else {
-			console.log(jwplayer.html5.utils.dump(msg));
+			console.log(msg);
 		}
-		//} catch (err) {
-		//}
 		return this;
 	};
 	
 	jwplayer.html5.utils.css = function(domelement, styles) {
-		if (domelement !== null) {
+		if (domelement !== undefined) {
 			for (var style in styles) {
 				try {
 					domelement.style[style.replace("_", "-")] = styles[style];
@@ -173,19 +109,158 @@
 	};
 })(jwplayer);
 /**
+ * JW Player view component
+ *
+ * @author zach
+ * @version 1.0
+ */
+(function(jwplayer) {
+
+	var _css = jwplayer.html5.utils.css;
+	
+	jwplayer.html5.view = function(api, container, model) {
+		var _container;
+		var _wrapper;
+		var _zindex = 0;
+		var _box = {
+			top: 0,
+			right: 0,
+			bottom: 0,
+			left: 0
+		};
+		
+		function createWrapper() {
+			_wrapper = document.createElement("div");
+			_wrapper.id = _container.id;
+			_container.id = _wrapper.id + "_video";
+			
+			_css(_wrapper, {
+				position: 'relative',
+				height: model.config.height + 'px',
+				width: model.config.width + 'px',
+				margin: 'auto',
+				padding: 0,
+				background_color: model.config.screencolor,
+				z_index: getNextZIndex()
+			});
+			
+			_css(_container, {
+				position: 'absolute',
+				width: model.config.width + 'px',
+				height: model.config.height + 'px',
+				top: 0,
+				left: 0,
+				z_index: 1,
+				margin: 'auto',
+				display: 'block'
+			});
+			
+			jwplayer.utils.wrap(_container, _wrapper);
+		}
+		
+		function getNextZIndex() {
+			return _zindex++;
+		}
+		
+		function layoutComponents() {
+			if (model.getMedia() !== undefined && !model.getMedia().hasChrome && !model.config.chromeless) {
+				for (var pluginIndex in model.plugins.order) {
+					var pluginName = model.plugins.order[pluginIndex];
+					if (model.plugins.object[pluginName].getDisplayElement !== undefined) {
+						var plugincss = {
+							position: 'absolute',
+							z_index: getNextZIndex(),
+							margin: 0,
+							padding: 0
+						};
+						var elementWidth, elementHeight;
+						switch (model.plugins.config[pluginName].position.toUpperCase()) {
+							case jwplayer.html5.view.positions.OVER:
+								break;
+							case jwplayer.html5.view.positions.TOP:
+								plugincss.top = 0;
+								elementHeight = getNumber(model.plugins.object[pluginName].getDisplayElement().style.height);
+								_box.top += elementHeight;
+								for (var childNode in _wrapper.childNodes) {
+									if (!isNaN(parseInt(childNode, 10))) {
+										_wrapper.childNodes[childNode].style.height = getNumber(_wrapper.childNodes[childNode].style.height) - elementHeight ;
+										_wrapper.childNodes[childNode].style.top = getNumber(_wrapper.childNodes[childNode].style.top) + elementHeight;
+									}
+								}
+								break;
+							case jwplayer.html5.view.positions.RIGHT:
+								elementWidth = getNumber(model.plugins.object[pluginName].getDisplayElement().style.width);
+								_box.right += elementWidth;
+								break;
+							case jwplayer.html5.view.positions.BOTTOM:
+								elementHeight = getNumber(model.plugins.object[pluginName].getDisplayElement().style.height);
+								plugincss.top = getNumber(_wrapper.style.height) - elementHeight - _box.bottom;
+								_box.bottom += elementHeight;
+								break;
+							case jwplayer.html5.view.positions.LEFT:
+								elementWidth = getNumber(model.plugins.object[pluginName].getDisplayElement().style.width);
+								_box.left += elementWidth;
+								break;
+						}
+						_container.parentNode.appendChild(model.plugins.object[pluginName].getDisplayElement());
+						_css(model.plugins.object[pluginName].getDisplayElement(), plugincss);
+					}
+				}
+			} else {
+				model.getMedia().getDisplayElement().poster = model.playlist[model.item].image;
+				model.getMedia().getDisplayElement().controls = "controls";
+			}
+		}
+		
+		function getNumber(style) {
+			if (style === "") {
+				return 0;
+			}
+			return parseInt(style.replace("px", ""), 10);
+		}
+		
+		this.setup = function(container) {
+			_container = container;
+			createWrapper();
+			layoutComponents();
+			this.resize(model.config.width, model.config.height);
+		};
+		
+		this.resize = function(width, height) {
+			for (var pluginIndex in model.plugins.order) {
+				var pluginName = model.plugins.order[pluginIndex];
+				if (model.plugins.config[pluginName].position == jwplayer.html5.view.positions.OVER && !api.jwGetFullscreen()){
+					model.plugins.object[pluginName].resize(model.width - _box.left - _box.right, model.height - _box.top - _box.bottom);
+				} else {
+					model.plugins.object[pluginName].resize(width, height);
+				}
+			}
+			_css(model.getMedia().getDisplayElement(), {
+				position: 'absolute',
+				width: (api.jwGetFullscreen() ? model.width : model.width - _box.left - _box.right),
+				height:  (api.jwGetFullscreen() ? model.height : model.height - _box.top - _box.bottom),
+				top: _box.top,
+				left: _box.left
+			});
+		};
+		
+	};
+	
+	jwplayer.html5.view.positions = {
+		TOP: "TOP",
+		RIGHT: "RIGHT",
+		BOTTOM: "BOTTOM",
+		LEFT: "LEFT",
+		OVER: "OVER"
+	};
+})(jwplayer);
+/**
  * jwplayer controlbar component of the JW Player.
  *
  * @author zach
  * @version 1.0
  */
 (function(jwplayer) {
-	var _positions = {
-		BOTTOM: "BOTTOM",
-		TOP: "TOP",
-		OVER: "OVER"
-	};
-	
-	
 	/** Map with config for the jwplayerControlbar plugin. **/
 	var _defaults = {
 		backgroundcolor: "000000",
@@ -198,10 +273,66 @@
 		//fontweight: "normal",
 		fontweight: "bold",
 		buttoncolor: "ffffff",
-		position: _positions.BOTTOM,
-		leftmargin: 0,
-		rightmargin: 0,
-		scrubber: "none"
+		position: jwplayer.html5.view.positions.BOTTOM,
+		layout: {
+			"left": {
+				"position": "left",
+				"elements": [{
+					"name": "play",
+					"type": "button"
+				}, {
+					"name": "divider",
+					"type": "divider"
+				}, {
+					"name": "prev",
+					"type": "button"
+				}, {
+					"name": "divider",
+					"type": "divider"
+				}, {
+					"name": "next",
+					"type": "button"
+				}, {
+					"name": "divider",
+					"type": "divider"
+				}, {
+					"name": "elapsed",
+					"type": "text"
+				}]
+			},
+			"center": {
+				"position": "center",
+				"elements": [{
+					"name": "time",
+					"type": "slider"
+				}]
+			},
+			"right": {
+				"position": "right",
+				"elements": [{
+					"name": "duration",
+					"type": "text"
+				}, {
+					"name": "divider",
+					"type": "divider"
+				}, {
+					"name": "blank",
+					"type": "button"
+				}, {
+					"name": "fullscreen",
+					"type": "button"
+				}, {
+					"name": "divider",
+					"type": "divider"
+				}, {
+					"name": "mute",
+					"type": "button"
+				}, {
+					"name": "volume",
+					"type": "slider"
+				}]
+			}
+		}
 	};
 	
 	_css = jwplayer.html5.utils.css;
@@ -218,87 +349,210 @@
 		});
 	};
 	
-	jwplayer.html5.controlbar = function(api, container) {
-		var _container = container;
-		var _api = api;
-		var _settings = jwplayer.utils.extend({}, _defaults, api.skin.getComponentSettings("controlbar"));
-		var _domelement;
+	jwplayer.html5.controlbar = function(api, config) {
+		var _settings = jwplayer.utils.extend({}, _defaults, api.skin.getComponentSettings("controlbar"), config);
+		if (jwplayer.html5.utils.mapLength(api.skin.getComponentLayout("controlbar")) > 0) {
+			_settings.layout = api.skin.getComponentLayout("controlbar");
+		}
+		var _wrapper;
+		var _dividerid = 0;
+		var _marginleft = 0;
+		var _marginright = 0;
+		var _scrubber = "none";
+		var _mousedown;
+		var _currentPosition;
+		var _currentDuration;
+		var _currentBuffer;
+		var _fullscreen;
+		var _width;
+		var _height;
+		var _prevElement;
+		var _elements = {};
+		
+		
+		function _buildBase() {
+			var wrappercss = {
+				height: api.skin.getSkinElement("controlbar", "background").height,
+				background_color: "#" + _settings.backgroundcolor
+			};
+			
+			_wrapper = document.createElement("div");
+			_wrapper.id = api.id + "_jwplayer_controlbar";
+			_css(_wrapper, wrappercss);
+			
+			_addElement("capLeft", "left", false, _wrapper);
+			var domelmentcss = {
+				position: "absolute",
+				height: api.skin.getSkinElement("controlbar", "background").height,
+				background: " url(" + api.skin.getSkinElement("controlbar", "background").src + ") repeat-x center left",
+				left: api.skin.getSkinElement("controlbar", "capLeft").width
+			};
+			_appendNewElement("elements", _wrapper, domelmentcss);
+			_addElement("capRight", "right", false, _wrapper);
+		}
+		
+		this.getDisplayElement = function() {
+			return _wrapper;
+		};
+		
+		this.resize = function(width, height) {
+			_width = width;
+			_height = height;
+			_fullscreen = api.jwGetFullscreen();
+			if (_fullscreen) {
+				_show(_elements.normalscreenButton);
+				_hide(_elements.fullscreenButton);
+				// TODO
+				if (false) {
+					window.onresize(function() {
+						_resizeBar();
+					});
+				}
+			} else {
+				_hide(_elements.normalscreenButton);
+				_show(_elements.fullscreenButton);
+				// TODO
+				if (false) {
+					window.onresize(null);
+				}
+			}
+			_resizeBar();
+			_timeHandler({});
+			_bufferHandler({});
+		};
+		
+		function _appendNewElement(id, parent, css) {
+			var element = document.createElement("div");
+			_elements[id] = element;
+			element.id = _wrapper.id + "_" + id;
+			parent.appendChild(element);
+			if (css !== undefined) {
+				_css(element, css);
+			}
+			return element;
+		}
 		
 		/** Draw the jwplayerControlbar elements. **/
 		function _buildElements() {
-			// Draw the background.
-			_domelement = document.createElement("div");
-			_domelement.id = _api.id + "_jwplayer_controlbar";
-			_container.parentNode.appendChild(_domelement);
-			var controlbarcss = {
-				position: "absolute",
-				height: _api.skin.getSkinElement("controlbar", "background").height,
-				background: " url(" + _api.skin.getSkinElement("controlbar", "background").src + ") repeat-x center left",
-				background_color:  "#"+_settings.backgroundcolor
-			};
-			switch (_settings.position) {
-				case _positions.TOP:
-					controlbarcss.top = 0;
-					break;
-				default:
-					controlbarcss.top = _api.jwGetHeight();
-					_css(_domelement.parentNode, {
-						"height": parseInt(_domelement.parentNode.style.height.replace("px", ""), 10) + _api.skin.getSkinElement("controlbar", "background").height
-					});
-					break;
-			}
-			
-			_css(_domelement, controlbarcss);
-			
-			
-			// Draw all elements on top of the bar.
-			_buildElement("capLeft", "left", true);
-			_buildElement("playButton", "left", false);
-			_buildElement("pauseButton", "left", true);
-			_buildElement("divider1", "left", true);
-			_buildElement("prevButton", "left", true);
-			_buildElement("divider2", "left", true);
-			_buildElement("nextButton", "left", true);
-			_buildElement("divider3", "left", true);
-			_buildElement("elapsedText", "left", true);
-			_buildElement("timeSliderCapLeft", "left", true);
-			_buildElement("timeSliderRail", "left", false);
-			_buildElement("timeSliderBuffer", "left", false);
-			_buildElement("timeSliderProgress", "left", false);
-			_buildElement("timeSliderThumb", "left", false);
-			_buildElement("timeSliderCapRight", "left", true);
-			_buildElement("capRight", "right", true);
-			// TODO
-			if (false) {
-				_buildElement("fullscreenButton", "right", false);
-				_buildElement("normalscreenButton", "right", true);
-				_buildElement("divider4", "right", true);
-			}
-			_buildElement("volumeSliderCapLeft", "right", true);
-			_buildElement("volumeSliderRail", "right", false);
-			_buildElement("volumeSliderProgress", "right", true);
-			_buildElement("volumeSliderCapRight", "right", true);
-			_buildElement("muteButton", "right", false);
-			_buildElement("unmuteButton", "right", true);
-			_buildElement("divider5", "right", true);
-			_buildElement("durationText", "right", true);
+			_buildGroup(_settings.layout.left);
+			_buildGroup(_settings.layout.right, -1);
+			_buildGroup(_settings.layout.center);
 		}
 		
+		/** Layout a group of elements**/
+		function _buildGroup(group, order) {
+			var alignment = group.position == "right" ? "right" : "left";
+			var elements = jwplayer.utils.extend([], group.elements);
+			if (order !== undefined) {
+				elements.reverse();
+			}
+			for (var i = 0; i < elements.length; i++) {
+				_buildElement(elements[i], alignment);
+			}
+		}
+		
+		function getNewDivivderId() {
+			return _dividerid++;
+		}
 		
 		/** Draw a single element into the jwplayerControlbar. **/
-		function _buildElement(element, align, offset) {
-			if (_api.skin.getSkinElement("controlbar", element) !== undefined || element.indexOf("Text") > 0 || element.indexOf("divider") === 0) {
-				var _element = document.createElement("div");
-				_element.id = _domelement.id + "_" + element;
-				_domelement.appendChild(_element);
+		function _buildElement(element, alignment) {
+			switch (element.name) {
+				case "play":
+					_addElement("playButton", alignment, false);
+					_addElement("pauseButton", alignment, true);
+					_buildHandler("playButton", "jwPlay");
+					_buildHandler("pauseButton", "jwPause");
+					break;
+				case "divider":
+					_addElement("divider" + getNewDivivderId(), alignment, true);
+					break;
+				case "prev":
+					if (api.jwGetPlaylist().length > 1) {
+						_addElement("prevButton", alignment, true);
+						_buildHandler("prevButton", "jwPlaylistPrev");
+					}
+					break;
+				case "next":
+					if (api.jwGetPlaylist().length > 1) {
+						_addElement("nextButton", alignment, true);
+						_buildHandler("nextButton", "jwPlaylistNext");
+					}
+					break;
+				case "elapsed":
+					_addElement("elapsedText", alignment, true);
+					break;
+				case "time":
+					var offsetLeft = api.skin.getSkinElement("controlbar", "timeSliderCapLeft") === undefined ? 0 : api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
+					var offsetRight = api.skin.getSkinElement("controlbar", "timeSliderCapRight") === undefined ? 0 : api.skin.getSkinElement("controlbar", "timeSliderCapRight").width;
+					var offset = alignment == "left" ? offsetLeft : offsetRight;
+					var width = api.skin.getSkinElement("controlbar", "timeSliderRail").width + offsetLeft + offsetRight;
+					var slidercss = {
+						height: api.skin.getSkinElement("controlbar", "background").height,
+						position: "absolute",
+						top: "0px",
+						width: width
+					};
+					slidercss[alignment] = alignment == "left" ? _marginleft : _marginright;
+					var _timeslider = _appendNewElement("timeSlider", _elements.elements, slidercss);
+					_addElement("timeSliderCapLeft", alignment, true, _timeslider, alignment == "left" ? 0 : offset);
+					_addElement("timeSliderRail", alignment, false, _timeslider, offset);
+					_addElement("timeSliderBuffer", alignment, false, _timeslider, offset);
+					_addElement("timeSliderProgress", alignment, false, _timeslider, offset);
+					_addElement("timeSliderThumb", alignment, false, _timeslider, offset);
+					_addElement("timeSliderCapRight", alignment, true, _timeslider, alignment == "right" ? 0 : offset);
+					_addSliderListener("time");
+					break;
+				case "fullscreen":
+					_addElement("fullscreenButton", alignment, false);
+					_addElement("normalscreenButton", alignment, true);
+					_buildHandler("fullscreenButton", "jwSetFullscreen", true);
+					_buildHandler("normalscreenButton", "jwSetFullscreen", false);
+					break;
+				case "volume":
+					var offsetLeft = api.skin.getSkinElement("controlbar", "volumeSliderCapLeft") === undefined ? 0 : api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
+					var offsetRight = api.skin.getSkinElement("controlbar", "volumeSliderCapRight") === undefined ? 0 : api.skin.getSkinElement("controlbar", "volumeSliderCapRight").width;
+					var offset = alignment == "left" ? offsetLeft : offsetRight;
+					var width = api.skin.getSkinElement("controlbar", "volumeSliderRail").width + offsetLeft + offsetRight;
+					var slidercss = {
+						height: api.skin.getSkinElement("controlbar", "background").height,
+						position: "absolute",
+						top: "0px",
+						width: width
+					};
+					slidercss[alignment] = alignment == "left" ? _marginleft : _marginright;
+					var _volumeslider = _appendNewElement("volumeSlider", _elements.elements, slidercss);
+					_addElement("volumeSliderCapLeft", alignment, true, _volumeslider, alignment == "left" ? 0 : offset);
+					_addElement("volumeSliderRail", alignment, true, _volumeslider, offset);
+					_addElement("volumeSliderProgress", alignment, false, _volumeslider, offset);
+					_addElement("volumeSliderCapRight", alignment, true, _volumeslider, alignment == "right" ? 0 : offset);
+					_addSliderListener("volume");
+					break;
+				case "mute":
+					_addElement("muteButton", alignment, false);
+					_addElement("unmuteButton", alignment, true);
+					_buildHandler("muteButton", "jwSetMute", true);
+					_buildHandler("unmuteButton", "jwSetMute", false);
+					
+					break;
+				case "duration":
+					_addElement("durationText", alignment, true);
+					break;
+			}
+		}
+		
+		function _addElement(element, alignment, offset, parent, position) {
+			if ((api.skin.getSkinElement("controlbar", element) !== undefined || element.indexOf("Text") > 0 || element.indexOf("divider") === 0) && !(element.indexOf("divider") === 0 && _prevElement.indexOf("divider") === 0)) {
+				_prevElement = element;
 				var css = {
+					height: api.skin.getSkinElement("controlbar", "background").height,
 					position: "absolute",
 					top: "0px"
 				};
 				var wid;
 				if (element.indexOf("Text") > 0) {
-					_element.innerhtml = "00:00";
-					css.font = _settings.fontsize + "px/" + (_api.skin.getSkinElement("controlbar", "background").height + 1) + "px " + _settings.font;
+					element.innerhtml = "00:00";
+					css.font = _settings.fontsize + "px/" + (api.skin.getSkinElement("controlbar", "background").height + 1) + "px " + _settings.font;
 					css.color = _settings.fontcolor;
 					css.text_align = "center";
 					css.font_weight = _settings.fontweight;
@@ -307,88 +561,87 @@
 					wid = 14 + 3 * _settings.fontsize;
 					css.color = "#" + _settings.fontcolor.substr(-6);
 				} else if (element.indexOf("divider") === 0) {
-					css.background = "url(" + _api.skin.getSkinElement("controlbar", "divider").src + ") repeat-x center left";
-					wid = _api.skin.getSkinElement("controlbar", "divider").width;
+					css.background = "url(" + api.skin.getSkinElement("controlbar", "divider").src + ") repeat-x center left";
+					wid = api.skin.getSkinElement("controlbar", "divider").width;
 				} else {
-					css.background = "url(" + _api.skin.getSkinElement("controlbar", element).src + ") repeat-x center left";
-					wid = _api.skin.getSkinElement("controlbar", element).width;
+					css.background = "url(" + api.skin.getSkinElement("controlbar", element).src + ") repeat-x center left";
+					wid = api.skin.getSkinElement("controlbar", element).width;
 				}
-				if (align == "left") {
-					css.left = _settings.leftmargin;
+				if (alignment == "left") {
+					css.left = position === undefined ? _marginleft : position;
 					if (offset) {
-						_settings.leftmargin += wid;
+						_marginleft += wid;
 					}
-				} else if (align == "right") {
-					css.right = _settings.rightmargin;
+				} else if (alignment == "right") {
+					css.right = position === undefined ? _marginright : position;
 					if (offset) {
-						_settings.rightmargin += wid;
+						_marginright += wid;
 					}
 				}
+				
+				if (parent === undefined) {
+					parent = _elements.elements;
+				}
+				
 				css.width = wid;
-				css.height = _api.skin.getSkinElement("controlbar", "background").height;
-				_css(_element, css);
+				
+				var newelement = _appendNewElement(element, parent, css);
+				if (api.skin.getSkinElement("controlbar", element + "Over") !== undefined) {
+					newelement.onmouseover = function(evt) {
+						evt.stopPropagation();
+						newelement.style["background-image"] = ["url(", api.skin.getSkinElement("controlbar", element + "Over").src, ")"].join("");
+					};
+					newelement.onmouseout = function(evt) {
+						evt.stopPropagation();
+						newelement.style["background-image"] = ["url(", api.skin.getSkinElement("controlbar", element).src, ")"].join("");
+					};
+				}
+				
 			}
 		}
 		
+		function _addListeners() {
+			// Register events with the player.
+			//api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistHandler);
+			api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, _bufferHandler);
+			api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
+			api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, _timeHandler);
+			api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, _muteHandler);
+			api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, _volumeHandler);
+			api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, _completeHandler);
+		}
 		
 		/** Add interactivity to the jwplayerControlbar elements. **/
-		function _buildHandlers() {
-			// Register events with the buttons.
-			_buildHandler("playButton", "jwPlay");
-			_buildHandler("pauseButton", "jwPause");
-			_buildHandler("prevButton", "jwPlaylistPrev");
-			_buildHandler("nextButton", "jwPlaylistNext");
-			_buildHandler("muteButton", "jwSetMute", true);
-			_buildHandler("unmuteButton", "jwSetMute", false);
-			_buildHandler("fullscreenButton", "jwSetFullscreen", true);
-			_buildHandler("normalscreenButton", "jwSetFullscreen", false);
-			
-			_addSliders();
-			
-			// Register events with the player.
-			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, _bufferHandler);
-			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
-			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, _timeHandler);
-			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, _muteHandler);
-			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, _volumeHandler);
-			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, _completeHandler);
-			
+		function _init() {
 			// Trigger a few events so the bar looks good on startup.
-			_resizeHandler({
-				id: _api.id,
-				fulscreen: _api.jwGetFullscreen(),
-				width: _api.jwGetWidth(),
-				height: _api.jwGetHeight()
-			});
 			_timeHandler({
-				id: _api.id,
-				duration: _api.jwGetDuration(),
+				id: api.id,
+				duration: api.jwGetDuration(),
 				position: 0
 			});
 			_bufferHandler({
-				id: _api.id,
+				id: api.id,
 				bufferProgress: 0
 			});
 			_muteHandler({
-				id: _api.id,
-				mute: _api.jwGetMute()
+				id: api.id,
+				mute: api.jwGetMute()
 			});
 			_stateHandler({
-				id: _api.id,
+				id: api.id,
 				newstate: jwplayer.api.events.state.IDLE
 			});
 			_volumeHandler({
-				id: _api.id,
-				volume: _api.jwGetVolume()
+				id: api.id,
+				volume: api.jwGetVolume()
 			});
 		}
 		
 		
 		/** Set a single button handler. **/
 		function _buildHandler(element, handler, args) {
-			if (_api.skin.getSkinElement("controlbar", element) !== undefined) {
-				var nam = _domelement.id + "_" + element;
-				var _element = document.getElementById(nam);
+			if (api.skin.getSkinElement("controlbar", element) !== undefined) {
+				var _element = _elements[element];
 				if (_element !== null) {
 					_css(_element, {
 						cursor: "pointer"
@@ -396,21 +649,15 @@
 					if (handler == "fullscreen") {
 						_element.onmouseup = function(evt) {
 							evt.stopPropagation();
-							_api.jwSetFullscreen(!_api.jwGetFullscreen());
-							_resizeHandler({
-								id: _api.id,
-								fullscreen: _api.jwGetFullscreen(),
-								width: _api.jwGetWidth(),
-								height: _api.jwGetHeight()
-							});
+							api.jwSetFullscreen(!api.jwGetFullscreen());
 						};
 					} else {
 						_element.onmouseup = function(evt) {
 							evt.stopPropagation();
-							if (!jwplayer.html5.utils.isNull(args)) {
-								_api[handler](args);
+							if (!(args === null)) {
+								api[handler](args);
 							} else {
-								_api[handler]();
+								api[handler]();
 							}
 							
 						};
@@ -419,39 +666,27 @@
 			}
 		}
 		
-		
 		/** Set the volume drag handler. **/
-		function _addSliders() {
-			var bar = _domelement;
-			var trl = document.getElementById(_domelement.id + "_timeSliderRail");
-			var vrl = document.getElementById(_domelement.id + "_volumeSliderRail");
-			_css(_domelement, {
+		function _addSliderListener(name) {
+			var bar = _elements[name + "Slider"];
+			_css(_elements.elements, {
 				"cursor": "pointer"
 			});
-			_css(trl, {
-				"cursor": "pointer"
-			});
-			_css(vrl, {
+			_css(bar, {
 				"cursor": "pointer"
 			});
 			bar.onmousedown = function(evt) {
-				var trlRect = trl.getBoundingClientRect();
-				var vrlRect = vrl.getBoundingClientRect();
-				if (evt.pageX >= trlRect.left - window.pageXOffset && evt.pageX <= trlRect.left - window.pageXOffset + trlRect.width) {
-					_settings.scrubber = "time";
-				} else if (evt.pageX >= vrlRect.left - window.pageXOffset && evt.pageX <= vrlRect.left - window.pageXOffset + vrlRect.width) {
-					_settings.scrubber = "volume";
-				}
+				_scrubber = name;
 			};
 			bar.onmouseup = function(evt) {
 				evt.stopPropagation();
 				_sliderUp(evt.pageX);
 			};
 			bar.onmousemove = function(evt) {
-				if (_settings.scrubber == "time") {
-					_settings.mousedown = true;
+				if (_scrubber == "time") {
+					_mousedown = true;
 					var xps = evt.pageX - bar.getBoundingClientRect().left - window.pageXOffset;
-					_css(document.getElementById(_domelement.id + "_timeSliderThumb"), {
+					_css(_elements.timeSliderThumb, {
 						left: xps
 					});
 				}
@@ -461,23 +696,23 @@
 		
 		/** The slider has been moved up. **/
 		function _sliderUp(msx) {
-			_settings.mousedown = false;
+			_mousedown = false;
 			var railRect, xps;
-			if (_settings.scrubber == "time") {
-				railRect = document.getElementById(_domelement.id + "_timeSliderRail").getBoundingClientRect();
+			if (_scrubber == "time") {
+				railRect = _elements.timeSliderRail.getBoundingClientRect();
 				xps = msx - railRect.left + window.pageXOffset;
-				var pos = xps / railRect.width * _settings.currentDuration;
+				var pos = xps / railRect.width * _currentDuration;
 				if (pos < 0) {
 					pos = 0;
-				} else if (pos > _settings.currentDuration) {
-					pos = _settings.currentDuration - 3;
+				} else if (pos > _currentDuration) {
+					pos = _currentDuration - 3;
 				}
-				_api.jwSeek(pos);
-				if (_api.jwGetState() != jwplayer.api.events.state.PLAYING) {
-					_api.jwPlay();
+				api.jwSeek(pos);
+				if (api.jwGetState() != jwplayer.api.events.state.PLAYING) {
+					api.jwPlay();
 				}
-			} else if (_settings.scrubber == "volume") {
-				railRect = document.getElementById(_domelement.id + "_volumeSliderRail").getBoundingClientRect();
+			} else if (_scrubber == "volume") {
+				railRect = _elements.volumeSliderRail.getBoundingClientRect();
 				xps = msx - railRect.left - window.pageXOffset;
 				var pct = Math.round(xps / railRect.width * 100);
 				if (pct < 0) {
@@ -485,24 +720,24 @@
 				} else if (pct > 100) {
 					pct = 100;
 				}
-				if (_api.jwGetMute()) {
-					_api.jwSetMute(false);
+				if (api.jwGetMute()) {
+					api.jwSetMute(false);
 				}
-				_api.jwSetVolume(pct);
+				api.jwSetVolume(pct);
 			}
-			_settings.scrubber = "none";
+			_scrubber = "none";
 		}
 		
 		
 		/** Update the buffer percentage. **/
 		function _bufferHandler(event) {
-			if (!jwplayer.html5.utils.isNull(event.bufferPercent)) {
-				_settings.currentBuffer = event.bufferPercent;
+			if (!(event.bufferPercent === null)) {
+				_currentBuffer = event.bufferPercent;
 			}
 			
-			var wid = document.getElementById(_domelement.id + "_timeSliderRail").getBoundingClientRect().width;
-			var bufferWidth = isNaN(Math.round(wid * _settings.currentBuffer / 100)) ? 0 : Math.round(wid * _settings.currentBuffer / 100);
-			_css(document.getElementById(_domelement.id + "_timeSliderBuffer"), {
+			var wid = _elements.timeSliderRail.getBoundingClientRect().width;
+			var bufferWidth = isNaN(Math.round(wid * _currentBuffer / 100)) ? 0 : Math.round(wid * _currentBuffer / 100);
+			_css(_elements.timeSliderBuffer, {
 				width: bufferWidth
 			});
 		}
@@ -511,13 +746,13 @@
 		/** Update the mute state. **/
 		function _muteHandler(event) {
 			if (event.mute) {
-				_hide(document.getElementById(_domelement.id + "_muteButton"));
-				_show(document.getElementById(_domelement.id + "_unmuteButton"));
-				_hide(document.getElementById(_domelement.id + "_volumeSliderProgress"));
+				_hide(_elements.muteButton);
+				_show(_elements.unmuteButton);
+				_hide(_elements.volumeSliderProgress);
 			} else {
-				_show(document.getElementById(_domelement.id + "_muteButton"));
-				_hide(document.getElementById(_domelement.id + "_unmuteButton"));
-				_show(document.getElementById(_domelement.id + "_volumeSliderProgress"));
+				_show(_elements.muteButton);
+				_hide(_elements.unmuteButton);
+				_show(_elements.volumeSliderProgress);
 			}
 		}
 		
@@ -526,23 +761,23 @@
 		function _stateHandler(event) {
 			// Handle the play / pause button
 			if (event.newstate == jwplayer.api.events.state.BUFFERING || event.newstate == jwplayer.api.events.state.PLAYING) {
-				_show(document.getElementById(_domelement.id + "_pauseButton"));
-				_hide(document.getElementById(_domelement.id + "_playButton"));
+				_show(_elements.pauseButton);
+				_hide(_elements.playButton);
 			} else {
-				_hide(document.getElementById(_domelement.id + "_pauseButton"));
-				_show(document.getElementById(_domelement.id + "_playButton"));
+				_hide(_elements.pauseButton);
+				_show(_elements.playButton);
 			}
 			
 			// Show / hide progress bar
 			if (event.newstate == jwplayer.api.events.state.IDLE) {
-				_hide(document.getElementById(_domelement.id + "_timeSliderBuffer"));
-				_hide(document.getElementById(_domelement.id + "_timeSliderProgress"));
-				_hide(document.getElementById(_domelement.id + "_timeSliderThumb"));
+				_hide(_elements.timeSliderBuffer);
+				_hide(_elements.timeSliderProgress);
+				_hide(_elements.timeSliderThumb);
 			} else {
-				_show(document.getElementById(_domelement.id + "_timeSliderBuffer"));
+				_show(_elements.timeSliderBuffer);
 				if (event.newstate != jwplayer.api.events.state.BUFFERING) {
-					_show(document.getElementById(_domelement.id + "_timeSliderProgress"));
-					_show(document.getElementById(_domelement.id + "_timeSliderThumb"));
+					_show(_elements.timeSliderProgress);
+					_show(_elements.timeSliderThumb);
 				}
 			}
 		}
@@ -552,30 +787,36 @@
 		function _completeHandler(event) {
 			_timeHandler(jwplayer.utils.extend(event, {
 				position: 0,
-				duration: _settings.currentDuration
+				duration: _currentDuration
 			}));
 		}
 		
 		
 		/** Update the playback time. **/
 		function _timeHandler(event) {
-			if (!jwplayer.html5.utils.isNull(event.position)) {
-				_settings.currentPosition = event.position;
+			if (!(event.position === null)) {
+				_currentPosition = event.position;
 			}
-			if (!jwplayer.html5.utils.isNull(event.duration)) {
-				_settings.currentDuration = event.duration;
+			if (!(event.duration === null)) {
+				_currentDuration = event.duration;
 			}
-			var progress = (_settings.currentPosition === _settings.currentDuration === 0) ? 0 : _settings.currentPosition / _settings.currentDuration;
-			var railRect = document.getElementById(_domelement.id + "_timeSliderRail").getBoundingClientRect();
+			var progress = (_currentPosition === _currentDuration === 0) ? 0 : _currentPosition / _currentDuration;
+			var railRect = _elements.timeSliderRail.getBoundingClientRect();
 			var progressWidth = isNaN(Math.round(railRect.width * progress)) ? 0 : Math.round(railRect.width * progress);
-			var thumbPosition = railRect.left + progressWidth - _domelement.getBoundingClientRect().left;
+			var thumbPosition = progressWidth;
 			
-			document.getElementById(_domelement.id + "_timeSliderProgress").style.width = progressWidth;
-			if (!_settings.mousedown) {
-				document.getElementById(_domelement.id + "_timeSliderThumb").style.left = thumbPosition;
+			_elements.timeSliderProgress.style.width = progressWidth;
+			if (!_mousedown) {
+				if (_elements.timeSliderThumb) {
+					_elements.timeSliderThumb.style.left = thumbPosition;
+				}
 			}
-			document.getElementById(_domelement.id + "_durationText").innerHTML = _timeFormat(_settings.currentDuration);
-			document.getElementById(_domelement.id + "_elapsedText").innerHTML = _timeFormat(_settings.currentPosition);
+			if (_elements.durationText) {
+				_elements.durationText.innerHTML = _timeFormat(_currentDuration);
+			}
+			if (_elements.elapsedText) {
+				_elements.elapsedText.innerHTML = _timeFormat(_currentPosition);
+			}
 		}
 		
 		
@@ -590,80 +831,68 @@
 		}
 		
 		
-		/** Flip the player size to/from full-browser-screen. **/
-		function _resizeHandler(event) {
-			_settings.width = event.width;
-			_settings.fullscreen = event.fullscreen;
-			if (event.fullscreen) {
-				_show(document.getElementById(_domelement.id + "_normalscreenButton"));
-				_hide(document.getElementById(_domelement.id + "_fullscreenButton"));
-				// TODO
-				if (false) {
-					window.onresize(function() {
-						_resizeBar();
-					});
-				}
-			} else {
-				_hide(document.getElementById(_domelement.id + "_normalscreenButton"));
-				_show(document.getElementById(_domelement.id + "_fullscreenButton"));
-				// TODO
-				if (false) {
-					window.onresize(null);
-				}
-			}
-			_resizeBar(event);
-			_timeHandler(event);
-			_bufferHandler(event);
-		}
-		
-		
 		/** Resize the jwplayerControlbar. **/
-		function _resizeBar(event) {
-			var lft = _settings.left;
-			var top = _settings.top;
-			var wid = _settings.width;
-			var hei = _domelement.height;
-			var controlbarcss = {};
-			if (_settings.position == "over") {
-				lft += 1 * _settings.margin;
-				top -= 1 * _settings.margin + hei;
-				wid -= 2 * _settings.margin;
+		function _resizeBar() {
+			var controlbarcss = {
+				width: _width
+			};
+			var elementcss = {};
+			if (_settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER || _fullscreen) {
+				controlbarcss.left = _settings.margin;
+				controlbarcss.width -= 2 * _settings.margin;
+				controlbarcss.top = _height -  api.skin.getSkinElement("controlbar", "background").height - _settings.margin;
 			}
-			if (_settings.fullscreen) {
-				lft = _settings.margin;
-				top = window.height - _settings.margin - hei;
-				wid = window.width - 2 * _settings.margin;
-				controlbarcss.z_index = 99;
-			} else {
-				controlbarcss.z_index = 97;
-			}
+
+			elementcss.left = api.skin.getSkinElement("controlbar", "capLeft").width;
+			elementcss.width = controlbarcss.width - api.skin.getSkinElement("controlbar", "capLeft").width - api.skin.getSkinElement("controlbar", "capRight").width;
 			
-			
-			controlbarcss.left = lft;
-			controlbarcss.top = top;
-			controlbarcss.width = wid;
-			_css(document.getElementById(_domelement.id + "_timeSliderRail"), {
-				width: (wid - _settings.leftmargin - _settings.rightmargin)
+			var timeSliderLeft = api.skin.getSkinElement("controlbar", "timeSliderCapLeft") === undefined ? 0 : api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
+			_css(_elements.timeSliderRail, {
+				width: (elementcss.width - _marginleft - _marginright),
+				left: timeSliderLeft
 			});
-			_css(_domelement, controlbarcss);
+			if (_elements.timeSliderCapRight !== null) {
+				_css(_elements.timeSliderCapRight, {
+					left: timeSliderLeft + (elementcss.width - _marginleft - _marginright)
+				});
+			}
+			_css(_wrapper, controlbarcss);
+			_css(_elements.elements, elementcss);
+			
 		}
 		
 		
 		/** Update the volume level. **/
 		function _volumeHandler(event) {
-			var progress = isNaN(event.volume / 100) ? 1 : event.volume / 100;
-			var railRect = document.getElementById(_domelement.id + "_volumeSliderRail").getBoundingClientRect();
-			var progressWidth = isNaN(Math.round(railRect.width * progress)) ? 0 : Math.round(railRect.width * progress);
-			var offset = parseInt(document.getElementById(_domelement.id + "_volumeSliderRail").style.right.replace("px", ""), 10);
-			
-			_css(document.getElementById(_domelement.id + "_volumeSliderProgress"), {
-				width: progressWidth,
-				right: railRect.width - progressWidth + offset
-			});
+			if (_elements.volumeSliderRail !== null) {
+				var progress = isNaN(event.volume / 100) ? 1 : event.volume / 100;
+				var width = parseInt(_elements.volumeSliderRail.style.width.replace("px", ""), 10);
+				var progressWidth = isNaN(Math.round(width * progress)) ? 0 : Math.round(width * progress);
+				var offset = parseInt(_elements.volumeSliderRail.style.right.replace("px", ""), 10);
+				
+				var volumeSliderLeft = api.skin.getSkinElement("controlbar", "volumeSliderCapLeft") === undefined ? 0 : api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
+				_css(_elements.volumeSliderProgress, {
+					width: progressWidth,
+					left: volumeSliderLeft
+				});
+				
+				if (_elements.volumeSliderCapLeft !== undefined) {
+					_css(_elements.volumeSliderCapLeft, {
+						left: 0
+					});
+				}
+			}
 		}
 		
-		_buildElements();
-		_buildHandlers();
+		function _setup() {
+			_buildBase();
+			_buildElements();
+			_addListeners();
+			_init();
+		}
+		
+		_setup();
+		return this;
 	};
 })(jwplayer);
 /**
@@ -676,7 +905,7 @@
 
 	var _mediainfovariables = ["width", "height", "state", "playlist", "item", "position", "buffer", "duration", "volume", "mute", "fullscreen"];
 	
-	jwplayer.html5.controller = function(model, view, container) {
+	jwplayer.html5.controller = function(api, container, model, view) {
 		var _model = model;
 		var _view = view;
 		
@@ -696,7 +925,9 @@
 					switch (_model.state) {
 						case jwplayer.api.events.state.IDLE:
 							_model.setActiveMediaProvider(_model.playlist[_model.item]);
-							_eventDispatcher.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, _model.getMedia().play);
+							_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, function() {
+								_model.getMedia().play();
+							});
 							_model.getMedia().load(_model.playlist[_model.item]);
 							break;
 						case jwplayer.api.events.state.PAUSED:
@@ -820,14 +1051,14 @@
 		}
 		
 		/** Get / set the video's volume level. **/
-		function _setVolume(arg) {
+		function _setVolume(volume) {
 			try {
-				switch (jwplayer.html5.utils.typeOf(arg)) {
+				switch (typeof(volume)) {
 					case "number":
-						_model.getMedia().volume(arg);
+						_model.getMedia().volume(volume);
 						break;
 					case "string":
-						_model.getMedia().volume(parseInt(arg, 10));
+						_model.getMedia().volume(parseInt(volume, 10));
 						break;
 				}
 				return true;
@@ -839,9 +1070,9 @@
 		
 		
 		/** Get / set the mute state of the player. **/
-		function _setMute(arg) {
+		function _setMute(state) {
 			try {
-				_model.getMedia().mute(arg);
+				_model.getMedia().mute(state);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -851,9 +1082,11 @@
 		
 		
 		/** Resizes the video **/
-		function _resize(arg1, arg2) {
+		function _resize(width, height) {
 			try {
-				_model.getMedia().resize(arg1, arg2);
+				_model.width = width;
+				_model.height = height;
+				_view.resize(width, height);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -863,9 +1096,9 @@
 		
 		
 		/** Jumping the player to/from fullscreen. **/
-		function _setFullscreen(arg) {
+		function _setFullscreen(state) {
 			try {
-				_model.getMedia().fullscreen(arg);
+				_model.getMedia().fullscreen(state);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -961,10 +1194,16 @@
 	};
 	
 	
-	jwplayer.html5.display = function(api, container, screencolor) {
-		var _container = container;
+	jwplayer.html5.display = function(api, config) {
 		var _display = {};
-		screencolor = (api.skin.getComponentSettings("display").backgroundcolor === undefined) ? screencolor : api.skin.getComponentSettings("display").backgroundcolor;
+		var _width;
+		var _height;
+		var _degreesRotated;
+		var _rotationInterval;
+		var _bufferRotation = api.skin.getComponentSettings("display").bufferrotation === undefined ? 15 : parseInt(api.skin.getComponentSettings("display").bufferrotation, 10);
+		var _bufferInterval = api.skin.getComponentSettings("display").bufferinterval === undefined ? 100 : parseInt(api.skin.getComponentSettings("display").bufferinterval, 10);
+		config.screencolor = (api.skin.getComponentSettings("display").backgroundcolor === undefined) ? config.screencolor : api.skin.getComponentSettings("display").backgroundcolor;
+		config.screencolor = (config.screencolor === undefined) ? "" : config.screencolor.replace("0x", "#");
 		var _elements = _initializeDisplayElements();
 		api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 		api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, _stateHandler);
@@ -977,19 +1216,38 @@
 		function _setupDisplay() {
 			_display.display = createElement("div", "display");
 			_display.display_image = createElement("div", "display_image");
-			_display.display_icon = createElement("img", "display_icon");
-			_display.display_icon.src = api.skin.getSkinElement("display", "playIcon").src;
-			_display.display_icon.alt = "Click to play video";
+			_display.display_icon = createElement("div", "display_icon");
 			_display.display_iconBackground = createElement("div", "display_iconBackground");
 			_display.logo = createElement("div", "logo");
 			_display.display.appendChild(_display.display_image);
 			_display.display_iconBackground.appendChild(_display.display_icon);
 			_display.display.appendChild(_display.display_iconBackground);
 			_display.display.appendChild(_display.logo);
-			_container.parentNode.insertBefore(_display.display, _container);
 			_setupDisplayElements();
 		}
 		
+		
+		this.getDisplayElement = function() {
+			return _display.display;
+		};
+		
+		this.resize = function(width, height) {
+			_width = width;
+			_height = height;
+			_css(_display.display, {
+				width: width,
+				height: height
+			});
+			_css(_display.display_image, {
+				width: width,
+				height: height
+			});
+			_css(_display.display_iconBackground, {
+				top: ((_height - api.skin.getSkinElement("display", "background").height) / 2) + "px",
+				left: ((_width - api.skin.getSkinElement("display", "background").width) / 2) + "px"
+			});
+			_stateHandler({});
+		};
 		
 		function createElement(tag, element) {
 			var _element = document.createElement(tag);
@@ -1023,13 +1281,7 @@
 			var elements = {
 				display: {
 					style: {
-						cursor: 'pointer',
-						width: api.jwGetWidth() + "px",
-						height: api.jwGetHeight() + "px",
-						position: 'relative',
-						'z-index': 50,
-						margin: 0,
-						padding: 0
+						cursor: 'pointer'
 					},
 					click: _displayClickHandler
 				},
@@ -1048,8 +1300,8 @@
 					style: {
 						cursor: 'pointer',
 						position: 'absolute',
-						top: ((api.jwGetHeight() - api.skin.getSkinElement("display", "background").height) / 2) + "px",
-						left: ((api.jwGetWidth() - api.skin.getSkinElement("display", "background").width) / 2) + "px",
+						top: ((_height - api.skin.getSkinElement("display", "background").height) / 2) + "px",
+						left: ((_width - api.skin.getSkinElement("display", "background").width) / 2) + "px",
 						border: 0,
 						'background-image': (['url(', api.skin.getSkinElement("display", "background").src, ')']).join(''),
 						width: api.skin.getSkinElement("display", "background").width + "px",
@@ -1061,9 +1313,9 @@
 				display_image: {
 					style: {
 						display: 'block',
-						background: screencolor,
-						width: api.jwGetWidth() + "px",
-						height: api.jwGetHeight() + "px",
+						background: config.screencolor,
+						width: _width + "px",
+						height: _height + "px",
 						position: 'absolute',
 						cursor: 'pointer',
 						left: 0,
@@ -1096,11 +1348,7 @@
 		
 		
 		function _displayClickHandler(evt) {
-			/*if (player._media === undefined) {
-			 document.location.href = jwplayer.html5.utils.getAbsolutePath(player.getPlaylist()[player.getConfig().item].levels[0]);
-			 return;
-			 }*/
-			if (typeof evt.preventDefault != 'undefined') {
+			if (typeof evt.preventDefault != "undefined") {
 				evt.preventDefault(); // W3C
 			} else {
 				evt.returnValue = false; // IE
@@ -1119,75 +1367,69 @@
 		}
 		
 		
-		function _setIcon(path) {
-			_display.display_icon.src = path;
-		}
-		
-		
-		function _animate(element, state) {
-			var speed = 'slow';
-			if (!_display.animate) {
-				return;
-			}
-			if (state) {
-				element.slideDown(speed, function() {
-					_animate(element);
-				});
+		function _setDisplayIcon(newIcon) {
+			_show(_display.display_iconBackground);
+			_display.display_icon.style["background-image"] = (['url(', api.skin.getSkinElement("display", newIcon).src, ')']).join('');
+			_css(_display.display_icon, {
+				display: "block",
+				width: api.skin.getSkinElement("display", newIcon).width,
+				height: api.skin.getSkinElement("display", newIcon).height,
+				top: (api.skin.getSkinElement("display", "background").height - api.skin.getSkinElement("display", newIcon).height) / 2,
+				left: (api.skin.getSkinElement("display", "background").width - api.skin.getSkinElement("display", newIcon).width) / 2
+			});
+			if (api.skin.getSkinElement("display", newIcon + "Over") !== undefined) {
+				_display.display_icon.onmouseover = function(evt) {
+					evt.stopPropagation();
+					_display.display_icon.style["background-image"] = ["url(", api.skin.getSkinElement("display", newIcon + "Over").src, ")"].join("");
+				};
+				_display.display_icon.onmouseout = function(evt) {
+					evt.stopPropagation();
+					_display.display_icon.style["background-image"] = ["url(", api.skin.getSkinElement("display", newIcon).src, ")"].join("");
+				};
 			} else {
-				element.slideUp(speed, function() {
-					_animate(element, true);
-				});
+				_display.display_icon.onmouseover = undefined;
+				_display.display_icon.onmouseout = undefined;
 			}
 		}
 		
+		function _hideDisplayIcon() {
+			_hide(_display.display_icon);
+			_hide(_display.display_iconBackground);
+		}
 		
 		function _stateHandler(obj) {
-			_display.animate = false;
+			if (_rotationInterval !== undefined) {
+				clearInterval(_rotationInterval);
+				_rotationInterval = undefined;
+				jwplayer.html5.utils.animations.rotate(_display.display_icon, 0);
+			}
 			switch (api.jwGetState()) {
 				case jwplayer.api.events.state.BUFFERING:
-					_show(_display.logo);
-					setTimeout(function() {
-						_hide(_display.logo);
-					//.fadeOut(_logoDefaults.out * 1000);
-					}, _logoDefaults.timeout * 1000);
-					_display.display_icon.src = api.skin.getSkinElement("display", "bufferIcon").src;
-					_css(_display.display_icon, {
-						display: "block",
-						top: (api.skin.getSkinElement("display", "background").height - api.skin.getSkinElement("display", "bufferIcon").height) / 2 + "px",
-						left: (api.skin.getSkinElement("display", "background").width - api.skin.getSkinElement("display", "bufferIcon").width) / 2 + "px"
-					});
-					_display.animate = true;
-					// TODO: Buffer Icon rotation
-					if (false) {
-						_animate(_display.display_iconBackground);
-					}
-					_hide(_display.display_iconBackground);
+					jwplayer.html5.utils.fadeTo(_display.logo, 0, _logoDefaults.timeout, 1);
+					_setDisplayIcon("bufferIcon");
+					_degreesRotated = 0;
+					_rotationInterval = setInterval(function() {
+						_degreesRotated += _bufferRotation;
+						jwplayer.html5.utils.animations.rotate(_display.display_icon, _degreesRotated % 360);
+					}, _bufferInterval);
+					_setDisplayIcon("bufferIcon");
 					break;
 				case jwplayer.api.events.state.PAUSED:
-					_show(_display.logo);
+					jwplayer.html5.utils.fadeTo(_display.logo, 1, 0, 0);
 					_css(_display.display_image, {
 						background: "transparent no-repeat center center"
 					});
 					_show(_display.display_iconBackground);
-					_display.display_icon.src = api.skin.getSkinElement("display", "playIcon").src;
-					_css(_display.display_icon, {
-						display: "block",
-						top: (api.skin.getSkinElement("display", "background").height - api.skin.getSkinElement("display", "playIcon").height) / 2 + "px",
-						left: (api.skin.getSkinElement("display", "background").width - api.skin.getSkinElement("display", "playIcon").width) / 2 + "px"
-					});
+					_setDisplayIcon("playIcon");
 					break;
 				case jwplayer.api.events.state.IDLE:
-					_hide(_display.logo);
+					_display.logo.style.display = "block";
+					var background = api.jwGetPlaylist()[api.jwGetItem()].image === "" ? config.screencolor : config.screencolor + " url('" + jwplayer.html5.utils.getAbsolutePath(api.jwGetPlaylist()[api.jwGetItem()].image) + "')";
 					_css(_display.display_image, {
-						background: screencolor + " url('" + jwplayer.html5.utils.getAbsolutePath(api.jwGetPlaylist()[api.jwGetItem()].image) + "') no-repeat center center"
+						background: background + " no-repeat center center"
 					});
 					_show(_display.display_iconBackground);
-					_display.display_icon.src = api.skin.getSkinElement("display", "playIcon").src;
-					_css(_display.display_icon, {
-						display: "block",
-						top: (api.skin.getSkinElement("display", "background").height - api.skin.getSkinElement("display", "playIcon").height) / 2 + "px",
-						left: (api.skin.getSkinElement("display", "background").width - api.skin.getSkinElement("display", "playIcon").width) / 2 + "px"
-					});
+					_setDisplayIcon("playIcon");
 					break;
 				default:
 					if (api.jwGetMute()) {
@@ -1195,22 +1437,16 @@
 							background: "transparent no-repeat center center"
 						});
 						_show(_display.display_iconBackground);
-						_display.display_icon.src = api.skin.getSkinElement("display", "muteIcon").src;
-						_css(_display.display_icon, {
-							display: "block",
-							top: (api.skin.getSkinElement("display", "muteIcon").height - api.skin.getSkinElement("display", "muteIcon").height) / 2 + "px",
-							left: (api.skin.getSkinElement("display", "background").width - api.skin.getSkinElement("display", "muteIcon").width) / 2 + "px"
-						});
+						_setDisplayIcon("muteIcon");
+						
 					} else {
 						try {
 							_display.logo.clearQueue();
 						} catch (err) {
 						
 						}
-						_show(_display.logo);
-						setTimeout(function() {
-							_hide(_display.logo);
-						}, _logoDefaults.timeout * 1000);
+						_display.logo.style.display = "block";
+						jwplayer.html5.utils.fadeTo(_display.logo, 0, _logoDefaults.timeout, 1);
 						_css(_display.display_image, {
 							background: "transparent no-repeat center center"
 						});
@@ -1221,6 +1457,7 @@
 			}
 		}
 		
+		return this;
 	};
 	
 	
@@ -1360,6 +1597,39 @@
  * @version 1.0
  */
 (function(jwplayer) {
+	jwplayer.html5.extensionmap = {
+		"3gp": "video/3gpp",
+		"3gpp": "video/3gpp",
+		"3g2": "video/3gpp2",
+		"3gpp2": "video/3gpp2",
+		"flv": "video/x-flv",
+		"f4a": "audio/mp4",
+		"f4b": "audio/mp4",
+		"f4p": "video/mp4",
+		"f4v": "video/mp4",
+		"mov": "video/quicktime",
+		"m4a": "audio/mp4",
+		"m4b": "audio/mp4",
+		"m4p": "audio/mp4",
+		"m4v": "video/mp4",
+		"mkv": "video/x-matroska",
+		"mp4": "video/mp4",
+		"sdp": "application/sdp",
+		"vp6": "video/x-vp6",
+		"aac": "audio/aac",
+		"mp3": "audio/mp3",
+		"ogg": "audio/ogg",
+		"ogv": "video/ogg",
+		"webm": "video/webm"
+	};
+})(jwplayer);
+/**
+ * JW Player Video Media component
+ *
+ * @author zach
+ * @version 1.0
+ */
+(function(jwplayer) {
 
 	var _states = {
 		"ended": jwplayer.api.events.state.IDLE,
@@ -1410,6 +1680,7 @@
 		var _interval = null;
 		var _stopped;
 		var _loadcount = 0;
+		var _start = false;
 		var hasChrome = false;
 		
 		function _getState() {
@@ -1433,13 +1704,8 @@
 				var oldstate = _state;
 				_model.state = newstate;
 				_state = newstate;
-				if (oldstate == jwplayer.api.events.state.IDLE && newstate == jwplayer.api.events.state.BUFFERING) {
-					_container.volume = _model.volume / 100;
-					_container.muted = _model.mute;
-				}
 				if (newstate == jwplayer.api.events.state.IDLE) {
-					clearInterval(_interval);
-					_interval = null;
+					_clearInterval();
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
 					
 					if (_container.style.display != 'none') {
@@ -1476,12 +1742,18 @@
 			if (_stopped) {
 				return;
 			}
-			if (!jwplayer.html5.utils.isNull(event.target)) {
+			if (!(event.target === undefined)) {
 				if (_model.duration === 0) {
 					_model.duration = event.target.duration;
 				}
 				
 				if (_state == jwplayer.api.events.state.PLAYING) {
+					if (!_start && _container.readyState > 0) {
+						_start = true;
+						_container.currentTime = _model.playlist[_model.item].start;
+						_container.volume = _model.volume / 100;
+						_container.muted = _model.mute;
+					}
 					_model.position = Math.round(event.target.currentTime * 10) / 10;
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_TIME, {
 						position: Math.round(event.target.currentTime * 10) / 10,
@@ -1508,22 +1780,9 @@
 			
 			bufferFill = bufferTime / _model.config.bufferlength * 100;
 			
-			// TODO: Buffer underrun
-			if (false) {
-				if (bufferFill < 25 && _state == jwplayer.api.events.state.PLAYING) {
-					_setState(jwplayer.api.events.state.BUFFERING);
-					_bufferFull = false;
-					if (!_container.seeking) {
-						_container.pause();
-					}
-				} else if (bufferFill > 95 && _state == jwplayer.api.events.state.BUFFERING && _bufferFull === false && bufferTime > 0) {
-					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, {});
-				}
-			}
-			
 			if (_bufferFull === false) {
 				_bufferFull = true;
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, {});
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL);
 			}
 			
 			if (!_bufferingComplete) {
@@ -1531,14 +1790,10 @@
 					_bufferingComplete = true;
 				}
 				
-				if (!jwplayer.html5.utils.isNull(bufferPercent)) {
+				if (!(bufferPercent === null)) {
 					_model.buffer = Math.round(bufferPercent);
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
 						bufferPercent: Math.round(bufferPercent)
-						//bufferingComplete: _bufferingComplete,
-						//bufferFull: _bufferFull,
-						//bufferFill: bufferFill,
-						//bufferTime: bufferTime
 					});
 				}
 				
@@ -1548,18 +1803,22 @@
 		
 		function _startInterval() {
 			if (_interval === null) {
-				_interval = window.setInterval(function() {
+				_interval = setInterval(function() {
 					_positionHandler({});
 				}, 100);
 			}
 		}
 		
+		function _clearInterval() {
+			clearInterval(_interval);
+			_interval = null;
+		}
 		
 		function _errorHandler(event) {
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {});
 		}
 		
-		this.getContainer = function() {
+		this.getDisplayElement = function() {
 			return _container;
 		};
 		
@@ -1567,6 +1826,7 @@
 			if (_state != jwplayer.api.events.state.PLAYING) {
 				_container.play();
 				_setState(jwplayer.api.events.state.PLAYING);
+				_startInterval();
 			}
 		};
 		
@@ -1589,8 +1849,7 @@
 		this.stop = function() {
 			_stopped = true;
 			_container.pause();
-			clearInterval(_interval);
-			_interval = undefined;
+			_clearInterval();
 			_model.position = 0;
 			_setState(jwplayer.api.events.state.IDLE);
 		};
@@ -1646,38 +1905,23 @@
 		
 		/** Load a new video into the player. **/
 		this.load = function(playlistItem) {
-			_container = _insertVideoTag(playlistItem);
-			for (var event in _events) {
-				_container.addEventListener(event, function(evt) {
-					_events[evt.type](evt);
-				}, true);
-			}
+			_embed(playlistItem);
+			
+			_bufferFull = false;
+			_bufferingComplete = false;
+			_start = false;
+
 			if (_container.style.display != 'none') {
 				_container.style.display = 'block';
 			}
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_LOADED);
-			setTimeout(function() {
-				_bufferFull = false;
-				_bufferingComplete = false;
-				_setState(jwplayer.api.events.state.BUFFERING);
-				_startInterval();
-				try {
-					_container.currentTime = 0;
-				} catch (err) {
-				
-				}
-			}, 25);
+			_setState(jwplayer.api.events.state.BUFFERING);
+			_positionHandler({});
 		};
 		
-		function _insertVideoTag(playlistItem) {
-			//var _container = document.getElementById(player.id);
+		_embed = function(playlistItem) {
 			var vid = _container.ownerDocument.createElement("video");
-			//vid.controls = "none";
-			if (vid.autobuffer) {
-				vid.autobuffer = _model.config.autoplay;
-			} else if (vid.autoplay) {
-				vid.autoplay = _model.config.autoplay;
-			}
+			vid.preload = "none";
 			vid.loop = _model.config.repeat;
 			for (var sourceIndex in playlistItem.levels) {
 				var sourceModel = playlistItem.levels[sourceIndex];
@@ -1685,34 +1929,33 @@
 				source.src = jwplayer.html5.utils.getAbsolutePath(sourceModel.file);
 				if (sourceModel.type === undefined) {
 					var extension = jwplayer.html5.utils.extension(sourceModel.file);
-					if (extension == "ogv") {
-						extension = "ogg";
+					if (jwplayer.html5.extensionmap[extension] !== undefined) {
+						source.type = jwplayer.html5.extensionmap[extension];
+					} else {
+						source.type = 'video/' + extension + ';';
 					}
-					source.type = 'video/' + extension + ';';
 				} else {
 					source.type = sourceModel.type;
 				}
 				vid.appendChild(source);
 			}
-			vid.width = _model.config.width;
-			vid.height = _model.config.height;
-			var styles = {
-				position: 'absolute',
-				width: _model.config.width + 'px',
-				height: _model.config.height + 'px',
-				top: 0,
-				left: 0,
-				'z-index': 0,
-				margin: 'auto',
-				display: 'block'
-			};
-			for (var style in styles) {
-				vid.style[style] = styles[style];
-			}
+			vid.style.position = _container.style.position;
+			vid.style.top = _container.style.top;
+			vid.style.left = _container.style.left;
+			vid.style.width = _container.style.width;
+			vid.style.height = _container.style.height;
+			vid.volume = 0;
 			_container.parentNode.replaceChild(vid, _container);
 			vid.id = _container.id;
-			return vid;
-		}
+			_container = vid;
+			for (var event in _events) {
+				_container.addEventListener(event, function(evt) {
+					_events[evt.type](evt);
+				}, true);
+			}
+		};
+		
+		this.embed = _embed;
 		
 		return this;
 	};
@@ -1725,84 +1968,142 @@
  */
 (function(jwplayer) {
 
-	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen", "item"];
+	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen", "item", "plugins"];
 	
-	jwplayer.html5.model = function(container, options) {
+	jwplayer.html5.model = function(api, container, options) {
+		var _model = {
+			media: undefined,
+			playlist: [],
+			state: jwplayer.api.events.state.IDLE,
+			position: 0,
+			buffer: 0,
+			config: {
+				width: 480,
+				height: 320,
+				item: 0,
+				skin: undefined,
+				file: undefined,
+				image: undefined,
+				start: 0,
+				duration: 0,
+				bufferlength: 5,
+				volume: 90,
+				mute: false,
+				fullscreen: false,
+				repeat: false,
+				autostart: false,
+				debug: undefined,
+				screencolor: undefined
+			}
+		};
 		var _media;
 		var _container = container;
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
-		jwplayer.utils.extend(this, _eventDispatcher);
+		var _components = ["display", "controlbar"];
 		
-		jwplayer.utils.extend(this.config, options);
+		jwplayer.utils.extend(_model, _eventDispatcher);
 		
-		this.loadPlaylist = function(playlist, ready) {
-			ready = ready === null ? true : false;
-			this.playlist = new jwplayer.html5.playlist(playlist);
-			if (ready) {
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-					"item": this.config.item
-				});		
+		for (var option in options) {
+			switch (options[option]) {
+				case "":
+					continue;
+				case "true":
+					_model.config[option] = true;
+					break;
+				case "false":
+					_model.config[option] = false;
+					break;
+				default:
+					var config = _model.config;
+					var path = option.split(".");
+					for (var edge in path) {
+						if (edge == path.length - 1) {
+							config[path[edge]] = options[option];
+						} else {
+							config[path[edge]] = {};
+							config = config[path[edge]];
+						}
+					}
 			}
-			this.setActiveMediaProvider(this.playlist[this.index]);
-		};
-		
-		if (this.config.skin.length === 0) {
-			this.config.skin = "";
 		}
 		for (var index in _configurableStateVariables) {
 			var configurableStateVariable = _configurableStateVariables[index];
-			this[configurableStateVariable] = this.config[configurableStateVariable];
+			_model[configurableStateVariable] = _model.config[configurableStateVariable];
 		}
+		
+		var pluginorder = _model.plugins === undefined ? _components : _components.concat(_model.plugins);
+		
+		_model.plugins = {
+			order: pluginorder,
+			config: {
+				display: {
+					position: jwplayer.html5.view.positions.OVER,
+					screencolor: _model.config.screencolor
+				},
+				controlbar: {
+					position: jwplayer.html5.view.positions.BOTTOM
+				}
+			},
+			object: {}
+		};
+		
+		for (var pluginIndex in _model.plugins.order) {
+			var pluginName = _model.plugins.order[pluginIndex];
+			var pluginConfig = _model.config[pluginName] === undefined ? {} : _model.config[pluginName];
+			_model.plugins.config[pluginName] = _model.plugins.config[pluginName] === undefined ? pluginConfig : jwplayer.utils.extend(_model.plugins.config[pluginName], pluginConfig);
+			if (_model.plugins.config[pluginName].position === undefined){
+				_model.plugins.config[pluginName].position = jwplayer.html5.view.positions.OVER;
+			}
+		}
+		
+		_model.loadPlaylist = function(playlist, ready) {
+			ready = ready === null ? true : false;
+			_model.playlist = new jwplayer.html5.playlist(playlist);
+			if (ready) {
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
+					"item": _model.config.item
+				});
+			}
+			_model.setActiveMediaProvider(_model.playlist[_model.item]);
+		};
 		
 		function forward(evt) {
 			if (evt.type == jwplayer.api.events.JWPLAYER_MEDIA_LOADED) {
-				_container = _media.getContainer();
+				_container = _media.getDisplayElement();
 			}
 			_eventDispatcher.sendEvent(evt.type, evt);
 		}
 		
-		this.setActiveMediaProvider = function(playlistItem) {
+		_model.setActiveMediaProvider = function(playlistItem) {
 			if (_media === undefined) {
-				_media = new jwplayer.html5.mediavideo(this, _container);
+				_media = new jwplayer.html5.mediavideo(_model, _container);
 				_media.addGlobalListener(forward);
+				if (_model.config.chromeless) {
+					_media.embed(playlistItem);
+				}
 			}
 			return true;
 		};
 		
-		this.getMedia = function() {
+		_model.getMedia = function() {
 			return _media;
 		};
 		
-		return this;
+		_model.setupPlugins = function() {
+			for (var plugin in _model.plugins.order) {
+				if (jwplayer.html5[_model.plugins.order[plugin]] !== undefined) {
+					_model.plugins.object[_model.plugins.order[plugin]] = new jwplayer.html5[_model.plugins.order[plugin]](api, _model.plugins.config[_model.plugins.order[plugin]]);
+				} else {
+					_model.plugins.object[_model.plugins.order[plugin]] = new window[_model.plugins.order[plugin]](api, _model.plugins.config[_model.plugins.order[plugin]]);
+				}
+			}
+		};
+		
+		return _model;
 	};
 	
-	jwplayer.html5.model.prototype = {
-		media: undefined,
-		components: {},
-		playlist: [],
-		state: jwplayer.api.events.state.IDLE,
-		position: 0,
-		buffer: 0,
-		config: {
-			width: 480,
-			height: 320,
-			item: 0,
-			skin: undefined,
-			file: undefined,
-			image: undefined,
-			start: 0,
-			duration: 0,
-			bufferlength: 5,
-			volume: 90,
-			mute: false,
-			fullscreen: false,
-			repeat: false,
-			autostart: false,
-			debug: undefined,
-			screencolor: ''
-		}
-	};
+	
 })(jwplayer);
 /**
  * JW Player playlist model
@@ -1812,7 +2113,7 @@
  */
 (function(jwplayer) {
 	jwplayer.html5.playlist = function(config) {
-		_playlist = [];
+		var _playlist = [];
 		if (config.playlist && config.playlist.length > 0) {
 			_playlist = config.playlist;
 		} else {
@@ -1833,36 +2134,36 @@
  */
 (function(jwplayer) {
 	jwplayer.html5.playlistitem = function(config) {
-		for (var property in this) {
+		var _playlistitem = {
+			author: "",
+			date: "",
+			description: "",
+			image: "",
+			link: "",
+			mediaid: "",
+			tags: "",
+			title: "",
+			provider: "",
+			
+			file: "",
+			streamer: "",
+			duration: -1,
+			start: 0,
+			
+			currentLevel: -1,
+			levels: []
+		};
+		
+		for (var property in _playlistitem) {
 			if (config[property] !== undefined) {
-				this[property] = config[property];
+				_playlistitem[property] = config[property];
 			}
 		}
-		if (this.levels.length === 0){
-			this.levels[0] = new jwplayer.html5.playlistitemlevel(this);
+		if (_playlistitem.levels.length === 0) {
+			_playlistitem.levels[0] = new jwplayer.html5.playlistitemlevel(_playlistitem);
 		}
-		return this;
-	};
-	
-	jwplayer.html5.playlistitem.prototype = {
-		author: "",
-		date: "",
-		description: "",
-		image: "",
-		link: "",
-		mediaid: "",
-		tags: "",
-		title: "",
-		provider: "",
-		
-		file: "",
-		streamer: "",
-		duration: -1,
-		start: 0,
-		
-		currentLevel: -1,
-		levels: []
-	};
+		return _playlistitem;
+	};	
 })(jwplayer);
 /**
  * JW Player playlist item level model
@@ -1872,20 +2173,21 @@
  */
 (function(jwplayer) {
 	jwplayer.html5.playlistitemlevel = function(config) {
-		for (var property in this) {
+		var _playlistitemlevel = {
+			file: "",
+			streamer: "",
+			bitrate: 0,
+			width: 0
+		};
+		
+		for (var property in _playlistitemlevel) {
 			if (config[property] !== undefined) {
-				this[property] = config[property];
+				_playlistitemlevel[property] = config[property];
 			}
 		}
-		return this;
+		return _playlistitemlevel;
 	};
 	
-	jwplayer.html5.playlistitemlevel.prototype = {
-		file: "",
-		streamer: "",
-		bitrate: 0,
-		width: 0
-	};
 })(jwplayer);
 /**
  * JW Player component that loads PNG skins.
@@ -1923,6 +2225,13 @@
 			}
 			return null;
 		};
+
+		this.getComponentLayout = function(component) {
+			if (_loaded) {
+				return _components[component].layout;
+			}
+			return null;
+		};
 		
 	};
 })(jwplayer);
@@ -1944,7 +2253,7 @@
 		
 		/** Load the skin **/
 		function _load() {
-			if (skinPath === "") {
+			if (skinPath === undefined) {
 				_loadSkin(jwplayer.html5.defaultSkin().xml);
 			} else {
 				jwplayer.utils.ajax(skinPath, function(xmlrequest) {
@@ -1966,16 +2275,46 @@
 				var componentName = components[componentIndex].getAttribute("name");
 				var component = {
 					settings: {},
-					elements: {}
+					elements: {},
+					layout: {}
 				};
 				_skin[componentName] = component;
-				var elements = components[componentIndex].getElementsByTagName('element');
+				var elements = components[componentIndex].getElementsByTagName('elements')[0].getElementsByTagName('element');
 				for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
 					_loadImage(elements[elementIndex], componentName);
 				}
-				var settings = components[componentIndex].getElementsByTagName('setting');
-				for (var settingIndex = 0; settingIndex < settings.length; settingIndex++) {
-					_skin[componentName].settings[settings[settingIndex].getAttribute("name")] = settings[settingIndex].getAttribute("value");
+				var settingsElement = components[componentIndex].getElementsByTagName('settings')[0];
+				if (settingsElement !== undefined && settingsElement.childNodes.length > 0) {
+					var settings = settingsElement.getElementsByTagName('setting');
+					for (var settingIndex = 0; settingIndex < settings.length; settingIndex++) {
+						_skin[componentName].settings[settings[settingIndex].getAttribute("name")] = settings[settingIndex].getAttribute("value");
+					}
+				}
+				var layout = components[componentIndex].getElementsByTagName('layout')[0];
+				if (layout !== undefined && layout.childNodes.length > 0) {
+					var groups = layout.getElementsByTagName('group');
+					for (var groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+						var group = groups[groupIndex];
+						_skin[componentName].layout[group.getAttribute("position")] = {
+							elements: []
+						};
+						for (var attributeIndex = 0; attributeIndex < group.attributes.length; attributeIndex++) {
+							var attribute = group.attributes[attributeIndex];
+							_skin[componentName].layout[group.getAttribute("position")][attribute.name] = attribute.value;
+						}
+						var groupElements = group.getElementsByTagName('*');
+						for (var groupElementIndex = 0; groupElementIndex < groupElements.length; groupElementIndex++) {
+							var element = groupElements[groupElementIndex];
+							_skin[componentName].layout[group.getAttribute("position")].elements.push({type:element.tagName});
+							for (var attributeIndex = 0; attributeIndex < element.attributes.length; attributeIndex++) {
+								var attribute = element.attributes[attributeIndex];
+								_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex][attribute.name] = attribute.value;
+							}
+							if (_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex].name === undefined){
+								_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex].name = element.tagName;
+							}
+						}
+					}
 				}
 				
 				_loading = false;
@@ -2006,7 +2345,7 @@
 				var skinRoot = skinUrl.substr(0, skinUrl.lastIndexOf('/'));
 				imgUrl = [skinRoot, component, elementSource].join('/');
 			}
-
+			
 			_skin[component].elements[elementName] = {
 				height: 0,
 				width: 0,
@@ -2221,67 +2560,67 @@
 	
 })(jwplayer);
 /**
- * JW Player view component
+ * Utility methods for the JW Player.
  *
  * @author zach
  * @version 1.0
  */
 (function(jwplayer) {
-
-	var _css = jwplayer.html5.utils.css;
+	var _animations = {};
 	
-	jwplayer.html5.view = function(api, model, container) {
-		var _api = api;
-		var _model = model;
-		var _wrapper;
-		var _components = {};
-		
-		function createWrapper() {
-			_wrapper = document.createElement("div");
-			_wrapper.id = container.id;
-			container.id = _wrapper.id + "_video";
-						
-			_css(_wrapper, {
-				position: 'relative',
-				height: _model.config.height + 'px',
-				width: _model.config.width + 'px',
-				margin: 'auto',
-				padding: 0,
-				'background-color': _model.config.screencolor
-			});
-			
-			_css(container, {
-				position: 'absolute',
-				width: _model.config.width + 'px',
-				height: _model.config.height + 'px',
-				top: 0,
-				left: 0,
-				'z-index': 0,
-				margin: 'auto',
-				display: 'block'
-			});
-			
-			jwplayer.utils.wrap(container, _wrapper);
-		}
-		
-		function setupComponents() {
-			if ((_model.getMedia() === undefined) || !_model.getMedia().hasChrome || !_model.config.chromeless) {
-				_components.display = new jwplayer.html5.display(_api, container, _model.config.screencolor);
-				_components.controlbar = new jwplayer.html5.controlbar(_api, container);
-			}
-		}
-		
-		this.setup = function() {
-			createWrapper();
-			setupComponents();
-		};
-		
-		this.resize = function(width, height) {
-		
-		};
-		
-		
+	jwplayer.html5.utils.animations = function() {
 	};
+	
+	jwplayer.html5.utils.animations.transform = function(domelement, value) {
+		domelement.style.webkitTransform = value;
+		domelement.style.MozTransform = value;
+		domelement.style.OTransform = value;
+	};
+	
+	jwplayer.html5.utils.animations.transformOrigin = function(domelement, value) {
+		domelement.style.webkitTransformOrigin = value;
+		domelement.style.MozTransformOrigin = value;
+		domelement.style.OTransformOrigin = value;
+	};
+	
+	jwplayer.html5.utils.animations.rotate = function(domelement, deg) {
+		jwplayer.html5.utils.animations.transform(domelement, ["rotate(", deg, "deg)"].join(""));
+	};
+	
+	jwplayer.html5.utils.fadeTo = function(domelement, endAlpha, time, startAlpha, startTime) {
+		// Interrupting
+		if (_animations[domelement] != startTime && startTime !== undefined){
+			return;
+		} 
+		var currentTime = new Date().getTime();
+		if (startAlpha === undefined) {
+			startAlpha = domelement.style.opacity === "" ? 1 : domelement.style.opacity;
+		}
+		if (typeof startAlpha == "string"){
+			startAlpha = parseInt(startAlpha, 10);
+		}	
+		if (domelement.style.opacity == endAlpha && domelement.style.opacity !== ""){
+			return;
+		}
+		if (startTime === undefined) {
+			startTime = currentTime;
+			_animations[domelement] = startTime; 
+		}
+		var percentTime = (currentTime - startTime) / (time * 1000);
+		percentTime = percentTime > 1 ? 1 : percentTime;
+		var delta = endAlpha - startAlpha;
+		var alpha = startAlpha + (percentTime * delta);
+		if (alpha > 1){
+			alpha = 1;
+		} else if (alpha < 0) {
+			alpha = 0;
+		}
+		domelement.style.opacity = alpha;
+		setTimeout(function() {
+			jwplayer.html5.utils.fadeTo(domelement, endAlpha, time, startAlpha, startTime);
+		}, 100);
+	};
+	
 })(jwplayer);
 /** 
  * A factory for API calls that either set listeners or return data
@@ -2292,12 +2631,16 @@
 (function(jwplayer) {
 
 	jwplayer.html5.api = function(container, options) {
-		var _model = new jwplayer.html5.model(container, options);
-		var _view = new jwplayer.html5.view(this, _model, container);
-		var _controller = new jwplayer.html5.controller(_model, _view, container);
+		var _container = document.createElement('div');
+		container.parentNode.replaceChild(_container, container);
+		_container.id = container.id;
+		
+		var _model = new jwplayer.html5.model(this, _container, options);
+		var _view = new jwplayer.html5.view(this, _container, _model);
+		var _controller = new jwplayer.html5.controller(this, _container, _model, _view);
 		
 		this.version = "1.0";
-		this.id = container.id;
+		this.id = _container.id;
 		this.skin = new jwplayer.html5.skin();
 		
 		this.jwPlay = _controller.play;
@@ -2322,7 +2665,7 @@
 		this.jwGetBuffer = _statevarFactory('buffer');
 		this.jwGetWidth = _statevarFactory('width');
 		this.jwGetHeight = _statevarFactory('height');
-		this.jwGetFullscreen = _statevarFactory('buffer');
+		this.jwGetFullscreen = _statevarFactory('fullscreen');
 		this.jwSetFullscreen = _controller.setFullscreen;
 		this.jwGetVolume = _statevarFactory('volume');
 		this.jwSetVolume = _controller.setVolume;
@@ -2354,12 +2697,13 @@
 		};
 		
 		this.skin.load(_model.config.skin, function() {
-			_view.setup();
+			_model.loadPlaylist(_model.config, false);
+			_model.setupPlugins();
+			_view.setup(_model.getMedia().getDisplayElement());
 			var evt = {
 				id: this.id,
 				version: this.version
 			};
-			_model.loadPlaylist(_model.config, false);
 			_controller.sendEvent(jwplayer.api.events.JWPLAYER_READY, evt);
 			if (playerReady !== undefined) {
 				playerReady(evt);
@@ -2368,12 +2712,13 @@
 			if (window[_model.config.playerReady] !== undefined) {
 				window[_model.config.playerReady](evt);
 			}
+			
 			_model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
 			_model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
 				"item": _model.config.item
 			});
 			
-			if (_model.config.autostart === true) {
+			if (_model.config.autostart === true && !_model.config.chromeless) {
 				_controller.play();
 			}
 		});
