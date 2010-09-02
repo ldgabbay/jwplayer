@@ -16,6 +16,8 @@
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.geom.ColorTransform;
+	import flash.net.URLRequest;
+	import flash.net.navigateToURL;
 	import flash.text.GridFitType;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
@@ -347,7 +349,12 @@
 		
 		protected function clickHandler(event:MouseEvent):void {
 			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_CLICK));
-			if (player.state == PlayerState.PLAYING || player.state == PlayerState.BUFFERING) {
+			if(_player.config.displayclick == 'link') {
+				var link:String = _player.playlist.currentItem.link;
+				if(link) {
+					navigateToURL(new URLRequest(link),_player.config.linktarget);
+				}
+			} else if (player.state == PlayerState.PLAYING || player.state == PlayerState.BUFFERING) {
 				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_PAUSE));
 			} else {
 				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_PLAY));
