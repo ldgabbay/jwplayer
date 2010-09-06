@@ -161,7 +161,7 @@ package com.longtailvideo.jwplayer.model {
 		public function get start():Number { return _start; }
 		public function set start(s:*):void { 
 			_start = Strings.seconds(String(s));
-			if (_start > _duration > 0) {
+			if (_start > _duration && _duration > 0) {
 				_duration += _start;
 			}
 		}
@@ -169,7 +169,7 @@ package com.longtailvideo.jwplayer.model {
 		public function get duration():Number { return _duration; }
 		public function set duration(d:*):void { 
 			_duration = Strings.seconds(String(d));
-			if (_start > _duration > 0) {
+			if (_start > _duration && _duration > 0) {
 				_duration += _start;
 			}
 		}

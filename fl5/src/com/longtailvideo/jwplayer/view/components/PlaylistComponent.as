@@ -351,9 +351,9 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 			} else {
 				if (overClip) {
-					activeClip.visible = false;
-					outClip.visible = false;
 					overClip.visible = true;
+					outClip.visible = false;
+					if (activeClip) activeClip.visible = false;
 				}
 			}
 		}

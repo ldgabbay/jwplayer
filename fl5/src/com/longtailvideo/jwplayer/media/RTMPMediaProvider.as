@@ -216,7 +216,7 @@ package com.longtailvideo.jwplayer.media {
 		};
 
 
-		private function unBlacklist(level:Number) {
+		private function unBlacklist(level:Number):void {
 			item.blacklistLevel(level,false);
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {type:'blacklist',level:level,state:false}});
 		};

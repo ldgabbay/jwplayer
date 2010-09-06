@@ -173,7 +173,7 @@ package com.longtailvideo.jwplayer.media {
 				_startparam = getConfigProperty('startparam');
 			}
 			if (item.streamer) {
-				if (item.streamer.indexOf('/') > 0) {
+				if (item.streamer.indexOf('/') >= 0) {
 					url = item.streamer;
 					url = getURLConcat(url, 'file', item.file);
 				} else {
@@ -214,7 +214,12 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Load content. **/
 		override public function load(itm:PlaylistItem):void {
-			_item = itm;
+			if (_item != itm) {
+				_item = itm;
+				media = _video;
+				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_LOADED);
+			}
+			
 			if (_timeoffset == 0) {
 				_timeoffset = _item.start;
 			}
@@ -224,7 +229,6 @@ package com.longtailvideo.jwplayer.media {
 			
 			if (item.levels.length > 0) { item.setLevel(item.getLevel(config.bandwidth, config.width)); }
 			
-			media = _video;
 			_stream.play(getURL());
 			
 			clearInterval(_positionInterval);
@@ -233,7 +237,6 @@ package com.longtailvideo.jwplayer.media {
 			clearInterval(_droppedFramesInterval);
 			_droppedFramesInterval = setInterval(checkFramedrop,1000);
 
-			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_LOADED);
 			setState(PlayerState.BUFFERING);
 			sendBufferEvent(0, 0);
 			streamVolume(config.mute ? 0 : config.volume);
