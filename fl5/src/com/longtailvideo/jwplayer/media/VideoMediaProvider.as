@@ -40,7 +40,6 @@
 		/** Bandwidth check interval **/
 		private var _bandwidthTimeout:Number = 2000;
 
-
 		/** Constructor; sets up the connection and display. **/
 		public function VideoMediaProvider() {
 			super('video');
@@ -172,7 +171,7 @@
 				_bufferFull = false;
 				_stream.pause();
 				setState(PlayerState.BUFFERING);
-			} else if (bufferFill > 95 && state == PlayerState.BUFFERING && _bufferFull == false && bufferTime > 0) {
+			} else if (bufferFill > 95 && !_bufferFull && bufferTime > 0) {
 				_bufferFull = true;
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_BUFFER_FULL);
 			}

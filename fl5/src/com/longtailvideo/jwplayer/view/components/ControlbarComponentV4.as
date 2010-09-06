@@ -154,7 +154,12 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		public function removeButton(name:String):void {
-			skin.removeChild(getSkinComponent(name));
+			var button:DisplayObject = getSkinComponent(name);
+			if (button) {
+				button.visible = false;
+				stacker.rearrange();
+				skin.removeChild(getSkinComponent(name));
+			}
 		}
 
 		public function resize(width:Number, height:Number):void {
@@ -428,15 +433,19 @@ package com.longtailvideo.jwplayer.view.components {
 			switch(_player.state) {
 				case PlayerState.BUFFERING:
 				case PlayerState.PLAYING:
-					getSkinComponent('playButton').visible = false;
-					getSkinComponent('pauseButton').visible = true;
-					startFader();
+					if (getSkinComponent('playButton')) {
+						getSkinComponent('playButton').visible = false;
+						getSkinComponent('pauseButton').visible = true;
+						startFader();
+					}
 					break;
 				case PlayerState.IDLE:
 					timeHandler();
 				case PlayerState.PAUSED:
-					getSkinComponent('playButton').visible = true;
-					getSkinComponent('pauseButton').visible = false;
+					if (getSkinComponent('playButton')) {
+						getSkinComponent('playButton').visible = true;
+						getSkinComponent('pauseButton').visible = false;
+					}
 					if (hideOnIdle) {
 						mouseLeftStage();
 					} else {
@@ -572,5 +581,6 @@ package com.longtailvideo.jwplayer.view.components {
 		private function getSkinElementChild(element:String, child:String):DisplayObject {
 			return (skin.getChildByName(element) as MovieClip).getChildByName(child);
 		}
+		
 	}
 }

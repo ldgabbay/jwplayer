@@ -84,6 +84,9 @@ package com.longtailvideo.jwplayer.media {
 		private var _dispatcher:GlobalEventDispatcher;
 		/** Whether or not to stretchthe media **/
 		private var _stretch:Boolean;
+		/** Queue buffer full event if it occurs while the player is paused. **/
+		private var _queuedBufferFull:Boolean;
+		
 		
 		protected var _width:Number;
 		protected var _height:Number;
@@ -114,10 +117,16 @@ package com.longtailvideo.jwplayer.media {
 		
 		/** Resume playback of the item. **/
 		public function play():void {
-			if (_media) {
-				_media.visible = true;
+			if (_queuedBufferFull) {
+				_queuedBufferFull = false;
+				setState(PlayerState.BUFFERING);
+				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_BUFFER_FULL);
+			} else {
+				if (_media) {
+					_media.visible = true;
+				}
+				setState(PlayerState.PLAYING);
 			}
-			setState(PlayerState.PLAYING);
 		}
 		
 		
@@ -270,13 +279,17 @@ package com.longtailvideo.jwplayer.media {
 		 * @param value
 		 */
 		protected function sendMediaEvent(type:String, properties:Object=null):void {
-			var newEvent:MediaEvent = new MediaEvent(type);
-			for (var property:String in properties) {
-				if (newEvent.hasOwnProperty(property)) {
-					newEvent[property] = properties[property];
+			if (type == MediaEvent.JWPLAYER_MEDIA_BUFFER_FULL && state == PlayerState.PAUSED) {
+				_queuedBufferFull = true;
+			} else {
+				var newEvent:MediaEvent = new MediaEvent(type);
+				for (var property:String in properties) {
+					if (newEvent.hasOwnProperty(property)) {
+						newEvent[property] = properties[property];
+					}
 				}
+				dispatchEvent(newEvent);
 			}
-			dispatchEvent(newEvent);
 		}
 		
 		

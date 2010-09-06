@@ -420,11 +420,9 @@ package com.longtailvideo.jwplayer.media {
 			if (bfr < 0.25 && pos < duration - 5 && state != PlayerState.BUFFERING) {
 				_bufferFull = false;
 				setState(PlayerState.BUFFERING);
-            } else if (bfr > 1 && state != PlayerState.PLAYING) {
-				if (state == PlayerState.BUFFERING && !isLivestream) {
-					_bufferFull = true;
-					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_BUFFER_FULL, {bufferPercent: bfr});
-				}
+            } else if (bfr > 1 && state != PlayerState.PLAYING && !_bufferFull && !isLivestream) {
+				_bufferFull = true;
+				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_BUFFER_FULL, {bufferPercent: bfr});
             }
 			
             if (!getConfigProperty('dvr') && state != PlayerState.PLAYING) {

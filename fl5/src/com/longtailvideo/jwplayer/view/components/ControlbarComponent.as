@@ -92,6 +92,7 @@ package com.longtailvideo.jwplayer.view.components {
 	public class ControlbarComponent extends CoreComponent implements IControlbarComponent {
 		protected var _buttons:Object = {};
 		protected var _customButtons:Array = [];
+		protected var _removedButtons:Array = [];
 		protected var _dividers:Array;
 		protected var _dividerElements:Object;
 		protected var _defaultLayout:String = "[play|stop|prev|next|elapsed][time][duration|blank|fullscreen|mute volume]";
@@ -274,8 +275,12 @@ package com.longtailvideo.jwplayer.view.components {
 			if (controlbarLayout) {
 				newLayout = parseStructuredLayout(controlbarLayout);
 			}
+			removeInactive(newLayout);
 			newLayout = newLayout.replace("blank", _customButtons.join("|"));
 			newLayout = removeButtonFromLayout("blank", newLayout);
+			for each (var removed:String in _removedButtons) {
+				newLayout = removeButtonFromLayout(removed, newLayout);
+			}
 			if (player.state == PlayerState.PLAYING) {
 				newLayout = newLayout.replace('play', 'pause');
 				hideButton('play');
@@ -327,6 +332,9 @@ package com.longtailvideo.jwplayer.view.components {
 		private function removeButtonFromLayout(button:String, layout:String):String {
 			layout = layout.replace(button, "");
 			layout = layout.replace(/\|\|/g, "|");
+			layout = layout.replace(/\[\|/g, "[");
+			layout = layout.replace(/\|\]/g, "]");
+			layout = layout.replace(/\[\]/g, "");
 			return layout;
 		}
 
@@ -581,6 +589,9 @@ package com.longtailvideo.jwplayer.view.components {
 			if (_customButtons.indexOf(name) < 0) {
 				_customButtons.push(name);
 			}
+			if (_removedButtons.indexOf(name) >= 0) {
+				_removedButtons.splice(_removedButtons.indexOf(name), 1);
+			}
 			icon.x = icon.y = 0;
 			var button:ComponentButton = new ComponentButton();
 			button.name = name;
@@ -609,8 +620,16 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		public function removeButton(name:String):void {
-			_buttons[name] = null;
-			redraw();
+			if (_buttons[name] is DisplayObject && this.contains(_buttons[name] as DisplayObject)) {
+				removeChild(_buttons[name]);
+				_buttons[name] = null;
+				_defaultLayout = removeButtonFromLayout(name, _defaultLayout);
+				_currentLayout = removeButtonFromLayout(name, _currentLayout);
+				if (_removedButtons.indexOf(name) < 0) {
+					_removedButtons.push(name);
+				}
+				redraw();
+			}
 		}
 
 
