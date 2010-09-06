@@ -240,6 +240,10 @@
 	};
 
 	jwplayer.api.PlayerAPI.prototype.setup = function(options, players) {
+		if (options['flashplayer'] && !options['players']) {
+			options['players'] = [{type:'flash', src:options['flashplayer']},{type:'html5'}];
+			delete options['flashplayer'];
+		}
 		if (players && !options['players']) {
 			if (typeof players == "string") {
 				options['players'] = [{type:"flash", src:players}];

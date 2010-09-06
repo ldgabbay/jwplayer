@@ -51,9 +51,6 @@
 		
 		/** Use this function to set the internal low-level player.  This is a javascript object which contains the low-level API calls. **/
 		this.setPlayer = function(player) {
-			if (_player) {
-				//remove all former _player event listeners
-			}
 			_player = player;
 		};
 		
@@ -369,8 +366,10 @@
 var _userPlayerReady = (typeof playerReady == 'function') ? playerReady : undefined;
 
 playerReady = function(obj) {
-	var api = jwplayer(obj['id']);
-	api.playerReady(obj);
+	var api = jwplayer.api.playerById(obj['id']);
+	if (api) {
+		api.playerReady(obj);
+	}
 	
 	if (_userPlayerReady) {
 		_userPlayerReady.call(this, obj);
