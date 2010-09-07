@@ -513,7 +513,7 @@ jwplayer.utils.strings.trim = function(inputString){
 		
 		// Player Public Methods
 		setFullscreen: function(fullscreen) { this.callInternal("jwSetFullscreen", fullscreen); return this;},
-		setMute: function(mute) { this.callInternal("jwMute", mute); return this; },
+		setMute: function(mute) { this.callInternal("jwSetMute", mute); return this; },
 		lock: function() { return this; },
 		unlock: function() { return this; },
 		load: function(toLoad) { this.callInternal("jwLoad", toLoad); return this; },
@@ -553,7 +553,7 @@ jwplayer.utils.strings.trim = function(inputString){
 		},
 		stop: function() { this.callInternal("jwStop"); return this; }, 
 		seek: function(position) { this.callInternal("jwSeek", position); return this; },
-		setVolume: function(volume) { this.callInternal("jwVolume", volume); return this; },
+		setVolume: function(volume) { this.callInternal("jwSetVolume", volume); return this; },
 		
 		// Player Events
 		onBufferChange: function(callback) { return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, callback); },
