@@ -57,7 +57,7 @@ package com.longtailvideo.jwplayer.utils {
 			xmlLoader.addEventListener(IOErrorEvent.IO_ERROR, xmlFail);
 			xmlLoader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, xmlFail);
 			xmlLoader.addEventListener(Event.COMPLETE, loadComplete);
-			xmlLoader.load(new URLRequest(encodeURI(url)));
+			xmlLoader.load(new URLRequest(url));
 		}
 
 		/**
@@ -131,7 +131,7 @@ package com.longtailvideo.jwplayer.utils {
 		
 		private function setConfigParam(name:String, value:String):void {
 			if (name != "fullscreen") {
-				_config[name.toLowerCase()] = Strings.serialize(Strings.trim(Strings.decode(value)));
+				_config[name.toLowerCase()] = Strings.serialize(Strings.trim(value));
 			}
 		}
 

@@ -551,7 +551,7 @@ package com.longtailvideo.jwplayer.view.components {
 						imageLoaderMap[ldr] = idx;
 						ldr.contentLoaderInfo.addEventListener(Event.COMPLETE, loaderHandler);
 						ldr.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
-						ldr.load(new URLRequest(encodeURI(imageFile)), new LoaderContext(true));
+						ldr.load(new URLRequest(imageFile), new LoaderContext(true));
 					}
 				}
 			}

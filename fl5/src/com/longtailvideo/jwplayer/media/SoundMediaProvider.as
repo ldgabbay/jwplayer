@@ -86,7 +86,7 @@ package com.longtailvideo.jwplayer.media {
 				_sound.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
 				_sound.addEventListener(Event.ID3, id3Handler);
 				_sound.addEventListener(ProgressEvent.PROGRESS, positionHandler);
-				_sound.load(new URLRequest(encodeURI(_item.file)), _context);
+				_sound.load(new URLRequest(_item.file), _context);
 			}
 			if (!_positionInterval) {
 				_positionInterval = setInterval(positionHandler, 100);

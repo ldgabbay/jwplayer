@@ -88,6 +88,7 @@ package com.longtailvideo.jwplayer.view.components {
 			if (_buffer) {
 				_buffer.visible = true;
 			}
+			resize(this.width, this.height);
 		}
 
 		public function setBufferOffset(offset:Number):void {

@@ -43,7 +43,7 @@ package com.longtailvideo.jwplayer.media {
 		override public function load(itm:PlaylistItem):void {
 			_item = itm;
 			_position = 0;
-			_loader.load(new URLRequest(encodeURI(item.file)), new LoaderContext(true));
+			_loader.load(new URLRequest(item.file), new LoaderContext(true));
 			setState(PlayerState.BUFFERING);
 			sendBufferEvent(0);
 		}

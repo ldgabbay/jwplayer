@@ -180,7 +180,6 @@ package com.longtailvideo.jwplayer.media {
 					_startparam = item.streamer;
 				}
 			}
-			url = encodeURI(url);
 			if (_mp4 || _startparam == 'starttime') {
 				off = Math.ceil(_timeoffset*100)/100;
 				_mp4 = true;
@@ -307,8 +306,8 @@ package com.longtailvideo.jwplayer.media {
 			var bufferFill:Number;
 			if (item.duration > 0 && _stream && _stream.bytesTotal > 0) {
 				percentoffset =  _timeoffset /  item.duration * 100;
-				var bufferTime:Number = _stream.bufferTime < (item.duration - pos) ? _stream.bufferTime : Math.round(item.duration - pos);
-				bufferFill = _stream.bufferTime ? Math.ceil(_stream.bufferLength / bufferTime * 100) : 0;
+				var bufferTime:Number = _stream.bufferTime < (item.duration - pos) ? _stream.bufferTime : Math.ceil(item.duration - pos);
+				bufferFill = _stream.bufferTime ? Math.ceil(Math.ceil(_stream.bufferLength) / bufferTime * 100) : 0;
 			} else {
 				percentoffset = 0;
 				bufferFill = _stream.bufferTime ? _stream.bufferLength/_stream.bufferTime * 100 : 0;

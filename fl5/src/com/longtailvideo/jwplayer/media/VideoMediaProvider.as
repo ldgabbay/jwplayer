@@ -91,7 +91,7 @@
 					media = _video;
 				}
 				_stream.checkPolicyFile = true;
-				_stream.play(encodeURI(itm.file));
+				_stream.play(itm.file);
 				_stream.pause();
 			} else {
 				if (itm.duration <= 0) { itm.duration = item.duration; }
@@ -156,17 +156,16 @@
 			}
 
 			var pos:Number = Math.round(Math.min(_stream.time, Math.max(item.duration, 0)) * 100) / 100;
-			var timeRemaining:Number = item.duration > 0 ? (item.duration - pos) : pos;
+			var timeRemaining:Number = item.duration > 0 ? (item.duration - _stream.time) : _stream.time;
 			var bufferTime:Number;
 			var bufferFill:Number;
 			if (item.duration > 0 && _stream && _stream.bytesTotal > 0) {
-				bufferTime = _stream.bufferTime < timeRemaining ? _stream.bufferTime : Math.round(timeRemaining);
-				bufferFill = _stream.bufferTime ? Math.ceil(_stream.bufferLength / bufferTime * 100) : 0;
+				bufferTime = _stream.bufferTime < timeRemaining ? _stream.bufferTime : Math.ceil(timeRemaining);
+				bufferFill = _stream.bufferTime ? Math.ceil(Math.ceil(_stream.bufferLength) / bufferTime * 100) : 0;
 			} else {
 				bufferFill = _stream.bufferTime ? _stream.bufferLength/_stream.bufferTime * 100 : 0;
 				bufferTime = (_stream.bytesTotal > 0) ? 100 : 0;
 			}
-			
 			if (bufferFill < 50 && state == PlayerState.PLAYING) {
 				_bufferFull = false;
 				_stream.pause();

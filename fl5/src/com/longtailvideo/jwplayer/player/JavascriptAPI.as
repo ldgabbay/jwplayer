@@ -121,8 +121,8 @@ package com.longtailvideo.jwplayer.player {
 				ExternalInterface.addCallback("jwPlaylistItem", js_playlistItem);
 				ExternalInterface.addCallback("jwPlaylistNext", js_playlistNext);
 				ExternalInterface.addCallback("jwPlaylistPrev", js_playlistPrev);
-				ExternalInterface.addCallback("jwMute", js_mute);
-				ExternalInterface.addCallback("jwVolume", js_volume);
+				ExternalInterface.addCallback("jwSetMute", js_mute);
+				ExternalInterface.addCallback("jwSetVolume", js_volume);
 
 				// UNIMPLEMENTED
 				//ExternalInterface.addCallback("jwGetBandwidth", js_getBandwidth); 

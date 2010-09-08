@@ -61,9 +61,9 @@ package com.longtailvideo.jwplayer.utils {
 		protected function useLoader(location:String):void {
 			if (RootReference.root.loaderInfo.url.indexOf('http') == 0) {
 				var context:LoaderContext = new LoaderContext(true, ApplicationDomain.currentDomain, SecurityDomain.currentDomain);
-				loader.load(new URLRequest(encodeURI(location)), context);
+				loader.load(new URLRequest(location), context);
 			} else {
-				loader.load(new URLRequest(encodeURI(location)));
+				loader.load(new URLRequest(location));
 			}
 		}
 
@@ -123,7 +123,7 @@ package com.longtailvideo.jwplayer.utils {
 
 
 		protected function useURLLoader(location:String):void {
-			urlLoader.load(new URLRequest(encodeURI(location)));
+			urlLoader.load(new URLRequest(location));
 		}
 
 
