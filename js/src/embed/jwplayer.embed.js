@@ -10,7 +10,7 @@
 	jwplayer.embed.defaults = {
 		width : 400,
 		height : 300,
-		players: [{type:"flash", src:"player.swf"}],
+		players: [{type:"flash", src:"player.swf"},{type:'html5'}],
 		components: {
 			controlbar: {
 				position: "over"
