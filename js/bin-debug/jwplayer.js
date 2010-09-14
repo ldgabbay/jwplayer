@@ -459,7 +459,7 @@ jwplayer.utils.strings.trim = function(inputString){
 			
 			while (_queuedCalls.length > 0) {
 				var call = _queuedCalls.shift();
-				this.callInternal(call.method, call.args);
+				this.callInternal(call.method, call.parameters);
 			}
 		};
 		
@@ -686,16 +686,27 @@ playerReady = function(obj) {
 		this.constructor(playerApi);
 	};
 	
+	jwplayer.embed.defaults = {
+		width : 400,
+		height : 300,
+		players: [{type:"flash", src:"player.swf"}],
+		components: {
+			controlbar: {
+				position: "over"
+			}
+		}
+	};
+
 	jwplayer.embed.Embedder.prototype = {
 		config: undefined, 
 		api: undefined,
 		events: {},
-		players: [{type:'html5'}],
+		players: undefined,
 
 		constructor : function(playerApi) {
 			this.api = playerApi;
 			var mediaConfig = jwplayer.utils.mediaparser.parseMedia(this.api.container);
-			this.config = this.parseConfig(jwplayer.utils.extend({}, mediaConfig, this.api.config));
+			this.config = this.parseConfig(jwplayer.utils.extend({}, jwplayer.embed.defaults, mediaConfig, this.api.config));
 		},
 
 		embedPlayer : function() {
@@ -757,8 +768,12 @@ playerReady = function(obj) {
 					this.load(loadParams.playlist);
 				} else if (loadParams.levels) {
 					var item = this.getPlaylistItem(0);
+					console.log("Item: %o", item);
 					if (!item) {
 						item = { file: loadParams.levels[0].file };
+					}
+					if (!item.image) {
+						item.image = this.config.image;
 					}
 					item.levels = loadParams.levels;
 					this.load(item);
@@ -786,18 +801,8 @@ playerReady = function(obj) {
 
 	};
 
-	jwplayer.embed.defaults = {
-		width : 400,
-		height : 300,
-		components: {
-			controlbar: {
-				position: "over"
-			}
-		}
-	};
-
 	jwplayer.embed.embedFlash = function(_container, _player, _options) {
-		var params = jwplayer.utils.extend( {}, jwplayer.embed.defaults, _options);
+		var params = jwplayer.utils.extend( {}, _options);
 
 		var width = params.width;
 		delete params['width'];
@@ -855,7 +860,7 @@ playerReady = function(obj) {
 	jwplayer.embed.embedHTML5 = function(container, player, options) {
 		if (jwplayer.html5) {
 			container.innerHTML = "<p>Embedded HTML5 player goes here</p>";
-			var playerOptions = jwplayer.utils.extend( {screencolor:'0x000000'}, jwplayer.embed.defaults, options);
+			var playerOptions = jwplayer.utils.extend( {screencolor:'0x000000'}, options);
 			jwplayer.embed.parseConfigBlock(playerOptions, 'components');
 			// TODO: remove this requirement from the html5 player (sources
 			// instead of levels)

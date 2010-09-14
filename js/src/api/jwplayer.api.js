@@ -157,7 +157,7 @@
 			
 			while (_queuedCalls.length > 0) {
 				var call = _queuedCalls.shift();
-				this.callInternal(call.method, call.args);
+				this.callInternal(call.method, call.parameters);
 			}
 		};
 		
