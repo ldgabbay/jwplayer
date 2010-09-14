@@ -302,9 +302,8 @@ package com.longtailvideo.jwplayer.media {
 				pos -= _dvroffset;
 				if(_dvrloaded) { item.duration = (new Date().valueOf()-_dvrloaded)/1000; }
 			} 
-			
 			var bufferFill:Number;
-			if (item.duration > 0 && _stream && _stream.bytesTotal > 0) {
+			if (item.duration > 0 && _stream) {
 				percentoffset =  _timeoffset /  item.duration * 100;
 				var bufferTime:Number = _stream.bufferTime < (item.duration - pos) ? _stream.bufferTime : Math.ceil(item.duration - pos);
 				bufferFill = _stream.bufferTime ? Math.ceil(Math.ceil(_stream.bufferLength) / bufferTime * 100) : 0;
@@ -398,7 +397,7 @@ package com.longtailvideo.jwplayer.media {
 		protected function statusHandler(evt:NetStatusEvent):void {
 			switch (evt.info.code) {
 				case "NetStream.Play.Stop":
-					if(!getConfigProperty('dvr')) {
+					if(state != PlayerState.BUFFERING && !getConfigProperty('dvr')) {
 						complete();
 					}
 					break;

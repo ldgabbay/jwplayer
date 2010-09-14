@@ -18,7 +18,6 @@ var loadInterval:Number;
 var byteInterval:Number;
 var timeInterval:Number;
 var loaded:Number;
-var position:Number;
 var GlobalSound = new Sound(ytPlayer);
 
 
@@ -50,14 +49,7 @@ function byteHandler() {
 function timeHandler() {
 	var pos = Math.round(ytPlayer.getCurrentTime()*10)/10;
 	var dur = Math.round(ytPlayer.getDuration()*10)/10;
-	if(dur > 3) {
-		if(pos == position && dur-pos < 10) {
-			onPlayerStateChange(0);
-		} else {
-			_as2_to_as3.send('AS2_'+unique,"onTimeChange",pos,dur);
-		}
-	}
-	position = pos;
+	_as2_to_as3.send('AS2_'+unique,"onTimeChange",pos,dur);
 }
 
 
