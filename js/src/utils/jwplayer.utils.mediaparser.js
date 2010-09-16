@@ -88,9 +88,12 @@
 				}				
 			}
 		} else {
-			var sourceTags = jwplayer.utils.selectors.getElementsByTagAndClass("source", "", domElement);
+			//var sourceTags = domElement.getElementsByTagName("source");
+			var sourceTags = jwplayer.utils.selectors("source", domElement);
 			for (var i in sourceTags) {
-				sources.push(parseSourceElement(sourceTags[i]));
+				if (!isNaN(i)){
+					sources.push(parseSourceElement(sourceTags[i]));					
+				}
 			}
 		}
 		var configuration = parseElement(domElement, attributes);

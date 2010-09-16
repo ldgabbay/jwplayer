@@ -220,9 +220,12 @@ jwplayer.utils.hasFlash = function() {
 				}				
 			}
 		} else {
-			var sourceTags = jwplayer.utils.selectors.getElementsByTagAndClass("source", "", domElement);
+			//var sourceTags = domElement.getElementsByTagName("source");
+			var sourceTags = jwplayer.utils.selectors("source", domElement);
 			for (var i in sourceTags) {
-				sources.push(parseSourceElement(sourceTags[i]));
+				if (!isNaN(i)){
+					sources.push(parseSourceElement(sourceTags[i]));					
+				}
 			}
 		}
 		var configuration = parseElement(domElement, attributes);
@@ -256,14 +259,17 @@ jwplayer.utils.hasFlash = function() {
 	
 	
 })(jwplayer);
-jwplayer.utils.selectors = function(selector){
+jwplayer.utils.selectors = function(selector, parent){
+	if (parent === undefined) {
+		parent = document;
+	}
 	selector = jwplayer.utils.strings.trim(selector);
 	var selectType = selector.charAt(0);
 	if (selectType == "#"){
-		return document.getElementById(selector.substr(1));
+		return parent.getElementById(selector.substr(1));
 	} else if (selectType == "."){
-		if (document.getElementsByClassName) {
-			return document.getElementsByClassName(selector.substr(1));
+		if (parent.getElementsByClassName) {
+			return parent.getElementsByClassName(selector.substr(1));
 		} else {
 			return jwplayer.utils.selectors.getElementsByTagAndClass("*", selector.substr(1));
 		}
@@ -272,7 +278,7 @@ jwplayer.utils.selectors = function(selector){
 			selectors = selector.split(".");
 			return jwplayer.utils.selectors.getElementsByTagAndClass(selectors[0], selectors[1]);
 		} else {
-			return document.getElementsByTagName(selector);
+			return parent.getElementsByTagName(selector);
 		}
 	}
 	return null;
@@ -470,7 +476,9 @@ jwplayer.utils.strings.trim = function(inputString){
 		this.destroy = function() {
 			_listeners = {};
 			_queuedCalls = [];
-			jwplayer.api.destroyPlayer(this.id, _originalHTML); 
+			if (this.container.outerHTML != _originalHTML){
+				jwplayer.api.destroyPlayer(this.id, _originalHTML);	
+			}
 		};
 		
 
@@ -924,7 +932,7 @@ playerReady = function(obj) {
 	};
 
 	jwplayer.api.PlayerAPI.prototype.setup = function(options, players) {
-		if (options['flashplayer'] && !options['players']) {
+		if (options && options['flashplayer'] && !options['players']) {
 			options['players'] = [{type:'flash', src:options['flashplayer']},{type:'html5'}];
 			delete options['flashplayer'];
 		}

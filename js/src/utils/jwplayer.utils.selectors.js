@@ -1,11 +1,14 @@
-jwplayer.utils.selectors = function(selector){
+jwplayer.utils.selectors = function(selector, parent){
+	if (parent === undefined) {
+		parent = document;
+	}
 	selector = jwplayer.utils.strings.trim(selector);
 	var selectType = selector.charAt(0);
 	if (selectType == "#"){
-		return document.getElementById(selector.substr(1));
+		return parent.getElementById(selector.substr(1));
 	} else if (selectType == "."){
-		if (document.getElementsByClassName) {
-			return document.getElementsByClassName(selector.substr(1));
+		if (parent.getElementsByClassName) {
+			return parent.getElementsByClassName(selector.substr(1));
 		} else {
 			return jwplayer.utils.selectors.getElementsByTagAndClass("*", selector.substr(1));
 		}
@@ -14,7 +17,7 @@ jwplayer.utils.selectors = function(selector){
 			selectors = selector.split(".");
 			return jwplayer.utils.selectors.getElementsByTagAndClass(selectors[0], selectors[1]);
 		} else {
-			return document.getElementsByTagName(selector);
+			return parent.getElementsByTagName(selector);
 		}
 	}
 	return null;

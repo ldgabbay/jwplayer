@@ -168,7 +168,9 @@
 		this.destroy = function() {
 			_listeners = {};
 			_queuedCalls = [];
-			jwplayer.api.destroyPlayer(this.id, _originalHTML); 
+			if (this.container.outerHTML != _originalHTML){
+				jwplayer.api.destroyPlayer(this.id, _originalHTML);	
+			}
 		};
 		
 
