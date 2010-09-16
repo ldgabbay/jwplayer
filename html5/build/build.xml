@@ -2,13 +2,16 @@
 <project name="JW Player for HTML5" default="build-debug" basedir="..">
 
 	<target name="clean">
-		<delete file="${basedir}/jquery.jwplayer.js" quiet="true"/>
-		<delete file="${basedir}/jquery.jwplayer.min.js" quiet="true"/>
+		<delete file="${basedir}/jwplayer.js" quiet="true"/>
+		<delete file="${basedir}/jwplayer.min.js" quiet="true"/>
 	</target>
 
 	<target name="concat" depends="clean">
-		<concat destfile="${basedir}/jquery.jwplayer.js">
-			<fileset dir="${basedir}/src/" includes="*.js" />
+		<concat destfile="${basedir}/jwplayer.html5.js">
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.states.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.events.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.*.js" excludes="jwplayer.html5.js,jwplayer.html5.states.js,jwplayer.html5.events.js" />
 		</concat>
 	</target>
 
@@ -18,17 +21,16 @@
 
 	<target name="build-release" depends="concat">
 		<java jar="${basedir}/build/yuicompressor-2.4.2.jar" fork="true">
-			<arg line="'${basedir}/jquery.jwplayer.js'"/>
-			<arg line="-o '${basedir}/jquery.jwplayer.min.js'"/>
+			<arg line="'${basedir}/jwplayer.html5.js'"/>
+			<arg line="-o '${basedir}/jwplayer.html5.min.js'"/>
 		</java>
 	</target>
 	
 	<target name="build-zip" depends="concat">
-		 <zip destfile="${basedir}/mediaplayer-html5-beta.zip">
+		 <zip destfile="${basedir}/mediaplayer-html5.zip">
 		 	<fileset dir="." includes="license.txt"/>
 		 	<fileset dir="." includes="readme.txt"/>
-			<fileset dir="." includes="jquery.jwplayer.js"/>
-			<fileset dir="./lib" includes="jquery.js"/>
+			<fileset dir="." includes="jwplayer.html5.js"/>
 		 	<fileset dir="./assets/" includes="**/*.*" excludes=".svn,*.zip"/>
 		 </zip>
 	</target>

@@ -2,14 +2,16 @@
 <head>
 <title>JW Player Testing Tool</title>
 <link rel="stylesheet" href="files/style.css" type="text/css">
-<script type="text/javascript" src="../lib/jquery.js"></script>
-<script type="text/javascript" src="../jquery.jwplayer.js"></script>
 <script type="text/javascript">
-
+var jwplayer = function(){};
+</script>
+<script type="text/javascript" src="../lib/jquery.js"></script>
+<script type="text/javascript" src="../jwplayer.html5.js"></script>
+<script type="text/javascript">
 	/** List with settings for this testing tool (skins / examples). **/
 	var settings = {
 		players: { 
-			html5:'../jquery.jwplayer.js'
+			html5:'../jwplayer.html5.js'
 		},
 		skins: {
 			none:'',
@@ -245,16 +247,17 @@
 		variables['skin'] = settings.skins[variables['skin']];
 		var lnk = 'http://developer.longtailvideo.com/player/trunk/html5/test/';
 		$("#permalink").val(lnk+'?'+$.param(variables));
-		if(variables['file']) {
+		variables["playlist"] = [{"sources":[{"file": variables['file']}]}, {"sources":[{"file": variables['file']}]}, {"sources":[{"file": variables['file']}]}]
+		/*if(variables['file']) {
 			$('#container').attr('src',variables['file']);
 		}
 		if(variables['image']) { 
 			$('#container').attr('poster',variables['image']);
-		}
+		}*/
 		for (itm in variables) {
 			variables[itm] = serialize(variables[itm]);
 		}
-		$('#container').jwplayer(variables);
+		jwplayer.html5(document.getElementById("container")).setup(variables);
 	};
 	/** Change the page URL. **/
 	function reloadPage(evt) {
@@ -295,7 +298,7 @@
 	function getVariable(evt) {
 		evt.preventDefault();
 		var typ = $('#vartype').val().toString();
-		var prp = $.jwplayer()[typ]();
+		var prp = jwplayer()[typ]();
 		alert(prp);
 	};
 	/** Send an event to the player. **/
@@ -305,18 +308,18 @@
 		var pr1 = serialize($('#sendeventdata1').val());
 		var pr2 = serialize($('#sendeventdata2').val());
 		if((pr2 !== undefined) && (pr2 !== null)) {
-			$.jwplayer()[typ](pr1,pr2);
+			jwplayer()[typ](pr1,pr2);
 		} else if ((pr1 !== undefined) && (pr1 !== null)) { 
-			$.jwplayer()[typ](pr1);
+			jwplayer()[typ](pr1);
 		} else { 
-			$.jwplayer()[typ]();
+			jwplayer()[typ]();
 		}
 	};
 	/** Set a listener to the player. **/
 	function setListener(evt) {
 		evt.preventDefault();
 		var typ = $('#eventtype').val();
-		$.jwplayer()[typ](alertValue);
+		jwplayer()[typ](alertValue);
 	};
 	/** Alert responses from the player. **/
 	function alertValue(obj) {
