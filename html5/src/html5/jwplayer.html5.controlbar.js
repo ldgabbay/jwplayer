@@ -5,418 +5,664 @@
  * @version 1.0
  */
 (function(jwplayer) {
-	var _positions = {
-		BOTTOM: 'BOTTOM',
-		TOP: 'TOP',
-		OVER: 'OVER'
-	};
-	
-	
 	/** Map with config for the jwplayerControlbar plugin. **/
 	var _defaults = {
+		backgroundcolor: "000000",
+		margin: 10,
+		//font: "_sans",
+		font: "Arial,sans-serif",
 		fontsize: 10,
-		fontcolor: '000000',
-		position: _positions.BOTTOM,
-		leftmargin: 0,
-		rightmargin: 0,
-		scrubber: 'none'
-	};
-	
-	var _controlbar;
-	
-	jwplayer.html5.controlbar = function(player) {
-		_controlbar = $.extend({}, _defaults, player.skin.controlbar.settings);
-		_buildElements(player);
-		_buildHandlers(player);
-	};
-	
-	/** Draw the jwplayerControlbar elements. **/
-	function _buildElements(player, domelement) {
-		// Draw the background.
-		player._model.domelement.parents(":first").append('<div id="' + player.id + '_jwplayerControlbar"></div>');
-		$("#" + player.id + '_jwplayerControlbar').css('position', 'absolute');
-		$("#" + player.id + '_jwplayerControlbar').css('height', player.skin.controlbar.elements.background.height);
-		switch (_controlbar.position) {
-			case _positions.TOP:
-				$("#" + player.id + '_jwplayerControlbar').css('top', 0);
-				break;
-			default:
-				$("#" + player.id + '_jwplayerControlbar').css('top', player.getHeight());
-				player._model.domelement.parents(":first").css('height', parseInt(player._model.domelement.parents(":first").css('height').replace('px', '')) + player.skin.controlbar.elements.background.height);
-				break;
-		}
-		$("#" + player.id + '_jwplayerControlbar').css('background', 'url(' + player.skin.controlbar.elements.background.src + ') repeat-x center left');
-		// Draw all elements on top of the bar.
-		_buildElement('capLeft', 'left', true, player);
-		_buildElement('playButton', 'left', false, player);
-		_buildElement('pauseButton', 'left', true, player);
-		_buildElement('divider1', 'left', true, player);
-		_buildElement('prevButton', 'left', true, player);
-		_buildElement('divider2', 'left', true, player);
-		_buildElement('nextButton', 'left', true, player);
-		_buildElement('divider3', 'left', true, player);
-		_buildElement('elapsedText', 'left', true, player);
-		_buildElement('timeSliderRail', 'left', false, player);
-		_buildElement('timeSliderBuffer', 'left', false, player);
-		_buildElement('timeSliderProgress', 'left', false, player);
-		_buildElement('timeSliderThumb', 'left', false, player);
-		_buildElement('capRight', 'right', true, player);
-		// TODO
-		if (false) {
-			_buildElement('fullscreenButton', 'right', false, player);
-			_buildElement('normalscreenButton', 'right', true, player);
-			_buildElement('divider4', 'right', true, player);
-		}
-		_buildElement('volumeSliderRail', 'right', false, player);
-		_buildElement('volumeSliderProgress', 'right', true, player);
-		_buildElement('muteButton', 'right', false, player);
-		_buildElement('unmuteButton', 'right', true, player);
-		_buildElement('divider5', 'right', true, player);
-		_buildElement('durationText', 'right', true, player);
-	}
-	
-	
-	/** Draw a single element into the jwplayerControlbar. **/
-	function _buildElement(element, align, offset, player) {
-		var nam = player.id + '_' + element;
-		$('#' + player.id + '_jwplayerControlbar').append('<div id="' + nam + '"></div>');
-		$('#' + nam).css('position', 'absolute');
-		$('#' + nam).css('top', '0px');
-		if (element.indexOf('Text') > 0) {
-			$('#' + nam).html('00:00');
-			$('#' + nam).css('font', _controlbar.fontsize + 'px/' + (player.skin.controlbar.elements.background.height + 1) + 'px Arial,sans-serif');
-			$('#' + nam).css('text-align', 'center');
-			$('#' + nam).css('font-weight', 'bold');
-			$('#' + nam).css('cursor', 'default');
-			var wid = 14 + 3 * _controlbar.fontsize;
-			$('#' + nam).css('color', '#' + _controlbar.fontcolor.substr(-6));
-		} else if (element.indexOf('divider') === 0) {
-			$('#' + nam).css('background', 'url(' + player.skin.controlbar.elements.divider.src + ') repeat-x center left');
-			var wid = player.skin.controlbar.elements.divider.width;
-		} else {
-			$('#' + nam).css('background', 'url(' + player.skin.controlbar.elements[element].src + ') repeat-x center left');
-			var wid = player.skin.controlbar.elements[element].width;
-		}
-		if (align == 'left') {
-			$('#' + nam).css(align, _controlbar.leftmargin);
-			if (offset) {
-				_controlbar.leftmargin += wid;
-			}
-		} else if (align == 'right') {
-			$('#' + nam).css(align, _controlbar.rightmargin);
-			if (offset) {
-				_controlbar.rightmargin += wid;
+		fontcolor: "000000",
+		fontstyle: "normal",
+		//fontweight: "normal",
+		fontweight: "bold",
+		buttoncolor: "ffffff",
+		position: jwplayer.html5.view.positions.BOTTOM,
+		idlehide: false,
+		layout: {
+			"left": {
+				"position": "left",
+				"elements": [{
+					"name": "play",
+					"type": "button"
+				}, {
+					"name": "divider",
+					"type": "divider"
+				}, {
+					"name": "prev",
+					"type": "button"
+				}, {
+					"name": "divider",
+					"type": "divider"
+				}, {
+					"name": "next",
+					"type": "button"
+				}, {
+					"name": "divider",
+					"type": "divider"
+				}, {
+					"name": "elapsed",
+					"type": "text"
+				}]
+			},
+			"center": {
+				"position": "center",
+				"elements": [{
+					"name": "time",
+					"type": "slider"
+				}]
+			},
+			"right": {
+				"position": "right",
+				"elements": [{
+					"name": "duration",
+					"type": "text"
+				}, {
+					"name": "divider",
+					"type": "divider"
+				}, {
+					"name": "blank",
+					"type": "button"
+				}, {
+					"name": "fullscreen",
+					"type": "button"
+				}, {
+					"name": "divider",
+					"type": "divider"
+				}, {
+					"name": "mute",
+					"type": "button"
+				}, {
+					"name": "volume",
+					"type": "slider"
+				}]
 			}
 		}
-		$('#' + nam).css('width', wid);
-		$('#' + nam).css('height', player.skin.controlbar.elements.background.height);
-	}
+	};
 	
+	_css = jwplayer.html5.utils.css;
 	
-	/** Add interactivity to the jwplayerControlbar elements. **/
-	function _buildHandlers(player) {
-		// Register events with the buttons.
-		_buildHandler('playButton', 'play', player);
-		_buildHandler('pauseButton', 'pause', player);
-		_buildHandler('prevButton', 'playlistPrev', player);
-		_buildHandler('nextButton', 'playlistNext', player);
-		_buildHandler('muteButton', 'setMute', player, true);
-		_buildHandler('unmuteButton', 'setMute', player, false);
-		_buildHandler('fullscreenButton', 'setFullscreen', player, true);
-		_buildHandler('normalscreenButton', 'setFullscreen', player, false);
+	_hide = function(element) {
+		_css(element, {
+			display: "none"
+		});
+	};
+	
+	_show = function(element) {
+		_css(element, {
+			display: "block"
+		});
+	};
+	
+	jwplayer.html5.controlbar = function(api, config) {
+		var _api = api;
+		var _settings = jwplayer.utils.extend({}, _defaults, _api.skin.getComponentSettings("controlbar"), config);
+		if (jwplayer.html5.utils.mapLength(_api.skin.getComponentLayout("controlbar")) > 0) {
+			_settings.layout = _api.skin.getComponentLayout("controlbar");
+		}
+		var _wrapper;
+		var _dividerid = 0;
+		var _marginleft = 0;
+		var _marginright = 0;
+		var _scrubber = "none";
+		var _mousedown;
+		var _currentPosition;
+		var _currentDuration;
+		var _currentBuffer;
+		var _width;
+		var _height;
+		var _prevElement;
+		var _elements = {};
+		var _ready = false;
+		var _fadeOutTimeout;
 		
-		_addSliders(player);
 		
-		// Register events with the player.
-		player.addEventListener(jwplayer.html5.events.JWPLAYER_MEDIA_BUFFER, _bufferHandler);
-		player.addEventListener(jwplayer.html5.events.JWPLAYER_PLAYER_STATE, _stateHandler);
-		player.addEventListener(jwplayer.html5.events.JWPLAYER_MEDIA_TIME, _timeHandler);
-		player.addEventListener(jwplayer.html5.events.JWPLAYER_MEDIA_MUTE, _muteHandler);
-		player.addEventListener(jwplayer.html5.events.JWPLAYER_MEDIA_VOLUME, _volumeHandler);
-		player.addEventListener(jwplayer.html5.events.JWPLAYER_MEDIA_COMPLETE, _completeHandler);
+		function _buildBase() {
+			var wrappercss = {
+				height: _api.skin.getSkinElement("controlbar", "background").height,
+				backgroundColor: "#" + _settings.backgroundcolor
+			};
+			
+			_wrapper = document.createElement("div");
+			_wrapper.id = _api.id + "_jwplayer_controlbar";
+			_css(_wrapper, wrappercss);
+			
+			_addElement("capLeft", "left", false, _wrapper);
+			var domelmentcss = {
+				position: "absolute",
+				height: _api.skin.getSkinElement("controlbar", "background").height,
+				background: " url(" + _api.skin.getSkinElement("controlbar", "background").src + ") repeat-x center left",
+				left: _api.skin.getSkinElement("controlbar", "capLeft").width
+			};
+			_appendNewElement("elements", _wrapper, domelmentcss);
+			_addElement("capRight", "right", false, _wrapper);
+		}
 		
-		// Trigger a few events so the bar looks good on startup.
-		_resizeHandler({
-			id: player.id,
-			fulscreen: player.getFullscreen(),
-			width: player.getWidth(),
-			height: player.getHeight()
-		});
-		_timeHandler({
-			id: player.id,
-			duration: player.getDuration(),
-			position: 0
-		});
-		_bufferHandler({
-			id: player.id,
-			bufferProgress: 0
-		});
-		_muteHandler({
-			id: player.id,
-			mute: player.getMute()
-		});
-		_stateHandler({
-			id: player.id,
-			newstate: jwplayer.html5.states.IDLE
-		});
-		_volumeHandler({
-			id: player.id,
-			volume: player.getVolume()
-		});
-	}
-	
-	
-	/** Set a single button handler. **/
-	function _buildHandler(element, handler, player, args) {
-		var nam = player.id + '_' + element;
-		$('#' + nam).css('cursor', 'pointer');
-		if (handler == 'fullscreen') {
-			$('#' + nam).mouseup(function(evt) {
-				evt.stopPropagation();
-				player.setFullscreen(!player.getFullscreen());
-				_resizeHandler({
-					id: player.id,
-					fullscreen: player.getFullscreen(),
-					width: player.getWidth(),
-					height: player.getHeight()
-				});
+		this.getDisplayElement = function() {
+			return _wrapper;
+		};
+		
+		this.resize = function(width, height) {
+			if (!_ready && _wrapper.parentElement !== undefined) {
+				_ready = true;
+				if (_settings.position == jwplayer.html5.view.positions.OVER.toLowerCase()){
+					document.getElementById(_api.id).onmousemove = _fadeOut;
+				}
+			}
+			_width = width;
+			_height = height;
+			if (_api.jwGetFullscreen()) {
+				_show(_elements.normalscreenButton);
+				_hide(_elements.fullscreenButton);
+			} else {
+				_hide(_elements.normalscreenButton);
+				_show(_elements.fullscreenButton);
+			}
+			var style = _resizeBar();
+			_timeHandler({
+				id: _api.id,
+				duration: _currentDuration,
+				position: _currentPosition
 			});
-		} else {
-			$('#' + nam).mouseup(function(evt) {
-				evt.stopPropagation();
-				if (!jwplayer.html5.utils.isNull(args)) {
-					player[handler](args);
+			_bufferHandler({
+				id: _api.id,
+				bufferPercent: _currentBuffer
+			});
+			return style;
+		};
+		
+		function _fadeOut() {
+			_wrapper.style.opacity = 1;
+			if (_fadeOutTimeout !== undefined) {
+				clearTimeout(_fadeOutTimeout);
+			}
+			_fadeOutTimeout = setTimeout(function() {
+				jwplayer.html5.utils.fadeTo(_wrapper, 0, 0.1, 1);
+				_fadeOutTimeout = undefined;
+			}, 2000);
+		}
+		
+		function _fadeIn(){
+			_wrapper.style.opacity = 1;
+		}
+		
+		function _appendNewElement(id, parent, css) {
+			var element = document.createElement("div");
+			_elements[id] = element;
+			element.id = _wrapper.id + "_" + id;
+			parent.appendChild(element);
+			if (css !== undefined) {
+				_css(element, css);
+			}
+			return element;
+		}
+		
+		/** Draw the jwplayerControlbar elements. **/
+		function _buildElements() {
+			_buildGroup(_settings.layout.left);
+			_buildGroup(_settings.layout.right, -1);
+			_buildGroup(_settings.layout.center);
+		}
+		
+		/** Layout a group of elements**/
+		function _buildGroup(group, order) {
+			var alignment = group.position == "right" ? "right" : "left";
+			var elements = jwplayer.utils.extend([], group.elements);
+			if (order !== undefined) {
+				elements.reverse();
+			}
+			for (var i = 0; i < elements.length; i++) {
+				_buildElement(elements[i], alignment);
+			}
+		}
+		
+		function getNewDivivderId() {
+			return _dividerid++;
+		}
+		
+		/** Draw a single element into the jwplayerControlbar. **/
+		function _buildElement(element, alignment) {
+			switch (element.name) {
+				case "play":
+					_addElement("playButton", alignment, false);
+					_addElement("pauseButton", alignment, true);
+					_buildHandler("playButton", "jwPlay");
+					_buildHandler("pauseButton", "jwPause");
+					break;
+				case "divider":
+					_addElement("divider" + getNewDivivderId(), alignment, true);
+					break;
+				case "prev":
+					if (_api.jwGetPlaylist().length > 1) {
+						_addElement("prevButton", alignment, true);
+						_buildHandler("prevButton", "jwPlaylistPrev");
+					}
+					break;
+				case "next":
+					if (_api.jwGetPlaylist().length > 1) {
+						_addElement("nextButton", alignment, true);
+						_buildHandler("nextButton", "jwPlaylistNext");
+					}
+					break;
+				case "elapsed":
+					_addElement("elapsedText", alignment, true);
+					break;
+				case "time":
+					var offsetLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
+					var offsetRight = _api.skin.getSkinElement("controlbar", "timeSliderCapRight") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapRight").width;
+					var offset = alignment == "left" ? offsetLeft : offsetRight;
+					var width = _api.skin.getSkinElement("controlbar", "timeSliderRail").width + offsetLeft + offsetRight;
+					var slidercss = {
+						height: _api.skin.getSkinElement("controlbar", "background").height,
+						position: "absolute",
+						top: 0,
+						width: width
+					};
+					slidercss[alignment] = alignment == "left" ? _marginleft : _marginright;
+					var _timeslider = _appendNewElement("timeSlider", _elements.elements, slidercss);
+					_addElement("timeSliderCapLeft", alignment, true, _timeslider, alignment == "left" ? 0 : offset);
+					_addElement("timeSliderRail", alignment, false, _timeslider, offset);
+					_addElement("timeSliderBuffer", alignment, false, _timeslider, offset);
+					_addElement("timeSliderProgress", alignment, false, _timeslider, offset);
+					_addElement("timeSliderThumb", alignment, false, _timeslider, offset);
+					_addElement("timeSliderCapRight", alignment, true, _timeslider, alignment == "right" ? 0 : offset);
+					_addSliderListener("time");
+					break;
+				case "fullscreen":
+					_addElement("fullscreenButton", alignment, false);
+					_addElement("normalscreenButton", alignment, true);
+					_buildHandler("fullscreenButton", "jwSetFullscreen", true);
+					_buildHandler("normalscreenButton", "jwSetFullscreen", false);
+					break;
+				case "volume":
+					var offsetLeft = _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
+					var offsetRight = _api.skin.getSkinElement("controlbar", "volumeSliderCapRight") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapRight").width;
+					var offset = alignment == "left" ? offsetLeft : offsetRight;
+					var width = _api.skin.getSkinElement("controlbar", "volumeSliderRail").width + offsetLeft + offsetRight;
+					var slidercss = {
+						height: _api.skin.getSkinElement("controlbar", "background").height,
+						position: "absolute",
+						top: 0,
+						width: width
+					};
+					slidercss[alignment] = alignment == "left" ? _marginleft : _marginright;
+					var _volumeslider = _appendNewElement("volumeSlider", _elements.elements, slidercss);
+					_addElement("volumeSliderCapLeft", alignment, true, _volumeslider, alignment == "left" ? 0 : offset);
+					_addElement("volumeSliderRail", alignment, true, _volumeslider, offset);
+					_addElement("volumeSliderProgress", alignment, false, _volumeslider, offset);
+					_addElement("volumeSliderCapRight", alignment, true, _volumeslider, alignment == "right" ? 0 : offset);
+					_addSliderListener("volume");
+					break;
+				case "mute":
+					_addElement("muteButton", alignment, false);
+					_addElement("unmuteButton", alignment, true);
+					_buildHandler("muteButton", "jwSetMute", true);
+					_buildHandler("unmuteButton", "jwSetMute", false);
+					
+					break;
+				case "duration":
+					_addElement("durationText", alignment, true);
+					break;
+			}
+		}
+		
+		function _addElement(element, alignment, offset, parent, position) {
+			if ((_api.skin.getSkinElement("controlbar", element) !== undefined || element.indexOf("Text") > 0 || element.indexOf("divider") === 0) && !(element.indexOf("divider") === 0 && _prevElement.indexOf("divider") === 0)) {
+				_prevElement = element;
+				var css = {
+					height: _api.skin.getSkinElement("controlbar", "background").height,
+					position: "absolute",
+					top: 0
+				};
+				var wid;
+				if (element.indexOf("Text") > 0) {
+					element.innerhtml = "00:00";
+					css.font = _settings.fontsize + "px/" + (_api.skin.getSkinElement("controlbar", "background").height + 1) + "px " + _settings.font;
+					css.color = _settings.fontcolor;
+					css.textAlign = "center";
+					css.fontWeight = _settings.fontweight;
+					css.fontStyle = _settings.fontstyle;
+					css.cursor = "default";
+					wid = 14 + 3 * _settings.fontsize;
+					css.color = "#" + _settings.fontcolor.substr(-6);
+				} else if (element.indexOf("divider") === 0) {
+					css.background = "url(" + _api.skin.getSkinElement("controlbar", "divider").src + ") repeat-x center left";
+					wid = _api.skin.getSkinElement("controlbar", "divider").width;
 				} else {
-					player[handler]();
+					css.background = "url(" + _api.skin.getSkinElement("controlbar", element).src + ") repeat-x center left";
+					wid = _api.skin.getSkinElement("controlbar", element).width;
+				}
+				if (alignment == "left") {
+					css.left = position === undefined ? _marginleft : position;
+					if (offset) {
+						_marginleft += wid;
+					}
+				} else if (alignment == "right") {
+					css.right = position === undefined ? _marginright : position;
+					if (offset) {
+						_marginright += wid;
+					}
 				}
 				
+				if (parent === undefined) {
+					parent = _elements.elements;
+				}
+				
+				css.width = wid;
+				
+				var newelement = _appendNewElement(element, parent, css);
+				if (_api.skin.getSkinElement("controlbar", element + "Over") !== undefined) {
+					newelement.onmouseover = function(evt) {
+						evt.stopPropagation();
+						newelement.style["background-image"] = ["url(", _api.skin.getSkinElement("controlbar", element + "Over").src, ")"].join("");
+					};
+					newelement.onmouseout = function(evt) {
+						evt.stopPropagation();
+						newelement.style["background-image"] = ["url(", _api.skin.getSkinElement("controlbar", element).src, ")"].join("");
+					};
+				}
+				
+			}
+		}
+		
+		function _addListeners() {
+			// Register events with the player.
+			//_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistHandler);
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, _bufferHandler);
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, _timeHandler);
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, _muteHandler);
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, _volumeHandler);
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, _completeHandler);
+		}
+		
+		/** Add interactivity to the jwplayerControlbar elements. **/
+		function _init() {
+			// Trigger a few events so the bar looks good on startup.
+			_timeHandler({
+				id: _api.id,
+				duration: _api.jwGetDuration(),
+				position: 0
+			});
+			_bufferHandler({
+				id: _api.id,
+				bufferProgress: 0
+			});
+			_muteHandler({
+				id: _api.id,
+				mute: _api.jwGetMute()
+			});
+			_stateHandler({
+				id: _api.id,
+				newstate: jwplayer.api.events.state.IDLE
+			});
+			_volumeHandler({
+				id: _api.id,
+				volume: _api.jwGetVolume()
 			});
 		}
-	}
-	
-	
-	/** Set the volume drag handler. **/
-	function _addSliders(player) {
-		var bar = '#' + player.id + '_jwplayerControlbar';
-		var trl = '#' + player.id + '_timeSliderRail';
-		var vrl = '#' + player.id + '_volumeSliderRail';
-		$(bar).css('cursor', 'pointer');
-		$(trl).css('cursor', 'pointer');
-		$(vrl).css('cursor', 'pointer');
-		$(bar).mousedown(function(evt) {
-			if (evt.pageX >= $(trl).offset().left - window.pageXOffset && evt.pageX <= $(trl).offset().left - window.pageXOffset + $(trl).width()) {
-				_controlbar.scrubber = 'time';
-			} else if (evt.pageX >= $(vrl).offset().left - window.pageXOffset && evt.pageX <= $(vrl).offset().left - window.pageXOffset + $(trl).width()) {
-				_controlbar.scrubber = 'volume';
+		
+		
+		/** Set a single button handler. **/
+		function _buildHandler(element, handler, args) {
+			if (_api.skin.getSkinElement("controlbar", element) !== undefined) {
+				var _element = _elements[element];
+				if (_element !== null) {
+					_css(_element, {
+						cursor: "pointer"
+					});
+					if (handler == "fullscreen") {
+						_element.onmouseup = function(evt) {
+							evt.stopPropagation();
+							_api.jwSetFullscreen(!_api.jwGetFullscreen());
+						};
+					} else {
+						_element.onmouseup = function(evt) {
+							evt.stopPropagation();
+							if (args !== null) {
+								_api[handler](args);
+							} else {
+								_api[handler]();
+							}
+							
+						};
+					}
+				}
 			}
-		});
-		$(bar).mouseup(function(evt) {
-			evt.stopPropagation();
-			_sliderUp(evt.pageX, player);
-		});
-		$(bar).mousemove(function(evt) {
-			if (_controlbar.scrubber == 'time') {
-				_controlbar.mousedown = true;
-				var xps = evt.pageX - $(bar).offset().left - window.pageXOffset;
-				$('#' + player.id + '_timeSliderThumb').css('left', xps);
-			}
-		});
-	}
-	
-	
-	/** The slider has been moved up. **/
-	function _sliderUp(msx, player) {
-		_controlbar.mousedown = false;
-		if (_controlbar.scrubber == 'time') {
-			var xps = msx - $('#' + player.id + '_timeSliderRail').offset().left + window.pageXOffset;
-			var wid = $('#' + player.id + '_timeSliderRail').width();
-			var pos = xps / wid * _controlbar.currentDuration;
-			if (pos < 0) {
-				pos = 0;
-			} else if (pos > _controlbar.currentDuration) {
-				pos = _controlbar.currentDuration - 3;
-			}
-			player.seek(pos);
-			if (player.getState() != jwplayer.html5.states.PLAYING) {
-				player.play();
-			}
-		} else if (_controlbar.scrubber == 'volume') {
-			var xps = msx - $('#' + player.id + '_volumeSliderRail').offset().left - window.pageXOffset;
-			var wid = $('#' + player.id + '_volumeSliderRail').width();
-			var pct = Math.round(xps / wid * 100);
-			if (pct < 0) {
-				pct = 0;
-			} else if (pct > 100) {
-				pct = 100;
-			}
-			if (player._model.mute) {
-				player.setMute(false);
-			}
-			player.setVolume(pct);
-		}
-		_controlbar.scrubber = 'none';
-	}
-	
-	
-	/** Update the buffer percentage. **/
-	function _bufferHandler(event) {
-		if (!jwplayer.html5.utils.isNull(event.bufferPercent)) {
-			_controlbar.currentBuffer = event.bufferPercent;
 		}
 		
-		var wid = $('#' + event.id + '_timeSliderRail').width();
-		var bufferWidth = isNaN(Math.round(wid * _controlbar.currentBuffer / 100)) ? 0 : Math.round(wid * _controlbar.currentBuffer / 100);
-		$('#' + event.id + '_timeSliderBuffer').css('width', bufferWidth);
-	}
-	
-	
-	/** Update the mute state. **/
-	function _muteHandler(event) {
-		if (event.mute) {
-			$('#' + event.id + '_muteButton').css('display', 'none');
-			$('#' + event.id + '_unmuteButton').css('display', 'block');
-			$('#' + event.id + '_volumeSliderProgress').css('display', 'none');
-		} else {
-			$('#' + event.id + '_muteButton').css('display', 'block');
-			$('#' + event.id + '_unmuteButton').css('display', 'none');
-			$('#' + event.id + '_volumeSliderProgress').css('display', 'block');
-		}
-	}
-	
-	
-	/** Update the playback state. **/
-	function _stateHandler(event) {
-		// Handle the play / pause button
-		if (event.newstate == jwplayer.html5.states.BUFFERING || event.newstate == jwplayer.html5.states.PLAYING) {
-			$('#' + event.id + '_pauseButton').css('display', 'block');
-			$('#' + event.id + '_playButton').css('display', 'none');
-		} else {
-			$('#' + event.id + '_pauseButton').css('display', 'none');
-			$('#' + event.id + '_playButton').css('display', 'block');
+		/** Set the volume drag handler. **/
+		function _addSliderListener(name) {
+			var bar = _elements[name + "Slider"];
+			_css(_elements.elements, {
+				"cursor": "pointer"
+			});
+			_css(bar, {
+				"cursor": "pointer"
+			});
+			bar.onmousedown = function(evt) {
+				_scrubber = name;
+			};
+			bar.onmouseup = function(evt) {
+				evt.stopPropagation();
+				_sliderUp(evt.pageX);
+			};
+			bar.onmousemove = function(evt) {
+				if (_scrubber == "time") {
+					_mousedown = true;
+					var xps = evt.pageX - bar.getBoundingClientRect().left - window.pageXOffset;
+					_css(_elements.timeSliderThumb, {
+						left: xps
+					});
+				}
+			};
 		}
 		
-		// Show / hide progress bar
-		if (event.newstate == jwplayer.html5.states.IDLE) {
-			$('#' + event.id + '_timeSliderBuffer').css('display', 'none');
-			$('#' + event.id + '_timeSliderProgress').css('display', 'none');
-			$('#' + event.id + '_timeSliderThumb').css('display', 'none');
-		} else {
-			$('#' + event.id + '_timeSliderBuffer').css('display', 'block');
-			if (event.newstate != jwplayer.html5.states.BUFFERING) {
-				$('#' + event.id + '_timeSliderProgress').css('display', 'block');
-				$('#' + event.id + '_timeSliderThumb').css('display', 'block');
+		
+		/** The slider has been moved up. **/
+		function _sliderUp(msx) {
+			_mousedown = false;
+			var railRect, xps;
+			if (_scrubber == "time") {
+				railRect = _elements.timeSliderRail.getBoundingClientRect();
+				xps = msx - railRect.left + window.pageXOffset;
+				var pos = xps / railRect.width * _currentDuration;
+				if (pos < 0) {
+					pos = 0;
+				} else if (pos > _currentDuration) {
+					pos = _currentDuration - 3;
+				}
+				_api.jwSeek(pos);
+				if (_api.jwGetState() != jwplayer.api.events.state.PLAYING) {
+					_api.jwPlay();
+				}
+			} else if (_scrubber == "volume") {
+				railRect = _elements.volumeSliderRail.getBoundingClientRect();
+				xps = msx - railRect.left - window.pageXOffset;
+				var pct = Math.round(xps / railRect.width * 100);
+				if (pct < 0) {
+					pct = 0;
+				} else if (pct > 100) {
+					pct = 100;
+				}
+				if (_api.jwGetMute()) {
+					_api.jwSetMute(false);
+				}
+				_api.jwSetVolume(pct);
+			}
+			_scrubber = "none";
+		}
+		
+		
+		/** Update the buffer percentage. **/
+		function _bufferHandler(event) {
+			if (event.bufferPercent !== null) {
+				_currentBuffer = event.bufferPercent;
+			}
+			var wid = _elements.timeSliderRail.getBoundingClientRect().width;
+			var bufferWidth = isNaN(Math.round(wid * _currentBuffer / 100)) ? 0 : Math.round(wid * _currentBuffer / 100);
+			_css(_elements.timeSliderBuffer, {
+				width: bufferWidth
+			});
+		}
+		
+		
+		/** Update the mute state. **/
+		function _muteHandler(event) {
+			if (event.mute) {
+				_hide(_elements.muteButton);
+				_show(_elements.unmuteButton);
+				_hide(_elements.volumeSliderProgress);
+			} else {
+				_show(_elements.muteButton);
+				_hide(_elements.unmuteButton);
+				_show(_elements.volumeSliderProgress);
 			}
 		}
-	}
-	
-	
-	/** Handles event completion **/
-	function _completeHandler(event) {
-		_timeHandler($.extend(event, {
-			position: 0,
-			duration: _controlbar.currentDuration
-		}));
-	}
-	
-	
-	/** Update the playback time. **/
-	function _timeHandler(event) {
-		if (!jwplayer.html5.utils.isNull(event.position)) {
-			_controlbar.currentPosition = event.position;
-		}
-		if (!jwplayer.html5.utils.isNull(event.duration)) {
-			_controlbar.currentDuration = event.duration;
-		}
-		var progress = (_controlbar.currentPosition === _controlbar.currentDuration === 0) ? 0 : _controlbar.currentPosition / _controlbar.currentDuration;
-		var railWidth = $('#' + event.id + '_timeSliderRail').width();
-		var thumbWidth = $('#' + event.id + '_timeSliderThumb').width();
-		var railLeft = $('#' + event.id + '_timeSliderRail').position().left;
-		var progressWidth = isNaN(Math.round(railWidth * progress)) ? 0 : Math.round(railWidth * progress);
-		var thumbPosition = railLeft + progressWidth;
 		
-		$('#' + event.id + '_timeSliderProgress').css('width', progressWidth);
-		if (!_controlbar.mousedown) {
-			$('#' + event.id + '_timeSliderThumb').css('left', thumbPosition);
+		
+		/** Update the playback state. **/
+		function _stateHandler(event) {
+			// Handle the play / pause button
+			if (event.newstate == jwplayer.api.events.state.BUFFERING || event.newstate == jwplayer.api.events.state.PLAYING) {
+				_show(_elements.pauseButton);
+				_hide(_elements.playButton);
+			} else {
+				_hide(_elements.pauseButton);
+				_show(_elements.playButton);
+			}
+			
+			// Show / hide progress bar
+			if (event.newstate == jwplayer.api.events.state.IDLE) {
+				if (!_settings.idlehide && _settings.position == jwplayer.html5.view.positions.OVER){
+					_fadeIn();
+				}
+				_hide(_elements.timeSliderBuffer);
+				_hide(_elements.timeSliderProgress);
+				_hide(_elements.timeSliderThumb);
+			} else {
+				_show(_elements.timeSliderBuffer);
+				if (event.newstate != jwplayer.api.events.state.BUFFERING) {
+					_show(_elements.timeSliderProgress);
+					_show(_elements.timeSliderThumb);
+				}
+			}
 		}
 		
-		$('#' + event.id + '_durationText').html(_timeFormat(_controlbar.currentDuration));
-		$('#' + event.id + '_elapsedText').html(_timeFormat(_controlbar.currentPosition));
-	}
-	
-	
-	/** Format the elapsed / remaining text. **/
-	function _timeFormat(sec) {
-		str = '00:00';
-		if (sec > 0) {
-			str = Math.floor(sec / 60) < 10 ? '0' + Math.floor(sec / 60) + ':' : Math.floor(sec / 60) + ':';
-			str += Math.floor(sec % 60) < 10 ? '0' + Math.floor(sec % 60) : Math.floor(sec % 60);
+		
+		/** Handles event completion **/
+		function _completeHandler(event) {
+			_timeHandler(jwplayer.utils.extend(event, {
+				position: 0,
+				duration: _currentDuration
+			}));
 		}
-		return str;
-	}
-	
-	
-	/** Flip the player size to/from full-browser-screen. **/
-	function _resizeHandler(event) {
-		_controlbar.width = event.width;
-		_controlbar.fullscreen = event.fullscreen;
-		if (event.fullscreen) {
-			$('#' + event.id + '_normalscreenButton').css('display', 'block');
-			$('#' + event.id + '_fullscreenButton').css('display', 'none');
-			// TODO
-			if (false) {
-				$(window).resize(function() {
-					_resizeBar(player);
+		
+		
+		/** Update the playback time. **/
+		function _timeHandler(event) {
+			if (event.position !== null) {
+				_currentPosition = event.position;
+			}
+			if (event.duration !== null) {
+				_currentDuration = event.duration;
+			}
+			var progress = (_currentPosition === _currentDuration === 0) ? 0 : _currentPosition / _currentDuration;
+			var railRect = _elements.timeSliderRail.getBoundingClientRect();
+			var progressWidth = isNaN(Math.round(railRect.width * progress)) ? 0 : Math.round(railRect.width * progress);
+			var thumbPosition = progressWidth;
+			
+			_elements.timeSliderProgress.style.width = progressWidth + "px";
+			if (!_mousedown) {
+				if (_elements.timeSliderThumb) {
+					_elements.timeSliderThumb.style.left = thumbPosition + "px";
+				}
+			}
+			if (_elements.durationText) {
+				_elements.durationText.innerHTML = _timeFormat(_currentDuration);
+			}
+			if (_elements.elapsedText) {
+				_elements.elapsedText.innerHTML = _timeFormat(_currentPosition);
+			}
+		}
+		
+		
+		/** Format the elapsed / remaining text. **/
+		function _timeFormat(sec) {
+			str = "00:00";
+			if (sec > 0) {
+				str = Math.floor(sec / 60) < 10 ? "0" + Math.floor(sec / 60) + ":" : Math.floor(sec / 60) + ":";
+				str += Math.floor(sec % 60) < 10 ? "0" + Math.floor(sec % 60) : Math.floor(sec % 60);
+			}
+			return str;
+		}
+		
+		
+		/** Resize the jwplayerControlbar. **/
+		function _resizeBar() {
+			var controlbarcss = {
+				width: _width
+			};
+			var elementcss = {};
+			if (_settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER || _api.jwGetFullscreen()) {
+				controlbarcss.left = _settings.margin;
+				controlbarcss.width -= 2 * _settings.margin;
+				controlbarcss.top = _height - _api.skin.getSkinElement("controlbar", "background").height - _settings.margin;
+				controlbarcss.height = _api.skin.getSkinElement("controlbar", "background").height;
+			} else {
+				controlbarcss.left = 0;
+			}
+			
+			elementcss.left = _api.skin.getSkinElement("controlbar", "capLeft").width;
+			elementcss.width = controlbarcss.width - _api.skin.getSkinElement("controlbar", "capLeft").width - _api.skin.getSkinElement("controlbar", "capRight").width;
+			
+			var timeSliderLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
+			_css(_elements.timeSliderRail, {
+				width: (elementcss.width - _marginleft - _marginright),
+				left: timeSliderLeft
+			});
+			if (_elements.timeSliderCapRight !== null) {
+				_css(_elements.timeSliderCapRight, {
+					left: timeSliderLeft + (elementcss.width - _marginleft - _marginright)
 				});
 			}
-		} else {
-			$('#' + event.id + '_normalscreenButton').css('display', 'none');
-			$('#' + event.id + '_fullscreenButton').css('display', 'block');
-			// TODO
-			if (false) {
-				$(window).resize(null);
+			//_css(_wrapper, controlbarcss);
+			_css(_elements.elements, elementcss);
+			return controlbarcss;
+		}
+		
+		
+		/** Update the volume level. **/
+		function _volumeHandler(event) {
+			if (_elements.volumeSliderRail !== null) {
+				var progress = isNaN(event.volume / 100) ? 1 : event.volume / 100;
+				var width = parseInt(_elements.volumeSliderRail.style.width.replace("px", ""), 10);
+				var progressWidth = isNaN(Math.round(width * progress)) ? 0 : Math.round(width * progress);
+				var offset = parseInt(_elements.volumeSliderRail.style.right.replace("px", ""), 10);
+				
+				var volumeSliderLeft = _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
+				_css(_elements.volumeSliderProgress, {
+					width: progressWidth,
+					left: volumeSliderLeft
+				});
+				
+				if (_elements.volumeSliderCapLeft !== undefined) {
+					_css(_elements.volumeSliderCapLeft, {
+						left: 0
+					});
+				}
 			}
 		}
-		_resizeBar(event);
-		_timeHandler(event);
-		_bufferHandler(event);
-	}
-	
-	
-	/** Resize the jwplayerControlbar. **/
-	function _resizeBar(event) {
-		var lft = _controlbar.left;
-		var top = _controlbar.top;
-		var wid = _controlbar.width;
-		var hei = $('#' + event.id + '_jwplayerControlbar').height();
-		if (_controlbar.position == 'over') {
-			lft += 1 * _controlbar.margin;
-			top -= 1 * _controlbar.margin + hei;
-			wid -= 2 * _controlbar.margin;
-		}
-		if (_controlbar.fullscreen) {
-			lft = _controlbar.margin;
-			top = $(window).height() - _controlbar.margin - hei;
-			wid = $(window).width() - 2 * _controlbar.margin;
-			$('#' + event.id + '_jwplayerControlbar').css('z-index', 99);
-		} else {
-			$('#' + event.id + '_jwplayerControlbar').css('z-index', 97);
-		}
-		$('#' + event.id + '_jwplayerControlbar').css('left', lft);
-		$('#' + event.id + '_jwplayerControlbar').css('top', top);
-		$('#' + event.id + '_jwplayerControlbar').css('width', wid);
-		$('#' + event.id + '_timeSliderRail').css('width', (wid - _controlbar.leftmargin - _controlbar.rightmargin));
-	}
-	
-	
-	/** Update the volume level. **/
-	function _volumeHandler(event) {
-		var progress = isNaN(event.volume / 100) ? 1 : event.volume / 100;
-		var railWidth = $('#' + event.id + '_volumeSliderRail').width();
-		var railRight = parseInt($('#' + event.id + '_volumeSliderRail').css('right').toString().replace('px', ''), 10);
-		var progressWidth = isNaN(Math.round(railWidth * progress)) ? 0 : Math.round(railWidth * progress);
 		
-		$('#' + event.id + '_volumeSliderProgress').css('width', progressWidth);
-		$('#' + event.id + '_volumeSliderProgress').css('right', (railWidth + railRight - progressWidth));
-	}
-	
+		function _setup() {
+			_buildBase();
+			_buildElements();
+			_addListeners();
+			_init();
+			_wrapper.style.opacity = _settings.idlehide ? 0 : 1;
+		}
+		
+		_setup();
+		return this;
+	};
 })(jwplayer);

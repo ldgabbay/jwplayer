@@ -7,35 +7,28 @@
 (function(jwplayer) {
 
 	jwplayer.html5.utils = function() {
-		return this.each(function() {
-		});
 	};
-	
-
 	
 	/** Returns the extension of a file name **/
 	jwplayer.html5.utils.extension = function(path) {
-		return path.substr(path.lastIndexOf('.') + 1, path.length);
-	};
-	
-	jwplayer.html5.utils.isNull = function(obj) {
-		return ((obj === null) || (obj === undefined) || (obj === ""));
+		return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
 	};
 	
 	/** Gets an absolute file path based on a relative filepath **/
 	jwplayer.html5.utils.getAbsolutePath = function(path) {
-		if (jwplayer.html5.utils.isNull(path)) {
-			return path;
+		if (path === undefined) {
+			return undefined;
 		}
 		if (isAbsolutePath(path)) {
 			return path;
 		}
 		var protocol = document.location.href.substr(0, document.location.href.indexOf("://") + 3);
-		var basepath = document.location.href.substring(protocol.length, (path.indexOf("/") === 0) ? document.location.href.indexOf('/', protocol.length) : document.location.href.lastIndexOf('/'));
+		var basepath = document.location.href.split("?")[0];
+		basepath = basepath.substring(protocol.length, (path.indexOf("/") === 0) ? basepath.indexOf('/', protocol.length) : basepath.lastIndexOf('/'));
 		var patharray = (basepath + "/" + path).split("/");
 		var result = [];
 		for (var i = 0; i < patharray.length; i++) {
-			if (jwplayer.html5.utils.isNull(patharray[i]) || patharray[i] == ".") {
+			if (patharray[i] === undefined || patharray[i] == ".") {
 				continue;
 			} else if (patharray[i] == "..") {
 				result.pop();
@@ -47,7 +40,7 @@
 	};
 	
 	function isAbsolutePath(path) {
-		if (jwplayer.html5.utils.isNull(path)) {
+		if (path === null) {
 			return;
 		}
 		var protocol = path.indexOf("://");
@@ -71,72 +64,28 @@
 		return result;
 	};
 	
-	
-	/** Dumps the content of an object to a string **/
-	jwplayer.html5.utils.dump = function(object, depth) {
-		if (object === null) {
-			return 'null';
-		} else if (jwplayer.html5.utils.typeOf(object) != 'object') {
-			if (jwplayer.html5.utils.typeOf(object) == 'string') {
-				return "\"" + object + "\"";
-			}
-			return object;
-		}
-		
-		var type = jwplayer.html5.utils.typeOf(object);
-		
-		depth = (depth === undefined) ? 1 : depth + 1;
-		var indent = "";
-		for (var i = 0; i < depth; i++) {
-			indent += "\t";
-		}
-		
-		var result = (type == "array") ? "[" : "{";
-		result += "\n" + indent;
-		
-		for (var i in object) {
-			if (type == "object") {
-				result += "\"" + i + "\": ";
-			}
-			result += jwplayer.html5.utils.dump(object[i], depth) + ",\n" + indent;
-		}
-		
-		result = result.substring(0, result.length - 2 - depth) + "\n";
-		
-		result += indent.substring(0, indent.length - 1);
-		result += (type == "array") ? "]" : "}";
-		
-		return result;
-	};
-	
-	/** Returns the true type of an object **/
-	jwplayer.html5.utils.typeOf = function(value) {
-		var s = typeof value;
-		if (s === 'object') {
-			if (value) {
-				if (value instanceof Array) {
-					s = 'array';
-				}
-			} else {
-				s = 'null';
-			}
-		}
-		return s;
-	};
-	
-	
 	/** Logger **/
 	jwplayer.html5.utils.log = function(msg, obj) {
-		try {
-			if (obj) {
-				console.log("%s: %o", msg, obj);
-			} else {
-				console.log(jwplayer.html5.utils.dump(msg));
-			}
-		} catch (err) {
+		if (obj) {
+			obj.message = msg;
+			console.log(msg, obj);
+		} else {
+			console.log(msg);
 		}
 		return this;
 	};
 	
-	
+	jwplayer.html5.utils.css = function(domelement, styles, debug) {
+		if (domelement !== undefined) {
+			for (var style in styles) {
+				try {
+					if (typeof styles[style] == "number" && !(style == "zIndex" || style == "opacity")) {
+						styles[style] = styles[style] + "px";
+					}
+					domelement.style[style] = styles[style];
+				} catch (err) {
+				}
+			}
+		}
+	};
 })(jwplayer);

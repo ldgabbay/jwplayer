@@ -6,97 +6,105 @@
  */
 (function(jwplayer) {
 
-	jwplayer.html5._api = function(player) {
-		return {
-			play: player._controller.play,
-			pause: player._controller.pause,
-			stop: player._controller.stop,
-			seek: player._controller.seek,
-			
-			resize: player._controller.resize,
-			//fullscreen: player._controller.fullscreen,
-			//volume: player._controller.volume,
-			//mute: player._controller.mute,
-			load: player._controller.load,
-			
-			addEventListener: player._controller.addEventListener,
-			removeEventListener: player._controller.removeEventListener,
-			sendEvent: player._controller.sendEvent,
-			
-			//ready: _dataListenerFactory(player, null, jwplayer.html5.events.JWPLAYER_READY),
-			//error: _dataListenerFactory(player, null, jwplayer.html5.events.JWPLAYER_ERROR),
-			//complete: _dataListenerFactory(player, null, jwplayer.html5.events.JWPLAYER_MEDIA_COMPLETE),
-			//state: _dataListenerFactory(player, 'state', jwplayer.html5.events.JWPLAYER_PLAYER_STATE),
-			//buffer: _dataListenerFactory(player, 'buffer', jwplayer.html5.events.JWPLAYER_MEDIA_BUFFER),
-			//time: _dataListenerFactory(player, null, jwplayer.html5.events.JWPLAYER_MEDIA_TIME),
-			//meta: _dataListenerFactory(player, null, jwplayer.html5.events.JWPLAYER_MEDIA_META)
-			
-			getPosition: _dataListenerFactory(player, 'position'),
-			getDuration: _dataListenerFactory(player, 'duration'),
-			getBuffer: _dataListenerFactory(player, 'buffer'),
-			getWidth: _dataListenerFactory(player, 'width'),
-			getHeight: _dataListenerFactory(player, 'height'),
-			getFullscreen: _dataListenerFactory(player, 'buffer'),
-			setFullscreen: player._controller.fullscreen,
-			getVolume: _dataListenerFactory(player, 'volume'),
-			setVolume: player._controller.volume,
-			getMute: _dataListenerFactory(player, 'mute'),
-			setMute: player._controller.mute,
-			
-			getState: function(){
-				return player._media.getState();
-			},
-			
-			getConfig: function(){
-				return player._model.config;
-			},
-			getVersion: function() {
-				return player.version;
-			},
-			getPlaylist: function() {
-				return player._model.playlist;
-			},
-			playlistItem: function(item) {
-				return player._controller.item(item);
-			},
-			playlistNext: function() {
-				return player._controller.next();
-			},
-			playlistPrev: function() {
-				return player._controller.prev();
-			},
-			
-			//UNIMPLEMENTED
-			getLevel: function() {
-			},
-			getBandwidth: function() {
-			},
-			getLockState: function() {
-			},
-			lock: function() {
-			},
-			unlock: function() {
-			}
-			
+	jwplayer.html5.api = function(container, options) {
+		var _api = {};
+		var _container = document.createElement('div');
+		container.parentNode.replaceChild(_container, container);
+		_container.id = container.id;
+		
+		var _model = new jwplayer.html5.model(_api, _container, options);
+		var _view = new jwplayer.html5.view(_api, _container, _model);
+		var _controller = new jwplayer.html5.controller(_api, _container, _model, _view);
+		
+		_api.version = "1.0";
+		_api.id = _container.id;
+		_api.skin = new jwplayer.html5.skin();
+		
+		_api.jwPlay = _controller.play;
+		_api.jwPause = _controller.pause;
+		_api.jwStop = _controller.stop;
+		_api.jwSeek = _controller.seek;
+		_api.jwPlaylistItem = _controller.item;
+		_api.jwPlaylistNext = _controller.next;
+		_api.jwPlaylistPrev = _controller.prev;
+		_api.jwResize = _controller.resize;
+		_api.jwLoad = _controller.load;
+		
+		function _statevarFactory(statevar) {
+			return function() {
+				return _model[statevar];
+			};
+		}
+		
+		_api.jwGetItem = _statevarFactory('item');
+		_api.jwGetPosition = _statevarFactory('position');
+		_api.jwGetDuration = _statevarFactory('duration');
+		_api.jwGetBuffer = _statevarFactory('buffer');
+		_api.jwGetWidth = _statevarFactory('width');
+		_api.jwGetHeight = _statevarFactory('height');
+		_api.jwGetFullscreen = _statevarFactory('fullscreen');
+		_api.jwSetFullscreen = _controller.setFullscreen;
+		_api.jwGetVolume = _statevarFactory('volume');
+		_api.jwSetVolume = _controller.setVolume;
+		_api.jwGetMute = _statevarFactory('mute');
+		_api.jwSetMute = _controller.setMute;
+		
+		_api.jwGetState = _statevarFactory('state');
+		_api.jwGetVersion = function() {
+			return _api.version;
 		};
+		_api.jwGetPlaylist = function() {
+			return _model.playlist;
+		};
+		
+		_api.jwAddEventListener = _controller.addEventListener;
+		_api.jwRemoveEventListener = _controller.removeEventListener;
+		_api.jwSendEvent = _controller.sendEvent;
+		
+		//UNIMPLEMENTED
+		_api.jwGetLevel = function() {
+		};
+		_api.jwGetBandwidth = function() {
+		};
+		_api.jwGetLockState = function() {
+		};
+		_api.jwLock = function() {
+		};
+		_api.jwUnlock = function() {
+		};
+		
+		function _finishLoad(model, view, controller) {
+			return function() {
+				model.loadPlaylist(model.config, false);
+				model.setupPlugins();
+				view.setup(model.getMedia().getDisplayElement());
+				var evt = {
+					id: _api.id,
+					version: _api.version
+				};
+				controller.sendEvent(jwplayer.api.events.JWPLAYER_READY, evt);
+				if (playerReady !== undefined) {
+					playerReady(evt);
+				}
+				
+				if (window[model.config.playerReady] !== undefined) {
+					window[model.config.playerReady](evt);
+				}
+				
+				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
+				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
+					"item": model.config.item
+				});
+				
+				if (model.config.autostart === true && !model.config.chromeless) {
+					controller.play();
+				}
+			};
+		}
+		
+		_api.skin.load(_model.config.skin, _finishLoad(_model, _view, _controller));
+		
+		return _api;
 	};
-	
-	function _dataListenerFactory(player, dataType, eventType) {
-		return function(arg) {
-			switch (jwplayer.html5.utils.typeOf(arg)) {
-				case "function":
-					if (!jwplayer.html5.utils.isNull(eventType)) {
-						player.addEventListener(eventType, arg);
-					}
-					break;
-				default:
-					if (!jwplayer.html5.utils.isNull(dataType)) {
-						return player._controller.mediaInfo()[dataType];
-					}
-					return player._controller.mediaInfo();
-			}
-			return player;
-		};
-	}
 	
 })(jwplayer);

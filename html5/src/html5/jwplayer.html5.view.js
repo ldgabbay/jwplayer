@@ -5,26 +5,274 @@
  * @version 1.0
  */
 (function(jwplayer) {
-
-	jwplayer.html5.view = function(player) {
-		player._model.domelement.wrap("<div id='" + player.id + "_jwplayer' />");
-		player._model.domelement.parent().css({
-			position: 'relative',
-			height: player._model.config.height + 'px',
-			width: player._model.config.width + 'px',
-			margin: 'auto',
-			padding: 0,
-			'background-color': player._model.config.screencolor
-		});
-		player._model.domelement.css({
-			position: 'absolute',
-			width: player._model.config.width + 'px',
-			height: player._model.config.height + 'px',
-			top: 0,
-			left: 0,
-			'z-index': 0,
-			margin: 'auto',
-			display: 'block'
-		});
+	
+	var _css = jwplayer.html5.utils.css;
+	
+	jwplayer.html5.view = function(api, container, model) {
+		var _api = api;
+		var _container = container;
+		var _model = model;
+		var _wrapper;
+		var _width;
+		var _height;
+		var _box;
+		
+		function createWrapper() {
+			_wrapper = document.createElement("div");
+			_wrapper.id = _container.id;
+			_container.id = _wrapper.id + "_video";
+			
+			_css(_wrapper, {
+				position: "relative",
+				height: _model.height,
+				width: _model.width,
+				margin: "auto",
+				padding: 0,
+				background: _api.skin.getComponentSettings("display").backgroundcolor === undefined ? "#000" : _api.skin.getComponentSettings("display").backgroundcolor.replace("0x", "#"),
+				zIndex: 0
+			});
+			
+			_css(_container, {
+				position: "absolute",
+				width: _model.width,
+				height: _model.height,
+				top: 0,
+				left: 0,
+				zIndex: 1,
+				margin: "auto",
+				display: "block"
+			});
+			
+			jwplayer.utils.wrap(_container, _wrapper);
+		}
+		
+		function layoutComponents() {
+			if (_model.getMedia() !== undefined && !_model.getMedia().hasChrome && !_model.config.chromeless) {
+				for (var pluginIndex in _model.plugins.order) {
+					var pluginName = _model.plugins.order[pluginIndex];
+					if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
+						_container.parentNode.appendChild(_model.plugins.object[pluginName].getDisplayElement());
+						_model.plugins.object[pluginName].height = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.height);
+						_model.plugins.object[pluginName].width = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.width);
+					}
+				}
+			} else {
+				_model.getMedia().getDisplayElement().poster = _model.playlist[_model.item].image;
+				_model.getMedia().getDisplayElement().controls = "controls";
+			}
+		}
+		
+		function getNumber(style) {
+			if (style === "") {
+				return 0;
+			}
+			return parseInt(style.replace("px", ""), 10);
+		}
+		
+		this.setup = function(container) {
+			_container = container;
+			createWrapper();
+			layoutComponents();
+			_resize(_model.width, _model.height);
+			var oldresize;
+			if (window.onresize !== null) {
+				oldresize = window.onresize;
+			}
+			window.onresize = function(evt) {
+				if (oldresize !== undefined) {
+					try {
+						oldresize(evt);
+					} catch (err) {
+					
+					}
+				}
+				if (_api.jwGetFullscreen()) {
+					_model.width = document.documentElement.clientWidth;
+					_model.height = document.documentElement.clientHeight;
+				}
+				_resize(_model.width, _model.height);
+			};
+		};
+		
+		function _resize(width, height) {
+			var plugins = [].concat(_model.plugins.order);
+			plugins.reverse();
+			if (!_model.fullscreen) {
+				_width = width;
+				_height = height;
+				_box = {
+					top: 0,
+					right: 0,
+					bottom: 0,
+					left: 0
+				};
+				var failed = _resizeComponents(_normalscreenComponentResizer, plugins);
+				if (failed.length > 0) {
+					_resizeComponents(_overlayComponentResizer, failed, true);
+				}
+				_resizeMedia();
+			} else {
+				_resizeComponents(_fullscreenComponentResizer, plugins, true);
+			}
+		}
+		
+		function _resizeComponents(componentResizer, plugins, looseStyle) {
+			var _zIndex = plugins.length;
+			var failed = [];
+			for (var pluginIndex in plugins) {
+				var pluginName = plugins[pluginIndex];
+				if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
+					var style = componentResizer(pluginName, _zIndex--);
+					if (!style) {
+						failed.push(pluginName);
+					} else {
+						var suggestedStyle = _model.plugins.object[pluginName].resize(style.width, style.height);
+						if (looseStyle === true) {
+							jwplayer.utils.extend(style, suggestedStyle);
+						}
+						_css(_model.plugins.object[pluginName].getDisplayElement(), style);
+					}
+				}
+			}
+			return failed;
+		}
+		
+		function _normalscreenComponentResizer(pluginName, zIndex) {
+			if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
+				if (_model.plugins.config[pluginName].position !== jwplayer.html5.view.positions.OVER) {
+					var style = _getComponentPosition(pluginName);
+					style.zIndex = zIndex;
+					return style;
+				}
+			}
+			return false;
+		}
+		
+		function _overlayComponentResizer(pluginName, zIndex) {
+			return {
+				position: "absolute",
+				top: _box.top,
+				left: _box.left,
+				width: (_model.width - _box.left - _box.right),
+				height: (_model.height - _box.top - _box.bottom),
+				zIndex: zIndex
+			};
+		}
+		
+		function _fullscreenComponentResizer(pluginName, zIndex) {
+			return {
+				position: "fixed",
+				top: 0,
+				left: 0,
+				width: _model.width,
+				height: _model.height,
+				zIndex: zIndex
+			};
+		}
+		
+		function _resizeMedia() {
+			_css(_model.getMedia().getDisplayElement(), {
+				position: "absolute",
+				width: (_model.width - _box.left - _box.right),
+				height: (_model.height - _box.top - _box.bottom),
+				top: _box.top,
+				left: _box.left
+			});
+		}
+		
+		function _getComponentPosition(pluginName) {
+			var plugincss = {
+				position: "absolute",
+				margin: 0,
+				padding: 0,
+				top: null
+			};
+			var position = _model.plugins.config[pluginName].position.toLowerCase();
+			switch (position.toUpperCase()) {
+				case jwplayer.html5.view.positions.TOP:
+					plugincss.top = _box.top;
+					plugincss.left = _box.left;
+					plugincss.width = _width - _box.left - _box.right;
+					plugincss.height = _model.plugins.object[pluginName].height;
+					_box[position] += _model.plugins.object[pluginName].height;
+					break;
+				case jwplayer.html5.view.positions.RIGHT:
+					plugincss.top = _box.top;
+					plugincss.right = _box.right;
+					plugincss.width = plugincss.width = _model.plugins.object[pluginName].width;
+					plugincss.height = _height - _box.top - _box.bottom;
+					_box[position] = plugincss.width = _model.plugins.object[pluginName].width;
+					break;
+				case jwplayer.html5.view.positions.BOTTOM:
+					plugincss.bottom = _box.bottom;
+					plugincss.left = _box.left;
+					plugincss.width = _width - _box.left - _box.right;
+					plugincss.height = _model.plugins.object[pluginName].height;
+					_box[position] = _model.plugins.object[pluginName].height;
+					break;
+				case jwplayer.html5.view.positions.LEFT:
+					plugincss.top = _box.top;
+					plugincss.left = _box.left;
+					plugincss.width = _model.plugins.object[pluginName].width;
+					plugincss.height = _height - _box.top - _box.bottom;
+					_box[position] = plugincss.width = _model.plugins.object[pluginName].width;
+					break;
+				default:
+					break;
+			}
+			return plugincss;
+		}
+		
+		
+		this.resize = _resize;
+		
+		this.fullscreen = function(state) {
+			if (_model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
+				if (state) {
+					_model.height = screen.availHeight;
+					_model.width = screen.availWidth;
+					_model.getMedia().getDisplayElement().webkitEnterFullscreen();
+				} else {
+					_model.height = _height;
+					_model.width = _width;
+					_model.getMedia().getDisplayElement().webkitExitFullscreen();
+				}
+			} else {
+				if (state) {
+					_model.width = document.documentElement.clientWidth;
+					_model.height = document.documentElement.clientHeight;
+					var style = {
+						position: "fixed",
+						width: "100%",
+						height: "100%",
+						top: 0,
+						left: 0,
+						zIndex: 2147483000
+					};
+					_css(_wrapper, style);
+					style.zIndex = 0;
+					_css(_model.getMedia().getDisplayElement(), style);
+				} else {
+					_model.width = _width;
+					_model.height = _height;
+					_css(_wrapper, {
+						position: "relative",
+						height: _model.height,
+						width: _model.width,
+						zIndex: 0
+					});
+				}
+				_resize(_model.width, _model.height);
+			}
+		};
+		
+	};
+	
+	jwplayer.html5.view.positions = {
+		TOP: "TOP",
+		RIGHT: "RIGHT",
+		BOTTOM: "BOTTOM",
+		LEFT: "LEFT",
+		OVER: "OVER"
 	};
 })(jwplayer);

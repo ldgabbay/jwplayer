@@ -6,52 +6,148 @@
  */
 (function(jwplayer) {
 
-	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen"];
-
-	jwplayer.html5.model = function(options) {
-		$.extend(this.config, options);
-		if (this.config.playlist && this.config.playlist.length > 0){
-			this.playlist = this.config.playlist;
-			delete this.config.playlist;
-		} else if (this.config.sources && this.config.sources.length > 0) {
-			this.playlist = [{"sources": this.config.sources}];
-			delete this.config.sources;
+	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen", "item", "plugins"];
+	
+	jwplayer.html5.model = function(api, container, options) {
+		var _api = api;
+		var _container = container;
+		var _model = {
+			id: _container.id,
+			media: undefined,
+			playlist: [],
+			state: jwplayer.api.events.state.IDLE,
+			position: 0,
+			buffer: 0,
+			config: {
+				width: 480,
+				height: 320,
+				item: 0,
+				skin: undefined,
+				file: undefined,
+				image: undefined,
+				start: 0,
+				duration: 0,
+				bufferlength: 5,
+				volume: 90,
+				mute: false,
+				fullscreen: false,
+				repeat: false,
+				autostart: false,
+				debug: undefined,
+				screencolor: undefined
+			}
+		};
+		var _media;
+		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
+		var _components = ["display", "logo", "controlbar"];
+		
+		jwplayer.utils.extend(_model, _eventDispatcher);
+		
+		for (var option in options) {
+			if (typeof options[option] == "string") {
+				var type = /color$/.test(option) ? "color" : null;
+				options[option] = jwplayer.html5.utils.typechecker(options[option], type);
+			}
+			var config = _model.config;
+			var path = option.split(".");
+			for (var edge in path) {
+				if (edge == path.length - 1) {
+					config[path[edge]] = options[option];
+				} else {
+					if (config[path[edge]] === undefined) {
+						config[path[edge]] = {};
+					}
+					config = config[path[edge]];
+				}
+			}
 		}
 		for (var index in _configurableStateVariables) {
 			var configurableStateVariable = _configurableStateVariables[index];
-			this[configurableStateVariable] = this.config[configurableStateVariable];
+			_model[configurableStateVariable] = _model.config[configurableStateVariable];
 		}
-		return this;
+		
+		var pluginorder = _components.concat([]);
+		
+		if (_model.plugins !== undefined) {
+			var userplugins = _model.plugins.split(",");
+			for (var userplugin in userplugins){
+				pluginorder.push(userplugin.replace(/^\s+|\s+$/g,""));
+			}
+		}		
+				
+		_model.plugins = {
+			order: pluginorder,
+			config: {
+				display: {
+					position: jwplayer.html5.view.positions.OVER,
+					screencolor: _model.config.screencolor
+				},
+				logo: {
+					position: "bottom-left"
+				},
+				controlbar: {
+					position: jwplayer.html5.view.positions.BOTTOM
+				}
+			},
+			object: {}
+		};
+		
+		for (var pluginIndex in _model.plugins.order) {
+			var pluginName = _model.plugins.order[pluginIndex];
+			var pluginConfig = _model.config[pluginName] === undefined ? {} : _model.config[pluginName];
+			_model.plugins.config[pluginName] = _model.plugins.config[pluginName] === undefined ? pluginConfig : jwplayer.utils.extend(_model.plugins.config[pluginName], pluginConfig);
+			if (_model.plugins.config[pluginName].position === undefined) {
+				_model.plugins.config[pluginName].position = jwplayer.html5.view.positions.OVER;
+			}
+		}
+		
+		_model.loadPlaylist = function(playlist, ready) {
+			ready = ready === null ? true : false;
+			_model.playlist = new jwplayer.html5.playlist(playlist);
+			if (ready) {
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
+					"item": _model.config.item
+				});
+			}
+			_model.setActiveMediaProvider(_model.playlist[_model.item]);
+		};
+		
+		function forward(evt) {
+			if (evt.type == jwplayer.api.events.JWPLAYER_MEDIA_LOADED) {
+				_container = _media.getDisplayElement();
+			}
+			_eventDispatcher.sendEvent(evt.type, evt);
+		}
+		
+		_model.setActiveMediaProvider = function(playlistItem) {
+			if (_media !== undefined) {
+				_media.resetEventListeners();
+			}
+			_media = new jwplayer.html5.mediavideo(_model, _container);
+			_media.addGlobalListener(forward);
+			if (_model.config.chromeless) {
+				_media.embed(playlistItem);
+			}
+			return true;
+		};
+		
+		_model.getMedia = function() {
+			return _media;
+		};
+		
+		_model.setupPlugins = function() {
+			for (var plugin in _model.plugins.order) {
+				if (jwplayer.html5[_model.plugins.order[plugin]] !== undefined) {
+					_model.plugins.object[_model.plugins.order[plugin]] = new jwplayer.html5[_model.plugins.order[plugin]](_api, _model.plugins.config[_model.plugins.order[plugin]]);
+				} else {
+					_model.plugins.object[_model.plugins.order[plugin]] = new window[_model.plugins.order[plugin]](_api, _model.plugins.config[_model.plugins.order[plugin]]);
+				}
+			}
+		};
+		
+		return _model;
 	};
 	
-	jwplayer.html5.model.prototype = {
-		components: {},
-		playlist: [],
-		state: jwplayer.html5.states.IDLE,
-		item: 0,
-		position: 0,
-		buffer: 0,
-		config: {
-			width: 480,
-			height: 320,
-			skin: undefined,
-			file: undefined,
-			image: undefined,
-			start: 0,
-			duration: 0,
-			bufferlength: 5,
-			volume: 90,
-			mute: false,
-			fullscreen: false,
-			repeat: false,
-			autostart: false,
-			debug: undefined,
-			screencolor: ''
-		}
-	};
 	
-	jwplayer.html5.model.setActiveMediaProvider = function(player) {
-		player._media = jwplayer.html5.mediavideo(player);	
-		return true;
-	};	
 })(jwplayer);

@@ -7,11 +7,14 @@
 	</target>
 
 	<target name="concat" depends="clean">
-		<concat destfile="${basedir}/jwplayer.html5.js">
+		<concat destfile="${basedir}/bin-debug/jwplayer.html5.js">
 			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.utils.js" />
 			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.states.js" />
 			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.events.js" />
-			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.*.js" excludes="jwplayer.html5.js,jwplayer.html5.states.js,jwplayer.html5.events.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.view.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.*.js" excludes="jwplayer.html5.js,jwplayer.html5.states.js,jwplayer.html5.events.js,jwplayer.html5.utils.js,jwplayer.html5.api.js,jwplayer.html5.view.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.api.js" />
 		</concat>
 	</target>
 
@@ -19,14 +22,14 @@
 		<antcall target="concat" />
 	</target>
 
-	<target name="build-release" depends="concat">
+	<target name="build-release" depends="build-debug">
 		<java jar="${basedir}/build/yuicompressor-2.4.2.jar" fork="true">
-			<arg line="'${basedir}/jwplayer.html5.js'"/>
+			<arg line="'${basedir}/bin-debug/jwplayer.html5.js'"/>
 			<arg line="-o '${basedir}/jwplayer.html5.min.js'"/>
 		</java>
 	</target>
 	
-	<target name="build-zip" depends="concat">
+	<target name="build-zip" depends="build-release">
 		 <zip destfile="${basedir}/mediaplayer-html5.zip">
 		 	<fileset dir="." includes="license.txt"/>
 		 	<fileset dir="." includes="readme.txt"/>

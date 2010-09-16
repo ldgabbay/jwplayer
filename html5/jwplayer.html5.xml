@@ -23,6 +23,11 @@
 			<default></default>
 			<description>location of the poster image; shown before the video starts and after it has completed.</description>
 		</flashvar>
+		<flashvar type="field"> 
+			<name>start</name> 
+			<default>0</default> 
+			<description>position in seconds where playback has to start. Won't work for regular (progressive) videos, but only for streaming (HTTP/RTMP).</description> 
+		</flashvar> 
 	</flashvars>
 
 

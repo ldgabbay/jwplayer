@@ -1,0 +1,102 @@
+/**
+ * JW Player logo component
+ *
+ * @author zach
+ * @version 1.0
+ */
+(function(jwplayer) {
+
+	var _defaults = {
+		prefix: "http://l.longtailvideo.com/html5/0/",
+		file: "logo.png",
+		link: "http://www.longtailvideo.com/players/jw-flv-player/",
+		margin: 8,
+		out: 0.5,
+		over: 1,
+		timeout: 3,
+		hide: "true",
+		//position: "bottom-left",
+		width: 93,
+		height: 30
+	};
+	
+	_css = jwplayer.html5.utils.css;
+	
+	jwplayer.html5.logo = function(api, config) {
+		var _api = api;
+		var _settings = jwplayer.utils.extend({}, _defaults, config);
+		var _interval;
+		
+		var _logo = document.createElement("img");
+		
+		_logo.id = _api.id + "_jwplayer_logo";
+		
+		_logo.onload = function(evt) {
+			_settings.width = _logo.width;
+			_settings.height = _logo.height;
+			
+			_css(_logo, _getStyle());
+			
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
+		};
+		
+		_logo.src = _settings.prefix + _settings.file;
+		
+		_logo.onmouseover = function(evt) {
+			_logo.style.opacity = _settings.over;
+		};
+		
+		_logo.onmouseout = function(evt) {
+			_logo.style.opacity = _settings.out;
+		};
+		
+		_logo.onclick = _logoClickHandler;
+		
+		function _getStyle() {
+			var _imageStyle = {
+				width: _settings.width,
+				height: _settings.height,
+				textDecoration: "none",
+				position: "absolute"
+			};
+			var positions = _settings.position.toLowerCase().split("-");
+			for (var position in positions) {
+				_imageStyle[positions[position]] = _settings.margin;
+			}
+			return _imageStyle;
+		}
+		
+		_interval = setInterval(function() {
+			if (document.getElementById(_api.id + "_jwplayer_display") !== null) {
+				document.getElementById(_api.id + "_jwplayer_display").appendChild(_logo);
+				//_css(_logo, _getStyle());
+				clearInterval(_interval);
+			}
+		}, 100);
+		
+		function _logoClickHandler(evt) {
+			evt.stopPropagation();
+			window.open(_settings.link, "_blank");
+			return;
+		}
+		
+		function _stateHandler(obj) {
+			switch (_api.jwGetState()) {
+				case jwplayer.api.events.state.BUFFERING:
+					_logo.style.opacity = _settings.out;
+					setTimeout(jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, _logo.style.opacity), _settings.timeout * 1000);
+					break;
+				case jwplayer.api.events.state.PAUSED:
+					break;
+				case jwplayer.api.events.state.IDLE:
+					break;
+				default:
+					setTimeout(jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, _logo.style.opacity), _settings.timeout * 1000);
+					break;
+			}
+		}
+		
+		return this;
+	};
+	
+})(jwplayer);
