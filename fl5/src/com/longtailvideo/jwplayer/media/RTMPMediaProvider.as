@@ -1,7 +1,5 @@
 ﻿/**
  * Wrapper for playback of _video streamed over RTMP.
- *
- * All playback functionalities are cross-server (FMS, Wowza, Red5)
  **/
 package com.longtailvideo.jwplayer.media {
     import com.longtailvideo.jwplayer.events.MediaEvent;
@@ -87,13 +85,11 @@ package com.longtailvideo.jwplayer.media {
 			super.initializeMediaProvider(cfg);
 			_connections = new Array();
             var untunneled:NetConnection = new NetConnection();
-            untunneled.addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
             untunneled.objectEncoding = ObjectEncoding.AMF0;
             untunneled.client = new NetClient(this);
             _connections.push(untunneled);
             var tunneled:NetConnection = new NetConnection();
             tunneled = new NetConnection();
-            tunneled.addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
             tunneled.objectEncoding = ObjectEncoding.AMF0;
             tunneled.client = new NetClient(this);
             _connections.push(tunneled);
@@ -507,8 +503,8 @@ package com.longtailvideo.jwplayer.media {
 			_stream.addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
 			_stream.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
 			_stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, errorHandler);
-			if(getConfigProperty('dvr')) {
-				_stream.bufferTime = 5;
+			if(getConfigProperty('dvr') || getConfigProperty('subscribe')) {
+				_stream.bufferTime = 3;
 			} else { 
 				_stream.bufferTime = config.bufferlength;
 			}
@@ -534,6 +530,7 @@ package com.longtailvideo.jwplayer.media {
                         _connections[_connection].addEventListener(SecurityErrorEvent.SECURITY_ERROR, errorHandler);
                         _connections[_connection].addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
                         _connections[_connection].addEventListener(AsyncErrorEvent.ASYNC_ERROR, errorHandler);
+                        _connections[_connection].addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
                         clearTimeout(_connectionTimeout);
                     } else {
                         return;

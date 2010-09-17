@@ -4,6 +4,30 @@
 Release Notes
 =============
 
+Version 5.3
+===========
+
+Build 1257
+----------
+
+New Features
+++++++++++++
+
+* Included framedrop handling for both HTTP and RTMP streaming, allowing switches in case of insufficient client resources (e.g. a netbook attempting to play an HD stream.
+* Automatic fallback to Tunneled RTMP / RTMPe (in case regular RTMP is blocked).
+* RTMP dynamic streaming can now be setup together with loadbalancing (using a SMIL XML file).
+* RTMP DVR now using Adobe's official DVRCast application instead of a custom serverside script.
+* Support for HTTP DVR streaming as offered by the Bitgravity CDN.
+* With PNG skinning, the description and image of playlist buttons are automatically hidden when the playlistbutton is less than 40px high and/or less than 240px wide.
+
+Bug Fixes
++++++++++
+
+* Fixed a bug that caused current bandwidth not to store in a cookie, resulting in continous bitrate switching after 2 seconds.
+* Fixed a bug that caused the duration textfield of a playlistitem would not be placed to the right.
+* Fixed a bug that caused PNG skin playlists not to show the item.png on rollout if there was no itemActive.
+* 
+
 Version 5.2
 ===========
 

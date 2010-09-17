@@ -29,7 +29,7 @@ project = 'JW Player for Flash'
 copyright = 'LongTail Video'
 
 # The full version, including alpha/beta/rc tags.
-release = '5.2'
+release = '5.3'
 
 # List of documents that shouldn't be included in the build.
 #unused_docs = []

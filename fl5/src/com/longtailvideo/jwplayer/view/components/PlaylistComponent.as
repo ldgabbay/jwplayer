@@ -268,37 +268,39 @@ package com.longtailvideo.jwplayer.view.components {
 			titleTextFormat.italic = (fontStyle == "italic");
 			var title:TextField = new TextField();
 			title.name = "title";
-			//title.autoSize = TextFieldAutoSize.LEFT;
 			title.defaultTextFormat = titleTextFormat;
 			title.wordWrap = true;
 			title.multiline = true;	
-			title.width = 315;
+			title.width = 300;
 			title.height = 20;
-			addElement(title, btn, img.width + imageOffset, 2);	
+			addElement(title, btn, img.width + imageOffset, 3);
 				
 			var descriptionTextFormat:TextFormat = new TextFormat();
-			descriptionTextFormat.size = fontSize ? fontSize : 11;
+			descriptionTextFormat.size = fontSize ? fontSize - 2 : 11;
+			descriptionTextFormat.leading = 1;
 			descriptionTextFormat.font = fontFace ? fontFace : "_sans";
 			descriptionTextFormat.bold = (fontWeight == "bold");
 			descriptionTextFormat.italic = (fontStyle == "italic");
 			var description:TextField = new TextField();
 			description.name = "description";
-			//description.autoSize = TextFieldAutoSize.LEFT;
 			description.wordWrap = true;
 			description.multiline = true;
-			description.width = 340;
-			description.height = back.height - 20;
+			description.width = 335;
+			description.height = back.height - 22;
 			description.defaultTextFormat = descriptionTextFormat;
-			addElement(description, btn, img.width + imageOffset + 1, 20);
+			if(back.height > 40) {
+				addElement(description, btn, img.width + imageOffset + 1, 22);
+			}
 			
 			var duration:TextField = new TextField();
 			duration.name = "duration";
 			duration.width = 40;
 			duration.height = 20;
-			titleTextFormat.size = fontSize ? fontSize : 11;
 			titleTextFormat.align = TextFormatAlign.RIGHT;
+			titleTextFormat.size = fontSize ? fontSize - 1 : 11;
+			titleTextFormat.rightMargin = 5;
 			duration.defaultTextFormat = titleTextFormat;
-			addElement(duration, btn, title.x + title.width - 20, 4);
+			addElement(duration, btn, title.x + title.width - 2, 4);
 			
 			back.width = btn.width;
 			if (backOver) backOver.width = btn.width;
@@ -386,9 +388,13 @@ package com.longtailvideo.jwplayer.view.components {
 							outClip.transform.colorTransform = back;
 						} 
 					} else if (overClip) {
-						outClip.visible = (idx != active);
 						overClip.visible = false;
-						if (activeClip) activeClip.visible = (idx == active);
+						if (activeClip) {
+							outClip.visible = (idx != active);
+							activeClip.visible = (idx == active);
+						} else {
+							outClip.visible = true;
+						}
 					}
 				}
 			}
@@ -543,7 +549,7 @@ package com.longtailvideo.jwplayer.view.components {
 			var tags:TextField = getButton(idx).getChildByName("tags") as TextField;
 			if (playlistItem.image || playlistItem['playlist.image']) {
 				var imageFile:String = playlistItem['playlist.image'] ? playlistItem['playlist.image'] : playlistItem.image;
-				if (getConfigParam('thumbs') != false && _player.config.playlist != 'none') {
+				if (getConfigParam('thumbs') != false && _player.config.playlist != 'none' && buttonheight > 39 && getConfigParam("width") > 239) {
 					var img:Sprite = getButton(idx).getChildByName("image") as Sprite;
 					if (img) {
 						img.alpha = 0;
@@ -557,7 +563,7 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 			if (duration && playlistItem.duration) {
 				if (playlistItem.duration > 0) {
-					duration.text = Strings.digits(playlistItem.duration);
+					duration.htmlText = "<b>" + Strings.digits(playlistItem.duration) + "</b>";
 					if (fontColor) {
 						duration.textColor = fontColor.color;
 					} else if (front) {
@@ -594,7 +600,7 @@ package com.longtailvideo.jwplayer.view.components {
 			} catch (e:Error) {
 			}
 			img = getButton(idx).getChildByName("image") as MovieClip;
-			if (img && (!(playlistItem.image || playlistItem['playlist.image']) || getConfigParam('thumbs') == false)) {
+			if (img && (!(playlistItem.image || playlistItem['playlist.image']) || getConfigParam('thumbs') == false || buttonheight < 40 || getConfigParam("width") < 240)) {
 				if (!img.getChildByName("imageBackground")) {
 					getButton(idx).getChildByName("image").visible = false;
 				}

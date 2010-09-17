@@ -7,15 +7,14 @@ RTMP (Real Time Messaging Protocol) is a system for delivering on-demand and liv
 
 * RTMP can do live streaming - people can watch your video while it is being recorded.
 * With RTMP, viewers can seek to not-yet-downloaded parts of a video. This is especially useful for longer-form content (> 10 minutes).
-* Videos delivered over RTMP (and its secure brother, RTMPE) are harder to steal than videos delivered over regular HTTP.
+* Videos delivered over RTMP (and its encrypted brother, RTMPE) are harder to steal than videos delivered over regular HTTP.
 
-However, do note that RTMP has its disadvantages too. Especially since the introduction of :ref:`httpstreaming` (which also offer seeking to not-yet-downloaded parts), RTMP is not the only option for professional video delivery. Some drawbacks to be aware of:
+However, do note that RTMP has its disadvantages too. Especially since the introduction of :ref:`httpstreaming` (used by e.g. Youtube), RTMP is not the only option for efficient video delivery. Some drawbacks to be aware of:
 
-* RTMP is a different protocol than HTTP and is sent over a different port (1935 instead of 80). Therefore, RTMP is frequently blocked by (corporate) firewalls. The JW Player 5.3 :ref:`detects and circumvents this issue <rtmpt>`.
+* RTMP is a different protocol than HTTP and is sent over a different port (1935 instead of 80). Therefore, RTMP is frequently blocked by (corporate) firewalls. The JW Player :ref:`detects and circumvents this issue <rtmpt>`.
+* RTMP is a *true* streaming protocol, which means that the bandwidth of the connection must always be larger than the datarate of the video. If the connection drops for a couple of seconds, the stream will stutter. If the connection bandwidth overall is smaller than the video datarate, the video will not play at all.
 
-* RTMP is a *true* streaming protocol, which means that the bandwidth of the connection must always be larger than the datarate of the video. If the connection drops for just a few seconds, the stream will stutter. If the connection overall is just a little less than the video datarate, the video will not play at all. With :ref:`httpstreaming` on the other hand, people can simply wait until more of the video is downloaded.
-
-The JW Player supports a wide array of features of the RTMP protocol.
+The JW Player supports a wide array of features of the RTMP protocol, listed below.
 
 
 Servers
@@ -24,8 +23,8 @@ Servers
 In order to use RTMP, your webhoster or CDN needs to have a dedicated RTMP webserver installed. There are three major offerings, all supported by the JW Player:
 
 * The `Flash Media Server <http://www.adobe.com/products/flashmediaserver/>`_ from Adobe is the de facto standard. Since Flash is also developed by Adobe, new video functionalities always find their way in FMS first.
-* The `Wowza Media Server <http://www.wowzamedia.com>`_ from Wowza is a great alternative, because it includes support for other streaming protocols than RTMP (for e.g. Shoutcast, the iPhone or Silverlight).
-* The `Red5 Media Server <http://red5.org/>`_ is an open-source RTMP alternative. It lags in features (e.g. no dynamic streaming), but has an active and open community of developers.
+* The `Wowza Media Server <http://www.wowzamedia.com>`_ from Wowza is a great alternative, because it includes support for other streaming protocols than RTMP (for e.g. Shoutcast, the iPad/iPhone or Silverlight).
+* The `Red5 Media Server <http://red5.org/>`_ is an open-source RTMP alternative. It lags in features (e.g. no dynamic streaming), but is completely free.
 
 RTMP servers are not solely used for one-to-many media streaming. They include support for such functionalities as video conferencing, document sharing and multiplayer games. Each of these functionalities is separately set up on the server in what is called an *application*. Every application has its own URL (typically a subfolder of the root). For example, these might be the path to both an on-demand streaming and live streaming application on your webserver:
 
@@ -33,6 +32,8 @@ RTMP servers are not solely used for one-to-many media streaming. They include s
 
    rtmp://www.myserver.com/ondemand/
    rtmp://www.myserver.com/live/
+
+The JW Player solely supports the basic live, on-demand and dvr streaming applications. There's no support for such things as webcasting, videochat or screen sharing.
 
 
 Options
@@ -64,9 +65,13 @@ Note that the documentation of RTMP servers tell you to set the *file* option in
 * For MP3 audio: **file=mp3:song.mp3** (with *mp3:* prefix).
 * For AAC audio: **file=mp4:song.aac** (with *mp4:* prefix).
 
-You do not have to do this with the JW Player, since the player takes care of stripping the extension or adding the prefix. If you do add the prefix yourself, the player will recognize it and not modify the URL.
+You do not have to do this with the JW Player, since the player takes care of stripping the extension and/or adding the prefix. If you do add the prefix yourself, the player will recognize it and not modify the URL.
 
 Additionally, the player will leave querystring variables (e.g. for certain CDN security mechanisms) untouched. It basically ignores everything after the **?** character. However, because of the way options are :ref:`loaded <options>` into Flash, it is not possible to plainly use querystring delimiters (*?*, *=*, *&*) inside the *file* or *streamer* option. This issue can be circumvented by :ref:`URL encoding these characters <options>`.
+
+.. note::
+
+   Amazon Cloudfront's private streaming protocol is an example in which the MP4 URL should be URL Encoded, since the long security hash appended to the video URL can contain special characters.
 
 
 Playlists
@@ -158,11 +163,17 @@ When streaming live streams using the Akamai, Edgecast or Limelight CDN, players
 DVR Live Streaming
 ^^^^^^^^^^^^^^^^^^
 
-Flash Media Server 3.5, introduced DVR live streaming - the ability to pause and seek in a live stream. This functionality is supported by the JW Player. It can be enabled by setting the option **rtmp.dvr=true**.
+Flash Media Server 3.5 introduced live DVR streaming - the ability to pause and seek in a live stream. A DVR stream acts like a regular on-demand stream, the only difference being that the *duration* of the stream keeps increasing (that is, when the stream is still recording).
 
-By default, a DVR stream acts like a regular on-demand stream, the only difference being that the *duration* of the stream keeps increasing. This leads to a slightly awkward user experience, since the time scrubber in the controlbar keeps bouncing around in one position instead of moving to the right.
+Instead of starting from the beginning, the player will automatically jump to the *live* head of the DVR stream, so users can jump right into a live event. Subsequently, they are able to seek back to the beginning.
 
-To solve this issue, also set the *duration* option to the total duration of your live event (or, to be safe, a few minutes longer). That way the time scrubber will function normally. The *live head* of the event is then indicated by the download progress bar in the player. If a user seeks beyond that point, he will automatically get pushed to that head. Here's an example of DVR Live Streaming with duration (3600 seconds is 1 hour):
+In order to enable DVR streaming you should:
+
+* Install the **DVRCast** application (which is provided for free by Adobe) onto your FMS3.5 server. Certain Content Delivery Networks (like `Edgecast <http://edgecast.com/>`_) have this application already installed for you.
+* Use a live stream publishing tool (such as Adobe's Flash Media Live Encoder 3.1) that can issue DVR recording commands to an RTMP server.
+* Set the option **rtmp.dvr=true**. to your JW Player. This option switches the player in **DVRCast** mode, attempting to DVR subscribe to the stream and increasing the duration of the stream if recording is still in progress.
+
+Here is an example embed code, with the *rtmp.dvr* option set:
 
 .. code-block:: html
 
@@ -172,8 +183,7 @@ To solve this issue, also set the *duration* option to the total duration of you
      var flashvars = {
        file:'livepresentation',
        streamer:'rtmp://www.myserver.com/live/',
-       'rtmp.dvr':'true',
-       'duration':'3600'
+       'rtmp.dvr':'true'
      };
 
      swfobject.embedSWF('player.swf','container','480','270','9.0.115','false', flashvars, 
@@ -183,29 +193,30 @@ To solve this issue, also set the *duration* option to the total duration of you
    </script>
 
 
-.. note:: DVR Live Streaming only works in combination with Adobe's Live Media Encoder and an RTMP server that has DVR enabled.
-
-
 Dynamic Streaming
 -----------------
 
-Like with :ref:`httpstreaming`, RTMP Streaming includes the ability to dynamically optimize the video quality for each individual viewer. Adobe calls this mechanism *dynamic streaming*. This functionality is supported for FMS 3.5+ and Wowza 2.0+.
+Like :ref:`httpstreaming`, RTMP Streaming includes the ability to dynamically optimize the video quality for each individual viewer. Adobe calls this mechanism *dynamic streaming*. This functionality is supported for FMS 3.5+ and Wowza 2.0+.
 
-To use dynamic streaming, you need multiple copies of your MP4 or FLV video, each with a different quality (dimensions and bitrate). These multiple videos are loaded into the player using an mRSS playlist (see example below). The player recognizes the various *levels* of your video and automatically selects the highest quality one that:
+To use dynamic streaming, you need multiple copies of your MP4 or FLV video, each with a different quality (dimensions and bitrate). These multiple videos are loaded into the player using an mRSS playlist (see example right below) or SMIL file (see :ref:`loadbalancing`) The player recognizes the various *levels* of your video and automatically selects the highest quality one that:
 
 * Fits the *bandwidth* of the server » client connection.
 * Fits the *width* of the player's display (or, to be precise, is not more than 20% larger).
+* Results in less than 25% *frames dropped* at any point in time (e.g. 7fps for a video that is 25fps).
 
 As a viewer continues to watch the video, the player re-examines its decision (and might switch) in response to certain events:
 
 * On a **bandwidth** increase or decrease - the bandwidth is re-calculated at an interval of 2 seconds.
 * On a **resize** of the player. For example, when a viewer goes fullscreen and has sufficient bandwidth, the player might serve an HD version of the video.
+* On a **framedrop** of more than about 7 or 8 fps. 
+
+Framedrop is continously monitored. Spikes are ruled out by taking 5-second averages. Once a quality level results in too large a framedrop, it will be *blacklisted* (made unavailable) for 30 seconds. After 30 seconds, it will be made available again, since the framedrop might be a result of a very decoding-heavy section in the video or external forces (e.g. the user opening Microsoft Office ;).
 
 Unlike with :ref:`httpstreaming`, a dynamic streaming switch is unobtrusive. There'll be no re-buffering or audible/visible hickup. It does take a few seconds for a switch to occur in response to a bandwidth change / player resize, since the server has to wait for a *keyframe* to do a smooth switch and the player always has a few seconds of the old stream in its buffer. To keep stream switches fast, make sure your videos are encoded with a small (2 to 4 seconds) keyframe interval.
 
 .. note:: 
 
-   So far, we have not been able to combine dynamic streaming with live streaming. This functionality is highlighted in  documentation from Adobe and Wowza, but in our tests we found that the bandwidth the player receives never exceeds the bandwidth of the level that currently plays. In other words: the player will never switch to a higher quality stream than the one it starts with. This seems to be a bug in the Flash plugin, since both FMS and Wowza have this issue.
+   So far, we have not been able to combine dynamic streaming with live streaming. This functionality is highlighted in  documentation from FMS, but in our tests we found that the bandwidth the player receives never exceeds the bandwidth of the level that currently plays. In other words: the player will never switch to a higher quality stream than the one it starts with.
 
 
 Example
@@ -245,13 +256,15 @@ Some hints:
 * The *media:group* element here is optional, but it organizes the video links a little.
 
 
+.. _loadbalancing:
+
 Load Balancing
 --------------
 
 For high-volume publishers who maintain several RTMP servers, the player supports load-balancing by means of an intermediate XML file. This is used by e.g. the `Highwinds <http://www.highwinds.com/>`_ and `Streamzilla <http://www.streamzilla.eu>`_  CDNs. Load balancing works like this:
 
 * The player first requests the XML file (typically from a single *master* server).
-* The server returns the XML file, which includes the location of the RTMP server to use (typically the server that's least busy).
+* The server returns the XML file, which includes the location of the RTMP server to use (typically the server that's least busy) and the location of the videos on this server.
 * The player parses the XML file, connects to the server and starts the stream.
 
 
@@ -291,7 +304,6 @@ Here's an example embed code for enabling this functionality in the player. Note
    </script>
 
 
-
 Playlists
 ^^^^^^^^^
 
@@ -317,15 +329,40 @@ RTMP Load balancing in playlists works in a similar fashion: the *provider=rtmp*
 
 See the playlist section above for more information on format and element support.
 
-.. note:: 
 
-   A combination of load balancing + dynamic streaming is not possible yet. We are working on such a functionality, which will be included in a future version of the player.
+Dynamic Streaming
+^^^^^^^^^^^^^^^^^
+
+The dynamic streaming mechanism of FMS 3.5+ and Wowza 2.0+ can be used in combination with load balancing. Therefore, simply add the different levels of your video to the SMIL file. Here's an example again:
+
+.. code-block:: html
+
+   <smil> 
+     <head> 
+       <meta base="rtmp://server1234.mycdn.com/ondemand/" /> 
+     </head> 
+     <body> 
+       <switch>
+         <video src="videos/Qvxp3Jnv-486.mp4" system-bitrate="1800000" width="1280" />
+         <video src="videos/Qvxp3Jnv-485.mp4" system-bitrate="1100000" width="720"/> 
+         <video src="videos/Qvxp3Jnv-484.mp4" system-bitrate="700000" width="480"/> 
+         <video src="videos/Qvxp3Jnv-483.mp4" system-bitrate="400000" width="320"/> 
+       </switch>
+     </body> 
+   </smil>
+
+A couple of hints:
+
+* This file is structured, and behaves exactly the same as the one Adobe uses in its `dynamic streaming documentation <http://www.adobe.com/devnet/flashmediaserver/articles/dynstream_advanced_pt1.html>`_. The *width* attributes of the various bitrate levels are not required (though preferred) by the JW Player.
+* Opposed to a *regular* loadbalancing SMIL document, a dynamic streaming SMIL contains a *<switch>* statement directly inside the <body>* element. Include the closing *</switch>* as well!
+* Opposed to MediaRSS feeds, the bitrate attributes of the various levels are set in *bitspersecond*, **not** in *kilobitspersecond*.
+
 
 
 .. _rtmpt:
 
-RTMP Tunnelling
----------------
+RTMPT Fallback
+--------------
 
 A frequent issue with RTMP streaming is the protocol being blocked by corporate firewalls. RTMP uses the UDP transmission protocol over port 1935, whereas regular HTTP traffic uses the TCP protocol over port 80.
 
@@ -334,7 +371,7 @@ All current-day RTMP servers have a way to circumvent this issue, by **tunnellin
 The 5.3 player introduced a mechanism that automatically detects and circumvents firewall issues for RTMP streaming. Here's how it works:
 
 * First, the player connects to the regular application, either RTMP or RTMPe (encrypted).
-* 500 milliseconds later, the player connects to the same application over a tunneled connection, either RTMPT or RTMPTe (tunnelled and encrypted).
+* Half a second later, the player connects to the same application over a tunneled connection, either RTMPT or RTMPTe (tunnelled and encrypted).
 * Whichever connection is established first is used for streaming the video.
 
-In most cases the player is connected to the application over RTMP within 500 milliseconds, cancelling the second connection. This functionality is fully automated (no need to set port numbers or **t** in your *streamer* flashvar) and works for all flavors of RTMP streaming (on-demand, live, dvr and dynamic).
+In most cases the player is connected to the application over RTMP within 500 milliseconds, cancelling the second connection. This functionality is fully automated (no need to set port numbers or rtmp **t** in your *streamer* flashvar) and works for all flavors of RTMP streaming (on-demand, live, dvr and dynamic).

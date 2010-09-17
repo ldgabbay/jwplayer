@@ -589,6 +589,9 @@ There are two main Playlist skin elements; Playlist Items, and the Playlist Slid
 .. image:: ../images/skinning/Playlist.png
    :alt: Playlist Screenshot
 
+.. note::
+      
+   When a playlist button is less than 240px wide and/or less than 40 pixels high, its image and description are automatically hidden, allowing for a *light* playlist to be displayed.
 
 Playlist XML Syntax
 ^^^^^^^^^^^^^^^^^^^

@@ -1,5 +1,5 @@
 ﻿/**
- * Manages playback of http streaming flv.
+ * Manages playback of http streaming flv and mp4.
  **/
 package com.longtailvideo.jwplayer.media {
 	import com.longtailvideo.jwplayer.events.MediaEvent;
@@ -55,6 +55,8 @@ package com.longtailvideo.jwplayer.media {
 		private var _dvroffset:Number = 0;
 		/** Loaded amount for DVR streaming. **/
 		private var _dvrloaded:Number = 0;
+		/** Framerate of the video. **/
+		private var _framerate:Number = 30;
 		/** Number of frames dropped at present. **/
 		private var _droppedFrames:Array;
 		/** ID for the framedrop checking interval. **/
@@ -138,7 +140,7 @@ package com.longtailvideo.jwplayer.media {
 			if(len > 5) {
 				var drp:Number = (_droppedFrames[len-1] - _droppedFrames[len-6])/5;
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {droppedFrames:drp}});
-				if(drp > 7 && item.currentLevel < item.levels.length - 1) {
+				if(drp > _framerate/4 && item.currentLevel < item.levels.length - 1) {
 					item.blacklistLevel(item.currentLevel);
 					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {type:'blacklist',level:item.currentLevel}});
 					load(item);
@@ -224,7 +226,6 @@ package com.longtailvideo.jwplayer.media {
 			}
 			_bufferFull = false;
 			_bufferingComplete = false;
-			_bandwidthSwitch = true;
 			
 			if (item.levels.length > 0) { item.setLevel(item.getLevel(config.bandwidth, config.width)); }
 			
@@ -248,6 +249,9 @@ package com.longtailvideo.jwplayer.media {
 				_video.width = dat.width;
 				_video.height = dat.height;
 				resize(_width, _height);
+			}
+			if(dat.videoframerate) { 
+				_framerate = Number(dat.videoframerate);
 			}
 			if (dat['duration'] && item.duration <= 0) {
 				item.duration = dat['duration'];
@@ -430,6 +434,8 @@ package com.longtailvideo.jwplayer.media {
 			_dvroffset = _dvrloaded = 0;
 			_droppedFrames = new Array();
 			_keyframes = undefined;
+			_framerate = 30;
+			_bandwidthSwitch = true;
 			_bandwidthChecked = false;
 			_meta = false;
 			super.stop();
