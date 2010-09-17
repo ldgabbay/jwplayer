@@ -46,7 +46,7 @@ package com.longtailvideo.jwplayer.utils
 				}
 			}
 			
-			return stripDots(obj);
+			return obj;
 		}
 		
 		public static function stripDots(obj:Object):Object {

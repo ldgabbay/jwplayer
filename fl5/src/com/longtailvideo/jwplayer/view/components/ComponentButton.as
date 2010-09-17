@@ -18,7 +18,13 @@ package com.longtailvideo.jwplayer.view.components {
 		protected var _enabled:Boolean = true;
 
 				
+		protected static var currentTabIndex:Number = 100;
+		
 		public function ComponentButton () {
+			this.tabEnabled = true;
+			this.tabChildren = false;
+			this.tabIndex = currentTabIndex++;
+			this.buttonMode = true;
 		}
 
 	

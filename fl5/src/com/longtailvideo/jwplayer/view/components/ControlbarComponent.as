@@ -14,6 +14,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.utils.Strings;
 	import com.longtailvideo.jwplayer.view.interfaces.IControlbarComponent;
 	
+	import flash.accessibility.AccessibilityProperties;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
@@ -469,7 +470,6 @@ package com.longtailvideo.jwplayer.view.components {
 			button.setOutIcon(getSkinElement(name + "Button"));
 			button.setOverIcon(getSkinElement(name + "ButtonOver"));
 			button.setBackground(getSkinElement(name + "ButtonBack"));
-			button.tabEnabled = true;
 			button.clickFunction = function():void {
 				forward(new ViewEvent(event, eventData));
 			}
@@ -563,9 +563,12 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		private function addButtonDisplayObject(icon:DisplayObject, name:String, handler:Function=null):MovieClip {
+			var acs:AccessibilityProperties = new AccessibilityProperties();
+			acs.name = name + 'Button';
 			if (icon is ComponentButton) {
 				icon.name = name;
 				_buttons[name] = icon;
+				icon.accessibilityProperties = acs;
 				return icon as ComponentButton;
 			} else if (icon) {
 				var clipMC:MovieClip = new MovieClip();
@@ -573,6 +576,7 @@ package com.longtailvideo.jwplayer.view.components {
 					clipMC.addEventListener(MouseEvent.CLICK, handler);
 				}
 				clipMC.name = name;
+				clipMC.accessibilityProperties = acs;
 				clipMC.addChild(icon);
 				_buttons[name] = clipMC;
 				return clipMC;
@@ -584,7 +588,6 @@ package com.longtailvideo.jwplayer.view.components {
 			return getConfigParam("buttoncolor") ? new Color(String(getConfigParam("buttoncolor"))) : null;
 		}
 		
-
 		public function addButton(icon:DisplayObject, name:String, handler:Function=null):MovieClip {
 			if (_customButtons.indexOf(name) < 0) {
 				_customButtons.push(name);
@@ -724,6 +727,8 @@ package com.longtailvideo.jwplayer.view.components {
 		private function alignTextFields():void {
 			for each(var fieldName:String in ['elapsed','duration']) {
 				var textContainer:Sprite = getButton(fieldName) as Sprite;
+				textContainer.tabEnabled = false;
+				textContainer.buttonMode = false;
 				var textField:DisplayObject = textContainer.getChildByName('text');
 				var textBackground:DisplayObject = textContainer.getChildByName('back');
 				

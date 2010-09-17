@@ -273,7 +273,11 @@ package com.longtailvideo.jwplayer.player {
 		}
 		
 		protected function js_getPlaylist():Array {
-			return JavascriptSerialization.playlistToArray(_player.playlist);
+			var playlistArray:Array = JavascriptSerialization.playlistToArray(_player.playlist);
+			for (var i:Number=0; i < playlistArray.length; i++) {
+				playlistArray[i] = JavascriptSerialization.stripDots(playlistArray[i]);
+			}
+			return playlistArray; 
 		}
 		
 		protected function js_getPosition():Number {

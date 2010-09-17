@@ -19,6 +19,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.view.skins.PNGSkin;
 	import com.longtailvideo.jwplayer.view.skins.SWFSkin;
 	
+	import flash.accessibility.AccessibilityProperties;
 	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
@@ -435,6 +436,7 @@ package com.longtailvideo.jwplayer.view.components {
 					scrollEase();
 				}
 			}
+			var currentTab:Number=500;
 			for (var i:Number = 0; i < _player.playlist.length; i++) {
 				if (clr) {
 					var btn:MovieClip;
@@ -444,6 +446,9 @@ package com.longtailvideo.jwplayer.view.components {
 						btn = buildButton();
 						list.addChild(btn);
 					}
+					btn.tabEnabled = true;
+					btn.tabChildren = false;
+					btn.tabIndex = currentTab++;
 					var stc:Stacker = new Stacker(btn);
 					btn.y = i * buttonheight;
 					btn.buttonMode = true;
@@ -542,15 +547,16 @@ package com.longtailvideo.jwplayer.view.components {
 		/** Setup button elements **/
 		private function setContents(idx:Number):void {
 			var playlistItem:PlaylistItem = _player.playlist.getItemAt(idx);
-			var title:TextField = getButton(idx).getChildByName("title") as TextField;
-			var description:TextField = getButton(idx).getChildByName("description") as TextField;
-			var duration:TextField = getButton(idx).getChildByName("duration") as TextField;
-			var author:TextField = getButton(idx).getChildByName("author") as TextField;
-			var tags:TextField = getButton(idx).getChildByName("tags") as TextField;
+			var btn:Sprite = getButton(idx); 
+			var title:TextField = btn.getChildByName("title") as TextField;
+			var description:TextField = btn.getChildByName("description") as TextField;
+			var duration:TextField = btn.getChildByName("duration") as TextField;
+			var author:TextField = btn.getChildByName("author") as TextField;
+			var tags:TextField = btn.getChildByName("tags") as TextField;
 			if (playlistItem.image || playlistItem['playlist.image']) {
 				var imageFile:String = playlistItem['playlist.image'] ? playlistItem['playlist.image'] : playlistItem.image;
 				if (getConfigParam('thumbs') != false && _player.config.playlist != 'none' && buttonheight > 39 && getConfigParam("width") > 239) {
-					var img:Sprite = getButton(idx).getChildByName("image") as Sprite;
+					var img:Sprite = btn.getChildByName("image") as Sprite;
 					if (img) {
 						img.alpha = 0;
 						var ldr:Loader = new Loader();
@@ -574,6 +580,10 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 			}
 			try {
+				var acs:AccessibilityProperties = new AccessibilityProperties();
+				acs.name = playlistItem.title;
+				acs.description = playlistItem.description;
+				btn.accessibilityProperties = acs;
 				if (description) { 
 					description.htmlText = playlistItem.description; 
 				}
@@ -599,14 +609,14 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 			} catch (e:Error) {
 			}
-			img = getButton(idx).getChildByName("image") as MovieClip;
+			img = btn.getChildByName("image") as MovieClip;
 			if (img && (!(playlistItem.image || playlistItem['playlist.image']) || getConfigParam('thumbs') == false || buttonheight < 40 || getConfigParam("width") < 240)) {
 				if (!img.getChildByName("imageBackground")) {
-					getButton(idx).getChildByName("image").visible = false;
+					btn.getChildByName("image").visible = false;
 				}
 			}
 			if (back && swfSkinned) {
-				getButton(idx).getChildByName("back").transform.colorTransform = back;
+				btn.getChildByName("back").transform.colorTransform = back;
 			}
 		}
 		

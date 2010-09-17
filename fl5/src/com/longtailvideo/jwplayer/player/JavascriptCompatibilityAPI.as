@@ -128,7 +128,7 @@ package com.longtailvideo.jwplayer.player {
 		}
 		
 		private function getJSPluginConfig(pluginId:String):Object {
-			return _player.config.pluginConfig(pluginId);
+			return JavascriptSerialization.stripDots(_player.config.pluginConfig(pluginId));
 		}
 		
 		private function loadPlugin(plugin:String):Object {

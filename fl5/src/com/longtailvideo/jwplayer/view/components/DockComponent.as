@@ -7,6 +7,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.view.interfaces.IDockComponent;
 	import com.longtailvideo.jwplayer.view.skins.SWFSkin;
 	
+	import flash.accessibility.AccessibilityProperties;
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
@@ -26,6 +27,8 @@ package com.longtailvideo.jwplayer.view.components {
 		private var timeout:Number;
 		/** Reference to the animations handler **/
 		private var animations:Animations;
+		/** Tab index for accessibility options **/
+		private var currentTab:Number = 400;
 		
 		public function DockComponent(player:IPlayer) {
 			super(player, "dock");
@@ -48,6 +51,12 @@ package com.longtailvideo.jwplayer.view.components {
 			if (_player.skin is SWFSkin) {
 				button.colorize = true;
 			}
+			var acs:AccessibilityProperties = new AccessibilityProperties();
+			acs.name = (name ? name : icon.name) + "Button";
+			button.accessibilityProperties = acs;
+			button.tabEnabled = true;
+			button.tabChildren = false;
+			button.tabIndex = currentTab++;
 			button.setOutIcon(icon);
 			button.outBackground = getSkinElement("button") as Sprite;
 			button.overBackground = getSkinElement("buttonOver") as Sprite;

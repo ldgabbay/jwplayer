@@ -187,27 +187,35 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Bandwidth and Framedrop checking for dynamic streaming. **/
 		private function getStreamInfo():void {
-			var bwd:Number = Math.round(_stream.info.maxBytesPerSecond * 8 / 1024);
-			var drf:Number = _stream.info.droppedFrames;
-			_streamInfo.push({bwd:bwd,drf:drf});
-			var len:Number = _streamInfo.length;
-			if(len > 5) {
-				bwd = Math.round((_streamInfo[len-1].bwd + _streamInfo[len-2].bwd + _streamInfo[len-3].bwd + 
-					_streamInfo[len-4].bwd+ + _streamInfo[len-5].bwd)/5);
-				drf = Math.round((_streamInfo[len-1].drf - _streamInfo[len-5].drf)*2)/10;
-				if(item.levels.length > 0 && item.getLevel(bwd,config.width) != item.currentLevel) {
-					Logger.log("swapping to another level b/c of bandwidth",bwd.toString());
-					swap(item.getLevel(bwd, config.width));
+			if (!_stream) {
+				clearInterval(_streamInfoInterval);
+				return;
+			}
+			try {
+				var bwd:Number = Math.round(_stream.info.maxBytesPerSecond * 8 / 1024);
+				var drf:Number = _stream.info.droppedFrames;
+				_streamInfo.push({bwd:bwd,drf:drf});
+				var len:Number = _streamInfo.length;
+				if(len > 5) {
+					bwd = Math.round((_streamInfo[len-1].bwd + _streamInfo[len-2].bwd + _streamInfo[len-3].bwd + 
+						_streamInfo[len-4].bwd+ + _streamInfo[len-5].bwd)/5);
+					drf = Math.round((_streamInfo[len-1].drf - _streamInfo[len-5].drf)*2)/10;
+					if(item.levels.length > 0 && item.getLevel(bwd,config.width) != item.currentLevel) {
+						Logger.log("swapping to another level b/c of bandwidth",bwd.toString());
+						swap(item.getLevel(bwd, config.width));
+					}
+					if(item.levels.length > 0 && drf > 7 && item.currentLevel < item.levels.length-1) {
+						var lvl:Number = item.currentLevel;
+						item.blacklistLevel(lvl);
+						setTimeout(unBlacklist,30000,lvl);
+						sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {type:'blacklist',level:lvl,state:true}});
+						Logger.log("swapping to another level b/c of framedrops",drf.toString());
+						swap(item.getLevel(bwd, config.width));
+					}
+					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {bandwidth:bwd,droppedFrames:drf}});
 				}
-				if(item.levels.length > 0 && drf > 7 && item.currentLevel < item.levels.length-1) {
-					var lvl:Number = item.currentLevel;
-					item.blacklistLevel(lvl);
-					setTimeout(unBlacklist,30000,lvl);
-					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {type:'blacklist',level:lvl,state:true}});
-					Logger.log("swapping to another level b/c of framedrops",drf.toString());
-					swap(item.getLevel(bwd, config.width));
-				}
-				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {bandwidth:bwd,droppedFrames:drf}});
+			} catch(e:Error) {
+				Logger.log("There was an error attempting to get stream info: " + e.message);
 			}
 		};
 
@@ -602,10 +610,13 @@ package com.longtailvideo.jwplayer.media {
 						sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: "Could not seek: " + item.file}); 
 					}
 					break;
-                case 'NetConnection.Connect.Failed':
-                    stop();
+				case 'NetConnection.Connect.Closed':
+					stop();
+					break;
+				case 'NetConnection.Connect.Failed':
+					stop();
 					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: "Server not found: " + item.streamer}); 
-                    break;
+					break;
                 case 'NetStream.Play.UnpublishNotify':
                     stop();
                     break;

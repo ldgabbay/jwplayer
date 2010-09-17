@@ -1,6 +1,7 @@
 package com.longtailvideo.jwplayer.view.components {
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
+	import flash.display.Sprite;
 	import flash.text.TextField;
 	
 	
@@ -10,6 +11,8 @@ package com.longtailvideo.jwplayer.view.components {
 		protected var _currentRight:Number;
 		protected var _height:Number;
 		
+		protected var _tabLeft:Number;
+		protected var _tabRight:Number;
 		
 		public function ControlbarLayoutManager(controlbar:ControlbarComponent) {
 			_controlbar = controlbar;
@@ -29,6 +32,10 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 				var controlbarPattern:RegExp = /\[(.*)\]\[(.*)\]\[(.*)\]/;
 				var result:Object = controlbarPattern.exec(_controlbar.layout);
+				
+				_tabLeft = 300;
+				_tabRight = 399;
+				
 				position(result[1], "left");
 				position(result[3], "right");
 				positionCenter(result[2]);
@@ -69,9 +76,16 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		private function place(displayObject:DisplayObject, align:String):void {
+			var displayObjectSprite:Sprite = displayObject as Sprite;
 			if (align == "left") {
+				if (displayObjectSprite && displayObjectSprite.buttonMode) {
+					displayObjectSprite.tabIndex = _tabLeft++;
+				}
 				placeLeft(displayObject);
 			} else if (align == "right") {
+				if (displayObjectSprite && displayObjectSprite.buttonMode) {
+					displayObjectSprite.tabIndex = _tabRight--;
+				}
 				placeRight(displayObject);
 			}
 		}

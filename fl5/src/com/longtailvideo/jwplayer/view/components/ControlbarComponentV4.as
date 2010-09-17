@@ -82,8 +82,8 @@ package com.longtailvideo.jwplayer.view.components {
 			skin = _player.skin.getSWFSkin().getChildByName('controlbar') as Sprite;
 			skin.x = 0;
 			skin.y = 0;
-			skin.tabChildren = true;
-			skin.tabEnabled = false;
+			skin.tabChildren = this.tabChildren = true;
+			skin.tabEnabled = this.tabEnabled = false;
 			addChild(skin);
 			_player.addEventListener(PlayerStateEvent.JWPLAYER_PLAYER_STATE, stateHandler);
 			_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_TIME, timeHandler);
