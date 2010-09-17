@@ -139,7 +139,7 @@
 		
 		function _normalscreenComponentResizer(pluginName, zIndex) {
 			if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
-				if (_model.plugins.config[pluginName].position !== jwplayer.html5.view.positions.OVER) {
+				if (_hasPosition(_model.plugins.config[pluginName].position)) {
 					var style = _getComponentPosition(pluginName);
 					style.zIndex = zIndex;
 					return style;
@@ -267,6 +267,10 @@
 		};
 		
 	};
+
+	function _hasPosition(position) {
+		return ([jwplayer.html5.view.positions.TOP, jwplayer.html5.view.positions.RIGHT, jwplayer.html5.view.positions.BOTTOM, jwplayer.html5.view.positions.LEFT].indexOf(position.toUpperCase()) > -1);
+	}
 	
 	jwplayer.html5.view.positions = {
 		TOP: "TOP",
