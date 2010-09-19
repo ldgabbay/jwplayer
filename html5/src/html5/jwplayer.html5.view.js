@@ -132,7 +132,7 @@
 			var failed = [];
 			for (var pluginIndex in plugins) {
 				var pluginName = plugins[pluginIndex];
-				if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
+				if (_model.plugins.object[pluginName].getDisplayElement !== undefined && _model.plugins.config[pluginName].position.toUpperCase() !== jwplayer.html5.view.positions.NONE) {
 					var style = componentResizer(pluginName, _zIndex--);
 					if (!style) {
 						failed.push(pluginName);
@@ -304,6 +304,7 @@
 		RIGHT: "RIGHT",
 		BOTTOM: "BOTTOM",
 		LEFT: "LEFT",
-		OVER: "OVER"
+		OVER: "OVER",
+		NONE: "NONE"
 	};
 })(jwplayer);
