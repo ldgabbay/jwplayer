@@ -125,7 +125,9 @@
 				if (_model.duration === 0) {
 					_model.duration = event.target.duration;
 				}
-				
+				if (!_start && _container.readyState > 0) {
+					_setState(jwplayer.api.events.state.PLAYING);
+				}
 				if (_state == jwplayer.api.events.state.PLAYING) {
 					if (!_start && _container.readyState > 0) {
 						_start = true;
@@ -205,7 +207,6 @@
 					_container.style.display = "block";
 				}
 				_container.play();
-				_setState(jwplayer.api.events.state.PLAYING);
 				_startInterval();
 			}
 		};

@@ -152,7 +152,7 @@
 		function _normalscreenComponentResizer(pluginName, zIndex) {
 			if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
 				if (_hasPosition(_model.plugins.config[pluginName].position)) {
-					if (_model.plugins.object[pluginName].getDisplayElement().parentElement === null) {
+					if (_model.plugins.object[pluginName].getDisplayElement().parentNode === null) {
 						_wrapper.appendChild(_model.plugins.object[pluginName].getDisplayElement());
 					}
 					var style = _getComponentPosition(pluginName);
@@ -164,7 +164,7 @@
 		}
 		
 		function _overlayComponentResizer(pluginName, zIndex) {
-			if (_model.plugins.object[pluginName].getDisplayElement().parentElement === null) {
+			if (_model.plugins.object[pluginName].getDisplayElement().parentNode === null) {
 				_box.appendChild(_model.plugins.object[pluginName].getDisplayElement());
 			}
 			return {

@@ -114,7 +114,6 @@
 		var _prevElement;
 		var _elements = {};
 		var _ready = false;
-		var _fadeOutTimeout;
 		
 		
 		function _buildBase() {

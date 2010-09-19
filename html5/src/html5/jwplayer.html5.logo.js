@@ -25,7 +25,6 @@
 	jwplayer.html5.logo = function(api, config) {
 		var _api = api;
 		var _settings = jwplayer.utils.extend({}, _defaults, config);
-		var _interval;
 		
 		var _logo = document.createElement("img");
 		_logo.id = _api.id + "_jwplayer_logo";
