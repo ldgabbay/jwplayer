@@ -57,6 +57,8 @@
 		var _loadcount = 0;
 		var _start = false;
 		var hasChrome = false;
+		var _currentItem;
+		var _sourceError = 0;
 		
 		function _getState() {
 			return _state;
@@ -82,9 +84,12 @@
 				var oldstate = _state;
 				_model.state = newstate;
 				_state = newstate;
+				var _sendComplete = false;
 				if (newstate == jwplayer.api.events.state.IDLE) {
 					_clearInterval();
-					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
+					if (_model.position >= _model.duration && (_model.position || _model.duration)) {
+						_sendComplete = true;
+					}
 					
 					if (_container.style.display != 'none') {
 						_container.style.display = 'none';
@@ -95,6 +100,9 @@
 					oldstate: oldstate,
 					newstate: newstate
 				});
+				if (_sendComplete) {
+					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
+				}
 			}
 			_stopped = false;
 		}
@@ -106,8 +114,8 @@
 				width: event.target.videoWidth,
 				duration: event.target.duration
 			};
-			if (_model.duration === 0) {
-				_model.duration = event.target.duration;
+			if (_model.duration === 0 || isNaN(_model.duration)) {
+				_model.duration = Math.round(event.target.duration * 10) / 10;
 			}
 			_model.playlist[_model.item] = jwplayer.utils.extend(_model.playlist[_model.item], meta);
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_META, {
@@ -122,8 +130,8 @@
 			}
 			
 			if (event !== undefined && event.target !== undefined) {
-				if (_model.duration === 0) {
-					_model.duration = event.target.duration;
+				if (_model.duration === 0 || isNaN(_model.duration)) {
+					_model.duration = Math.round(event.target.duration * 10) / 10
 				}
 				if (!_start && _container.readyState > 0) {
 					_setState(jwplayer.api.events.state.PLAYING);
@@ -159,7 +167,7 @@
 				}
 			}
 			
-			if (_bufferFull === false) {
+			if (_bufferFull === false && _state == jwplayer.api.events.state.BUFFERING) {
 				_bufferFull = true;
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL);
 			}
@@ -194,7 +202,53 @@
 		}
 		
 		function _errorHandler(event) {
-			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, event.target);
+			_stop();
+			var message = "There was an error: ";
+			if (event.target.error || event.target.parentNode.error) {
+				var element = event.target.error === undefined ? event.target.parentNode.error : event.target.error;
+				switch (element.code) {
+					case element.MEDIA_ERR_ABORTED:
+						message = "You aborted the video playback: ";
+						break;
+					case element.MEDIA_ERR_NETWORK:
+						message = "A network error caused the video download to fail part-way: ";
+						break;
+					case element.MEDIA_ERR_DECODE:
+						message = "The video playback was aborted due to a corruption problem or because the video used features your browser did not support: ";
+						break;
+					case element.MEDIA_ERR_SRC_NOT_SUPPORTED:
+						message = "The video could not be loaded, either because the server or network failed or because the format is not supported: ";
+						break;
+					default:
+						message = "An unknown error occurred: ";
+						break;
+				}
+			} else if (event.target.tagName.toLowerCase() == "source") {
+				_sourceError++;
+				if (_sourceError != _currentItem.levels.length) {
+					return;
+				}
+				message = "The video could not be loaded, either because the server or network failed or because the format is not supported: ";
+			}
+			
+			message += joinFiles();
+			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
+				error: message
+			});
+			return;
+		}
+		
+		function joinFiles() {
+			var result = "";
+			for (var sourceIndex in _currentItem.levels) {
+				var sourceModel = _currentItem.levels[sourceIndex];
+				var source = _container.ownerDocument.createElement("source");
+				result += jwplayer.html5.utils.getAbsolutePath(sourceModel.file);
+				if (sourceIndex < (_currentItem.levels.length - 1)) {
+					result += ", ";
+				}
+			}
+			return result;
 		}
 		
 		this.getDisplayElement = function() {
@@ -227,14 +281,15 @@
 		
 		
 		/** Stop playback and loading of the video. **/
-		this.stop = function() {
+		function _stop() {
 			_stopped = true;
 			_container.pause();
 			_clearInterval();
 			_model.position = 0;
 			_setState(jwplayer.api.events.state.IDLE);
-		};
+		}
 		
+		this.stop = _stop;
 		
 		/** Change the video's volume level. **/
 		this.volume = function(position) {
@@ -285,21 +340,23 @@
 		/** Load a new video into the player. **/
 		this.load = function(playlistItem) {
 			_embed(playlistItem);
-			
+			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_LOADED);
 			_bufferFull = false;
 			_bufferingComplete = false;
 			_start = false;
+			_setState(jwplayer.api.events.state.BUFFERING);
+			
 			setTimeout(function() {
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_LOADED);
-				_setState(jwplayer.api.events.state.BUFFERING);
 				_positionHandler();
 			}, 25);
 		};
 		
 		_embed = function(playlistItem) {
+			_currentItem = playlistItem;
 			var vid = document.createElement("video");
 			vid.preload = "none";
 			vid.loop = _model.config.repeat;
+			_sourceError = 0;
 			for (var sourceIndex in playlistItem.levels) {
 				var sourceModel = playlistItem.levels[sourceIndex];
 				var source = _container.ownerDocument.createElement("source");

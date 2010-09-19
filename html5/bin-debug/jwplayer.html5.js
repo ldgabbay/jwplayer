@@ -264,7 +264,7 @@
 		function _normalscreenComponentResizer(pluginName, zIndex) {
 			if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
 				if (_hasPosition(_model.plugins.config[pluginName].position)) {
-					if (_model.plugins.object[pluginName].getDisplayElement().parentElement === null) {
+					if (_model.plugins.object[pluginName].getDisplayElement().parentNode === null) {
 						_wrapper.appendChild(_model.plugins.object[pluginName].getDisplayElement());
 					}
 					var style = _getComponentPosition(pluginName);
@@ -276,7 +276,7 @@
 		}
 		
 		function _overlayComponentResizer(pluginName, zIndex) {
-			if (_model.plugins.object[pluginName].getDisplayElement().parentElement === null) {
+			if (_model.plugins.object[pluginName].getDisplayElement().parentNode === null) {
 				_box.appendChild(_model.plugins.object[pluginName].getDisplayElement());
 			}
 			return {
@@ -536,7 +536,6 @@
 		var _prevElement;
 		var _elements = {};
 		var _ready = false;
-		var _fadeOutTimeout;
 		
 		
 		function _buildBase() {
@@ -594,14 +593,8 @@
 		};
 		
 		function _fadeOut() {
-			_wrapper.style.opacity = 1;
-			if (_fadeOutTimeout !== undefined) {
-				clearTimeout(_fadeOutTimeout);
-			}
-			_fadeOutTimeout = setTimeout(function() {
-				jwplayer.html5.utils.fadeTo(_wrapper, 0, 0.1, 1);
-				_fadeOutTimeout = undefined;
-			}, 2000);
+			jwplayer.html5.utils.cancelAnimation(_wrapper);
+			jwplayer.html5.utils.fadeTo(_wrapper, 0, 0.1, 1, 2);
 		}
 		
 		function _fadeIn(){
@@ -1365,7 +1358,7 @@
  * @author zach
  * @version 1.0
  */
-(function(jwplayer) {	
+(function(jwplayer) {
 	_css = jwplayer.html5.utils.css;
 	
 	_hide = function(element) {
@@ -1390,62 +1383,76 @@
 		var _bufferRotation = _api.skin.getComponentSettings("display").bufferrotation === undefined ? 15 : parseInt(_api.skin.getComponentSettings("display").bufferrotation, 10);
 		var _bufferInterval = _api.skin.getComponentSettings("display").bufferinterval === undefined ? 100 : parseInt(_api.skin.getComponentSettings("display").bufferinterval, 10);
 		var _elements = {
-				display: {
-					style: {
-						cursor: "pointer"
-					},
-					click: _displayClickHandler
+			display: {
+				style: {
+					cursor: "pointer"
 				},
-				display_icon: {
-					style: {
-						cursor: "pointer",
-						position: "absolute",
-						top: ((_api.skin.getSkinElement("display", "background").height - _api.skin.getSkinElement("display", "playIcon").height) / 2),
-						left: ((_api.skin.getSkinElement("display", "background").width - _api.skin.getSkinElement("display", "playIcon").width) / 2),
-						border: 0,
-						margin: 0,
-						padding: 0
-					}
-				},
-				display_iconBackground: {
-					style: {
-						cursor: "pointer",
-						position: "absolute",
-						top: ((_height - _api.skin.getSkinElement("display", "background").height) / 2),
-						left: ((_width - _api.skin.getSkinElement("display", "background").width) / 2),
-						border: 0,
-						backgroundImage: (["url(", _api.skin.getSkinElement("display", "background").src, ")"]).join(""),
-						width: _api.skin.getSkinElement("display", "background").width,
-						height: _api.skin.getSkinElement("display", "background").height,
-						margin: 0,
-						padding: 0
-					}
-				},
-				display_image: {
-					style: {
-						display: "block",
-						width: _width,
-						height: _height,
-						position: "absolute",
-						cursor: "pointer",
-						left: 0,
-						top: 0,
-						margin: 0,
-						padding: 0,
-						textDecoration: "none"
-					}
+				click: _displayClickHandler
+			},
+			display_icon: {
+				style: {
+					cursor: "pointer",
+					position: "absolute",
+					top: ((_api.skin.getSkinElement("display", "background").height - _api.skin.getSkinElement("display", "playIcon").height) / 2),
+					left: ((_api.skin.getSkinElement("display", "background").width - _api.skin.getSkinElement("display", "playIcon").width) / 2),
+					border: 0,
+					margin: 0,
+					padding: 0
 				}
-			};
+			},
+			display_iconBackground: {
+				style: {
+					cursor: "pointer",
+					position: "absolute",
+					top: ((_height - _api.skin.getSkinElement("display", "background").height) / 2),
+					left: ((_width - _api.skin.getSkinElement("display", "background").width) / 2),
+					border: 0,
+					backgroundImage: (["url(", _api.skin.getSkinElement("display", "background").src, ")"]).join(""),
+					width: _api.skin.getSkinElement("display", "background").width,
+					height: _api.skin.getSkinElement("display", "background").height,
+					margin: 0,
+					padding: 0
+				}
+			},
+			display_image: {
+				style: {
+					display: "block",
+					width: _width,
+					height: _height,
+					position: "absolute",
+					cursor: "pointer",
+					left: 0,
+					top: 0,
+					margin: 0,
+					padding: 0,
+					textDecoration: "none"
+				}
+			},
+			display_text: {
+				style: {
+					position: "relative",
+					top: "50%",
+					opacity: 0.8,
+					backgroundColor: "black",
+					color: "white",
+					display: "none",
+					textAlign: "center",
+					fontFamily: "Arial,sans-serif",
+					padding: "0 5px",
+					fontSize: 14
+				}
+			}
+		};
 		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, _stateHandler);
 		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, _stateHandler);
-		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_ERROR, function(obj) {
-		});
+		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_ERROR, _errorHandler);
 		_setupDisplay();
-		
 		
 		function _setupDisplay() {
 			_display.display = createElement("div", "display");
+			_display.display_text = createElement("div", "display_text");
+			_display.display.appendChild(_display.display_text);
 			_display.display_image = createElement("div", "display_image");
 			_display.display_icon = createElement("div", "display_icon");
 			_display.display_iconBackground = createElement("div", "display_iconBackground");
@@ -1483,17 +1490,6 @@
 			_element.id = _api.id + "_jwplayer_" + element;
 			_css(_element, _elements[element].style);
 			return _element;
-		}
-		
-		function _getStyle(element) {
-			var result = '';
-			for (var style in _elements[element].style) {
-				result += style + ":" + _elements[element].style[style] + ";";
-			}
-			if (result === '') {
-				return ' ';
-			}
-			return ' style="' + result + '" ';
 		}
 		
 		
@@ -1550,7 +1546,15 @@
 			_hide(_display.display_iconBackground);
 		}
 		
-		function _stateHandler(obj) {
+		function _errorHandler(evt){
+			_hideDisplayIcon();
+			_display.display_text.innerHTML = "<p>"+evt.error+"</p>";
+			_show(_display.display_text);
+			_display.display_text.style.top = ((_height -  _display.display_text.getBoundingClientRect().height) / 2) + "px";
+		}
+		
+		function _stateHandler(evt) {
+			_hide(_display.display_text);
 			if (_rotationInterval !== undefined) {
 				clearInterval(_rotationInterval);
 				_rotationInterval = undefined;
@@ -1795,18 +1799,15 @@
 	jwplayer.html5.logo = function(api, config) {
 		var _api = api;
 		var _settings = jwplayer.utils.extend({}, _defaults, config);
-		var _interval;
 		
 		var _logo = document.createElement("img");
-		
 		_logo.id = _api.id + "_jwplayer_logo";
+		_css(_logo, _getStyle());
 		
 		_logo.onload = function(evt) {
 			_settings.width = _logo.width;
 			_settings.height = _logo.height;
-			
-			_css(_logo, _getStyle());
-			
+						
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 		};
 		
@@ -1827,7 +1828,8 @@
 				width: _settings.width,
 				height: _settings.height,
 				textDecoration: "none",
-				position: "absolute"
+				position: "absolute",
+				display: "none"
 			};
 			var positions = _settings.position.toLowerCase().split("-");
 			for (var position in positions) {
@@ -1853,14 +1855,16 @@
 			switch (_api.jwGetState()) {
 				case jwplayer.api.events.state.BUFFERING:
 					_logo.style.opacity = _settings.out;
-					setTimeout(jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, _logo.style.opacity), _settings.timeout * 1000);
+					jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity), _settings.timeout);
 					break;
 				case jwplayer.api.events.state.PAUSED:
 					break;
 				case jwplayer.api.events.state.IDLE:
 					break;
+				case jwplayer.api.events.state.PLAYING:
+					break;
 				default:
-					setTimeout(jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, _logo.style.opacity), _settings.timeout * 1000);
+					jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity), _settings.timeout);
 					break;
 			}
 		}
@@ -1927,6 +1931,8 @@
 		var _loadcount = 0;
 		var _start = false;
 		var hasChrome = false;
+		var _currentItem;
+		var _sourceError = 0;
 		
 		function _getState() {
 			return _state;
@@ -1952,9 +1958,12 @@
 				var oldstate = _state;
 				_model.state = newstate;
 				_state = newstate;
+				var _sendComplete = false;
 				if (newstate == jwplayer.api.events.state.IDLE) {
 					_clearInterval();
-					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
+					if (_model.position >= _model.duration && (_model.position || _model.duration)) {
+						_sendComplete = true;
+					}
 					
 					if (_container.style.display != 'none') {
 						_container.style.display = 'none';
@@ -1965,6 +1974,9 @@
 					oldstate: oldstate,
 					newstate: newstate
 				});
+				if (_sendComplete) {
+					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
+				}
 			}
 			_stopped = false;
 		}
@@ -1976,8 +1988,8 @@
 				width: event.target.videoWidth,
 				duration: event.target.duration
 			};
-			if (_model.duration === 0) {
-				_model.duration = event.target.duration;
+			if (_model.duration === 0 || isNaN(_model.duration)) {
+				_model.duration = Math.round(event.target.duration * 10) / 10;
 			}
 			_model.playlist[_model.item] = jwplayer.utils.extend(_model.playlist[_model.item], meta);
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_META, {
@@ -1992,10 +2004,12 @@
 			}
 			
 			if (event !== undefined && event.target !== undefined) {
-				if (_model.duration === 0) {
-					_model.duration = event.target.duration;
+				if (_model.duration === 0 || isNaN(_model.duration)) {
+					_model.duration = Math.round(event.target.duration * 10) / 10
 				}
-				
+				if (!_start && _container.readyState > 0) {
+					_setState(jwplayer.api.events.state.PLAYING);
+				}
 				if (_state == jwplayer.api.events.state.PLAYING) {
 					if (!_start && _container.readyState > 0) {
 						_start = true;
@@ -2027,7 +2041,7 @@
 				}
 			}
 			
-			if (_bufferFull === false) {
+			if (_bufferFull === false && _state == jwplayer.api.events.state.BUFFERING) {
 				_bufferFull = true;
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL);
 			}
@@ -2062,7 +2076,53 @@
 		}
 		
 		function _errorHandler(event) {
-			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, event.target);
+			_stop();
+			var message = "There was an error: ";
+			if (event.target.error || event.target.parentNode.error) {
+				var element = event.target.error === undefined ? event.target.parentNode.error : event.target.error;
+				switch (element.code) {
+					case element.MEDIA_ERR_ABORTED:
+						message = "You aborted the video playback: ";
+						break;
+					case element.MEDIA_ERR_NETWORK:
+						message = "A network error caused the video download to fail part-way: ";
+						break;
+					case element.MEDIA_ERR_DECODE:
+						message = "The video playback was aborted due to a corruption problem or because the video used features your browser did not support: ";
+						break;
+					case element.MEDIA_ERR_SRC_NOT_SUPPORTED:
+						message = "The video could not be loaded, either because the server or network failed or because the format is not supported: ";
+						break;
+					default:
+						message = "An unknown error occurred: ";
+						break;
+				}
+			} else if (event.target.tagName.toLowerCase() == "source") {
+				_sourceError++;
+				if (_sourceError != _currentItem.levels.length) {
+					return;
+				}
+				message = "The video could not be loaded, either because the server or network failed or because the format is not supported: ";
+			}
+			
+			message += joinFiles();
+			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
+				error: message
+			});
+			return;
+		}
+		
+		function joinFiles() {
+			var result = "";
+			for (var sourceIndex in _currentItem.levels) {
+				var sourceModel = _currentItem.levels[sourceIndex];
+				var source = _container.ownerDocument.createElement("source");
+				result += jwplayer.html5.utils.getAbsolutePath(sourceModel.file);
+				if (sourceIndex < (_currentItem.levels.length - 1)) {
+					result += ", ";
+				}
+			}
+			return result;
 		}
 		
 		this.getDisplayElement = function() {
@@ -2075,7 +2135,6 @@
 					_container.style.display = "block";
 				}
 				_container.play();
-				_setState(jwplayer.api.events.state.PLAYING);
 				_startInterval();
 			}
 		};
@@ -2096,14 +2155,15 @@
 		
 		
 		/** Stop playback and loading of the video. **/
-		this.stop = function() {
+		function _stop() {
 			_stopped = true;
 			_container.pause();
 			_clearInterval();
 			_model.position = 0;
 			_setState(jwplayer.api.events.state.IDLE);
-		};
+		}
 		
+		this.stop = _stop;
 		
 		/** Change the video's volume level. **/
 		this.volume = function(position) {
@@ -2154,21 +2214,23 @@
 		/** Load a new video into the player. **/
 		this.load = function(playlistItem) {
 			_embed(playlistItem);
-			
+			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_LOADED);
 			_bufferFull = false;
 			_bufferingComplete = false;
 			_start = false;
+			_setState(jwplayer.api.events.state.BUFFERING);
+			
 			setTimeout(function() {
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_LOADED);
-				_setState(jwplayer.api.events.state.BUFFERING);
 				_positionHandler();
 			}, 25);
 		};
 		
 		_embed = function(playlistItem) {
+			_currentItem = playlistItem;
 			var vid = document.createElement("video");
 			vid.preload = "none";
 			vid.loop = _model.config.repeat;
+			_sourceError = 0;
 			for (var sourceIndex in playlistItem.levels) {
 				var sourceModel = playlistItem.levels[sourceIndex];
 				var source = _container.ownerDocument.createElement("source");
@@ -2680,24 +2742,37 @@
 		jwplayer.html5.utils.animations.transform(domelement, ["rotate(", deg, "deg)"].join(""));
 	};
 	
-	jwplayer.html5.utils.fadeTo = function(domelement, endAlpha, time, startAlpha, startTime) {
+	jwplayer.html5.utils.cancelAnimation = function(domelement) {
+		delete _animations[domelement];
+	};
+	
+	jwplayer.html5.utils.fadeTo = function(domelement, endAlpha, time, startAlpha, delay, startTime) {
 		// Interrupting
 		if (_animations[domelement] != startTime && startTime !== undefined) {
 			return;
 		}
 		var currentTime = new Date().getTime();
+		if (startTime > currentTime) {
+			setTimeout(function() {
+				jwplayer.html5.utils.fadeTo(domelement, endAlpha, time, startAlpha, 0, startTime);
+			}, startTime - currentTime);
+		}
+		domelement.style.display = "block";
 		if (startAlpha === undefined) {
 			startAlpha = domelement.style.opacity === "" ? 1 : domelement.style.opacity;
 		}
-		if (typeof startAlpha == "string") {
-			startAlpha = parseInt(startAlpha, 10);
-		}
 		if (domelement.style.opacity == endAlpha && domelement.style.opacity !== "" && startTime !== undefined) {
+			if (endAlpha === 0) {
+				domelement.style.display = "none";
+			}
 			return;
 		}
 		if (startTime === undefined) {
 			startTime = currentTime;
 			_animations[domelement] = startTime;
+		}
+		if (delay === undefined) {
+			delay = 0;
 		}
 		var percentTime = (currentTime - startTime) / (time * 1000);
 		percentTime = percentTime > 1 ? 1 : percentTime;
@@ -2709,11 +2784,15 @@
 			alpha = 0;
 		}
 		domelement.style.opacity = alpha;
+		if (delay > 0) {
+			_animations[domelement] = startTime + delay * 1000;
+			jwplayer.html5.utils.fadeTo(domelement, endAlpha, time, startAlpha, 0, _animations[domelement]);
+			return;
+		}
 		setTimeout(function() {
-			jwplayer.html5.utils.fadeTo(domelement, endAlpha, time, startAlpha, startTime);
+			jwplayer.html5.utils.fadeTo(domelement, endAlpha, time, startAlpha, 0, startTime);
 		}, 10);
-	};
-	
+	};	
 })(jwplayer);
 /**
  * Utility methods for the JW Player.

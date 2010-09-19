@@ -4,7 +4,7 @@
  * @author zach
  * @version 1.0
  */
-(function(jwplayer) {	
+(function(jwplayer) {
 	_css = jwplayer.html5.utils.css;
 	
 	_hide = function(element) {
@@ -29,62 +29,76 @@
 		var _bufferRotation = _api.skin.getComponentSettings("display").bufferrotation === undefined ? 15 : parseInt(_api.skin.getComponentSettings("display").bufferrotation, 10);
 		var _bufferInterval = _api.skin.getComponentSettings("display").bufferinterval === undefined ? 100 : parseInt(_api.skin.getComponentSettings("display").bufferinterval, 10);
 		var _elements = {
-				display: {
-					style: {
-						cursor: "pointer"
-					},
-					click: _displayClickHandler
+			display: {
+				style: {
+					cursor: "pointer"
 				},
-				display_icon: {
-					style: {
-						cursor: "pointer",
-						position: "absolute",
-						top: ((_api.skin.getSkinElement("display", "background").height - _api.skin.getSkinElement("display", "playIcon").height) / 2),
-						left: ((_api.skin.getSkinElement("display", "background").width - _api.skin.getSkinElement("display", "playIcon").width) / 2),
-						border: 0,
-						margin: 0,
-						padding: 0
-					}
-				},
-				display_iconBackground: {
-					style: {
-						cursor: "pointer",
-						position: "absolute",
-						top: ((_height - _api.skin.getSkinElement("display", "background").height) / 2),
-						left: ((_width - _api.skin.getSkinElement("display", "background").width) / 2),
-						border: 0,
-						backgroundImage: (["url(", _api.skin.getSkinElement("display", "background").src, ")"]).join(""),
-						width: _api.skin.getSkinElement("display", "background").width,
-						height: _api.skin.getSkinElement("display", "background").height,
-						margin: 0,
-						padding: 0
-					}
-				},
-				display_image: {
-					style: {
-						display: "block",
-						width: _width,
-						height: _height,
-						position: "absolute",
-						cursor: "pointer",
-						left: 0,
-						top: 0,
-						margin: 0,
-						padding: 0,
-						textDecoration: "none"
-					}
+				click: _displayClickHandler
+			},
+			display_icon: {
+				style: {
+					cursor: "pointer",
+					position: "absolute",
+					top: ((_api.skin.getSkinElement("display", "background").height - _api.skin.getSkinElement("display", "playIcon").height) / 2),
+					left: ((_api.skin.getSkinElement("display", "background").width - _api.skin.getSkinElement("display", "playIcon").width) / 2),
+					border: 0,
+					margin: 0,
+					padding: 0
 				}
-			};
+			},
+			display_iconBackground: {
+				style: {
+					cursor: "pointer",
+					position: "absolute",
+					top: ((_height - _api.skin.getSkinElement("display", "background").height) / 2),
+					left: ((_width - _api.skin.getSkinElement("display", "background").width) / 2),
+					border: 0,
+					backgroundImage: (["url(", _api.skin.getSkinElement("display", "background").src, ")"]).join(""),
+					width: _api.skin.getSkinElement("display", "background").width,
+					height: _api.skin.getSkinElement("display", "background").height,
+					margin: 0,
+					padding: 0
+				}
+			},
+			display_image: {
+				style: {
+					display: "block",
+					width: _width,
+					height: _height,
+					position: "absolute",
+					cursor: "pointer",
+					left: 0,
+					top: 0,
+					margin: 0,
+					padding: 0,
+					textDecoration: "none"
+				}
+			},
+			display_text: {
+				style: {
+					position: "relative",
+					top: "50%",
+					opacity: 0.8,
+					backgroundColor: "black",
+					color: "white",
+					display: "none",
+					textAlign: "center",
+					fontFamily: "Arial,sans-serif",
+					padding: "0 5px",
+					fontSize: 14
+				}
+			}
+		};
 		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, _stateHandler);
 		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, _stateHandler);
-		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_ERROR, function(obj) {
-		});
+		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_ERROR, _errorHandler);
 		_setupDisplay();
-		
 		
 		function _setupDisplay() {
 			_display.display = createElement("div", "display");
+			_display.display_text = createElement("div", "display_text");
+			_display.display.appendChild(_display.display_text);
 			_display.display_image = createElement("div", "display_image");
 			_display.display_icon = createElement("div", "display_icon");
 			_display.display_iconBackground = createElement("div", "display_iconBackground");
@@ -122,17 +136,6 @@
 			_element.id = _api.id + "_jwplayer_" + element;
 			_css(_element, _elements[element].style);
 			return _element;
-		}
-		
-		function _getStyle(element) {
-			var result = '';
-			for (var style in _elements[element].style) {
-				result += style + ":" + _elements[element].style[style] + ";";
-			}
-			if (result === '') {
-				return ' ';
-			}
-			return ' style="' + result + '" ';
 		}
 		
 		
@@ -189,7 +192,15 @@
 			_hide(_display.display_iconBackground);
 		}
 		
-		function _stateHandler(obj) {
+		function _errorHandler(evt){
+			_hideDisplayIcon();
+			_display.display_text.innerHTML = "<p>"+evt.error+"</p>";
+			_show(_display.display_text);
+			_display.display_text.style.top = ((_height -  _display.display_text.getBoundingClientRect().height) / 2) + "px";
+		}
+		
+		function _stateHandler(evt) {
+			_hide(_display.display_text);
 			if (_rotationInterval !== undefined) {
 				clearInterval(_rotationInterval);
 				_rotationInterval = undefined;
