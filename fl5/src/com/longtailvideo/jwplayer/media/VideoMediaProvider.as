@@ -166,7 +166,7 @@
 				bufferFill = _stream.bufferTime ? _stream.bufferLength/_stream.bufferTime * 100 : 0;
 				bufferTime = (_stream.bytesTotal > 0) ? 100 : 0;
 			}
-			if (bufferFill < 50 && state == PlayerState.PLAYING) {
+			if (bufferFill < 50 && state == PlayerState.PLAYING && item.duration - pos > 5) {
 				_bufferFull = false;
 				_stream.pause();
 				setState(PlayerState.BUFFERING);

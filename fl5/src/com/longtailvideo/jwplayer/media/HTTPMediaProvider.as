@@ -324,7 +324,7 @@ package com.longtailvideo.jwplayer.media {
 				_bandwidthTimeout = setTimeout(checkBandwidth, _bandwidthDelay, _stream.bytesLoaded);
 			}
 
-			if (bufferFill < 50 && state == PlayerState.PLAYING && item.duration - pos > _stream.bufferTime) {
+			if (bufferFill < 50 && state == PlayerState.PLAYING && item.duration - pos > 5) {
 				_bufferFull = false;
 				_stream.pause();
 				setState(PlayerState.BUFFERING);
