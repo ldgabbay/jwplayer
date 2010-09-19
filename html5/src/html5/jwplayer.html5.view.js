@@ -29,7 +29,7 @@
 				width: _model.width,
 				margin: "auto",
 				padding: 0,
-				background: _api.skin.getComponentSettings("display").backgroundcolor === undefined ? "#000" : _api.skin.getComponentSettings("display").backgroundcolor.replace("0x", "#"),
+				backgroundColor: _api.skin.getComponentSettings("display").backgroundcolor === undefined ? parseInt("000000", 16) : _api.skin.getComponentSettings("display").backgroundcolor,
 				zIndex: 0
 			});
 			

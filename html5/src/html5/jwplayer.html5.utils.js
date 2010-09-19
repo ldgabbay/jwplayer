@@ -80,7 +80,11 @@
 			for (var style in styles) {
 				try {
 					if (typeof styles[style] == "number" && !(style == "zIndex" || style == "opacity")) {
-						styles[style] = styles[style] + "px";
+						if (style.match(/color/i)) {
+							styles[style] = "#" + _pad(styles[style].toString(16), 6);
+						} else {
+							styles[style] = styles[style] + "px";
+						}
 					}
 					domelement.style[style] = styles[style];
 				} catch (err) {
@@ -88,4 +92,12 @@
 			}
 		}
 	};
+	
+	function _pad(string, length) {
+		while (string.length < length) {
+			string = "0" + string;
+		}
+		return string;
+	}
+	
 })(jwplayer);

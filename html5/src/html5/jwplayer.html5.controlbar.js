@@ -7,16 +7,16 @@
 (function(jwplayer) {
 	/** Map with config for the jwplayerControlbar plugin. **/
 	var _defaults = {
-		backgroundcolor: "000000",
+		backgroundcolor: parseInt("000000", 16),
 		margin: 10,
 		//font: "_sans",
 		font: "Arial,sans-serif",
 		fontsize: 10,
-		fontcolor: "000000",
+		fontcolor: parseInt("000000", 16),
 		fontstyle: "normal",
 		//fontweight: "normal",
 		fontweight: "bold",
-		buttoncolor: "ffffff",
+		buttoncolor: parseInt("ffffff", 16),
 		position: jwplayer.html5.view.positions.BOTTOM,
 		idlehide: false,
 		layout: {
@@ -119,7 +119,7 @@
 		function _buildBase() {
 			var wrappercss = {
 				height: _api.skin.getSkinElement("controlbar", "background").height,
-				backgroundColor: "#" + _settings.backgroundcolor
+				backgroundColor: _settings.backgroundcolor
 			};
 			
 			_wrapper = document.createElement("div");
@@ -144,7 +144,7 @@
 		this.resize = function(width, height) {
 			if (!_ready && _wrapper.parentElement !== undefined) {
 				_ready = true;
-				if (_settings.position == jwplayer.html5.view.positions.OVER.toLowerCase()){
+				if (_settings.position == jwplayer.html5.view.positions.OVER.toLowerCase()) {
 					document.getElementById(_api.id).onmousemove = _fadeOut;
 				}
 			}
@@ -175,7 +175,7 @@
 			jwplayer.html5.utils.fadeTo(_wrapper, 0, 0.1, 1, 2);
 		}
 		
-		function _fadeIn(){
+		function _fadeIn() {
 			_wrapper.style.opacity = 1;
 		}
 		
@@ -317,7 +317,6 @@
 					css.fontStyle = _settings.fontstyle;
 					css.cursor = "default";
 					wid = 14 + 3 * _settings.fontsize;
-					css.color = "#" + _settings.fontcolor.substr(-6);
 				} else if (element.indexOf("divider") === 0) {
 					css.background = "url(" + _api.skin.getSkinElement("controlbar", "divider").src + ") repeat-x center left";
 					wid = _api.skin.getSkinElement("controlbar", "divider").width;
@@ -527,7 +526,7 @@
 			
 			// Show / hide progress bar
 			if (event.newstate == jwplayer.api.events.state.IDLE) {
-				if (!_settings.idlehide && _settings.position == jwplayer.html5.view.positions.OVER){
+				if (!_settings.idlehide && _settings.position == jwplayer.html5.view.positions.OVER) {
 					_fadeIn();
 				}
 				_hide(_elements.timeSliderBuffer);

@@ -11,14 +11,14 @@
 		var _completeHandler = completeHandler;
 		var _loading = true;
 		var _completeInterval;
-		var _skinPath = jwplayer.html5.utils.getAbsolutePath(skinPath);
+		var _skinPath = skinPath;
 		
 		/** Load the skin **/
 		function _load() {
-			if (_skinPath === undefined) {
+			if (_skinPath === undefined || _skinPath == "") {
 				_loadSkin(jwplayer.html5.defaultSkin().xml);
 			} else {
-				jwplayer.utils.ajax(_skinPath, function(xmlrequest) {
+				jwplayer.utils.ajax(jwplayer.html5.utils.getAbsolutePath(_skinPath), function(xmlrequest) {
 					_loadSkin(xmlrequest.responseXML);
 				}, function(path) {
 					_loadSkin(jwplayer.html5.defaultSkin().xml);
