@@ -626,7 +626,7 @@
 					left: timeSliderLeft + (elementcss.width - _marginleft - _marginright)
 				});
 			}
-			//_css(_wrapper, controlbarcss);
+			_css(_wrapper, controlbarcss);
 			_css(_elements.elements, elementcss);
 			return controlbarcss;
 		}

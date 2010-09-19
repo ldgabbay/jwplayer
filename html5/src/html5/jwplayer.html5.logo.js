@@ -66,13 +66,12 @@
 			return _imageStyle;
 		}
 		
-		_interval = setInterval(function() {
-			if (document.getElementById(_api.id + "_jwplayer_display") !== null) {
-				document.getElementById(_api.id + "_jwplayer_display").appendChild(_logo);
-				//_css(_logo, _getStyle());
-				clearInterval(_interval);
-			}
-		}, 100);
+		this.resize = function(width, height) {
+		};
+		
+		this.getDisplayElement = function() {
+			return _logo;
+		};
 		
 		function _logoClickHandler(evt) {
 			evt.stopPropagation();

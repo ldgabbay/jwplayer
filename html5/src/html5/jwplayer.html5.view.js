@@ -5,7 +5,7 @@
  * @version 1.0
  */
 (function(jwplayer) {
-	
+
 	var _css = jwplayer.html5.utils.css;
 	
 	jwplayer.html5.view = function(api, container, model) {
@@ -16,6 +16,7 @@
 		var _width;
 		var _height;
 		var _box;
+		var _zIndex;
 		
 		function createWrapper() {
 			_wrapper = document.createElement("div");
@@ -44,6 +45,10 @@
 			});
 			
 			jwplayer.utils.wrap(_container, _wrapper);
+			
+			_box = document.createElement("div");
+			_box.id = _wrapper.id + "_displayarea";
+			_wrapper.appendChild(_box);
 		}
 		
 		function layoutComponents() {
@@ -51,7 +56,7 @@
 				for (var pluginIndex in _model.plugins.order) {
 					var pluginName = _model.plugins.order[pluginIndex];
 					if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
-						_container.parentNode.appendChild(_model.plugins.object[pluginName].getDisplayElement());
+						//_container.parentNode.appendChild(_model.plugins.object[pluginName].getDisplayElement());
 						_model.plugins.object[pluginName].height = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.height);
 						_model.plugins.object[pluginName].width = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.width);
 					}
@@ -97,17 +102,24 @@
 		function _resize(width, height) {
 			var plugins = [].concat(_model.plugins.order);
 			plugins.reverse();
+			_zIndex = plugins.length + 2;
 			if (!_model.fullscreen) {
 				_width = width;
 				_height = height;
-				_box = {
+				//_box = document.getElementById(_api.id + "_jwplayer_display");
+				//_box = _model.plugins.object.display.getDisplayElement();
+				_model.plugins.object.display.resize(width, height);
+				_css(_box, {
 					top: 0,
-					right: 0,
 					bottom: 0,
-					left: 0
-				};
+					left: 0,
+					right: 0,
+					width: width,
+					height: height
+				});
 				var failed = _resizeComponents(_normalscreenComponentResizer, plugins);
 				if (failed.length > 0) {
+					_zIndex += failed.length;
 					_resizeComponents(_overlayComponentResizer, failed, true);
 				}
 				_resizeMedia();
@@ -116,8 +128,7 @@
 			}
 		}
 		
-		function _resizeComponents(componentResizer, plugins, looseStyle) {
-			var _zIndex = plugins.length;
+		function _resizeComponents(componentResizer, plugins, sizeToBox) {
 			var failed = [];
 			for (var pluginIndex in plugins) {
 				var pluginName = plugins[pluginIndex];
@@ -126,9 +137,10 @@
 					if (!style) {
 						failed.push(pluginName);
 					} else {
-						var suggestedStyle = _model.plugins.object[pluginName].resize(style.width, style.height);
-						if (looseStyle === true) {
-							jwplayer.utils.extend(style, suggestedStyle);
+						_model.plugins.object[pluginName].resize(style.width, style.height);
+						if (sizeToBox) {
+							delete style.width;
+							delete style.height;
 						}
 						_css(_model.plugins.object[pluginName].getDisplayElement(), style);
 					}
@@ -140,6 +152,9 @@
 		function _normalscreenComponentResizer(pluginName, zIndex) {
 			if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
 				if (_hasPosition(_model.plugins.config[pluginName].position)) {
+					if (_model.plugins.object[pluginName].getDisplayElement().parentElement === null) {
+						_wrapper.appendChild(_model.plugins.object[pluginName].getDisplayElement());
+					}
 					var style = _getComponentPosition(pluginName);
 					style.zIndex = zIndex;
 					return style;
@@ -149,12 +164,15 @@
 		}
 		
 		function _overlayComponentResizer(pluginName, zIndex) {
+			if (_model.plugins.object[pluginName].getDisplayElement().parentElement === null) {
+				_box.appendChild(_model.plugins.object[pluginName].getDisplayElement());
+			}
 			return {
 				position: "absolute",
-				top: _box.top,
-				left: _box.left,
-				width: (_model.width - _box.left - _box.right),
-				height: (_model.height - _box.top - _box.bottom),
+				//top: getNumber(_box.style.top),
+				//left: getNumber(_box.style.left),
+				width: (_model.width - getNumber(_box.style.left) - getNumber(_box.style.right)),
+				height: (_model.height - getNumber(_box.style.top) - getNumber(_box.style.bottom)),
 				zIndex: zIndex
 			};
 		}
@@ -162,8 +180,8 @@
 		function _fullscreenComponentResizer(pluginName, zIndex) {
 			return {
 				position: "fixed",
-				top: 0,
-				left: 0,
+				//top: 0,
+				//left: 0,
 				width: _model.width,
 				height: _model.height,
 				zIndex: zIndex
@@ -171,13 +189,15 @@
 		}
 		
 		function _resizeMedia() {
-			_css(_model.getMedia().getDisplayElement(), {
+			_box.style.position = "absolute"; 
+			var style =  {
 				position: "absolute",
-				width: (_model.width - _box.left - _box.right),
-				height: (_model.height - _box.top - _box.bottom),
-				top: _box.top,
-				left: _box.left
-			});
+				width: getNumber(_box.style.width),
+				height: getNumber(_box.style.height),
+				top: getNumber(_box.style.top),
+				left: getNumber(_box.style.left)
+			};
+			_css(_model.getMedia().getDisplayElement(), style);
 		}
 		
 		function _getComponentPosition(pluginName) {
@@ -190,32 +210,37 @@
 			var position = _model.plugins.config[pluginName].position.toLowerCase();
 			switch (position.toUpperCase()) {
 				case jwplayer.html5.view.positions.TOP:
-					plugincss.top = _box.top;
-					plugincss.left = _box.left;
-					plugincss.width = _width - _box.left - _box.right;
+					plugincss.top = getNumber(_box.style.top);
+					plugincss.left = getNumber(_box.style.left);
+					plugincss.width = _width - getNumber(_box.style.left) - getNumber(_box.style.right);
 					plugincss.height = _model.plugins.object[pluginName].height;
-					_box[position] += _model.plugins.object[pluginName].height;
+					_box.style[position] = getNumber(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
+					_box.style.height = getNumber(_box.style.height) - plugincss.height + "px";
 					break;
 				case jwplayer.html5.view.positions.RIGHT:
-					plugincss.top = _box.top;
-					plugincss.right = _box.right;
+					plugincss.top = getNumber(_box.style.top);
+					plugincss.right = getNumber(_box.style.right);
 					plugincss.width = plugincss.width = _model.plugins.object[pluginName].width;
-					plugincss.height = _height - _box.top - _box.bottom;
-					_box[position] = plugincss.width = _model.plugins.object[pluginName].width;
+					plugincss.height = _height - getNumber(_box.style.top) - getNumber(_box.style.bottom);
+					_box.style[position] = getNumber(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
+					_box.style.width = getNumber(_box.style.width) - plugincss.width + "px";
 					break;
 				case jwplayer.html5.view.positions.BOTTOM:
-					plugincss.bottom = _box.bottom;
-					plugincss.left = _box.left;
-					plugincss.width = _width - _box.left - _box.right;
+					plugincss.bottom = getNumber(_box.style.bottom);
+					plugincss.left = getNumber(_box.style.left);
+					plugincss.width = _width - getNumber(_box.style.left) - getNumber(_box.style.right);
 					plugincss.height = _model.plugins.object[pluginName].height;
-					_box[position] = _model.plugins.object[pluginName].height;
+					_box.style[position] = getNumber(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
+					//_box.style[position] = _model.plugins.object[pluginName].height + "px";
+					_box.style.height = getNumber(_box.style.height) - plugincss.height + "px";
 					break;
 				case jwplayer.html5.view.positions.LEFT:
-					plugincss.top = _box.top;
-					plugincss.left = _box.left;
+					plugincss.top = getNumber(_box.style.top);
+					plugincss.left = getNumber(_box.style.left);
 					plugincss.width = _model.plugins.object[pluginName].width;
-					plugincss.height = _height - _box.top - _box.bottom;
-					_box[position] = plugincss.width = _model.plugins.object[pluginName].width;
+					plugincss.height = _height - getNumber(_box.style.top) - getNumber(_box.style.bottom);
+					_box.style[position] = getNumber(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
+					_box.style.width = getNumber(_box.style.width) - plugincss.width + "px";
 					break;
 				default:
 					break;
@@ -250,8 +275,10 @@
 						zIndex: 2147483000
 					};
 					_css(_wrapper, style);
-					style.zIndex = 0;
+					style.zIndex = 1;
 					_css(_model.getMedia().getDisplayElement(), style);
+					style.zIndex = 2;
+					_css(_box, style);
 				} else {
 					_model.width = _width;
 					_model.height = _height;
@@ -267,7 +294,7 @@
 		};
 		
 	};
-
+	
 	function _hasPosition(position) {
 		return ([jwplayer.html5.view.positions.TOP, jwplayer.html5.view.positions.RIGHT, jwplayer.html5.view.positions.BOTTOM, jwplayer.html5.view.positions.LEFT].indexOf(position.toUpperCase()) > -1);
 	}
