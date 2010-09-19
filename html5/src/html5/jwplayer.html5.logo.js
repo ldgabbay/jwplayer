@@ -28,15 +28,13 @@
 		var _interval;
 		
 		var _logo = document.createElement("img");
-		
 		_logo.id = _api.id + "_jwplayer_logo";
+		_css(_logo, _getStyle());
 		
 		_logo.onload = function(evt) {
 			_settings.width = _logo.width;
 			_settings.height = _logo.height;
-			
-			_css(_logo, _getStyle());
-			
+						
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 		};
 		
@@ -57,7 +55,8 @@
 				width: _settings.width,
 				height: _settings.height,
 				textDecoration: "none",
-				position: "absolute"
+				position: "absolute",
+				display: "none"
 			};
 			var positions = _settings.position.toLowerCase().split("-");
 			for (var position in positions) {
@@ -83,14 +82,16 @@
 			switch (_api.jwGetState()) {
 				case jwplayer.api.events.state.BUFFERING:
 					_logo.style.opacity = _settings.out;
-					setTimeout(jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, _logo.style.opacity), _settings.timeout * 1000);
+					jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity), _settings.timeout);
 					break;
 				case jwplayer.api.events.state.PAUSED:
 					break;
 				case jwplayer.api.events.state.IDLE:
 					break;
+				case jwplayer.api.events.state.PLAYING:
+					break;
 				default:
-					setTimeout(jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, _logo.style.opacity), _settings.timeout * 1000);
+					jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity), _settings.timeout);
 					break;
 			}
 		}

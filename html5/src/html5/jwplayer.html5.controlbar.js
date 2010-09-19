@@ -172,14 +172,8 @@
 		};
 		
 		function _fadeOut() {
-			_wrapper.style.opacity = 1;
-			if (_fadeOutTimeout !== undefined) {
-				clearTimeout(_fadeOutTimeout);
-			}
-			_fadeOutTimeout = setTimeout(function() {
-				jwplayer.html5.utils.fadeTo(_wrapper, 0, 0.1, 1);
-				_fadeOutTimeout = undefined;
-			}, 2000);
+			jwplayer.html5.utils.cancelAnimation(_wrapper);
+			jwplayer.html5.utils.fadeTo(_wrapper, 0, 0.1, 1, 2);
 		}
 		
 		function _fadeIn(){
