@@ -85,11 +85,13 @@ package com.longtailvideo.jwplayer.media {
 			super.initializeMediaProvider(cfg);
 			_connections = new Array();
             var untunneled:NetConnection = new NetConnection();
+            untunneled.addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
             untunneled.objectEncoding = ObjectEncoding.AMF0;
             untunneled.client = new NetClient(this);
             _connections.push(untunneled);
             var tunneled:NetConnection = new NetConnection();
             tunneled = new NetConnection();
+            tunneled.addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
             tunneled.objectEncoding = ObjectEncoding.AMF0;
             tunneled.client = new NetClient(this);
             _connections.push(tunneled);
@@ -496,6 +498,8 @@ package com.longtailvideo.jwplayer.media {
 				}
 			}
 			if ((_timeoffset > 0 || _position > _timeoffset || state == PlayerState.IDLE)) {
+				_bufferFull = false;
+				setState(PlayerState.BUFFERING);
 				_stream.seek(_timeoffset);
 			}
 			_isStreaming = true;
@@ -538,7 +542,6 @@ package com.longtailvideo.jwplayer.media {
                         _connections[_connection].addEventListener(SecurityErrorEvent.SECURITY_ERROR, errorHandler);
                         _connections[_connection].addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
                         _connections[_connection].addEventListener(AsyncErrorEvent.ASYNC_ERROR, errorHandler);
-                        _connections[_connection].addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
                         clearTimeout(_connectionTimeout);
                     } else {
                         return;
