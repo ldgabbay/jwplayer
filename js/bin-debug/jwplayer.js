@@ -62,8 +62,7 @@ jwplayer.utils.ajax = function(xmldocpath, completecallback, errorcallback){
 		xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
 	}
 	xmlhttp.onreadystatechange = function() {
-		if (xmlhttp.readyState === 4){
-			if (xmlhttp.status === 200){
+		if (xmlhttp.readyState === 4 && xmlhttp.status === 200){
 				if (completecallback) {
 					completecallback(xmlhttp);
 				}
@@ -71,10 +70,9 @@ jwplayer.utils.ajax = function(xmldocpath, completecallback, errorcallback){
 				if (errorcallback) {
 					errorcallback(xmldocpath);
 				}
-			}
 		}
 	};
-	xmlhttp.open("GET", xmldocpath, false);
+	xmlhttp.open("GET", xmldocpath, true);
 	xmlhttp.send();
 	return xmlhttp;
 };
