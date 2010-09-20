@@ -59,6 +59,8 @@
 		var hasChrome = false;
 		var _currentItem;
 		var _sourceError = 0;
+		var _bufferTimes = [];
+		var _bufferBackupTimeout;
 		
 		function _getState() {
 			return _state;
@@ -131,7 +133,7 @@
 			
 			if (event !== undefined && event.target !== undefined) {
 				if (_model.duration === 0 || isNaN(_model.duration)) {
-					_model.duration = Math.round(event.target.duration * 10) / 10
+					_model.duration = Math.round(event.target.duration * 10) / 10;
 				}
 				if (!_start && _container.readyState > 0) {
 					_setState(jwplayer.api.events.state.PLAYING);
@@ -153,12 +155,29 @@
 			_progressHandler(event);
 		}
 		
+		function _bufferBackup() {
+			var timeout = (_bufferTimes[_bufferTimes.length - 1] - _bufferTimes[0]) / _bufferTimes.length;
+			_bufferBackupTimeout = setTimeout(function() {
+				if (!_bufferingComplete) {
+					_progressHandler({
+						lengthComputable: true,
+						loaded: 1,
+						total: 1
+					});
+				}
+			}, timeout * 10);
+		}
 		
 		function _progressHandler(event) {
 			var bufferPercent, bufferTime;
 			if (event !== undefined && event.lengthComputable && event.total) {
+				_addBufferEvent();
 				bufferPercent = event.loaded / event.total * 100;
 				bufferTime = bufferPercent / 100 * (_model.duration - _container.currentTime);
+				if (50 < bufferPercent && !_bufferingComplete) {
+					clearTimeout(_bufferBackupTimeout);
+					_bufferBackup();
+				}
 			} else if ((_container.buffered !== undefined) && (_container.buffered.length > 0)) {
 				maxBufferIndex = 0;
 				if (maxBufferIndex >= 0) {
@@ -344,12 +363,19 @@
 			_bufferFull = false;
 			_bufferingComplete = false;
 			_start = false;
+			_bufferTimes = [];
+			_addBufferEvent();
 			_setState(jwplayer.api.events.state.BUFFERING);
 			
 			setTimeout(function() {
 				_positionHandler();
 			}, 25);
 		};
+		
+		function _addBufferEvent() {
+			var currentTime = new Date().getTime();
+			_bufferTimes.push(currentTime);
+		}
 		
 		_embed = function(playlistItem) {
 			_currentItem = playlistItem;
