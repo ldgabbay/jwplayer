@@ -101,7 +101,11 @@
 			for (var style in styles) {
 				try {
 					if (typeof styles[style] == "number" && !(style == "zIndex" || style == "opacity")) {
-						styles[style] = styles[style] + "px";
+						if (style.match(/color/i)) {
+							styles[style] = "#" + _pad(styles[style].toString(16), 6);
+						} else {
+							styles[style] = styles[style] + "px";
+						}
 					}
 					domelement.style[style] = styles[style];
 				} catch (err) {
@@ -109,6 +113,14 @@
 			}
 		}
 	};
+	
+	function _pad(string, length) {
+		while (string.length < length) {
+			string = "0" + string;
+		}
+		return string;
+	}
+	
 })(jwplayer);
 /**
  * JW Player view component
@@ -141,7 +153,7 @@
 				width: _model.width,
 				margin: "auto",
 				padding: 0,
-				background: _api.skin.getComponentSettings("display").backgroundcolor === undefined ? "#000" : _api.skin.getComponentSettings("display").backgroundcolor.replace("0x", "#"),
+				backgroundColor: _api.skin.getComponentSettings("display").backgroundcolor === undefined ? parseInt("000000", 16) : _api.skin.getComponentSettings("display").backgroundcolor,
 				zIndex: 0
 			});
 			
@@ -429,16 +441,16 @@
 (function(jwplayer) {
 	/** Map with config for the jwplayerControlbar plugin. **/
 	var _defaults = {
-		backgroundcolor: "000000",
+		backgroundcolor: parseInt("000000", 16),
 		margin: 10,
 		//font: "_sans",
 		font: "Arial,sans-serif",
 		fontsize: 10,
-		fontcolor: "000000",
+		fontcolor: parseInt("000000", 16),
 		fontstyle: "normal",
 		//fontweight: "normal",
 		fontweight: "bold",
-		buttoncolor: "ffffff",
+		buttoncolor: parseInt("ffffff", 16),
 		position: jwplayer.html5.view.positions.BOTTOM,
 		idlehide: false,
 		layout: {
@@ -541,7 +553,7 @@
 		function _buildBase() {
 			var wrappercss = {
 				height: _api.skin.getSkinElement("controlbar", "background").height,
-				backgroundColor: "#" + _settings.backgroundcolor
+				backgroundColor: _settings.backgroundcolor
 			};
 			
 			_wrapper = document.createElement("div");
@@ -566,7 +578,7 @@
 		this.resize = function(width, height) {
 			if (!_ready && _wrapper.parentElement !== undefined) {
 				_ready = true;
-				if (_settings.position == jwplayer.html5.view.positions.OVER.toLowerCase()){
+				if (_settings.position == jwplayer.html5.view.positions.OVER.toLowerCase()) {
 					document.getElementById(_api.id).onmousemove = _fadeOut;
 				}
 			}
@@ -597,7 +609,7 @@
 			jwplayer.html5.utils.fadeTo(_wrapper, 0, 0.1, 1, 2);
 		}
 		
-		function _fadeIn(){
+		function _fadeIn() {
 			_wrapper.style.opacity = 1;
 		}
 		
@@ -739,7 +751,6 @@
 					css.fontStyle = _settings.fontstyle;
 					css.cursor = "default";
 					wid = 14 + 3 * _settings.fontsize;
-					css.color = "#" + _settings.fontcolor.substr(-6);
 				} else if (element.indexOf("divider") === 0) {
 					css.background = "url(" + _api.skin.getSkinElement("controlbar", "divider").src + ") repeat-x center left";
 					wid = _api.skin.getSkinElement("controlbar", "divider").width;
@@ -949,7 +960,7 @@
 			
 			// Show / hide progress bar
 			if (event.newstate == jwplayer.api.events.state.IDLE) {
-				if (!_settings.idlehide && _settings.position == jwplayer.html5.view.positions.OVER){
+				if (!_settings.idlehide && _settings.position == jwplayer.html5.view.positions.OVER) {
 					_fadeIn();
 				}
 				_hide(_elements.timeSliderBuffer);
@@ -1397,7 +1408,8 @@
 					left: ((_api.skin.getSkinElement("display", "background").width - _api.skin.getSkinElement("display", "playIcon").width) / 2),
 					border: 0,
 					margin: 0,
-					padding: 0
+					padding: 0,
+					zIndex: 3
 				}
 			},
 			display_iconBackground: {
@@ -1411,7 +1423,8 @@
 					width: _api.skin.getSkinElement("display", "background").width,
 					height: _api.skin.getSkinElement("display", "background").height,
 					margin: 0,
-					padding: 0
+					padding: 0,
+					zIndex: 2
 				}
 			},
 			display_image: {
@@ -1425,17 +1438,17 @@
 					top: 0,
 					margin: 0,
 					padding: 0,
-					textDecoration: "none"
+					textDecoration: "none",
+					zIndex: 1
 				}
 			},
 			display_text: {
 				style: {
+					zIndex: 4,
 					position: "relative",
-					top: "50%",
 					opacity: 0.8,
-					backgroundColor: "black",
-					color: "white",
-					display: "none",
+					backgroundColor: parseInt("000000", 16),
+					color: parseInt("ffffff", 16),
 					textAlign: "center",
 					fontFamily: "Arial,sans-serif",
 					padding: "0 5px",
@@ -1473,6 +1486,9 @@
 			_css(_display.display, {
 				width: width,
 				height: height
+			});
+			_css(_display.display_text, {
+				width: width
 			});
 			_css(_display.display_image, {
 				width: width,
@@ -1548,7 +1564,7 @@
 		
 		function _errorHandler(evt){
 			_hideDisplayIcon();
-			_display.display_text.innerHTML = "<p>"+evt.error+"</p>";
+			_display.display_text.innerHTML = evt.error;
 			_show(_display.display_text);
 			_display.display_text.style.top = ((_height -  _display.display_text.getBoundingClientRect().height) / 2) + "px";
 		}
@@ -2565,14 +2581,14 @@
 		var _completeHandler = completeHandler;
 		var _loading = true;
 		var _completeInterval;
-		var _skinPath = jwplayer.html5.utils.getAbsolutePath(skinPath);
+		var _skinPath = skinPath;
 		
 		/** Load the skin **/
 		function _load() {
-			if (_skinPath === undefined) {
+			if (_skinPath === undefined || _skinPath == "") {
 				_loadSkin(jwplayer.html5.defaultSkin().xml);
 			} else {
-				jwplayer.utils.ajax(_skinPath, function(xmlrequest) {
+				jwplayer.utils.ajax(jwplayer.html5.utils.getAbsolutePath(_skinPath), function(xmlrequest) {
 					_loadSkin(xmlrequest.responseXML);
 				}, function(path) {
 					_loadSkin(jwplayer.html5.defaultSkin().xml);

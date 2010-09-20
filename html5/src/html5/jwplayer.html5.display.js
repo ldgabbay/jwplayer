@@ -43,7 +43,8 @@
 					left: ((_api.skin.getSkinElement("display", "background").width - _api.skin.getSkinElement("display", "playIcon").width) / 2),
 					border: 0,
 					margin: 0,
-					padding: 0
+					padding: 0,
+					zIndex: 3
 				}
 			},
 			display_iconBackground: {
@@ -57,7 +58,8 @@
 					width: _api.skin.getSkinElement("display", "background").width,
 					height: _api.skin.getSkinElement("display", "background").height,
 					margin: 0,
-					padding: 0
+					padding: 0,
+					zIndex: 2
 				}
 			},
 			display_image: {
@@ -71,17 +73,17 @@
 					top: 0,
 					margin: 0,
 					padding: 0,
-					textDecoration: "none"
+					textDecoration: "none",
+					zIndex: 1
 				}
 			},
 			display_text: {
 				style: {
+					zIndex: 4,
 					position: "relative",
-					top: "50%",
 					opacity: 0.8,
 					backgroundColor: parseInt("000000", 16),
 					color: parseInt("ffffff", 16),
-					display: "none",
 					textAlign: "center",
 					fontFamily: "Arial,sans-serif",
 					padding: "0 5px",
@@ -119,6 +121,9 @@
 			_css(_display.display, {
 				width: width,
 				height: height
+			});
+			_css(_display.display_text, {
+				width: width
 			});
 			_css(_display.display_image, {
 				width: width,
@@ -194,7 +199,7 @@
 		
 		function _errorHandler(evt){
 			_hideDisplayIcon();
-			_display.display_text.innerHTML = "<p>"+evt.error+"</p>";
+			_display.display_text.innerHTML = evt.error;
 			_show(_display.display_text);
 			_display.display_text.style.top = ((_height -  _display.display_text.getBoundingClientRect().height) / 2) + "px";
 		}
