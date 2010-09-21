@@ -1,30 +1,48 @@
 <html>
-<body>
-<h1>MP4 plus OGG video</h1>
-
-
-
-
-
-<p>This is the basic setup for a video that plays natively on most browsers. Only IE will fallback to Flash.</p>
-
-<p><video height="270" id="player" poster="/jw/upload/bunny.jpg" width="480"><source src="/jw/upload/bunny.mp4" type="video/mp4" /><source src="/jw/upload/bunny.ogv" type="video/ogg" /></video></p>
-
-<script type="text/javascript" src="/jw/js/jquery.jwplayer.js"></script>
-<script type="text/javascript">
-  $('#player').jwplayer({flashplayer:'/files/player.swf',skin:'/files/skins/five/five.xml'});
-</script></p>
-
-<h3>HTML code</h3>
-<p> Here is the code for this setup. Make sure to change all links to the scripts, player, image and video. They must refer to the correct files on your server.</p>
-
-<p>First, place this code in the <ems>&lt;head&gt;</ems> of your page:</p>
-<pre>&lt;script type="text/javascript" src="/scripts/jquery.js"&gt;&lt;/script&gt;
+    <head>
+        <title>Multiple sources</title>
+    </head>
+    <body>
+        <h1>MP4 plus OGG video</h1>
+        <p>
+            This is the basic setup for a video that plays natively on most browsers. Only IE will fallback to Flash.
+        </p>
+        <div height="270" id="player" width="480">
+        </div>
+        <!--
+        <video height="270" id="player" poster="/jw/upload/bunny.jpg" width="480">
+        <source src="/jw/upload/bunny.mp4" type="video/mp4" /><source src="/jw/upload/bunny.ogv" type="video/ogg" />
+        </video>
+        -->
+        <script type="text/javascript" src="../../../js/bin-debug/jwplayer.js">
+        </script>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.html5.js">
+        </script>
+        <script type="text/javascript">
+            var player = new jwplayer.html5(document.getElementById("player"));
+            player.setup({
+            	levels: [{
+            		file: "../../../js/test/files/bunny.mp4"
+            	}, {
+            		file: "../../../js/test/files/bunny.ogv"
+            	}],
+            	image: "../../../js/test/files/bunny.jpg"
+            });
+        </script>
+        <h3>HTML code</h3>
+        <p>
+            Here is the code for this setup. Make sure to change all links to the scripts, player, image and video. They must refer to the correct files on your server.
+        </p>
+        <p>
+            First, place this code in the <em>&lt;head&gt;</em>
+            of your page:
+        </p>
+        <pre>&lt;script type="text/javascript" src="/scripts/jquery.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="/scripts/jquery.jwplayer.js"&gt;&lt;/script&gt;</pre>
-
-
-<p>Second, place this code where you want the video to appear:</p>
-<pre>&lt;video height="270" id="player" poster="/files/bunny.jpg" width="480"&gt;
+        <p>
+            Second, place this code where you want the video to appear:
+        </p>
+        <pre>&lt;video height="270" id="player" poster="/files/bunny.jpg" width="480"&gt;
   &lt;source src="/files/bunny.mp4" type="video/mp4"&gt;
   &lt;source src="/files/bunny.ogv" type="video/ogg"&gt;
 &lt;/video&gt;
@@ -35,9 +53,5 @@
     skin:'/files/skins/five/five.xml'
   });
 &lt;/script&gt;</pre>
-
-
-
-
-</body>
+    </body>
 </html>

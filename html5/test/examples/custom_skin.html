@@ -1,30 +1,40 @@
 <html>
-<body>
-<h1>Custom Player Skin</h1>
-
-
-
-
-<p>A setup with MP4 video and custom player skin. Any JW Player PNG skin is supported!</p>
-<p><video height="270" id="player" poster="/jw/upload/bunny.jpg" src="/jw/upload/bunny.mp4" width="480"></video></p>
-
-<script type="text/javascript" src="/jw/js/jquery.jwplayer.js"></script>
-<script type="text/javascript">
-	$('#player').jwplayer({
-		flashplayer:'/files/player.swf',
-		skin:'/files/skins/stormtrooper/stormtrooper.xml'
-	});
-</script></p>
-
-<h3>HTML code</h3>
-<p>Here is the code for this setup. Make sure to change all links to the scripts, player, skin, image and video. They must refer to the correct files on your server.</p>
-
-<p>First, place this code in the <ems>&lt;head&gt;</ems> of your page:</p>
-<pre>&lt;script type="text/javascript" src="/scripts/jquery.js"&gt;&lt;/script&gt;
+    <head>
+        <title>Custom skin</title>
+    </head>
+    <body>
+        <h1>Custom Player Skin</h1>
+        <p>
+            A setup with MP4 video and custom player skin. Any JW Player PNG skin is supported!
+        </p>
+        <div height="270" id="player" width="480">
+        </div>
+        <script type="text/javascript" src="../../../js/bin-debug/jwplayer.js">
+        </script>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.html5.js">
+        </script>
+        <script type="text/javascript">
+            var player = new jwplayer.html5(document.getElementById("player"));
+            player.setup({
+            	file: "../../../js/test/files/bunny.mp4",
+            	image: "../../../js/test/files/bunny.jpg",
+            	skin: "../../../../skins/stormtrooper/stormtrooper.xml"
+            });
+        </script>
+        <h3>HTML code</h3>
+        <p>
+            Here is the code for this setup. Make sure to change all links to the scripts, player, skin, image and video. They must refer to the correct files on your server.
+        </p>
+        <p>
+            First, place this code in the <em>&lt;head&gt;</em>
+            of your page:
+        </p>
+        <pre>&lt;script type="text/javascript" src="/scripts/jquery.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="/scripts/jquery.jwplayer.js"&gt;&lt;/script&gt;</pre>
-
-<p>Second, place this code where you want the video to appear:</p>
-<pre>&lt;video height="270" id="player" poster="/files/bunny.mp4"
+        <p>
+            Second, place this code where you want the video to appear:
+        </p>
+        <pre>&lt;video height="270" id="player" poster="/files/bunny.mp4"
   src="/files/bunny.mp4" width="480"&gt;
 
 &lt;script type="text/javascript"&gt;
@@ -33,9 +43,5 @@
     skin:'/files/stormtrooper.xml'
 });
 &lt;/script&gt;</pre>
-
-
-
-
-</body>
+    </body>
 </html>

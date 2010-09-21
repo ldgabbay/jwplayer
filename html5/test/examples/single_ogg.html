@@ -1,29 +1,40 @@
 <html>
-<body>
-<h1>Single OGG video</h1>
-
-
-
-
-<p>This is the basic setup for a video that only plays on Firefox / Opera. On other browsers, it'll fallback to a download link. A poster image is included.</p>
-
-<p><video height="270" id="player" poster="/jw/upload/bunny.jpg" width="480" src="/jw/upload/bunny.ogv"></video></p>
-
-<script type="text/javascript" src="/jw/js/jquery.jwplayer.js"></script>
-<script type="text/javascript">
-  $('#player').jwplayer({flashplayer:'/files/player.swf',skin:'/files/skins/five/five.xml'});
-</script>
-
-<h3>HTML code</h3>
-<p> Here is the code for this setup. Make sure to change all links to the scripts, player, image and video. They must refer to the correct files on your server.</p>
-
-<p>First, place this code in the <ems>&lt;head&gt;</ems> of your page:</p>
-<pre>&lt;script type="text/javascript" src="/scripts/jwplayer.js"&gt;&lt;/script&gt;
+    <head>
+        <title>Single OGV Example</title>
+    </head>
+    <body>
+        <h1>Single OGG video</h1>
+        <p>
+            This is the basic setup for a video that only plays on Firefox / Opera. On other browsers, it'll fallback to a download link. A poster image is included.
+        </p>
+        <div height="270" id="player" width="480">
+        </div>
+        <script type="text/javascript" src="../../../js/bin-debug/jwplayer.js">
+        </script>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.html5.js">
+        </script>
+        <script type="text/javascript">
+            var player = new jwplayer.html5(document.getElementById("player"));
+            player.setup({
+            	file: "../../../js/test/files/bunny.ogv",
+            	image: "../../../js/test/files/bunny.jpg"
+            
+            });
+        </script>
+        <h3>HTML code</h3>
+        <p>
+            Here is the code for this setup. Make sure to change all links to the scripts, player, image and video. They must refer to the correct files on your server.
+        </p>
+        <p>
+            First, place this code in the <em>&lt;head&gt;</em>
+            of your page:
+        </p>
+        <pre>&lt;script type="text/javascript" src="/scripts/jwplayer.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="/scripts/jquery.jwplayer.js"&gt;&lt;/script&gt;</pre>
-
-
-<p>Second, place this code where you want the video to appear:</p>
-<pre>&lt;video height="270" id="player" poster="/files/bunny.jpg"
+        <p>
+            Second, place this code where you want the video to appear:
+        </p>
+        <pre>&lt;video height="270" id="player" poster="/files/bunny.jpg"
   src="/files/bunny.ogv" width="480"&gt;
 
 &lt;script type="text/javascript"&gt;
@@ -31,11 +42,9 @@
     skin:'/files/skins/five/five.xml'
   });
 &lt;/script&gt;</pre>
-
-<p>Note this example does not define a <i>flashplayer</i> fallback, since OGG cannot be played in Flash.</p> 
-
-
-
-
-</body>
+        <p>
+            Note this example does not define a <i>flashplayer</i>
+            fallback, since OGG cannot be played in Flash.
+        </p>
+    </body>
 </html>

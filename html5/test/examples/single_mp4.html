@@ -1,17 +1,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
-	<head>
-		<title>Single MP4 Example</title>
-	</head>
+    <head>
+        <title>Single MP4 Example</title>
+    </head>
     <body>
         <h1>Single MP4 video</h1>
         <p>
             This is the basic setup for a video that plays on Safari,iPhone/iPad and Chrome. Firefox, IE and Opera will fallback to Flash. A poster image is included.
         </p>
-        <p>
-            <video height="270" id="player" poster="http://content.bitsontherun.com/thumbs/nPripu9l-320.jpg" src="http://content.bitsontherun.com/videos/nPripu9l-327.mp4" width="480">
-            </video>
-        </p>
+        <div height="270" id="player" width="480">
+        </div>
         <script type="text/javascript" src="../../../js/bin-debug/jwplayer.js">
         </script>
         <script type="text/javascript" src="../../bin-debug/jwplayer.html5.js">
@@ -20,7 +18,7 @@
             var player = new jwplayer.html5(document.getElementById("player"));
             player.setup({
             	file: "../../../js/test/files/bunny.mp4",
-				image: "../../../js/test/files/bunny.jpg"
+            	image: "../../../js/test/files/bunny.jpg"
             
             });
         </script>
