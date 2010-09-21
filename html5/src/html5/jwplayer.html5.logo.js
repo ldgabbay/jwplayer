@@ -7,7 +7,7 @@
 (function(jwplayer) {
 
 	var _defaults = {
-		prefix: "http://l.longtailvideo.com/html5/0/",
+		prefix: "http://l.longtailvideo.com/html5/",
 		file: "logo.png",
 		link: "http://www.longtailvideo.com/players/jw-flv-player/",
 		margin: 8,
@@ -15,16 +15,19 @@
 		over: 1,
 		timeout: 3,
 		hide: "true",
-		//position: "bottom-left",
+		position: "bottom-left",
 		width: 93,
 		height: 30
 	};
 	
 	_css = jwplayer.html5.utils.css;
 	
-	jwplayer.html5.logo = function(api, config) {
+	jwplayer.html5.logo = function(api, logoConfig) {
 		var _api = api;
-		var _settings = jwplayer.utils.extend({}, _defaults, config);
+		if (_defaults.prefix !== ""){
+			_defaults.prefix += api.version.split(/\W/).splice(0,2).join("/") + "/";	
+		}
+		var _settings = jwplayer.utils.extend({}, _defaults, logoConfig);
 		
 		var _logo = document.createElement("img");
 		_logo.id = _api.id + "_jwplayer_logo";

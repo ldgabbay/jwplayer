@@ -78,13 +78,6 @@
 		_model.plugins = {
 			order: pluginorder,
 			config: {
-				display: {
-					position: jwplayer.html5.view.positions.OVER,
-					screencolor: _model.config.screencolor
-				},
-				logo: {
-					position: "bottom-left"
-				},
 				controlbar: {
 					position: jwplayer.html5.view.positions.BOTTOM
 				}

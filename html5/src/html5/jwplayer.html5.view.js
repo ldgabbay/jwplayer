@@ -168,8 +168,6 @@
 			}
 			return {
 				position: "absolute",
-				//top: getNumber(_box.style.top),
-				//left: getNumber(_box.style.left),
 				width: (_model.width - getNumber(_box.style.left) - getNumber(_box.style.right)),
 				height: (_model.height - getNumber(_box.style.top) - getNumber(_box.style.bottom)),
 				zIndex: zIndex
@@ -179,8 +177,6 @@
 		function _fullscreenComponentResizer(pluginName, zIndex) {
 			return {
 				position: "fixed",
-				//top: 0,
-				//left: 0,
 				width: _model.width,
 				height: _model.height,
 				zIndex: zIndex
@@ -230,7 +226,6 @@
 					plugincss.width = _width - getNumber(_box.style.left) - getNumber(_box.style.right);
 					plugincss.height = _model.plugins.object[pluginName].height;
 					_box.style[position] = getNumber(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
-					//_box.style[position] = _model.plugins.object[pluginName].height + "px";
 					_box.style.height = getNumber(_box.style.height) - plugincss.height + "px";
 					break;
 				case jwplayer.html5.view.positions.LEFT:

@@ -292,8 +292,6 @@
 			}
 			return {
 				position: "absolute",
-				//top: getNumber(_box.style.top),
-				//left: getNumber(_box.style.left),
 				width: (_model.width - getNumber(_box.style.left) - getNumber(_box.style.right)),
 				height: (_model.height - getNumber(_box.style.top) - getNumber(_box.style.bottom)),
 				zIndex: zIndex
@@ -303,8 +301,6 @@
 		function _fullscreenComponentResizer(pluginName, zIndex) {
 			return {
 				position: "fixed",
-				//top: 0,
-				//left: 0,
 				width: _model.width,
 				height: _model.height,
 				zIndex: zIndex
@@ -354,7 +350,6 @@
 					plugincss.width = _width - getNumber(_box.style.left) - getNumber(_box.style.right);
 					plugincss.height = _model.plugins.object[pluginName].height;
 					_box.style[position] = getNumber(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
-					//_box.style[position] = _model.plugins.object[pluginName].height + "px";
 					_box.style.height = getNumber(_box.style.height) - plugincss.height + "px";
 					break;
 				case jwplayer.html5.view.positions.LEFT:
@@ -1797,7 +1792,7 @@
 (function(jwplayer) {
 
 	var _defaults = {
-		prefix: "http://l.longtailvideo.com/html5/0/",
+		prefix: "http://l.longtailvideo.com/html5/",
 		file: "logo.png",
 		link: "http://www.longtailvideo.com/players/jw-flv-player/",
 		margin: 8,
@@ -1805,16 +1800,19 @@
 		over: 1,
 		timeout: 3,
 		hide: "true",
-		//position: "bottom-left",
+		position: "bottom-left",
 		width: 93,
 		height: 30
 	};
 	
 	_css = jwplayer.html5.utils.css;
 	
-	jwplayer.html5.logo = function(api, config) {
+	jwplayer.html5.logo = function(api, logoConfig) {
 		var _api = api;
-		var _settings = jwplayer.utils.extend({}, _defaults, config);
+		if (_defaults.prefix !== ""){
+			_defaults.prefix += api.version.split(/\W/).splice(0,2).join("/") + "/";	
+		}
+		var _settings = jwplayer.utils.extend({}, _defaults);
 		
 		var _logo = document.createElement("img");
 		_logo.id = _api.id + "_jwplayer_logo";
@@ -2394,13 +2392,6 @@
 		_model.plugins = {
 			order: pluginorder,
 			config: {
-				display: {
-					position: jwplayer.html5.view.positions.OVER,
-					screencolor: _model.config.screencolor
-				},
-				logo: {
-					position: "bottom-left"
-				},
 				controlbar: {
 					position: jwplayer.html5.view.positions.BOTTOM
 				}

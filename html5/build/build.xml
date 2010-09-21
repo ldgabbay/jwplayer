@@ -7,7 +7,7 @@
 	</target>
 
 	<target name="concat" depends="clean">
-		<concat destfile="${basedir}/bin-debug/jwplayer.html5.js">
+		<concat destfile="${outputpath}">
 			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.js" />
 			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.utils.js" />
 			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.states.js" />
@@ -19,23 +19,17 @@
 	</target>
 
 	<target name="build-debug">
-		<antcall target="concat" />
+		<antcall target="concat">
+			<param name="outputpath" value="${basedir}/bin-debug/jwplayer.html5.js"/>
+		</antcall>
+		<replace file="${basedir}/bin-debug/jwplayer.html5.js" token=", logoConfig);" value=");"/>
 	</target>
-
+	
 	<target name="build-release" depends="build-debug">
 		<java jar="${basedir}/build/yuicompressor-2.4.2.jar" fork="true">
 			<arg line="'${basedir}/bin-debug/jwplayer.html5.js'"/>
 			<arg line="-o '${basedir}/jwplayer.html5.min.js'"/>
 		</java>
-	</target>
-	
-	<target name="build-zip" depends="build-release">
-		 <zip destfile="${basedir}/mediaplayer-html5.zip">
-		 	<fileset dir="." includes="license.txt"/>
-		 	<fileset dir="." includes="readme.txt"/>
-			<fileset dir="." includes="jwplayer.html5.js"/>
-		 	<fileset dir="./assets/" includes="**/*.*" excludes=".svn,*.zip"/>
-		 </zip>
 	</target>
 
 </project>
