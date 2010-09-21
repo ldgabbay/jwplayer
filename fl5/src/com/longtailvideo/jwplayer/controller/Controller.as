@@ -302,18 +302,20 @@ package com.longtailvideo.jwplayer.controller {
 				if (_setupComplete && !_setupFinalized) {
 					finalizeSetup();
 				}
-				if (!locking && (_lockingResume || _unlockAutostart)) {
-					_lockingResume = false;
+				if (!locking) {
 					if (_unlockAndLoad) {
 						load(_player.playlist.currentItem);
 						_unlockAndLoad = false;
 					}
-					play();
-					if (_unlockAutostart) {
-						_unlockAutostart = false;
+					if (_lockingResume || _unlockAutostart) {
+						_lockingResume = false;
+						play();
+						if (_unlockAutostart) {
+							_unlockAutostart = false;
+						}
 					}
+					return true;
 				}
-				return true;
 			}
 			return false;
 		}

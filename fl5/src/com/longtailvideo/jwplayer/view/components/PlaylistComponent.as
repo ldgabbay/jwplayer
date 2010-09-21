@@ -664,14 +664,16 @@ package com.longtailvideo.jwplayer.view.components {
 			try {
 				var ldr:Loader = (evt.target as LoaderInfo).loader;
 				var button:Sprite = getButton(imageLoaderMap[ldr]);
-				var img:Sprite = button.getChildByName("image") as Sprite;
-				if (!img.getChildByName("imageBackground")) {
-					img.visible = false;
-				}
-				if (proportion > 1.01) {
-					(buttons[imageLoaderMap[ldr]].s as Stacker).rearrange(getConfigParam("width")-slider.width);
-				} else {
-					(buttons[imageLoaderMap[ldr]].s as Stacker).rearrange(getConfigParam("width"));
+				if (button) {
+					var img:Sprite = button.getChildByName("image") as Sprite;
+					if (!img.getChildByName("imageBackground")) {
+						img.visible = false;
+					}
+					if (proportion > 1.01) {
+						(buttons[imageLoaderMap[ldr]].s as Stacker).rearrange(getConfigParam("width")-slider.width);
+					} else {
+						(buttons[imageLoaderMap[ldr]].s as Stacker).rearrange(getConfigParam("width"));
+					}
 				}
 			} catch (err:Error) {
 				Logger.log('Error loading playlist image '+ ldr.loaderInfo.url+': '+err.message);
@@ -841,7 +843,11 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		
 		private function getButton(id:Number):Sprite {
-			return buttons[id].c as Sprite;
+			if (buttons[id]) {
+				return buttons[id].c as Sprite;
+			} else {
+				return null;
+			}
 		}
 		
 		private function get swfSkinned():Boolean {
