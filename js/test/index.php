@@ -6,7 +6,7 @@
 <script type="text/javascript" src="files/swfobject.js"></script>
 <script type="text/javascript" src="settings.js"></script>
 <script type="text/javascript" src="../bin-debug/jwplayer.js"></script>
-<script type="text/javascript" src="../../../branches/html5/jwplayer.html5.js"></script>
+<script type="text/javascript" src="../../html5/bin-debug/jwplayer.html5.js"></script>
 <script type="text/javascript">
 
 

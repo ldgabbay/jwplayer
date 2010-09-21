@@ -37,7 +37,7 @@ var settings = {
 		"snel":"../skins/snel/snel.xml",
 		"stijl":"../skins/stijl/stijl.xml",
         "stormtrooper":"../skins/stormtrooper/stormtrooper.xml",
-		" ":" ",
+		"  ":" ",
 		"bekle_swf":"../skins/bekle/bekle.swf",
 		"bluemetal_swf":"../skins/bluemetal/bluemetal.swf",
 		"classic_swf":"../skins/classic/classic.swf",
@@ -51,6 +51,13 @@ var settings = {
 	/** All the setup examples with their flashvars. **/
 	"examples": {
 		" ": {},
+		
+		"MP4 video": {
+			"file":"files/bunny.mp4",
+			"image":"files/bunny.jpg",
+			"height":240,
+			"width":400
+		},
 		
 		"Single video with event listeners": {
 			"file":"files/bunny.mp4",
@@ -72,9 +79,28 @@ var settings = {
 			"onComplete":"function() { alert('Complete'); }",
 			"onTime":"function(evt) { if (window.console && console.log) { console.log('Time: ' . evt.position); } }",
 			"onVolume":"function(evt) { alert('Volume changed to ' + evt.volume); }"
-			
-			
 		},
+		
+		"Youtube video": {
+			"file": "http://youtube.com/watch?v=IBTE-RoMsvw",
+			"height": 240,
+			"width": 400
+		},
+
+		"  ": {},
+		"HTML5 Only": {},
+		"----": {},
+		
+		"OGV video (FF / Chrome)": {
+			"file":"files/bunny.ogv",
+			"image":"files/bunny.jpg",
+			"height":240,
+			"width":400
+		},
+		
+		"    ": {},
+		"Flash Only": {},
+		"---- ": {},
 		
 		"FLV video": {
 			"file":"files/bunny.flv",
@@ -83,12 +109,8 @@ var settings = {
 			"width":400,
 			"onBuffer": "function(){'hi how are %20?'}"
 		},
-		"MP4 video": {
-			"file":"files/bunny.mp4",
-			"image":"files/bunny.jpg",
-			"height":240,
-			"width":400
-		},
+		
+		
 		"MP3 audio": {
 			"file":"files/bunny.mp3",
 			"height":24,
@@ -105,12 +127,8 @@ var settings = {
 			"height":240,
 			"width":400
 		},
-		"Youtube video": {
-			"file": "http://youtube.com/watch?v=IBTE-RoMsvw",
-			"height": 240,
-			"width": 400
-		},
-		" ": {},
+		
+		"----  ": {},
 		"HTTP streamed FLV": {
 			"file":"http://content.bitsontherun.com/videos/Qvxp3Jnv-68183.flv",
 			"provider":"http",
