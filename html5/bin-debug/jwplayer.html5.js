@@ -216,8 +216,8 @@
 					}
 				}
 				if (_api.jwGetFullscreen()) {
-					_model.width = document.documentElement.clientWidth;
-					_model.height = document.documentElement.clientHeight;
+					_model.width = document.body.clientWidth;
+					_model.height = document.body.clientHeight;
 				}
 				_resize(_model.width, _model.height);
 			};
@@ -230,8 +230,6 @@
 			if (!_model.fullscreen) {
 				_width = width;
 				_height = height;
-				//_box = document.getElementById(_api.id + "_jwplayer_display");
-				//_box = _model.plugins.object.display.getDisplayElement();
 				_model.plugins.object.display.resize(width, height);
 				_css(_box, {
 					top: 0,
@@ -261,6 +259,7 @@
 					if (!style) {
 						failed.push(pluginName);
 					} else {
+						console.log(style.width, style.height);
 						_model.plugins.object[pluginName].resize(style.width, style.height);
 						if (sizeToBox) {
 							delete style.width;
@@ -388,8 +387,8 @@
 				}
 			} else {
 				if (state) {
-					_model.width = document.documentElement.clientWidth;
-					_model.height = document.documentElement.clientHeight;
+					_model.width = document.body.clientWidth;
+					_model.height = document.body.clientHeight;
 					var style = {
 						position: "fixed",
 						width: "100%",
@@ -649,6 +648,7 @@
 		
 		/** Draw a single element into the jwplayerControlbar. **/
 		function _buildElement(element, alignment) {
+			var offset, offsetLeft, offsetRight, width, slidercss;
 			switch (element.name) {
 				case "play":
 					_addElement("playButton", alignment, false);
@@ -675,11 +675,11 @@
 					_addElement("elapsedText", alignment, true);
 					break;
 				case "time":
-					var offsetLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
-					var offsetRight = _api.skin.getSkinElement("controlbar", "timeSliderCapRight") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapRight").width;
-					var offset = alignment == "left" ? offsetLeft : offsetRight;
-					var width = _api.skin.getSkinElement("controlbar", "timeSliderRail").width + offsetLeft + offsetRight;
-					var slidercss = {
+					offsetLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
+					offsetRight = _api.skin.getSkinElement("controlbar", "timeSliderCapRight") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapRight").width;
+					offset = alignment == "left" ? offsetLeft : offsetRight;
+					width = _api.skin.getSkinElement("controlbar", "timeSliderRail").width + offsetLeft + offsetRight;
+					slidercss = {
 						height: _api.skin.getSkinElement("controlbar", "background").height,
 						position: "absolute",
 						top: 0,
@@ -702,11 +702,11 @@
 					_buildHandler("normalscreenButton", "jwSetFullscreen", false);
 					break;
 				case "volume":
-					var offsetLeft = _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
-					var offsetRight = _api.skin.getSkinElement("controlbar", "volumeSliderCapRight") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapRight").width;
-					var offset = alignment == "left" ? offsetLeft : offsetRight;
-					var width = _api.skin.getSkinElement("controlbar", "volumeSliderRail").width + offsetLeft + offsetRight;
-					var slidercss = {
+					offsetLeft = _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
+					offsetRight = _api.skin.getSkinElement("controlbar", "volumeSliderCapRight") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapRight").width;
+					offset = alignment == "left" ? offsetLeft : offsetRight;
+					width = _api.skin.getSkinElement("controlbar", "volumeSliderRail").width + offsetLeft + offsetRight;
+					slidercss = {
 						height: _api.skin.getSkinElement("controlbar", "background").height,
 						position: "absolute",
 						top: 0,
@@ -780,11 +780,11 @@
 				if (_api.skin.getSkinElement("controlbar", element + "Over") !== undefined) {
 					newelement.onmouseover = function(evt) {
 						evt.stopPropagation();
-						newelement.style["background-image"] = ["url(", _api.skin.getSkinElement("controlbar", element + "Over").src, ")"].join("");
+						newelement.style.backgroundImage = ["url(", _api.skin.getSkinElement("controlbar", element + "Over").src, ")"].join("");
 					};
 					newelement.onmouseout = function(evt) {
 						evt.stopPropagation();
-						newelement.style["background-image"] = ["url(", _api.skin.getSkinElement("controlbar", element).src, ")"].join("");
+						newelement.style.backgroundImage = ["url(", _api.skin.getSkinElement("controlbar", element).src, ")"].join("");
 					};
 				}
 				
@@ -1949,6 +1949,8 @@
 		var hasChrome = false;
 		var _currentItem;
 		var _sourceError = 0;
+		var _bufferTimes = [];
+		var _bufferBackupTimeout;
 		
 		function _getState() {
 			return _state;
@@ -2021,7 +2023,7 @@
 			
 			if (event !== undefined && event.target !== undefined) {
 				if (_model.duration === 0 || isNaN(_model.duration)) {
-					_model.duration = Math.round(event.target.duration * 10) / 10
+					_model.duration = Math.round(event.target.duration * 10) / 10;
 				}
 				if (!_start && _container.readyState > 0) {
 					_setState(jwplayer.api.events.state.PLAYING);
@@ -2043,12 +2045,29 @@
 			_progressHandler(event);
 		}
 		
+		function _bufferBackup() {
+			var timeout = (_bufferTimes[_bufferTimes.length - 1] - _bufferTimes[0]) / _bufferTimes.length;
+			_bufferBackupTimeout = setTimeout(function() {
+				if (!_bufferingComplete) {
+					_progressHandler({
+						lengthComputable: true,
+						loaded: 1,
+						total: 1
+					});
+				}
+			}, timeout * 10);
+		}
 		
 		function _progressHandler(event) {
 			var bufferPercent, bufferTime;
 			if (event !== undefined && event.lengthComputable && event.total) {
+				_addBufferEvent();
 				bufferPercent = event.loaded / event.total * 100;
 				bufferTime = bufferPercent / 100 * (_model.duration - _container.currentTime);
+				if (50 < bufferPercent && !_bufferingComplete) {
+					clearTimeout(_bufferBackupTimeout);
+					_bufferBackup();
+				}
 			} else if ((_container.buffered !== undefined) && (_container.buffered.length > 0)) {
 				maxBufferIndex = 0;
 				if (maxBufferIndex >= 0) {
@@ -2234,12 +2253,19 @@
 			_bufferFull = false;
 			_bufferingComplete = false;
 			_start = false;
+			_bufferTimes = [];
+			_addBufferEvent();
 			_setState(jwplayer.api.events.state.BUFFERING);
 			
 			setTimeout(function() {
 				_positionHandler();
 			}, 25);
 		};
+		
+		function _addBufferEvent() {
+			var currentTime = new Date().getTime();
+			_bufferTimes.push(currentTime);
+		}
 		
 		_embed = function(playlistItem) {
 			_currentItem = playlistItem;
@@ -2585,7 +2611,7 @@
 		
 		/** Load the skin **/
 		function _load() {
-			if (_skinPath === undefined || _skinPath == "") {
+			if (_skinPath === undefined || _skinPath === "") {
 				_loadSkin(jwplayer.html5.defaultSkin().xml);
 			} else {
 				jwplayer.utils.ajax(jwplayer.html5.utils.getAbsolutePath(_skinPath), function(xmlrequest) {
@@ -2643,9 +2669,9 @@
 							_skin[componentName].layout[group.getAttribute("position")].elements.push({
 								type: element.tagName
 							});
-							for (var attributeIndex = 0; attributeIndex < element.attributes.length; attributeIndex++) {
-								var attribute = element.attributes[attributeIndex];
-								_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex][attribute.name] = attribute.value;
+							for (var elementAttributeIndex = 0; elementAttributeIndex < element.attributes.length; elementAttributeIndex++) {
+								var elementAttribute = element.attributes[elementAttributeIndex];
+								_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex][elementAttribute.name] = elementAttribute.value;
 							}
 							if (_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex].name === undefined) {
 								_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex].name = element.tagName;
@@ -2849,8 +2875,8 @@
 				}
 				return null;
 			case "integer":
-				return parseInt(value);
-			case "integer":
+				return parseInt(value, 10);
+			case "float":
 				return parseFloat(value);
 			case "boolean":
 				if (value.toLowerCase() == "true") {

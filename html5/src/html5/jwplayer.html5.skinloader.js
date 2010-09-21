@@ -15,7 +15,7 @@
 		
 		/** Load the skin **/
 		function _load() {
-			if (_skinPath === undefined || _skinPath == "") {
+			if (_skinPath === undefined || _skinPath === "") {
 				_loadSkin(jwplayer.html5.defaultSkin().xml);
 			} else {
 				jwplayer.utils.ajax(jwplayer.html5.utils.getAbsolutePath(_skinPath), function(xmlrequest) {
@@ -73,9 +73,9 @@
 							_skin[componentName].layout[group.getAttribute("position")].elements.push({
 								type: element.tagName
 							});
-							for (var attributeIndex = 0; attributeIndex < element.attributes.length; attributeIndex++) {
-								var attribute = element.attributes[attributeIndex];
-								_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex][attribute.name] = attribute.value;
+							for (var elementAttributeIndex = 0; elementAttributeIndex < element.attributes.length; elementAttributeIndex++) {
+								var elementAttribute = element.attributes[elementAttributeIndex];
+								_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex][elementAttribute.name] = elementAttribute.value;
 							}
 							if (_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex].name === undefined) {
 								_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex].name = element.tagName;

@@ -92,8 +92,8 @@
 					}
 				}
 				if (_api.jwGetFullscreen()) {
-					_model.width = document.documentElement.clientWidth;
-					_model.height = document.documentElement.clientHeight;
+					_model.width = document.body.clientWidth;
+					_model.height = document.body.clientHeight;
 				}
 				_resize(_model.width, _model.height);
 			};
@@ -106,8 +106,6 @@
 			if (!_model.fullscreen) {
 				_width = width;
 				_height = height;
-				//_box = document.getElementById(_api.id + "_jwplayer_display");
-				//_box = _model.plugins.object.display.getDisplayElement();
 				_model.plugins.object.display.resize(width, height);
 				_css(_box, {
 					top: 0,
@@ -137,6 +135,7 @@
 					if (!style) {
 						failed.push(pluginName);
 					} else {
+						console.log(style.width, style.height);
 						_model.plugins.object[pluginName].resize(style.width, style.height);
 						if (sizeToBox) {
 							delete style.width;
@@ -264,8 +263,8 @@
 				}
 			} else {
 				if (state) {
-					_model.width = document.documentElement.clientWidth;
-					_model.height = document.documentElement.clientHeight;
+					_model.width = document.body.clientWidth;
+					_model.height = document.body.clientHeight;
 					var style = {
 						position: "fixed",
 						width: "100%",

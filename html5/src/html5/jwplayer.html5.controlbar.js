@@ -215,6 +215,7 @@
 		
 		/** Draw a single element into the jwplayerControlbar. **/
 		function _buildElement(element, alignment) {
+			var offset, offsetLeft, offsetRight, width, slidercss;
 			switch (element.name) {
 				case "play":
 					_addElement("playButton", alignment, false);
@@ -241,11 +242,11 @@
 					_addElement("elapsedText", alignment, true);
 					break;
 				case "time":
-					var offsetLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
-					var offsetRight = _api.skin.getSkinElement("controlbar", "timeSliderCapRight") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapRight").width;
-					var offset = alignment == "left" ? offsetLeft : offsetRight;
-					var width = _api.skin.getSkinElement("controlbar", "timeSliderRail").width + offsetLeft + offsetRight;
-					var slidercss = {
+					offsetLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
+					offsetRight = _api.skin.getSkinElement("controlbar", "timeSliderCapRight") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapRight").width;
+					offset = alignment == "left" ? offsetLeft : offsetRight;
+					width = _api.skin.getSkinElement("controlbar", "timeSliderRail").width + offsetLeft + offsetRight;
+					slidercss = {
 						height: _api.skin.getSkinElement("controlbar", "background").height,
 						position: "absolute",
 						top: 0,
@@ -268,11 +269,11 @@
 					_buildHandler("normalscreenButton", "jwSetFullscreen", false);
 					break;
 				case "volume":
-					var offsetLeft = _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
-					var offsetRight = _api.skin.getSkinElement("controlbar", "volumeSliderCapRight") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapRight").width;
-					var offset = alignment == "left" ? offsetLeft : offsetRight;
-					var width = _api.skin.getSkinElement("controlbar", "volumeSliderRail").width + offsetLeft + offsetRight;
-					var slidercss = {
+					offsetLeft = _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
+					offsetRight = _api.skin.getSkinElement("controlbar", "volumeSliderCapRight") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapRight").width;
+					offset = alignment == "left" ? offsetLeft : offsetRight;
+					width = _api.skin.getSkinElement("controlbar", "volumeSliderRail").width + offsetLeft + offsetRight;
+					slidercss = {
 						height: _api.skin.getSkinElement("controlbar", "background").height,
 						position: "absolute",
 						top: 0,
@@ -346,11 +347,11 @@
 				if (_api.skin.getSkinElement("controlbar", element + "Over") !== undefined) {
 					newelement.onmouseover = function(evt) {
 						evt.stopPropagation();
-						newelement.style["background-image"] = ["url(", _api.skin.getSkinElement("controlbar", element + "Over").src, ")"].join("");
+						newelement.style.backgroundImage = ["url(", _api.skin.getSkinElement("controlbar", element + "Over").src, ")"].join("");
 					};
 					newelement.onmouseout = function(evt) {
 						evt.stopPropagation();
-						newelement.style["background-image"] = ["url(", _api.skin.getSkinElement("controlbar", element).src, ")"].join("");
+						newelement.style.backgroundImage = ["url(", _api.skin.getSkinElement("controlbar", element).src, ")"].join("");
 					};
 				}
 				

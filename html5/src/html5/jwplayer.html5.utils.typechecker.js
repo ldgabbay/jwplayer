@@ -37,8 +37,8 @@
 				}
 				return null;
 			case "integer":
-				return parseInt(value);
-			case "integer":
+				return parseInt(value, 10);
+			case "float":
 				return parseFloat(value);
 			case "boolean":
 				if (value.toLowerCase() == "true") {
