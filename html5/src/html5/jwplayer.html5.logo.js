@@ -24,8 +24,9 @@
 	
 	jwplayer.html5.logo = function(api, logoConfig) {
 		var _api = api;
-		if (_defaults.prefix !== ""){
-			_defaults.prefix += api.version.split(/\W/).splice(0,2).join("/") + "/";	
+		var version = api.version.split(/\W/).splice(0,2).join("/");
+		if (_defaults.prefix.indexOf(version) < 0){
+			_defaults.prefix +=  version + "/";	
 		}
 		var _settings = jwplayer.utils.extend({}, _defaults, logoConfig);
 		

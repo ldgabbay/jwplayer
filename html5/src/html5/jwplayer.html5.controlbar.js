@@ -614,7 +614,7 @@
 				width: (elementcss.width - _marginleft - _marginright),
 				left: timeSliderLeft
 			});
-			if (_elements.timeSliderCapRight !== null) {
+			if (_elements.timeSliderCapRight !== undefined) {
 				_css(_elements.timeSliderCapRight, {
 					left: timeSliderLeft + (elementcss.width - _marginleft - _marginright)
 				});
@@ -627,7 +627,7 @@
 		
 		/** Update the volume level. **/
 		function _volumeHandler(event) {
-			if (_elements.volumeSliderRail !== null) {
+			if (_elements.volumeSliderRail !== undefined) {
 				var progress = isNaN(event.volume / 100) ? 1 : event.volume / 100;
 				var width = parseInt(_elements.volumeSliderRail.style.width.replace("px", ""), 10);
 				var progressWidth = isNaN(Math.round(width * progress)) ? 0 : Math.round(width * progress);

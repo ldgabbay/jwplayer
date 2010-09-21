@@ -259,7 +259,6 @@
 					if (!style) {
 						failed.push(pluginName);
 					} else {
-						console.log(style.width, style.height);
 						_model.plugins.object[pluginName].resize(style.width, style.height);
 						if (sizeToBox) {
 							delete style.width;
@@ -1042,7 +1041,7 @@
 				width: (elementcss.width - _marginleft - _marginright),
 				left: timeSliderLeft
 			});
-			if (_elements.timeSliderCapRight !== null) {
+			if (_elements.timeSliderCapRight !== undefined) {
 				_css(_elements.timeSliderCapRight, {
 					left: timeSliderLeft + (elementcss.width - _marginleft - _marginright)
 				});
@@ -1055,7 +1054,7 @@
 		
 		/** Update the volume level. **/
 		function _volumeHandler(event) {
-			if (_elements.volumeSliderRail !== null) {
+			if (_elements.volumeSliderRail !== undefined) {
 				var progress = isNaN(event.volume / 100) ? 1 : event.volume / 100;
 				var width = parseInt(_elements.volumeSliderRail.style.width.replace("px", ""), 10);
 				var progressWidth = isNaN(Math.round(width * progress)) ? 0 : Math.round(width * progress);
@@ -1809,8 +1808,9 @@
 	
 	jwplayer.html5.logo = function(api, logoConfig) {
 		var _api = api;
-		if (_defaults.prefix !== ""){
-			_defaults.prefix += api.version.split(/\W/).splice(0,2).join("/") + "/";	
+		var version = api.version.split(/\W/).splice(0,2).join("/");
+		if (_defaults.prefix.indexOf(version) < 0){
+			_defaults.prefix +=  version + "/";	
 		}
 		var _settings = jwplayer.utils.extend({}, _defaults);
 		

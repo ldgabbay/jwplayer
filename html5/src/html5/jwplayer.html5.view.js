@@ -135,7 +135,6 @@
 					if (!style) {
 						failed.push(pluginName);
 					} else {
-						console.log(style.width, style.height);
 						_model.plugins.object[pluginName].resize(style.width, style.height);
 						if (sizeToBox) {
 							delete style.width;
