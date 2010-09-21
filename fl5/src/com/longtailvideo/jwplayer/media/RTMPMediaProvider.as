@@ -617,8 +617,10 @@ package com.longtailvideo.jwplayer.media {
 					stop();
 					break;
 				case 'NetConnection.Connect.Failed':
-					stop();
-					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: "Server not found: " + item.streamer}); 
+					if(evt.target == _connections[1]) {
+						stop();
+						sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: "Server not found: " + item.streamer});
+					}
 					break;
                 case 'NetStream.Play.UnpublishNotify':
                     stop();
