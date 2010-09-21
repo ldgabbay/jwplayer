@@ -1,0 +1,29 @@
+<html>
+	<head>
+		<title>HTML5 Player Examples</title>
+	</head>
+	<body>
+		<h1>Examples</h1>
+		<ul id="examples"></ul>
+		<script type="text/javascript">
+			var list = document.getElementById("examples");
+			var examples = {
+				"Single MP4": "single_mp4.html",
+				"Single OGV": "single_ogg.html",
+				"Multiple sources (MP4 and OGV)": "mp4_ogg.html",
+				"Multiple players": "multiple_players.html",
+				"Custom Skin": "custom_skin.html",
+				"Multiple players with custom skins": "multiple_customs.html"
+			};
+			for (var example in examples){
+				var listItem = document.createElement("li");
+				var link = document.createElement("a");
+				link.href = examples[example];
+				link.innerHTML = example;
+				listItem.appendChild(link);
+				list.appendChild(listItem);
+			}
+		</script>
+		
+	</body>
+</html>
