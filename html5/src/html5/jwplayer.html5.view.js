@@ -92,8 +92,8 @@
 					}
 				}
 				if (_api.jwGetFullscreen()) {
-					_model.width = document.body.clientWidth;
-					_model.height = document.body.clientHeight;
+					_model.width = window.innerWidth;
+					_model.height = window.innerHeight;
 				}
 				_resize(_model.width, _model.height);
 			};
@@ -257,8 +257,8 @@
 				}
 			} else {
 				if (state) {
-					_model.width = document.body.clientWidth;
-					_model.height = document.body.clientHeight;
+					_model.width = window.innerWidth;
+					_model.height = window.innerHeight;
 					var style = {
 						position: "fixed",
 						width: "100%",
