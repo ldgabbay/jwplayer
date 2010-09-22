@@ -381,7 +381,9 @@
 			_currentItem = playlistItem;
 			var vid = document.createElement("video");
 			vid.preload = "none";
-			vid.loop = _model.config.repeat;
+			if (_model.config.repeat.toUpperCase() == jwplayer.html5.controller.repeatoptions.SINGLE){
+				//vid.loop = true;				
+			}
 			_sourceError = 0;
 			for (var sourceIndex in playlistItem.levels) {
 				var sourceModel = playlistItem.levels[sourceIndex];

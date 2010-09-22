@@ -1121,6 +1121,11 @@
 							if (_itemUpdated) {
 								_model.setActiveMediaProvider(_model.playlist[_model.item]);
 								_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, _model.getMedia().play);
+								if (_model.config.repeat) {
+									_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
+										setTimeout(_completeHandler, 25);
+									});
+								}
 								_model.getMedia().load(_model.playlist[_model.item]);
 								_itemUpdated = false;
 							} else {
@@ -1198,12 +1203,15 @@
 			
 				if (_model.playlist[0].levels[0].file.length > 0) {
 					if (_model.config.shuffle) {
-						_model.item = Math.floor(Math.random() * _model.playlist.length);
+						_item(Math.floor(Math.random() * _model.playlist.length));
 					} else if (_model.item + 1 == _model.playlist.length) {
 						return _item(0);
 					} else {
 						return _item(_model.item + 1);
 					}
+				}
+				if (_model.state != jwplayer.api.events.state.PLAYING && _model.state != jwplayer.api.events.state.BUFFERING) {
+					_play();
 				}
 				return true;
 			} catch (err) {
@@ -1217,12 +1225,15 @@
 			try {
 				if (_model.playlist[0].levels[0].file.length > 0) {
 					if (_model.config.shuffle) {
-						_model.item = Math.floor(Math.random() * _model.playlist.length);
+						_item(Math.floor(Math.random() * _model.playlist.length));
 					} else if (_model.item === 0) {
 						return _item(_model.playlist.length - 1);
 					} else {
 						return _item(_model.item - 1);
 					}
+				}
+				if (_model.state != jwplayer.api.events.state.PLAYING && _model.state != jwplayer.api.events.state.BUFFERING) {
+					_play();
 				}
 				return true;
 			} catch (err) {
@@ -1328,14 +1339,14 @@
 			ALWAYS: "ALWAYS",
 			SINGLE: "SINGLE",
 			NONE: "NONE"
-		}
+		};
 		
 		function _completeHandler() {
 			switch (_model.config.repeat.toUpperCase()) {
-				case RepeatOptions.SINGLE:
+				case jwplayer.html5.controller.repeatoptions.SINGLE:
 					_play();
 					break;
-				case RepeatOptions.ALWAYS:
+				case jwplayer.html5.controller.repeatoptions.ALWAYS:
 					if (_model.item == _model.playlist.length - 1 && !_model.config.shuffle) {
 						_item(0);
 						_play();
@@ -1343,7 +1354,7 @@
 						_next();
 					}
 					break;
-				case RepeatOptions.LIST:
+				case jwplayer.html5.controller.repeatoptions.LIST:
 					if (_model.item == _model.playlist.length - 1 && !_model.config.shuffle) {
 						_item(0);
 					} else {
@@ -2304,7 +2315,9 @@
 			_currentItem = playlistItem;
 			var vid = document.createElement("video");
 			vid.preload = "none";
-			vid.loop = _model.config.repeat;
+			if (_model.config.repeat.toUpperCase() == jwplayer.html5.controller.repeatoptions.SINGLE){
+				//vid.loop = true;				
+			}
 			_sourceError = 0;
 			for (var sourceIndex in playlistItem.levels) {
 				var sourceModel = playlistItem.levels[sourceIndex];
