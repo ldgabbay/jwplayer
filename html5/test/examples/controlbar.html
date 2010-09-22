@@ -1,1 +1,61 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>Controlbar</title>
+        <script type="text/javascript" src="../../../js/bin-debug/jwplayer.js">
+        </script>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.html5.js">
+        </script>
+    </head>
+    <body>
+        <h1>Controlbar</h1>
+        <p>
+            This shows all of the rendering options for the controlbar.
+        </p>
+        <p>
+            It contains three players with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
+        </p>
+        <div height="270" id="player3" width="480">
+            HTML5 Player should replace this
+        </div>
+        <div height="270" id="player2" width="480">
+            HTML5 Player should replace this
+        </div>
+        <div height="270" id="player3" width="480">
+            HTML5 Player should replace this
+        </div>
+        <script type="text/javascript">
+            var player1 = new jwplayer.html5(document.getElementById("player1"));
+            player1.setup({
+            	levels: [{
+            		file: "../../../js/test/files/bunny.mp4"
+            	}, {
+            		file: "../../../js/test/files/bunny.ogv"
+            	}],
+            	image: "../../../js/test/files/bunny.jpg",
+            	"controlbar.position": "top"
+            });
+            var player2 = new jwplayer.html5(document.getElementById("player2"));
+            player2.setup({
+            	levels: [{
+            		file: "../../../js/test/files/bunny.mp4"
+            	}, {
+            		file: "../../../js/test/files/bunny.ogv"
+            	}],
+            	image: "../../../js/test/files/bunny.jpg",
+            	"controlbar.position": "over"
+            });
+            var player3 = new jwplayer.html5(document.getElementById("player3"));
+            player3.setup({
+            	levels: [{
+            		file: "../../../js/test/files/bunny.mp4"
+            	}, {
+            		file: "../../../js/test/files/bunny.ogv"
+            	}],
+            	image: "../../../js/test/files/bunny.jpg",
+            	"controlbar.position": "bottom"
+            });
+        </script>
+        <h3>HTML code</h3>
+    </body>
+</html>

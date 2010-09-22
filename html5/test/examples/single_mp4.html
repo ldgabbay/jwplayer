@@ -2,18 +2,19 @@
 <html>
     <head>
         <title>Single MP4 Example</title>
-    </head>
-    <body>
-        <h1>Single MP4 video</h1>
-        <p>
-            This is the basic setup for a video that plays on Safari,iPhone/iPad and Chrome. Firefox, IE and Opera will fallback to Flash. A poster image is included.
-        </p>
-        <div height="270" id="player" width="480">
-        </div>
         <script type="text/javascript" src="../../../js/bin-debug/jwplayer.js">
         </script>
         <script type="text/javascript" src="../../bin-debug/jwplayer.html5.js">
         </script>
+    </head>
+    <body>
+        <h1>Single MP4 video</h1>
+        <p>
+            This sets up a player for IE9, FF, Chrome, Safari, and Opera, however, playback will fail in FF and Opera. IE < 9 will simply display "HTML5 Player should replace this".
+        </p>
+        <div height="270" id="player" width="480">
+        	HTML5 Player should replace this
+        </div>
         <script type="text/javascript">
             var player = new jwplayer.html5(document.getElementById("player"));
             player.setup({
@@ -23,26 +24,5 @@
             });
         </script>
         <h3>HTML code</h3>
-        <p>
-            Here is the code for this setup. Make sure to change all links to the scripts, player, image and video. They must refer to the correct files on your server.
-        </p>
-        <p>
-            First, place this code in the <strong>&lt;head&gt;</strong>
-            of your page:
-        </p>
-        <pre>&lt;script type="text/javascript" src="/scripts/jquery.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="/scripts/jquery.jwplayer.js"&gt;&lt;/script&gt;</pre>
-        <p>
-            Second, place this code where you want the video to appear:
-        </p>
-        <pre>&lt;video height="270" id="player" poster="/files/bunny.jpg"
-  src="/files/bunny.mp4" width="480"&gt;
-
-&lt;script type="text/javascript"&gt;
-  $('#player').jwplayer({
-    flashplayer:'/files/player.swf',
-    skin:'/files/five.xml'
-  });
-&lt;/script&gt;</pre>
     </body>
 </html>

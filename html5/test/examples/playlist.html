@@ -1,1 +1,84 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>Playlists</title>
+        <script type="text/javascript" src="../../../js/bin-debug/jwplayer.js">
+        </script>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.html5.js">
+        </script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            var playlist = [{
+            	levels: [{
+            		file: "../../../js/test/files/bunny.mp4"
+            	}, {
+            		file: "../../../js/test/files/bunny.ogv"
+            	}],
+            	image: "../../../js/test/files/bunny.jpg"
+            }, {
+            	levels: [{
+            		file: "../../../js/test/files/bunny.mp4"
+            	}, {
+            		file: "../../../js/test/files/bunny.ogv"
+            	}],
+            	image: "../../../js/test/files/bunny.jpg"
+            }, {
+            	levels: [{
+            		file: "../../../js/test/files/bunny.mp4"
+            	}, {
+            		file: "../../../js/test/files/bunny.ogv"
+            	}],
+            	image: "../../../js/test/files/bunny.jpg"
+            }];
+        </script>
+        <h1>Playlists</h1>
+        <p>
+            This page is meant to test playlists with various playlist related config options. For now, all of them use the same playlist.
+        </p>
+        <p>
+            It contains three players with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
+        </p>
+        <p>
+            The standard playlist
+        </p>
+        <div height="270" id="player1" width="480">
+            HTML5 Player should replace this
+        </div>
+        <script type="text/javascript">
+            var player1 = new jwplayer.html5(document.getElementById("player1"));
+            player1.setup({
+            	playlist: playlist
+            });
+        </script>
+        <p>
+            Continuously repeat with shuffle on
+        </p>
+        <div height="270" id="player2" width="480">
+            HTML5 Player should replace this
+        </div>
+        <script type="text/javascript">
+            var player2 = new jwplayer.html5(document.getElementById("player2"));
+            player2.setup({
+            	playlist: playlist,
+            	repeat: "always",
+            	shuffle: true,
+            	debug: "console"
+            });
+        </script>
+        <p>
+            Play through once and stop after playing the last item
+        </p>
+        <div height="270" id="player3" width="480">
+            HTML5 Player should replace this
+        </div>
+        <script type="text/javascript">
+            var player3 = new jwplayer.html5(document.getElementById("player3"));
+            player3.setup({
+            	playlist: playlist,
+            	repeat: "list"
+            });
+        </script>
+        <h3>HTML code</h3>
+    </body>
+</html>

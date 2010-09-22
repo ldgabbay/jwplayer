@@ -8,7 +8,7 @@
 
 	jwplayer.html5.api = function(container, options) {
 		var _api = {};
-		if (jwplayer.utils.isIE()) {
+		if (!jwplayer.utils.hasHTML5()) {
 			return _api;
 		}
 		var _container = document.createElement('div');

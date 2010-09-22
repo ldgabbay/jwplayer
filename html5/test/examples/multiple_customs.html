@@ -2,80 +2,66 @@
 <html>
     <head>
         <title>Multiple custom players</title>
-    </head>
-    <body>
-        <h1>Multiple custom players.</h1>
-        <p>
-            Multiple players on one page. Different videos and different options.
-        </p>
-        <h3>Player 1:</h3>
         <script type="text/javascript" src="../../../js/bin-debug/jwplayer.js">
         </script>
         <script type="text/javascript" src="../../bin-debug/jwplayer.html5.js">
         </script>
+    </head>
+    <body>
+        <h1>Multiple custom players</h1>
+        <p>
+            This page tests various configuration options.
+        </p>
+        <p>
+           It contains two players with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
+        </p>
+        <h3>Player 1</h3>
+		<p>
+			Autostart, mute, repeats (single) playlist item, debug enabled.
+		</p>
         <div height="270" id="player1" width="480">
+        	HTML5 Player should replace this
         </div>
         <script type="text/javascript">
             var player1 = new jwplayer.html5(document.getElementById("player1"));
             player1.setup({
             	autostart: true,
             	mute: true,
-            	file: "../../../js/test/files/bunny.mp4",
-            	image: "../../../js/test/files/bunny.jpg"
+            	repeat: "single",
+            	levels: [{
+            		file: "../../../js/test/files/bunny.mp4"
+            	}, {
+            		file: "../../../js/test/files/bunny.ogv"
+            	}],
+            	image: "../../../js/test/files/bunny.jpg",
+            	debug: "console"
             
             });
         </script>
-        <h3>Player 2:</h3>
+        <h3>Player 2</h3>
+		<p>
+			Different dimensions, screencolor, duration, volume, skin (Stromtrooper)
+		</p>
         <div height="270" id="player2" width="480">
+        	HTML5 Player should replace this
         </div>
         <script type="text/javascript">
             var player2 = new jwplayer.html5(document.getElementById("player2"));
             player2.setup({
+            	height: 260,
+            	width: 500,
             	screencolor: "00bee0",
             	duration: 45,
             	volume: 50,
-            	file: "../../../js/test/files/oorlogswinter.mp4",
-            	image: "../../../js/test/files/oorlogswinter.png",
+            	levels: [{
+            		file: "../../../js/test/files/bunny.mp4"
+            	}, {
+            		file: "../../../js/test/files/bunny.ogv"
+            	}],
+            	image: "../../../js/test/files/bunny.jpg",
             	skin: "../../../../skins/stormtrooper/stormtrooper.xml"
             });
         </script>
         <h3>HTML code</h3>
-        <p>
-            Multiple players on one page. Different videos and <a href="/support/jw-player/html5-player/11289/configuration-options-of-the-jw-player-for-html5">different options</a>. The first player is set to autostart muted. The second player has pre-set duration, but no flashplayer fallback. Both have a custom skin.
-        </p>
-        <p>
-            First, place this code in the <em>&lt;head&gt;</em>
-            of your page:
-        </p>
-        <pre>&lt;script type="text/javascript" src="/scripts/jquery.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="/scripts/jquery.jwplayer.js"&gt;&lt;/script&gt;</pre>
-        <p>
-            Second, place this code where you want the first video to appear:
-        </p>
-        <pre>&lt;video height="270" id="player1" src="/files/bunny.mp4" width="480"&gt;
-&lt;script type="text/javascript"&gt;
-  $('#player1').jwplayer({
-    autostart:true,
-    flashplayer:'/files/player.swf',
-    mute:true,
-    skin:'/files/five.xml'
-});
-&lt;/script&gt;</pre>
-        <p>
-            Third, place this code where you want the second video to appear:
-        </p>
-        <pre>&lt;video height="270" id="player2" src="/files/corrie.mp4" width="480"&gt;
-
-&lt;script type="text/javascript"&gt;
-  $('#player2').jwplayer({
-    duration:45,
-    screencolor:'00bee0',
-    skin:'/files/stormtrooper.xml'
-});
-&lt;/script&gt;</pre>
-        <p>
-            Note that the <i>jwplayer()</i>
-            function is called twice. This allows us to set different options for the two players.
-        </p>
     </body>
 </html>

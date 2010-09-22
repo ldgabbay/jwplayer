@@ -1,1 +1,43 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>Logo</title>
+        <script type="text/javascript" src="../../../js/bin-debug/jwplayer.js">
+        </script>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.html5.js">
+        </script>
+    </head>
+    <body>
+        <h1>Logo</h1>
+        <p>
+            This test the various configuration options for the logo. Video should play natively on FF, Chrome, Safari, and Opera but will fail in IE.
+        </p>
+        <div height="270" id="player" width="480">
+        </div>
+        <script type="text/javascript">
+            var player = new jwplayer.html5(document.getElementById("player"));
+            player.setup({
+            	levels: [{
+            		file: "../../../js/test/files/bunny.mp4"
+            	}, {
+            		file: "../../../js/test/files/bunny.ogv"
+            	}],
+            	image: "../../../js/test/files/bunny.jpg",
+            	logo: {
+            		prefix: "http://content.longtailvideo.com/images/",
+            		file: "logo_header.png",
+            		link: "http://www.longtailvideo.com/",
+            		margin: 20,
+            		out: 0.25,
+            		over: 0.5,
+            		timeout: 3,
+            		hide: "false",
+            		position: "top-right",
+            		width: 93,
+            		height: 30
+            	}
+            });
+        </script>
+        <h3>HTML code</h3>
+    </body>
+</html>
