@@ -116,7 +116,7 @@ jwplayer.utils.isIE = function() {
 
 jwplayer.utils.isIOS = function(){
 		var agent = navigator.userAgent.toLowerCase();
-		return agent.match(/iP(hone|ad)/i);
+		return (agent.match(/iP(hone|ad)/i) !== null);
 	};
 
 /**
