@@ -107,8 +107,11 @@
 		/** Stop playback and loading of the video. **/
 		function _next() {
 			try {
+			
 				if (_model.playlist[0].levels[0].file.length > 0) {
-					if (_model.item + 1 == _model.playlist.length) {
+					if (_model.config.shuffle) {
+						_model.item = Math.floor(Math.random() * _model.playlist.length);
+					} else if (_model.item + 1 == _model.playlist.length) {
 						return _item(0);
 					} else {
 						return _item(_model.item + 1);
@@ -125,7 +128,9 @@
 		function _prev() {
 			try {
 				if (_model.playlist[0].levels[0].file.length > 0) {
-					if (_model.item === 0) {
+					if (_model.config.shuffle) {
+						_model.item = Math.floor(Math.random() * _model.playlist.length);
+					} else if (_model.item === 0) {
 						return _item(_model.playlist.length - 1);
 					} else {
 						return _item(_model.item - 1);
@@ -228,6 +233,36 @@
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
 			}
 			return false;
+		}
+		
+		jwplayer.html5.controller.repeatoptions = {
+			LIST: "LIST",
+			ALWAYS: "ALWAYS",
+			SINGLE: "SINGLE",
+			NONE: "NONE"
+		}
+		
+		function _completeHandler() {
+			switch (_model.config.repeat.toUpperCase()) {
+				case RepeatOptions.SINGLE:
+					_play();
+					break;
+				case RepeatOptions.ALWAYS:
+					if (_model.item == _model.playlist.length - 1 && !_model.config.shuffle) {
+						_item(0);
+						_play();
+					} else {
+						_next();
+					}
+					break;
+				case RepeatOptions.LIST:
+					if (_model.item == _model.playlist.length - 1 && !_model.config.shuffle) {
+						_item(0);
+					} else {
+						_next();
+					}
+					break;
+			}
 		}
 		
 		this.play = _play;

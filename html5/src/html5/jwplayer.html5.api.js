@@ -8,6 +8,9 @@
 
 	jwplayer.html5.api = function(container, options) {
 		var _api = {};
+		if (jwplayer.utils.isIE()) {
+			return _api;
+		}
 		var _container = document.createElement('div');
 		container.parentNode.replaceChild(_container, container);
 		_container.id = container.id;
@@ -102,8 +105,11 @@
 			};
 		}
 		
-		_api.skin.load(_model.config.skin, _finishLoad(_model, _view, _controller));
-		
+		if (_model.config.chromeless) {
+			_finishLoad(_model, _view, _controller);
+		} else {
+			_api.skin.load(_model.config.skin, _finishLoad(_model, _view, _controller));
+		}
 		return _api;
 	};
 	

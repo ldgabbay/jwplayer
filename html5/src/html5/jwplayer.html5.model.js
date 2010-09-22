@@ -66,6 +66,10 @@
 			_model[configurableStateVariable] = _model.config[configurableStateVariable];
 		}
 		
+		if (jwplayer.utils.isIOS()){
+			_model.config.chromeless = true;
+		}
+		
 		var pluginorder = _components.concat([]);
 		
 		if (_model.plugins !== undefined) {
@@ -97,10 +101,18 @@
 		_model.loadPlaylist = function(playlist, ready) {
 			ready = ready === null ? true : false;
 			_model.playlist = new jwplayer.html5.playlist(playlist);
+			if (_model.config.shuffle) {
+				_model.item = Math.floor(Math.random() * _model.playlist.length);
+			} else {
+				if (_model.config.item >= _model.playlist.length) {
+					_model.config.item = _model.playlist.length - 1;
+				}
+				_model.item = _model.config.item;
+			}
 			if (ready) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-					"item": _model.config.item
+					"item": _model.item
 				});
 			}
 			_model.setActiveMediaProvider(_model.playlist[_model.item]);
