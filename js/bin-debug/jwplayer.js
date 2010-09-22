@@ -118,7 +118,7 @@ jwplayer.utils.isIE = function() {
  * Detects whether the current browser is mobile Safari.
  **/
 
-jwplayer.html5.utils.isIOs = function(){
+jwplayer.utils.isIOS = function(){
 		var agent = navigator.userAgent.toLowerCase();
 		return agent.match(/iP(hone|ad)/i);
 	};
