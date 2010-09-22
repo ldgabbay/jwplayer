@@ -111,6 +111,15 @@ jwplayer.utils.isIE = function() {
 };
 
 /**
+ * Detects whether the current browser is mobile Safari.
+ **/
+
+jwplayer.html5.utils.isIOs = function(){
+		var agent = navigator.userAgent.toLowerCase();
+		return agent.match(/iP(hone|ad)/i);
+	};
+
+/**
  * Detects whether the browser can handle HTML5 video. 
  * Using this as a proxy for detecting all HTML5 features needed for the JW HTML5 Player.  Do we need more granularity?
  */
