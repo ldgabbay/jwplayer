@@ -81,9 +81,9 @@
 		if (!(navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length)){
 			// IE6/7/8 case
 			var currentElement = domElement.nextSibling;
-			if (currentElement[0] !== undefined){
-				while(currentElement[0].tagName.toLowerCase() == "source") {
-					sources.push(parseSourceElement(currentElement[0]));
+			if (currentElement !== undefined){
+				while(currentElement.tagName.toLowerCase() == "source") {
+					sources.push(parseSourceElement(currentElement));
 					currentElement = currentElement.nextSibling;
 				}				
 			}

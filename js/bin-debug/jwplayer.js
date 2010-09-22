@@ -211,9 +211,9 @@ jwplayer.utils.hasFlash = function() {
 		if (!(navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length)){
 			// IE6/7/8 case
 			var currentElement = domElement.nextSibling;
-			if (currentElement[0] !== undefined){
-				while(currentElement[0].tagName.toLowerCase() == "source") {
-					sources.push(parseSourceElement(currentElement[0]));
+			if (currentElement !== undefined){
+				while(currentElement.tagName.toLowerCase() == "source") {
+					sources.push(parseSourceElement(currentElement));
 					currentElement = currentElement.nextSibling;
 				}				
 			}
@@ -737,7 +737,8 @@ playerReady = function(obj) {
 						this.api.setPlayer(flashPlayer);
 					} else {
 						this.players.splice(0, 1);
-						this.embedPlayer();
+						return this.embedPlayer();
+						
 					}
 					break;
 				case 'html5':
@@ -747,7 +748,7 @@ playerReady = function(obj) {
 						this.api.setPlayer(html5player);
 					} else {
 						this.players.splice(0, 1);
-						this.embedPlayer();
+						return this.embedPlayer();
 					}
 					break;
 				}
@@ -761,9 +762,9 @@ playerReady = function(obj) {
 		},
 
 		setupEvents : function() {
-			for (event in this.events) {
-				if (typeof this.api[event] == "function") {
-					(this.api[event]).call(this.api, this.events[event]);
+			for (evt in this.events) {
+				if (typeof this.api[evt] == "function") {
+					(this.api[evt]).call(this.api, this.events[evt]);
 				}
 			}
 		},
@@ -774,9 +775,8 @@ playerReady = function(obj) {
 					this.load(loadParams.playlist);
 				} else if (loadParams.levels) {
 					var item = this.getPlaylistItem(0);
-					console.log("Item: %o", item);
 					if (!item) {
-						item = { file: loadParams.levels[0].file };
+						item = { file: loadParams.levels[0].file, provider:'video' };
 					}
 					if (!item.image) {
 						item.image = this.config.image;

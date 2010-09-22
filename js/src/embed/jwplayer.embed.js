@@ -52,7 +52,8 @@
 						this.api.setPlayer(flashPlayer);
 					} else {
 						this.players.splice(0, 1);
-						this.embedPlayer();
+						return this.embedPlayer();
+						
 					}
 					break;
 				case 'html5':
@@ -62,7 +63,7 @@
 						this.api.setPlayer(html5player);
 					} else {
 						this.players.splice(0, 1);
-						this.embedPlayer();
+						return this.embedPlayer();
 					}
 					break;
 				}
@@ -76,9 +77,9 @@
 		},
 
 		setupEvents : function() {
-			for (event in this.events) {
-				if (typeof this.api[event] == "function") {
-					(this.api[event]).call(this.api, this.events[event]);
+			for (evt in this.events) {
+				if (typeof this.api[evt] == "function") {
+					(this.api[evt]).call(this.api, this.events[evt]);
 				}
 			}
 		},
@@ -89,9 +90,8 @@
 					this.load(loadParams.playlist);
 				} else if (loadParams.levels) {
 					var item = this.getPlaylistItem(0);
-					console.log("Item: %o", item);
 					if (!item) {
-						item = { file: loadParams.levels[0].file };
+						item = { file: loadParams.levels[0].file, provider:'video' };
 					}
 					if (!item.image) {
 						item.image = this.config.image;
