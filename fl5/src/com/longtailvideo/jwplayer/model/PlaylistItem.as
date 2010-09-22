@@ -31,7 +31,7 @@ package com.longtailvideo.jwplayer.model {
 				if (itm == "levels" && obj[itm] is Array) {
 					var levels:Array = obj[itm] as Array;
 					for each (var level:Object in levels) {
-						if (level['file'] && (level['bitrate'] || level['width'])) {
+						if (level['file']) {
 							addLevel(
 								new PlaylistItemLevel(level['file'], 
 									Number(level['bitrate']), 

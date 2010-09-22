@@ -266,8 +266,8 @@ package com.longtailvideo.jwplayer.player {
 					_player.load(prm);
 					break;
 				case com.jeroenwijering.events.ViewEvent.MUTE:
-					if (prm != null && prm != "") {
-						_player.mute(prm != "false" && prm != 0);
+					if (prm !== null && prm !== "") {
+						_player.mute(prm !== "false" && prm !== 0);
 					} else {
 						_player.mute(!_player.config.mute);
 					}
@@ -276,14 +276,14 @@ package com.longtailvideo.jwplayer.player {
 					_player.playlistNext();
 					break;
 				case com.jeroenwijering.events.ViewEvent.PLAY:
-					if (prm == null || prm == "") {
+					if (prm === null || prm === "") {
 						if (_player.state == PlayerState.PAUSED || _player.state == PlayerState.IDLE) {
 							prm = "true";
 						} else {
 							prm = "false";
 						}
 					} 
-					if (prm != null && Strings.serialize(prm.toString()) == false) {
+					if (prm !== null && Strings.serialize(prm.toString()) == false) {
 						_player.pause();
 					} else {
 						_player.play();
