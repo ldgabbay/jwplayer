@@ -187,8 +187,8 @@
 					_display.display_icon.style.backgroundImage = ["url(", _api.skin.getSkinElement("display", newIcon).src, ")"].join("");
 				};
 			} else {
-				_display.display_icon.onmouseover = undefined;
-				_display.display_icon.onmouseout = undefined;
+				_display.display_icon.onmouseover = null;
+				_display.display_icon.onmouseout = null;
 			}
 		}
 		
@@ -208,7 +208,7 @@
 			_hide(_display.display_text);
 			if (_rotationInterval !== undefined) {
 				clearInterval(_rotationInterval);
-				_rotationInterval = undefined;
+				_rotationInterval = null;
 				jwplayer.html5.utils.animations.rotate(_display.display_icon, 0);
 			}
 			switch (_api.jwGetState()) {

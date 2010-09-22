@@ -29,9 +29,16 @@
 				width: _model.width,
 				margin: "auto",
 				padding: 0,
-				backgroundColor: _api.skin.getComponentSettings("display").backgroundcolor === undefined ? parseInt("000000", 16) : _api.skin.getComponentSettings("display").backgroundcolor,
+				backgroundColor: getBackgroundColor(),
 				zIndex: 0
 			});
+			
+			function getBackgroundColor(){
+				if (_api.skin.getComponentSettings("display") && _api.skin.getComponentSettings("display").backgroundcolor){
+					return _api.skin.getComponentSettings("display").backgroundcolor;
+				}
+				return parseInt("000000", 16);
+			}
 			
 			_css(_container, {
 				position: "absolute",
@@ -64,13 +71,7 @@
 		}
 		
 		function _loadedHandler(evt) {
-			if (_model.getMedia() !== undefined) {
-				if (_model.config.chromeless) {
-					_model.getMedia().getDisplayElement().poster = _model.playlist[_model.item].image;
-					_model.getMedia().getDisplayElement().controls = "controls";
-				}
-				
-				
+			if (_model.getMedia() !== undefined) {		
 				for (var pluginIndex in _model.plugins.order) {
 					var pluginName = _model.plugins.order[pluginIndex];
 					if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
@@ -125,7 +126,6 @@
 			if (!_model.fullscreen) {
 				_width = width;
 				_height = height;
-				_model.plugins.object.display.resize(width, height);
 				_css(_box, {
 					top: 0,
 					bottom: 0,

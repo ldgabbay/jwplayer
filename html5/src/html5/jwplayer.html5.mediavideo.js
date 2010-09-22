@@ -141,7 +141,11 @@
 				if (_state == jwplayer.api.events.state.PLAYING) {
 					if (!_start && _container.readyState > 0) {
 						_start = true;
-						_container.currentTime = _model.playlist[_model.item].start;
+						try {
+							_container.currentTime = _model.playlist[_model.item].start;
+						} catch (err) {
+						
+						}
 						_container.volume = _model.volume / 100;
 						_container.muted = _model.mute;
 					}
@@ -377,7 +381,7 @@
 			_bufferTimes.push(currentTime);
 		}
 		
-		this.hasChrome = function(){
+		this.hasChrome = function() {
 			return _hasChrome;
 		};
 		
@@ -410,6 +414,10 @@
 					source.type = sourceModel.type;
 				}
 				vid.appendChild(source);
+			}
+			if (_model.config.chromeless) {
+				vid.poster = jwplayer.html5.utils.getAbsolutePath(playlistItem.image);
+				vid.controls = "controls";
 			}
 			vid.style.position = _container.style.position;
 			vid.style.top = _container.style.top;

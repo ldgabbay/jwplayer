@@ -161,9 +161,16 @@
 				width: _model.width,
 				margin: "auto",
 				padding: 0,
-				backgroundColor: _api.skin.getComponentSettings("display").backgroundcolor === undefined ? parseInt("000000", 16) : _api.skin.getComponentSettings("display").backgroundcolor,
+				backgroundColor: getBackgroundColor(),
 				zIndex: 0
 			});
+			
+			function getBackgroundColor(){
+				if (_api.skin.getComponentSettings("display") && _api.skin.getComponentSettings("display").backgroundcolor){
+					return _api.skin.getComponentSettings("display").backgroundcolor;
+				}
+				return parseInt("000000", 16);
+			}
 			
 			_css(_container, {
 				position: "absolute",
@@ -196,13 +203,7 @@
 		}
 		
 		function _loadedHandler(evt) {
-			if (_model.getMedia() !== undefined) {
-				if (_model.config.chromeless) {
-					_model.getMedia().getDisplayElement().poster = _model.playlist[_model.item].image;
-					_model.getMedia().getDisplayElement().controls = "controls";
-				}
-				
-				
+			if (_model.getMedia() !== undefined) {		
 				for (var pluginIndex in _model.plugins.order) {
 					var pluginName = _model.plugins.order[pluginIndex];
 					if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
@@ -257,7 +258,6 @@
 			if (!_model.fullscreen) {
 				_width = width;
 				_height = height;
-				_model.plugins.object.display.resize(width, height);
 				_css(_box, {
 					top: 0,
 					bottom: 0,
@@ -1623,8 +1623,8 @@
 					_display.display_icon.style.backgroundImage = ["url(", _api.skin.getSkinElement("display", newIcon).src, ")"].join("");
 				};
 			} else {
-				_display.display_icon.onmouseover = undefined;
-				_display.display_icon.onmouseout = undefined;
+				_display.display_icon.onmouseover = null;
+				_display.display_icon.onmouseout = null;
 			}
 		}
 		
@@ -1644,7 +1644,7 @@
 			_hide(_display.display_text);
 			if (_rotationInterval !== undefined) {
 				clearInterval(_rotationInterval);
-				_rotationInterval = undefined;
+				_rotationInterval = null;
 				jwplayer.html5.utils.animations.rotate(_display.display_icon, 0);
 			}
 			switch (_api.jwGetState()) {
@@ -2106,7 +2106,11 @@
 				if (_state == jwplayer.api.events.state.PLAYING) {
 					if (!_start && _container.readyState > 0) {
 						_start = true;
-						_container.currentTime = _model.playlist[_model.item].start;
+						try {
+							_container.currentTime = _model.playlist[_model.item].start;
+						} catch (err) {
+						
+						}
 						_container.volume = _model.volume / 100;
 						_container.muted = _model.mute;
 					}
@@ -2342,7 +2346,7 @@
 			_bufferTimes.push(currentTime);
 		}
 		
-		this.hasChrome = function(){
+		this.hasChrome = function() {
 			return _hasChrome;
 		};
 		
@@ -2375,6 +2379,10 @@
 					source.type = sourceModel.type;
 				}
 				vid.appendChild(source);
+			}
+			if (_model.config.chromeless) {
+				vid.poster = jwplayer.html5.utils.getAbsolutePath(playlistItem.image);
+				vid.controls = "controls";
 			}
 			vid.style.position = _container.style.position;
 			vid.style.top = _container.style.top;
@@ -2510,10 +2518,6 @@
 			_model[configurableStateVariable] = _model.config[configurableStateVariable];
 		}
 		
-		if (jwplayer.utils.isIOS()){
-			_model.config.chromeless = true;
-		}
-		
 		var pluginorder = _components.concat([]);
 		
 		if (_model.plugins !== undefined) {
@@ -2521,7 +2525,15 @@
 			for (var userplugin in userplugins){
 				pluginorder.push(userplugin.replace(/^\s+|\s+$/g,""));
 			}
-		}		
+		}
+		
+		if (jwplayer.utils.isIOS()){
+			_model.config.chromeless = true;
+		}
+		
+		if (_model.config.chromeless){
+			pluginorder = [];
+		}
 				
 		_model.plugins = {
 			order: pluginorder,
@@ -2585,6 +2597,7 @@
 			return _media;
 		};
 		
+
 		_model.setupPlugins = function() {
 			for (var plugin in _model.plugins.order) {
 				if (jwplayer.html5[_model.plugins.order[plugin]] !== undefined) {
@@ -3158,9 +3171,8 @@
 				}
 			};
 		}
-		
 		if (_model.config.chromeless) {
-			_finishLoad(_model, _view, _controller);
+			setTimeout(_finishLoad(_model, _view, _controller), 25);
 		} else {
 			_api.skin.load(_model.config.skin, _finishLoad(_model, _view, _controller));
 		}

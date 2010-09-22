@@ -104,9 +104,8 @@
 				}
 			};
 		}
-		
 		if (_model.config.chromeless) {
-			_finishLoad(_model, _view, _controller);
+			setTimeout(_finishLoad(_model, _view, _controller), 25);
 		} else {
 			_api.skin.load(_model.config.skin, _finishLoad(_model, _view, _controller));
 		}

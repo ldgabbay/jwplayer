@@ -66,10 +66,6 @@
 			_model[configurableStateVariable] = _model.config[configurableStateVariable];
 		}
 		
-		if (jwplayer.utils.isIOS()){
-			_model.config.chromeless = true;
-		}
-		
 		var pluginorder = _components.concat([]);
 		
 		if (_model.plugins !== undefined) {
@@ -77,7 +73,15 @@
 			for (var userplugin in userplugins){
 				pluginorder.push(userplugin.replace(/^\s+|\s+$/g,""));
 			}
-		}		
+		}
+		
+		if (jwplayer.utils.isIOS()){
+			_model.config.chromeless = true;
+		}
+		
+		if (_model.config.chromeless){
+			pluginorder = [];
+		}
 				
 		_model.plugins = {
 			order: pluginorder,
@@ -141,6 +145,7 @@
 			return _media;
 		};
 		
+
 		_model.setupPlugins = function() {
 			for (var plugin in _model.plugins.order) {
 				if (jwplayer.html5[_model.plugins.order[plugin]] !== undefined) {
