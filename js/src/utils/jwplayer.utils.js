@@ -103,8 +103,9 @@ jwplayer.utils.append = function(originalElement, appendedElement) {
 };
 
 /**
- * Detects whether the current browser is IE.
- * Technique from http://webreflection.blogspot.com/2009/01/32-bytes-to-know-if-your-browser-is-ie.html 
+ * Detects whether the current browser is IE (version 8 or below).
+ * Technique from http://webreflection.blogspot.com/2009/01/32-bytes-to-know-if-your-browser-is-ie.html
+ * Note - this detection no longer works for IE9. 
  **/
 jwplayer.utils.isIE = function() {
 	return (!+"\v1");

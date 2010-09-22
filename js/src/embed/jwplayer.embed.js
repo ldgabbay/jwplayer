@@ -53,7 +53,6 @@
 					} else {
 						this.players.splice(0, 1);
 						return this.embedPlayer();
-						
 					}
 					break;
 				case 'html5':
@@ -94,7 +93,7 @@
 						item = { file: loadParams.levels[0].file, provider:'video' };
 					}
 					if (!item.image) {
-						item.image = this.config.image;
+						item.image = loadParams.image;
 					}
 					item.levels = loadParams.levels;
 					this.load(item);
@@ -158,7 +157,11 @@
 			html += '<param name="flashvars" value="' + jwplayer.embed
 					.jsonToFlashvars(params) + '">';
 			html += '</object>';
-			_container.outerHTML = html;
+			if (_container.tagName.toLowerCase() == "video") {
+				jwplayer.utils.mediaparser.replaceMediaElement(_container, html);
+			} else {
+				_container.outerHTML = html;
+			}
 			return document.getElementById(_container.id);
 		} else {
 			var obj = document.createElement('object');
@@ -267,4 +270,19 @@
 		return (new jwplayer.embed.Embedder(newApi)).embedPlayer();
 	};
 
+	function noviceEmbed() {
+		if (!document.body) {
+			return setTimeout(noviceEmbed, 15);
+		}
+		var videoTags = jwplayer.utils.selectors.getElementsByTagAndClass('video','jwplayer');
+		for (var i=0; i<videoTags.length; i++) {
+			var video = videoTags[i];
+			jwplayer(video.id).setup({
+				players: [{type:'flash', src:'/jwplayer/player.swf'},{type:'html5'}]
+			});
+		}
+	}
+	noviceEmbed();
+	
+	
 })(jwplayer);

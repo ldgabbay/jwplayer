@@ -107,8 +107,9 @@ jwplayer.utils.append = function(originalElement, appendedElement) {
 };
 
 /**
- * Detects whether the current browser is IE.
- * Technique from http://webreflection.blogspot.com/2009/01/32-bytes-to-know-if-your-browser-is-ie.html 
+ * Detects whether the current browser is IE (version 8 or below).
+ * Technique from http://webreflection.blogspot.com/2009/01/32-bytes-to-know-if-your-browser-is-ie.html
+ * Note - this detection no longer works for IE9. 
  **/
 jwplayer.utils.isIE = function() {
 	return (!+"\v1");
@@ -217,7 +218,7 @@ jwplayer.utils.hasFlash = function() {
 	function parseMediaElement(domElement, attributes) {
 		attributes = getAttributeList('media', attributes);
 		var sources = [];
-		if (!(navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length)){
+		if (jwplayer.utils.isIE()) {
 			// IE6/7/8 case
 			var currentElement = domElement.nextSibling;
 			if (currentElement !== undefined){
@@ -258,6 +259,36 @@ jwplayer.utils.hasFlash = function() {
 		var result = parseMediaElement(domElement, attributes);
 		return result;
 	}
+	
+	/** For IE browsers, replacing a media element's contents isn't possible, since only the start tag 
+	 * is matched by document.getElementById.  This method traverses the elements siblings until it finds 
+	 * the closing tag.  If it can't find one, it will not remove the element's siblings.
+	 * 
+	 * @param toReplace The media element to be replaced
+	 * @param html The replacement HTML code (string)
+	 **/
+	jwplayer.utils.mediaparser.replaceMediaElement = function(toReplace, html) {
+		if (jwplayer.utils.isIE()) {
+			var endTagFound = false;
+			var siblings = [];
+			var currentSibling = toReplace.nextSibling;
+			while (currentSibling && !endTagFound) {
+				siblings.push(currentSibling);
+				currentSibling = currentSibling.nextSibling;
+				if (currentSibling.nodeType == 1 && currentSibling.tagName.toLowerCase() == ("/")+toReplace.tagName.toLowerCase() ) {
+					endTagFound = true;
+				}
+			}
+			if (endTagFound) {
+				while (siblings.length > 0) {
+					var element = siblings.pop();
+					element.parentNode.removeChild(element);
+				}
+			}
+			
+			toReplace.outerHTML = html;
+		}
+	};
 	
 	parsers.media = parseMediaElement;
 	parsers.audio = parseMediaElement;
@@ -747,7 +778,6 @@ playerReady = function(obj) {
 					} else {
 						this.players.splice(0, 1);
 						return this.embedPlayer();
-						
 					}
 					break;
 				case 'html5':
@@ -788,7 +818,7 @@ playerReady = function(obj) {
 						item = { file: loadParams.levels[0].file, provider:'video' };
 					}
 					if (!item.image) {
-						item.image = this.config.image;
+						item.image = loadParams.image;
 					}
 					item.levels = loadParams.levels;
 					this.load(item);
@@ -852,7 +882,11 @@ playerReady = function(obj) {
 			html += '<param name="flashvars" value="' + jwplayer.embed
 					.jsonToFlashvars(params) + '">';
 			html += '</object>';
-			_container.outerHTML = html;
+			if (_container.tagName.toLowerCase() == "video") {
+				jwplayer.utils.mediaparser.replaceMediaElement(_container, html);
+			} else {
+				_container.outerHTML = html;
+			}
 			return document.getElementById(_container.id);
 		} else {
 			var obj = document.createElement('object');
@@ -961,4 +995,19 @@ playerReady = function(obj) {
 		return (new jwplayer.embed.Embedder(newApi)).embedPlayer();
 	};
 
+	function noviceEmbed() {
+		if (!document.body) {
+			return setTimeout(noviceEmbed, 15);
+		}
+		var videoTags = jwplayer.utils.selectors.getElementsByTagAndClass('video','jwplayer');
+		for (var i=0; i<videoTags.length; i++) {
+			var video = videoTags[i];
+			jwplayer(video.id).setup({
+				players: [{type:'flash', src:'/jwplayer/player.swf'},{type:'html5'}]
+			});
+		}
+	}
+	noviceEmbed();
+	
+	
 })(jwplayer);

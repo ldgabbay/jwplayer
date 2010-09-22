@@ -78,7 +78,7 @@
 	function parseMediaElement(domElement, attributes) {
 		attributes = getAttributeList('media', attributes);
 		var sources = [];
-		if (!(navigator.plugins && navigator.mimeTypes && navigator.mimeTypes.length)){
+		if (jwplayer.utils.isIE()) {
 			// IE6/7/8 case
 			var currentElement = domElement.nextSibling;
 			if (currentElement !== undefined){
@@ -119,6 +119,36 @@
 		var result = parseMediaElement(domElement, attributes);
 		return result;
 	}
+	
+	/** For IE browsers, replacing a media element's contents isn't possible, since only the start tag 
+	 * is matched by document.getElementById.  This method traverses the elements siblings until it finds 
+	 * the closing tag.  If it can't find one, it will not remove the element's siblings.
+	 * 
+	 * @param toReplace The media element to be replaced
+	 * @param html The replacement HTML code (string)
+	 **/
+	jwplayer.utils.mediaparser.replaceMediaElement = function(toReplace, html) {
+		if (jwplayer.utils.isIE()) {
+			var endTagFound = false;
+			var siblings = [];
+			var currentSibling = toReplace.nextSibling;
+			while (currentSibling && !endTagFound) {
+				siblings.push(currentSibling);
+				currentSibling = currentSibling.nextSibling;
+				if (currentSibling.nodeType == 1 && currentSibling.tagName.toLowerCase() == ("/")+toReplace.tagName.toLowerCase() ) {
+					endTagFound = true;
+				}
+			}
+			if (endTagFound) {
+				while (siblings.length > 0) {
+					var element = siblings.pop();
+					element.parentNode.removeChild(element);
+				}
+			}
+			
+			toReplace.outerHTML = html;
+		}
+	};
 	
 	parsers.media = parseMediaElement;
 	parsers.audio = parseMediaElement;
