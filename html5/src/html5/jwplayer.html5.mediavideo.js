@@ -56,7 +56,7 @@
 		var _stopped;
 		var _loadcount = 0;
 		var _start = false;
-		var hasChrome = false;
+		var _hasChrome = false;
 		var _currentItem;
 		var _sourceError = 0;
 		var _bufferTimes = [];
@@ -377,16 +377,26 @@
 			_bufferTimes.push(currentTime);
 		}
 		
-		_embed = function(playlistItem) {
+		this.hasChrome = function(){
+			return _hasChrome;
+		};
+		
+		function _embed(playlistItem) {
+			_hasChrome = false;
 			_currentItem = playlistItem;
 			var vid = document.createElement("video");
 			vid.preload = "none";
-			if (_model.config.repeat.toUpperCase() == jwplayer.html5.controller.repeatoptions.SINGLE){
+			if (_model.config.repeat.toUpperCase() == jwplayer.html5.controller.repeatoptions.SINGLE) {
 				//vid.loop = true;				
 			}
 			_sourceError = 0;
 			for (var sourceIndex in playlistItem.levels) {
 				var sourceModel = playlistItem.levels[sourceIndex];
+				if (jwplayer.html5.utils.isYouTube(sourceModel.file)) {
+					delete vid;
+					_embedYouTube(sourceModel.file);
+					return;
+				}
 				var source = _container.ownerDocument.createElement("source");
 				source.src = jwplayer.html5.utils.getAbsolutePath(sourceModel.file);
 				if (sourceModel.type === undefined) {
@@ -419,7 +429,48 @@
 					}
 				}, true);
 			}
-		};
+		}
+		
+		function _embedYouTube(path) {
+			var object = document.createElement("object");
+			path = ["http://www.youtube.com/v/", path.replace(/^[^v]+v.(.{11}).*/, "$1"), "&amp;hl=en_US&amp;fs=1&autoplay=1"].join("");
+			var objectParams = {
+				movie: path,
+				allowFullScreen: "true",
+				allowscriptaccess: "always"
+			};
+			for (var objectParam in objectParams) {
+				var param = document.createElement("param");
+				param.name = objectParam;
+				param.value = objectParams[objectParam];
+				object.appendChild(param);
+			}
+			
+			var embed = document.createElement("embed");
+			var embedParams = {
+				src: path,
+				type: "application/x-shockwave-flash",
+				allowscriptaccess: "always",
+				allowfullscreen: "true",
+				width: _container.style.width,
+				height: _container.style.height
+			};
+			for (var embedParam in embedParams) {
+				embed[embedParam] = embedParams[embedParam];
+			}
+			object.appendChild(embed);
+			
+			object.style.position = _container.style.position;
+			object.style.top = _container.style.top;
+			object.style.left = _container.style.left;
+			object.style.width = _container.style.width;
+			object.style.height = _container.style.height;
+			object.style.zIndex = _container.style.zIndex;
+			_container.parentNode.replaceChild(object, _container);
+			object.id = _container.id;
+			_container = object;
+			_hasChrome = true;
+		}
 		
 		this.embed = _embed;
 		

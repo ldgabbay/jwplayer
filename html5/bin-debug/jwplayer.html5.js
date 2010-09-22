@@ -121,6 +121,14 @@
 		return string;
 	}
 	
+	jwplayer.html5.utils.isYouTube = function(path) {
+		return path.indexOf("youtube.com") > -1;
+	};
+	
+	jwplayer.html5.utils.getYouTubeId = function(path) {
+		path.indexOf("youtube.com" > 0);
+	};
+	
 })(jwplayer);
 /**
  * JW Player view component
@@ -176,19 +184,37 @@
 		}
 		
 		function layoutComponents() {
-			if (_model.getMedia() !== undefined && !_model.getMedia().hasChrome && !_model.config.chromeless) {
+			for (var pluginIndex in _model.plugins.order) {
+				var pluginName = _model.plugins.order[pluginIndex];
+				if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
+					_model.plugins.object[pluginName].height = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.height);
+					_model.plugins.object[pluginName].width = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.width);
+					_model.plugins.config[pluginName].currentPosition = _model.plugins.config[pluginName].position;
+				}
+			}
+			_loadedHandler();
+		}
+		
+		function _loadedHandler(evt) {
+			if (_model.getMedia() !== undefined) {
+				if (_model.config.chromeless) {
+					_model.getMedia().getDisplayElement().poster = _model.playlist[_model.item].image;
+					_model.getMedia().getDisplayElement().controls = "controls";
+				}
+				
+				
 				for (var pluginIndex in _model.plugins.order) {
 					var pluginName = _model.plugins.order[pluginIndex];
 					if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
-						//_container.parentNode.appendChild(_model.plugins.object[pluginName].getDisplayElement());
-						_model.plugins.object[pluginName].height = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.height);
-						_model.plugins.object[pluginName].width = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.width);
+						if (_model.config.chromeless || _model.getMedia().hasChrome()) {
+							_model.plugins.config[pluginName].currentPosition = jwplayer.html5.view.positions.NONE;
+						} else {
+							_model.plugins.config[pluginName].currentPosition = _model.plugins.config[pluginName].position;
+						}
 					}
 				}
-			} else {
-				_model.getMedia().getDisplayElement().poster = _model.playlist[_model.item].image;
-				_model.getMedia().getDisplayElement().controls = "controls";
 			}
+			_resize(_model.width, _model.height);
 		}
 		
 		function getNumber(style) {
@@ -202,6 +228,7 @@
 			_container = container;
 			createWrapper();
 			layoutComponents();
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_LOADED, _loadedHandler);
 			_resize(_model.width, _model.height);
 			var oldresize;
 			if (window.onresize !== null) {
@@ -254,17 +281,21 @@
 			var failed = [];
 			for (var pluginIndex in plugins) {
 				var pluginName = plugins[pluginIndex];
-				if (_model.plugins.object[pluginName].getDisplayElement !== undefined && _model.plugins.config[pluginName].position.toUpperCase() !== jwplayer.html5.view.positions.NONE) {
-					var style = componentResizer(pluginName, _zIndex--);
-					if (!style) {
-						failed.push(pluginName);
-					} else {
-						_model.plugins.object[pluginName].resize(style.width, style.height);
-						if (sizeToBox) {
-							delete style.width;
-							delete style.height;
+				if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
+					if (_model.plugins.config[pluginName].currentPosition.toUpperCase() !== jwplayer.html5.view.positions.NONE) {
+						var style = componentResizer(pluginName, _zIndex--);
+						if (!style) {
+							failed.push(pluginName);
+						} else {
+							_model.plugins.object[pluginName].resize(style.width, style.height);
+							if (sizeToBox) {
+								delete style.width;
+								delete style.height;
+							}
+							_css(_model.plugins.object[pluginName].getDisplayElement(), style);
 						}
-						_css(_model.plugins.object[pluginName].getDisplayElement(), style);
+					} else {
+						_css(_model.plugins.object[pluginName].getDisplayElement(), {display: "none"});
 					}
 				}
 			}
@@ -307,8 +338,8 @@
 		}
 		
 		function _resizeMedia() {
-			_box.style.position = "absolute"; 
-			var style =  {
+			_box.style.position = "absolute";
+			var style = {
 				position: "absolute",
 				width: getNumber(_box.style.width),
 				height: getNumber(_box.style.height),
@@ -325,7 +356,7 @@
 				padding: 0,
 				top: null
 			};
-			var position = _model.plugins.config[pluginName].position.toLowerCase();
+			var position = _model.plugins.config[pluginName].currentPosition.toLowerCase();
 			switch (position.toUpperCase()) {
 				case jwplayer.html5.view.positions.TOP:
 					plugincss.top = getNumber(_box.style.top);
@@ -1990,7 +2021,7 @@
 		var _stopped;
 		var _loadcount = 0;
 		var _start = false;
-		var hasChrome = false;
+		var _hasChrome = false;
 		var _currentItem;
 		var _sourceError = 0;
 		var _bufferTimes = [];
@@ -2311,16 +2342,26 @@
 			_bufferTimes.push(currentTime);
 		}
 		
-		_embed = function(playlistItem) {
+		this.hasChrome = function(){
+			return _hasChrome;
+		};
+		
+		function _embed(playlistItem) {
+			_hasChrome = false;
 			_currentItem = playlistItem;
 			var vid = document.createElement("video");
 			vid.preload = "none";
-			if (_model.config.repeat.toUpperCase() == jwplayer.html5.controller.repeatoptions.SINGLE){
+			if (_model.config.repeat.toUpperCase() == jwplayer.html5.controller.repeatoptions.SINGLE) {
 				//vid.loop = true;				
 			}
 			_sourceError = 0;
 			for (var sourceIndex in playlistItem.levels) {
 				var sourceModel = playlistItem.levels[sourceIndex];
+				if (jwplayer.html5.utils.isYouTube(sourceModel.file)) {
+					delete vid;
+					_embedYouTube(sourceModel.file);
+					return;
+				}
 				var source = _container.ownerDocument.createElement("source");
 				source.src = jwplayer.html5.utils.getAbsolutePath(sourceModel.file);
 				if (sourceModel.type === undefined) {
@@ -2353,7 +2394,48 @@
 					}
 				}, true);
 			}
-		};
+		}
+		
+		function _embedYouTube(path) {
+			var object = document.createElement("object");
+			path = ["http://www.youtube.com/v/", path.replace(/^[^v]+v.(.{11}).*/, "$1"), "&amp;hl=en_US&amp;fs=1&autoplay=1"].join("");
+			var objectParams = {
+				movie: path,
+				allowFullScreen: "true",
+				allowscriptaccess: "always"
+			};
+			for (var objectParam in objectParams) {
+				var param = document.createElement("param");
+				param.name = objectParam;
+				param.value = objectParams[objectParam];
+				object.appendChild(param);
+			}
+			
+			var embed = document.createElement("embed");
+			var embedParams = {
+				src: path,
+				type: "application/x-shockwave-flash",
+				allowscriptaccess: "always",
+				allowfullscreen: "true",
+				width: _container.style.width,
+				height: _container.style.height
+			};
+			for (var embedParam in embedParams) {
+				embed[embedParam] = embedParams[embedParam];
+			}
+			object.appendChild(embed);
+			
+			object.style.position = _container.style.position;
+			object.style.top = _container.style.top;
+			object.style.left = _container.style.left;
+			object.style.width = _container.style.width;
+			object.style.height = _container.style.height;
+			object.style.zIndex = _container.style.zIndex;
+			_container.parentNode.replaceChild(object, _container);
+			object.id = _container.id;
+			_container = object;
+			_hasChrome = true;
+		}
 		
 		this.embed = _embed;
 		
@@ -2393,7 +2475,7 @@
 				volume: 90,
 				mute: false,
 				fullscreen: false,
-				repeat: false,
+				repeat: "none",
 				autostart: false,
 				debug: undefined,
 				screencolor: undefined

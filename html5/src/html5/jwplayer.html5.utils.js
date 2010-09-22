@@ -100,4 +100,12 @@
 		return string;
 	}
 	
+	jwplayer.html5.utils.isYouTube = function(path) {
+		return path.indexOf("youtube.com") > -1;
+	};
+	
+	jwplayer.html5.utils.getYouTubeId = function(path) {
+		path.indexOf("youtube.com" > 0);
+	};
+	
 })(jwplayer);

@@ -31,7 +31,7 @@
 				volume: 90,
 				mute: false,
 				fullscreen: false,
-				repeat: false,
+				repeat: "none",
 				autostart: false,
 				debug: undefined,
 				screencolor: undefined

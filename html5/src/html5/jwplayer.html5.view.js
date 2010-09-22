@@ -52,19 +52,37 @@
 		}
 		
 		function layoutComponents() {
-			if (_model.getMedia() !== undefined && !_model.getMedia().hasChrome && !_model.config.chromeless) {
+			for (var pluginIndex in _model.plugins.order) {
+				var pluginName = _model.plugins.order[pluginIndex];
+				if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
+					_model.plugins.object[pluginName].height = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.height);
+					_model.plugins.object[pluginName].width = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.width);
+					_model.plugins.config[pluginName].currentPosition = _model.plugins.config[pluginName].position;
+				}
+			}
+			_loadedHandler();
+		}
+		
+		function _loadedHandler(evt) {
+			if (_model.getMedia() !== undefined) {
+				if (_model.config.chromeless) {
+					_model.getMedia().getDisplayElement().poster = _model.playlist[_model.item].image;
+					_model.getMedia().getDisplayElement().controls = "controls";
+				}
+				
+				
 				for (var pluginIndex in _model.plugins.order) {
 					var pluginName = _model.plugins.order[pluginIndex];
 					if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
-						//_container.parentNode.appendChild(_model.plugins.object[pluginName].getDisplayElement());
-						_model.plugins.object[pluginName].height = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.height);
-						_model.plugins.object[pluginName].width = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.width);
+						if (_model.config.chromeless || _model.getMedia().hasChrome()) {
+							_model.plugins.config[pluginName].currentPosition = jwplayer.html5.view.positions.NONE;
+						} else {
+							_model.plugins.config[pluginName].currentPosition = _model.plugins.config[pluginName].position;
+						}
 					}
 				}
-			} else {
-				_model.getMedia().getDisplayElement().poster = _model.playlist[_model.item].image;
-				_model.getMedia().getDisplayElement().controls = "controls";
 			}
+			_resize(_model.width, _model.height);
 		}
 		
 		function getNumber(style) {
@@ -78,6 +96,7 @@
 			_container = container;
 			createWrapper();
 			layoutComponents();
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_LOADED, _loadedHandler);
 			_resize(_model.width, _model.height);
 			var oldresize;
 			if (window.onresize !== null) {
@@ -130,17 +149,21 @@
 			var failed = [];
 			for (var pluginIndex in plugins) {
 				var pluginName = plugins[pluginIndex];
-				if (_model.plugins.object[pluginName].getDisplayElement !== undefined && _model.plugins.config[pluginName].position.toUpperCase() !== jwplayer.html5.view.positions.NONE) {
-					var style = componentResizer(pluginName, _zIndex--);
-					if (!style) {
-						failed.push(pluginName);
-					} else {
-						_model.plugins.object[pluginName].resize(style.width, style.height);
-						if (sizeToBox) {
-							delete style.width;
-							delete style.height;
+				if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
+					if (_model.plugins.config[pluginName].currentPosition.toUpperCase() !== jwplayer.html5.view.positions.NONE) {
+						var style = componentResizer(pluginName, _zIndex--);
+						if (!style) {
+							failed.push(pluginName);
+						} else {
+							_model.plugins.object[pluginName].resize(style.width, style.height);
+							if (sizeToBox) {
+								delete style.width;
+								delete style.height;
+							}
+							_css(_model.plugins.object[pluginName].getDisplayElement(), style);
 						}
-						_css(_model.plugins.object[pluginName].getDisplayElement(), style);
+					} else {
+						_css(_model.plugins.object[pluginName].getDisplayElement(), {display: "none"});
 					}
 				}
 			}
@@ -183,8 +206,8 @@
 		}
 		
 		function _resizeMedia() {
-			_box.style.position = "absolute"; 
-			var style =  {
+			_box.style.position = "absolute";
+			var style = {
 				position: "absolute",
 				width: getNumber(_box.style.width),
 				height: getNumber(_box.style.height),
@@ -201,7 +224,7 @@
 				padding: 0,
 				top: null
 			};
-			var position = _model.plugins.config[pluginName].position.toLowerCase();
+			var position = _model.plugins.config[pluginName].currentPosition.toLowerCase();
 			switch (position.toUpperCase()) {
 				case jwplayer.html5.view.positions.TOP:
 					plugincss.top = getNumber(_box.style.top);
