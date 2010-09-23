@@ -1559,7 +1559,7 @@
 				height: height
 			});
 			_css(_display.display_text, {
-				width: width
+				width: (width - 10)
 			});
 			_css(_display.display_image, {
 				width: width,
