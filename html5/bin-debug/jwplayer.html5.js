@@ -2223,6 +2223,7 @@
 		
 		function _errorHandler(event) {
 			_stop();
+			console.log(event);
 			var message = "There was an error: ";
 			if (event.target.error || event.target.parentNode.error) {
 				var element = event.target.error === undefined ? event.target.parentNode.error : event.target.error;
@@ -2412,6 +2413,7 @@
 				} else {
 					sourceType = sourceModel.type;
 				}
+				console.log(sourceType, vid.canPlayType(sourceType));
 				if (vid.canPlayType(sourceType) === "") {
 					continue;
 				}
@@ -2421,6 +2423,14 @@
 				_sourceError++;
 				vid.appendChild(source);
 			}
+			
+			if (_sourceError === 0) {
+				_error = true;
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
+					error: "The video could not be loaded because the format is not supported by your browser: " +joinFiles() 
+				});
+			}
+			
 			if (_model.config.chromeless) {
 				vid.poster = jwplayer.html5.utils.getAbsolutePath(playlistItem.image);
 				vid.controls = "controls";
