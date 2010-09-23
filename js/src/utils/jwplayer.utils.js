@@ -21,12 +21,12 @@ jwplayer.utils.typeOf = function(value) {
 jwplayer.utils.extend = function() {
 	var args = jwplayer.utils.extend['arguments'];
 	if (args.length > 1) {
-		for (var i=1; i < args.length; i++){
+		for (var i = 1; i < args.length; i++) {
 			for (element in args[i]) {
 				args[0][element] = args[i][element];
 			}
 		}
-		return args[0];		
+		return args[0];
 	}
 	return null;
 };
@@ -48,17 +48,18 @@ jwplayer.utils.wrap = function(originalElement, appendedElement) {
 };
 
 /** Loads an XML file into a DOM object **/
-jwplayer.utils.ajax = function(xmldocpath, completecallback, errorcallback){
+jwplayer.utils.ajax = function(xmldocpath, completecallback, errorcallback) {
 	var xmlhttp;
-	if (window.XMLHttpRequest){
-	// IE>7, Firefox, Chrome, Opera, Safari
+	if (window.XMLHttpRequest) {
+		// IE>7, Firefox, Chrome, Opera, Safari
 		xmlhttp = new XMLHttpRequest();
 	} else {
-	// IE6
+		// IE6
 		xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
 	}
 	xmlhttp.onreadystatechange = function() {
-		if (xmlhttp.readyState === 4 && xmlhttp.status === 200){
+		if (xmlhttp.readyState === 4) {
+			if (xmlhttp.status === 200) {
 				if (completecallback) {
 					completecallback(xmlhttp);
 				}
@@ -66,18 +67,19 @@ jwplayer.utils.ajax = function(xmldocpath, completecallback, errorcallback){
 				if (errorcallback) {
 					errorcallback(xmldocpath);
 				}
+			}
 		}
 	};
 	xmlhttp.open("GET", xmldocpath, true);
-	xmlhttp.send();
+	xmlhttp.send(null);
 	return xmlhttp;
 };
 
 /** Loads a file **/
-jwplayer.utils.load = function(domelement, completecallback, errorcallback){
+jwplayer.utils.load = function(domelement, completecallback, errorcallback) {
 	domelement.onreadystatechange = function() {
-		if (domelement.readyState === 4){
-			if (domelement.status === 200){
+		if (domelement.readyState === 4) {
+			if (domelement.status === 200) {
 				if (completecallback) {
 					completecallback();
 				}
@@ -91,7 +93,7 @@ jwplayer.utils.load = function(domelement, completecallback, errorcallback){
 };
 
 /** Finds tags in a DOM, returning a new DOM **/
-jwplayer.utils.find = function(dom, tag){
+jwplayer.utils.find = function(dom, tag) {
 	return dom.getElementsByTagName(tag);
 };
 
@@ -105,7 +107,7 @@ jwplayer.utils.append = function(originalElement, appendedElement) {
 /**
  * Detects whether the current browser is IE (version 8 or below).
  * Technique from http://webreflection.blogspot.com/2009/01/32-bytes-to-know-if-your-browser-is-ie.html
- * Note - this detection no longer works for IE9. 
+ * Note - this detection no longer works for IE9.
  **/
 jwplayer.utils.isIE = function() {
 	return (!+"\v1");
@@ -114,14 +116,13 @@ jwplayer.utils.isIE = function() {
 /**
  * Detects whether the current browser is mobile Safari.
  **/
-
-jwplayer.utils.isIOS = function(){
-		var agent = navigator.userAgent.toLowerCase();
-		return (agent.match(/iP(hone|ad)/i) !== null);
-	};
+jwplayer.utils.isIOS = function() {
+	var agent = navigator.userAgent.toLowerCase();
+	return (agent.match(/iP(hone|ad)/i) !== null);
+};
 
 /**
- * Detects whether the browser can handle HTML5 video. 
+ * Detects whether the browser can handle HTML5 video.
  * Using this as a proxy for detecting all HTML5 features needed for the JW HTML5 Player.  Do we need more granularity?
  */
 jwplayer.utils.hasHTML5 = function() {
