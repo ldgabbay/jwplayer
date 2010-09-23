@@ -401,18 +401,23 @@
 					_embedYouTube(sourceModel.file);
 					return;
 				}
-				var source = _container.ownerDocument.createElement("source");
-				source.src = jwplayer.html5.utils.getAbsolutePath(sourceModel.file);
+				var sourceType;
 				if (sourceModel.type === undefined) {
 					var extension = jwplayer.html5.utils.extension(sourceModel.file);
 					if (jwplayer.html5.extensionmap[extension] !== undefined) {
-						source.type = jwplayer.html5.extensionmap[extension];
+						sourceType = jwplayer.html5.extensionmap[extension];
 					} else {
-						source.type = 'video/' + extension + ';';
+						sourceType = 'video/' + extension + ';';
 					}
 				} else {
-					source.type = sourceModel.type;
+					sourceType = sourceModel.type;
 				}
+				if (vid.canPlayType(sourceType) === ""){
+					continue;
+				}
+				var source = _container.ownerDocument.createElement("source");
+				source.src = jwplayer.html5.utils.getAbsolutePath(sourceModel.file);
+				source.type = sourceType;
 				vid.appendChild(source);
 			}
 			if (_model.config.chromeless) {
