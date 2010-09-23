@@ -230,7 +230,6 @@
 		
 		function _errorHandler(event) {
 			_stop();
-			console.log(event);
 			var message = "There was an error: ";
 			if (event.target.error || event.target.parentNode.error) {
 				var element = event.target.error === undefined ? event.target.parentNode.error : event.target.error;
@@ -420,7 +419,6 @@
 				} else {
 					sourceType = sourceModel.type;
 				}
-				console.log(sourceType, vid.canPlayType(sourceType));
 				if (vid.canPlayType(sourceType) === "") {
 					continue;
 				}

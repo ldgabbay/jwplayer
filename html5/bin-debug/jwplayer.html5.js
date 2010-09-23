@@ -1139,11 +1139,15 @@
 		var _container = container;
 		var _itemUpdated = true;
 		
-		var debug = (_model.config.debug !== undefined) && (_model.config.debug.toString().toLowerCase() == 'console');
+		//var debug = (_model.config.debug !== undefined) && (_model.config.debug.toString().toLowerCase() == 'console');
+		var debug = false;
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher(_container.id, debug);
 		jwplayer.utils.extend(this, _eventDispatcher);
 		
 		function forward(evt) {
+			//if (evt.type == jwplayer.api.events.JWPLAYER_ERROR) {
+			//	console.log("ERROR");
+			//}
 			_eventDispatcher.sendEvent(evt.type, evt);
 		}
 		
@@ -2223,7 +2227,6 @@
 		
 		function _errorHandler(event) {
 			_stop();
-			console.log(event);
 			var message = "There was an error: ";
 			if (event.target.error || event.target.parentNode.error) {
 				var element = event.target.error === undefined ? event.target.parentNode.error : event.target.error;
@@ -2413,7 +2416,6 @@
 				} else {
 					sourceType = sourceModel.type;
 				}
-				console.log(sourceType, vid.canPlayType(sourceType));
 				if (vid.canPlayType(sourceType) === "") {
 					continue;
 				}
