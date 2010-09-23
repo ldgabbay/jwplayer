@@ -58,9 +58,10 @@
 		var _start = false;
 		var _hasChrome = false;
 		var _currentItem;
-		var _sourceError = 0;
+		var _sourceError;
 		var _bufferTimes = [];
 		var _bufferBackupTimeout;
+		var _error = false;
 		
 		function _getState() {
 			return _state;
@@ -79,6 +80,9 @@
 		}
 		
 		function _setState(newstate) {
+			if (_error) {
+				return;
+			}
 			if (_stopped) {
 				newstate = jwplayer.api.events.state.IDLE;
 			}
@@ -114,7 +118,7 @@
 			var meta = {
 				height: event.target.videoHeight,
 				width: event.target.videoWidth,
-				duration: event.target.duration
+				duration: Math.round(event.target.duration * 10) / 10
 			};
 			if (_model.duration === 0 || isNaN(_model.duration)) {
 				_model.duration = Math.round(event.target.duration * 10) / 10;
@@ -247,14 +251,15 @@
 						break;
 				}
 			} else if (event.target.tagName.toLowerCase() == "source") {
-				_sourceError++;
-				if (_sourceError != _currentItem.levels.length) {
+				_sourceError--;
+				if (_sourceError > 0) {
 					return;
 				}
 				message = "The video could not be loaded, either because the server or network failed or because the format is not supported: ";
 			}
 			
 			message += joinFiles();
+			_error = true;
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
 				error: message
 			});
@@ -386,6 +391,7 @@
 		};
 		
 		function _embed(playlistItem) {
+			_model.duration = playlistItem.duration;
 			_hasChrome = false;
 			_currentItem = playlistItem;
 			var vid = document.createElement("video");
@@ -393,6 +399,7 @@
 			if (_model.config.repeat.toUpperCase() == jwplayer.html5.controller.repeatoptions.SINGLE) {
 				//vid.loop = true;				
 			}
+			_error = false;
 			_sourceError = 0;
 			for (var sourceIndex in playlistItem.levels) {
 				var sourceModel = playlistItem.levels[sourceIndex];
@@ -412,12 +419,13 @@
 				} else {
 					sourceType = sourceModel.type;
 				}
-				if (vid.canPlayType(sourceType) === ""){
+				if (vid.canPlayType(sourceType) === "") {
 					continue;
 				}
 				var source = _container.ownerDocument.createElement("source");
 				source.src = jwplayer.html5.utils.getAbsolutePath(sourceModel.file);
 				source.type = sourceType;
+				_sourceError++;
 				vid.appendChild(source);
 			}
 			if (_model.config.chromeless) {

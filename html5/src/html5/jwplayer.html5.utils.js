@@ -79,7 +79,12 @@
 		if (domelement !== undefined) {
 			for (var style in styles) {
 				try {
-					if (typeof styles[style] == "number" && !(style == "zIndex" || style == "opacity")) {
+					if (typeof styles[style] === "undefined") {
+						continue;
+					} else if (typeof styles[style] == "number" && !(style == "zIndex" || style == "opacity")) {
+						if (isNaN(styles[style])) {
+							continue;
+						}
 						if (style.match(/color/i)) {
 							styles[style] = "#" + _pad(styles[style].toString(16), 6);
 						} else {

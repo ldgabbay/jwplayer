@@ -26,6 +26,7 @@
 		var _height;
 		var _degreesRotated;
 		var _rotationInterval;
+		var _error;
 		var _bufferRotation = _api.skin.getComponentSettings("display").bufferrotation === undefined ? 15 : parseInt(_api.skin.getComponentSettings("display").bufferrotation, 10);
 		var _bufferInterval = _api.skin.getComponentSettings("display").bufferinterval === undefined ? 100 : parseInt(_api.skin.getComponentSettings("display").bufferinterval, 10);
 		var _elements = {
@@ -123,7 +124,8 @@
 				height: height
 			});
 			_css(_display.display_text, {
-				width: (width - 10)
+				width: (width - 10),
+				top: ((_height - _display.display_text.getBoundingClientRect().height) / 2)
 			});
 			_css(_display.display_image, {
 				width: width,
@@ -168,6 +170,9 @@
 		
 		
 		function _setDisplayIcon(newIcon) {
+			if (_error) {
+				return;
+			}
 			_show(_display.display_iconBackground);
 			_display.display_icon.style.backgroundImage = (["url(", _api.skin.getSkinElement("display", newIcon).src, ")"]).join("");
 			_css(_display.display_icon, {
@@ -197,15 +202,19 @@
 			_hide(_display.display_iconBackground);
 		}
 		
-		function _errorHandler(evt){
+		function _errorHandler(evt) {
+			_error = true;
 			_hideDisplayIcon();
 			_display.display_text.innerHTML = evt.error;
 			_show(_display.display_text);
-			_display.display_text.style.top = ((_height -  _display.display_text.getBoundingClientRect().height) / 2) + "px";
+			_display.display_text.style.top = ((_height - _display.display_text.getBoundingClientRect().height) / 2) + "px";
 		}
 		
 		function _stateHandler(evt) {
-			_hide(_display.display_text);
+			if (typeof evt.newstate != "undefined" && _error) {
+				_error = false;
+				_hide(_display.display_text);
+			}
 			if (_rotationInterval !== undefined) {
 				clearInterval(_rotationInterval);
 				_rotationInterval = null;
@@ -225,7 +234,6 @@
 					_css(_display.display_image, {
 						background: "transparent no-repeat center center"
 					});
-					_show(_display.display_iconBackground);
 					_setDisplayIcon("playIcon");
 					break;
 				case jwplayer.api.events.state.IDLE:
@@ -233,7 +241,6 @@
 					_css(_display.display_image, {
 						background: background + " no-repeat center center"
 					});
-					_show(_display.display_iconBackground);
 					_setDisplayIcon("playIcon");
 					break;
 				default:
@@ -241,9 +248,7 @@
 						_css(_display.display_image, {
 							background: "transparent no-repeat center center"
 						});
-						_show(_display.display_iconBackground);
 						_setDisplayIcon("muteIcon");
-						
 					} else {
 						_css(_display.display_image, {
 							background: "transparent no-repeat center center"

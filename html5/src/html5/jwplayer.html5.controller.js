@@ -112,14 +112,13 @@
 		/** Stop playback and loading of the video. **/
 		function _next() {
 			try {
-			
 				if (_model.playlist[0].levels[0].file.length > 0) {
 					if (_model.config.shuffle) {
-						_item(Math.floor(Math.random() * _model.playlist.length));
+						_item(_getShuffleItem());
 					} else if (_model.item + 1 == _model.playlist.length) {
-						return _item(0);
+						_item(0);
 					} else {
-						return _item(_model.item + 1);
+						_item(_model.item + 1);
 					}
 				}
 				if (_model.state != jwplayer.api.events.state.PLAYING && _model.state != jwplayer.api.events.state.BUFFERING) {
@@ -137,11 +136,11 @@
 			try {
 				if (_model.playlist[0].levels[0].file.length > 0) {
 					if (_model.config.shuffle) {
-						_item(Math.floor(Math.random() * _model.playlist.length));
+						_item(_getShuffleItem());
 					} else if (_model.item === 0) {
-						return _item(_model.playlist.length - 1);
+						_item(_model.playlist.length - 1);
 					} else {
-						return _item(_model.item - 1);
+						_item(_model.item - 1);
 					}
 				}
 				if (_model.state != jwplayer.api.events.state.PLAYING && _model.state != jwplayer.api.events.state.BUFFERING) {
@@ -154,12 +153,31 @@
 			return false;
 		}
 		
+		function _getShuffleItem() {
+			var result = null;
+			if (_model.playlist.length > 1) {
+				while (result === null) {
+					result = Math.floor(Math.random() * _model.playlist.length);
+					if (result == _model.item) {
+						result = null;
+					}
+				}
+			} else {
+				result = 0;
+			}
+			return result;
+		}
+		
 		/** Stop playback and loading of the video. **/
 		function _item(item) {
+			_model.resetEventListeners();
+			_model.addGlobalListener(forward);
 			try {
 				if (_model.playlist[0].levels[0].file.length > 0) {
 					var oldstate = _model.state;
-					_stop();
+					if (oldstate !== jwplayer.api.events.state.IDLE) {
+						_stop();
+					}
 					_model.item = item;
 					_itemUpdated = true;
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {

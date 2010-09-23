@@ -6,12 +6,14 @@
  */
 (function(jwplayer) {
 	/** Constructor **/
-	jwplayer.html5.skinloader = function(skinPath, completeHandler) {
+	jwplayer.html5.skinloader = function(skinPath, completeHandler, errorHandler) {
 		var _skin = {};
 		var _completeHandler = completeHandler;
+		var _errorHandler = errorHandler;
 		var _loading = true;
 		var _completeInterval;
 		var _skinPath = skinPath;
+		var _error = false;
 		
 		/** Load the skin **/
 		function _load() {
@@ -51,7 +53,7 @@
 					for (var settingIndex = 0; settingIndex < settings.length; settingIndex++) {
 						var name = settings[settingIndex].getAttribute("name");
 						var value = settings[settingIndex].getAttribute("value");
-						var type = /color$/.test(name) ? "color" : null;  
+						var type = /color$/.test(name) ? "color" : null;
 						_skin[componentName].settings[name] = jwplayer.html5.utils.typechecker(value, type);
 					}
 				}
@@ -93,9 +95,11 @@
 		
 		function _resetCompleteIntervalTest() {
 			clearInterval(_completeInterval);
-			_completeInterval = setInterval(function() {
-				_checkComplete();
-			}, 100);
+			if (!_error) {
+				_completeInterval = setInterval(function() {
+					_checkComplete();
+				}, 100);
+			}
 		}
 		
 		
@@ -124,8 +128,9 @@
 				_completeImageLoad(img, elementName, component);
 			};
 			img.onerror = function(evt) {
-				_skin[component].elements[elementName].ready = true;
+				_error = true;
 				_resetCompleteIntervalTest();
+				_errorHandler();
 			};
 			
 			img.src = imgUrl;

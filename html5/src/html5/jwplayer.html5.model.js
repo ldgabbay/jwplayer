@@ -70,19 +70,19 @@
 		
 		if (_model.plugins !== undefined) {
 			var userplugins = _model.plugins.split(",");
-			for (var userplugin in userplugins){
-				pluginorder.push(userplugin.replace(/^\s+|\s+$/g,""));
+			for (var userplugin in userplugins) {
+				pluginorder.push(userplugin.replace(/^\s+|\s+$/g, ""));
 			}
 		}
 		
-		if (jwplayer.utils.isIOS()){
+		if (jwplayer.utils.isIOS()) {
 			_model.config.chromeless = true;
 		}
 		
-		if (_model.config.chromeless){
+		if (_model.config.chromeless) {
 			pluginorder = [];
 		}
-				
+		
 		_model.plugins = {
 			order: pluginorder,
 			config: {
@@ -106,7 +106,7 @@
 			ready = ready === null ? true : false;
 			_model.playlist = new jwplayer.html5.playlist(playlist);
 			if (_model.config.shuffle) {
-				_model.item = Math.floor(Math.random() * _model.playlist.length);
+				_model.item = _getShuffleItem();
 			} else {
 				if (_model.config.item >= _model.playlist.length) {
 					_model.config.item = _model.playlist.length - 1;
@@ -122,6 +122,21 @@
 			_model.setActiveMediaProvider(_model.playlist[_model.item]);
 		};
 		
+		function _getShuffleItem() {
+			var result = null;
+			if (_model.playlist.length > 1) {
+				while (result === null) {
+					result = Math.floor(Math.random() * _model.playlist.length);
+					if (result == _model.item) {
+						result = null;
+					}
+				}
+			} else {
+				result = 0;
+			}
+			return result;
+		}
+		
 		function forward(evt) {
 			if (evt.type == jwplayer.api.events.JWPLAYER_MEDIA_LOADED) {
 				_container = _media.getDisplayElement();
@@ -133,6 +148,7 @@
 			if (_media !== undefined) {
 				_media.resetEventListeners();
 			}
+			
 			_media = new jwplayer.html5.mediavideo(_model, _container);
 			_media.addGlobalListener(forward);
 			if (_model.config.chromeless) {
@@ -145,7 +161,7 @@
 			return _media;
 		};
 		
-
+		
 		_model.setupPlugins = function() {
 			for (var plugin in _model.plugins.order) {
 				if (jwplayer.html5[_model.plugins.order[plugin]] !== undefined) {

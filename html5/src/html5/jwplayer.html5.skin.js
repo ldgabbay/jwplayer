@@ -14,7 +14,14 @@
 				_loaded = true;
 				_components = skin;
 				callback();
+			}, function() {
+				new jwplayer.html5.skinloader("", function(skin) {
+					_loaded = true;
+					_components = skin;
+					callback();
+				});
 			});
+			
 		};
 		
 		this.getSkinElement = function(component, element) {
@@ -34,7 +41,7 @@
 			}
 			return null;
 		};
-
+		
 		this.getComponentLayout = function(component) {
 			if (_loaded) {
 				return _components[component].layout;
