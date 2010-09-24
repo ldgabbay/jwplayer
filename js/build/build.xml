@@ -25,4 +25,10 @@
 			<arg line="-o '${basedir}/jwplayer.min.js'"/>
 		</java>
 	</target>
+
+	<target name="build-release-with-html5" depends="build-release">
+		<concat destfile="${basedir}/jwplayer.min.js" append="true">
+			<filelist dir="${basedir}/../html5" files="jwplayer.html5.min.js" />
+		</concat>
+	</target>
 </project>
