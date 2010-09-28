@@ -116,6 +116,12 @@
 					parsedConfig = jwplayer.utils.extend(parsedConfig, jwplayer.embed.parsePlugins(parsedConfig.plugins));
 				}
 			}
+			
+			if (parsedConfig.playlist && typeof parsedConfig.playlist === "string" && !parsedConfig['playlist.position']) {
+				parseConfig['playlist.position'] = parseConfig.playlist;
+				delete parseConfig.playlist;
+			}
+			
 			return parsedConfig;
 		}
 
@@ -129,12 +135,6 @@
 
 		var height = params.height;
 		delete params['height'];
-
-		// These properties are loaded after playerready; not sent in as
-		// flashvars.
-		if (params.levels && params.levels.length && params.file === undefined) {
-//			params.file = params.levels[0]['file'];
-		}
 
 		delete params['levels'];
 		delete params['playlist'];
@@ -183,13 +183,17 @@
 
 	jwplayer.embed.embedHTML5 = function(container, player, options) {
 		if (jwplayer.html5) {
-			container.innerHTML = "<p>Embedded HTML5 player goes here</p>";
+			container.innerHTML = "";
 			var playerOptions = jwplayer.utils.extend( {screencolor:'0x000000'}, options);
 			jwplayer.embed.parseConfigBlock(playerOptions, 'components');
 			// TODO: remove this requirement from the html5 player (sources
 			// instead of levels)
-			if (playerOptions.levels && !playerOptions.sources)
+			if (playerOptions.levels && !playerOptions.sources) {
 				playerOptions.sources = options.levels;
+			}
+			if (playerOptions.skin && playerOptions.skin.toLowerCase().indexOf(".zip") > 0) {
+				playerOptions.skin = playerOptions.skin.replace(/\.zip/i, ".xml");
+			}
 			return new (jwplayer.html5(container)).setup(playerOptions);
 		} else {
 			return null;

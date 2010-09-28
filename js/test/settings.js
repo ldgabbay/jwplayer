@@ -77,7 +77,7 @@ var settings = {
 			"onPause":"function() { alert('Paused'); }",
 			"onIdle":"function() { alert('Idle'); }",
 			"onComplete":"function() { alert('Complete'); }",
-			"onTime":"function(evt) { if (window.console && console.log) { console.log('Time: ' . evt.position); } }",
+			"onTime":"function(evt) { if (window.console && console.log) { console.log('Time: ' + evt.position); } }",
 			"onVolume":"function(evt) { alert('Volume changed to ' + evt.volume); }"
 		},
 		
