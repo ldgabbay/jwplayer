@@ -170,9 +170,9 @@ package com.longtailvideo.jwplayer.player {
 			else if (evt is PlaylistEvent)
 				args = listenerCallbackPlaylist(evt as PlaylistEvent);
 			else if (evt is ViewEvent && (evt as ViewEvent).data != null)
-				args = {data: (evt as ViewEvent).data};
+				args = { data: JavascriptSerialization.stripDots((evt as ViewEvent).data) };
 			else
-				args = {message: evt.message};
+				args = { message: evt.message };
 			
 			var callbacks:Array = _listeners[evt.type] as Array;
 			
@@ -208,7 +208,7 @@ package com.longtailvideo.jwplayer.player {
 			if (evt.duration >= 0)		 		returnObj.duration = evt.duration;
 			if (evt.message)					returnObj.message = evt.message;
 			// todo: strip out 'name.properties' named properties
-			if (evt.metadata != null)	 		returnObj.metadata = evt.metadata;
+			if (evt.metadata != null)	 		returnObj.metadata = JavascriptSerialization.stripDots(evt.metadata);
 			if (evt.offset > 0)					returnObj.offset = evt.offset;
 			if (evt.position >= 0)				returnObj.position = evt.position;
 
@@ -230,7 +230,9 @@ package com.longtailvideo.jwplayer.player {
 
 		protected function listenerCallbackPlaylist(evt:PlaylistEvent):Object {
 			if (evt.type == PlaylistEvent.JWPLAYER_PLAYLIST_LOADED) {
-				return { playlist: JavascriptSerialization.playlistToArray(_player.playlist) };
+				var list:Array = JavascriptSerialization.playlistToArray(_player.playlist);
+				list = JavascriptSerialization.stripDots(list) as Array;
+				return { playlist: list };
 			} else if (evt.type == PlaylistEvent.JWPLAYER_PLAYLIST_ITEM) {
 				return { index: _player.playlist.currentIndex };
 			} else return {};

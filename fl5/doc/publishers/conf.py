@@ -62,7 +62,7 @@ html_theme = 'default'
 html_static_path = ['../images']
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'JWPlayerFlash'
+htmlhelp_basename = 'JW Player'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -76,7 +76,8 @@ htmlhelp_basename = 'JWPlayerFlash'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index','JWPlayerFlash.tex','JW Player for Flash','www.longtailvideo.com','manual',True)
+  ('index','JWPlayerFlash.tex','JW Player for Flash','www.longtailvideo.com','manual',True),
+  ('embedguide','JWPlayerEmbedder.tex','JW Player for Flash and HTML5','Embedding Guide','manual',True)
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
