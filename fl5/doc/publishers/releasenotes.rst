@@ -19,6 +19,10 @@ New Features
 * RTMP DVR now using Adobe's official DVRCast application instead of a custom serverside script.
 * Support for HTTP DVR streaming as offered by the Bitgravity CDN.
 * With PNG skinning, the description and image of playlist buttons are automatically hidden when the playlistbutton is less than 40px high and/or less than 240px wide.
+* Supports browser-based video playback via HTML5's <video> tag as either the primary or failover playback mechanism. (See HTML5 Beta Player Integration)
+* Updated JavaScript API to more closely match the Flash API.
+* Included JS library offers a new embed mechanism.
+* Player automatic embeds over <video> tags with class "jwplayer".
 
 Bug Fixes
 +++++++++
@@ -26,7 +30,39 @@ Bug Fixes
 * Fixed a bug that caused current bandwidth not to store in a cookie, resulting in continous bitrate switching after 2 seconds.
 * Fixed a bug that caused the duration textfield of a playlistitem would not be placed to the right.
 * Fixed a bug that caused PNG skin playlists not to show the item.png on rollout if there was no itemActive.
-* 
+
+HTML5 Beta Player Integration
++++++++++++++++++++++++++++++
+The JW Player for HTML5 Beta was originally a separate player project, but it has been merged into the primary player. The changes made to incorporate the two is listed below:
+
+Restructuring
+~~~~~~~~~~~~~
+* API was changed to match the Flash Player.
+* Flash embedding logic was moved into JW Embedder.
+* Support for IE is deprecated.
+
+Features
+~~~~~~~~
+* Removed all jQuery dependencies.
+* Added playlist support.
+* Added fullscreen support.
+* Added default skin.
+* Buffer icon rotates.
+* YouTube videos now play by embedding the YouTube player.
+ 
+Enhancements
+~~~~~~~~~~~~
+* Increased stability and performance across all platforms.
+* Flash and HTML5 player implement unified API.
+* UI components (controlbar, display, logo) now support all skinning configuration options.
+
+Bugs
+~~~~
+* Fixed issue where certain DOCTYPEs would cause the player to render incorrectly.
+* Fixed issue where call to load did not load new media.
+* Fixed several iOS device issues (iPad zoom + seek, replay failed) by moving over to native controls.
+* Fixed issue where certain browsers would display double controlbars
+* Player now detects a wide variety of file extensions and adds the correct type to the <source> tag.
 
 Version 5.2
 ===========
