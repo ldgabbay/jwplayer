@@ -77,7 +77,7 @@ htmlhelp_basename = 'JW Player'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index','JWPlayerFlash.tex','JW Player for Flash','www.longtailvideo.com','manual',True),
-  ('embedguide','JWPlayerEmbedder.tex','JW Player for Flash and HTML5','Embedding Guide','manual',True)
+  ('embedguide','JWPlayerEmbedGuide.tex','JW Player for Flash and HTML5','Embedding Guide','manual',True)
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

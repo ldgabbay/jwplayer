@@ -20,7 +20,7 @@ Your :ref:`media files <mediaformats>` and :ref:`playlists <playlistformats>` ca
 
 .. note::
 
-We recommend putting everything in a folder called "jwplayer" at the root of your site.  This enables the :ref:`quickembed` method of setting up the player.
+	We recommend putting everything in a folder called "jwplayer" at the root of your site.  This enables the :ref:`quickembed` method of setting up the player.
 
 
 SWFObject
@@ -105,7 +105,7 @@ As you can see, most of the data of the SWFObject embed is also in here:
 
 .. note:: 
 
-   As you can see, the Flash version reference is not in the embed tag: this is one of the drawbacks of this method: it's not possible to sniff for Flash and selectively hide it, e.g. if the flash version is not sufficient or if the device (iPad ...) doesn't support Flash.
+   The Flash version reference is not in the embed tag: this is one of the drawbacks of this method: it's not possible to detect Flash and selectively hide it, e.g. if the flash version is not sufficient or if the device (iPad ...) doesn't support Flash.
    
 JW Embedder
 -----------
@@ -245,7 +245,7 @@ To embed a JW Player 5 skin, simply place the ZIP file on your web server and ad
 
 .. note::
 
-If you're configuring the Embedder to run primarily in HTML5 mode using the :ref:`embed_players` block, you'll need to take the additional step of unzipping the skin ZIP and uploading its contents to your web server in the same location as the ZIP file itself.  Your skin's folder structure would look something like this:
+	If you're configuring the Embedder to run primarily in HTML5 mode using the :ref:`embed_players` block, you'll need to take the additional step of unzipping the skin ZIP and uploading its contents to your web server in the same location as the ZIP file itself.  Your skin's folder structure would look something like this:
 
 .. code-block:: text
 
