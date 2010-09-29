@@ -39,7 +39,7 @@ package com.longtailvideo.jwplayer.parsers {
 							if (i.children().length() > 0) {
 								itm = MediaParser.parseGroup(i, itm);
 							}
-							if (i.@width && i.@bitrate) {
+							if (i.@width.length() > 0 || i.@bitrate.length() > 0) {
 								if (!itm.levels) {
 									itm.levels = new Array();
 								}
