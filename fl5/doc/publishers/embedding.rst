@@ -178,7 +178,7 @@ If you've uploaded your *player.swf* and *jwplayer.js* files to a folder called 
         <script type="text/javascript" src="/jwplayer/jwplayer.js"></script>
         <video class="jwplayer" src="/uploads/video.mp4" poster="/uploads/image.jpg"></video>
 
-That's it!  As long as you have everything in the right place, the <video> tag will be replaced on your page by the JW Player.
+That's it!  As long as you have everything in the right place, all <video> tags on your page whose class is **jwplayer** will be replaced on your page by the JW Player.
 
 
 Setup Syntax
@@ -445,7 +445,7 @@ Here is another example, with two event handlers. Note the *onReady()* handler a
         });
     </script>
 
-See the :ref:`API reference <api>` for a full overview of all events and their properties.
+See the :ref:`API reference <javascriptapi>` for a full overview of all events and their properties.
 
 .. _embed_players:
 

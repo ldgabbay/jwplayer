@@ -11,7 +11,15 @@ For versions 5.2 and below, the player used the 4.x JavaScript API.  A reference
 Getting started
 ---------------
 
-To get a sense of the possibilities, here's a quick example that showcases how to control the player from the page:
+First, you'll need to upload the API library (*jwplayer.js*) to your web server.  We recommend putting it, along with *player.swf*, in a folder called **jwplayer** in the root of your site.  Once it's on your web server, add this bit of code to your HTML pages, in the *<head>* of your page:
+
+.. code-block:: html
+
+	<head>
+		<script type="text/javascript" src="/jwplayer/jwplayer.js"></script>
+	</head>
+
+To get a sense of the possibilities of what you can do with the API, here's a quick example that showcases how to control the player from the page:
 
 .. code-block:: html
     
@@ -19,7 +27,7 @@ To get a sense of the possibilities, here's a quick example that showcases how t
     
     <script type="text/javascript">
         jwplayer("container").setup({
-            flashplayer: "/jwplayer/jwplayer.swf",
+            flashplayer: "/jwplayer/player.swf",
             file: "/uploads/video.mp4",
             height: 270,
             width: 480
@@ -39,7 +47,7 @@ Of course it's also possible to have the player manipulate the page. Here's a se
     
     <script type="text/javascript">
         jwplayer("container").setup({
-            flashplayer: "/jwplayer/jwplayer.swf",
+            flashplayer: "/jwplayer/player.swf",
             file: "/uploads/video.mp4",
             height: 270,
             width: 480,
@@ -60,6 +68,56 @@ The following sections give a detailed description of the JW Player API, describ
 * Call functions on a player.
 * Listen to events from a player.
 
+Embedding with SWFObject
+++++++++++++++++++++++++
+
+If you embed the player using SWFObject, rather than the built-in *setup()* function, you can still use the JavaScript API, although you'll need to wait for Flash to be loaded on the page before interacting with the API.  SWFObject 2.2 includes a callback function (in this example, named **flashLoaded**) which is executed when SWFObject has finished embedding Flash into the page.  Make sure you wait until this function is called before making any calls to the API.
+
+Here's a simple example of using the `SWFObject callback <http://code.google.com/p/swfobject/wiki/api>`_:
+
+.. code-block:: javascript
+
+        var flashvars = { file:"/videos/video.mp4" };
+        var params = { allowfullscreen:"true", allowscriptaccess:"always" };
+        var attributes = { id:"player", name:"player" };
+        
+        swfobject.embedSWF("/jwplayer/player.swf", "container", 320, 240, "9.0.115", "false", 
+            flashvars, params, attributes, flashLoaded);
+
+        function flashLoaded(e) {
+        	// e.ref is a reference to the Flash object.  We'll pass it to jwplayer() so the API knows where the player is.
+         
+            // Add event listeners
+            jwplayer(e.ref).onReady(function() { alert("Player is ready"); });
+            jwplayer(e.ref).onPlay(function() { alert("Player is playing"); });
+
+            // Interact with the player
+            jwplayer(e.ref).play();
+        }
+
+Embedding with an <object> or <embed> tag
++++++++++++++++++++++++++++++++++++++++++
+
+If you embed the player directly using an *<object>* or *<embed>* tag, simply pass your tag's id to the API when referencing the player:
+
+.. code-block:: html
+
+	<embed
+	  id="player"
+	  name="player"
+	  src="/jwplayer/player.swf"
+	  width="320"
+	  height="240"
+	  allowscriptaccess="always"
+	  allowfullscreen="true"
+	  flashvars="file=/videos/video.mp4"
+	/>
+	
+	<script type="text/javascript">
+	    jwplayer("player").onReady(function() { alert("Player is ready"); });
+	    jwplayer("player").onPlay(function() { alert("Player is playing"); });
+	    jwplayer("player").play();
+	</script>
 
 Selecting
 ---------
@@ -74,7 +132,7 @@ The first thing you need to do when attempting to interact with a JW Player, is 
 
 Only when you have multiple players on a page, you need to be more specific on which player you want to interact with. In that case, there are three ways to select a player:
 
-* With the *id* of the element you :ref:`instantiated <embed>` the player over:
+* With the *id* of the element you :ref:`instantiated <embedding>` the player over:
     
     .. code-block:: javascript
     
@@ -279,7 +337,7 @@ Here is a list of all events the player supports. In javascript, you can listen 
         }
     );
 
-Note that our :ref:`official embed method <embed>` contains a shortcut for assigning event listeners, directly in the embed code:
+Note that our :ref:`official embed method <embedding>` contains a shortcut for assigning event listeners, directly in the embed code:
 
 .. code-block:: html
     
@@ -287,7 +345,7 @@ Note that our :ref:`official embed method <embed>` contains a shortcut for assig
     
     <script type="text/javascript">
         jwplayer("container").setup({
-            flashplayer: "/jwplayer/jwplayer.swf",
+            flashplayer: "/jwplayer/player.swf",
             file: "/uploads/video.mp4",
             height: 270,
             width: 480,

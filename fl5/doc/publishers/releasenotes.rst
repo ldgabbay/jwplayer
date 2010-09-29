@@ -7,13 +7,13 @@ Release Notes
 Version 5.3
 ===========
 
-Build 1257
+Build 1341
 ----------
 
 New Features
 ++++++++++++
 
-* Included framedrop handling for both HTTP and RTMP streaming, allowing switches in case of insufficient client resources (e.g. a netbook attempting to play an HD stream.
+* Included framedrop handling for both HTTP and RTMP streaming, allowing switches in case of insufficient client resources (e.g. a netbook attempting to play an HD stream.)
 * Automatic fallback to Tunneled RTMP / RTMPe (in case regular RTMP is blocked).
 * RTMP dynamic streaming can now be setup together with loadbalancing (using a SMIL XML file).
 * RTMP DVR now using Adobe's official DVRCast application instead of a custom serverside script.
@@ -30,6 +30,15 @@ Bug Fixes
 * Fixed a bug that caused current bandwidth not to store in a cookie, resulting in continous bitrate switching after 2 seconds.
 * Fixed a bug that caused the duration textfield of a playlistitem would not be placed to the right.
 * Fixed a bug that caused PNG skin playlists not to show the item.png on rollout if there was no itemActive.
+* Fixed a bug that prevented the thumbnail image to be displayed while playing audio-only RTMP streams or AAC files
+* Fixed a bug that interfered with URL-encoded URIs
+* Fixed audio file handling for live mp3 streams and other servers without content-length headers
+* Fixed a bug in event ordering for the JavaScript API
+* Fixed an issue preventing the controlbar buffer indicator from being displayed until after buffering was complete
+* Fixed an intermittent issue with YouTube videos being cut off before the video is complete
+
+A full changelog of Flash player updates can be found `here <http://developer.longtailvideo.com/trac/query?status=assigned&status=closed&status=new&status=reopened&group=type&order=type&col=id&col=summary&milestone=Flash+5.3&resolution=fixed>`_
+
 
 HTML5 Beta Player Integration
 +++++++++++++++++++++++++++++
