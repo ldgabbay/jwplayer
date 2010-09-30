@@ -31,6 +31,11 @@ jwplayer.utils.extend = function() {
 	return null;
 };
 
+/** Returns the extension of a file name **/
+jwplayer.utils.extension = function(path) {
+	return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
+};
+
 /** Updates the contents of an HTML element **/
 jwplayer.utils.html = function(element, content) {
 	element.innerHTML = content;

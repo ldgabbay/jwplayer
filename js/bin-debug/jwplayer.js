@@ -35,6 +35,11 @@ jwplayer.utils.extend = function() {
 	return null;
 };
 
+/** Returns the extension of a file name **/
+jwplayer.utils.extension = function(path) {
+	return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
+};
+
 /** Updates the contents of an HTML element **/
 jwplayer.utils.html = function(element, content) {
 	element.innerHTML = content;
@@ -764,6 +769,16 @@ playerReady = function(obj) {
 				switch (player.type) {
 				case 'flash':
 					if (jwplayer.utils.hasFlash()) {
+						if (this.config.file && !this.config.provider) {
+							switch (jwplayer.utils.extension(this.config.file).toLowerCase()) {
+								case "webm":
+								case "ogv":
+								case "ogg":
+									this.config.provider = "video";
+									break;
+							}
+						}
+						
 						// TODO: serialize levels & playlist, de-serialize in
 						// Flash
 						if (this.config.levels || this.config.playlist) {
@@ -845,8 +860,8 @@ playerReady = function(obj) {
 			}
 			
 			if (parsedConfig.playlist && typeof parsedConfig.playlist === "string" && !parsedConfig['playlist.position']) {
-				parseConfig['playlist.position'] = parseConfig.playlist;
-				delete parseConfig.playlist;
+				parsedConfig['playlist.position'] = parsedConfig.playlist;
+				delete parsedConfig.playlist;
 			}
 			
 			return parsedConfig;

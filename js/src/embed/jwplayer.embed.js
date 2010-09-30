@@ -37,6 +37,16 @@
 				switch (player.type) {
 				case 'flash':
 					if (jwplayer.utils.hasFlash()) {
+						if (this.config.file && !this.config.provider) {
+							switch (jwplayer.utils.extension(this.config.file).toLowerCase()) {
+								case "webm":
+								case "ogv":
+								case "ogg":
+									this.config.provider = "video";
+									break;
+							}
+						}
+						
 						// TODO: serialize levels & playlist, de-serialize in
 						// Flash
 						if (this.config.levels || this.config.playlist) {
@@ -118,8 +128,8 @@
 			}
 			
 			if (parsedConfig.playlist && typeof parsedConfig.playlist === "string" && !parsedConfig['playlist.position']) {
-				parseConfig['playlist.position'] = parseConfig.playlist;
-				delete parseConfig.playlist;
+				parsedConfig['playlist.position'] = parsedConfig.playlist;
+				delete parsedConfig.playlist;
 			}
 			
 			return parsedConfig;
