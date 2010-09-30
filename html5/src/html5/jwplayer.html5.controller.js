@@ -30,7 +30,7 @@
 				if (_model.playlist[0].levels[0].file.length > 0) {
 					switch (_model.state) {
 						case jwplayer.api.events.state.IDLE:
-							if (_itemUpdated) {
+							//if (_itemUpdated) {
 								_model.setActiveMediaProvider(_model.playlist[_model.item]);
 								_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, _model.getMedia().play);
 								if (_model.config.repeat) {
@@ -40,9 +40,9 @@
 								}
 								_model.getMedia().load(_model.playlist[_model.item]);
 								_itemUpdated = false;
-							} else {
-								_model.getMedia().play();
-							}
+							//} else {
+							//	_model.getMedia().play();
+							//}
 							break;
 						case jwplayer.api.events.state.PAUSED:
 							_model.getMedia().play();

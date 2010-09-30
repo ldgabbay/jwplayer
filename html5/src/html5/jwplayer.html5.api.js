@@ -8,19 +8,22 @@
 
 	jwplayer.html5.api = function(container, options) {
 		var _api = {};
+
 		if (!jwplayer.utils.hasHTML5()) {
 			return _api;
 		}
+
 		var _container = document.createElement('div');
 		container.parentNode.replaceChild(_container, container);
 		_container.id = container.id;
+		
+		_api.version = jwplayer.html5.version;
+		_api.id = _container.id;
 		
 		var _model = new jwplayer.html5.model(_api, _container, options);
 		var _view = new jwplayer.html5.view(_api, _container, _model);
 		var _controller = new jwplayer.html5.controller(_api, _container, _model, _view);
 		
-		_api.version = "5.3";
-		_api.id = _container.id;
 		_api.skin = new jwplayer.html5.skin();
 		
 		_api.jwPlay = _controller.play;

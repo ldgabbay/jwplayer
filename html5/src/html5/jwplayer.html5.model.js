@@ -93,6 +93,12 @@
 			object: {}
 		};
 		
+		if (typeof _model.config.components != "undefined") {
+			for (var component in _model.config.components){
+				_model.plugins.config[component] =  _model.config.components[component];
+			}
+		}
+		
 		for (var pluginIndex in _model.plugins.order) {
 			var pluginName = _model.plugins.order[pluginIndex];
 			var pluginConfig = _model.config[pluginName] === undefined ? {} : _model.config[pluginName];
@@ -148,7 +154,6 @@
 			if (_media !== undefined) {
 				_media.resetEventListeners();
 			}
-			
 			_media = new jwplayer.html5.mediavideo(_model, _container);
 			_media.addGlobalListener(forward);
 			if (_model.config.chromeless) {

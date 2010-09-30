@@ -16,6 +16,6 @@
 		return this;
 	};
 	
-	jwplayer.html5.version = '1.0';
+	jwplayer.html5.version = '5.3';
 })(jwplayer);
 

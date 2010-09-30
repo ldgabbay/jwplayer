@@ -16,7 +16,7 @@
 		return this;
 	};
 	
-	jwplayer.html5.version = '1.0';
+	jwplayer.html5.version = '5.3';
 })(jwplayer);
 
 /**
@@ -154,24 +154,25 @@
 		var _height;
 		var _box;
 		var _zIndex;
+		var _resizeInterval;
 		
 		function createWrapper() {
 			_wrapper = document.createElement("div");
 			_wrapper.id = _container.id;
+			_wrapper.className = _container.className;
 			_container.id = _wrapper.id + "_video";
 			
 			_css(_wrapper, {
 				position: "relative",
 				height: _model.height,
 				width: _model.width,
-				margin: "auto",
 				padding: 0,
 				backgroundColor: getBackgroundColor(),
 				zIndex: 0
 			});
 			
-			function getBackgroundColor(){
-				if (_api.skin.getComponentSettings("display") && _api.skin.getComponentSettings("display").backgroundcolor){
+			function getBackgroundColor() {
+				if (_api.skin.getComponentSettings("display") && _api.skin.getComponentSettings("display").backgroundcolor) {
 					return _api.skin.getComponentSettings("display").backgroundcolor;
 				}
 				return parseInt("000000", 16);
@@ -208,7 +209,7 @@
 		}
 		
 		function _loadedHandler(evt) {
-			if (_model.getMedia() !== undefined) {		
+			if (_model.getMedia() !== undefined) {
 				for (var pluginIndex in _model.plugins.order) {
 					var pluginName = _model.plugins.order[pluginIndex];
 					if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
@@ -224,10 +225,27 @@
 		}
 		
 		function getNumber(style) {
+			if (typeof style == "number"){
+				return style;
+			}
 			if (style === "") {
 				return 0;
 			}
 			return parseInt(style.replace("px", ""), 10);
+		}
+		
+		function setResizeInterval() {
+			_resizeInterval = setInterval(function() {
+				if (_wrapper.width && _wrapper.height && (_model.width !== getNumber(_wrapper.width) || _model.height !== getNumber(_wrapper.height))) {
+					_resize(getNumber(_wrapper.width), getNumber(_wrapper.height));
+				} else {
+					var rect = _wrapper.getBoundingClientRect();
+					if (_model.width !== rect.width || _model.height !== rect.height) {
+						_resize(rect.width, rect.height);
+					}
+					delete rect;
+				}
+			}, 100);
 		}
 		
 		this.setup = function(container) {
@@ -235,7 +253,8 @@
 			createWrapper();
 			layoutComponents();
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_LOADED, _loadedHandler);
-			_resize(_model.width, _model.height);
+			setResizeInterval();
+			//_resize(_model.width, _model.height);
 			var oldresize;
 			if (window.onresize !== null) {
 				oldresize = window.onresize;
@@ -257,10 +276,15 @@
 		};
 		
 		function _resize(width, height) {
+			if (_wrapper.style.display == "none"){
+				return;
+			}
 			var plugins = [].concat(_model.plugins.order);
 			plugins.reverse();
 			_zIndex = plugins.length + 2;
 			if (!_model.fullscreen) {
+				_model.width = width;
+				_model.height = height;
 				_width = width;
 				_height = height;
 				_css(_box, {
@@ -270,6 +294,10 @@
 					right: 0,
 					width: width,
 					height: height
+				});
+				_css(_wrapper, {
+					height: _height,
+					width: _width
 				});
 				var failed = _resizeComponents(_normalscreenComponentResizer, plugins);
 				if (failed.length > 0) {
@@ -300,7 +328,9 @@
 							_css(_model.plugins.object[pluginName].getDisplayElement(), style);
 						}
 					} else {
-						_css(_model.plugins.object[pluginName].getDisplayElement(), {display: "none"});
+						_css(_model.plugins.object[pluginName].getDisplayElement(), {
+							display: "none"
+						});
 					}
 				}
 			}
@@ -407,16 +437,19 @@
 		this.fullscreen = function(state) {
 			if (_model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
 				if (state) {
+					clearInterval(_resizeInterval);
 					_model.height = screen.availHeight;
 					_model.width = screen.availWidth;
 					_model.getMedia().getDisplayElement().webkitEnterFullscreen();
 				} else {
+					setResizeInterval();
 					_model.height = _height;
 					_model.width = _width;
 					_model.getMedia().getDisplayElement().webkitExitFullscreen();
 				}
 			} else {
 				if (state) {
+					clearInterval(_resizeInterval);
 					_model.width = window.innerWidth;
 					_model.height = window.innerHeight;
 					var style = {
@@ -433,6 +466,7 @@
 					style.zIndex = 2;
 					_css(_box, style);
 				} else {
+					setResizeInterval();
 					_model.width = _width;
 					_model.height = _height;
 					_css(_wrapper, {
@@ -470,7 +504,7 @@
 (function(jwplayer) {
 	/** Map with config for the jwplayerControlbar plugin. **/
 	var _defaults = {
-		backgroundcolor: parseInt("000000", 16),
+		backgroundcolor: "",
 		margin: 10,
 		//font: "_sans",
 		font: "Arial,sans-serif",
@@ -521,13 +555,7 @@
 					"name": "duration",
 					"type": "text"
 				}, {
-					"name": "divider",
-					"type": "divider"
-				}, {
 					"name": "blank",
-					"type": "button"
-				}, {
-					"name": "fullscreen",
 					"type": "button"
 				}, {
 					"name": "divider",
@@ -538,6 +566,12 @@
 				}, {
 					"name": "volume",
 					"type": "slider"
+				}, {
+					"name": "divider",
+					"type": "divider"
+				}, {
+					"name": "fullscreen",
+					"type": "button"
 				}]
 			}
 		}
@@ -607,7 +641,7 @@
 		this.resize = function(width, height) {
 			if (!_ready && _wrapper.parentElement !== undefined) {
 				_ready = true;
-				if (_settings.position == jwplayer.html5.view.positions.OVER.toLowerCase()) {
+				if (_settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER) {
 					document.getElementById(_api.id).onmousemove = _fadeOut;
 				}
 			}
@@ -635,11 +669,14 @@
 		
 		function _fadeOut() {
 			jwplayer.html5.utils.cancelAnimation(_wrapper);
-			jwplayer.html5.utils.fadeTo(_wrapper, 0, 0.1, 1, 2);
+			if (_settings.idlehide || (_api.jwGetState() != jwplayer.api.events.state.IDLE && _api.jwGetState() != jwplayer.api.events.state.PAUSED)) {
+				jwplayer.html5.utils.fadeTo(_wrapper, 0, 0.1, 1, 2);
+			}
 		}
 		
 		function _fadeIn() {
-			_wrapper.style.opacity = 1;
+			jwplayer.html5.utils.cancelAnimation(_wrapper);
+			jwplayer.html5.utils.fadeTo(_wrapper, 1, 0, 1, 0);
 		}
 		
 		function _appendNewElement(id, parent, css) {
@@ -990,13 +1027,14 @@
 			
 			// Show / hide progress bar
 			if (event.newstate == jwplayer.api.events.state.IDLE) {
-				if (!_settings.idlehide && _settings.position == jwplayer.html5.view.positions.OVER) {
+				if (!_settings.idlehide && _settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER) {
 					_fadeIn();
 				}
 				_hide(_elements.timeSliderBuffer);
 				_hide(_elements.timeSliderProgress);
 				_hide(_elements.timeSliderThumb);
 			} else {
+				_fadeOut();
 				_show(_elements.timeSliderBuffer);
 				if (event.newstate != jwplayer.api.events.state.BUFFERING) {
 					_show(_elements.timeSliderProgress);
@@ -1139,15 +1177,11 @@
 		var _container = container;
 		var _itemUpdated = true;
 		
-		//var debug = (_model.config.debug !== undefined) && (_model.config.debug.toString().toLowerCase() == 'console');
-		var debug = false;
+		var debug = (_model.config.debug !== undefined) && (_model.config.debug.toString().toLowerCase() == 'console');
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher(_container.id, debug);
 		jwplayer.utils.extend(this, _eventDispatcher);
 		
 		function forward(evt) {
-			//if (evt.type == jwplayer.api.events.JWPLAYER_ERROR) {
-			//	console.log("ERROR");
-			//}
 			_eventDispatcher.sendEvent(evt.type, evt);
 		}
 		
@@ -1158,7 +1192,7 @@
 				if (_model.playlist[0].levels[0].file.length > 0) {
 					switch (_model.state) {
 						case jwplayer.api.events.state.IDLE:
-							if (_itemUpdated) {
+							//if (_itemUpdated) {
 								_model.setActiveMediaProvider(_model.playlist[_model.item]);
 								_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, _model.getMedia().play);
 								if (_model.config.repeat) {
@@ -1168,9 +1202,9 @@
 								}
 								_model.getMedia().load(_model.playlist[_model.item]);
 								_itemUpdated = false;
-							} else {
-								_model.getMedia().play();
-							}
+							//} else {
+							//	_model.getMedia().play();
+							//}
 							break;
 						case jwplayer.api.events.state.PAUSED:
 							_model.getMedia().play();
@@ -1565,7 +1599,7 @@
 			_display.display = createElement("div", "display");
 			_display.display_text = createElement("div", "display_text");
 			_display.display.appendChild(_display.display_text);
-			_display.display_image = createElement("div", "display_image");
+			_display.display_image = createElement("img", "display_image");
 			_display.display_icon = createElement("div", "display_icon");
 			_display.display_iconBackground = createElement("div", "display_iconBackground");
 			_display.display.appendChild(_display.display_image);
@@ -1700,21 +1734,30 @@
 					_setDisplayIcon("playIcon");
 					break;
 				case jwplayer.api.events.state.IDLE:
-					var background = _api.jwGetPlaylist()[_api.jwGetItem()].image === "" ? "" : " url(" + jwplayer.html5.utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image) + ")";
-					_css(_display.display_image, {
-						background: background + " no-repeat center center"
-					});
+					if (_api.jwGetPlaylist()[_api.jwGetItem()].image !== "") {
+						_css(_display.display_image, {
+							display: "block"
+						});
+						_display.display_image.src = jwplayer.html5.utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
+					} else {
+						_display.display_image.src = "";
+						_css(_display.display_image, {
+							display: "none"
+						});
+					}
 					_setDisplayIcon("playIcon");
 					break;
 				default:
 					if (_api.jwGetMute()) {
+						_display.display_image.src = "";
 						_css(_display.display_image, {
-							background: "transparent no-repeat center center"
+							display: "none"
 						});
 						_setDisplayIcon("muteIcon");
 					} else {
+						_display.display_image.src = "";
 						_css(_display.display_image, {
-							background: "transparent no-repeat center center"
+							display: "none"
 						});
 						_hide(_display.display_iconBackground);
 						_hide(_display.display_icon);
@@ -2598,6 +2641,12 @@
 			object: {}
 		};
 		
+		if (typeof _model.config.components != "undefined") {
+			for (var component in _model.config.components){
+				_model.plugins.config[component] =  _model.config.components[component];
+			}
+		}
+		
 		for (var pluginIndex in _model.plugins.order) {
 			var pluginName = _model.plugins.order[pluginIndex];
 			var pluginConfig = _model.config[pluginName] === undefined ? {} : _model.config[pluginName];
@@ -2653,7 +2702,6 @@
 			if (_media !== undefined) {
 				_media.resetEventListeners();
 			}
-			
 			_media = new jwplayer.html5.mediavideo(_model, _container);
 			_media.addGlobalListener(forward);
 			if (_model.config.chromeless) {
@@ -2692,7 +2740,9 @@
 	jwplayer.html5.playlist = function(config) {
 		var _playlist = [];
 		if (config.playlist && config.playlist.length > 0) {
-			_playlist = config.playlist;
+			for (var playlistItem in config.playlist){
+				_playlist.push(new jwplayer.html5.playlistitem(config.playlist[playlistItem]));
+			}
 		} else {
 			_playlist.push(new jwplayer.html5.playlistitem(config));
 		}
@@ -3156,19 +3206,22 @@
 
 	jwplayer.html5.api = function(container, options) {
 		var _api = {};
+
 		if (!jwplayer.utils.hasHTML5()) {
 			return _api;
 		}
+
 		var _container = document.createElement('div');
 		container.parentNode.replaceChild(_container, container);
 		_container.id = container.id;
+		
+		_api.version = jwplayer.html5.version;
+		_api.id = _container.id;
 		
 		var _model = new jwplayer.html5.model(_api, _container, options);
 		var _view = new jwplayer.html5.view(_api, _container, _model);
 		var _controller = new jwplayer.html5.controller(_api, _container, _model, _view);
 		
-		_api.version = "5.3";
-		_api.id = _container.id;
 		_api.skin = new jwplayer.html5.skin();
 		
 		_api.jwPlay = _controller.play;

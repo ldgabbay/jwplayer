@@ -1,0 +1,27 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+	<title>Resize test</title> 
+        <script type="text/javascript" src="../../../js/bin-debug/jwplayer.js">
+        </script>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.html5.js">
+        </script>
+</head> 
+<body> 
+       <div height="270" width="480" id="player">
+        	HTML5 Player should replace this
+        </div>
+        <script type="text/javascript">
+        	var player = jwplayer("player").setup({
+            	file: "../../../js/test/files/bunny.mp4",
+            	image: "../../../js/test/files/bunny.jpg",
+            	debug: "console"
+            }, [{type:"html5"}]);
+			
+        </script>
+			<a href="#" onclick="player.resize(340, 280);return false;">small</a>
+			<a href="#" onclick="player.resize(640, 480);return false;">medium</a>
+			<a href="#" onclick="player.resize(720, 640);return false;">large</a>
+
+</body> 
+</html> 

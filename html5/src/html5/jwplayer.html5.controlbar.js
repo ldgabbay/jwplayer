@@ -7,7 +7,7 @@
 (function(jwplayer) {
 	/** Map with config for the jwplayerControlbar plugin. **/
 	var _defaults = {
-		backgroundcolor: parseInt("000000", 16),
+		backgroundcolor: "",
 		margin: 10,
 		//font: "_sans",
 		font: "Arial,sans-serif",
@@ -58,13 +58,7 @@
 					"name": "duration",
 					"type": "text"
 				}, {
-					"name": "divider",
-					"type": "divider"
-				}, {
 					"name": "blank",
-					"type": "button"
-				}, {
-					"name": "fullscreen",
 					"type": "button"
 				}, {
 					"name": "divider",
@@ -75,6 +69,12 @@
 				}, {
 					"name": "volume",
 					"type": "slider"
+				}, {
+					"name": "divider",
+					"type": "divider"
+				}, {
+					"name": "fullscreen",
+					"type": "button"
 				}]
 			}
 		}
@@ -144,7 +144,7 @@
 		this.resize = function(width, height) {
 			if (!_ready && _wrapper.parentElement !== undefined) {
 				_ready = true;
-				if (_settings.position == jwplayer.html5.view.positions.OVER.toLowerCase()) {
+				if (_settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER) {
 					document.getElementById(_api.id).onmousemove = _fadeOut;
 				}
 			}
@@ -172,11 +172,14 @@
 		
 		function _fadeOut() {
 			jwplayer.html5.utils.cancelAnimation(_wrapper);
-			jwplayer.html5.utils.fadeTo(_wrapper, 0, 0.1, 1, 2);
+			if (_settings.idlehide || (_api.jwGetState() != jwplayer.api.events.state.IDLE && _api.jwGetState() != jwplayer.api.events.state.PAUSED)) {
+				jwplayer.html5.utils.fadeTo(_wrapper, 0, 0.1, 1, 2);
+			}
 		}
 		
 		function _fadeIn() {
-			_wrapper.style.opacity = 1;
+			jwplayer.html5.utils.cancelAnimation(_wrapper);
+			jwplayer.html5.utils.fadeTo(_wrapper, 1, 0, 1, 0);
 		}
 		
 		function _appendNewElement(id, parent, css) {
@@ -527,13 +530,14 @@
 			
 			// Show / hide progress bar
 			if (event.newstate == jwplayer.api.events.state.IDLE) {
-				if (!_settings.idlehide && _settings.position == jwplayer.html5.view.positions.OVER) {
+				if (!_settings.idlehide && _settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER) {
 					_fadeIn();
 				}
 				_hide(_elements.timeSliderBuffer);
 				_hide(_elements.timeSliderProgress);
 				_hide(_elements.timeSliderThumb);
 			} else {
+				_fadeOut();
 				_show(_elements.timeSliderBuffer);
 				if (event.newstate != jwplayer.api.events.state.BUFFERING) {
 					_show(_elements.timeSliderProgress);

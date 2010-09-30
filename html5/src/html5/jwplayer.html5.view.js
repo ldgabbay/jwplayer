@@ -17,24 +17,25 @@
 		var _height;
 		var _box;
 		var _zIndex;
+		var _resizeInterval;
 		
 		function createWrapper() {
 			_wrapper = document.createElement("div");
 			_wrapper.id = _container.id;
+			_wrapper.className = _container.className;
 			_container.id = _wrapper.id + "_video";
 			
 			_css(_wrapper, {
 				position: "relative",
 				height: _model.height,
 				width: _model.width,
-				margin: "auto",
 				padding: 0,
 				backgroundColor: getBackgroundColor(),
 				zIndex: 0
 			});
 			
-			function getBackgroundColor(){
-				if (_api.skin.getComponentSettings("display") && _api.skin.getComponentSettings("display").backgroundcolor){
+			function getBackgroundColor() {
+				if (_api.skin.getComponentSettings("display") && _api.skin.getComponentSettings("display").backgroundcolor) {
 					return _api.skin.getComponentSettings("display").backgroundcolor;
 				}
 				return parseInt("000000", 16);
@@ -71,7 +72,7 @@
 		}
 		
 		function _loadedHandler(evt) {
-			if (_model.getMedia() !== undefined) {		
+			if (_model.getMedia() !== undefined) {
 				for (var pluginIndex in _model.plugins.order) {
 					var pluginName = _model.plugins.order[pluginIndex];
 					if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
@@ -87,10 +88,27 @@
 		}
 		
 		function getNumber(style) {
+			if (typeof style == "number"){
+				return style;
+			}
 			if (style === "") {
 				return 0;
 			}
 			return parseInt(style.replace("px", ""), 10);
+		}
+		
+		function setResizeInterval() {
+			_resizeInterval = setInterval(function() {
+				if (_wrapper.width && _wrapper.height && (_model.width !== getNumber(_wrapper.width) || _model.height !== getNumber(_wrapper.height))) {
+					_resize(getNumber(_wrapper.width), getNumber(_wrapper.height));
+				} else {
+					var rect = _wrapper.getBoundingClientRect();
+					if (_model.width !== rect.width || _model.height !== rect.height) {
+						_resize(rect.width, rect.height);
+					}
+					delete rect;
+				}
+			}, 100);
 		}
 		
 		this.setup = function(container) {
@@ -98,7 +116,8 @@
 			createWrapper();
 			layoutComponents();
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_LOADED, _loadedHandler);
-			_resize(_model.width, _model.height);
+			setResizeInterval();
+			//_resize(_model.width, _model.height);
 			var oldresize;
 			if (window.onresize !== null) {
 				oldresize = window.onresize;
@@ -120,10 +139,15 @@
 		};
 		
 		function _resize(width, height) {
+			if (_wrapper.style.display == "none"){
+				return;
+			}
 			var plugins = [].concat(_model.plugins.order);
 			plugins.reverse();
 			_zIndex = plugins.length + 2;
 			if (!_model.fullscreen) {
+				_model.width = width;
+				_model.height = height;
 				_width = width;
 				_height = height;
 				_css(_box, {
@@ -133,6 +157,10 @@
 					right: 0,
 					width: width,
 					height: height
+				});
+				_css(_wrapper, {
+					height: _height,
+					width: _width
 				});
 				var failed = _resizeComponents(_normalscreenComponentResizer, plugins);
 				if (failed.length > 0) {
@@ -163,7 +191,9 @@
 							_css(_model.plugins.object[pluginName].getDisplayElement(), style);
 						}
 					} else {
-						_css(_model.plugins.object[pluginName].getDisplayElement(), {display: "none"});
+						_css(_model.plugins.object[pluginName].getDisplayElement(), {
+							display: "none"
+						});
 					}
 				}
 			}
@@ -270,16 +300,19 @@
 		this.fullscreen = function(state) {
 			if (_model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
 				if (state) {
+					clearInterval(_resizeInterval);
 					_model.height = screen.availHeight;
 					_model.width = screen.availWidth;
 					_model.getMedia().getDisplayElement().webkitEnterFullscreen();
 				} else {
+					setResizeInterval();
 					_model.height = _height;
 					_model.width = _width;
 					_model.getMedia().getDisplayElement().webkitExitFullscreen();
 				}
 			} else {
 				if (state) {
+					clearInterval(_resizeInterval);
 					_model.width = window.innerWidth;
 					_model.height = window.innerHeight;
 					var style = {
@@ -296,6 +329,7 @@
 					style.zIndex = 2;
 					_css(_box, style);
 				} else {
+					setResizeInterval();
 					_model.width = _width;
 					_model.height = _height;
 					_css(_wrapper, {
