@@ -7,20 +7,24 @@ Like every other Flash object, the JW Player has to be embedded into the HTML of
 
 * Using a generic JavaScript embedder (like `SWFObject <http://code.google.com/p/swfobject/>`_).
 * Using a HTML tag (like *<object>* or *<embed>*).
-* Using the JW Player's own JavaScript embedder (**jwplayer.js**).
+* Using the JW Embedder, the JW Player's own JavaScript embedder (**jwplayer.js**).
 
-We recommend using the included JW Player Embedder.  It can detect if a browser supports Flash, it ensures that the player's :ref:`javascriptapi` works and it avoids browser compatibility issues.  Also, as of version 5.3, the JW Player Embedder allows you to use the player's HTML5 feautures. Detailed instructions can be found below.
+For embedding the JW Player for Flash, we recommend using SWFObject, since it works in all browsers and many examples exist on the web to get you up and running quickly.  If you want the new HTML5 features of the JW Player, or if you want to leverage the new and improved :ref:`JavaScript API <javascriptapi>`, you'll want to use the JW Embedder.  Detailed instructions can be found below.
 
 Upload
 ------
 
-First, a primer on uploading. This may sound obvious, but for the JW Player to work on your website, you must upload the *player.swf* file from the download to your webserver.  If you want to play Youtube videos, you must also upload the **yt.swf** file - this is the bridge between the player and Youtube.  Finally, to use the JW Player Embedder and HTML5 player, upload **jwplayer.js**.  
-
-Your :ref:`media files <mediaformats>` and :ref:`playlists <playlistformats>` can be hosted at any domain. Do note that :ref:`crossdomain` apply when loading these files from a different domain. In short, playing media files works, but loading playlists across domains will not work by default. Resolve this issue by hosting a :ref:`crossdomain.xml file <crossdomain>`.
+First, a primer on uploading. This may sound obvious, but for the JW Player to work on your website, you must upload the *player.swf* file onto your webserver.  If you want to play YouTube videos, you must also upload the **yt.swf** file - this is the bridge between the player and YouTube.  Finally, to use the JW Embedder and HTML5 player, upload **jwplayer.js**.  
 
 .. note::
 
-	We recommend putting everything in a folder called "jwplayer" at the root of your site.  This enables the :ref:`quickembed` method of setting up the player.
+	We recommend putting everything in a folder called "jwplayer" at the root of your site.  This enables the :ref:`quickembed` method of setting up the player.  The file structure should look like this:
+	
+.. code-block:: text
+
+	[Web Root]/jwplayer/player.swf	
+	[Web Root]/jwplayer/jwplayer.js	
+	[Web Root]/jwplayer/yt.swf
 
 
 SWFObject
@@ -121,7 +125,7 @@ Getting started
 Embedding the JW Player in your website is a simple, 3-step process:
 
 1. Upload the *jwplayer.js*, *player.swf* and *yt.swf* files from the download ZIP to your server. All other files in the download (documentation, source code, etc) are optional.
-2. Include the *jwplayer.js* somewhere in the head of your website:
+2. Include the *jwplayer.js* somewhere in the head of your webpage:
     
     .. code-block:: html
         

@@ -238,13 +238,13 @@ Here is a list of all functions that can be called on the player:
 
     Change the player's fullscreen mode. Parameters:
     
-    * **state**:Boolean (*undefined*): If state is undefined, perform a fullscreen toggle. Otherwise, set the player's fullscreen mode to fullscreen if true, and return to normal screen mode if false.
+    * **state**:Boolean (*true*): Set the player's fullscreen mode to fullscreen if true, and return to normal screen mode if false.
 
 .. describe:: setMute(state)
 
     Change the player's mute state (no sound). Parameters:
 
-    * **state**:Boolean (undefined): If *state* is undefined, perform a muting toggle. Otherwise, mute the player if true, and unmute if false.
+    * **state**:Boolean (*true*): Mute the player if true, and unmute if false.
 
 .. describe:: load(playlist)
 
