@@ -198,9 +198,11 @@ package com.longtailvideo.jwplayer.media {
 				var drf:Number = _stream.info.droppedFrames;
 				_streamInfo.push({bwd:bwd,drf:drf});
 				var len:Number = _streamInfo.length;
-				if(len > 5) {
+				if(len > 5 && state == PlayerState.PLAYING) {
 					bwd = Math.round((_streamInfo[len-1].bwd + _streamInfo[len-2].bwd + _streamInfo[len-3].bwd + 
 						_streamInfo[len-4].bwd+ + _streamInfo[len-5].bwd)/5);
+					config.bandwidth = bwd;
+					Configger.saveCookie('bandwidth',bwd);
 					drf = Math.round((_streamInfo[len-1].drf - _streamInfo[len-5].drf)*2)/10;
 					if(item.levels.length > 0 && item.getLevel(bwd,config.width) != item.currentLevel) {
 						Logger.log("swapping to another level b/c of bandwidth",bwd.toString());
@@ -450,7 +452,7 @@ package com.longtailvideo.jwplayer.media {
 			if (state == PlayerState.PLAYING) {
             	if (item.levels.length > 0 && item.currentLevel != item.getLevel(config.bandwidth, config.width)) {
                 	if (_dynamic) {
-						Logger.log("swapping to another level b/c of size");
+						Logger.log("swapping to another level b/c of size: "+config.width);
 	                    swap(item.getLevel(config.bandwidth, config.width));
                 	} else {
 	                    seek(position);

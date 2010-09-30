@@ -30,7 +30,10 @@ package com.longtailvideo.jwplayer.parsers {
 				'rbs':'sound',
 				'sdp':'video',
 				'swf':'image',
-				'vp6':'video'
+				'vp6':'video',
+				'webm':'video',
+				'ogg':'video',
+				'ogv':'video'
 			};
 			
 		/**
