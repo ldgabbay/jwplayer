@@ -493,6 +493,7 @@ jwplayer.utils.strings.trim = function(inputString){
 			if (!_player) {
 				this.setPlayer(document.getElementById(obj['id']));
 			}
+			this.container = document.getElementById(this.id);
 			
 			for (var eventType in _listeners) {
 				this.addInternalListener(_player, eventType);
