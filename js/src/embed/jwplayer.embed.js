@@ -11,9 +11,9 @@
 		width : 400,
 		height : 300,
 		players: [{type:"flash", src:"player.swf"},{type:'html5'}],
-		components: {
+  		components: {
 			controlbar: {
-				position: "over"
+				position: 'over'
 			}
 		}
 	};
@@ -126,17 +126,24 @@
 					parsedConfig = jwplayer.utils.extend(parsedConfig, jwplayer.embed.parsePlugins(parsedConfig.plugins));
 				}
 			}
-			
+
 			if (parsedConfig.playlist && typeof parsedConfig.playlist === "string" && !parsedConfig['playlist.position']) {
 				parsedConfig['playlist.position'] = parsedConfig.playlist;
 				delete parsedConfig.playlist;
 			}
+
+			if (parsedConfig.controlbar && typeof parsedConfig.controlbar === "string" && !parsedConfig['controlbar.position']) {
+				parsedConfig['controlbar.position'] = parsedConfig.controlbar;
+				delete parsedConfig.controlbar;
+			}
 			
 			return parsedConfig;
 		}
-
+		
 	};
 
+	
+	
 	jwplayer.embed.embedFlash = function(_container, _player, _options) {
 		var params = jwplayer.utils.extend( {}, _options);
 
@@ -249,11 +256,15 @@
 				var component = components[name];
 				if (typeof component == "string") {
 					// i.e. controlbar="over"
-					options[name] = component;
+					if (!options[name]) {
+						options[name] = component;
+					}
 				} else {
 					// i.e. controlbar.position="over"
 					for ( var option in component) {
-						options[name + '.' + option] = component[option];
+						if (!options[name + '.' + option]) {
+							options[name + '.' + option] = component[option];
+						}
 					}
 				}
 			}
