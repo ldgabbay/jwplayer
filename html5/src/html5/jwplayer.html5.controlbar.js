@@ -9,12 +9,10 @@
 	var _defaults = {
 		backgroundcolor: "",
 		margin: 10,
-		//font: "_sans",
 		font: "Arial,sans-serif",
 		fontsize: 10,
 		fontcolor: parseInt("000000", 16),
 		fontstyle: "normal",
-		//fontweight: "normal",
 		fontweight: "bold",
 		buttoncolor: parseInt("ffffff", 16),
 		position: jwplayer.html5.view.positions.BOTTOM,
@@ -148,8 +146,7 @@
 		
 		this.resize = function(width, height) {
 			jwplayer.html5.utils.cancelAnimation(_wrapper);
-			if (!_ready && _wrapper.parentElement !== undefined) {
-				_ready = true;
+			if (_wrapper.parentElement !== undefined) {
 				document.getElementById(_api.id).onmousemove = _fadeOut;
 			}
 			_width = width;
@@ -317,7 +314,7 @@
 					display: "block",
 					top: 0
 				};
-				if ((element.indexOf("next") == 0 || element.indexOf("prev") == 0) && _api.jwGetPlaylist().length < 2) {
+				if ((element.indexOf("next") === 0 || element.indexOf("prev") === 0) && _api.jwGetPlaylist().length < 2) {
 					offset = false;
 					css.display = "none";
 				}
@@ -625,7 +622,7 @@
 			var lastElement, lastVisibleElement;
 			var childNodes = document.getElementById(_wrapper.id + "_elements").childNodes;
 			for (var childNode in document.getElementById(_wrapper.id + "_elements").childNodes) {
-				if (isNaN(parseInt(childNode))) {
+				if (isNaN(parseInt(childNode, 10))) {
 					continue;
 				}
 				if (childNodes[childNode].id.indexOf(_wrapper.id + "_divider") === 0 && lastVisibleElement.id.indexOf(_wrapper.id + "_divider") === 0) {
@@ -707,6 +704,7 @@
 		function _setup() {
 			_buildBase();
 			_buildElements();
+			_ready = true;
 			_addListeners();
 			_init();
 			_wrapper.style.opacity = _settings.idlehide ? 0 : 1;

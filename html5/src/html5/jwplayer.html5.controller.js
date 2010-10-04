@@ -30,19 +30,15 @@
 				if (_model.playlist[0].levels[0].file.length > 0) {
 					switch (_model.state) {
 						case jwplayer.api.events.state.IDLE:
-							//if (_itemUpdated) {
-								_model.setActiveMediaProvider(_model.playlist[_model.item]);
-								_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, _model.getMedia().play);
-								if (_model.config.repeat) {
-									_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
-										setTimeout(_completeHandler, 25);
-									});
-								}
-								_model.getMedia().load(_model.playlist[_model.item]);
-								_itemUpdated = false;
-							//} else {
-							//	_model.getMedia().play();
-							//}
+							_model.setActiveMediaProvider(_model.playlist[_model.item]);
+							_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, _model.getMedia().play);
+							if (_model.config.repeat) {
+								_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
+									setTimeout(_completeHandler, 25);
+								});
+							}
+							_model.getMedia().load(_model.playlist[_model.item]);
+							_itemUpdated = false;
 							break;
 						case jwplayer.api.events.state.PAUSED:
 							_model.getMedia().play();
@@ -255,11 +251,13 @@
 		/** Loads a new video **/
 		function _load(arg) {
 			try {
-				if (_model.state != jwplayer.api.events.state.IDLE){
+				if (_model.state != jwplayer.api.events.state.IDLE) {
 					_stop();
 				}
 				_model.loadPlaylist(arg);
+				//_model.getMedia().load(_model.playlist[_model.item]);
 				_item(_model.item);
+				_model.setActiveMediaProvider(_model.playlist[_model.item]);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);

@@ -76,5 +76,5 @@
 		setTimeout(function() {
 			jwplayer.html5.utils.fadeTo(domelement, endAlpha, time, startAlpha, 0, startTime);
 		}, 10);
-	};	
+	};
 })(jwplayer);

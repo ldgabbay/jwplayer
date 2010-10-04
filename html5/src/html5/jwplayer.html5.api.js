@@ -8,11 +8,11 @@
 
 	jwplayer.html5.api = function(container, options) {
 		var _api = {};
-
+		
 		if (!jwplayer.utils.hasHTML5()) {
 			return _api;
 		}
-
+		
 		var _container = document.createElement('div');
 		container.parentNode.replaceChild(_container, container);
 		_container.id = container.id;
@@ -107,6 +107,7 @@
 				}
 			};
 		}
+		
 		if (_model.config.chromeless) {
 			setTimeout(_finishLoad(_model, _view, _controller), 25);
 		} else {

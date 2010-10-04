@@ -7,7 +7,7 @@
 (function(jwplayer) {
 	var _colorPattern = new RegExp(/^(#|0x)[0-9a-fA-F]{3,6}/);
 	jwplayer.html5.utils.typechecker = function(value, type) {
-		type = type === null ? _guessType(value) : type; 
+		type = type === null ? _guessType(value) : type;
 		return _typeData(value, type);
 	};
 	

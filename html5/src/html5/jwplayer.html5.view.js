@@ -88,7 +88,7 @@
 		}
 		
 		function getNumber(style) {
-			if (typeof style == "number"){
+			if (typeof style == "number") {
 				return style;
 			}
 			if (style === "") {
@@ -117,7 +117,6 @@
 			layoutComponents();
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_LOADED, _loadedHandler);
 			setResizeInterval();
-			//_resize(_model.width, _model.height);
 			var oldresize;
 			if (window.onresize !== null) {
 				oldresize = window.onresize;
@@ -139,7 +138,7 @@
 		};
 		
 		function _resize(width, height) {
-			if (_wrapper.style.display == "none"){
+			if (_wrapper.style.display == "none") {
 				return;
 			}
 			var plugins = [].concat(_model.plugins.order);

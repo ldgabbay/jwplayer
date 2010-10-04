@@ -396,9 +396,6 @@
 			_currentItem = playlistItem;
 			var vid = document.createElement("video");
 			vid.preload = "none";
-			if (_model.config.repeat.toUpperCase() == jwplayer.html5.controller.repeatoptions.SINGLE) {
-				//vid.loop = true;				
-			}
 			_error = false;
 			_sourceError = 0;
 			for (var sourceIndex in playlistItem.levels) {
@@ -432,7 +429,7 @@
 			if (_sourceError === 0) {
 				_error = true;
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
-					error: "The video could not be loaded because the format is not supported by your browser: " +joinFiles() 
+					error: "The video could not be loaded because the format is not supported by your browser: " + joinFiles()
 				});
 			}
 			
@@ -481,8 +478,8 @@
 				type: "application/x-shockwave-flash",
 				allowscriptaccess: "always",
 				allowfullscreen: "true",
-				width: _container.style.width,
-				height: _container.style.height
+				width: document.getElementById(model.id).style.width,
+				height: document.getElementById(model.id).style.height
 			};
 			for (var embedParam in embedParams) {
 				embed[embedParam] = embedParams[embedParam];
@@ -492,8 +489,8 @@
 			object.style.position = _container.style.position;
 			object.style.top = _container.style.top;
 			object.style.left = _container.style.left;
-			object.style.width = _container.style.width;
-			object.style.height = _container.style.height;
+			object.style.width = document.getElementById(model.id).style.width;
+			object.style.height = document.getElementById(model.id).style.height;
 			object.style.zIndex = _container.style.zIndex;
 			_container.parentNode.replaceChild(object, _container);
 			object.id = _container.id;

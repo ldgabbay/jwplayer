@@ -24,9 +24,9 @@
 	
 	jwplayer.html5.logo = function(api, logoConfig) {
 		var _api = api;
-		var version = api.version.split(/\W/).splice(0,2).join("/");
-		if (_defaults.prefix.indexOf(version) < 0){
-			_defaults.prefix +=  version + "/";	
+		var version = api.version.split(/\W/).splice(0, 2).join("/");
+		if (_defaults.prefix.indexOf(version) < 0) {
+			_defaults.prefix += version + "/";
 		}
 		var _settings = jwplayer.utils.extend({}, _defaults, logoConfig);
 		
@@ -37,7 +37,7 @@
 		_logo.onload = function(evt) {
 			_settings.width = _logo.width;
 			_settings.height = _logo.height;
-						
+			
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 		};
 		

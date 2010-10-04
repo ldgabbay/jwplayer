@@ -35,5 +35,5 @@
 			_playlistitem.levels[0] = new jwplayer.html5.playlistitemlevel(_playlistitem);
 		}
 		return _playlistitem;
-	};	
+	};
 })(jwplayer);

@@ -112,8 +112,8 @@
 			var input;
 			if (typeof arg == "string") {
 				try {
-					input = eval(arg);	
-				} catch(err){
+					input = eval(arg);
+				} catch (err) {
 					input = arg;
 				}
 			} else {

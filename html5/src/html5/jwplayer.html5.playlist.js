@@ -8,7 +8,7 @@
 	jwplayer.html5.playlist = function(config) {
 		var _playlist = [];
 		if (config.playlist && config.playlist.length > 0) {
-			for (var playlistItem in config.playlist){
+			for (var playlistItem in config.playlist) {
 				_playlist.push(new jwplayer.html5.playlistitem(config.playlist[playlistItem]));
 			}
 		} else {
