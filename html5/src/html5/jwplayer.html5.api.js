@@ -81,7 +81,7 @@
 		
 		function _finishLoad(model, view, controller) {
 			return function() {
-				model.loadPlaylist(model.config, false);
+				model.loadPlaylist(model.config, true);
 				model.setupPlugins();
 				view.setup(model.getMedia().getDisplayElement());
 				var evt = {

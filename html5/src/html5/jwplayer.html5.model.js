@@ -94,8 +94,8 @@
 		};
 		
 		if (typeof _model.config.components != "undefined") {
-			for (var component in _model.config.components){
-				_model.plugins.config[component] =  _model.config.components[component];
+			for (var component in _model.config.components) {
+				_model.plugins.config[component] = _model.config.components[component];
 			}
 		}
 		
@@ -108,9 +108,34 @@
 			}
 		}
 		
-		_model.loadPlaylist = function(playlist, ready) {
-			ready = ready === null ? true : false;
-			_model.playlist = new jwplayer.html5.playlist(playlist);
+		_model.loadPlaylist = function(arg, ready) {
+			var input;
+			if (typeof arg == "string") {
+				try {
+					input = eval(arg);	
+				} catch(err){
+					input = arg;
+				}
+			} else {
+				input = arg;
+			}
+			var config;
+			switch (jwplayer.utils.typeOf(input)) {
+				case "object":
+					config = input;
+					break;
+				case "array":
+					config = {
+						playlist: input
+					};
+					break;
+				default:
+					config = {
+						file: input
+					};
+					break;
+			}
+			_model.playlist = new jwplayer.html5.playlist(config);
 			if (_model.config.shuffle) {
 				_model.item = _getShuffleItem();
 			} else {
@@ -119,7 +144,7 @@
 				}
 				_model.item = _model.config.item;
 			}
-			if (ready) {
+			if (!ready) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
 					"item": _model.item

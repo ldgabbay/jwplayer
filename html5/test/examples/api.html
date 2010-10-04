@@ -23,7 +23,7 @@
 			<input type="text" id="controlvalue"/>
 			<a href="#" onclick="callPlayerFunction('controls', 'controlvalue');return false;">Call</a>
         </div>
-        <div id="properties" style="float:left">
+        <div style="float:right">
             <p>
                 Properties
             </p>
@@ -46,7 +46,7 @@
 				if (document.getElementById(valueid) && document.getElementById(valueid).value !== "") {
 					player[document.getElementById(functionid).value](document.getElementById(valueid).value);
 				} else {
-					player[document.getElementById(functionid).value]();
+					console.log(player[document.getElementById(functionid).value]());
 				}
 			}
             
@@ -84,16 +84,16 @@
             };
 			
 			for (var control in controls){
-				var listItem = document.createElement("select");
+				var listItem = document.createElement("option");
 				listItem.value = controls[control];
-				listItem.name = control;
+				listItem.innerHTML = control;
 				document.getElementById('controls').appendChild(listItem);
 			}
 			
 			for (var property in properties){
 				var listItem = document.createElement("option");
 				listItem.value = properties[property];
-				listItem.name = property;
+				listItem.innerHTML = property;
 				document.getElementById('properties').appendChild(listItem);
 			}
         </script>

@@ -300,14 +300,9 @@
 		this.fullscreen = function(state) {
 			if (_model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
 				if (state) {
-					clearInterval(_resizeInterval);
-					_model.height = screen.availHeight;
-					_model.width = screen.availWidth;
+					_model.fullscreen = false;
 					_model.getMedia().getDisplayElement().webkitEnterFullscreen();
 				} else {
-					setResizeInterval();
-					_model.height = _height;
-					_model.width = _width;
 					_model.getMedia().getDisplayElement().webkitExitFullscreen();
 				}
 			} else {

@@ -32,7 +32,9 @@
 		var _elements = {
 			display: {
 				style: {
-					cursor: "pointer"
+					cursor: "pointer",
+					top: 0,
+					left: 0
 				},
 				click: _displayClickHandler
 			},

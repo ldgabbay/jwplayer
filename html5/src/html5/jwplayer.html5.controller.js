@@ -255,8 +255,11 @@
 		/** Loads a new video **/
 		function _load(arg) {
 			try {
+				if (_model.state != jwplayer.api.events.state.IDLE){
+					_stop();
+				}
 				_model.loadPlaylist(arg);
-				_itemUpdated = true;
+				_item(_model.item);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
