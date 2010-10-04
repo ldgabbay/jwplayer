@@ -17,7 +17,7 @@
         </div>
         <script type="text/javascript">
             var player = new jwplayer.html5(document.getElementById("player"));
-            player.setup({
+           player = player.setup({
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -26,9 +26,9 @@
             	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
             });
         </script>
-		<a href="#" onclick="player.resize(340, 280);return false;">small</a>
-		<a href="#" onclick="player.resize(640, 480);return false;">medium</a>
-		<a href="#" onclick="player.resize(720, 640);return false;">large</a>
+		<a href="#" onclick="player.jwResize(340, 280);return false;">small</a>
+		<a href="#" onclick="player.jwResize(640, 480);return false;">medium</a>
+		<a href="#" onclick="player.jwResize(720, 640);return false;">large</a>
         <h3>HTML code</h3>
     </body>
 </html>
