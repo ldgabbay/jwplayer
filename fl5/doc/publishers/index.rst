@@ -10,6 +10,7 @@
    playlistformats
    httpstreaming
    rtmpstreaming
+   html5
    skinning
    javascriptapi
    crossdomain

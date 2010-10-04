@@ -7,7 +7,7 @@ Release Notes
 Version 5.3
 ===========
 
-Build 1341
+Build 1356
 ----------
 
 New Features
@@ -208,5 +208,6 @@ Features new to 5.0
  * Bitrate switching, introduced in 4.6
  * *displayclick* flashvar
  * *logo* flashvar (for non-commercial players)
-
+ * *link* flashvar
+ 
 A full changelog can be found [/query?group=status&milestone=Flash+5.0&order=type here]
