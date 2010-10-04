@@ -172,10 +172,19 @@
 		}
 		
 		function canFade() {
-			return (_settings.idlehide && _api.jwGetState() == jwplayer.api.events.state.IDLE) ||
-			_api.jwGetFullscreen() ||
-			(_settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER &&
-			(_api.jwGetState() != jwplayer.api.events.state.IDLE && _api.jwGetState() != jwplayer.api.events.state.PAUSED));
+			if (_api.jwGetState() == jwplayer.api.events.state.IDLE || _api.jwGetState() == jwplayer.api.events.state.PAUSED) {
+				if (_settings.idlehide){
+					return true;	
+				}
+				return false;
+			}
+			if (_api.jwGetFullscreen()){
+				return true;
+			}
+			if (_settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER){
+				return true;
+			}
+			return false;
 		}
 		
 		function _fadeIn() {

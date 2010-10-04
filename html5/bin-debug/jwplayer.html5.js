@@ -663,10 +663,19 @@
 		}
 		
 		function canFade() {
-			return (_settings.idlehide && _api.jwGetState() == jwplayer.api.events.state.IDLE) ||
-			_api.jwGetFullscreen() ||
-			(_settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER &&
-			(_api.jwGetState() != jwplayer.api.events.state.IDLE && _api.jwGetState() != jwplayer.api.events.state.PAUSED));
+			if (_api.jwGetState() == jwplayer.api.events.state.IDLE || _api.jwGetState() == jwplayer.api.events.state.PAUSED) {
+				if (_settings.idlehide){
+					return true;	
+				}
+				return false;
+			}
+			if (_api.jwGetFullscreen()){
+				return true;
+			}
+			if (_settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER){
+				return true;
+			}
+			return false;
 		}
 		
 		function _fadeIn() {
@@ -1235,21 +1244,20 @@
 		function _play() {
 			try {
 				if (_model.playlist[0].levels[0].file.length > 0) {
-					switch (_model.state) {
-						case jwplayer.api.events.state.IDLE:
-							_model.setActiveMediaProvider(_model.playlist[_model.item]);
-							_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, _model.getMedia().play);
-							if (_model.config.repeat) {
-								_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
-									setTimeout(_completeHandler, 25);
-								});
-							}
-							_model.getMedia().load(_model.playlist[_model.item]);
-							_itemUpdated = false;
-							break;
-						case jwplayer.api.events.state.PAUSED:
+					if (_itemUpdated || _model.state == jwplayer.api.events.state.IDLE) {
+						_model.setActiveMediaProvider(_model.playlist[_model.item]);
+						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, function() {
 							_model.getMedia().play();
-							break;
+						});
+						if (_model.config.repeat) {
+							_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
+								setTimeout(_completeHandler, 25);
+							});
+						}
+						_model.getMedia().load(_model.playlist[_model.item]);
+						_itemUpdated = false;
+					} else if (_model.state == jwplayer.api.events.state.PAUSED) {
+						_model.getMedia().play();
 					}
 				}
 				return true;
@@ -1458,13 +1466,12 @@
 		/** Loads a new video **/
 		function _load(arg) {
 			try {
-				if (_model.state != jwplayer.api.events.state.IDLE) {
-					_stop();
-				}
+				_stop();
 				_model.loadPlaylist(arg);
+				_itemUpdated = true;
 				//_model.getMedia().load(_model.playlist[_model.item]);
-				_item(_model.item);
-				_model.setActiveMediaProvider(_model.playlist[_model.item]);
+				//_item(_model.item);
+				//_model.setActiveMediaProvider(_model.playlist[_model.item]);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -1480,6 +1487,8 @@
 		};
 		
 		function _completeHandler() {
+			_model.resetEventListeners();
+			_model.addGlobalListener(forward);
 			switch (_model.config.repeat.toUpperCase()) {
 				case jwplayer.html5.controller.repeatoptions.SINGLE:
 					_play();
@@ -2599,15 +2608,15 @@
  * @version 1.0
  */
 (function(jwplayer) {
-
+	var id = 0;
 	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen", "item", "plugins"];
 	
 	jwplayer.html5.model = function(api, container, options) {
 		var _api = api;
 		var _container = container;
 		var _model = {
+			modelid: id++,
 			id: _container.id,
-			media: undefined,
 			playlist: [],
 			state: jwplayer.api.events.state.IDLE,
 			position: 0,

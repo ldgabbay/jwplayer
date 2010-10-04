@@ -28,21 +28,20 @@
 		function _play() {
 			try {
 				if (_model.playlist[0].levels[0].file.length > 0) {
-					switch (_model.state) {
-						case jwplayer.api.events.state.IDLE:
-							_model.setActiveMediaProvider(_model.playlist[_model.item]);
-							_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, _model.getMedia().play);
-							if (_model.config.repeat) {
-								_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
-									setTimeout(_completeHandler, 25);
-								});
-							}
-							_model.getMedia().load(_model.playlist[_model.item]);
-							_itemUpdated = false;
-							break;
-						case jwplayer.api.events.state.PAUSED:
+					if (_itemUpdated || _model.state == jwplayer.api.events.state.IDLE) {
+						_model.setActiveMediaProvider(_model.playlist[_model.item]);
+						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, function() {
 							_model.getMedia().play();
-							break;
+						});
+						if (_model.config.repeat) {
+							_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
+								setTimeout(_completeHandler, 25);
+							});
+						}
+						_model.getMedia().load(_model.playlist[_model.item]);
+						_itemUpdated = false;
+					} else if (_model.state == jwplayer.api.events.state.PAUSED) {
+						_model.getMedia().play();
 					}
 				}
 				return true;
@@ -251,13 +250,12 @@
 		/** Loads a new video **/
 		function _load(arg) {
 			try {
-				if (_model.state != jwplayer.api.events.state.IDLE) {
-					_stop();
-				}
+				_stop();
 				_model.loadPlaylist(arg);
+				_itemUpdated = true;
 				//_model.getMedia().load(_model.playlist[_model.item]);
-				_item(_model.item);
-				_model.setActiveMediaProvider(_model.playlist[_model.item]);
+				//_item(_model.item);
+				//_model.setActiveMediaProvider(_model.playlist[_model.item]);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -273,6 +271,8 @@
 		};
 		
 		function _completeHandler() {
+			_model.resetEventListeners();
+			_model.addGlobalListener(forward);
 			switch (_model.config.repeat.toUpperCase()) {
 				case jwplayer.html5.controller.repeatoptions.SINGLE:
 					_play();

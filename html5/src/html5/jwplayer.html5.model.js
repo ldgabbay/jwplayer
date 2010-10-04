@@ -5,15 +5,15 @@
  * @version 1.0
  */
 (function(jwplayer) {
-
+	var id = 0;
 	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen", "item", "plugins"];
 	
 	jwplayer.html5.model = function(api, container, options) {
 		var _api = api;
 		var _container = container;
 		var _model = {
+			modelid: id++,
 			id: _container.id,
-			media: undefined,
 			playlist: [],
 			state: jwplayer.api.events.state.IDLE,
 			position: 0,
