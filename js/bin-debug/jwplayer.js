@@ -281,10 +281,10 @@ jwplayer.utils.hasFlash = function() {
 			var currentSibling = toReplace.nextSibling;
 			while (currentSibling && !endTagFound) {
 				siblings.push(currentSibling);
-				currentSibling = currentSibling.nextSibling;
 				if (currentSibling.nodeType == 1 && currentSibling.tagName.toLowerCase() == ("/")+toReplace.tagName.toLowerCase() ) {
 					endTagFound = true;
 				}
+				currentSibling = currentSibling.nextSibling;
 			}
 			if (endTagFound) {
 				while (siblings.length > 0) {
