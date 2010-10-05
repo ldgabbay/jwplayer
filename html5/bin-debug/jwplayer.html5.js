@@ -2055,7 +2055,7 @@
 			logoConfig.position = _defaults.position;
 		}
 		
-		var _settings = jwplayer.utils.extend({}, _defaults);
+		var _settings = jwplayer.utils.extend({}, _defaults, logoConfig);
 		
 		var _logo = document.createElement("img");
 		_logo.id = _api.id + "_jwplayer_logo";

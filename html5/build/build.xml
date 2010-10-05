@@ -22,12 +22,13 @@
 		<antcall target="concat">
 			<param name="outputpath" value="${basedir}/bin-debug/jwplayer.html5.js"/>
 		</antcall>
+		<copy file="${basedir}/bin-debug/jwplayer.html5.js" tofile="${basedir}/jwplayer.html5.min.js" />
 	</target>
 	
 	<target name="build-release" depends="build-debug">
-		<replace file="${basedir}/bin-debug/jwplayer.html5.js" token=", logoConfig);" value=");"/>
+		<replace file="${basedir}/jwplayer.html5.min.js" token=", logoConfig);" value=");"/>
 		<java jar="${basedir}/build/yuicompressor-2.4.2.jar" fork="true">
-			<arg line="'${basedir}/bin-debug/jwplayer.html5.js'"/>
+			<arg line="'${basedir}/jwplayer.html5.min.js'"/>
 			<arg line="-o '${basedir}/jwplayer.html5.min.js'"/>
 		</java>
 	</target>
