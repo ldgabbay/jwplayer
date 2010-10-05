@@ -374,7 +374,7 @@
 			_bufferFull = false;
 			_bufferingComplete = false;
 			_start = false;
-			if (_model.config.chromeless) {
+			if (!_model.config.chromeless) {
 				_bufferTimes = [];
 				_addBufferEvent();
 				_setState(jwplayer.api.events.state.BUFFERING);
