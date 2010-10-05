@@ -14,19 +14,21 @@
 		out: 0.5,
 		over: 1,
 		timeout: 3,
-		hide: "true",
-		position: "bottom-left",
-		width: 93,
-		height: 30
+		hide: true,
+		position: "bottom-left"
 	};
 	
 	_css = jwplayer.html5.utils.css;
 	
 	jwplayer.html5.logo = function(api, logoConfig) {
 		var _api = api;
-		var version = api.version.split(/\W/).splice(0, 2).join("/");
-		if (_defaults.prefix.indexOf(version) < 0) {
-			_defaults.prefix += version + "/";
+		var _timeout;
+		
+		if (_defaults.prefix) {
+			var version = api.version.split(/\W/).splice(0, 2).join("/");
+			if (_defaults.prefix.indexOf(version) < 0) {
+				_defaults.prefix += version + "/";
+			}
 		}
 		var _settings = jwplayer.utils.extend({}, _defaults, logoConfig);
 		
@@ -35,32 +37,33 @@
 		_css(_logo, _getStyle());
 		
 		_logo.onload = function(evt) {
-			_settings.width = _logo.width;
-			_settings.height = _logo.height;
-			
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 		};
 		
-		_logo.src = _settings.prefix + _settings.file;
+		if (_settings.file.indexOf("http://") === 0) {
+			_logo.src = _settings.file;
+		} else {
+			_logo.src = _settings.prefix + _settings.file;
+		}
 		
 		_logo.onmouseover = function(evt) {
 			_logo.style.opacity = _settings.over;
+			fade();
 		};
 		
 		_logo.onmouseout = function(evt) {
 			_logo.style.opacity = _settings.out;
+			fade();
 		};
 		
 		_logo.onclick = _logoClickHandler;
 		
 		function _getStyle() {
 			var _imageStyle = {
-				width: _settings.width,
-				height: _settings.height,
 				textDecoration: "none",
-				position: "absolute",
-				display: "none"
+				position: "absolute"
 			};
+			_imageStyle.display = _settings.hide ? "none" : "block";
 			var positions = _settings.position.toLowerCase().split("-");
 			for (var position in positions) {
 				_imageStyle[positions[position]] = _settings.margin;
@@ -81,11 +84,23 @@
 			return;
 		}
 		
+		function fade() {
+			if (_timeout) {
+				clearTimeout(_timeout);
+			}
+			_timeout = setTimeout(function() {
+				jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity));
+			}, _settings.timeout * 1000);
+		}
+		
 		function _stateHandler(obj) {
 			switch (_api.jwGetState()) {
 				case jwplayer.api.events.state.BUFFERING:
+					_logo.style.display = "block";
 					_logo.style.opacity = _settings.out;
-					jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity), _settings.timeout);
+					if (_settings.hide) {
+						fade();
+					}
 					break;
 				case jwplayer.api.events.state.PAUSED:
 					break;
@@ -94,7 +109,9 @@
 				case jwplayer.api.events.state.PLAYING:
 					break;
 				default:
-					jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity), _settings.timeout);
+					if (_settings.hide) {
+						fade();
+					}
 					break;
 			}
 		}
