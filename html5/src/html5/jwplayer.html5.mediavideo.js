@@ -86,6 +86,9 @@
 			if (_stopped) {
 				newstate = jwplayer.api.events.state.IDLE;
 			}
+			if (newstate == jwplayer.api.events.state.PAUSED && _state == jwplayer.api.events.state.IDLE) {
+				return;
+			}
 			if (_state != newstate) {
 				var oldstate = _state;
 				_model.state = newstate;
@@ -101,7 +104,6 @@
 						_container.style.display = 'none';
 					}
 				}
-				
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYER_STATE, {
 					oldstate: oldstate,
 					newstate: newstate
@@ -310,10 +312,10 @@
 		
 		/** Stop playback and loading of the video. **/
 		function _stop() {
-			_stopped = true;
 			_container.pause();
 			_clearInterval();
 			_model.position = 0;
+			_stopped = true;
 			_setState(jwplayer.api.events.state.IDLE);
 		}
 		
@@ -491,7 +493,7 @@
 			object.style.left = _container.style.left;
 			object.style.width = document.getElementById(model.id).style.width;
 			object.style.height = document.getElementById(model.id).style.height;
-			object.style.zIndex = _container.style.zIndex;
+			object.style.zIndex = 2147483000;
 			_container.parentNode.replaceChild(object, _container);
 			object.id = _container.id;
 			_container = object;

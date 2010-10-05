@@ -137,6 +137,24 @@
 			};
 		};
 		
+		function _keyHandler(evt) {
+			switch (evt.keyCode) {
+				case 27:
+					if (_api.jwGetFullscreen()) {
+						_api.jwSetFullscreen(false);
+					}
+					break;
+				case 32:
+					// For spacebar. Not sure what to do when there are multiple players
+					if (_api.jwGetState() != jwplayer.api.events.state.IDLE && _api.jwGetState() != jwplayer.api.events.state.PAUSED) {
+						_api.jwPause();
+					} else {
+						_api.jwPlay();
+					}
+					break;
+			}
+		}
+		
 		function _resize(width, height) {
 			if (_wrapper.style.display == "none") {
 				return;
@@ -306,6 +324,7 @@
 				}
 			} else {
 				if (state) {
+					document.onkeydown = _keyHandler;
 					clearInterval(_resizeInterval);
 					_model.width = window.innerWidth;
 					_model.height = window.innerHeight;
@@ -323,6 +342,7 @@
 					style.zIndex = 2;
 					_css(_box, style);
 				} else {
+					document.onkeydown = "";
 					setResizeInterval();
 					_model.width = _width;
 					_model.height = _height;

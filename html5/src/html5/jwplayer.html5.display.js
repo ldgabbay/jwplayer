@@ -186,11 +186,9 @@
 			});
 			if (_api.skin.getSkinElement("display", newIcon + "Over") !== undefined) {
 				_display.display_icon.onmouseover = function(evt) {
-					evt.stopPropagation();
 					_display.display_icon.style.backgroundImage = ["url(", _api.skin.getSkinElement("display", newIcon + "Over").src, ")"].join("");
 				};
 				_display.display_icon.onmouseout = function(evt) {
-					evt.stopPropagation();
 					_display.display_icon.style.backgroundImage = ["url(", _api.skin.getSkinElement("display", newIcon).src, ")"].join("");
 				};
 			} else {
@@ -213,7 +211,9 @@
 		}
 		
 		function _stateHandler(evt) {
-			if (typeof evt.newstate != "undefined" && _error) {
+			if ((evt.type == jwplayer.api.events.JWPLAYER_PLAYER_STATE ||
+			evt.type == jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM) &&
+			_error) {
 				_error = false;
 				_hide(_display.display_text);
 			}

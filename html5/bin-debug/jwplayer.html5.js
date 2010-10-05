@@ -274,6 +274,24 @@
 			};
 		};
 		
+		function _keyHandler(evt) {
+			switch (evt.keyCode) {
+				case 27:
+					if (_api.jwGetFullscreen()) {
+						_api.jwSetFullscreen(false);
+					}
+					break;
+				case 32:
+					// For spacebar. Not sure what to do when there are multiple players
+					if (_api.jwGetState() != jwplayer.api.events.state.IDLE && _api.jwGetState() != jwplayer.api.events.state.PAUSED) {
+						_api.jwPause();
+					} else {
+						_api.jwPlay();
+					}
+					break;
+			}
+		}
+		
 		function _resize(width, height) {
 			if (_wrapper.style.display == "none") {
 				return;
@@ -443,6 +461,7 @@
 				}
 			} else {
 				if (state) {
+					document.onkeydown = _keyHandler;
 					clearInterval(_resizeInterval);
 					_model.width = window.innerWidth;
 					_model.height = window.innerHeight;
@@ -460,6 +479,7 @@
 					style.zIndex = 2;
 					_css(_box, style);
 				} else {
+					document.onkeydown = "";
 					setResizeInterval();
 					_model.width = _width;
 					_model.height = _height;
@@ -603,6 +623,7 @@
 		var _prevElement;
 		var _elements = {};
 		var _ready = false;
+		var _positions = {};
 		
 		
 		function _buildBase() {
@@ -637,11 +658,10 @@
 		
 		this.resize = function(width, height) {
 			jwplayer.html5.utils.cancelAnimation(_wrapper);
-			if (_wrapper.parentElement !== undefined) {
-				document.getElementById(_api.id).onmousemove = _fadeOut;
-			}
+			document.getElementById(_api.id).onmousemove = _setVisiblity;
 			_width = width;
 			_height = height;
+			_setVisiblity();
 			var style = _resizeBar();
 			_timeHandler({
 				id: _api.id,
@@ -655,32 +675,34 @@
 			return style;
 		};
 		
-		function _fadeOut() {
+		function _updatePositions() {
+			_positions.timeSliderRail = _elements.timeSliderRail.getBoundingClientRect();
+			_positions.volumeSliderRail = _elements.volumeSliderRail.getBoundingClientRect();
+		}
+		
+		function _setVisiblity() {
 			jwplayer.html5.utils.cancelAnimation(_wrapper);
-			if (canFade()) {
+			if (_remainVisible()) {
+				jwplayer.html5.utils.fadeTo(_wrapper, 1, 0, 1, 0);
+			} else {
 				jwplayer.html5.utils.fadeTo(_wrapper, 0, 0.1, 1, 2);
 			}
 		}
 		
-		function canFade() {
+		function _remainVisible() {
 			if (_api.jwGetState() == jwplayer.api.events.state.IDLE || _api.jwGetState() == jwplayer.api.events.state.PAUSED) {
-				if (_settings.idlehide){
-					return true;	
+				if (_settings.idlehide) {
+					return false;
 				}
+				return true;
+			}
+			if (_api.jwGetFullscreen()) {
 				return false;
 			}
-			if (_api.jwGetFullscreen()){
-				return true;
+			if (_settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER) {
+				return false;
 			}
-			if (_settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER){
-				return true;
-			}
-			return false;
-		}
-		
-		function _fadeIn() {
-			jwplayer.html5.utils.cancelAnimation(_wrapper);
-			jwplayer.html5.utils.fadeTo(_wrapper, 1, 0, 1, 0);
+			return true;
 		}
 		
 		function _appendNewElement(id, parent, css) {
@@ -859,11 +881,9 @@
 					var newelement = _appendNewElement(element, parent, css);
 					if (_api.skin.getSkinElement("controlbar", element + "Over") !== undefined) {
 						newelement.onmouseover = function(evt) {
-							evt.stopPropagation();
 							newelement.style.backgroundImage = ["url(", _api.skin.getSkinElement("controlbar", element + "Over").src, ")"].join("");
 						};
 						newelement.onmouseout = function(evt) {
-							evt.stopPropagation();
 							newelement.style.backgroundImage = ["url(", _api.skin.getSkinElement("controlbar", element).src, ")"].join("");
 						};
 					}
@@ -969,7 +989,7 @@
 			bar.onmousemove = function(evt) {
 				if (_scrubber == "time") {
 					_mousedown = true;
-					var xps = evt.pageX - bar.getBoundingClientRect().left - window.pageXOffset;
+					var xps = evt.pageX - _positions[name + "Slider"].left - window.pageXOffset;
 					_css(_elements.timeSliderThumb, {
 						left: xps
 					});
@@ -981,11 +1001,10 @@
 		/** The slider has been moved up. **/
 		function _sliderUp(msx) {
 			_mousedown = false;
-			var railRect, xps;
+			var xps;
 			if (_scrubber == "time") {
-				railRect = _elements.timeSliderRail.getBoundingClientRect();
-				xps = msx - railRect.left + window.pageXOffset;
-				var pos = xps / railRect.width * _currentDuration;
+				xps = msx - _positions.timeSliderRail.left + window.pageXOffset;
+				var pos = xps / _positions.timeSliderRail.width * _currentDuration;
 				if (pos < 0) {
 					pos = 0;
 				} else if (pos > _currentDuration) {
@@ -996,9 +1015,8 @@
 					_api.jwPlay();
 				}
 			} else if (_scrubber == "volume") {
-				railRect = _elements.volumeSliderRail.getBoundingClientRect();
-				xps = msx - railRect.left - window.pageXOffset;
-				var pct = Math.round(xps / railRect.width * 100);
+				xps = msx - _positions.volumeSliderRail.left - window.pageXOffset;
+				var pct = Math.round(xps / _positions.volumeSliderRail.width * 100);
 				if (pct < 0) {
 					pct = 0;
 				} else if (pct > 100) {
@@ -1018,7 +1036,7 @@
 			if (event.bufferPercent !== null) {
 				_currentBuffer = event.bufferPercent;
 			}
-			var wid = _elements.timeSliderRail.getBoundingClientRect().width;
+			var wid = _positions.timeSliderRail.width;
 			var bufferWidth = isNaN(Math.round(wid * _currentBuffer / 100)) ? 0 : Math.round(wid * _currentBuffer / 100);
 			_css(_elements.timeSliderBuffer, {
 				width: bufferWidth
@@ -1051,16 +1069,18 @@
 				_show(_elements.playButton);
 			}
 			
+			_setVisiblity();
 			// Show / hide progress bar
 			if (event.newstate == jwplayer.api.events.state.IDLE) {
-				if (!_settings.idlehide && _settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER) {
-					_fadeIn();
-				}
 				_hide(_elements.timeSliderBuffer);
 				_hide(_elements.timeSliderProgress);
 				_hide(_elements.timeSliderThumb);
+				_timeHandler({
+					id: _api.id,
+					duration: _api.jwGetDuration(),
+					position: 0
+				});
 			} else {
-				_fadeOut();
 				_show(_elements.timeSliderBuffer);
 				if (event.newstate != jwplayer.api.events.state.BUFFERING) {
 					_show(_elements.timeSliderProgress);
@@ -1088,8 +1108,7 @@
 				_currentDuration = event.duration;
 			}
 			var progress = (_currentPosition === _currentDuration === 0) ? 0 : _currentPosition / _currentDuration;
-			var railRect = _elements.timeSliderRail.getBoundingClientRect();
-			var progressWidth = isNaN(Math.round(railRect.width * progress)) ? 0 : Math.round(railRect.width * progress);
+			var progressWidth = isNaN(Math.round(_positions.timeSliderRail.width * progress)) ? 0 : Math.round(_positions.timeSliderRail.width * progress);
 			var thumbPosition = progressWidth;
 			
 			_elements.timeSliderProgress.style.width = progressWidth + "px";
@@ -1175,6 +1194,7 @@
 			}
 			_css(_wrapper, controlbarcss);
 			_css(_elements.elements, elementcss);
+			_updatePositions();
 			return controlbarcss;
 		}
 		
@@ -1204,6 +1224,7 @@
 		function _setup() {
 			_buildBase();
 			_buildElements();
+			_updatePositions();
 			_ready = true;
 			_addListeners();
 			_init();
@@ -1738,11 +1759,9 @@
 			});
 			if (_api.skin.getSkinElement("display", newIcon + "Over") !== undefined) {
 				_display.display_icon.onmouseover = function(evt) {
-					evt.stopPropagation();
 					_display.display_icon.style.backgroundImage = ["url(", _api.skin.getSkinElement("display", newIcon + "Over").src, ")"].join("");
 				};
 				_display.display_icon.onmouseout = function(evt) {
-					evt.stopPropagation();
 					_display.display_icon.style.backgroundImage = ["url(", _api.skin.getSkinElement("display", newIcon).src, ")"].join("");
 				};
 			} else {
@@ -1765,7 +1784,9 @@
 		}
 		
 		function _stateHandler(evt) {
-			if (typeof evt.newstate != "undefined" && _error) {
+			if ((evt.type == jwplayer.api.events.JWPLAYER_PLAYER_STATE ||
+			evt.type == jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM) &&
+			_error) {
 				_error = false;
 				_hide(_display.display_text);
 			}
@@ -2184,6 +2205,9 @@
 			if (_stopped) {
 				newstate = jwplayer.api.events.state.IDLE;
 			}
+			if (newstate == jwplayer.api.events.state.PAUSED && _state == jwplayer.api.events.state.IDLE) {
+				return;
+			}
 			if (_state != newstate) {
 				var oldstate = _state;
 				_model.state = newstate;
@@ -2199,7 +2223,6 @@
 						_container.style.display = 'none';
 					}
 				}
-				
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYER_STATE, {
 					oldstate: oldstate,
 					newstate: newstate
@@ -2408,10 +2431,10 @@
 		
 		/** Stop playback and loading of the video. **/
 		function _stop() {
-			_stopped = true;
 			_container.pause();
 			_clearInterval();
 			_model.position = 0;
+			_stopped = true;
 			_setState(jwplayer.api.events.state.IDLE);
 		}
 		
@@ -2589,7 +2612,7 @@
 			object.style.left = _container.style.left;
 			object.style.width = document.getElementById(model.id).style.width;
 			object.style.height = document.getElementById(model.id).style.height;
-			object.style.zIndex = _container.style.zIndex;
+			object.style.zIndex = 2147483000;
 			_container.parentNode.replaceChild(object, _container);
 			object.id = _container.id;
 			_container = object;
