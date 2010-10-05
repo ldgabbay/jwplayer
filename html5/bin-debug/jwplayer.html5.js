@@ -452,12 +452,16 @@
 		this.resize = _resize;
 		
 		this.fullscreen = function(state) {
-			if (_model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
-				if (state) {
-					_model.fullscreen = false;
-					_model.getMedia().getDisplayElement().webkitEnterFullscreen();
+			if (navigator.vendor.indexOf("Apple") === 0) {
+				if (_model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
+					if (state) {
+						_model.fullscreen = false;
+						_model.getMedia().getDisplayElement().webkitEnterFullscreen();
+					} else {
+						_model.getMedia().getDisplayElement().webkitExitFullscreen();
+					}
 				} else {
-					_model.getMedia().getDisplayElement().webkitExitFullscreen();
+					_model.fullscreen = false;
 				}
 			} else {
 				if (state) {
