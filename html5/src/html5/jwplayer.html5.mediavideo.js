@@ -100,7 +100,7 @@
 						_sendComplete = true;
 					}
 					
-					if (_container.style.display != 'none') {
+					if (_container.style.display != 'none' && !_model.config.chromeless) {
 						_container.style.display = 'none';
 					}
 				}
