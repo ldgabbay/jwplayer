@@ -30,13 +30,18 @@
 				_defaults.prefix += version + "/";
 			}
 		}
+		
+		if (logoConfig.position == jwplayer.html5.view.positions.OVER){
+			logoConfig.position = _defaults.position;
+		}
+		
 		var _settings = jwplayer.utils.extend({}, _defaults, logoConfig);
 		
 		var _logo = document.createElement("img");
 		_logo.id = _api.id + "_jwplayer_logo";
-		_css(_logo, _getStyle());
 		
 		_logo.onload = function(evt) {
+			_css(_logo, _getStyle());
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 		};
 		
