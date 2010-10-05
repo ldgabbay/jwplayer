@@ -253,9 +253,6 @@
 				_stop();
 				_model.loadPlaylist(arg);
 				_itemUpdated = true;
-				//_model.getMedia().load(_model.playlist[_model.item]);
-				//_item(_model.item);
-				//_model.setActiveMediaProvider(_model.playlist[_model.item]);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);

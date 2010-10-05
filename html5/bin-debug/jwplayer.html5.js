@@ -1494,9 +1494,6 @@
 				_stop();
 				_model.loadPlaylist(arg);
 				_itemUpdated = true;
-				//_model.getMedia().load(_model.playlist[_model.item]);
-				//_item(_model.item);
-				//_model.setActiveMediaProvider(_model.playlist[_model.item]);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -2497,13 +2494,15 @@
 			_bufferFull = false;
 			_bufferingComplete = false;
 			_start = false;
-			_bufferTimes = [];
-			_addBufferEvent();
-			_setState(jwplayer.api.events.state.BUFFERING);
-			
-			setTimeout(function() {
-				_positionHandler();
-			}, 25);
+			if (_model.config.chromeless) {
+				_bufferTimes = [];
+				_addBufferEvent();
+				_setState(jwplayer.api.events.state.BUFFERING);
+				
+				setTimeout(function() {
+					_positionHandler();
+				}, 25);
+			}
 		};
 		
 		function _addBufferEvent() {
@@ -2812,7 +2811,7 @@
 			_media = new jwplayer.html5.mediavideo(_model, _container);
 			_media.addGlobalListener(forward);
 			if (_model.config.chromeless) {
-				_media.embed(playlistItem);
+				_media.load(playlistItem);
 			}
 			return true;
 		};

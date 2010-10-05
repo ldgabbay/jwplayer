@@ -374,13 +374,15 @@
 			_bufferFull = false;
 			_bufferingComplete = false;
 			_start = false;
-			_bufferTimes = [];
-			_addBufferEvent();
-			_setState(jwplayer.api.events.state.BUFFERING);
-			
-			setTimeout(function() {
-				_positionHandler();
-			}, 25);
+			if (_model.config.chromeless) {
+				_bufferTimes = [];
+				_addBufferEvent();
+				_setState(jwplayer.api.events.state.BUFFERING);
+				
+				setTimeout(function() {
+					_positionHandler();
+				}, 25);
+			}
 		};
 		
 		function _addBufferEvent() {

@@ -182,7 +182,7 @@
 			_media = new jwplayer.html5.mediavideo(_model, _container);
 			_media.addGlobalListener(forward);
 			if (_model.config.chromeless) {
-				_media.embed(playlistItem);
+				_media.load(playlistItem);
 			}
 			return true;
 		};
