@@ -165,9 +165,15 @@
 		};
 		
 		function _updatePositions() {
-			_positions.timeSliderRail = _elements.timeSliderRail.getBoundingClientRect();
-			_positions.volumeSliderRail = _elements.volumeSliderRail.getBoundingClientRect();
+			var positionElements = ["timeSlider", "volumeSlider", "timeSliderRail", "volumeSliderRail"];
+			for (var positionElement in positionElements) {
+				var elementName = positionElements[positionElement];
+				if (typeof _elements[elementName] != "undefined") {
+					_positions[elementName] = _elements[elementName].getBoundingClientRect();
+				}
+			}
 		}
+		
 		
 		function _setVisiblity() {
 			jwplayer.html5.utils.cancelAnimation(_wrapper);

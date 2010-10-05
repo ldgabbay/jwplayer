@@ -67,7 +67,6 @@
 	/** Logger **/
 	jwplayer.html5.utils.log = function(msg, obj) {
 		if (obj) {
-			obj.message = msg;
 			console.log(msg, obj);
 		} else {
 			console.log(msg);

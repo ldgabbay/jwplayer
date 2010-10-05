@@ -305,8 +305,11 @@
 		
 		/** Seek to a position in the video. **/
 		this.seek = function(position) {
-			_container.currentTime = position;
-			_container.play();
+			if (!(_model.duration === 0 || isNaN(_model.duration)) &&
+			!(_model.position === 0 || isNaN(_model.position))) {
+				_container.currentTime = position;
+				_container.play();
+			}
 		};
 		
 		

@@ -88,7 +88,6 @@
 	/** Logger **/
 	jwplayer.html5.utils.log = function(msg, obj) {
 		if (obj) {
-			obj.message = msg;
 			console.log(msg, obj);
 		} else {
 			console.log(msg);
@@ -680,9 +679,15 @@
 		};
 		
 		function _updatePositions() {
-			_positions.timeSliderRail = _elements.timeSliderRail.getBoundingClientRect();
-			_positions.volumeSliderRail = _elements.volumeSliderRail.getBoundingClientRect();
+			var positionElements = ["timeSlider", "volumeSlider", "timeSliderRail", "volumeSliderRail"];
+			for (var positionElement in positionElements) {
+				var elementName = positionElements[positionElement];
+				if (typeof _elements[elementName] != "undefined") {
+					_positions[elementName] = _elements[elementName].getBoundingClientRect();
+				}
+			}
 		}
+		
 		
 		function _setVisiblity() {
 			jwplayer.html5.utils.cancelAnimation(_wrapper);
@@ -2425,8 +2430,11 @@
 		
 		/** Seek to a position in the video. **/
 		this.seek = function(position) {
-			_container.currentTime = position;
-			_container.play();
+			if (!(_model.duration === 0 || isNaN(_model.duration)) &&
+			!(_model.position === 0 || isNaN(_model.position))) {
+				_container.currentTime = position;
+				_container.play();
+			}
 		};
 		
 		
@@ -3168,12 +3176,12 @@
 	};
 	
 	jwplayer.html5.utils.cancelAnimation = function(domelement) {
-		delete _animations[domelement];
+		delete _animations[domelement.id];
 	};
 	
 	jwplayer.html5.utils.fadeTo = function(domelement, endAlpha, time, startAlpha, delay, startTime) {
 		// Interrupting
-		if (_animations[domelement] != startTime && startTime !== undefined) {
+		if (_animations[domelement.id] != startTime && startTime !== undefined) {
 			return;
 		}
 		var currentTime = new Date().getTime();
@@ -3194,7 +3202,7 @@
 		}
 		if (startTime === undefined) {
 			startTime = currentTime;
-			_animations[domelement] = startTime;
+			_animations[domelement.id] = startTime;
 		}
 		if (delay === undefined) {
 			delay = 0;
@@ -3210,8 +3218,8 @@
 		}
 		domelement.style.opacity = alpha;
 		if (delay > 0) {
-			_animations[domelement] = startTime + delay * 1000;
-			jwplayer.html5.utils.fadeTo(domelement, endAlpha, time, startAlpha, 0, _animations[domelement]);
+			_animations[domelement.id] = startTime + delay * 1000;
+			jwplayer.html5.utils.fadeTo(domelement, endAlpha, time, startAlpha, 0, _animations[domelement.id]);
 			return;
 		}
 		setTimeout(function() {

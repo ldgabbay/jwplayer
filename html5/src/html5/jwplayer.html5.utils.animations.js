@@ -27,12 +27,12 @@
 	};
 	
 	jwplayer.html5.utils.cancelAnimation = function(domelement) {
-		delete _animations[domelement];
+		delete _animations[domelement.id];
 	};
 	
 	jwplayer.html5.utils.fadeTo = function(domelement, endAlpha, time, startAlpha, delay, startTime) {
 		// Interrupting
-		if (_animations[domelement] != startTime && startTime !== undefined) {
+		if (_animations[domelement.id] != startTime && startTime !== undefined) {
 			return;
 		}
 		var currentTime = new Date().getTime();
@@ -53,7 +53,7 @@
 		}
 		if (startTime === undefined) {
 			startTime = currentTime;
-			_animations[domelement] = startTime;
+			_animations[domelement.id] = startTime;
 		}
 		if (delay === undefined) {
 			delay = 0;
@@ -69,8 +69,8 @@
 		}
 		domelement.style.opacity = alpha;
 		if (delay > 0) {
-			_animations[domelement] = startTime + delay * 1000;
-			jwplayer.html5.utils.fadeTo(domelement, endAlpha, time, startAlpha, 0, _animations[domelement]);
+			_animations[domelement.id] = startTime + delay * 1000;
+			jwplayer.html5.utils.fadeTo(domelement, endAlpha, time, startAlpha, 0, _animations[domelement.id]);
 			return;
 		}
 		setTimeout(function() {
