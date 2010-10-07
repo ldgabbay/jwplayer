@@ -66,12 +66,13 @@
 	
 	/** Logger **/
 	jwplayer.html5.utils.log = function(msg, obj) {
-		if (obj) {
-			console.log(msg, obj);
-		} else {
-			console.log(msg);
+		if (typeof console != "undefined") {
+			if (obj) {
+				console.log(msg, obj);
+			} else {
+				console.log(msg);
+			}
 		}
-		return this;
 	};
 	
 	jwplayer.html5.utils.css = function(domelement, styles, debug) {

@@ -67,9 +67,15 @@
 		var pluginorder = _components.concat([]);
 		
 		if (_model.plugins !== undefined) {
-			var userplugins = _model.plugins.split(",");
-			for (var userplugin in userplugins) {
-				pluginorder.push(userplugin.replace(/^\s+|\s+$/g, ""));
+			if (typeof _model.plugins == "string") {
+				var userplugins = _model.plugins.split(",");
+				for (var userplugin in userplugins) {
+					pluginorder.push(userplugin.replace(/^\s+|\s+$/g, ""));
+				}
+			} else {
+				for (var plugin in _model.plugins) {
+					pluginorder.push(plugin.replace(/^\s+|\s+$/g, ""));
+				}
 			}
 		}
 		
@@ -192,12 +198,19 @@
 		
 		_model.setupPlugins = function() {
 			for (var plugin in _model.plugins.order) {
-				if (jwplayer.html5[_model.plugins.order[plugin]] !== undefined) {
-					_model.plugins.object[_model.plugins.order[plugin]] = new jwplayer.html5[_model.plugins.order[plugin]](_api, _model.plugins.config[_model.plugins.order[plugin]]);
-				} else {
-					_model.plugins.object[_model.plugins.order[plugin]] = new window[_model.plugins.order[plugin]](_api, _model.plugins.config[_model.plugins.order[plugin]]);
+				try {
+					if (jwplayer.html5[_model.plugins.order[plugin]] !== undefined) {
+						_model.plugins.object[_model.plugins.order[plugin]] = new jwplayer.html5[_model.plugins.order[plugin]](_api, _model.plugins.config[_model.plugins.order[plugin]]);
+					} else if (window[_model.plugins.order[plugin]] !== undefined) {
+						_model.plugins.object[_model.plugins.order[plugin]] = new window[_model.plugins.order[plugin]](_api, _model.plugins.config[_model.plugins.order[plugin]]);
+					} else {
+						_model.plugins.order.splice(plugin, plugin+1);
+					}
+				} catch (err) {
+					jwplayer.html5.utils.log("Could not setup " + _model.plugins.order[plugin]);
 				}
 			}
+			
 		};
 		
 		return _model;

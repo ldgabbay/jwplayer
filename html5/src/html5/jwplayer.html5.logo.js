@@ -37,6 +37,10 @@
 		
 		var _settings = jwplayer.utils.extend({}, _defaults, logoConfig);
 		
+		if (!_settings.file){
+			return;
+		}
+		
 		var _logo = document.createElement("img");
 		_logo.id = _api.id + "_jwplayer_logo";
 		
