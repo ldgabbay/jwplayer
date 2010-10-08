@@ -66,7 +66,7 @@
 	
 	/** Logger **/
 	jwplayer.html5.utils.log = function(msg, obj) {
-		if (typeof console != "undefined") {
+		if (typeof console != "undefined" && typeof console.log != "undefined") {
 			if (obj) {
 				console.log(msg, obj);
 			} else {

@@ -231,9 +231,9 @@
 		}
 		
 		function _errorHandler(event) {
-			_stop();
 			var message = "There was an error: ";
-			if (event.target.error || event.target.parentNode.error) {
+			if ((event.target.error && event.target.tagName.toLowerCase() == "video") ||
+			event.target.parentNode.error && event.target.parentNode.tagName.toLowerCase() == "video") {
 				var element = event.target.error === undefined ? event.target.parentNode.error : event.target.error;
 				switch (element.code) {
 					case element.MEDIA_ERR_ABORTED:
@@ -258,8 +258,11 @@
 					return;
 				}
 				message = "The video could not be loaded, either because the server or network failed or because the format is not supported: ";
+			} else {
+				jwplayer.html5.utils.log("Erroneous error received. Continuing...");
+				return;
 			}
-			
+			_stop();
 			message += joinFiles();
 			_error = true;
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {

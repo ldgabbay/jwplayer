@@ -87,7 +87,7 @@
 	
 	/** Logger **/
 	jwplayer.html5.utils.log = function(msg, obj) {
-		if (typeof console != "undefined") {
+		if (typeof console != "undefined" && typeof console.log != "undefined") {
 			if (obj) {
 				console.log(msg, obj);
 			} else {
@@ -1341,7 +1341,7 @@
 		/** Stop playback and loading of the video. **/
 		function _stop() {
 			try {
-				if (_model.playlist[0].levels[0].file.length > 0) {
+				if (_model.playlist[0].levels[0].file.length > 0 && _model.state != jwplayer.api.events.state.IDLE) {
 					_model.getMedia().stop();
 				}
 				return true;
@@ -1647,7 +1647,7 @@
 			},
 			display_image: {
 				style: {
-					display: "block",
+					display: "none",
 					width: _width,
 					height: _height,
 					position: "absolute",
@@ -1685,6 +1685,9 @@
 			_display.display_text = createElement("div", "display_text");
 			_display.display.appendChild(_display.display_text);
 			_display.display_image = createElement("img", "display_image");
+			_display.display_image.onerror = function(evt) {
+				_hide(_display.display_image)
+			};
 			_display.display_icon = createElement("div", "display_icon");
 			_display.display_iconBackground = createElement("div", "display_iconBackground");
 			_display.display.appendChild(_display.display_image);
@@ -1819,31 +1822,31 @@
 					_setDisplayIcon("playIcon");
 					break;
 				case jwplayer.api.events.state.IDLE:
-					if (_api.jwGetPlaylist()[_api.jwGetItem()].image !== "") {
+					if (_api.jwGetPlaylist()[_api.jwGetItem()].image) {
 						_css(_display.display_image, {
 							display: "block"
 						});
 						_display.display_image.src = jwplayer.html5.utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
 					} else {
-						_display.display_image.src = "";
 						_css(_display.display_image, {
 							display: "none"
 						});
+						_display.display_image.src = "";
 					}
 					_setDisplayIcon("playIcon");
 					break;
 				default:
 					if (_api.jwGetMute()) {
-						_display.display_image.src = "";
 						_css(_display.display_image, {
 							display: "none"
 						});
+						_display.display_image.src = "";
 						_setDisplayIcon("muteIcon");
 					} else {
-						_display.display_image.src = "";
 						_css(_display.display_image, {
 							display: "none"
 						});
+						_display.display_image.src = "";
 						_hide(_display.display_iconBackground);
 						_hide(_display.display_icon);
 					}
@@ -2064,6 +2067,7 @@
 		
 		var _logo = document.createElement("img");
 		_logo.id = _api.id + "_jwplayer_logo";
+		_logo.style.display = "none";
 		
 		_logo.onload = function(evt) {
 			_css(_logo, _getStyle());
@@ -2383,9 +2387,9 @@
 		}
 		
 		function _errorHandler(event) {
-			_stop();
 			var message = "There was an error: ";
-			if (event.target.error || event.target.parentNode.error) {
+			if ((event.target.error && event.target.tagName.toLowerCase() == "video") ||
+			event.target.parentNode.error && event.target.parentNode.tagName.toLowerCase() == "video") {
 				var element = event.target.error === undefined ? event.target.parentNode.error : event.target.error;
 				switch (element.code) {
 					case element.MEDIA_ERR_ABORTED:
@@ -2410,8 +2414,11 @@
 					return;
 				}
 				message = "The video could not be loaded, either because the server or network failed or because the format is not supported: ";
+			} else {
+				jwplayer.html5.utils.log("Erroneous error received. Continuing...");
+				return;
 			}
-			
+			_stop();
 			message += joinFiles();
 			_error = true;
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {

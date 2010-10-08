@@ -1,0 +1,22 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>FF Bug</title>
+    </head>
+    <body>
+        <h1>FF Stop</h1>
+        <p>
+            This page contains a player with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
+        </p>
+        <video controls id="player">
+            <source src="http://content.bitsontherun.com/videos/guYqV1AB-604476.ogv" type="video/ogg">
+        </video>
+        <script type="text/javascript">
+            document.getElementById("player").addEventListener("error", function(evt) {
+            	console.log(evt);
+				//alert("There was an error");
+            }, true);
+        </script>
+        <h3>HTML code</h3>
+    </body>
+</html>

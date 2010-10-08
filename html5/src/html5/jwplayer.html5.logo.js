@@ -43,6 +43,7 @@
 		
 		var _logo = document.createElement("img");
 		_logo.id = _api.id + "_jwplayer_logo";
+		_logo.style.display = "none";
 		
 		_logo.onload = function(evt) {
 			_css(_logo, _getStyle());

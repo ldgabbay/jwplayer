@@ -67,7 +67,7 @@
 			},
 			display_image: {
 				style: {
-					display: "block",
+					display: "none",
 					width: _width,
 					height: _height,
 					position: "absolute",
@@ -105,6 +105,9 @@
 			_display.display_text = createElement("div", "display_text");
 			_display.display.appendChild(_display.display_text);
 			_display.display_image = createElement("img", "display_image");
+			_display.display_image.onerror = function(evt) {
+				_hide(_display.display_image);
+			};
 			_display.display_icon = createElement("div", "display_icon");
 			_display.display_iconBackground = createElement("div", "display_iconBackground");
 			_display.display.appendChild(_display.display_image);
@@ -239,31 +242,31 @@
 					_setDisplayIcon("playIcon");
 					break;
 				case jwplayer.api.events.state.IDLE:
-					if (_api.jwGetPlaylist()[_api.jwGetItem()].image !== "") {
+					if (_api.jwGetPlaylist()[_api.jwGetItem()].image) {
 						_css(_display.display_image, {
 							display: "block"
 						});
 						_display.display_image.src = jwplayer.html5.utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
 					} else {
-						_display.display_image.src = "";
 						_css(_display.display_image, {
 							display: "none"
 						});
+						_display.display_image.src = "";
 					}
 					_setDisplayIcon("playIcon");
 					break;
 				default:
 					if (_api.jwGetMute()) {
-						_display.display_image.src = "";
 						_css(_display.display_image, {
 							display: "none"
 						});
+						_display.display_image.src = "";
 						_setDisplayIcon("muteIcon");
 					} else {
-						_display.display_image.src = "";
 						_css(_display.display_image, {
 							display: "none"
 						});
+						_display.display_image.src = "";
 						_hide(_display.display_iconBackground);
 						_hide(_display.display_icon);
 					}

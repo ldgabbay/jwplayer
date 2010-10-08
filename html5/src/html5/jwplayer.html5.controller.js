@@ -94,7 +94,7 @@
 		/** Stop playback and loading of the video. **/
 		function _stop() {
 			try {
-				if (_model.playlist[0].levels[0].file.length > 0) {
+				if (_model.playlist[0].levels[0].file.length > 0 && _model.state != jwplayer.api.events.state.IDLE) {
 					_model.getMedia().stop();
 				}
 				return true;
