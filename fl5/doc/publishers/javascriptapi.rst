@@ -445,7 +445,7 @@ And here's the full event list:
 
     Fired when the player has finished playing the current media. No event attributes.
 
-.. describe:: onPosition(callback)
+.. describe:: onTime(callback)
 
     When the player is playing, fired as the playback position gets updated. This happens with a resolution of 0.1 second, so there's a lot of events! Event attributes:
 
