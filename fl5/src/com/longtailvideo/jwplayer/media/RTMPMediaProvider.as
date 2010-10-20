@@ -619,7 +619,7 @@ package com.longtailvideo.jwplayer.media {
 					stop();
 					break;
 				case 'NetConnection.Connect.Failed':
-					if(evt.target == _connections[1]) {
+					if(_connection == -1 && evt.target == _connections[1]) {
 						stop();
 						sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: "Server not found: " + item.streamer});
 					}
