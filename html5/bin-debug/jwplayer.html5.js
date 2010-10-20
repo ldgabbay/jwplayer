@@ -43,13 +43,19 @@
 		if (isAbsolutePath(path)) {
 			return path;
 		}
-		var protocol = document.location.href.substr(0, document.location.href.indexOf("://") + 3);
-		var basepath = document.location.href.split("?")[0];
-		basepath = basepath.substring(protocol.length, (path.indexOf("/") === 0) ? basepath.indexOf('/', protocol.length) : basepath.lastIndexOf('/'));
-		var patharray = (basepath + "/" + path).split("/");
+		var protocol = document.location.href.substring(0, document.location.href.indexOf("://") + 3);
+		var domain = document.location.href.substring(protocol.length, document.location.href.indexOf('/', protocol.length + 1));
+		var patharray;
+		if (path.indexOf("/") === 0) {
+			patharray = path.split("/");
+		} else {
+			var basepath = document.location.href.split("?")[0];
+			basepath = basepath.substring(protocol.length + domain.length + 1, basepath.lastIndexOf('/'));
+			patharray = basepath.split("/").concat(path.split("/"));
+		}
 		var result = [];
 		for (var i = 0; i < patharray.length; i++) {
-			if (patharray[i] === undefined || patharray[i] == ".") {
+			if (!patharray[i] || patharray[i] === undefined || patharray[i] == ".") {
 				continue;
 			} else if (patharray[i] == "..") {
 				result.pop();
@@ -57,7 +63,7 @@
 				result.push(patharray[i]);
 			}
 		}
-		return protocol + result.join("/");
+		return protocol + domain + "/" + result.join("/");
 	};
 	
 	function isAbsolutePath(path) {
@@ -1686,7 +1692,7 @@
 			_display.display.appendChild(_display.display_text);
 			_display.display_image = createElement("img", "display_image");
 			_display.display_image.onerror = function(evt) {
-				_hide(_display.display_image)
+				_hide(_display.display_image);
 			};
 			_display.display_icon = createElement("div", "display_icon");
 			_display.display_iconBackground = createElement("div", "display_iconBackground");
@@ -1831,7 +1837,7 @@
 						_css(_display.display_image, {
 							display: "none"
 						});
-						_display.display_image.src = "";
+						delete _display.display_image.src;
 					}
 					_setDisplayIcon("playIcon");
 					break;
@@ -1840,13 +1846,13 @@
 						_css(_display.display_image, {
 							display: "none"
 						});
-						_display.display_image.src = "";
+						delete _display.display_image.src;
 						_setDisplayIcon("muteIcon");
 					} else {
 						_css(_display.display_image, {
 							display: "none"
 						});
-						_display.display_image.src = "";
+						delete _display.display_image.src;
 						_hide(_display.display_iconBackground);
 						_hide(_display.display_icon);
 					}

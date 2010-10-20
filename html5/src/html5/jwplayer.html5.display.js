@@ -251,7 +251,7 @@
 						_css(_display.display_image, {
 							display: "none"
 						});
-						_display.display_image.src = "";
+						delete _display.display_image.src;
 					}
 					_setDisplayIcon("playIcon");
 					break;
@@ -260,13 +260,13 @@
 						_css(_display.display_image, {
 							display: "none"
 						});
-						_display.display_image.src = "";
+						delete _display.display_image.src;
 						_setDisplayIcon("muteIcon");
 					} else {
 						_css(_display.display_image, {
 							display: "none"
 						});
-						_display.display_image.src = "";
+						delete _display.display_image.src;
 						_hide(_display.display_iconBackground);
 						_hide(_display.display_icon);
 					}
