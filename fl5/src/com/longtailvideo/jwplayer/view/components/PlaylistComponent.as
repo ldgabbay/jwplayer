@@ -555,7 +555,7 @@ package com.longtailvideo.jwplayer.view.components {
 			var tags:TextField = btn.getChildByName("tags") as TextField;
 			if (playlistItem.image || playlistItem['playlist.image']) {
 				var imageFile:String = playlistItem['playlist.image'] ? playlistItem['playlist.image'] : playlistItem.image;
-				if (getConfigParam('thumbs') != false && _player.config.playlist != 'none' && buttonheight > 39 && getConfigParam("width") > 239) {
+				if (getConfigParam('thumbs') != false && _player.config.playlist != 'none') {
 					var img:Sprite = btn.getChildByName("image") as Sprite;
 					if (img) {
 						img.alpha = 0;
@@ -610,7 +610,7 @@ package com.longtailvideo.jwplayer.view.components {
 			} catch (e:Error) {
 			}
 			img = btn.getChildByName("image") as MovieClip;
-			if (img && (!(playlistItem.image || playlistItem['playlist.image']) || getConfigParam('thumbs') == false || buttonheight < 40 || getConfigParam("width") < 240)) {
+			if (img && (!(playlistItem.image || playlistItem['playlist.image']) || getConfigParam('thumbs') == false)) {
 				if (!img.getChildByName("imageBackground")) {
 					btn.getChildByName("image").visible = false;
 				}
