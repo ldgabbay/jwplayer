@@ -27,15 +27,16 @@
 			</p>
         </video>
         <script type="text/javascript">
-            jwplayer("player").setup( {
-            	players: [{
-            		type: "html5"
-            	}, {
-            		type: "flash",
-            		src: "../../../fl5/player.swf"
-            	}]
-            
-            });
+            setTimeout(function() {
+            	jwplayer("player").setup({
+            		players: [{
+            			type: "html5"
+            		}, {
+            			type: "flash",
+            			src: "../../../fl5/player.swf"
+            		}]
+            	});
+            }, 1000);
         </script>
         <h3>HTML code</h3>
     </body>

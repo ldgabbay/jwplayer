@@ -8,34 +8,35 @@
         </script>
     </head>
     <body>
-       <h1>Root file paths</h1>
+        <h1>Root file paths</h1>
         <p>
             This page sets up a players to test referencing files via a root path. You should open Charles and confirm that you do not see any duplicate requests for resources, and that no resources have //, ./, or ../ in their path.
         </p>
         <p>
             It parses a &lt;video&gt; tag and sets up a player in it's place for IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
         </p>
-		<h2>Root referenced</h2>
-		<p>
-			This references files based on an absoute path, vis-a-vis "/videos/video.mp4"
-		</p>
-		<video height="270" id="player" poster="/player/trunk/js/test/files/bunny.png" width="480">
+        <h2>Root referenced</h2>
+        <p>
+            This references files based on an absoute path, vis-a-vis "/videos/video.mp4"
+        </p>
+        <video height="270" id="player" poster="/player/trunk/js/test/files/bunny.png" width="480">
             <source src="/player/trunk/js/test/files/bunny.mp4" type="video/mp4" />
 			<source src="/player/trunk/js/test/files/bunny.ogv" type="video/ogg" />
-			<p>
-				HTML5 Player should replace this.
-			</p>
+            <p>
+                HTML5 Player should replace this.
+            </p>
         </video>
         <script type="text/javascript">
-            jwplayer("player").setup( {
-            	players: [{
-            		type: "html5"
-            	}, {
-            		type: "flash",
-            		src: "../../../fl5/player.swf"
-            	}]
-            
-            });
+            setTimeout(function() {
+            	jwplayer("player").setup({
+            		players: [{
+            			type: "html5"
+            		}, {
+            			type: "flash",
+            			src: "../../../fl5/player.swf"
+            		}]
+            	});
+            }, 1000);
         </script>
         <h3>HTML code</h3>
     </body>
