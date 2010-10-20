@@ -606,8 +606,9 @@ Playlist XML Syntax
          <setting name="backgroundcolor" value="0x000000"/>
          <setting name="font" value="_sans" />
          <setting name="fontsize" value="12" />
-         <setting name="fontweight" value="normal" />
          <setting name="fontstyle" value="normal" />
+         <setting name="fontweight" value="normal" />
+         <setting name="thumbs" value="tru" />
       </settings>
    
       <elements>
@@ -661,6 +662,10 @@ Here is a list of the settings that can be placed in the playlist's **<settings>
    
    Can be used to set the font weight for the playlist's text fields (*normal*, *bold*)
 
+
+.. describe:: thumbs (true)
+   
+   Whether to show image thumbnails in the playlist (*true*, *false*). Set this *false* if you have e.g. narrow or shallow playlistitems.
 
 Playlist elements
 ^^^^^^^^^^^^^^^^^
