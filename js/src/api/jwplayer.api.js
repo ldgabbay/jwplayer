@@ -48,6 +48,7 @@
 		var _originalHTML = container.outerHTML;
 		
 		var _itemMeta = {};
+		var _currentItem = 0;
 		
 		/** Use this function to set the internal low-level player.  This is a javascript object which contains the low-level API calls. **/
 		this.setPlayer = function(player) {
@@ -109,8 +110,13 @@
 		function translateEventResponse(type, eventProperties) {
 			var translated = jwplayer.utils.extend({}, eventProperties);
 			if (type == jwplayer.api.events.JWPLAYER_FULLSCREEN) {
-				translated['fullscreen'] = translated['message'];
-				delete translated['message'];
+				translated.fullscreen = translated.message;
+				delete translated.message;
+			} else if (type == jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM) {
+				if (translated.item && translated.index === undefined) {
+					translated.index = translated.item;
+					delete translated.item;
+				}
 			} else if (typeof translated['data'] == "object") {
 				// Takes ViewEvent "data" block and moves it up a level
 				translated = jwplayer.utils.extend(translated, translated['data']);
@@ -147,6 +153,14 @@
 			}
 
 			this.eventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, function(data) {
+				if (data.index !== undefined) {
+					// Flash player item event
+					_currentItem = data.index;
+				} else if (data.item !== undefined) {
+					// HTML5 player item event
+					_currentItem = data.item;
+				}
+				// TODO: reconcile API discrepancies
 				_itemMeta = {};
 			});
 			
@@ -164,6 +178,10 @@
 		
 		this.getItemMeta = function() {
 			return _itemMeta;
+		};
+
+		this.getCurrentItem = function() {
+			return _currentItem;
 		};
 		
 		this.destroy = function() {
@@ -202,9 +220,17 @@
 		getLockState: function() { return this.callInternal('jwGetLockState'); },
 		getMeta: function() { return this.getItemMeta(); },
 		getMute: function() { return this.callInternal('jwGetMute'); },
-		getPlaylist: function() { return this.callInternal('jwGetPlaylist'); },
+		getPlaylist: function() { 
+			var playlist = this.callInternal('jwGetPlaylist');
+			for (var i=0; i<playlist.length; i++) {
+				if (playlist[i].index === undefined) {
+					playlist[i].index = i;
+				}
+			}
+			return  playlist;
+		},
 		getPlaylistItem: function(item) {
-			if (item == undefined) item = 0;
+			if (item == undefined) item = this.getCurrentItem();
 			return this.getPlaylist()[item]; 
 		},
 		getPosition: function() { return this.callInternal('jwGetPosition'); },

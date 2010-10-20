@@ -66,7 +66,7 @@
 					}
 					break;
 				case 'html5':
-					if (jwplayer.utils.hasHTML5()) {
+					if (jwplayer.utils.hasHTML5(this.config)) {
 						var html5player = jwplayer.embed.embedHTML5(document.getElementById(this.api.id), player, this.config);
 						this.api.container = document.getElementById(this.api.id);
 						this.api.setPlayer(html5player);
@@ -100,7 +100,7 @@
 				} else if (loadParams.levels) {
 					var item = this.getPlaylistItem(0);
 					if (!item) {
-						item = { file: loadParams.levels[0].file, provider:'video' };
+						item = { file: loadParams.levels[0].file, provider:(loadParams.provider ? loadParams.provider : "video") };
 					}
 					if (!item.image) {
 						item.image = loadParams.image;
@@ -171,6 +171,7 @@
 			html += '<param name="movie" value="' + _player.src + '">';
 			html += '<param name="allowfullscreen" value="true">';
 			html += '<param name="allowscriptaccess" value="always">';
+			html += '<param name="wmode" value="opaque">';
 			html += '<param name="flashvars" value="' + jwplayer.embed
 					.jsonToFlashvars(params) + '">';
 			html += '</object>';
@@ -190,6 +191,7 @@
 			obj.setAttribute('name', _container.id);
 			jwplayer.embed.appendAttribute(obj, 'allowfullscreen', 'true');
 			jwplayer.embed.appendAttribute(obj, 'allowscriptaccess', 'always');
+			jwplayer.embed.appendAttribute(obj, 'wmode', 'opaque');
 			jwplayer.embed.appendAttribute(obj, 'flashvars', jwplayer.embed
 					.jsonToFlashvars(params));
 			_container.parentNode.replaceChild(obj, _container);

@@ -118,6 +118,7 @@ jwplayer.utils.isIE = function() {
 	return (!+"\v1");
 };
 
+
 /**
  * Detects whether the current browser is mobile Safari.
  **/
@@ -129,10 +130,51 @@ jwplayer.utils.isIOS = function() {
 /**
  * Detects whether the browser can handle HTML5 video.
  * Using this as a proxy for detecting all HTML5 features needed for the JW HTML5 Player.  Do we need more granularity?
+ * 
+ * @param config (optional) If set, check to see if the first playable item 
  */
-jwplayer.utils.hasHTML5 = function() {
-	return !!document.createElement('video').canPlayType;
+jwplayer.utils.hasHTML5 = function(config) {
+	var vid = document.createElement('video');
+	
+	if (!!vid.canPlayType) {
+		if (config) {
+			var item = {};
+			if (config.playlist && config.playlist.length) {
+				item.file = config.playlist[0].file;
+				item.levels = config.playlist[0].levels;
+			} else {
+				item.file = config.file;
+				item.levels = config.levels;
+			}
+			
+			if (item.file) {
+				return jwplayer.utils.vidCanPlay(vid, item.file);
+			} else if (item.levels && item.levels.length) {
+				for (var i=0; i<item.levels.length; i++) {
+					if (item.levels[i].file && jwplayer.utils.vidCanPlay(vid, item.levels[i].file)) {
+						return true;
+					}
+				}
+			}
+		} else {
+			return true;
+		}
+	}
+	
+	return false;
 };
+
+jwplayer.utils.vidCanPlay = function(video, file) {
+	var extension = jwplayer.utils.strings.extension(file);
+	if (jwplayer.utils.extensionmap[extension] !== undefined) {
+		sourceType = jwplayer.utils.extensionmap[extension];
+	} else {
+		sourceType = 'video/' + extension + ';';
+	}
+	return video.canPlayType(sourceType);
+};
+
+
 
 /**
  * Detects whether or not the current player has flash capabilities
