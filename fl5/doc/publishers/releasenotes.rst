@@ -7,6 +7,29 @@ Release Notes
 Version 5.3
 ===========
 
+Build 1397
+----------
+
+JW Embedder
++++++++++++
+
+* Embedder now fails over to Flash if the first playlist item is unplayable in HTML5
+* Fixes an issue where configuring a "levels" block would override the "providers" setting 
+* Sets the "wmode" Flash parameter to "opaque"
+* Fixes the getPlaylistItem() API call to return the currently playing item, instead of the first playlist item
+
+Flash Mode
+++++++++++
+
+* Fixed an issue which could cause RTMP streams to fail if RTMPT was disabled
+* Removed logic which disabled playlist thumbnails when the playlist was smaller than 240 pixels
+
+HTML5 Mode
+++++++++++
+
+* Fixes an issue which could add an additional slash in relative URLs for loaded files
+
+
 Build 1356
 ----------
 
@@ -42,7 +65,7 @@ A full changelog of Flash player updates can be found `here <http://developer.lo
 
 HTML5 Beta Player Integration
 +++++++++++++++++++++++++++++
-The JW Player for HTML5 Beta was originally a separate player project, but it has been merged into the primary player. The changes made to incorporate the two is listed below:
+The JW Player for HTML5 Beta was originally a separate player project, but it has been merged into the primary player. The changes made to incorporate the two are listed below:
 
 Restructuring
 ~~~~~~~~~~~~~

@@ -75,42 +75,49 @@ It's a fairly sizeable chunk of code that contains the embed *container*, *flash
 It is no problem to embed multiple players on a page. However, make sure to give each player instance a different container **id** and a different attributess **id** and **name**.
 
 
-Embed tag
----------
+Embedding Without JavaScript
+----------------------------
 
-In cases where a JavaScript embed method is not possible (e.g. if your CMS does not allow including JavaScripts), the player can be embedded using plain HTML. There are various combinations of tags for embedding a SWF player:
+In cases where a JavaScript embed method is not possible (e.g. if your CMS does not allow including JavaScripts), the player can be embedded using plain HTML. There are various combinations of tags for embedding Flash on a webpage:
 
 * A single *<embed>* tag (for IE + other browsers).
 * An *<object>* tag with nested *<embed>* tag (the first one for IE, the second for other browsers).
 * An *<object>* tag with nested *<object>* tag (the first one for IE, the second for other browsers).
 
-We recommend using the single *<embed>* tag. This works in all current-day browsers (including IE6) and provides the shortest codes. Here is an example embed code that does exactly the same as the SWFObject example above:
+We recommend using the *<object>* tag with a nested *<embed>* tag. This works in the widest array of browsers, including older browsers such as Netscape. Here is an example embed code that does exactly the same as the SWFObject example above:
 
 .. code-block:: html
 
-   <embed
-     flashvars="file=/data/bbb.mp4&autostart=true"
-     allowfullscreen="true"
-     allowscripaccess="always"
-     id="player1"
-     name="player1"
-     src="player.swf" 
-     width="480"
-     height="270"
-   />
+	<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="480" height="270" id="player1" name="player1">
+	   <param name="movie" value="/jwplayer/player.swf">
+	   <param name="allowfullscreen" value="true">
+	   <param name="allowscriptaccess" value="always">
+	   <param name="flashvars" value="file=/data/bbb.mp4&autostart=true">
+	   <embed id="player1"
+	          name="player1"
+	          src="/jwplayer/player.swf"
+	          width="480"
+	          height="270"
+	          allowscriptaccess="always"
+	          allowfullscreen="true"
+	          flashvars="file=/data/bbb.mp4&autostart=true"
+	   />
+	</object>
 
 As you can see, most of the data of the SWFObject embed is also in here:
 
-* The **container** is now the embed tag itself. The *fallback* text cannot be used anymore.
-* The **flashvars** are merged into a single string, and loaded as an attribute. You should always concatenate the flashvars using so-called querystring parameter encoding: *flashvar1=value1&flashvar2=value2&...*.
-* The **params** each are individual attributes of the embed tag.
-* The **attributes** also are individual attributes of the embed tag.
-* The **instantiation** options (source, width, height) are attributes of the embed tag. 
+* The **container** is now the id of both the object embed tags. The *fallback* text cannot be used anymore.
+* The **flashvars** are merged into a single string, and loaded as an attribute in each of the tags. You should always concatenate the flashvars using so-called querystring parameter encoding: *flashvar1=value1&flashvar2=value2&...*.
+* The **params** and **attributes** from SWFObject are individual attributes of the embed tag, and *param* tags inside of the object tag.
+* The **instantiation** options (source, width, height) are attributes of the embed and object tags. 
 
 .. note:: 
 
-   The Flash version reference is not in the embed tag: this is one of the drawbacks of this method: it's not possible to detect Flash and selectively hide it, e.g. if the flash version is not sufficient or if the device (iPad ...) doesn't support Flash.
+   The Flash version reference is not in these tags: this is one of the drawbacks of this method: it's not possible to detect Flash and selectively hide it, e.g. if the flash version is not sufficient or if the device (iPad ...) doesn't support Flash.
    
+For an interesting overview on the different embedding methods, `this article <http://www.alistapart.com/articles/flashembedcagematch/>`_ compares several methods, and provides a historical overview of the subject.  
+
+
 JW Embedder
 -----------
 
@@ -148,14 +155,14 @@ Embedding the JW Player in your website is a simple, 3-step process:
 
 When the page is loading, the JW Player is automatically instantiated on top of the *<div>*. By default, the player is rendered in Flash. If Flash is not supported (e.g. on an iPad), the player is rendered in HTML5.
 
-The *flashplayer* option (to tell the javascript where the SWF resides) is just one of many `configuration options <http://www.longtailvideo.com/support/jw-player/jw-player-for-flash-v5/12536/configuration-options>`_ available for configuring the JW Player.
+The *flashplayer* option (to tell the JavaScript where the SWF resides) is just one of many `configuration options <http://www.longtailvideo.com/support/jw-player/jw-player-for-flash-v5/12536/configuration-options>`_ available for configuring the JW Player.
 
 Here's another setup example, this time using a *<video>* tag instead of a generic div:
 
 .. code-block:: html
 
     <video 
-        file="/uploads/video.mp4" 
+        src="/uploads/video.mp4" 
         height="270" 
         id="container" 
         poster="/uploads/image.jpg"
@@ -219,7 +226,7 @@ Though generally a flat list, there are a couple of options that can be inserted
 * **playlist**: allows inline setup of a full playlist, including metadata.
 * **levels**: allows inline setup of multiple quality levels of a video, for bitrate switching purposes.
 * **plugins**: allows inline setup of `JW Player plugins <http://www.longtailvideo.com/addons/plugins/>`_, including their configuration options.
-* **events**: allows inline setup of javascripts for player events, e.g. when you want to do something when the player starts.
+* **events**: allows inline setup of JavaScripts for player events, e.g. when you want to do something when the player starts.
 * **players**: allows inline setup of a custom player fallback, e.g. HTML5 first, fallback to Flash.
 
 The sections below explain them in detail.
@@ -412,7 +419,7 @@ Here is another example, using the `sharing plugin <http://www.longtailvideo.com
 Events
 ++++++
 
-The **events** block allows you to respond on player events in javascript. It's a short, powerful way to add player - pager interactivity. Here is a swift example:
+The **events** block allows you to respond on player events in JavaScript. It's a short, powerful way to add player - pager interactivity. Here is a swift example:
 
 .. code-block:: html
     
