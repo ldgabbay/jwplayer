@@ -72,7 +72,21 @@ The following embeds will be converted to Flash if the browser can't support any
     	       {type:'flash', src:'player-5.3.swf'}
     	   ]
     	});
-    </script> 
+    </script>
+	
+	<h1>Single file YouTube</h1>
+    
+    <div id="vid3a"></div>
+    
+    <script type="text/javascript">
+    	jwplayer("vid3a").setup({
+    	   file: 'http://youtube.com/watch?v=IBTE-RoMsvw',
+    	   players: [
+    	       {type:'html5'},
+    	       {type:'flash', src:'player-5.3.swf'}
+    	   ]
+    	});
+    </script>  
 </div>
 
 <div id="column2" class="column">
@@ -204,7 +218,23 @@ The following embeds will be converted to Flash if the browser can't support any
     	       {type:'flash', src:'player-5.3.swf'}
     	   ]
     	});
-    </script> 
+    </script>
+	
+	<h1>Playlist YouTube</h1>
+    
+    <div id="pl3a"></div>
+    
+    <script type="text/javascript">
+    	jwplayer("pl3a").setup({
+    	   playlist: [
+        	   { file: 'http://youtube.com/watch?v=IBTE-RoMsvw' }
+    	   ],
+    	   players: [
+    	       {type:'html5'},
+    	       {type:'flash', src:'player-5.3.swf'}
+    	   ]
+    	});
+    </script>  
 </div>
 
 <div id="column4" class="column">

@@ -176,7 +176,7 @@ jwplayer.utils.vidCanPlay = function(video, file) {
 	} else {
 		sourceType = 'video/' + extension + ';';
 	}
-	return video.canPlayType(sourceType);
+	return (video.canPlayType(sourceType) || file.toLowerCase().indexOf("youtube.com") > -1);
 };
 
 
