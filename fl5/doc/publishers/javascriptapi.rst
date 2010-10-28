@@ -170,7 +170,7 @@ Here is a list of all the variables that can be retrieved from the player:
 
     Returns the player's current **fullscreen** state, as a boolean (*true* when fullscreen).
 
-.. describe:: getMetadata()
+.. describe:: getMeta()
 
     Returns the current PlaylistItem's **metadata**, as a javascript object. This object contains arbitrary key:value parameters, depending upon the type of player, media file and streaming provider that is used. Common metadata keys are *width*, *duration* or *videoframerate*.
 
@@ -382,7 +382,7 @@ And here's the full event list:
     
     * fullscreen: boolean. New fullscreen state.
 
-.. describe:: onMetadata(callback)
+.. describe:: onMeta(callback)
 
     Fired when new metadata has been discovered in the player. Event attributes:
 
