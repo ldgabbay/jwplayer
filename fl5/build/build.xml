@@ -25,6 +25,7 @@
 	<target name="clean-debug">
 		<delete dir="${debug.dir}">
 			<include name="*.swf" />
+			<include name="*.js" />
 		</delete>
 	</target>
 
@@ -43,6 +44,7 @@
 	<target name="clean-release">
 		<delete dir="${release.dir}">
 			<include name="player.swf"/>
+			<include name="jwplayer.min.js"/>
 		</delete>
 	</target>
 
@@ -214,6 +216,22 @@
 		</exec>
 	</target>
 
+	<target name="build-js">
+		<concat destfile="${outputpath}">
+			<fileset dir="${basedir}/js/src" includes="jwplayer.js" />
+			<fileset dir="${basedir}/js/src/utils" includes="**/*.js" excludes="jwplayer.utils.extensionmap.js" />
+			<fileset dir="${basedir}/js/src/utils" includes="jwplayer.utils.extensionmap.js" />
+			<fileset dir="${basedir}/js/src/api" includes="**/*.js" />
+			<fileset dir="${basedir}/js/src/embed" includes="**/*.js" />
+			<fileset dir="${basedir}/js/src/html5" includes="jwplayer.html5.js" />
+			<fileset dir="${basedir}/js/src/html5" includes="jwplayer.html5.utils.js" />
+			<fileset dir="${basedir}/js/src/html5" includes="jwplayer.html5.states.js" />
+			<fileset dir="${basedir}/js/src/html5" includes="jwplayer.html5.events.js" />
+			<fileset dir="${basedir}/js/src/html5" includes="jwplayer.html5.view.js" />
+			<fileset dir="${basedir}/js/src/html5" includes="jwplayer.html5.*.js" excludes="jwplayer.html5.js,jwplayer.html5.states.js,jwplayer.html5.events.js,jwplayer.html5.utils.js,jwplayer.html5.api.js,jwplayer.html5.view.js" />
+			<fileset dir="${basedir}/js/src/html5" includes="jwplayer.html5.api.js" />
+		</concat>
+	</target>
 
 	<!--
 		 Compile the player in debug mode.
@@ -229,6 +247,12 @@
 		</antcall>
 	</target>
 
+	<target name="debug-js">
+		<antcall target="build-js">
+			<param name="outputpath" value="${basedir}/js/bin-debug/jwplayer.js"/>
+		</antcall>
+	</target>
+
 	<target name="release-swf">
 		<condition property="additionalArgs" value="${additionalArgs}" else="">
 			<isset property="additionalArgs" />
@@ -238,9 +262,19 @@
 			<param name="class" value="${class}" />
 			<param name="package" value="${package}" />
 			<param name="optimize" value="true" />
-			<param name="outputPath" value="${release.dir}"/>
+			<param name="outputPath" value="${basedir}"/>
 		</antcall>
-		<move file="${release.dir}/${swf}.swf" todir="./" />
+	</target>
+
+	<target name="release-js">
+		<antcall target="build-js">
+			<param name="outputpath" value="${basedir}/jwplayer.min.js"/>
+		</antcall>
+		<replace file="${basedir}/jwplayer.min.js" token=", logoConfig);" value=");"/>
+		<java jar="${basedir}/build/yuicompressor-2.4.2.jar" fork="true">
+			<arg line="'${basedir}/jwplayer.min.js'"/>
+			<arg line="-o '${basedir}/jwplayer.min.js'"/>
+		</java>
 	</target>
 
 	<target name="build-debug-player" depends="check-properties">
@@ -249,6 +283,7 @@
 			<param name="class" value="${application.class}" />
 			<param name="swf" value="player" />
 		</antcall>
+		<antcall target="debug-js" />
 	</target>
 
 	<target name="build-release-player" depends="check-properties, clean-release">
@@ -257,6 +292,7 @@
 			<param name="class" value="${application.class}" />
 			<param name="swf" value="player" />
 		</antcall>
+		<antcall target="release-js" />
 	</target>
 
 	<!--
@@ -282,8 +318,6 @@
 		</exec>
 		
 		<move file="${sdk.dir}/jwplayer-5-classes.xml" todir="${sdk.dir}/lib/" />
-		
 	</target>
-
-
+	
 </project>
