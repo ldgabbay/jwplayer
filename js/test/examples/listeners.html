@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>Listeners</title>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.js">
+        </script>
+    </head>
+    <body>
+        <h1>Listeners</h1>
+        <p>
+            This tests adding listeners to the player and responding to events. Video should play on FF, Chrome, Safari, and Opera but will fail in IE.
+        </p>
+        <div height="270" id="player" width="480">
+        </div>
+        <h2>Events</h2>
+        <p>
+            <table id="events">
+                <tr>
+                    <td>
+                        Event
+                    </td>
+                    <td>
+                        Value
+                    </td>
+                </tr>
+            </table>
+        </p>
+        <script type="text/javascript">
+            var player = new jwplayer.html5(document.getElementById("player"));
+            player.setup({
+            	levels: [{
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
+            });
+			
+			function forward(evt){
+				document.getElementById(evt.type).innerHTML = evt.data;
+			}
+			
+            var events = {
+            	JWPLAYER_READY: 'jwplayerReady',
+            	JWPLAYER_FULLSCREEN: 'jwplayerFullscreen',
+            	JWPLAYER_RESIZE: 'jwplayerResize',
+            	JWPLAYER_ERROR: 'jwplayerError',
+            	JWPLAYER_MEDIA_BUFFER: 'jwplayerMediaBuffer',
+            	JWPLAYER_MEDIA_BUFFER_FULL: 'jwplayerMediaBufferFull',
+            	JWPLAYER_MEDIA_ERROR: 'jwplayerMediaError',
+            	JWPLAYER_MEDIA_LOADED: 'jwplayerMediaLoaded',
+            	JWPLAYER_MEDIA_COMPLETE: 'jwplayerMediaComplete',
+            	JWPLAYER_MEDIA_TIME: 'jwplayerMediaTime',
+            	JWPLAYER_MEDIA_VOLUME: 'jwplayerMediaVolume',
+            	JWPLAYER_MEDIA_META: 'jwplayerMediaMeta',
+            	JWPLAYER_MEDIA_MUTE: 'jwplayerMediaMute',
+            	JWPLAYER_PLAYER_STATE: 'jwplayerPlayerState',
+            	JWPLAYER_PLAYLIST_LOADED: 'jwplayerPlaylistLoaded',
+            	JWPLAYER_PLAYLIST_ITEM: 'jwplayerPlaylistItem'
+            };
+            
+            var table = document.getElementById("events");
+            
+            for (var event in events) {
+            	var row = document.createElement("tr");
+            	var eventNameColumn = document.createElement("td");
+				eventNameColumn.innerHTML = events[event]; 
+				var eventValueColumn = document.createElement("td");
+				eventValueColumn.id = events[event];
+				row.appendChild(eventNameColumn);
+				row.appendChild(eventValueColumn);
+				player.addEventListener(events[event], forward);
+            }
+        </script>
+        <h3>HTML code</h3>
+    </body>
+</html>

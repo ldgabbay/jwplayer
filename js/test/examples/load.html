@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>Load</title>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.js">
+        </script>
+    </head>
+    <body>
+        <h1>Load</h1>
+        <p>
+            This page contains a player with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
+        </p>
+        <div height="270" id="player" width="480">
+            HTML5 Player should replace this.
+        </div>
+        <script type="text/javascript">
+            var player = new jwplayer.html5(document.getElementById("player"));
+            player = player.setup({
+            	levels: [{
+            		file: "../../../js/test/files/bunny.mp4"
+            	}, {
+            		file: "../../../js/test/files/bunny.ogv"
+            	}],
+            	image: "../../../js/test/files/bunny.jpg"
+            });
+            
+            var playlistItem = {
+            	levels: [{
+            		file: 'http://content.bitsontherun.com/videos/guYqV1AB-486405.mp4'
+            	}, {
+            		file: 'http://content.bitsontherun.com/videos/guYqV1AB-604476.ogv'
+            	}],
+            	image: 'http://content.bitsontherun.com/thumbs/guYqV1AB-480.jpg'
+            };
+			
+            var playlist = [{
+            	levels: [{
+            		file: 'http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4'
+            	}, {
+            		file: 'http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv'
+            	}],
+            	image: 'http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg'
+            }, {
+            	levels: [{
+            		file: 'http://content.bitsontherun.com/videos/guYqV1AB-486405.mp4'
+            	}, {
+            		file: 'http://content.bitsontherun.com/videos/guYqV1AB-604476.ogv'
+            	}],
+            	image: 'http://content.bitsontherun.com/thumbs/guYqV1AB-480.jpg'
+            }, {
+            	levels: [{
+            		file: 'http://content.bitsontherun.com/videos/DMJODX8R-486405.mp4'
+            	}, {
+            		file: 'http://content.bitsontherun.com/videos/DMJODX8R-604476.ogv'
+            	}],
+            	image: 'http://content.bitsontherun.com/thumbs/DMJODX8R-480.jpg'
+            }];
+			
+			function load(item){
+				player.jwLoad(item);
+			}
+        </script>
+        <a href="#" onclick="load('http://content.bitsontherun.com/videos/guYqV1AB-486405.mp4');return false;">File (mp4)</a>
+        <a href="#" onclick="load('http://content.bitsontherun.com/videos/guYqV1AB-604476.ogv');return false;">File (ogv)</a>
+        <a href="#" onclick="load(playlistItem);return false;">Playlist Item</a>
+        <a href="#" onclick="load(playlist);return false;">3-item playlist</a>
+        <h3>HTML code</h3>
+    </body>
+</html>

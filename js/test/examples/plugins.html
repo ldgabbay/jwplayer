@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>Plugins</title>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.js">
+        </script>
+    </head>
+    <body>
+        <h1>Plugins</h1>
+        <p>
+            This test the various configuration options for plugins. Video should play natively on FF, Chrome, Safari, and Opera but will fail in IE.
+        </p>
+		<h2>
+			HD
+		</h2>
+		<div height="270" id="player1" width="480">
+        </div>
+        <script type="text/javascript">
+            var player1 = new jwplayer.html5(document.getElementById("player1"));
+            player1.setup({
+            	levels: [{
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+				plugins: {
+					hd: {
+						file: "bunny.mp4"
+					},
+					controlbar: {
+						position: "top"
+					}
+				},
+				components: {
+					controlbar: {
+						position: "over"
+					}
+				}
+            });
+        </script>
+        <h3>HTML code</h3>
+    </body>
+</html>

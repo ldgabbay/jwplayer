@@ -1,0 +1,29 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>Multiple sources</title>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.js">
+        </script>
+    </head>
+    <body>
+        <h1>MP4 plus OGG video</h1>
+		 <p>
+           This page contains a player with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
+        </p>
+        <div height="270" id="player" width="480">
+        	 HTML5 Player should replace this.
+        </div>
+        <script type="text/javascript">
+            jwplayer("player").setup({
+				flashplayer: "http://player.longtailvideo.com/player.swf",
+            	levels: [{
+	           		file: "http://developer.longtailvideo.com/player/trunk/js/test/files/bunny.flv"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
+            });
+        </script>
+        <h3>HTML code</h3>
+    </body>
+</html>

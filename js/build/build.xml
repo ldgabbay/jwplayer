@@ -13,23 +13,28 @@
 			<fileset dir="${basedir}/src/utils" includes="jwplayer.utils.extensionmap.js" />
 			<fileset dir="${basedir}/src/api" includes="**/*.js" />
 			<fileset dir="${basedir}/src/embed" includes="**/*.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.utils.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.states.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.events.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.view.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.*.js" excludes="jwplayer.html5.js,jwplayer.html5.states.js,jwplayer.html5.events.js,jwplayer.html5.utils.js,jwplayer.html5.api.js,jwplayer.html5.view.js" />
+			<fileset dir="${basedir}/src/html5" includes="jwplayer.html5.api.js" />
 		</concat>
 	</target>
 
 	<target name="build-debug">
-		<antcall target="concat" />
+		<antcall target="concat">
+			<param name="outputpath" value="${basedir}/bin-debug/jwplayer.js"/>
+		</antcall>
+		<copy file="${basedir}/bin-debug/jwplayer.js" tofile="${basedir}/jwplayer.min.js" />
 	</target>
 
 	<target name="build-release" depends="concat">
+		<replace file="${basedir}/jwplayer.min.js" token=", logoConfig);" value=");"/>
 		<java jar="${basedir}/build/yuicompressor-2.4.2.jar" fork="true">
 			<arg line="'${basedir}/bin-debug/jwplayer.js'"/>
 			<arg line="-o '${basedir}/jwplayer.min.js'"/>
 		</java>
-	</target>
-
-	<target name="build-release-with-html5" depends="build-release">
-		<concat destfile="${basedir}/jwplayer.min.js" append="true">
-			<filelist dir="${basedir}/../html5" files="jwplayer.html5.min.js" />
-		</concat>
 	</target>
 </project>

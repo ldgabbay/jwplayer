@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>Logo</title>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.js">
+        </script>
+    </head>
+    <body>
+        <h1>Logo</h1>
+        <p>
+            This test the various configuration options for the logo. Video should play natively on FF, Chrome, Safari, and Opera but will fail in IE.
+        </p>
+		<h2>
+			Default logo
+		</h2>
+		<div height="270" id="player1" width="480">
+        </div>
+        <script type="text/javascript">
+            var player1 = new jwplayer.html5(document.getElementById("player1"));
+            player1.setup({
+            	levels: [{
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"            	
+            });
+        </script>
+		<h2>
+			No logo
+		</h2>		
+        <div height="270" id="player2" width="480">
+        </div>
+        <script type="text/javascript">
+            var player2 = new jwplayer.html5(document.getElementById("player2"));
+            player2.setup({
+            	levels: [{
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+            	'logo.file': "",
+            	'logo.prefix': ""
+            });
+        </script>
+		<h2>
+			Modified logo, top right
+		</h2>
+		<div height="270" id="player3" width="480">
+        </div>
+        <script type="text/javascript">
+            var player3 = new jwplayer.html5(document.getElementById("player3"));
+            player3.setup({
+            	levels: [{
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+            	'logo.file': "http://www.dumbview.com/images/dv.jpg",
+            	'logo.position': "top-right",
+            	'logo.hide': false
+            });
+        </script>
+        <h3>HTML code</h3>
+    </body>
+</html>
