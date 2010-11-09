@@ -114,16 +114,19 @@ package com.longtailvideo.jwplayer.media {
         }
 
 
-        /** Connect to a tunneled version of the connection; in case the firewall blocks 1935. **/
-        private function connectTunneled():void {
-            var streamer:String = item.streamer;
-            if(item.streamer.substr(0,7) == 'rtmp://') { 
-                streamer = streamer.replace('rtmp://','rtmpt://');
-            } else if(item.streamer.substr(0,8) == 'rtmpe://') {
-                streamer = streamer.replace('rtmpe://','rtmpte://');
-            }
-            _connections[1].connect(streamer);
-        }; 
+		/** Connect to a tunneled version of the connection; in case the firewall blocks 1935. **/
+		private function connectTunneled():void {
+			var streamer:String = item.streamer;
+			var slash:Number = item.streamer.indexOf('/',10);
+			streamer = streamer.substr(0,slash) + ':80' + streamer.substr(slash);
+			if(item.streamer.substr(0,7) == 'rtmp://') { 
+				streamer = streamer.replace('rtmp://','rtmpt://');
+				
+			} else if(item.streamer.substr(0,8) == 'rtmpe://') {
+				streamer = streamer.replace('rtmpe://','rtmpte://');
+			}
+			_connections[1].connect(streamer);
+		};
 
 
 		/** Try pulling info from a DVRCast application. **/
@@ -535,7 +538,7 @@ package com.longtailvideo.jwplayer.media {
             switch (evt.info.code) {
                 case 'NetConnection.Connect.Success':
                     if(_connection == -1) {
-                        if(evt.target == _connections[0]) { 
+                        if(evt.target == _connections[0]) {
                             _connection = 0;
                         } else { 
                             _connection = 1;
@@ -546,6 +549,7 @@ package com.longtailvideo.jwplayer.media {
                         _connections[_connection].addEventListener(AsyncErrorEvent.ASYNC_ERROR, errorHandler);
                         clearTimeout(_connectionTimeout);
                     } else {
+						evt.target.close();
                         return;
                     }
                     if (evt.info.secureToken != undefined) {
@@ -572,9 +576,9 @@ package com.longtailvideo.jwplayer.media {
                         } else {
                             setStream();
                         }
-                        if (item.file.substr(-4) == '.mp3' || item.file.substr(0,4) == 'mp3:') {
+                        //if (item.file.substr(-4) == '.mp3' || item.file.substr(0,4) == 'mp3:') {
                             _connections[_connection].call("getStreamLength", new Responder(streamlengthHandler), getID(item.file));
-                        }
+                        //}
                     }
                     break;
                 case 'NetStream.Seek.Notify':
@@ -681,7 +685,10 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Get the streamlength returned from the connection. **/
 		private function streamlengthHandler(len:Number):void {
-			item.duration = len;
+			if(len && !_userDuration) {
+				item.duration = len;
+				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata:{duration:len}});
+			}
 		}
 
 
