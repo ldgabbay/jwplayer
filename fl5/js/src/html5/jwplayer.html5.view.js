@@ -60,7 +60,7 @@
 		}
 		
 		function layoutComponents() {
-			for (var pluginIndex in _model.plugins.order) {
+			for (var pluginIndex = 0; pluginIndex < _model.plugins.order.length; pluginIndex++) {
 				var pluginName = _model.plugins.order[pluginIndex];
 				if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
 					_model.plugins.object[pluginName].height = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.height);
@@ -73,7 +73,7 @@
 		
 		function _loadedHandler(evt) {
 			if (_model.getMedia() !== undefined) {
-				for (var pluginIndex in _model.plugins.order) {
+				for (var pluginIndex = 0; pluginIndex < _model.plugins.order.length; pluginIndex++) {
 					var pluginName = _model.plugins.order[pluginIndex];
 					if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
 						if (_model.config.chromeless || _model.getMedia().hasChrome()) {
@@ -192,7 +192,7 @@
 		
 		function _resizeComponents(componentResizer, plugins, sizeToBox) {
 			var failed = [];
-			for (var pluginIndex in plugins) {
+			for (var pluginIndex = 0; pluginIndex < plugins.length; pluginIndex++) {
 				var pluginName = plugins[pluginIndex];
 				if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
 					if (_model.plugins.config[pluginName].currentPosition.toUpperCase() !== jwplayer.html5.view.positions.NONE) {

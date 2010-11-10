@@ -43,7 +43,7 @@
 		/** Remove an event listener for a specific type of event. **/
 		this.removeEventListener = function(type, listener) {
 			try {
-				for (var lisenterIndex in _listeners[type]) {
+				for (var listenerIndex = 0; listenerIndex < _listeners[type].length; listenerIndex++) {
 					if (_listeners[type][lisenterIndex].toString() == listener.toString()) {
 						_listeners[type].slice(lisenterIndex, lisenterIndex + 1);
 						break;
@@ -74,9 +74,9 @@
 		/** Add an event listener for all events. **/
 		this.removeGlobalListener = function(listener) {
 			try {
-				for (var lisenterIndex in _globallisteners) {
-					if (_globallisteners[lisenterIndex].toString() == listener.toString()) {
-						_globallisteners.slice(lisenterIndex, lisenterIndex + 1);
+				for (var globalListenerIndex = 0; globalListenerIndex < _globallisteners.length; globalListenerIndex++) {
+					if (_globallisteners[globalListenerIndex].toString() == listener.toString()) {
+						_globallisteners.slice(globalListenerIndex, globalListenerIndex + 1);
 						break;
 					}
 				}
@@ -100,19 +100,21 @@
 			if (_debug) {
 				jwplayer.html5.utils.log(type, data);
 			}
-			for (var listenerIndex in _listeners[type]) {
-				try {
-					_listeners[type][listenerIndex].listener(data);
-				} catch (err) {
-					jwplayer.html5.utils.log("There was an error while handling a listener", _listeners[type][listenerIndex].listener, err);
-				}
-				if (_listeners[type][listenerIndex].count === 1) {
-					delete _listeners[type][listenerIndex];
-				} else if (_listeners[type][listenerIndex].count > 0) {
-					_listeners[type][listenerIndex].count = _listeners[type][listenerIndex].count - 1;
+			if (typeof _listeners[type] != "undefined") {
+				for (var listenerIndex = 0; listenerIndex < _listeners[type].length; listenerIndex++) {
+					try {
+						_listeners[type][listenerIndex].listener(data);
+					} catch (err) {
+						jwplayer.html5.utils.log("There was an error while handling a listener", _listeners[type][listenerIndex].listener, err);
+					}
+					if (_listeners[type][listenerIndex].count === 1) {
+						delete _listeners[type][listenerIndex];
+					} else if (_listeners[type][listenerIndex].count > 0) {
+						_listeners[type][listenerIndex].count = _listeners[type][listenerIndex].count - 1;
+					}
 				}
 			}
-			for (var globalListenerIndex in _globallisteners) {
+			for (var globalListenerIndex = 0; globalListenerIndex < _globallisteners.length; globalListenerIndex++) {
 				try {
 					_globallisteners[globalListenerIndex].listener(data);
 				} catch (err) {

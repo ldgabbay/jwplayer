@@ -408,7 +408,7 @@
 			vid.preload = "none";
 			_error = false;
 			_sourceError = 0;
-			for (var sourceIndex in playlistItem.levels) {
+			for (var sourceIndex = 0; sourceIndex < playlistItem.levels.length; sourceIndex++) {
 				var sourceModel = playlistItem.levels[sourceIndex];
 				if (jwplayer.html5.utils.isYouTube(sourceModel.file)) {
 					delete vid;
