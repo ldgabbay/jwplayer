@@ -4016,11 +4016,11 @@ playerReady = function(obj) {
 			if (typeof _model.plugins == "string") {
 				var userplugins = _model.plugins.split(",");
 				for (var userplugin in userplugins) {
-					pluginorder.push(userplugin.replace(/^\s+|\s+$/g, ""));
+					pluginorder.push(userplugins[userplugin].replace(/^\s+|\s+$/g, ""));
 				}
 			} else {
 				for (var plugin in _model.plugins) {
-					pluginorder.push(plugin.replace(/^\s+|\s+$/g, ""));
+					pluginorder.push(_model.plugins[plugin].replace(/^\s+|\s+$/g, ""));
 				}
 			}
 		}
