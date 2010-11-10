@@ -370,8 +370,8 @@ All current-day RTMP servers have a way to circumvent this issue, by **tunnellin
 
 The 5.3 player introduced a mechanism that automatically detects and circumvents firewall issues for RTMP streaming. Here's how it works:
 
-* First, the player connects to the regular application, either RTMP or RTMPe (encrypted).
-* Half a second later, the player connects to the same application over a tunneled connection, either RTMPT or RTMPTe (tunnelled and encrypted).
-* Whichever connection is established first is used for streaming the video.
+* First, the player connects to the regular application over port 1935, either RTMP or RTMPe (encrypted).
+* Half a second later, the player connects to the same application over a tunneled connection on port 80, either RTMPT or RTMPTe (tunneled and encrypted). If port 80 is not available, Flash will interally re-try the tunneled connection over port 443 (HTTPS).
+* Whichever connection is established first (the regular or the tunneled one) is used for streaming the video. The other connection is closed.
 
 In most cases the player is connected to the application over RTMP within 500 milliseconds, cancelling the second connection. This functionality is fully automated (no need to set port numbers or rtmp **t** in your *streamer* flashvar) and works for all flavors of RTMP streaming (on-demand, live, dvr and dynamic).
