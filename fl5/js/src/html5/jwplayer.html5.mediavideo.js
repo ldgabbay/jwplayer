@@ -418,8 +418,8 @@
 				var sourceType;
 				if (sourceModel.type === undefined) {
 					var extension = jwplayer.html5.utils.extension(sourceModel.file);
-					if (jwplayer.html5.extensionmap[extension] !== undefined) {
-						sourceType = jwplayer.html5.extensionmap[extension];
+					if (jwplayer.utils.extensionmap[extension] !== undefined) {
+						sourceType = jwplayer.utils.extensionmap[extension];
 					} else {
 						sourceType = 'video/' + extension + ';';
 					}
