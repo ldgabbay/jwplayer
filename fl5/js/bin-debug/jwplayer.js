@@ -429,7 +429,8 @@ jwplayer.utils.strings.extension = function(path) {
 		"mp3": "audio/mp3",
 		"ogg": "audio/ogg",
 		"ogv": "video/ogg",
-		"webm": "video/webm"
+		"webm": "video/webm",
+		"m3u8": "audio/x-mpegurl"
 	};
 })(jwplayer);
 (function(jwplayer) {
