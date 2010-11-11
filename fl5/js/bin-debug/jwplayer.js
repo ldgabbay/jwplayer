@@ -4291,7 +4291,15 @@ playerReady = function(obj) {
 				_loadSkin(jwplayer.html5.defaultSkin().xml);
 			} else {
 				jwplayer.utils.ajax(jwplayer.html5.utils.getAbsolutePath(_skinPath), function(xmlrequest) {
-					_loadSkin(xmlrequest.responseXML);
+					try {
+						if (xmlrequest.responseXML !== null){
+							_loadSkin(xmlrequest.responseXML);
+							return;	
+						}
+					} catch (err){
+						
+					}
+					_loadSkin(jwplayer.html5.defaultSkin().xml);
 				}, function(path) {
 					_loadSkin(jwplayer.html5.defaultSkin().xml);
 				});
