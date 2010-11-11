@@ -137,7 +137,7 @@ package com.longtailvideo.jwplayer.media {
 		private function checkFramedrop():void {
 			_droppedFrames.push(_stream.info.droppedFrames);
 			var len:Number = _droppedFrames.length;
-			if(len > 5) {
+			if(len > 5 && state == PlayerState.PLAYING) {
 				var drp:Number = (_droppedFrames[len-1] - _droppedFrames[len-6])/5;
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {droppedFrames:drp}});
 				/*
@@ -361,7 +361,7 @@ package com.longtailvideo.jwplayer.media {
 		/** Handle a resize event **/
 		override public function resize(width:Number, height:Number):void {
 			super.resize(width, height);
-			if (item.levels.length > 0 && item.getLevel(config.bandwidth, config.width) != item.currentLevel) {
+			if (state != PlayerState.IDLE && item.levels.length > 0 && item.getLevel(config.bandwidth, config.width) != item.currentLevel) {
 				_byteoffset = getOffset(position);
 				_timeoffset = _position = getOffset(position,true);
 				load(item);
@@ -440,13 +440,14 @@ package com.longtailvideo.jwplayer.media {
 			_bandwidthSwitch = true;
 			_bandwidthChecked = false;
 			_meta = false;
+			_timeoffset = 0;
 			super.stop();
 		}
 		
 		override protected function complete():void {
 			if (state != PlayerState.IDLE) {
 				stop();
-				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_COMPLETE);
+				setTimeout(sendMediaEvent,100,MediaEvent.JWPLAYER_MEDIA_COMPLETE);
 			}
 		}
 
