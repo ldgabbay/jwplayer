@@ -417,7 +417,7 @@
 				}
 				var sourceType;
 				if (sourceModel.type === undefined) {
-					var extension = jwplayer.html5.utils.extension(sourceModel.file);
+					var extension = jwplayer.utils.extension(sourceModel.file);
 					if (jwplayer.utils.extensionmap[extension] !== undefined) {
 						sourceType = jwplayer.utils.extensionmap[extension];
 					} else {

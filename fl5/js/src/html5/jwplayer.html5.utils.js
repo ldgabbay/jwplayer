@@ -9,11 +9,6 @@
 	jwplayer.html5.utils = function() {
 	};
 	
-	/** Returns the extension of a file name **/
-	jwplayer.html5.utils.extension = function(path) {
-		return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
-	};
-	
 	/** Gets an absolute file path based on a relative filepath **/
 	jwplayer.html5.utils.getAbsolutePath = function(path) {
 		if (path === undefined) {

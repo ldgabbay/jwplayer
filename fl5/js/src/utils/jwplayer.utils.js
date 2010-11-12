@@ -33,6 +33,7 @@ jwplayer.utils.extend = function() {
 
 /** Returns the extension of a file name **/
 jwplayer.utils.extension = function(path) {
+	path = path.split("?")[0];
 	return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
 };
 
@@ -165,7 +166,7 @@ jwplayer.utils.hasHTML5 = function(config) {
 };
 
 jwplayer.utils.vidCanPlay = function(video, file) {
-	var extension = jwplayer.utils.strings.extension(file);
+	var extension = jwplayer.utils.extension(file);
 	if (jwplayer.utils.extensionmap[extension] !== undefined) {
 		sourceType = jwplayer.utils.extensionmap[extension];
 	} else {
