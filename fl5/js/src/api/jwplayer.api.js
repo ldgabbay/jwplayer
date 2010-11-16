@@ -67,7 +67,7 @@
 		
 		function stateCallback(state) {
 			return function(args) {
-				var newstate = args['newstate'], oldstate = args['oldstate'];
+				var newstate = args.newstate, oldstate = args.oldstate;
 				if (newstate == state) {
 					var callbacks = _stateListeners[newstate];
 					if (callbacks) {
@@ -82,7 +82,7 @@
 					}
 				}
 			};
-		};
+		}
 		
 		this.addInternalListener = function(player, type) {
 			player.jwAddEventListener(type, 'function(dat) { jwplayer("' + this.id + '").dispatchEvent("' + type + '", dat); }');
@@ -120,10 +120,10 @@
 					translated.index = translated.item;
 					delete translated.item;
 				}
-			} else if (typeof translated['data'] == "object") {
+			} else if (typeof translated.data == "object") {
 				// Takes ViewEvent "data" block and moves it up a level
-				translated = jwplayer.utils.extend(translated, translated['data']);
-				delete translated['data'];
+				translated = jwplayer.utils.extend(translated, translated.data);
+				delete translated.data;
 			}
 			
 			return translated;
@@ -150,7 +150,7 @@
 		this.playerReady = function(obj) {
 			_playerReady = true;
 			if (!_player) {
-				this.setPlayer(document.getElementById(obj['id']));
+				this.setPlayer(document.getElementById(obj.id));
 			}
 			this.container = document.getElementById(this.id);
 			
@@ -254,8 +254,9 @@
 			return playlist;
 		},
 		getPlaylistItem: function(item) {
-			if (item == undefined) 
+			if (item === undefined) {
 				item = this.getCurrentItem();
+			}
 			return this.getPlaylist()[item];
 		},
 		getPosition: function() {
@@ -317,7 +318,7 @@
 		},
 		play: function(state) {
 			if (typeof state === "undefined") {
-				var state = this.getState();
+				state = this.getState();
 				if (state == jwplayer.api.events.state.PLAYING || state == jwplayer.api.events.state.BUFFERING) {
 					this.callInternal("jwPause");
 				} else {
@@ -426,8 +427,9 @@
 	jwplayer.api.selectPlayer = function(identifier) {
 		var _container;
 		
-		if (identifier == undefined) 
+		if (identifier === undefined) {
 			identifier = 0;
+		}
 		
 		if (identifier.nodeType) {
 			// Handle DOM Element
@@ -507,7 +509,7 @@
 var _userPlayerReady = (typeof playerReady == 'function') ? playerReady : undefined;
 
 playerReady = function(obj) {
-	var api = jwplayer.api.playerById(obj['id']);
+	var api = jwplayer.api.playerById(obj.id);
 	if (api) {
 		api.playerReady(obj);
 	}
