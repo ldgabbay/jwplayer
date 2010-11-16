@@ -60,6 +60,7 @@ jwplayer.utils.wrap = function(originalElement, appendedElement) {
 
 /** Loads an XML file into a DOM object **/
 jwplayer.utils.ajax = function(xmldocpath, completecallback, errorcallback) {
+	//TODO: [ticket:1064]
 	var xmlhttp;
 	if (window.XMLHttpRequest) {
 		// IE>7, Firefox, Chrome, Opera, Safari
@@ -152,7 +153,7 @@ jwplayer.utils.hasHTML5 = function(config) {
 				item.file = config.file;
 				item.levels = config.levels;
 			}
-			
+			// TODO: [ticket:1115]
 			if (item.file) {
 				return jwplayer.utils.vidCanPlay(vid, item.file);
 			} else if (item.levels && item.levels.length) {
@@ -222,6 +223,22 @@ jwplayer.utils.setOuterHTML = function(element, html) {
  */
 jwplayer.utils.hasFlash = function() {
 	return (typeof navigator.plugins != "undefined" && typeof navigator.plugins['Shockwave Flash'] != "undefined") || (typeof window.ActiveXObject != "undefined");
+};
+
+/**
+ * Extracts a plugin name from a string
+ */
+jwplayer.utils.getPluginName = function(pluginName) {
+	if (pluginName.lastIndexOf("/") >= 0) {
+		pluginName = pluginName.substring(pluginName.lastIndexOf("/")+1, pluginName.length);
+	}
+	if (pluginName.lastIndexOf("-") >= 0) {
+		pluginName = pluginName.substring(0, pluginName.lastIndexOf("-"));
+	}
+	if (pluginName.lastIndexOf(".swf") >= 0) {
+		pluginName = pluginName.substring(0, pluginName.lastIndexOf(".swf"));
+	}
+	return pluginName;
 };
 /**
  * Parser for the JW Player.
@@ -1002,6 +1019,9 @@ playerReady = function(obj) {
 			src: "player.swf"
 		}, {
 			type: 'html5'
+		},
+		{
+			type: 'download'
 		}],
 		components: {
 			controlbar: {
@@ -1049,6 +1069,9 @@ playerReady = function(obj) {
 							// Linux API support
 							this.config.id = this.api.id;
 							
+							// TODO: [ticket:1066]
+							// this.config.netstreambasepath = window.location.href
+							
 							var flashPlayer = jwplayer.embed.embedFlash(document.getElementById(this.api.id), player, this.config);
 							this.api.container = flashPlayer;
 							this.api.setPlayer(flashPlayer);
@@ -1066,6 +1089,9 @@ playerReady = function(obj) {
 							this.players.splice(0, 1);
 							return this.embedPlayer();
 						}
+						break;
+					case 'download':
+						// TODO: [ticket:1076]
 						break;
 				}
 			} else {
@@ -1244,7 +1270,7 @@ playerReady = function(obj) {
 		var flat = {}, pluginKeys = [];
 		
 		for (plugin in pluginBlock) {
-			var pluginName = plugin.indexOf('-') > 0 ? plugin.substring(0, plugin.indexOf('-')) : plugin;
+			var pluginName = jwplayer.utils.getPluginName(plugin);
 			var pluginConfig = pluginBlock[plugin];
 			pluginKeys.push(plugin);
 			for (param in pluginConfig) {
@@ -1601,6 +1627,7 @@ playerReady = function(obj) {
 					}
 				}
 				if (_api.jwGetFullscreen()) {
+					// TODO: [ticket:1057]
 					_model.width = window.innerWidth;
 					_model.height = window.innerHeight;
 				}
@@ -1724,6 +1751,7 @@ playerReady = function(obj) {
 		}
 		
 		function _resizeMedia() {
+			//TODO: [ticket:1104]
 			_box.style.position = "absolute";
 			var style = {
 				position: "absolute",
@@ -1801,6 +1829,7 @@ playerReady = function(obj) {
 				if (state) {
 					document.onkeydown = _keyHandler;
 					clearInterval(_resizeInterval);
+					// TODO: [ticket:1057]
 					_model.width = window.innerWidth;
 					_model.height = window.innerHeight;
 					var style = {

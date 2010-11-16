@@ -15,6 +15,9 @@
 			src: "player.swf"
 		}, {
 			type: 'html5'
+		},
+		{
+			type: 'download'
 		}],
 		components: {
 			controlbar: {
@@ -62,6 +65,9 @@
 							// Linux API support
 							this.config.id = this.api.id;
 							
+							// TODO: [ticket:1066]
+							// this.config.netstreambasepath = window.location.href
+							
 							var flashPlayer = jwplayer.embed.embedFlash(document.getElementById(this.api.id), player, this.config);
 							this.api.container = flashPlayer;
 							this.api.setPlayer(flashPlayer);
@@ -79,6 +85,9 @@
 							this.players.splice(0, 1);
 							return this.embedPlayer();
 						}
+						break;
+					case 'download':
+						// TODO: [ticket:1076]
 						break;
 				}
 			} else {
@@ -257,7 +266,7 @@
 		var flat = {}, pluginKeys = [];
 		
 		for (plugin in pluginBlock) {
-			var pluginName = plugin.indexOf('-') > 0 ? plugin.substring(0, plugin.indexOf('-')) : plugin;
+			var pluginName = jwplayer.utils.getPluginName(plugin);
 			var pluginConfig = pluginBlock[plugin];
 			pluginKeys.push(plugin);
 			for (param in pluginConfig) {

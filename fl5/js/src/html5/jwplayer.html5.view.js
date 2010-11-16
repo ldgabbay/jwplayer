@@ -130,6 +130,7 @@
 					}
 				}
 				if (_api.jwGetFullscreen()) {
+					// TODO: [ticket:1057]
 					_model.width = window.innerWidth;
 					_model.height = window.innerHeight;
 				}
@@ -253,6 +254,7 @@
 		}
 		
 		function _resizeMedia() {
+			//TODO: [ticket:1104]
 			_box.style.position = "absolute";
 			var style = {
 				position: "absolute",
@@ -330,6 +332,7 @@
 				if (state) {
 					document.onkeydown = _keyHandler;
 					clearInterval(_resizeInterval);
+					// TODO: [ticket:1057]
 					_model.width = window.innerWidth;
 					_model.height = window.innerHeight;
 					var style = {

@@ -55,6 +55,7 @@ jwplayer.utils.wrap = function(originalElement, appendedElement) {
 
 /** Loads an XML file into a DOM object **/
 jwplayer.utils.ajax = function(xmldocpath, completecallback, errorcallback) {
+	//TODO: [ticket:1064]
 	var xmlhttp;
 	if (window.XMLHttpRequest) {
 		// IE>7, Firefox, Chrome, Opera, Safari
@@ -147,7 +148,7 @@ jwplayer.utils.hasHTML5 = function(config) {
 				item.file = config.file;
 				item.levels = config.levels;
 			}
-			
+			// TODO: [ticket:1115]
 			if (item.file) {
 				return jwplayer.utils.vidCanPlay(vid, item.file);
 			} else if (item.levels && item.levels.length) {
@@ -217,4 +218,20 @@ jwplayer.utils.setOuterHTML = function(element, html) {
  */
 jwplayer.utils.hasFlash = function() {
 	return (typeof navigator.plugins != "undefined" && typeof navigator.plugins['Shockwave Flash'] != "undefined") || (typeof window.ActiveXObject != "undefined");
+};
+
+/**
+ * Extracts a plugin name from a string
+ */
+jwplayer.utils.getPluginName = function(pluginName) {
+	if (pluginName.lastIndexOf("/") >= 0) {
+		pluginName = pluginName.substring(pluginName.lastIndexOf("/")+1, pluginName.length);
+	}
+	if (pluginName.lastIndexOf("-") >= 0) {
+		pluginName = pluginName.substring(0, pluginName.lastIndexOf("-"));
+	}
+	if (pluginName.lastIndexOf(".swf") >= 0) {
+		pluginName = pluginName.substring(0, pluginName.lastIndexOf(".swf"));
+	}
+	return pluginName;
 };

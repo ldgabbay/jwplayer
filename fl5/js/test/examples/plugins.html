@@ -13,7 +13,7 @@
             This test the various configuration options for plugins. Video should play natively on FF, Chrome, Safari, and Opera but will fail in IE.
         </p>
 		<h2>
-			HD
+			HD (CDN, no version)
 		</h2>
 		<div height="270" id="player1" width="480">
         </div>
@@ -28,10 +28,59 @@
             	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
 				plugins: {
 					hd: {
-						file: "bunny.mp4"
-					},
+						file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+					}
+				},
+				components: {
 					controlbar: {
-						position: "top"
+						position: "over"
+					}
+				}
+            });
+        </script>
+		<h2>
+			HD (with version)
+		</h2>
+		<div height="270" id="player2" width="480">
+        </div>
+        <script type="text/javascript">
+            jwplayer("player2").setup({
+            	players: settings.players,
+            	levels: [{
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+				plugins: {
+					"hd-1": {
+						file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+					}
+				},
+				components: {
+					controlbar: {
+						position: "over"
+					}
+				}
+            });
+        </script>
+				<h2>
+			HD (with version and path)
+		</h2>
+		<div height="270" id="player3" width="480">
+        </div>
+        <script type="text/javascript">
+            jwplayer("player3").setup({
+            	players: settings.players,
+            	levels: [{
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+				plugins: {
+					"http://plugins.longtailvideo.com/5/hd/hd-1.swf": {
+						file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
 					}
 				},
 				components: {
