@@ -131,8 +131,8 @@ jwplayer.utils.isIOS = function() {
 /**
  * Detects whether the browser can handle HTML5 video.
  * Using this as a proxy for detecting all HTML5 features needed for the JW HTML5 Player.  Do we need more granularity?
- * 
- * @param config (optional) If set, check to see if the first playable item 
+ *
+ * @param config (optional) If set, check to see if the first playable item
  */
 jwplayer.utils.hasHTML5 = function(config) {
 	var vid = document.createElement('video');
@@ -151,7 +151,7 @@ jwplayer.utils.hasHTML5 = function(config) {
 			if (item.file) {
 				return jwplayer.utils.vidCanPlay(vid, item.file);
 			} else if (item.levels && item.levels.length) {
-				for (var i=0; i<item.levels.length; i++) {
+				for (var i = 0; i < item.levels.length; i++) {
 					if (item.levels[i].file && jwplayer.utils.vidCanPlay(vid, item.levels[i].file)) {
 						return true;
 					}
@@ -165,6 +165,9 @@ jwplayer.utils.hasHTML5 = function(config) {
 	return false;
 };
 
+/**
+ * Determines if a video element can play a particular file, based on its extension
+ */
 jwplayer.utils.vidCanPlay = function(video, file) {
 	var extension = jwplayer.utils.extension(file);
 	if (jwplayer.utils.extensionmap[extension] !== undefined) {
@@ -175,7 +178,38 @@ jwplayer.utils.vidCanPlay = function(video, file) {
 	return (video.canPlayType(sourceType) || file.toLowerCase().indexOf("youtube.com") > -1);
 };
 
+/**
+ * Replacement for "outerHTML" getter (not available in FireFox)
+ */
+jwplayer.utils.getOuterHTML = function(element) {
+	if (element.outerHTML) {
+		return element.outerHTML;
+	} else {
+		var parent = element.parentNode;
+		var tmp = document.createElement(parent.tagName);
+		tmp.appendChild(element);
+		var elementHTML = tmp.innerHTML;
+		parent.appendChild(element);
+		return elementHTML;
+	}
+};
 
+/**
+ * Replacement for outerHTML setter (not available in FireFox)
+ */
+jwplayer.utils.setOuterHTML = function(element, html) {
+	if (element.outerHTML) {
+		element.outerHTML = html;
+	} else {
+		var el = document.createElement('div');
+		el.innerHTML = html;
+		var range = document.createRange();
+		range.selectNodeContents(el);
+		var documentFragment = range.extractContents();
+		element.parentNode.insertBefore(documentFragment, element);
+		element.parentNode.removeChild(element);
+	}
+};
 
 /**
  * Detects whether or not the current player has flash capabilities

@@ -46,7 +46,7 @@
 		var _playerReady = false;
 		var _queuedCalls = [];
 		
-		var _originalHTML = container.outerHTML;
+		var _originalHTML = jwplayer.utils.getOuterHTML(container);
 		
 		var _itemMeta = {};
 		var _currentItem = 0;
@@ -193,7 +193,7 @@
 		this.destroy = function() {
 			_listeners = {};
 			_queuedCalls = [];
-			if (this.container.outerHTML != _originalHTML) {
+			if (jwplayer.utils.getOuterHTML(this.container) != _originalHTML) {
 				jwplayer.api.destroyPlayer(this.id, _originalHTML);
 			}
 		};
@@ -484,7 +484,7 @@
 			var toDestroy = document.getElementById(_players[index].id);
 			if (toDestroy) {
 				if (replacementHTML) {
-					toDestroy.outerHTML = replacementHTML;
+					jwplayer.utils.setOuterHTML(toDestroy, replacementHTML);
 				} else {
 					var replacement = document.createElement('div');
 					replacement.setAttribute('id', toDestroy.id);

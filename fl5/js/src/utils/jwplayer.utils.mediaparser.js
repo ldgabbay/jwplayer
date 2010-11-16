@@ -146,6 +146,8 @@
 				}
 			}
 			
+			// TODO: This is not required to fix [ticket:1094], but we may want to do it anyway
+			// jwplayer.utils.setOuterHTML(toReplace, html);
 			toReplace.outerHTML = html;
 		}
 	};
