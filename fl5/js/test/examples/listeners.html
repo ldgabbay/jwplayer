@@ -4,6 +4,8 @@
         <title>Listeners</title>
         <script type="text/javascript" src="../../bin-debug/jwplayer.js">
         </script>
+        <script type="text/javascript" src="settings.js">
+        </script>
     </head>
     <body>
         <h1>Listeners</h1>
@@ -26,8 +28,8 @@
             </table>
         </p>
         <script type="text/javascript">
-            var player = new jwplayer.html5(document.getElementById("player"));
-            player.setup({
+            jwplayer("player").setup({
+            	players: settings.players,
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {

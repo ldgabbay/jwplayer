@@ -4,6 +4,8 @@
         <title>Multiple sources</title>
         <script type="text/javascript" src="../../bin-debug/jwplayer.js">
         </script>
+        <script type="text/javascript" src="settings.js">
+        </script>
     </head>
     <body>
         <h1>MP4 plus OGG video</h1>
@@ -15,6 +17,7 @@
         </div>
         <script type="text/javascript">
             jwplayer("player").setup({
+            	players: settings.players,
 				flashplayer: "http://player.longtailvideo.com/player.swf",
             	levels: [{
 	           		file: "http://developer.longtailvideo.com/player/trunk/js/test/files/bunny.flv"

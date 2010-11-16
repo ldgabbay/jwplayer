@@ -4,6 +4,8 @@
         <title>YouTube</title>
         <script type="text/javascript" src="../../bin-debug/jwplayer.js">
         </script>
+        <script type="text/javascript" src="settings.js">
+        </script>
     </head>
     <body>
         <h1>YouTube</h1>
@@ -14,8 +16,8 @@
         	HTML5 Player should replace this
         </div>
         <script type="text/javascript">
-            var player = new jwplayer.html5(document.getElementById("player"));
-            player.setup({
+            jwplayer("player").setup({
+            	players: settings.players,
             	levels: [{
             		file: "http://youtube.com/watch?v=IBTE-RoMsvw"
             	}]

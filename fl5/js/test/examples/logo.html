@@ -4,6 +4,8 @@
         <title>Logo</title>
         <script type="text/javascript" src="../../bin-debug/jwplayer.js">
         </script>
+        <script type="text/javascript" src="settings.js">
+        </script>
     </head>
     <body>
         <h1>Logo</h1>
@@ -16,8 +18,8 @@
 		<div height="270" id="player1" width="480">
         </div>
         <script type="text/javascript">
-            var player1 = new jwplayer.html5(document.getElementById("player1"));
-            player1.setup({
+            jwplayer("player1").setup({
+            	players: settings.players,
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -32,8 +34,8 @@
         <div height="270" id="player2" width="480">
         </div>
         <script type="text/javascript">
-            var player2 = new jwplayer.html5(document.getElementById("player2"));
-            player2.setup({
+            jwplayer("player2").setup({
+            	players: settings.players,
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -50,8 +52,8 @@
 		<div height="270" id="player3" width="480">
         </div>
         <script type="text/javascript">
-            var player3 = new jwplayer.html5(document.getElementById("player3"));
-            player3.setup({
+            jwplayer("player3").setup({
+            	players: settings.players,
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {

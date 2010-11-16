@@ -4,6 +4,8 @@
         <title>Playlists</title>
         <script type="text/javascript" src="../../bin-debug/jwplayer.js">
         </script>
+        <script type="text/javascript" src="settings.js">
+        </script>
     </head>
     <body>
         <script type="text/javascript">
@@ -44,8 +46,8 @@
             HTML5 Player should replace this
         </div>
         <script type="text/javascript">
-            var player1 = new jwplayer.html5(document.getElementById("player1"));
-            player1.setup({
+            jwplayer("player1").setup({
+            	players: settings.players,
             	playlist: playlist
             });
         </script>
@@ -56,8 +58,8 @@
             HTML5 Player should replace this
         </div>
         <script type="text/javascript">
-            var player2 = new jwplayer.html5(document.getElementById("player2"));
-            player2.setup({
+            jwplayer("player2").setup({
+            	players: settings.players,
             	playlist: playlist,
             	repeat: "always",
             	shuffle: true,
@@ -71,8 +73,8 @@
             HTML5 Player should replace this
         </div>
         <script type="text/javascript">
-            var player3 = new jwplayer.html5(document.getElementById("player3"));
-            player3.setup({
+            jwplayer("player3").setup({
+            	players: settings.players,
             	playlist: playlist,
             	repeat: "list"
             });

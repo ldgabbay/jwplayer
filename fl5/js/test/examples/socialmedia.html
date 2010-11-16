@@ -3,6 +3,7 @@
     <head>
         <title>Social Media</title>
         <script type="text/javascript" src="../../bin-debug/jwplayer.js">
+        <script type="text/javascript" src="settings.js">
         <!--script type="text/javascript" src="http://developer.longtailvideo.com/trac/export/1410/trunk/js/bin-debug/jwplayer.js"-->
         </script>
     </head>
@@ -35,6 +36,7 @@
         </iframe>
         <script type="text/javascript">
             jwplayer("player").setup({
+            	players: settings.players,
             	players: [{
             		type: "html5"
             	}, {
