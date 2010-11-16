@@ -149,7 +149,9 @@ jwplayer.utils.hasHTML5 = function(config) {
 				item.levels = config.levels;
 			}
 			// TODO: [ticket:1115]
-			if (item.file) {
+			if (typeof item.file == "undefined"){
+				return true;
+			} else if (item.file) {
 				return jwplayer.utils.vidCanPlay(vid, item.file);
 			} else if (item.levels && item.levels.length) {
 				for (var i = 0; i < item.levels.length; i++) {
