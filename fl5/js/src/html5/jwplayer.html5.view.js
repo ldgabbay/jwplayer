@@ -130,8 +130,8 @@
 					}
 				}
 				if (_api.jwGetFullscreen()) {
-					// TODO: [ticket:1057]
-					_model.width = window.innerWidth;
+					var rect = document.body.getBoundingClientRect();
+					_model.width = rect.left+rect.right;
 					_model.height = window.innerHeight;
 				}
 				_resize(_model.width, _model.height);
@@ -332,8 +332,8 @@
 				if (state) {
 					document.onkeydown = _keyHandler;
 					clearInterval(_resizeInterval);
-					// TODO: [ticket:1057]
-					_model.width = window.innerWidth;
+					var rect = document.body.getBoundingClientRect();
+					_model.width = rect.left+rect.right;
 					_model.height = window.innerHeight;
 					var style = {
 						position: "fixed",
