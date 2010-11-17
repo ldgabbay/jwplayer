@@ -1630,7 +1630,7 @@ playerReady = function(obj) {
 				}
 				if (_api.jwGetFullscreen()) {
 					var rect = document.body.getBoundingClientRect();
-					_model.width = rect.left+rect.right;
+					_model.width = rect.left + rect.right;
 					_model.height = window.innerHeight;
 				}
 				_resize(_model.width, _model.height);
@@ -1832,7 +1832,7 @@ playerReady = function(obj) {
 					document.onkeydown = _keyHandler;
 					clearInterval(_resizeInterval);
 					var rect = document.body.getBoundingClientRect();
-					_model.width = rect.left+rect.right;
+					_model.width = rect.left + rect.right;
 					_model.height = window.innerHeight;
 					var style = {
 						position: "fixed",
@@ -3381,55 +3381,108 @@ playerReady = function(obj) {
 	jwplayer.html5.logo = function(api, logoConfig) {
 		var _api = api;
 		var _timeout;
+		var _settings;
+		var _logo;
 		
-		if (_defaults.prefix) {
-			var version = api.version.split(/\W/).splice(0, 2).join("/");
-			if (_defaults.prefix.indexOf(version) < 0) {
-				_defaults.prefix += version + "/";
+		_setup();
+		
+		function _setup() {
+			_setupConfig();
+			_setupDisplayElements();
+			_setupMouseEvents();
+		}
+		
+		function _setupConfig() {
+			if (_defaults.prefix) {
+				var version = api.version.split(/\W/).splice(0, 2).join("/");
+				if (_defaults.prefix.indexOf(version) < 0) {
+					_defaults.prefix += version + "/";
+				}
+			}
+			
+			if (logoConfig.position == jwplayer.html5.view.positions.OVER) {
+				logoConfig.position = _defaults.position;
+			}
+			
+			_settings = jwplayer.utils.extend({}, _defaults, logoConfig);
+		}
+		
+		function _setupDisplayElements() {
+			_logo = document.createElement("img");
+			_logo.id = _api.id + "_jwplayer_logo";
+			_logo.style.display = "none";
+			
+			_logo.onload = function(evt) {
+				_css(_logo, _getStyle());
+				_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
+				_outHandler();
+			};
+			
+			if (!_settings.file) {
+				return;
+			}
+			
+			if (_settings.file.indexOf("http://") === 0) {
+				_logo.src = _settings.file;
+			} else {
+				_logo.src = _settings.prefix + _settings.file;
 			}
 		}
 		
-		if (logoConfig.position == jwplayer.html5.view.positions.OVER){
-			logoConfig.position = _defaults.position;
-		}
-		
-		var _settings = jwplayer.utils.extend({}, _defaults, logoConfig);
-		
-		if (!_settings.file){
+		if (!_settings.file) {
 			return;
 		}
 		
-		var _logo = document.createElement("img");
-		_logo.id = _api.id + "_jwplayer_logo";
-		_logo.style.display = "none";
 		
-		_logo.onload = function(evt) {
-			_css(_logo, _getStyle());
-			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
+		this.resize = function(width, height) {
 		};
 		
-		if (_settings.file.indexOf("http://") === 0) {
-			_logo.src = _settings.file;
-		} else {
-			_logo.src = _settings.prefix + _settings.file;
+		this.getDisplayElement = function() {
+			return _logo;
+		};
+		
+		function _setupMouseEvents() {
+			if (_settings.link) {
+				_logo.onmouseover = _overHandler;
+				_logo.onmouseout = _outHandler;
+				_logo.onclick = _clickHandler;
+			} else {
+				this.mouseEnabled = false;
+			}
 		}
 		
-		_logo.onmouseover = function(evt) {
-			_logo.style.opacity = _settings.over;
-			fade();
-		};
 		
-		_logo.onmouseout = function(evt) {
-			_logo.style.opacity = _settings.out;
-			fade();
-		};
+		function _clickHandler(evt) {
+			if (typeof evt != "undefined") {
+				evt.stopPropagation();
+			}
+			_api.jwPause();
+			_api.jwSetFullscreen(false);
+			if (_settings.link) {
+				window.open(_settings.link, "_blank");
+			}
+			return;
+		}
 		
-		_logo.onclick = _logoClickHandler;
+		function _outHandler(evt) {
+			if (_settings.link) {
+				_logo.style.opacity = _settings.out;
+			}
+			return;
+		}
+		
+		function _overHandler(evt) {
+			if (_settings.hide) {
+				_logo.style.opacity = _settings.over;
+			}
+			return;
+		}
 		
 		function _getStyle() {
 			var _imageStyle = {
 				textDecoration: "none",
-				position: "absolute"
+				position: "absolute",
+				cursor: "pointer"
 			};
 			_imageStyle.display = _settings.hide ? "none" : "block";
 			var positions = _settings.position.toLowerCase().split("-");
@@ -3439,48 +3492,27 @@ playerReady = function(obj) {
 			return _imageStyle;
 		}
 		
-		this.resize = function(width, height) {
-		};
-		
-		this.getDisplayElement = function() {
-			return _logo;
-		};
-		
-		function _logoClickHandler(evt) {
-			evt.stopPropagation();
-			window.open(_settings.link, "_blank");
-			return;
+		function _show() {
+			if (_settings.hide) {
+				_logo.style.display = "block";
+				_logo.style.opacity = 0;
+				jwplayer.html5.utils.fadeTo(_logo, _settings.out, 0.1, parseFloat(_logo.style.opacity));
+				_timeout = setTimeout(function() {
+					_hide();
+				}, _settings.timeout * 1000);
+			}
 		}
 		
-		function fade() {
-			if (_timeout) {
-				clearTimeout(_timeout);
-			}
-			_timeout = setTimeout(function() {
+		function _hide() {
+			if (_settings.hide) {
 				jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity));
-			}, _settings.timeout * 1000);
+			}
 		}
 		
 		function _stateHandler(obj) {
-			switch (_api.jwGetState()) {
-				case jwplayer.api.events.state.BUFFERING:
-					_logo.style.display = "block";
-					_logo.style.opacity = _settings.out;
-					if (_settings.hide) {
-						fade();
-					}
-					break;
-				case jwplayer.api.events.state.PAUSED:
-					break;
-				case jwplayer.api.events.state.IDLE:
-					break;
-				case jwplayer.api.events.state.PLAYING:
-					break;
-				default:
-					if (_settings.hide) {
-						fade();
-					}
-					break;
+			if (obj.newstate == jwplayer.api.events.state.BUFFERING) {
+				clearTimeout(_timeout);
+				_show();
 			}
 		}
 		

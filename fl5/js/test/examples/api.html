@@ -32,7 +32,8 @@
 			<a href="#" onclick="callPlayerFunction('properties');return false;">Get Value</a>
         </div>
         <script type="text/javascript">
-            jwplayer("player").setup({
+            var player = new jwplayer.html5(document.getElementById("player"));
+			player.setup({
             	players: settings.players,
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"

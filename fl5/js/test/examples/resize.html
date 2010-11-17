@@ -25,10 +25,15 @@
             	}],
             	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
             });
+			
+			function resize(width, height){
+				document.getElementById("player").width = width;
+				document.getElementById("player").height = height;
+			}
         </script>
-		<a href="#" onclick="player.jwResize(340, 280);return false;">small</a>
-		<a href="#" onclick="player.jwResize(640, 480);return false;">medium</a>
-		<a href="#" onclick="player.jwResize(720, 640);return false;">large</a>
+		<a href="#" onclick="resize(340, 280);return false;">small</a>
+		<a href="#" onclick="resize(640, 480);return false;">medium</a>
+		<a href="#" onclick="resize(720, 640);return false;">large</a>
         <h3>HTML code</h3>
     </body>
 </html>

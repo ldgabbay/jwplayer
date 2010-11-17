@@ -131,7 +131,7 @@
 				}
 				if (_api.jwGetFullscreen()) {
 					var rect = document.body.getBoundingClientRect();
-					_model.width = rect.left+rect.right;
+					_model.width = rect.left + rect.right;
 					_model.height = window.innerHeight;
 				}
 				_resize(_model.width, _model.height);
@@ -333,7 +333,7 @@
 					document.onkeydown = _keyHandler;
 					clearInterval(_resizeInterval);
 					var rect = document.body.getBoundingClientRect();
-					_model.width = rect.left+rect.right;
+					_model.width = rect.left + rect.right;
 					_model.height = window.innerHeight;
 					var style = {
 						position: "fixed",
