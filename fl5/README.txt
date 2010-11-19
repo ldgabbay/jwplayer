@@ -30,11 +30,11 @@ Alternately, if you're using Flex Builder or Flash Builder, you may use the foll
 9. Under the "Project" menu, choose "Export Release Build".
 10. The player will be compiled as bin-release/{Your Project Name}.swf.
 
-=== Compiling the Player With Flash CS4 ===
+=== Compiling the Player With Flash CS4/CS5 ===
 
 1. Create a new FLA file in the "src" directory. 
 2. In the Properties menu, under "Publish", enter "com.longtailvideo.jwplayer.player.Player" in the Class field. 
 3. Open the "Preferences" menu, go to the Actionscript panel, then click the "Actionscript 3.0 settings" button.  Enter the path to the Flex SDK in the "Flex SDK Path" field.
 4. Open the Publish Settings dialog and click the "Settings" button next to the "Script" dropdown. 
-5. Click the "Library path" tab, and edit the entry "$(FlexSDK)/frameworks/libs/flex.swc" to read "$(FlexSDK)/frameworks/libs" (i.e. remove "flex.swc"). 
+5. Click the "Library path" tab, and remove all of the entries listed there.  Then add a new entry: "$(FlexSDK)/frameworks/libs"
 6. Publish the application.
