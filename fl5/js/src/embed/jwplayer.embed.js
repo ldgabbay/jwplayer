@@ -172,6 +172,11 @@
 		delete params.levels;
 		delete params.playlist;
 		
+		var wmode = "opaque";
+		if (params.wmode) {
+			wmode = params.wmode;
+		}
+		
 		jwplayer.embed.parseConfigBlock(params, 'components');
 		jwplayer.embed.parseConfigBlock(params, 'providers');
 		
@@ -190,7 +195,7 @@
 			html += '<param name="movie" value="' + _player.src + '">';
 			html += '<param name="allowfullscreen" value="true">';
 			html += '<param name="allowscriptaccess" value="always">';
-			html += '<param name="wmode" value="opaque">';
+			html += '<param name="wmode" value="' + wmode + '">';
 			html += '<param name="flashvars" value="' +
 			jwplayer.embed.jsonToFlashvars(params) +
 			'">';
@@ -213,7 +218,7 @@
 			obj.setAttribute('name', _container.id);
 			jwplayer.embed.appendAttribute(obj, 'allowfullscreen', 'true');
 			jwplayer.embed.appendAttribute(obj, 'allowscriptaccess', 'always');
-			jwplayer.embed.appendAttribute(obj, 'wmode', 'opaque');
+			jwplayer.embed.appendAttribute(obj, 'wmode', wmode);
 			jwplayer.embed.appendAttribute(obj, 'flashvars', jwplayer.embed.jsonToFlashvars(params));
 			_container.parentNode.replaceChild(obj, _container);
 			return obj;
