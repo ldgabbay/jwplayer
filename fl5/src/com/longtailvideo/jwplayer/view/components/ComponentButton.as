@@ -99,8 +99,16 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		public function setBackground(background:DisplayObject = null):void {
+			if (_background){
+				removeChild(_background);				
+			}
 			if (background) {
 				_background = background;
+				nameDisplayObject("backgroundLayer", _background);
+				addChild(_background);
+				setChildIndex(_background, 0);
+				_background.x = 0;
+				_background.y = 0;
 			}
 		}
 
@@ -117,6 +125,7 @@ package com.longtailvideo.jwplayer.view.components {
 				_overIcon = overIcon;
 			}
 		}
+		
 		public function resize(width:Number, height:Number):void {
 		}
 		
