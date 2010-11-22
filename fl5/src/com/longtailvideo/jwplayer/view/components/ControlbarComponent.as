@@ -108,15 +108,13 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		protected var _fullscreen:Boolean = false;
 		
-		protected var controlbarConfig:PluginConfig;
 		protected var animations:Animations;
 		protected var hiding:Number;
 		
 		public function ControlbarComponent(player:IPlayer) {
 			super(player, "controlbar");
-			controlbarConfig = _player.config.pluginConfig(_name);
 			animations = new Animations(this);
-			if (controlbarConfig['position'] == "over" && hideOnIdle) {
+			if (getConfigParam('position') == "over" && hideOnIdle) {
 				alpha = 0;
 			}
 			
@@ -165,11 +163,11 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 
 		private function get fadeOnTimeout():Boolean {
-			return controlbarConfig['position'] == 'over' || (_player.config.fullscreen && controlbarConfig['position'] != 'none');
+			return getConfigParam('position') == 'over' || (_player.config.fullscreen && getConfigParam('position') != 'none');
 		}
 		
 		private function get hideOnIdle():Boolean {
-			return String(controlbarConfig['idlehide']) == "true";
+			return String(getConfigParam('idlehide')) == "true";
 		}
 		
 		private function startFader():void {
@@ -675,11 +673,12 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 			
 			_width = width;
-
+			
 			if (getConfigParam('position') == 'over' || _player.config.fullscreen == true) {
-				x = getConfigParam('margin') + player.config.pluginConfig('display')['x'];
-				y = height - background.height - getConfigParam('margin') + player.config.pluginConfig('display')['y'];
-				_width = width - 2 * getConfigParam('margin');
+				var margin:Number = getConfigParam('margin') == null ? 0 : getConfigParam('margin'); 
+				x = margin + player.config.pluginConfig('display')['x'];
+				y = height - background.height - margin + player.config.pluginConfig('display')['y'];
+				_width = width - 2 * margin;
 			}
 
 			//shade.width = _width;
