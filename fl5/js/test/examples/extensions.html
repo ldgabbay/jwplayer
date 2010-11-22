@@ -8,7 +8,9 @@
         </script>
     </head>
     <body>
-        <h1>File extensions with query params (access keys)</h1>
+        <script type="text/javascript">
+            document.write("<h1>" + document.title + "</h1>");
+        </script>
         <p>
             This parses a &lt;video&gt; tag and sets up a player in it's place for IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
         </p>
@@ -20,7 +22,6 @@
         </video>
         <script type="text/javascript">
             jwplayer("player").setup({
-            	players: settings.players,
             	players: [{
             		type: "html5"
             	}]

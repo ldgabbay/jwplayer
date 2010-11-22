@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Manages playback of http streaming flv and mp4.
  **/
 package com.longtailvideo.jwplayer.media {
@@ -9,6 +9,7 @@ package com.longtailvideo.jwplayer.media {
 	import com.longtailvideo.jwplayer.utils.Configger;
 	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.NetClient;
+	import com.longtailvideo.jwplayer.utils.Strings;
 	
 	import flash.events.*;
 	import flash.media.*;
@@ -171,7 +172,7 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Create the video request URL. **/
 		protected function getURL():String {
-			var url:String = item.file;
+			var url:String = Strings.getAbsolutePath(item.file, config['netstreambasepath']);
 			var off:Number = _byteoffset;
 			if (getConfigProperty('startparam') as String) {
 				_startparam = getConfigProperty('startparam');

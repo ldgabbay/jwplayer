@@ -1,11 +1,11 @@
-﻿package com.longtailvideo.jwplayer.utils {
-
+package com.longtailvideo.jwplayer.utils {
+	
 	/**
 	 * This class groups a couple of commonly used string operations.
 	 * @author Jeroen Wijering
 	 **/
 	public class Strings {
-
+		
 		/**
 		 * Unescape a string and filter "asfunction" occurences ( can be used for XSS exploits).
 		 *
@@ -19,7 +19,7 @@
 				return '';
 			}
 		}
-
+		
 		/**
 		 * Convert a number to a digital-clock like string.
 		 *
@@ -32,7 +32,7 @@
 			var str:String = Strings.zero(min) + ':' + Strings.zero(sec);
 			return str;
 		}
-
+		
 		/**
 		 * Convert a time-representing string to a number.
 		 *
@@ -60,7 +60,7 @@
 			}
 			return sec;
 		}
-
+		
 		/**
 		 * Basic serialization: string representations of booleans and numbers are returned typed;
 		 * strings are returned urldecoded.
@@ -81,7 +81,7 @@
 				return Number(val);
 			}
 		}
-
+		
 		/**
 		 * Strip HTML tags and linebreaks off a string.
 		 *
@@ -102,7 +102,7 @@
 			}
 			return str;
 		}
-
+		
 		/**
 		 * Add a leading zero to a number.
 		 *
@@ -160,7 +160,7 @@
 			if (typeof(object) == "object") {
 				result += "}";
 			}
-
+			
 			return result;
 		}
 		
@@ -177,7 +177,45 @@
 			}
 			return "";
 		}
-
+		
+		/** Gets an absolute file path based on a relative filepath **/
+		public static function getAbsolutePath(path:String, basepath:String=null):String {
+			if (basepath == null){
+				return path;
+			}
+			if (isAbsolutePath(path)) {
+				return path;
+			}
+			var protocol:String = basepath.substring(0, basepath.indexOf("://") + 3);
+			var domain:String = basepath.substring(protocol.length, basepath.indexOf('/', protocol.length + 1));
+			var patharray:Array;
+			if (path.indexOf("/") === 0) {
+				patharray = path.split("/");
+			} else {
+				var basepath:String = basepath.split("?")[0];
+				basepath = basepath.substring(protocol.length + domain.length + 1, basepath.lastIndexOf('/'));
+				patharray = basepath.split("/").concat(path.split("/"));
+			}
+			var result:Array = [];
+			for (var i:int = 0; i < patharray.length; i++) {
+				if (!patharray[i] || patharray[i] === undefined || patharray[i] == ".") {
+					continue;
+				} else if (patharray[i] == "..") {
+					result.pop();
+				} else {
+					result.push(patharray[i]);
+				}
+			}
+			return protocol + domain + "/" + result.join("/");
+		};
+		
+		public static function isAbsolutePath(path:String):Boolean {
+			var protocol:int = path.indexOf("://");
+			var queryparams:int = path.indexOf("?");
+			return (protocol > 0 && (queryparams < 0 || (queryparams > protocol)));
+		}
+		
+		
 	}
-
+	
 }

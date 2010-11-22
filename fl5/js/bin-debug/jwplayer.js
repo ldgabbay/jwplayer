@@ -1021,8 +1021,7 @@ playerReady = function(obj) {
 			src: "player.swf"
 		}, {
 			type: 'html5'
-		},
-		{
+		}, {
 			type: 'download'
 		}],
 		components: {
@@ -1257,7 +1256,7 @@ playerReady = function(obj) {
 	};
 	
 	jwplayer.embed.jsonToFlashvars = function(json) {
-		var flashvars = '';
+		var flashvars = 'netstreambasepath=' + escape(window.location.href) + '&';
 		for (key in json) {
 			flashvars += key + '=' + escape(json[key]) + '&';
 		}
@@ -1392,20 +1391,23 @@ playerReady = function(obj) {
 	};
 	
 	/** Gets an absolute file path based on a relative filepath **/
-	jwplayer.html5.utils.getAbsolutePath = function(path) {
+	jwplayer.html5.utils.getAbsolutePath = function(path, base) {
+		if (base === undefined){
+			base = document.location.href;
+		}
 		if (path === undefined) {
 			return undefined;
 		}
 		if (isAbsolutePath(path)) {
 			return path;
 		}
-		var protocol = document.location.href.substring(0, document.location.href.indexOf("://") + 3);
-		var domain = document.location.href.substring(protocol.length, document.location.href.indexOf('/', protocol.length + 1));
+		var protocol = base.substring(0, base.indexOf("://") + 3);
+		var domain = base.substring(protocol.length, base.indexOf('/', protocol.length + 1));
 		var patharray;
 		if (path.indexOf("/") === 0) {
 			patharray = path.split("/");
 		} else {
-			var basepath = document.location.href.split("?")[0];
+			var basepath = base.split("?")[0];
 			basepath = basepath.substring(protocol.length + domain.length + 1, basepath.lastIndexOf('/'));
 			patharray = basepath.split("/").concat(path.split("/"));
 		}

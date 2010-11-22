@@ -1,14 +1,16 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
     <head>
-        <title>Multiple sources</title>
+        <title>FLV Failover</title>
         <script type="text/javascript" src="../../bin-debug/jwplayer.js">
         </script>
         <script type="text/javascript" src="settings.js">
         </script>
     </head>
     <body>
-        <h1>MP4 plus OGG video</h1>
+        <script type="text/javascript">
+            document.write("<h1>" + document.title + "</h1>");
+        </script>
 		 <p>
            This page contains a player with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
         </p>
@@ -18,7 +20,6 @@
         <script type="text/javascript">
             jwplayer("player").setup({
             	players: settings.players,
-				flashplayer: "http://player.longtailvideo.com/player.swf",
             	levels: [{
 	           		file: "http://developer.longtailvideo.com/player/trunk/js/test/files/bunny.flv"
             	}, {

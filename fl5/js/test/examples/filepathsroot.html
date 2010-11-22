@@ -8,7 +8,9 @@
         </script>
     </head>
     <body>
-        <h1>Root file paths</h1>
+        <script type="text/javascript">
+            document.write("<h1>" + document.title + "</h1>");
+        </script>
         <p>
             This page sets up a players to test referencing files via a root path. You should open Charles and confirm that you do not see any duplicate requests for resources, and that no resources have //, ./, or ../ in their path.
         </p>
@@ -20,8 +22,7 @@
             This references files based on an absoute path, vis-a-vis "/videos/video.mp4"
         </p>
         <video height="270" id="player" poster="/player/trunk/fl5/js/test/files/bunny.png" width="480">
-            <source src="/player/trunk/fl5/js/test/files/bunny.mp4" type="video/mp4" />
-			<source src="/player/trunk/fl5/js/test/files/bunny.ogv" type="video/ogg" />
+            <source src="/player/trunk/fl5/js/test/files/bunny.mp4" type="video/mp4" /><source src="/player/trunk/fl5/js/test/files/bunny.ogv" type="video/ogg" />
             <p>
                 HTML5 Player should replace this.
             </p>
@@ -29,13 +30,7 @@
         <script type="text/javascript">
             setTimeout(function() {
             	jwplayer("player").setup({
-            	players: settings.players,
-            		players: [{
-            			type: "html5"
-            		}, {
-            			type: "flash",
-            			src: "../../../fl5/player.swf"
-            		}]
+            		players: settings.players
             	});
             }, 1000);
         </script>

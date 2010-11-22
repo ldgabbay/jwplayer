@@ -8,24 +8,26 @@
         </script>
     </head>
     <body>
-        <h1>Multiple custom players</h1>
+        <script type="text/javascript">
+            document.write("<h1>" + document.title + "</h1>");
+        </script>
         <p>
             This page tests various configuration options.
         </p>
         <p>
-           It contains two players with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
+            It contains two players with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
         </p>
         <h3>Player 1</h3>
-		<p>
-			Autostart, mute, repeats (single) playlist item, debug enabled.
-		</p>
+        <p>
+            Autostart, mute, repeats (single) playlist item, debug enabled.
+        </p>
         <div height="270" id="player1" width="480">
-        	HTML5 Player should replace this
+            HTML5 Player should replace this
         </div>
         <script type="text/javascript">
             jwplayer("player1").setup({
             	players: settings.players,
-            	autostart: true,
+            	//autostart: true,
             	mute: true,
             	repeat: "single",
             	levels: [{
@@ -39,11 +41,11 @@
             });
         </script>
         <h3>Player 2</h3>
-		<p>
-			Different dimensions, screencolor, duration, volume, skin (Stromtrooper)
-		</p>
+        <p>
+            Different dimensions, screencolor, duration, volume, skin (Stromtrooper)
+        </p>
         <div height="270" id="player2" width="480">
-        	HTML5 Player should replace this
+            HTML5 Player should replace this
         </div>
         <script type="text/javascript">
             jwplayer("player2").setup({
@@ -60,6 +62,29 @@
             	}],
             	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
             	skin: "../../../../../skins/stormtrooper/stormtrooper.xml"
+            });
+        </script>
+        <h3>Player 3</h3>
+        <p>
+            Percentage height / width
+        </p>
+        <div height="270" id="player3" width="480">
+            HTML5 Player should replace this
+        </div>
+        <div style="background-color:black; width:50%; height:50%; position:absolute; display:block; ">
+            &nbsp;
+        </div>
+        <script type="text/javascript">
+            jwplayer("player3").setup({
+            	players: settings.players,
+            	height: "50%",
+            	width: "50%",
+            	levels: [{
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
             });
         </script>
         <h3>HTML code</h3>

@@ -15,8 +15,7 @@
 			src: "player.swf"
 		}, {
 			type: 'html5'
-		},
-		{
+		}, {
 			type: 'download'
 		}],
 		components: {
@@ -251,7 +250,7 @@
 	};
 	
 	jwplayer.embed.jsonToFlashvars = function(json) {
-		var flashvars = '';
+		var flashvars = 'netstreambasepath=' + escape(window.location.href) + '&';
 		for (key in json) {
 			flashvars += key + '=' + escape(json[key]) + '&';
 		}

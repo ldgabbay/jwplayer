@@ -1,4 +1,4 @@
-﻿package com.longtailvideo.jwplayer.media {
+package com.longtailvideo.jwplayer.media {
 	import com.longtailvideo.jwplayer.events.MediaEvent;
 	import com.longtailvideo.jwplayer.model.PlayerConfig;
 	import com.longtailvideo.jwplayer.model.PlaylistItem;
@@ -11,8 +11,8 @@
 	import flash.media.*;
 	import flash.net.*;
 	import flash.utils.*;
-
-
+	
+	
 	/**
 	 * Wrapper for playback of progressively downloaded _video.
 	 **/
@@ -39,13 +39,13 @@
 		private var _bandwidthSwitch:Boolean = true;
 		/** Bandwidth check interval **/
 		private var _bandwidthTimeout:Number = 2000;
-
+		
 		/** Constructor; sets up the connection and display. **/
 		public function VideoMediaProvider() {
 			super('video');
 		}
-
-
+		
+		
 		public override function initializeMediaProvider(cfg:PlayerConfig):void {
 			super.initializeMediaProvider(cfg);
 			_connection = new NetConnection();
@@ -61,14 +61,14 @@
 			_video.smoothing = config.smoothing;
 			_video.attachNetStream(_stream);
 		}
-
-
+		
+		
 		/** Catch security errors. **/
 		protected function errorHandler(evt:ErrorEvent):void {
 			error(evt.text);
 		}
-
-
+		
+		
 		/** Load content. **/
 		override public function load(itm:PlaylistItem):void {
 			var replay:Boolean;
@@ -82,24 +82,25 @@
 			}
 			
 			if (!item 
-					|| _currentFile != itm.file 
-					|| _stream.bytesLoaded == 0 
-					|| (_stream.bytesLoaded < _stream.bytesTotal > 0)) 
+				|| _currentFile != itm.file 
+				|| _stream.bytesLoaded == 0 
+				|| (_stream.bytesLoaded < _stream.bytesTotal > 0)) 
 			{
 				_currentFile = itm.file;
 				if (!(Strings.extension(_currentFile) == "aac" || Strings.extension(_currentFile) == "m4a")) {
 					media = _video;
 				}
 				_stream.checkPolicyFile = true;
-				_stream.play(itm.file);
+				var filePath:String = Strings.getAbsolutePath(itm.file, config['netstreambasepath']);
+				_stream.play(filePath);
 				_stream.pause();
 			} else {
 				if (itm.duration <= 0) { itm.duration = item.duration; }
 				seekStream(itm.start, false);
 			}
-
+			
 			_item = itm;
-
+			
 			super.load(itm);
 			
 			setState(PlayerState.BUFFERING);
@@ -109,9 +110,9 @@
 			
 			clearInterval(_positionInterval);
 			_positionInterval = setInterval(positionHandler, 200);
-
+			
 		}
-
+		
 		/** Get metadata information from netstream class. **/
 		public function onClientData(dat:Object):void {
 			if (!dat) return;
@@ -125,15 +126,15 @@
 			}
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: dat});
 		}
-
-
+		
+		
 		/** Pause playback. **/
 		override public function pause():void {
 			_stream.pause();
 			super.pause();
 		}
-
-
+		
+		
 		/** Resume playing. **/
 		override public function play():void {
 			if (!_positionInterval) {
@@ -146,15 +147,15 @@
 				setState(PlayerState.BUFFERING);
 			}
 		}
-
-
+		
+		
 		/** Interval for the position progress **/
 		protected function positionHandler():void {
 			if (!_bandwidthChecked && _stream.bytesLoaded > 0) {
 				_bandwidthChecked = true;
 				setTimeout(checkBandwidth, _bandwidthTimeout, _stream.bytesLoaded);
 			}
-
+			
 			var pos:Number = Math.round(Math.min(_stream.time, Math.max(item.duration, 0)) * 100) / 100;
 			var timeRemaining:Number = item.duration > 0 ? (item.duration - _stream.time) : _stream.time;
 			var bufferTime:Number;
@@ -174,7 +175,7 @@
 				_bufferFull = true;
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_BUFFER_FULL);
 			}
-
+			
 			if (!_bufferingComplete) {
 				var bufferPercent:Number;
 				if (_stream.bytesTotal > 0) {
@@ -187,11 +188,11 @@
 				}
 				sendBufferEvent(bufferPercent, 0, {loaded:_stream.bytesLoaded, total:_stream.bytesTotal});
 			}
-
+			
 			if (state != PlayerState.PLAYING) {
 				return;
 			}
-
+			
 			_position = pos;
 			
 			if (position < item.duration) {
@@ -202,7 +203,7 @@
 				complete();
 			}
 		}
-
+		
 		private function checkBandwidth(lastLoaded:Number):void {
 			var currentLoaded:Number = _stream.bytesLoaded;
 			var bandwidth:Number = Math.ceil((currentLoaded - lastLoaded) / 1024) * 8 / (_bandwidthTimeout / 1000);
@@ -226,7 +227,7 @@
 			}
 			setTimeout(checkBandwidth, _bandwidthTimeout, currentLoaded);
 		}
-
+		
 		/** Seek to a new position. **/
 		override public function seek(pos:Number):void {
 			seekStream(pos);
@@ -244,8 +245,8 @@
 				}
 			}
 		}
-
-
+		
+		
 		/** Receive NetStream status updates. **/
 		protected function statusHandler(evt:NetStatusEvent):void {
 			switch (evt.info.code) {
@@ -258,8 +259,8 @@
 			}
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {status: evt.info.code}});
 		}
-
-
+		
+		
 		/** Destroy the video. **/
 		override public function stop():void {
 			if (_stream.bytesLoaded < _stream.bytesTotal) {
@@ -272,8 +273,8 @@
 			_positionInterval = undefined;
 			super.stop();
 		}
-
-
+		
+		
 		/** Set the volume level. **/
 		override public function setVolume(vol:Number):void {
 			streamVolume(vol);			
