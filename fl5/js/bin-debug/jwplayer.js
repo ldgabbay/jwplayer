@@ -3079,6 +3079,7 @@ playerReady = function(obj) {
 		var _view = view;
 		var _container = container;
 		var _itemUpdated = true;
+		var _oldstart = -1;
 		
 		var debug = (_model.config.debug !== undefined) && (_model.config.debug.toString().toLowerCase() == 'console');
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher(_container.id, debug);
@@ -3092,12 +3093,19 @@ playerReady = function(obj) {
 		
 		function _play() {
 			try {
-				if (_model.playlist[0].levels[0].file.length > 0) {
+				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					if (_itemUpdated || _model.state == jwplayer.api.events.state.IDLE) {
 						_model.setActiveMediaProvider(_model.playlist[_model.item]);
 						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, function() {
 							_model.getMedia().play();
 						});
+						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, function(evt) {
+							if (evt.position >=  _model.playlist[_model.item].start && _oldstart >= 0) {
+								_model.playlist[_model.item].start = _oldstart;
+								_oldstart = -1;
+							}
+						});
+						
 						if (_model.config.repeat) {
 							_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
 								setTimeout(_completeHandler, 25);
@@ -3120,7 +3128,7 @@ playerReady = function(obj) {
 		/** Switch the pause state of the player. **/
 		function _pause() {
 			try {
-				if (_model.playlist[0].levels[0].file.length > 0) {
+				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					switch (_model.state) {
 						case jwplayer.api.events.state.PLAYING:
 						case jwplayer.api.events.state.BUFFERING:
@@ -3139,8 +3147,18 @@ playerReady = function(obj) {
 		/** Seek to a position in the video. **/
 		function _seek(position) {
 			try {
-				if (_model.playlist[0].levels[0].file.length > 0) {
+				if (_model.playlist[_model.item].levels[0].file.length > 0) {
+					if (typeof position != "number") {
+						position = parseFloat(position);
+					}
 					switch (_model.state) {
+						case jwplayer.api.events.state.IDLE:
+							if (_oldstart < 0) {
+								_oldstart = _model.playlist[_model.item].start;
+								_model.playlist[_model.item].start = position;
+							}
+							_play();
+							break;
 						case jwplayer.api.events.state.PLAYING:
 						case jwplayer.api.events.state.PAUSED:
 						case jwplayer.api.events.state.BUFFERING:
@@ -3159,7 +3177,7 @@ playerReady = function(obj) {
 		/** Stop playback and loading of the video. **/
 		function _stop() {
 			try {
-				if (_model.playlist[0].levels[0].file.length > 0 && _model.state != jwplayer.api.events.state.IDLE) {
+				if (_model.playlist[_model.item].levels[0].file.length > 0 && _model.state != jwplayer.api.events.state.IDLE) {
 					_model.getMedia().stop();
 				}
 				return true;
@@ -3172,7 +3190,7 @@ playerReady = function(obj) {
 		/** Stop playback and loading of the video. **/
 		function _next() {
 			try {
-				if (_model.playlist[0].levels[0].file.length > 0) {
+				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					if (_model.config.shuffle) {
 						_item(_getShuffleItem());
 					} else if (_model.item + 1 == _model.playlist.length) {
@@ -3194,7 +3212,7 @@ playerReady = function(obj) {
 		/** Stop playback and loading of the video. **/
 		function _prev() {
 			try {
-				if (_model.playlist[0].levels[0].file.length > 0) {
+				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					if (_model.config.shuffle) {
 						_item(_getShuffleItem());
 					} else if (_model.item === 0) {
@@ -3233,7 +3251,7 @@ playerReady = function(obj) {
 			_model.resetEventListeners();
 			_model.addGlobalListener(forward);
 			try {
-				if (_model.playlist[0].levels[0].file.length > 0) {
+				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					var oldstate = _model.state;
 					if (oldstate !== jwplayer.api.events.state.IDLE) {
 						_stop();
