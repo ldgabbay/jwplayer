@@ -211,7 +211,7 @@ package com.longtailvideo.jwplayer.media {
 		private function initDVR(pos:Number):void { 
 			_dvroffset = pos;
 			_dvrloaded = new Date().valueOf() - config.bufferlength * 1000;
-			resize(_width, _height);
+			super.resize(_width, _height);
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {dvroffset:_dvroffset}});
 		}
 
@@ -251,7 +251,7 @@ package com.longtailvideo.jwplayer.media {
 			if (dat.width) {
 				_video.width = dat.width;
 				_video.height = dat.height;
-				resize(_width, _height);
+				super.resize(_width, _height);
 			}
 			if(dat.videoframerate) { 
 				_framerate = Number(dat.videoframerate);

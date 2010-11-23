@@ -375,8 +375,12 @@ package com.longtailvideo.jwplayer.controller {
 						_model.media.load(_model.playlist.currentItem);
 						break;
 					case PlayerState.PAUSED:
-						_model.media.seek(_queuedSeek);
-						_model.media.play();
+						if (_queuedSeek >= 0) { 
+							_model.media.seek(_queuedSeek);
+							_queuedSeek = -1; 
+						} else { 
+							_model.media.play(); 
+						}
 						break;
 				}
 			}
