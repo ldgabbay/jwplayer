@@ -45,7 +45,9 @@ package com.longtailvideo.jwplayer.controller {
 			if (pluginList) {
 				var plugins:Array = pluginList.replace(/\s*/g,"").split(",");
 				for each(var plugin:String in plugins) {
-					loadLocalPlugin(plugin); //Testing
+					if (plugin){
+						loadLocalPlugin(plugin); //Testing	
+					}
 				}
 			} else {
 				dispatchEvent(new Event(Event.COMPLETE));
