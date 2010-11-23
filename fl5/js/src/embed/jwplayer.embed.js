@@ -12,17 +12,21 @@
 		this.constructor(playerApi);
 	};
 	
-	jwplayer.embed.defaults = {
-		width: 400,
-		height: 300,
-		players: [{
+	function _playerDefaults() {
+		return [{
 			type: "flash",
 			src: "player.swf"
 		}, {
 			type: 'html5'
 		}, {
 			type: 'download'
-		}],
+		}];
+	}
+	
+	jwplayer.embed.defaults = {
+		width: 400,
+		height: 300,
+		players: _playerDefaults(),
 		components: {
 			controlbar: {
 				position: 'over'
@@ -254,11 +258,11 @@
 		
 		var _display = {};
 		var _width = _options.width ? _options.width : 480;
-		if (typeof _width != "number"){
+		if (typeof _width != "number") {
 			_width = parseInt(_width, 10);
 		}
 		var _height = _options.height ? _options.height : 320;
-		if (typeof _height != "number"){
+		if (typeof _height != "number") {
 			_height = parseInt(_height, 10);
 		}
 		var _file, _image, _cursor;
@@ -353,13 +357,13 @@
 		};
 		
 		_display.display = createElement("a", "display");
-		if (_file){
-			_display.display.setAttribute("href", jwplayer.utils.getAbsolutePath(_file));			
+		if (_file) {
+			_display.display.setAttribute("href", jwplayer.utils.getAbsolutePath(_file));
 		}
 		_display.display_image = createElement("img", "display_image");
 		_display.display_image.setAttribute("alt", "Click to download...");
-		if (_image){
-			_display.display_image.setAttribute("src", jwplayer.utils.getAbsolutePath(_image));			
+		if (_image) {
+			_display.display_image.setAttribute("src", jwplayer.utils.getAbsolutePath(_image));
 		}
 		//TODO: Add test to see if browser supports base64 images?
 		if (true) {
@@ -434,20 +438,14 @@
 	
 	jwplayer.api.PlayerAPI.prototype.setup = function(options, players) {
 		if (options && options.flashplayer && !options.players) {
-			options.players = [{
-				type: 'flash',
-				src: options.flashplayer
-			}, {
-				type: 'html5'
-			}];
+			options.players = _playerDefaults();
+			options.players[0].src = options.flashplayer;
 			delete options.flashplayer;
 		}
 		if (players && !options.players) {
 			if (typeof players == "string") {
-				options.players = [{
-					type: "flash",
-					src: players
-				}];
+				options.players = _playerDefaults();
+				options.players[0].src = players;
 			} else if (players instanceof Array) {
 				options.players = players;
 			} else if (typeof players == "object" && players.type) {
