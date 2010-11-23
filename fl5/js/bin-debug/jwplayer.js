@@ -1201,7 +1201,7 @@ var $jw = jwplayer;
 		// Player Public Methods
 		setFullscreen: function(fullscreen) {
 			if (fullscreen === undefined) {
-				this.callInternal("jwSetFullscreen", true);
+				this.callInternal("jwSetFullscreen", !this.callInternal('jwGetFullscreen'));
 			} else {
 				this.callInternal("jwSetFullscreen", fullscreen);
 			}
@@ -1209,7 +1209,7 @@ var $jw = jwplayer;
 		},
 		setMute: function(mute) {
 			if (mute === undefined) {
-				this.callInternal("jwSetMute", true);
+				this.callInternal("jwSetMute", !this.callInternal('jwGetMute'));
 			} else {
 				this.callInternal("jwSetMute", mute);
 			}
