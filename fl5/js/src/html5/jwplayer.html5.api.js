@@ -2,14 +2,14 @@
  * A factory for API calls that either set listeners or return data
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
 
 	jwplayer.html5.api = function(container, options) {
 		var _api = {};
 		
-		if (!jwplayer.utils.hasHTML5()) {
+		if (!jwplayer.utils.browserSupportsConfig()) {
 			return _api;
 		}
 		

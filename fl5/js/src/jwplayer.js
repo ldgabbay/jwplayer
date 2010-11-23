@@ -1,5 +1,12 @@
-jwplayer = function(container) { return jwplayer.constructor(container); };
+/**
+ * JW Player namespace definition
+ * @version 5.4
+ */
+var jwplayer = function(container) {
+	return jwplayer.constructor(container);
+};
 
-jwplayer.constructor = function(container) {};
+jwplayer.constructor = function(container) {
+};
 
-$jw = jwplayer;
+var $jw = jwplayer;

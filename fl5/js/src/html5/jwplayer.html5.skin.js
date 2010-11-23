@@ -2,7 +2,7 @@
  * JW Player component that loads PNG skins.
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
 	jwplayer.html5.skin = function() {
@@ -29,7 +29,7 @@
 				try {
 					return _components[component].elements[element];
 				} catch (err) {
-					jwplayer.html5.utils.log("No such skin component / element: ", [component, element]);
+					jwplayer.utils.log("No such skin component / element: ", [component, element]);
 				}
 			}
 			return null;

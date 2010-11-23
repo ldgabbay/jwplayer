@@ -2,7 +2,7 @@
  * JW Player Video Media component
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
 
@@ -13,7 +13,7 @@
 		"buffering": jwplayer.api.events.state.BUFFERING
 	};
 	
-	var _css = jwplayer.html5.utils.css;
+	var _css = jwplayer.utils.css;
 	
 	jwplayer.html5.mediavideo = function(model, container) {
 		var _events = {
@@ -259,7 +259,7 @@
 				}
 				message = "The video could not be loaded, either because the server or network failed or because the format is not supported: ";
 			} else {
-				jwplayer.html5.utils.log("Erroneous error received. Continuing...");
+				jwplayer.utils.log("Erroneous error received. Continuing...");
 				return;
 			}
 			_stop();
@@ -276,7 +276,7 @@
 			for (var sourceIndex in _currentItem.levels) {
 				var sourceModel = _currentItem.levels[sourceIndex];
 				var source = _container.ownerDocument.createElement("source");
-				result += jwplayer.html5.utils.getAbsolutePath(sourceModel.file);
+				result += jwplayer.utils.getAbsolutePath(sourceModel.file);
 				if (sourceIndex < (_currentItem.levels.length - 1)) {
 					result += ", ";
 				}
@@ -410,7 +410,7 @@
 			_sourceError = 0;
 			for (var sourceIndex = 0; sourceIndex < playlistItem.levels.length; sourceIndex++) {
 				var sourceModel = playlistItem.levels[sourceIndex];
-				if (jwplayer.html5.utils.isYouTube(sourceModel.file)) {
+				if (jwplayer.utils.isYouTube(sourceModel.file)) {
 					delete vid;
 					_embedYouTube(sourceModel.file);
 					return;
@@ -418,8 +418,8 @@
 				var sourceType;
 				if (sourceModel.type === undefined) {
 					var extension = jwplayer.utils.extension(sourceModel.file);
-					if (jwplayer.utils.extensionmap[extension] !== undefined) {
-						sourceType = jwplayer.utils.extensionmap[extension];
+					if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 !== undefined) {
+						sourceType = jwplayer.utils.extensionmap[extension].html5;
 					} else {
 						sourceType = 'video/' + extension + ';';
 					}
@@ -430,7 +430,7 @@
 					continue;
 				}
 				var source = _container.ownerDocument.createElement("source");
-				source.src = jwplayer.html5.utils.getAbsolutePath(sourceModel.file);
+				source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
 				source.type = sourceType;
 				_sourceError++;
 				vid.appendChild(source);
@@ -444,7 +444,7 @@
 			}
 			
 			if (_model.config.chromeless) {
-				vid.poster = jwplayer.html5.utils.getAbsolutePath(playlistItem.image);
+				vid.poster = jwplayer.utils.getAbsolutePath(playlistItem.image);
 				vid.controls = "controls";
 			}
 			vid.style.position = _container.style.position;

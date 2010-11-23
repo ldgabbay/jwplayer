@@ -2,10 +2,10 @@
  * JW Player display component
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
-	_css = jwplayer.html5.utils.css;
+	_css = jwplayer.utils.css;
 	
 	_hide = function(element) {
 		_css(element, {
@@ -223,7 +223,7 @@
 			if (_rotationInterval !== undefined) {
 				clearInterval(_rotationInterval);
 				_rotationInterval = null;
-				jwplayer.html5.utils.animations.rotate(_display.display_icon, 0);
+				jwplayer.utils.animations.rotate(_display.display_icon, 0);
 			}
 			switch (_api.jwGetState()) {
 				case jwplayer.api.events.state.BUFFERING:
@@ -231,7 +231,7 @@
 					_degreesRotated = 0;
 					_rotationInterval = setInterval(function() {
 						_degreesRotated += _bufferRotation;
-						jwplayer.html5.utils.animations.rotate(_display.display_icon, _degreesRotated % 360);
+						jwplayer.utils.animations.rotate(_display.display_icon, _degreesRotated % 360);
 					}, _bufferInterval);
 					_setDisplayIcon("bufferIcon");
 					break;
@@ -246,7 +246,7 @@
 						_css(_display.display_image, {
 							display: "block"
 						});
-						_display.display_image.src = jwplayer.html5.utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
+						_display.display_image.src = jwplayer.utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
 					} else {
 						_css(_display.display_image, {
 							display: "none"

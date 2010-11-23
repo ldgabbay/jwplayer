@@ -2,7 +2,7 @@
  * JW Player component that loads PNG skins.
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
 	/** Constructor **/
@@ -20,7 +20,7 @@
 			if (_skinPath === undefined || _skinPath === "") {
 				_loadSkin(jwplayer.html5.defaultSkin().xml);
 			} else {
-				jwplayer.utils.ajax(jwplayer.html5.utils.getAbsolutePath(_skinPath), function(xmlrequest) {
+				jwplayer.utils.ajax(jwplayer.utils.getAbsolutePath(_skinPath), function(xmlrequest) {
 					try {
 						if (xmlrequest.responseXML !== null){
 							_loadSkin(xmlrequest.responseXML);
@@ -62,7 +62,7 @@
 						var name = settings[settingIndex].getAttribute("name");
 						var value = settings[settingIndex].getAttribute("value");
 						var type = /color$/.test(name) ? "color" : null;
-						_skin[componentName].settings[name] = jwplayer.html5.utils.typechecker(value, type);
+						_skin[componentName].settings[name] = jwplayer.utils.typechecker(value, type);
 					}
 				}
 				var layout = components[componentIndex].getElementsByTagName('layout')[0];
@@ -120,7 +120,7 @@
 			if (elementSource.indexOf('data:image/png;base64,') === 0) {
 				imgUrl = elementSource;
 			} else {
-				var skinUrl = jwplayer.html5.utils.getAbsolutePath(_skinPath);
+				var skinUrl = jwplayer.utils.getAbsolutePath(_skinPath);
 				var skinRoot = skinUrl.substr(0, skinUrl.lastIndexOf('/'));
 				imgUrl = [skinRoot, component, elementSource].join('/');
 			}

@@ -2,8 +2,7 @@
  * Parser for the JW Player.
  *
  * @author zach
- * @version 1.0
- * @lastmodifieddate 2010-08-09
+ * @version 5.4
  */
 (function(jwplayer) {
 

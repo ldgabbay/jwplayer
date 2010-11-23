@@ -2,11 +2,11 @@
  * JW Player view component
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
 
-	var _css = jwplayer.html5.utils.css;
+	var _css = jwplayer.utils.css;
 	
 	jwplayer.html5.view = function(api, container, model) {
 		var _api = api;

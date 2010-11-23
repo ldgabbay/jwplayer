@@ -2,7 +2,7 @@
  * Event dispatcher for the JW Player for HTML5
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
 	jwplayer.html5.eventdispatcher = function(id, debug) {
@@ -34,7 +34,7 @@
 					count: count
 				});
 			} catch (err) {
-				jwplayer.html5.utils.log("error", err);
+				jwplayer.utils.log("error", err);
 			}
 			return false;
 		};
@@ -50,7 +50,7 @@
 					}
 				}
 			} catch (err) {
-				jwplayer.html5.utils.log("error", err);
+				jwplayer.utils.log("error", err);
 			}
 			return false;
 		};
@@ -66,7 +66,7 @@
 					count: count
 				});
 			} catch (err) {
-				jwplayer.html5.utils.log("error", err);
+				jwplayer.utils.log("error", err);
 			}
 			return false;
 		};
@@ -81,7 +81,7 @@
 					}
 				}
 			} catch (err) {
-				jwplayer.html5.utils.log("error", err);
+				jwplayer.utils.log("error", err);
 			}
 			return false;
 		};
@@ -98,14 +98,14 @@
 				type: type
 			});
 			if (_debug) {
-				jwplayer.html5.utils.log(type, data);
+				jwplayer.utils.log(type, data);
 			}
 			if (typeof _listeners[type] != "undefined") {
 				for (var listenerIndex = 0; listenerIndex < _listeners[type].length; listenerIndex++) {
 					try {
 						_listeners[type][listenerIndex].listener(data);
 					} catch (err) {
-						jwplayer.html5.utils.log("There was an error while handling a listener", _listeners[type][listenerIndex].listener, err);
+						jwplayer.utils.log("There was an error while handling a listener", _listeners[type][listenerIndex].listener, err);
 					}
 					if (_listeners[type][listenerIndex].count === 1) {
 						delete _listeners[type][listenerIndex];
@@ -118,7 +118,7 @@
 				try {
 					_globallisteners[globalListenerIndex].listener(data);
 				} catch (err) {
-					jwplayer.html5.utils.log("There was an error while handling a listener", _globallisteners[globalListenerIndex].listener, err);
+					jwplayer.utils.log("There was an error while handling a listener", _globallisteners[globalListenerIndex].listener, err);
 				}
 				if (_globallisteners[globalListenerIndex].count === 1) {
 					delete _globallisteners[globalListenerIndex];

@@ -2,7 +2,7 @@
  * JW Player controller component
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
 

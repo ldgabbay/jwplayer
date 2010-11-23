@@ -2,7 +2,7 @@
  * JW Player model component
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
 	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen", "item", "plugins"];
@@ -44,7 +44,7 @@
 		for (var option in options) {
 			if (typeof options[option] == "string") {
 				var type = /color$/.test(option) ? "color" : null;
-				options[option] = jwplayer.html5.utils.typechecker(options[option], type);
+				options[option] = jwplayer.utils.typechecker(options[option], type);
 			}
 			var config = _model.config;
 			var path = option.split(".");
@@ -207,7 +207,7 @@
 						_model.plugins.order.splice(plugin, plugin+1);
 					}
 				} catch (err) {
-					jwplayer.html5.utils.log("Could not setup " + _model.plugins.order[plugin]);
+					jwplayer.utils.log("Could not setup " + _model.plugins.order[plugin]);
 				}
 			}
 			

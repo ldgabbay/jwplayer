@@ -2,7 +2,7 @@
  * Core component of the JW Player (initialization, API).
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
 	jwplayer.html5 = function(container) {

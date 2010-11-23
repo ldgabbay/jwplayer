@@ -2,7 +2,7 @@
  * jwplayer controlbar component of the JW Player.
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
 	/** Map with config for the jwplayerControlbar plugin. **/
@@ -78,7 +78,7 @@
 		}
 	};
 	
-	_css = jwplayer.html5.utils.css;
+	_css = jwplayer.utils.css;
 	
 	_hide = function(element) {
 		_css(element, {
@@ -95,7 +95,7 @@
 	jwplayer.html5.controlbar = function(api, config) {
 		var _api = api;
 		var _settings = jwplayer.utils.extend({}, _defaults, _api.skin.getComponentSettings("controlbar"), config);
-		if (jwplayer.html5.utils.mapLength(_api.skin.getComponentLayout("controlbar")) > 0) {
+		if (jwplayer.utils.mapLength(_api.skin.getComponentLayout("controlbar")) > 0) {
 			_settings.layout = _api.skin.getComponentLayout("controlbar");
 		}
 		var _wrapper;
@@ -146,7 +146,7 @@
 		};
 		
 		this.resize = function(width, height) {
-			jwplayer.html5.utils.cancelAnimation(_wrapper);
+			jwplayer.utils.cancelAnimation(_wrapper);
 			document.getElementById(_api.id).onmousemove = _setVisiblity;
 			_width = width;
 			_height = height;
@@ -176,11 +176,11 @@
 		
 		
 		function _setVisiblity() {
-			jwplayer.html5.utils.cancelAnimation(_wrapper);
+			jwplayer.utils.cancelAnimation(_wrapper);
 			if (_remainVisible()) {
-				jwplayer.html5.utils.fadeTo(_wrapper, 1, 0, 1, 0);
+				jwplayer.utils.fadeTo(_wrapper, 1, 0, 1, 0);
 			} else {
-				jwplayer.html5.utils.fadeTo(_wrapper, 0, 0.1, 1, 2);
+				jwplayer.utils.fadeTo(_wrapper, 0, 0.1, 1, 2);
 			}
 		}
 		

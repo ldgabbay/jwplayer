@@ -1,3 +1,9 @@
+/**
+ * API for the JW Player
+ * @author Pablo
+ * @version 5.4
+ */
+
 (function(jwplayer) {
 	var _players = [];
 	

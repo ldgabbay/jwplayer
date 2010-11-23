@@ -2,33 +2,115 @@
  * JW Player Media Extension to Mime Type mapping
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
 	jwplayer.utils.extensionmap = {
-		"3gp": "video/3gpp",
-		"3gpp": "video/3gpp",
-		"3g2": "video/3gpp2",
-		"3gpp2": "video/3gpp2",
-		"flv": "video/x-flv",
-		"f4a": "audio/mp4",
-		"f4b": "audio/mp4",
-		"f4p": "video/mp4",
-		"f4v": "video/mp4",
-		"mov": "video/quicktime",
-		"m4a": "audio/mp4",
-		"m4b": "audio/mp4",
-		"m4p": "audio/mp4",
-		"m4v": "video/mp4",
-		"mkv": "video/x-matroska",
-		"mp4": "video/mp4",
-		"sdp": "application/sdp",
-		"vp6": "video/x-vp6",
-		"aac": "audio/aac",
-		"mp3": "audio/mp3",
-		"ogg": "audio/ogg",
-		"ogv": "video/ogg",
-		"webm": "video/webm",
-		"m3u8": "audio/x-mpegurl"
+		"3gp": {
+			"html5": "video/3gpp",
+			"flash": "video"
+		},
+		"3gpp": {
+			"html5": "video/3gpp"
+		},
+		"3g2": {
+			"html5": "video/3gpp2",
+			"flash": "video"
+		},
+		"3gpp2": {
+			"html5": "video/3gpp2"
+		},
+		"flv": {
+			//"html5": "video/x-flv",
+			"flash": "video"
+		},
+		"f4a": {
+			"html5": "audio/mp4"
+		},
+		"f4b": {
+			"html5": "audio/mp4",
+			"flash": "video"
+		},
+		"f4p": {
+			"html5": "video/mp4",
+			"flash": "video"
+		},
+		"f4v": {
+			"html5": "video/mp4",
+			"flash": "video"
+		},
+		"mov": {
+			"html5": "video/quicktime",
+			"flash": "video"
+		},
+		"m4a": {
+			"html5": "audio/mp4",
+			"flash": "video"
+		},
+		"m4b": {
+			"html5": "audio/mp4"
+		},
+		"m4p": {
+			"html5": "audio/mp4"
+		},
+		"m4v": {
+			"html5": "video/mp4",
+			"flash": "video"
+		},
+		"mkv": {
+			"html5": "video/x-matroska"
+		},
+		"mp4": {
+			"html5": "video/mp4",
+			"flash": "video"
+		},
+		"rbs":{
+			"flash": "sound"
+		},
+		"sdp": {
+			"html5": "application/sdp",
+			"flash": "video"
+		},
+		"vp6": {
+			"html5": "video/x-vp6"
+		},
+		"aac": {
+			"html5": "audio/aac",
+			"flash": "video"
+		},
+		"mp3": {
+			"html5": "audio/mp3",
+			"flash": "sound"
+		},
+		"ogg": {
+			//"flash" : "video",
+			"html5": "audio/ogg"
+		},
+		"ogv": {
+			//"flash" : "video",
+			"html5": "video/ogg"
+		},
+		"webm": {
+			//"flash" : "video",
+			"html5": "video/webm"
+		},
+		"m3u8": {
+			"html5": "audio/x-mpegurl"
+		},
+		"gif": {
+			"flash": "image"
+		},
+		"jpeg": {
+			"flash": "image"
+		},
+		"jpg": {
+			"flash": "image"
+		},
+		"swf":{
+			"flash": "image"
+		},
+		"png":{
+			"flash": "image"
+		}
 	};
 })(jwplayer);

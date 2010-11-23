@@ -2,7 +2,7 @@
  * JW Player logo component
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
 
@@ -18,7 +18,7 @@
 		position: "bottom-left"
 	};
 	
-	_css = jwplayer.html5.utils.css;
+	_css = jwplayer.utils.css;
 	
 	jwplayer.html5.logo = function(api, logoConfig) {
 		var _api = api;
@@ -138,7 +138,7 @@
 			if (_settings.hide) {
 				_logo.style.display = "block";
 				_logo.style.opacity = 0;
-				jwplayer.html5.utils.fadeTo(_logo, _settings.out, 0.1, parseFloat(_logo.style.opacity));
+				jwplayer.utils.fadeTo(_logo, _settings.out, 0.1, parseFloat(_logo.style.opacity));
 				_timeout = setTimeout(function() {
 					_hide();
 				}, _settings.timeout * 1000);
@@ -147,7 +147,7 @@
 		
 		function _hide() {
 			if (_settings.hide) {
-				jwplayer.html5.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity));
+				jwplayer.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity));
 			}
 		}
 		

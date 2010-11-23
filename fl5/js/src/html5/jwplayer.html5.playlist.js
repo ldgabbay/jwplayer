@@ -2,7 +2,7 @@
  * JW Player playlist model
  *
  * @author zach
- * @version 1.0
+ * @version 5.4
  */
 (function(jwplayer) {
 	jwplayer.html5.playlist = function(config) {
