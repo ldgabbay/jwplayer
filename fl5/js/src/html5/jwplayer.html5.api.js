@@ -99,7 +99,7 @@
 				
 				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
 				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-					"item": model.config.item
+					"index": model.config.item
 				});
 				
 				if (model.config.autostart === true && !model.config.chromeless) {

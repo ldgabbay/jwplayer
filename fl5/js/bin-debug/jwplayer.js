@@ -923,7 +923,6 @@ var $jw = jwplayer;
  * @author Pablo
  * @version 5.4
  */
-
 (function(jwplayer) {
 	var _players = [];
 	
@@ -1041,11 +1040,6 @@ var $jw = jwplayer;
 			if (type == jwplayer.api.events.JWPLAYER_FULLSCREEN) {
 				translated.fullscreen = translated.message;
 				delete translated.message;
-			} else if (type == jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM) {
-				if (translated.item && translated.index === undefined) {
-					translated.index = translated.item;
-					delete translated.item;
-				}
 			} else if (typeof translated.data == "object") {
 				// Takes ViewEvent "data" block and moves it up a level
 				translated = jwplayer.utils.extend(translated, translated.data);
@@ -1086,13 +1080,8 @@ var $jw = jwplayer;
 			
 			this.eventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, function(data) {
 				if (data.index !== undefined) {
-					// Flash player item event
 					_currentItem = data.index;
-				} else if (data.item !== undefined) {
-					// HTML5 player item event
-					_currentItem = data.item;
 				}
-				// TODO: reconcile API discrepancies
 				_itemMeta = {};
 			});
 			
@@ -3259,7 +3248,7 @@ playerReady = function(obj) {
 					_model.item = item;
 					_itemUpdated = true;
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-						"item": item
+						"index": item
 					});
 					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING) {
 						_play();
@@ -4659,7 +4648,7 @@ playerReady = function(obj) {
 			if (!ready) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-					"item": _model.item
+					"index": _model.item
 				});
 			}
 			_model.setActiveMediaProvider(_model.playlist[_model.item]);
@@ -5138,7 +5127,7 @@ playerReady = function(obj) {
 				
 				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
 				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-					"item": model.config.item
+					"index": model.config.item
 				});
 				
 				if (model.config.autostart === true && !model.config.chromeless) {

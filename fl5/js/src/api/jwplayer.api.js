@@ -3,7 +3,6 @@
  * @author Pablo
  * @version 5.4
  */
-
 (function(jwplayer) {
 	var _players = [];
 	
@@ -121,11 +120,6 @@
 			if (type == jwplayer.api.events.JWPLAYER_FULLSCREEN) {
 				translated.fullscreen = translated.message;
 				delete translated.message;
-			} else if (type == jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM) {
-				if (translated.item && translated.index === undefined) {
-					translated.index = translated.item;
-					delete translated.item;
-				}
 			} else if (typeof translated.data == "object") {
 				// Takes ViewEvent "data" block and moves it up a level
 				translated = jwplayer.utils.extend(translated, translated.data);
@@ -166,13 +160,8 @@
 			
 			this.eventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, function(data) {
 				if (data.index !== undefined) {
-					// Flash player item event
 					_currentItem = data.index;
-				} else if (data.item !== undefined) {
-					// HTML5 player item event
-					_currentItem = data.item;
 				}
-				// TODO: reconcile API discrepancies
 				_itemMeta = {};
 			});
 			

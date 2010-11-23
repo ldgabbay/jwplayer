@@ -194,7 +194,7 @@
 					_model.item = item;
 					_itemUpdated = true;
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-						"item": item
+						"index": item
 					});
 					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING) {
 						_play();

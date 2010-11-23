@@ -151,7 +151,7 @@
 			if (!ready) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-					"item": _model.item
+					"index": _model.item
 				});
 			}
 			_model.setActiveMediaProvider(_model.playlist[_model.item]);
