@@ -223,10 +223,6 @@ package com.longtailvideo.jwplayer.media {
 				media = _video;
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_LOADED);
 			}
-			
-			if (_timeoffset == 0) {
-				_timeoffset = _item.start;
-			}
 			_bufferFull = false;
 			_bufferingComplete = false;
 			
@@ -260,7 +256,6 @@ package com.longtailvideo.jwplayer.media {
 				item.duration = dat['duration'];
 			}
 			if (dat['type'] == 'metadata' && !_meta) {
-				_meta = true;
 				if (dat['seekpoints']) {
 					_mp4 = true;
 					_keyframes = convertSeekpoints(dat['seekpoints']);
@@ -268,9 +263,10 @@ package com.longtailvideo.jwplayer.media {
 					_mp4 = false;
 					_keyframes = dat['keyframes'];
 				}
-				if (_timeoffset > 0) {
-					seek(_timeoffset);
+				if (!_meta && _item.start) {
+					seek(_item.start);
 				}
+				_meta = true;
 			}
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: dat});
 		}
