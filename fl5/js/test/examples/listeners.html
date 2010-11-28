@@ -30,6 +30,35 @@
             </table>
         </p>
         <script type="text/javascript">
+            // Borrowed from http://www.openjs.com/scripts/others/dump_function_php_print_r.php
+            function dump(arr, level) {
+            	var dumped_text = "";
+            	if (!level) 
+            		level = 0;
+            	
+            	//The padding given at the beginning of the line.
+            	var level_padding = "";
+            	for (var j = 0; j < level + 1; j++) 
+            		level_padding += "    ";
+            	
+            	if (typeof(arr) == 'object') { //Array/Hashes/Objects 
+            		for (var item in arr) {
+            			var value = arr[item];
+            			
+            			if (typeof(value) == 'object') { //If it is an array,
+            				dumped_text += level_padding + "'" + item + "' ...\n";
+            				dumped_text += dump(value, level + 1);
+            			} else {
+            				dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
+            			}
+            		}
+            	} else { //Stings/Chars/Numbers etc.
+            		dumped_text = "===>" + arr + "<===(" + typeof(arr) + ")";
+            	}
+            	return dumped_text;
+            }
+            
+            
             jwplayer("player").setup({
             	players: settings.players,
             	levels: [{
@@ -39,28 +68,80 @@
             	}],
             	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
             });
-			
-			function forward(evt){
-				document.getElementById(evt.type).innerHTML = evt.data;
-			}
-			
+            
+            function forward(id) {
+            	return function(evt) {
+            		var result = "";
+            		var properties = events[id];
+            		if (jwplayer.utils.typeOf(properties) == "string") {
+            			result += "Event recieved - no properties";
+            		} else {
+            			for (var property in properties) {
+            				if (jwplayer.utils.typeOf(evt[property])  == properties[property]) {
+            					result += property + ": " + evt[property] + "<br />";
+            				} else {
+            					result += "<em>" + property + ": " + evt[property] + "</em> - " + jwplayer.utils.typeOf(evt[property]) + "<br />";
+            				}
+            			}
+            		}
+            		//result += dump(evt) + "<br />";
+            		document.getElementById(id).innerHTML = result;
+            	};
+            }
+            
+            
             var events = {
-            	JWPLAYER_READY: 'jwplayerReady',
-            	JWPLAYER_FULLSCREEN: 'jwplayerFullscreen',
-            	JWPLAYER_RESIZE: 'jwplayerResize',
-            	JWPLAYER_ERROR: 'jwplayerError',
-            	JWPLAYER_MEDIA_BUFFER: 'jwplayerMediaBuffer',
-            	JWPLAYER_MEDIA_BUFFER_FULL: 'jwplayerMediaBufferFull',
-            	JWPLAYER_MEDIA_ERROR: 'jwplayerMediaError',
-            	JWPLAYER_MEDIA_LOADED: 'jwplayerMediaLoaded',
-            	JWPLAYER_MEDIA_COMPLETE: 'jwplayerMediaComplete',
-            	JWPLAYER_MEDIA_TIME: 'jwplayerMediaTime',
-            	JWPLAYER_MEDIA_VOLUME: 'jwplayerMediaVolume',
-            	JWPLAYER_MEDIA_META: 'jwplayerMediaMeta',
-            	JWPLAYER_MEDIA_MUTE: 'jwplayerMediaMute',
-            	JWPLAYER_PLAYER_STATE: 'jwplayerPlayerState',
-            	JWPLAYER_PLAYLIST_LOADED: 'jwplayerPlaylistLoaded',
-            	JWPLAYER_PLAYLIST_ITEM: 'jwplayerPlaylistItem'
+            	"onBufferChange": {
+            		"bufferPercent": "number"
+            	},
+            	"onBufferFull": "",
+            	"onError": {
+            		"message": "string"
+            	},
+            	"onFullscreen": {
+            		"fullscreen": "boolean"
+            	},
+            	"onMeta": {
+            		"metadata": "object"
+            	},
+            	"onMute": {
+            		"mute": "boolean"
+            	},
+            	"onPlaylist": {
+            		"playlist": "array"
+            	},
+            	"onPlaylistItem": {
+            		"index": "number"
+            	},
+            	"onReady": "",
+            	"onResize": {
+            		"width": "number",
+            		"height": "number"
+            	},
+            	"onPlay": {
+            		"oldstate": "string",
+            		"newstate": "string"
+            	},
+            	"onPause": {
+            		"oldstate": "string",
+            		"newstate": "string"
+            	},
+            	"onBuffer": {
+            		"oldstate": "string",
+            		"newstate": "string"
+            	},
+            	"onIdle": {
+            		"oldstate": "string",
+            		"newstate": "string"
+            	},
+            	"onComplete": "",
+            	"onTime": {
+            		"duration": "number",
+            		"position": "number"
+            	},
+            	"onVolume": {
+            		"volume": "number"
+            	}
             };
             
             var table = document.getElementById("events");
@@ -68,12 +149,13 @@
             for (var event in events) {
             	var row = document.createElement("tr");
             	var eventNameColumn = document.createElement("td");
-				eventNameColumn.innerHTML = events[event]; 
-				var eventValueColumn = document.createElement("td");
-				eventValueColumn.id = events[event];
-				row.appendChild(eventNameColumn);
-				row.appendChild(eventValueColumn);
-				player.addEventListener(events[event], forward);
+            	eventNameColumn.innerHTML = event;
+            	var eventValueColumn = document.createElement("td");
+            	eventValueColumn.id = event;
+            	row.appendChild(eventNameColumn);
+            	row.appendChild(eventValueColumn);
+            	table.appendChild(row);
+            	jwplayer("player")[event](forward(event));
             }
         </script>
         <h3>HTML code</h3>

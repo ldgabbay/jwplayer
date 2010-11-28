@@ -149,7 +149,9 @@
 				_model.item = _model.config.item;
 			}
 			if (!ready) {
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
+					"playlist": model.playlist
+				});
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
 					"index": _model.item
 				});
@@ -204,7 +206,7 @@
 					} else if (window[_model.plugins.order[plugin]] !== undefined) {
 						_model.plugins.object[_model.plugins.order[plugin]] = new window[_model.plugins.order[plugin]](_api, _model.plugins.config[_model.plugins.order[plugin]]);
 					} else {
-						_model.plugins.order.splice(plugin, plugin+1);
+						_model.plugins.order.splice(plugin, plugin + 1);
 					}
 				} catch (err) {
 					jwplayer.utils.log("Could not setup " + _model.plugins.order[plugin]);

@@ -26,8 +26,32 @@
 		
 		_api.skin = new jwplayer.html5.skin();
 		
-		_api.jwPlay = _controller.play;
-		_api.jwPause = _controller.pause;
+		_api.jwPlay = function(state) {
+			if (typeof state == "undefined") {
+				_togglePlay();
+			} else if (state.toString().toLowerCase() == "true") {
+				_controller.play();
+			} else {
+				_controller.pause();
+			}
+		};
+		_api.jwPause = function(state) {
+			if (typeof state == "undefined") {
+				_togglePlay();
+			} else if (state.toString().toLowerCase() == "true") {
+				_controller.pause();
+			} else {
+				_controller.play();
+			}
+		};
+		function _togglePlay() {
+			if (_model.state == jwplayer.api.events.state.PLAYING || _model.state == jwplayer.api.events.state.BUFFERING) {
+				_controller.pause();
+			} else {
+				_controller.play();
+			}
+		}
+		
 		_api.jwStop = _controller.stop;
 		_api.jwSeek = _controller.seek;
 		_api.jwPlaylistItem = _controller.item;
@@ -97,7 +121,9 @@
 					window[model.config.playerReady](evt);
 				}
 				
-				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
+				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
+					"playlist": model.playlist
+				});
 				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
 					"index": model.config.item
 				});

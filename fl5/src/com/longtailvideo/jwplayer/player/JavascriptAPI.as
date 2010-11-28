@@ -307,21 +307,28 @@ package com.longtailvideo.jwplayer.player {
 		 ***********************************************/
 	
 		protected function js_play(playstate:*=null):void {
-			if (playstate != null && playstate != "") {
-				if ((playstate is Boolean && playstate === true) || String(playstate).toLowerCase() == "true") {
+			if (playstate == null){
+				playToggle();
+			} else {
+				if (String(playstate).toLowerCase() == "true"){
 					_player.play();
 				} else {
-					Logger.log("Pausing player: " + typeof playstate);
-					_player.pause();
+					_player.pause();	
 				}
-			} else {
-				playToggle();
 			}
 		}
 		
 		
-		protected function js_pause():void {
-			playToggle();
+		protected function js_pause(playstate:*=null):void {
+			if (playstate == null){
+				playToggle();
+			} else {
+				if (String(playstate).toLowerCase() == "true"){
+					_player.pause();
+				} else {
+					_player.play();	
+				}
+			}
 		}
 		
 		protected function playToggle():void {
@@ -357,14 +364,14 @@ package com.longtailvideo.jwplayer.player {
 		}
 
 		protected function js_mute(mutestate:*=null):void {
-			if (mutestate is Boolean) {
-				if (Boolean(mutestate)) {
+			if (mutestate == null){
+				_player.mute(!_player.config.mute);
+			} else {
+				if (String(mutestate).toLowerCase() == "true") {
 					_player.mute(true);
 				} else {
 					_player.mute(false);
 				}
-			} else {
-				_player.mute(!_player.config.mute);
 			}
 		}
 

@@ -1037,13 +1037,20 @@ var $jw = jwplayer;
 		
 		function translateEventResponse(type, eventProperties) {
 			var translated = jwplayer.utils.extend({}, eventProperties);
-			if (type == jwplayer.api.events.JWPLAYER_FULLSCREEN) {
-				translated.fullscreen = translated.message;
+			if (type == jwplayer.api.events.JWPLAYER_FULLSCREEN && !translated.fullscreen) {
+				translated.fullscreen = translated.message == "true" ? true : false;
 				delete translated.message;
 			} else if (typeof translated.data == "object") {
 				// Takes ViewEvent "data" block and moves it up a level
 				translated = jwplayer.utils.extend(translated, translated.data);
 				delete translated.data;
+			}
+			
+			var rounders = ["position", "duration", "offset"];
+			for (var rounder in rounders) {
+				if (translated[rounders[rounder]]) {
+					translated[rounders[rounder]] = Math.round(translated[rounders[rounder]] * 1000) / 1000;
+				}
 			}
 			
 			return translated;
@@ -1232,7 +1239,7 @@ var $jw = jwplayer;
 			return this;
 		},
 		play: function(state) {
-			if (typeof state === "undefined") {
+			if (typeof state == "undefined") {
 				state = this.getState();
 				if (state == jwplayer.api.events.state.PLAYING || state == jwplayer.api.events.state.BUFFERING) {
 					this.callInternal("jwPause");
@@ -1244,16 +1251,16 @@ var $jw = jwplayer;
 			}
 			return this;
 		},
-		pause: function() {
-			var state = this.getState();
-			switch (state) {
-				case jwplayer.api.events.state.PLAYING:
-				case jwplayer.api.events.state.BUFFERING:
+		pause: function(state) {
+			if (typeof state == "undefined") {
+				state = this.getState();
+				if (state == jwplayer.api.events.state.PLAYING || state == jwplayer.api.events.state.BUFFERING) {
 					this.callInternal("jwPause");
-					break;
-				case jwplayer.api.events.state.PAUSED:
+				} else {
 					this.callInternal("jwPlay");
-					break;
+				}
+			} else {
+				this.callInternal("jwPause", state);
 			}
 			return this;
 		},
@@ -3089,7 +3096,7 @@ playerReady = function(obj) {
 							_model.getMedia().play();
 						});
 						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, function(evt) {
-							if (evt.position >=  _model.playlist[_model.item].start && _oldstart >= 0) {
+							if (evt.position >= _model.playlist[_model.item].start && _oldstart >= 0) {
 								_model.playlist[_model.item].start = _oldstart;
 								_oldstart = -1;
 							}
@@ -3283,7 +3290,15 @@ playerReady = function(obj) {
 		/** Get / set the mute state of the player. **/
 		function _setMute(state) {
 			try {
-				_model.getMedia().mute(state);
+				if (typeof state == "undefined") {
+					_model.getMedia().mute(!_model.mute);
+				} else {
+					if (state.toString().toLowerCase() == "true") {
+						_model.getMedia().mute(true);
+					} else {
+						_model.getMedia().mute(false);
+					}
+				}
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -3298,6 +3313,10 @@ playerReady = function(obj) {
 				_model.width = width;
 				_model.height = height;
 				_view.resize(width, height);
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_RESIZE, {
+					"width": _model.width,
+					"height": _model.height
+				});
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -3309,8 +3328,25 @@ playerReady = function(obj) {
 		/** Jumping the player to/from fullscreen. **/
 		function _setFullscreen(state) {
 			try {
-				_model.fullscreen = state;
-				_view.fullscreen(state);
+				if (typeof state == "undefined") {
+					_model.fullscreen = !_model.fullscreen;
+					_view.fullscreen(!_model.fullscreen);
+				} else {
+					if (state.toString().toLowerCase() == "true") {
+						_model.fullscreen = true;
+						_view.fullscreen(true);
+					} else {
+						_model.fullscreen = false;
+						_view.fullscreen(false);
+					}
+				}
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_RESIZE, {
+					"width": _model.width,
+					"height": _model.height
+				});
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
+					"fullscreen": state
+				});
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -4139,8 +4175,8 @@ playerReady = function(obj) {
 					}
 					_model.position = Math.round(event.target.currentTime * 10) / 10;
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_TIME, {
-						position: Math.round(event.target.currentTime * 10) / 10,
-						duration: Math.round(event.target.duration * 10) / 10
+						position: event.target.currentTime,
+						duration: event.target.duration
 					});
 				}
 			}
@@ -4277,6 +4313,7 @@ playerReady = function(obj) {
 				}
 				_container.play();
 				_startInterval();
+				_setState(jwplayer.api.events.state.PLAYING);
 			}
 		};
 		
@@ -4646,7 +4683,9 @@ playerReady = function(obj) {
 				_model.item = _model.config.item;
 			}
 			if (!ready) {
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
+					"playlist": model.playlist
+				});
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
 					"index": _model.item
 				});
@@ -4701,7 +4740,7 @@ playerReady = function(obj) {
 					} else if (window[_model.plugins.order[plugin]] !== undefined) {
 						_model.plugins.object[_model.plugins.order[plugin]] = new window[_model.plugins.order[plugin]](_api, _model.plugins.config[_model.plugins.order[plugin]]);
 					} else {
-						_model.plugins.order.splice(plugin, plugin+1);
+						_model.plugins.order.splice(plugin, plugin + 1);
 					}
 				} catch (err) {
 					jwplayer.utils.log("Could not setup " + _model.plugins.order[plugin]);
@@ -5054,8 +5093,32 @@ playerReady = function(obj) {
 		
 		_api.skin = new jwplayer.html5.skin();
 		
-		_api.jwPlay = _controller.play;
-		_api.jwPause = _controller.pause;
+		_api.jwPlay = function(state) {
+			if (typeof state == "undefined") {
+				_togglePlay();
+			} else if (state.toString().toLowerCase() == "true") {
+				_controller.play();
+			} else {
+				_controller.pause();
+			}
+		};
+		_api.jwPause = function(state) {
+			if (typeof state == "undefined") {
+				_togglePlay();
+			} else if (state.toString().toLowerCase() == "true") {
+				_controller.pause();
+			} else {
+				_controller.play();
+			}
+		};
+		function _togglePlay() {
+			if (_model.state == jwplayer.api.events.state.PLAYING || _model.state == jwplayer.api.events.state.BUFFERING) {
+				_controller.pause();
+			} else {
+				_controller.play();
+			}
+		}
+		
 		_api.jwStop = _controller.stop;
 		_api.jwSeek = _controller.seek;
 		_api.jwPlaylistItem = _controller.item;
@@ -5125,7 +5188,9 @@ playerReady = function(obj) {
 					window[model.config.playerReady](evt);
 				}
 				
-				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED);
+				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
+					"playlist": model.playlist
+				});
 				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
 					"index": model.config.item
 				});

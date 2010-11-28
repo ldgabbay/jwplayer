@@ -157,8 +157,8 @@
 					}
 					_model.position = Math.round(event.target.currentTime * 10) / 10;
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_TIME, {
-						position: Math.round(event.target.currentTime * 10) / 10,
-						duration: Math.round(event.target.duration * 10) / 10
+						position: event.target.currentTime,
+						duration: event.target.duration
 					});
 				}
 			}
@@ -295,6 +295,7 @@
 				}
 				_container.play();
 				_startInterval();
+				_setState(jwplayer.api.events.state.PLAYING);
 			}
 		};
 		

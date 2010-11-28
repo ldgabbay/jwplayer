@@ -35,7 +35,7 @@
 							_model.getMedia().play();
 						});
 						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, function(evt) {
-							if (evt.position >=  _model.playlist[_model.item].start && _oldstart >= 0) {
+							if (evt.position >= _model.playlist[_model.item].start && _oldstart >= 0) {
 								_model.playlist[_model.item].start = _oldstart;
 								_oldstart = -1;
 							}
@@ -229,7 +229,15 @@
 		/** Get / set the mute state of the player. **/
 		function _setMute(state) {
 			try {
-				_model.getMedia().mute(state);
+				if (typeof state == "undefined") {
+					_model.getMedia().mute(!_model.mute);
+				} else {
+					if (state.toString().toLowerCase() == "true") {
+						_model.getMedia().mute(true);
+					} else {
+						_model.getMedia().mute(false);
+					}
+				}
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -244,6 +252,10 @@
 				_model.width = width;
 				_model.height = height;
 				_view.resize(width, height);
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_RESIZE, {
+					"width": _model.width,
+					"height": _model.height
+				});
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -255,8 +267,25 @@
 		/** Jumping the player to/from fullscreen. **/
 		function _setFullscreen(state) {
 			try {
-				_model.fullscreen = state;
-				_view.fullscreen(state);
+				if (typeof state == "undefined") {
+					_model.fullscreen = !_model.fullscreen;
+					_view.fullscreen(!_model.fullscreen);
+				} else {
+					if (state.toString().toLowerCase() == "true") {
+						_model.fullscreen = true;
+						_view.fullscreen(true);
+					} else {
+						_model.fullscreen = false;
+						_view.fullscreen(false);
+					}
+				}
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_RESIZE, {
+					"width": _model.width,
+					"height": _model.height
+				});
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
+					"fullscreen": state
+				});
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);

@@ -117,13 +117,20 @@
 		
 		function translateEventResponse(type, eventProperties) {
 			var translated = jwplayer.utils.extend({}, eventProperties);
-			if (type == jwplayer.api.events.JWPLAYER_FULLSCREEN) {
-				translated.fullscreen = translated.message;
+			if (type == jwplayer.api.events.JWPLAYER_FULLSCREEN && !translated.fullscreen) {
+				translated.fullscreen = translated.message == "true" ? true : false;
 				delete translated.message;
 			} else if (typeof translated.data == "object") {
 				// Takes ViewEvent "data" block and moves it up a level
 				translated = jwplayer.utils.extend(translated, translated.data);
 				delete translated.data;
+			}
+			
+			var rounders = ["position", "duration", "offset"];
+			for (var rounder in rounders) {
+				if (translated[rounders[rounder]]) {
+					translated[rounders[rounder]] = Math.round(translated[rounders[rounder]] * 1000) / 1000;
+				}
 			}
 			
 			return translated;
@@ -312,7 +319,7 @@
 			return this;
 		},
 		play: function(state) {
-			if (typeof state === "undefined") {
+			if (typeof state == "undefined") {
 				state = this.getState();
 				if (state == jwplayer.api.events.state.PLAYING || state == jwplayer.api.events.state.BUFFERING) {
 					this.callInternal("jwPause");
@@ -324,16 +331,16 @@
 			}
 			return this;
 		},
-		pause: function() {
-			var state = this.getState();
-			switch (state) {
-				case jwplayer.api.events.state.PLAYING:
-				case jwplayer.api.events.state.BUFFERING:
+		pause: function(state) {
+			if (typeof state == "undefined") {
+				state = this.getState();
+				if (state == jwplayer.api.events.state.PLAYING || state == jwplayer.api.events.state.BUFFERING) {
 					this.callInternal("jwPause");
-					break;
-				case jwplayer.api.events.state.PAUSED:
+				} else {
 					this.callInternal("jwPlay");
-					break;
+				}
+			} else {
+				this.callInternal("jwPause", state);
 			}
 			return this;
 		},
