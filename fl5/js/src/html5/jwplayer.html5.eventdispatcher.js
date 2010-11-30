@@ -94,7 +94,7 @@
 			}
 			jwplayer.utils.extend(data, {
 				id: _id,
-				version: jwplayer.html5.version,
+				version: jwplayer.version,
 				type: type
 			});
 			if (_debug) {

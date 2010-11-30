@@ -349,14 +349,18 @@
 			}
 		};
 		
-		var createElement = function(tag, element) {
+		var createElement = function(tag, element, id) {
 			var _element = document.createElement(tag);
-			_element.id = _container.id + "_jwplayer_" + element;
+			if (id){
+				_element.id = id;
+			} else {
+				_element.id = _container.id + "_jwplayer_" + element;
+			}		
 			jwplayer.utils.css(_element, _elements[element].style);
 			return _element;
 		};
 		
-		_display.display = createElement("a", "display");
+		_display.display = createElement("a", "display", _container.id);
 		if (_file) {
 			_display.display.setAttribute("href", jwplayer.utils.getAbsolutePath(_file));
 		}

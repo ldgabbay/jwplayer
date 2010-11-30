@@ -1,7 +1,20 @@
 var settings = {
-	players: [
-		{type:"html5"},
-		{type:"flash", src:"http://player.longtailvideo.com/player.swf"},
-		{type:"download"}
-	]
+	players: function(location, players){
+		var basepath = location.substring(0, location.indexOf("/js/test/examples") + 1);
+		var defaults = {
+			html5: {type:"html5"},
+			flash: {type:"flash", src:basepath+"player.swf"},
+			download: {type:"download"}
+		};
+		if (!players){
+			return [defaults.html5, defaults.flash, defaults.download];
+			//return [defaults.flash, defaults.html5, defaults.download];
+		} else {
+			var result = [];
+			for (player in players){
+				result.push(defaults[players[player]]);
+			} 
+			return result;
+		}
+	}
 };

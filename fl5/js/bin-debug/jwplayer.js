@@ -10,7 +10,8 @@ jwplayer.constructor = function(container) {
 };
 
 var $jw = jwplayer;
-/**
+
+jwplayer.version = '5.4.1448';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -241,7 +242,7 @@ var $jw = jwplayer;
 		var result = false;
 		var extension = jwplayer.utils.extension(file);
 		if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].flash !== undefined) {
-			result = jwplayer.utils.extensionmap[extension].html5;
+			result = jwplayer.utils.extensionmap[extension].flash;
 		}
 		return (result || file.toLowerCase().indexOf("youtube.com") > -1);
 	};
@@ -1791,14 +1792,18 @@ playerReady = function(obj) {
 			}
 		};
 		
-		var createElement = function(tag, element) {
+		var createElement = function(tag, element, id) {
 			var _element = document.createElement(tag);
-			_element.id = _container.id + "_jwplayer_" + element;
+			if (id){
+				_element.id = id;
+			} else {
+				_element.id = _container.id + "_jwplayer_" + element;
+			}		
 			jwplayer.utils.css(_element, _elements[element].style);
 			return _element;
 		};
 		
-		_display.display = createElement("a", "display");
+		_display.display = createElement("a", "display", _container.id);
 		if (_file) {
 			_display.display.setAttribute("href", jwplayer.utils.getAbsolutePath(_file));
 		}
@@ -1942,8 +1947,6 @@ playerReady = function(obj) {
 		
 		return this;
 	};
-	
-	jwplayer.html5.version = '5.3';
 })(jwplayer);
 
 /**
@@ -3817,7 +3820,7 @@ playerReady = function(obj) {
 			}
 			jwplayer.utils.extend(data, {
 				id: _id,
-				version: jwplayer.html5.version,
+				version: jwplayer.version,
 				type: type
 			});
 			if (_debug) {
@@ -5084,7 +5087,7 @@ playerReady = function(obj) {
 		container.parentNode.replaceChild(_container, container);
 		_container.id = container.id;
 		
-		_api.version = jwplayer.html5.version;
+		_api.version = jwplayer.version;
 		_api.id = _container.id;
 		
 		var _model = new jwplayer.html5.model(_api, _container, options);

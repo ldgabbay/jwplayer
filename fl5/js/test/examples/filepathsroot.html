@@ -30,7 +30,7 @@
         <script type="text/javascript">
             setTimeout(function() {
             	jwplayer("player").setup({
-            		players: settings.players
+            		players: settings.players(window.location.href)
             	});
             }, 1000);
         </script>

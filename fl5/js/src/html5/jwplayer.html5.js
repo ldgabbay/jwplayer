@@ -15,7 +15,5 @@
 		
 		return this;
 	};
-	
-	jwplayer.html5.version = '5.3';
 })(jwplayer);
 

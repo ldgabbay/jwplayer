@@ -19,7 +19,7 @@
         </div>
         <script type="text/javascript">
             jwplayer("player").setup({
-            	players: settings.players,
+            	players: settings.players(window.location.href),
             	levels: [{
             		file: "http://youtube.com/watch?v=IBTE-RoMsvw"
             	}]

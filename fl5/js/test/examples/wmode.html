@@ -20,10 +20,7 @@
         </div>
         <script type="text/javascript">
             jwplayer("player1").setup({
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}],
+            	players: settings.players(window.location.href, ["flash"]),
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -39,10 +36,7 @@
         <script type="text/javascript">
             jwplayer("player2").setup({
 				wmode: "transparent",
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}],
+            	players: settings.players(window.location.href, ["flash"]),
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {

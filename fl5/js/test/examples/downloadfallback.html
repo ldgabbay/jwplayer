@@ -4,7 +4,7 @@
         <title>Download Fallback</title>
         <script type="text/javascript" src="../../bin-debug/jwplayer.js">
         </script>
-        <script type="text/javascript" src="../settings.js">
+        <script type="text/javascript" src="settings.js">
         </script>
     </head>
     <body>
@@ -43,13 +43,7 @@
         </div>
         <script type="text/javascript">
             jwplayer("player1").setup({
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}, {
-            		type: "download"
-            	}]
-            
+            	players: settings.players(window.location.href, ["flash", "download"])            
             });
         </script>
         <h2>No file and an image</h2>
@@ -58,13 +52,7 @@
         <script type="text/javascript">
             jwplayer("player2").setup({
             	image: playlist[0].image,
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}, {
-            		type: "download"
-            	}]
-            
+            	players: settings.players(window.location.href, ["flash", "download"])            
             });
         </script>
         <h2>Single file (mp4) with no HTML5 mode</h2>
@@ -74,13 +62,7 @@
             jwplayer("player3").setup({
             	file: playlist[0].levels[0].file,
             	image: playlist[0].image,
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}, {
-            		type: "download"
-            	}]
-            
+            	players: settings.players(window.location.href, ["flash", "download"])            
             });
         </script>
         <h2>Single file (ogv) with no HTML5 mode</h2>
@@ -94,13 +76,7 @@
             jwplayer("player4").setup({
             	file: playlist[0].levels[1].file,
             	image: playlist[0].image,
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}, {
-            		type: "download"
-            	}]
-            
+            	players: settings.players(window.location.href, ["flash", "download"])            
             });
         </script>
         <h2>Single file (mp4) with HTML5 mode</h2>
@@ -110,7 +86,7 @@
             jwplayer("player5").setup({
             	file: playlist[0].levels[0].file,
             	image: playlist[0].image,
-            	flashplayer: "../../../player.swf"
+            	players: settings.players(window.location.href, ["flash", "html5", "download"])            
             });
         </script>
         <h2>Single file (ogv) with HTML5 mode</h2>
@@ -124,7 +100,7 @@
             jwplayer("player6").setup({
             	file: playlist[0].levels[1].file,
             	image: playlist[0].image,
-            	flashplayer: "../../../player.swf"
+            	players: settings.players(window.location.href, ["flash", "html5", "download"])            
             });
         </script>
         <h2>Multiple sources (mp4 and ogv) with no image</h2>
@@ -133,13 +109,7 @@
         <script type="text/javascript">
             jwplayer("player7").setup({
             	levels: playlist[0].levels,
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}, {
-            		type: "download"
-            	}]
-            
+            	players: settings.players(window.location.href, ["flash", "download"])
             });
         </script>
         <h2>Video tag with one source (mp4)</h2>
@@ -151,13 +121,7 @@
         </video>
         <script type="text/javascript">
             jwplayer("player8").setup({
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}, {
-            		type: "download"
-            	}]
-            
+            	players: settings.players(window.location.href, ["flash", "download"])
             });
         </script>
         <h2>Video tag with one source (ogv)</h2>
@@ -169,13 +133,7 @@
         </video>
         <script type="text/javascript">
             jwplayer("player9").setup({
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}, {
-            		type: "download"
-            	}]
-            
+            	players: settings.players(window.location.href, ["flash", "download"])
             });
         </script>
         <h2>Video tag with multiple sources</h2>
@@ -187,13 +145,7 @@
         </video>
         <script type="text/javascript">
             jwplayer("player10").setup({
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}, {
-            		type: "download"
-            	}]
-            
+            	players: settings.players(window.location.href, ["flash", "download"])
             });
         </script>
         <h2>Playlist with one source per item (mp4)</h2>
@@ -212,13 +164,7 @@
             }];
             jwplayer("player11").setup({
             	playlist: playlist1,
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}, {
-            		type: "download"
-            	}]
-            
+            	players: settings.players(window.location.href, ["flash", "download"]) 
             });
         </script>
         <h2>Playlist with one source per item (ogv)</h2>
@@ -237,13 +183,7 @@
             }];
             jwplayer("player12").setup({
             	playlist: playlist2,
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}, {
-            		type: "download"
-            	}]
-            
+            	players: settings.players(window.location.href, ["flash", "download"])
             });
         </script>
         <h2>Playlist with multiple sources per item</h2>
@@ -252,13 +192,7 @@
         <script type="text/javascript">
             jwplayer("player13").setup({
             	playlist: playlist,
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}, {
-            		type: "download"
-            	}]
-            
+            	players: settings.players(window.location.href, ["flash", "download"])
             });
         </script>
         <h3>HTML code</h3>

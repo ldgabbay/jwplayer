@@ -56,10 +56,7 @@
         </video>
         <script type="text/javascript">
             jwplayer("player2").setup({
-            	players: [{
-            		type: "flash",
-            		src: "../../../player.swf"
-            	}]
+            	players: settings.players(window.location.href, ["flash"])
             });
         </script>
         <h3>HTML code</h3>

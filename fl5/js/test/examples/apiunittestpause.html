@@ -22,7 +22,7 @@
         </p>
         <script type="text/javascript">
             jwplayer("player").setup({
-            	players: settings.players,
+            	players: settings.players(window.location.href),
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {

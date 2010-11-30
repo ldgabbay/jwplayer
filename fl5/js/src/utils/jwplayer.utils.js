@@ -229,7 +229,7 @@
 		var result = false;
 		var extension = jwplayer.utils.extension(file);
 		if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].flash !== undefined) {
-			result = jwplayer.utils.extensionmap[extension].html5;
+			result = jwplayer.utils.extensionmap[extension].flash;
 		}
 		return (result || file.toLowerCase().indexOf("youtube.com") > -1);
 	};

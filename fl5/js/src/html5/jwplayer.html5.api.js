@@ -17,7 +17,7 @@
 		container.parentNode.replaceChild(_container, container);
 		_container.id = container.id;
 		
-		_api.version = jwplayer.html5.version;
+		_api.version = jwplayer.version;
 		_api.id = _container.id;
 		
 		var _model = new jwplayer.html5.model(_api, _container, options);

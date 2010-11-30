@@ -22,7 +22,7 @@
         </object>
         <script type="text/javascript">
             jwplayer("player1").setup({
-            	players: settings.players,
+            	players: settings.players(window.location.href),
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -37,7 +37,7 @@
         <embed id='player2' name='player2' src='../../../fl5/player.swf' width='470' height='320' bgcolor='#000000' allowscriptaccess='always' allowfullscreen='true' flashvars='file=http://content.longtailvideo.com/videos/flvplayer.flv' />
         <script type="text/javascript">
             jwplayer("player2").setup({
-            	players: settings.players,
+            	players: settings.players(window.location.href),
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {

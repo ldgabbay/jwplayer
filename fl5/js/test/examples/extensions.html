@@ -22,9 +22,7 @@
         </video>
         <script type="text/javascript">
             jwplayer("player").setup({
-            	players: [{
-            		type: "html5"
-            	}]
+            	players: settings.players(window.location.href, ["html5"]),
             });
         </script>
         <h3>HTML code</h3>

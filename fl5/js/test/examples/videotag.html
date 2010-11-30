@@ -22,13 +22,7 @@
         </video>
         <script type="text/javascript">
             jwplayer("player").setup( {
-            	players: [{
-            		type: "html5"
-            	}, {
-            		type: "flash",
-            		src: "../../../fl5/player.swf"
-            	}]
-            
+            	players: settings.players(window.location.href)
             });
         </script>
         <h3>HTML code</h3>

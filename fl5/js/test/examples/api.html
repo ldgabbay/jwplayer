@@ -36,7 +36,7 @@
         <script type="text/javascript">
             var player = new jwplayer.html5(document.getElementById("player"));
 			player.setup({
-            	players: settings.players,
+            	players: settings.players(window.location.href),
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
