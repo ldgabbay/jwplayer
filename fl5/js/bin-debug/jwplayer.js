@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1449';/**
+jwplayer.version = '5.4.1452';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -140,6 +140,14 @@ jwplayer.version = '5.4.1449';/**
 	jwplayer.utils.isIE = function() {
 		return (!+"\v1");
 	};
+
+    /**
+    * Detects whether the current browser is Android 2.0, 2.1 or 2.2 which do have some support for HTML5
+    **/
+    jwplayer.utils.isLegacyAndroid = function () {
+        var agent = navigator.userAgent.toLowerCase();
+        return (agent.match(/android 2.[012]/i) !== null);
+     };
 	
 	
 	/**
@@ -230,6 +238,9 @@ jwplayer.version = '5.4.1449';/**
 			sourceType = jwplayer.utils.extensionmap[extension].html5;
 		} else {
 			sourceType = 'video/' + extension + ';';
+		}
+        if (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/)) {
+			return true;
 		}
 		return (video.canPlayType(sourceType) || file.toLowerCase().indexOf("youtube.com") > -1);
 	};
@@ -4448,14 +4459,15 @@ playerReady = function(obj) {
 				} else {
 					sourceType = sourceModel.type;
 				}
-				if (vid.canPlayType(sourceType) === "") {
-					continue;
-				}
-				var source = _container.ownerDocument.createElement("source");
-				source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
-				source.type = sourceType;
-				_sourceError++;
-				vid.appendChild(source);
+	            if (jwplayer.utils.browserCanPlay(vid, sourceModel.file)) {
+				    var source = _container.ownerDocument.createElement("source");
+				    source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
+				    if (!jwplayer.utils.isLegacyAndroid()){
+				    	source.type = sourceType;
+				    }
+				    _sourceError++;
+				    vid.appendChild(source);
+			    }
 			}
 			
 			if (_sourceError === 0) {

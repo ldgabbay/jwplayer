@@ -427,14 +427,15 @@
 				} else {
 					sourceType = sourceModel.type;
 				}
-				if (vid.canPlayType(sourceType) === "") {
-					continue;
-				}
-				var source = _container.ownerDocument.createElement("source");
-				source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
-				source.type = sourceType;
-				_sourceError++;
-				vid.appendChild(source);
+	            if (jwplayer.utils.browserCanPlay(vid, sourceModel.file)) {
+				    var source = _container.ownerDocument.createElement("source");
+				    source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
+				    if (!jwplayer.utils.isLegacyAndroid()){
+				    	source.type = sourceType;
+				    }
+				    _sourceError++;
+				    vid.appendChild(source);
+			    }
 			}
 			
 			if (_sourceError === 0) {

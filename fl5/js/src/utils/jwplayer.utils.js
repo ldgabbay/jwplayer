@@ -127,6 +127,14 @@
 	jwplayer.utils.isIE = function() {
 		return (!+"\v1");
 	};
+
+    /**
+    * Detects whether the current browser is Android 2.0, 2.1 or 2.2 which do have some support for HTML5
+    **/
+    jwplayer.utils.isLegacyAndroid = function () {
+        var agent = navigator.userAgent.toLowerCase();
+        return (agent.match(/android 2.[012]/i) !== null);
+     };
 	
 	
 	/**
@@ -217,6 +225,9 @@
 			sourceType = jwplayer.utils.extensionmap[extension].html5;
 		} else {
 			sourceType = 'video/' + extension + ';';
+		}
+        if (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/)) {
+			return true;
 		}
 		return (video.canPlayType(sourceType) || file.toLowerCase().indexOf("youtube.com") > -1);
 	};
