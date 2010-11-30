@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1452';/**
+jwplayer.version = '5.4.1454';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -43,7 +43,7 @@ jwplayer.version = '5.4.1452';/**
 		var args = jwplayer.utils.extend['arguments'];
 		if (args.length > 1) {
 			for (var i = 1; i < args.length; i++) {
-				for (element in args[i]) {
+				for (var element in args[i]) {
 					args[0][element] = args[i][element];
 				}
 			}
@@ -1562,7 +1562,7 @@ playerReady = function(obj) {
 		},
 		
 		setupEvents: function() {
-			for (evt in this.events) {
+			for (var evt in this.events) {
 				if (typeof this.api[evt] == "function") {
 					(this.api[evt]).call(this.api, this.events[evt]);
 				}
@@ -1846,7 +1846,7 @@ playerReady = function(obj) {
 	
 	jwplayer.embed.jsonToFlashvars = function(json) {
 		var flashvars = 'netstreambasepath=' + escape(window.location.href) + '&';
-		for (key in json) {
+		for (var key in json) {
 			flashvars += key + '=' + escape(json[key]) + '&';
 		}
 		return flashvars.substring(0, flashvars.length - 1);
@@ -1859,11 +1859,11 @@ playerReady = function(obj) {
 		
 		var flat = {}, pluginKeys = [];
 		
-		for (plugin in pluginBlock) {
+		for (var plugin in pluginBlock) {
 			var pluginName = jwplayer.utils.getPluginName(plugin);
 			var pluginConfig = pluginBlock[plugin];
 			pluginKeys.push(plugin);
-			for (param in pluginConfig) {
+			for (var param in pluginConfig) {
 				flat[pluginName + '.' + param] = pluginConfig[param];
 			}
 		}

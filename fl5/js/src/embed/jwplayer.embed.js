@@ -108,7 +108,7 @@
 		},
 		
 		setupEvents: function() {
-			for (evt in this.events) {
+			for (var evt in this.events) {
 				if (typeof this.api[evt] == "function") {
 					(this.api[evt]).call(this.api, this.events[evt]);
 				}
@@ -392,7 +392,7 @@
 	
 	jwplayer.embed.jsonToFlashvars = function(json) {
 		var flashvars = 'netstreambasepath=' + escape(window.location.href) + '&';
-		for (key in json) {
+		for (var key in json) {
 			flashvars += key + '=' + escape(json[key]) + '&';
 		}
 		return flashvars.substring(0, flashvars.length - 1);
@@ -405,11 +405,11 @@
 		
 		var flat = {}, pluginKeys = [];
 		
-		for (plugin in pluginBlock) {
+		for (var plugin in pluginBlock) {
 			var pluginName = jwplayer.utils.getPluginName(plugin);
 			var pluginConfig = pluginBlock[plugin];
 			pluginKeys.push(plugin);
-			for (param in pluginConfig) {
+			for (var param in pluginConfig) {
 				flat[pluginName + '.' + param] = pluginConfig[param];
 			}
 		}

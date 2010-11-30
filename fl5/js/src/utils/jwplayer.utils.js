@@ -30,7 +30,7 @@
 		var args = jwplayer.utils.extend['arguments'];
 		if (args.length > 1) {
 			for (var i = 1; i < args.length; i++) {
-				for (element in args[i]) {
+				for (var element in args[i]) {
 					args[0][element] = args[i][element];
 				}
 			}

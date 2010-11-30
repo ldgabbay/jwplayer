@@ -11,7 +11,7 @@ var settings = {
 			//return [defaults.flash, defaults.html5, defaults.download];
 		} else {
 			var result = [];
-			for (player in players){
+			for (var player in players){
 				result.push(defaults[players[player]]);
 			} 
 			return result;
