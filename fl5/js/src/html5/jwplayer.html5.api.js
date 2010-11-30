@@ -124,9 +124,8 @@
 				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
 					"playlist": model.playlist
 				});
-				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-					"index": model.config.item
-				});
+				
+				controller.item(model.item);
 				
 				if (model.config.autostart === true && !model.config.chromeless) {
 					controller.play();

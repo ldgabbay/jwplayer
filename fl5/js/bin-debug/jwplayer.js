@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1448';/**
+jwplayer.version = '5.4.1449';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -3094,22 +3094,6 @@ playerReady = function(obj) {
 			try {
 				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					if (_itemUpdated || _model.state == jwplayer.api.events.state.IDLE) {
-						_model.setActiveMediaProvider(_model.playlist[_model.item]);
-						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, function() {
-							_model.getMedia().play();
-						});
-						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, function(evt) {
-							if (evt.position >= _model.playlist[_model.item].start && _oldstart >= 0) {
-								_model.playlist[_model.item].start = _oldstart;
-								_oldstart = -1;
-							}
-						});
-						
-						if (_model.config.repeat) {
-							_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
-								setTimeout(_completeHandler, 25);
-							});
-						}
 						_model.getMedia().load(_model.playlist[_model.item]);
 						_itemUpdated = false;
 					} else if (_model.state == jwplayer.api.events.state.PAUSED) {
@@ -3250,17 +3234,33 @@ playerReady = function(obj) {
 			_model.resetEventListeners();
 			_model.addGlobalListener(forward);
 			try {
-				if (_model.playlist[_model.item].levels[0].file.length > 0) {
+				if (_model.playlist[item].levels[0].file.length > 0) {
 					var oldstate = _model.state;
 					if (oldstate !== jwplayer.api.events.state.IDLE) {
 						_stop();
 					}
 					_model.item = item;
 					_itemUpdated = true;
+					_model.setActiveMediaProvider(_model.playlist[_model.item]);
+					_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, function() {
+						_model.getMedia().play();
+					});
+					_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, function(evt) {
+						if (evt.position >= _model.playlist[_model.item].start && _oldstart >= 0) {
+							_model.playlist[_model.item].start = _oldstart;
+							_oldstart = -1;
+						}
+					});
+					
+					if (_model.config.repeat) {
+						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
+							setTimeout(_completeHandler, 25);
+						});
+					}
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
 						"index": item
 					});
-					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING) {
+					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING || _model.config.chromeless) {
 						_play();
 					}
 				}
@@ -3363,7 +3363,7 @@ playerReady = function(obj) {
 			try {
 				_stop();
 				_model.loadPlaylist(arg);
-				_itemUpdated = true;
+				_item(_model.item);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -4687,10 +4687,7 @@ playerReady = function(obj) {
 			}
 			if (!ready) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
-					"playlist": model.playlist
-				});
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-					"index": _model.item
+					"playlist": _model.playlist
 				});
 			}
 			_model.setActiveMediaProvider(_model.playlist[_model.item]);
@@ -5194,9 +5191,8 @@ playerReady = function(obj) {
 				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
 					"playlist": model.playlist
 				});
-				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-					"index": model.config.item
-				});
+				
+				controller.item(model.item);
 				
 				if (model.config.autostart === true && !model.config.chromeless) {
 					controller.play();

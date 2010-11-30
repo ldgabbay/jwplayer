@@ -30,22 +30,6 @@
 			try {
 				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					if (_itemUpdated || _model.state == jwplayer.api.events.state.IDLE) {
-						_model.setActiveMediaProvider(_model.playlist[_model.item]);
-						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, function() {
-							_model.getMedia().play();
-						});
-						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, function(evt) {
-							if (evt.position >= _model.playlist[_model.item].start && _oldstart >= 0) {
-								_model.playlist[_model.item].start = _oldstart;
-								_oldstart = -1;
-							}
-						});
-						
-						if (_model.config.repeat) {
-							_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
-								setTimeout(_completeHandler, 25);
-							});
-						}
 						_model.getMedia().load(_model.playlist[_model.item]);
 						_itemUpdated = false;
 					} else if (_model.state == jwplayer.api.events.state.PAUSED) {
@@ -186,17 +170,33 @@
 			_model.resetEventListeners();
 			_model.addGlobalListener(forward);
 			try {
-				if (_model.playlist[_model.item].levels[0].file.length > 0) {
+				if (_model.playlist[item].levels[0].file.length > 0) {
 					var oldstate = _model.state;
 					if (oldstate !== jwplayer.api.events.state.IDLE) {
 						_stop();
 					}
 					_model.item = item;
 					_itemUpdated = true;
+					_model.setActiveMediaProvider(_model.playlist[_model.item]);
+					_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, function() {
+						_model.getMedia().play();
+					});
+					_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, function(evt) {
+						if (evt.position >= _model.playlist[_model.item].start && _oldstart >= 0) {
+							_model.playlist[_model.item].start = _oldstart;
+							_oldstart = -1;
+						}
+					});
+					
+					if (_model.config.repeat) {
+						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
+							setTimeout(_completeHandler, 25);
+						});
+					}
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
 						"index": item
 					});
-					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING) {
+					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING || _model.config.chromeless) {
 						_play();
 					}
 				}
@@ -299,7 +299,7 @@
 			try {
 				_stop();
 				_model.loadPlaylist(arg);
-				_itemUpdated = true;
+				_item(_model.item);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);

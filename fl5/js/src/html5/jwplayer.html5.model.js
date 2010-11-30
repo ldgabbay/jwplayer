@@ -150,10 +150,7 @@
 			}
 			if (!ready) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
-					"playlist": model.playlist
-				});
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-					"index": _model.item
+					"playlist": _model.playlist
 				});
 			}
 			_model.setActiveMediaProvider(_model.playlist[_model.item]);
