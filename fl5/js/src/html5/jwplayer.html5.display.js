@@ -141,10 +141,8 @@
 			});
 			jwplayer.utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
 			_css(_display.display_image, {
-				top: _width - _imageHeight
+				top: (_height - _imageHeight) / 2
 			});
-			
-			console.log(_width - _imageHeight);
 			_stateHandler({});
 		};
 		
@@ -155,8 +153,6 @@
 			_css(_display.display_image, {
 				top: (_height - _imageHeight) / 2
 			});
-			
-			console.log((_height - _imageHeight) / 2);
 		}
 		
 		function createElement(tag, element) {

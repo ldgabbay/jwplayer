@@ -63,14 +63,12 @@
 								}
 							}
 							
-							// TODO: serialize levels & playlist, de-serialize in
-							// Flash
+							// TODO: serialize levels & playlist, de-serialize in Flash
 							if (this.config.levels || this.config.playlist) {
 								this.api.onReady(this.loadAfterReady(this.config));
 							}
 							
-							// Make sure we're passing the correct ID into Flash for
-							// Linux API support
+							// Make sure we're passing the correct ID into Flash for Linux API support
 							this.config.id = this.api.id;
 							
 							var flashPlayer = jwplayer.embed.embedFlash(document.getElementById(this.api.id), player, this.config);
@@ -92,7 +90,6 @@
 						}
 						break;
 					case 'download':
-						// TODO: [ticket:1076]
 						var downloadplayer = jwplayer.embed.embedDownloadLink(document.getElementById(this.api.id), player, this.config);
 						this.api.container = document.getElementById(this.api.id);
 						this.api.setPlayer(downloadplayer);
@@ -239,8 +236,7 @@
 				screencolor: '0x000000'
 			}, options);
 			jwplayer.embed.parseConfigBlock(playerOptions, 'components');
-			// TODO: remove this requirement from the html5 player (sources
-			// instead of levels)
+			// TODO: remove this requirement from the html5 player (sources instead of levels)
 			if (playerOptions.levels && !playerOptions.sources) {
 				playerOptions.sources = options.levels;
 			}
@@ -391,7 +387,7 @@
 	};
 	
 	jwplayer.embed.jsonToFlashvars = function(json) {
-		var flashvars = 'netstreambasepath=' + escape(window.location.href) + '&';
+		var flashvars = json.netstreambasepath ? '' : 'netstreambasepath=' + escape(window.location.href) + '&';
 		for (var key in json) {
 			flashvars += key + '=' + escape(json[key]) + '&';
 		}

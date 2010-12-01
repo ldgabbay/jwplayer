@@ -81,8 +81,7 @@ package com.longtailvideo.jwplayer.utils {
                 }
                 if (stack[i].w > width / 4 && !stack[i].nr) {
                     stack[i].c.width = Math.abs(stack[i].w + rdf + ldf);
-                }
-				if (stack[i].c is InteractiveObject) {				
+				} else if (stack[i].c is InteractiveObject) {				
 					stack[i].c.tabIndex = i + 1;
 				}
             }

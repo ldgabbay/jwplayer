@@ -10,7 +10,6 @@
 	};
 	
 	/** Returns the true type of an object **/
-	// TODO: if not used elsewhere, remove this function
 	jwplayer.utils.typeOf = function(value) {
 		var s = typeof value;
 		if (s === 'object') {
@@ -63,7 +62,6 @@
 	
 	/** Loads an XML file into a DOM object **/
 	jwplayer.utils.ajax = function(xmldocpath, completecallback, errorcallback) {
-		//TODO: [ticket:1064]
 		var xmlhttp;
 		if (window.XMLHttpRequest) {
 			// IE>7, Firefox, Chrome, Opera, Safari
