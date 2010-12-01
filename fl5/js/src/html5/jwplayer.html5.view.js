@@ -63,8 +63,8 @@
 			for (var pluginIndex = 0; pluginIndex < _model.plugins.order.length; pluginIndex++) {
 				var pluginName = _model.plugins.order[pluginIndex];
 				if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
-					_model.plugins.object[pluginName].height = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.height);
-					_model.plugins.object[pluginName].width = getNumber(_model.plugins.object[pluginName].getDisplayElement().style.width);
+					_model.plugins.object[pluginName].height = parseDimension(_model.plugins.object[pluginName].getDisplayElement().style.height);
+					_model.plugins.object[pluginName].width = parseDimension(_model.plugins.object[pluginName].getDisplayElement().style.width);
 					_model.plugins.config[pluginName].currentPosition = _model.plugins.config[pluginName].position;
 				}
 			}
@@ -87,20 +87,27 @@
 			_resize(_model.width, _model.height);
 		}
 		
-		function getNumber(style) {
-			if (typeof style == "number") {
-				return style;
+		function parseDimension(dimension) {
+			if (typeof dimension == "string") {
+				if (dimension === "") {
+					return 0;
+				} else if (dimension.lastIndexOf("%") > -1) {
+					return dimension;
+				} else {
+					return parseInt(dimension.replace("px", ""), 10);
+				}
 			}
-			if (style === "") {
-				return 0;
-			}
-			return parseInt(style.replace("px", ""), 10);
+			return dimension;
 		}
 		
 		function setResizeInterval() {
 			_resizeInterval = setInterval(function() {
-				if (_wrapper.width && _wrapper.height && (_model.width !== getNumber(_wrapper.width) || _model.height !== getNumber(_wrapper.height))) {
-					_resize(getNumber(_wrapper.width), getNumber(_wrapper.height));
+				if ((typeof _model.width == "string" && _model.width.lastIndexOf("%") > -1) ||
+				(typeof _model.height == "string" && _model.height.lastIndexOf("%") > -1)) {
+					return;
+				}
+				if (_wrapper.width && _wrapper.height && (_model.width !== parseDimension(_wrapper.width) || _model.height !== parseDimension(_wrapper.height))) {
+					_resize(parseDimension(_wrapper.width), parseDimension(_wrapper.height));
 				} else {
 					var rect = _wrapper.getBoundingClientRect();
 					if (_model.width !== rect.width || _model.height !== rect.height) {
@@ -236,10 +243,20 @@
 			if (_model.plugins.object[pluginName].getDisplayElement().parentNode === null) {
 				_box.appendChild(_model.plugins.object[pluginName].getDisplayElement());
 			}
+			var _iwidth = _model.width, _iheight = _model.height;
+			if (typeof _model.width == "string" && _model.width.lastIndexOf("%") > -1) {
+				percentage = parseFloat(_model.width.substring(0, _model.width.lastIndexOf("%"))) / 100;
+				_iwidth = Math.round(window.innerWidth * percentage);
+			}
+			
+			if (typeof _model.height == "string" && _model.height.lastIndexOf("%") > -1) {
+				percentage = parseFloat(_model.height.substring(0, _model.height.lastIndexOf("%"))) / 100;
+				_iheight = Math.round(window.innerHeight * percentage);
+			}
 			return {
 				position: "absolute",
-				width: (_model.width - getNumber(_box.style.left) - getNumber(_box.style.right)),
-				height: (_model.height - getNumber(_box.style.top) - getNumber(_box.style.bottom)),
+				width: (_iwidth - parseDimension(_box.style.left) - parseDimension(_box.style.right)),
+				height: (_iheight - parseDimension(_box.style.top) - parseDimension(_box.style.bottom)),
 				zIndex: zIndex
 			};
 		}
@@ -258,10 +275,10 @@
 			_box.style.position = "absolute";
 			var style = {
 				position: "absolute",
-				width: getNumber(_box.style.width),
-				height: getNumber(_box.style.height),
-				top: getNumber(_box.style.top),
-				left: getNumber(_box.style.left)
+				width: parseDimension(_box.style.width),
+				height: parseDimension(_box.style.height),
+				top: parseDimension(_box.style.top),
+				left: parseDimension(_box.style.left)
 			};
 			_css(_model.getMedia().getDisplayElement(), style);
 		}
@@ -276,36 +293,36 @@
 			var position = _model.plugins.config[pluginName].currentPosition.toLowerCase();
 			switch (position.toUpperCase()) {
 				case jwplayer.html5.view.positions.TOP:
-					plugincss.top = getNumber(_box.style.top);
-					plugincss.left = getNumber(_box.style.left);
-					plugincss.width = _width - getNumber(_box.style.left) - getNumber(_box.style.right);
+					plugincss.top = parseDimension(_box.style.top);
+					plugincss.left = parseDimension(_box.style.left);
+					plugincss.width = _width - parseDimension(_box.style.left) - parseDimension(_box.style.right);
 					plugincss.height = _model.plugins.object[pluginName].height;
-					_box.style[position] = getNumber(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
-					_box.style.height = getNumber(_box.style.height) - plugincss.height + "px";
+					_box.style[position] = parseDimension(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
+					_box.style.height = parseDimension(_box.style.height) - plugincss.height + "px";
 					break;
 				case jwplayer.html5.view.positions.RIGHT:
-					plugincss.top = getNumber(_box.style.top);
-					plugincss.right = getNumber(_box.style.right);
+					plugincss.top = parseDimension(_box.style.top);
+					plugincss.right = parseDimension(_box.style.right);
 					plugincss.width = plugincss.width = _model.plugins.object[pluginName].width;
-					plugincss.height = _height - getNumber(_box.style.top) - getNumber(_box.style.bottom);
-					_box.style[position] = getNumber(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
-					_box.style.width = getNumber(_box.style.width) - plugincss.width + "px";
+					plugincss.height = _height - parseDimension(_box.style.top) - parseDimension(_box.style.bottom);
+					_box.style[position] = parseDimension(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
+					_box.style.width = parseDimension(_box.style.width) - plugincss.width + "px";
 					break;
 				case jwplayer.html5.view.positions.BOTTOM:
-					plugincss.bottom = getNumber(_box.style.bottom);
-					plugincss.left = getNumber(_box.style.left);
-					plugincss.width = _width - getNumber(_box.style.left) - getNumber(_box.style.right);
+					plugincss.bottom = parseDimension(_box.style.bottom);
+					plugincss.left = parseDimension(_box.style.left);
+					plugincss.width = _width - parseDimension(_box.style.left) - parseDimension(_box.style.right);
 					plugincss.height = _model.plugins.object[pluginName].height;
-					_box.style[position] = getNumber(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
-					_box.style.height = getNumber(_box.style.height) - plugincss.height + "px";
+					_box.style[position] = parseDimension(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
+					_box.style.height = parseDimension(_box.style.height) - plugincss.height + "px";
 					break;
 				case jwplayer.html5.view.positions.LEFT:
-					plugincss.top = getNumber(_box.style.top);
-					plugincss.left = getNumber(_box.style.left);
+					plugincss.top = parseDimension(_box.style.top);
+					plugincss.left = parseDimension(_box.style.left);
 					plugincss.width = _model.plugins.object[pluginName].width;
-					plugincss.height = _height - getNumber(_box.style.top) - getNumber(_box.style.bottom);
-					_box.style[position] = getNumber(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
-					_box.style.width = getNumber(_box.style.width) - plugincss.width + "px";
+					plugincss.height = _height - parseDimension(_box.style.top) - parseDimension(_box.style.bottom);
+					_box.style[position] = parseDimension(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
+					_box.style.width = parseDimension(_box.style.width) - plugincss.width + "px";
 					break;
 				default:
 					break;

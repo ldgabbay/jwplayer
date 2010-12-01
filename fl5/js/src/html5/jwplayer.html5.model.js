@@ -5,7 +5,7 @@
  * @version 5.4
  */
 (function(jwplayer) {
-	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen", "item", "plugins"];
+	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen", "item", "plugins", "stretching"];
 	
 	jwplayer.html5.model = function(api, container, options) {
 		var _api = api;

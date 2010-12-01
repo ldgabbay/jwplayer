@@ -351,11 +351,11 @@
 		
 		var createElement = function(tag, element, id) {
 			var _element = document.createElement(tag);
-			if (id){
+			if (id) {
 				_element.id = id;
 			} else {
 				_element.id = _container.id + "_jwplayer_" + element;
-			}		
+			}
 			jwplayer.utils.css(_element, _elements[element].style);
 			return _element;
 		};

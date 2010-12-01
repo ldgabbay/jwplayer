@@ -86,9 +86,21 @@
 			if (_stopped) {
 				newstate = jwplayer.api.events.state.IDLE;
 			}
+			// Handles FF 3.5 issue
 			if (newstate == jwplayer.api.events.state.PAUSED && _state == jwplayer.api.events.state.IDLE) {
 				return;
 			}
+			
+			if (newstate == jwplayer.api.events.state.PLAYING && _state == jwplayer.api.events.state.IDLE) {
+				_bufferFull = true;
+				_setState(jwplayer.api.events.state.BUFFERING);
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
+						bufferPercent: _model.buffer
+				});
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL);
+				return;
+			}
+			
 			if (_state != newstate) {
 				var oldstate = _state;
 				_model.state = newstate;
@@ -427,15 +439,15 @@
 				} else {
 					sourceType = sourceModel.type;
 				}
-	            if (jwplayer.utils.browserCanPlay(vid, sourceModel.file)) {
-				    var source = _container.ownerDocument.createElement("source");
-				    source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
-				    if (!jwplayer.utils.isLegacyAndroid()){
-				    	source.type = sourceType;
-				    }
-				    _sourceError++;
-				    vid.appendChild(source);
-			    }
+				if (jwplayer.utils.browserCanPlay(vid, sourceModel.file)) {
+					var source = _container.ownerDocument.createElement("source");
+					source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
+					if (!jwplayer.utils.isLegacyAndroid()) {
+						source.type = sourceType;
+					}
+					_sourceError++;
+					vid.appendChild(source);
+				}
 			}
 			
 			if (_sourceError === 0) {

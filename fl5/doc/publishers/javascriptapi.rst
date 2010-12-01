@@ -53,7 +53,7 @@ Of course it's also possible to have the player manipulate the page. Here's a se
             width: 480,
             events: {
                 onComplete: function() { 
-                    document.getElementById("status").innerHTML("That's all folks!"); 
+                    document.getElementById("status").innerHTML = "That's all folks!"; 
                 }
             }
         });

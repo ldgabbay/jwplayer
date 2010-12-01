@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>Stretching</title>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.js">
+        </script>
+        <script type="text/javascript" src="settings.js">
+        </script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            document.write("<h1>" + document.title + "</h1>");
+        </script>
+        <p>
+            This page contains a player with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
+        </p>
+        <table>
+            <tr>
+                <td>
+                    None
+                </td>
+                <td>
+                    <div height="270" id="player-none-flash" width="480">
+                        HTML5 Player should replace this.
+                    </div>
+                </td>
+                <td>
+                    <div height="270" id="player-none-html5" width="480">
+                        HTML5 Player should replace this.
+                    </div>
+                </td>
+                <td>
+                    <a href="#" onclick="testPlay('none');return false;">Play</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Uniform
+                </td>
+                <td>
+                    <div height="270" id="player-uniform-flash" width="480">
+                        HTML5 Player should replace this.
+                    </div>
+                </td>
+                <td>
+                    <div height="270" id="player-uniform-html5" width="480">
+                        HTML5 Player should replace this.
+                    </div>
+                </td>
+                <td>
+                    <a href="#" onclick="testPlay('uniform');return false;">Play</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Fill
+                </td>
+                <td>
+                    <div height="270" id="player-fill-flash" width="480">
+                        HTML5 Player should replace this.
+                    </div>
+                </td>
+                <td>
+                    <div height="270" id="player-fill-html5" width="480">
+                        HTML5 Player should replace this.
+                    </div>
+                </td>
+                <td>
+                    <a href="#" onclick="testPlay('fill');return false;">Play</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Exactfit
+                </td>
+                <td>
+                    <div height="270" id="player-exactfit-flash" width="480">
+                        HTML5 Player should replace this.
+                    </div>
+                </td>
+                <td>
+                    <div height="270" id="player-exactfit-html5" width="480">
+                        HTML5 Player should replace this.
+                    </div>
+                </td>
+                <td>
+                    <a href="#" onclick="testPlay('exactfit');return false;">Play</a>
+                </td>
+            </tr>
+        </table>
+        <script type="text/javascript">
+            function testPlay(stretching) {
+            	jwplayer("player-" + stretching + "-flash").play();
+				jwplayer("player-" + stretching + "-html5").play();
+            }
+            
+            for (var stretching in jwplayer.utils.stretching) {
+            	if (typeof stretching == "string") {
+            		jwplayer("player-" + stretching.toLowerCase() + "-flash").setup({
+            			flashplayer: "http://player.longtailvideo.com/player.swf",
+            			levels: [{
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            			}, {
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            			}],
+            			image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+            			stretching: stretching.toLowerCase(),
+						height: 400
+            		});
+            		jwplayer("player-" + stretching.toLowerCase() + "-html5").setup({
+            			players: [{
+            				type: "html5"
+            			}],
+            			levels: [{
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            			}, {
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            			}],
+            			image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+            			stretching: stretching.toLowerCase(),
+						height: 400
+            		});
+            	}
+            }
+        </script>
+        <h3>HTML code</h3>
+    </body>
+</html>

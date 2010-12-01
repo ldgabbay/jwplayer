@@ -24,6 +24,8 @@
 		var _display = {};
 		var _width;
 		var _height;
+		var _imageWidth;
+		var _imageHeight;
 		var _degreesRotated;
 		var _rotationInterval;
 		var _error;
@@ -108,6 +110,7 @@
 			_display.display_image.onerror = function(evt) {
 				_hide(_display.display_image);
 			};
+			_display.display_image.onload = _onImageLoad;
 			_display.display_icon = createElement("div", "display_icon");
 			_display.display_iconBackground = createElement("div", "display_iconBackground");
 			_display.display.appendChild(_display.display_image);
@@ -132,16 +135,29 @@
 				width: (width - 10),
 				top: ((_height - _display.display_text.getBoundingClientRect().height) / 2)
 			});
-			_css(_display.display_image, {
-				width: width,
-				height: height
-			});
 			_css(_display.display_iconBackground, {
 				top: ((_height - _api.skin.getSkinElement("display", "background").height) / 2),
 				left: ((_width - _api.skin.getSkinElement("display", "background").width) / 2)
 			});
+			jwplayer.utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
+			_css(_display.display_image, {
+				top: _width - _imageHeight
+			});
+			
+			console.log(_width - _imageHeight);
 			_stateHandler({});
 		};
+		
+		function _onImageLoad(evt){
+			_imageWidth = _display.display_image.naturalWidth;
+			_imageHeight = _display.display_image.naturalHeight;
+			jwplayer.utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
+			_css(_display.display_image, {
+				top: (_height - _imageHeight) / 2
+			});
+			
+			console.log((_height - _imageHeight) / 2);
+		}
 		
 		function createElement(tag, element) {
 			var _element = document.createElement(tag);

@@ -1,124 +1,127 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-	<head>
-		<title>HTML5 Player Examples</title>
-		<style type="text/css">
-			body {
-				font-family:Arial, Verdana, sans-serif;
-				font-size: .8em;
-				padding-left:1em;
-			}
-			ul {
-				margin-left: 0;
-				padding: 1em;
-			}
-		</style>
-	</head>
-	<body>
-		<h1>Examples</h1>
-		<ul id="examples"></ul>
-		<script type="text/javascript">
-			var list = document.getElementById("examples");
-			var examplePages = {
-				"Basic Tests": {
-					"Page with no document type": "nodoctype.html",
-					"Embedding": {
-						"Object and embed tags": "objectembed.html",
-						"Video tag embed": "videotag.html",
-						"Multiple players": "multiple_players.html",
-						"File paths": {
-							"No file specified": "nofile.html",
-							"Invalid file path specified": "badfile.html",
-							"Absolute file path": "filepathsabsolute.html",
-							"Root file path": "filepathsroot.html",
-							"Relative file path": "filepathsrelative.html"
-						}					
-					},
-					"Video codecs": {
-						"Single MP4": "single_mp4.html",
-						"Single OGV": "single_ogg.html",
-						"YouTube":"youtube.html",
-						"Multiple sources (MP4 and OGV)": "mp4_ogg.html"
-					},
-				},
-				"Configuration Tests": {
-					"Multiple players with custom skins": "multiple_customs.html",
-					"Skins": {
-						"All Skins": "custom_skin.html",
-						"Invalid skin path specified": "badskin.html"
-					},
-					"Playlists": "playlist.html",
-					"Components": {
-						"Controlbar": "controlbar.html",
-						"Logo": "logo.html"
-					},
-					"Plugins": "plugins.html",
-					"Chromeless": "chromeless.html",
-				},
-				"API": {
-					"Utilities": {
-						"API": "api.html",
-						"Event listeners": "listeners.html",
-					},
-					"Setup / remove": "setupandremove.html",
-					"Unit Tests": {
-						"Events": "apiunittestevents.html",
-						"Play": "apiunittestplay.html",
-						"Pause": "apiunittestpause.html",
-						"Mute": "apiunittestmute.html",
-						"Fullscreen": "apiunittestfullscreen.html"
-					},
-					"Resize": "resize.html",
-					"Load":"load.html",
-				},
-				"Common Libraries": {
-					"Dojo": "libraries/dojo.html",
-					"Ext Core": "libraries/ext-core.html",
-					"jQuery": "libraries/jquery.html",
-					"MooTools": "libraries/mootools.html",
-					"Prototype": "libraries/prototype.html",
-					"Scriptaculous": "libraries/scriptaculous.html",
-					"SWFObject": "libraries/swfobject.html",
-					"YUI": "libraries/yui.html"
-				},
-				"Player 5.4": {
-					"Bugs": {
-						"Social media": "socialmedia.html",
-						"Loading HTML instead of a skin": "htmlskin.html",
-						"Firefox bug": "ffbug.html#",
-						"FLV failover": "failover.html",
-						"Video URLs with query strings": "extensions.html",
-					},
-					"Features": {
-						"Apple (Cupertino) Streaming": "m3u8.html",
-						"Netstream base path": "netstreambasepath.html",
-						"Settable wmode": "wmode.html",
-						"Download fallback": "downloadfallback.html"
-					}
-				}
-			};
-			
-			function createList(examples, parentDOM){
-				for (var example in examples){
-					var listItem = document.createElement("li");
-					if (typeof examples[example] == "object") {
-						listItem.innerHTML = example;
-						var newList = document.createElement("ul");
-						listItem.appendChild(newList);
-						createList(examples[example], newList);
-					} else {
-						var link = document.createElement("a");
-						link.href = examples[example];
-						link.innerHTML = example;
-						listItem.appendChild(link);
-					}
-					parentDOM.appendChild(listItem);
-				}
-			}
-			
-			createList(examplePages, list);
-
-		</script>
-		
-	</body>
+    <head>
+        <title>HTML5 Player Examples</title>
+        <style type="text/css">
+            body {
+                font-family: Arial, Verdana, sans-serif;
+                font-size: .8em;
+                padding-left: 1em;
+            }
+            
+            ul {
+                margin-left: 0;
+                padding: 1em;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Examples</h1>
+        <ul id="examples">
+        </ul>
+        <script type="text/javascript">
+            var list = document.getElementById("examples");
+            var examplePages = {
+            	"Basic Tests": {
+            		"Page with no document type": "nodoctype.html",
+            		"Embedding": {
+            			"Object and embed tags": "objectembed.html",
+            			"Video tag embed": "videotag.html",
+            			"Multiple players": "multiple_players.html",
+            			"File paths": {
+            				"No file specified": "nofile.html",
+            				"Invalid file path specified": "badfile.html",
+            				"Absolute file path": "filepathsabsolute.html",
+            				"Root file path": "filepathsroot.html",
+            				"Relative file path": "filepathsrelative.html"
+            			}
+            		},
+            		"Video codecs": {
+            			"Single MP4": "single_mp4.html",
+            			"Single OGV": "single_ogg.html",
+            			"YouTube": "youtube.html",
+            			"Multiple sources (MP4 and OGV)": "mp4_ogg.html"
+            		}
+            	},
+            	"Configuration Tests": {
+            		"Multiple players with custom skins": "multiple_customs.html",
+            		"Skins": {
+            			"All Skins": "custom_skin.html",
+            			"Invalid skin path specified": "badskin.html"
+            		},
+            		"Playlists": "playlist.html",
+            		"Components": {
+            			"Controlbar": "controlbar.html",
+            			"Logo": "logo.html"
+            		},
+            		"Plugins": "plugins.html",
+					"Stretching": "stretching.html",
+            		"Chromeless": "chromeless.html"
+            	},
+            	"API": {
+            		"Utilities": {
+            			"API": "api.html",
+            			"Event listeners": "listeners.html"
+            		},
+            		"Setup / remove": "setupandremove.html",
+            		"Unit Tests": {
+            			"Events": "apiunittestevents.html",
+            			"Play": "apiunittestplay.html",
+            			"Pause": "apiunittestpause.html",
+            			"Mute": "apiunittestmute.html",
+            			"Fullscreen": "apiunittestfullscreen.html"
+            		},
+            		"Resize": "resize.html",
+            		"Load": "load.html"
+            	},
+            	"Common Libraries": {
+            		"Dojo": "libraries/dojo.html",
+            		"Ext Core": "libraries/ext-core.html",
+            		"jQuery": "libraries/jquery.html",
+            		"MooTools": "libraries/mootools.html",
+            		"Prototype": "libraries/prototype.html",
+            		"Scriptaculous": "libraries/scriptaculous.html",
+            		"SWFObject": "libraries/swfobject.html",
+            		"YUI": "libraries/yui.html"
+            	},
+            	"Player 5.4": {
+            		"Bugs": {
+            			"Social media": "socialmedia.html",
+            			"Loading HTML instead of a skin": "htmlskin.html",
+            			"Firefox bug": "ffbug.html#",
+            			"FLV failover": "failover.html",
+            			"Video URLs with query strings": "extensions.html"
+            		},
+            		"Features": {
+            			"Apple (Cupertino) Streaming": "m3u8.html",
+            			"Netstream base path": "netstreambasepath.html",
+            			"Settable wmode": "wmode.html",
+            			"Download fallback": "downloadfallback.html"
+            		}
+            	}
+            };
+            
+            function createList(examples, parentDOM) {
+            	for (var example in examples) {
+            		var listItem = document.createElement("li");
+            		if (typeof examples[example] == "object") {
+            			listItem.innerHTML = example;
+            			var newList = document.createElement("ul");
+            			listItem.appendChild(newList);
+            			createList(examples[example], newList);
+            		} else {
+            			var link = document.createElement("a");
+            			link.href = examples[example];
+            			link.innerHTML = example;
+            			listItem.appendChild(link);
+            		}
+            		parentDOM.appendChild(listItem);
+            	}
+            }
+            
+            
+            createList(examplePages, list);
+            
+        </script>
+    </body>
 </html>

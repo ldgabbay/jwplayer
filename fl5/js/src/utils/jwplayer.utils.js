@@ -127,14 +127,14 @@
 	jwplayer.utils.isIE = function() {
 		return (!+"\v1");
 	};
-
-    /**
-    * Detects whether the current browser is Android 2.0, 2.1 or 2.2 which do have some support for HTML5
-    **/
-    jwplayer.utils.isLegacyAndroid = function () {
-        var agent = navigator.userAgent.toLowerCase();
-        return (agent.match(/android 2.[012]/i) !== null);
-     };
+	
+	/**
+	 * Detects whether the current browser is Android 2.0, 2.1 or 2.2 which do have some support for HTML5
+	 **/
+	jwplayer.utils.isLegacyAndroid = function() {
+		var agent = navigator.userAgent.toLowerCase();
+		return (agent.match(/android 2.[012]/i) !== null);
+	};
 	
 	
 	/**
@@ -226,7 +226,7 @@
 		} else {
 			sourceType = 'video/' + extension + ';';
 		}
-        if (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/)) {
+		if (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/)) {
 			return true;
 		}
 		return (video.canPlayType(sourceType) || file.toLowerCase().indexOf("youtube.com") > -1);
@@ -409,4 +409,83 @@
 		path.indexOf("youtube.com" > 0);
 	};
 	
+	/**
+	 *
+	 * @param {Object} domelement
+	 * @param {Object} value
+	 */
+	jwplayer.utils.transform = function(domelement, value) {
+		domelement.style.webkitTransform = value;
+		domelement.style.MozTransform = value;
+		domelement.style.OTransform = value;
+	};
+	
+	/**
+	 * Stretches domelement based on stretching. parentWidth, parentHeight, elementWidth,
+	 * and elementHeight are required as the elements dimensions change as a result of the
+	 * stretching. Hence, the original dimensions must always be supplied.
+	 * @param {String} stretching
+	 * @param {DOMElement} domelement
+	 * @param {Number} parentWidth
+	 * @param {Number} parentHeight
+	 * @param {Number} elementWidth
+	 * @param {Number} elementHeight
+	 */
+	jwplayer.utils.stretch = function(stretching, domelement, parentWidth, parentHeight, elementWidth, elementHeight) {
+		if (typeof parentWidth == "undefined" || typeof parentHeight == "undefined" || typeof elementWidth == "undefined" || typeof elementHeight == "undefined") {
+			return;
+		}
+		var xscale = parentWidth / elementWidth;
+		var yscale = parentHeight / elementHeight;
+		var x = 0;
+		var y = 0;
+		domelement.style.overflow = "hidden";
+		jwplayer.utils.transform(domelement, "");
+		switch (stretching.toLowerCase()) {
+			case jwplayer.utils.stretching.NONE:
+				// Maintain original dimensions
+				domelement.style.width = elementWidth;
+				domelement.style.height = elementHeight;
+				break;
+			case jwplayer.utils.stretching.UNIFORM:
+				// Scale on the dimension that would overflow most
+				if (xscale > yscale) {
+					// Taller than wide
+					domelement.style.width = elementWidth * yscale;
+					domelement.style.height = elementHeight * yscale;
+				} else {
+					// Wider than tall
+					domelement.style.width = elementWidth * xscale;
+					domelement.style.height = elementHeight * xscale;
+				}
+				break;
+			case jwplayer.utils.stretching.FILL:
+				// Scale on the smaller dimension and crop
+				if (xscale > yscale) {
+					domelement.style.width = elementWidth * xscale;
+					domelement.style.height = elementHeight * xscale;
+				} else {
+					domelement.style.width = elementWidth * yscale;
+					domelement.style.height = elementHeight * yscale;
+				}
+				break;
+			case jwplayer.utils.stretching.EXACTFIT:
+				// Distort to fit
+				jwplayer.utils.transform(domelement, ["scale(", xscale, ",", yscale, ")", " translate(0px,0px)"].join(""));
+				domelement.style.width = elementWidth;
+				domelement.style.height = elementHeight;
+				break;
+			default:
+				break;
+		}
+		domelement.style.marginTop = (parentHeight - parseInt(domelement.style.height.replace("px", ""), 10)) / 2;
+		domelement.style.marginLeft = (parentWidth - parseInt(domelement.style.width.replace("px", ""), 10)) / 2;
+	};
+	
+	jwplayer.utils.stretching = {
+		"NONE": "none",
+		"FILL": "fill",
+		"UNIFORM": "uniform",
+		"EXACTFIT": "exactfit"
+	};
 })(jwplayer);

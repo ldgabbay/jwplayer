@@ -78,6 +78,7 @@
 		_api.jwSetVolume = _controller.setVolume;
 		_api.jwGetMute = _statevarFactory('mute');
 		_api.jwSetMute = _controller.setMute;
+		_api.jwGetStretching = _statevarFactory('stretching');
 		
 		_api.jwGetState = _statevarFactory('state');
 		_api.jwGetVersion = function() {
