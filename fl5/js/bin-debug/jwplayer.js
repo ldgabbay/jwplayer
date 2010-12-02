@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1457';/**
+jwplayer.version = '5.4.1461';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -23,7 +23,6 @@ jwplayer.version = '5.4.1457';/**
 	};
 	
 	/** Returns the true type of an object **/
-	// TODO: if not used elsewhere, remove this function
 	jwplayer.utils.typeOf = function(value) {
 		var s = typeof value;
 		if (s === 'object') {
@@ -76,7 +75,6 @@ jwplayer.version = '5.4.1457';/**
 	
 	/** Loads an XML file into a DOM object **/
 	jwplayer.utils.ajax = function(xmldocpath, completecallback, errorcallback) {
-		//TODO: [ticket:1064]
 		var xmlhttp;
 		if (window.XMLHttpRequest) {
 			// IE>7, Firefox, Chrome, Opera, Safari
@@ -454,45 +452,47 @@ jwplayer.version = '5.4.1457';/**
 		var y = 0;
 		domelement.style.overflow = "hidden";
 		jwplayer.utils.transform(domelement, "");
+		var style = {};
 		switch (stretching.toLowerCase()) {
 			case jwplayer.utils.stretching.NONE:
 				// Maintain original dimensions
-				domelement.style.width = elementWidth;
-				domelement.style.height = elementHeight;
+				style.width = elementWidth;
+				style.height = elementHeight;
 				break;
 			case jwplayer.utils.stretching.UNIFORM:
 				// Scale on the dimension that would overflow most
 				if (xscale > yscale) {
 					// Taller than wide
-					domelement.style.width = elementWidth * yscale;
-					domelement.style.height = elementHeight * yscale;
+					style.width = elementWidth * yscale;
+					style.height = elementHeight * yscale;
 				} else {
 					// Wider than tall
-					domelement.style.width = elementWidth * xscale;
-					domelement.style.height = elementHeight * xscale;
+					style.width = elementWidth * xscale;
+					style.height = elementHeight * xscale;
 				}
 				break;
 			case jwplayer.utils.stretching.FILL:
 				// Scale on the smaller dimension and crop
 				if (xscale > yscale) {
-					domelement.style.width = elementWidth * xscale;
-					domelement.style.height = elementHeight * xscale;
+					style.width = elementWidth * xscale;
+					style.height = elementHeight * xscale;
 				} else {
-					domelement.style.width = elementWidth * yscale;
-					domelement.style.height = elementHeight * yscale;
+					style.width = elementWidth * yscale;
+					style.height = elementHeight * yscale;
 				}
 				break;
 			case jwplayer.utils.stretching.EXACTFIT:
 				// Distort to fit
 				jwplayer.utils.transform(domelement, ["scale(", xscale, ",", yscale, ")", " translate(0px,0px)"].join(""));
-				domelement.style.width = elementWidth;
-				domelement.style.height = elementHeight;
+				style.width = elementWidth;
+				style.height = elementHeight;
 				break;
 			default:
 				break;
 		}
-		domelement.style.marginTop = (parentHeight - parseInt(domelement.style.height.replace("px", ""), 10)) / 2;
-		domelement.style.marginLeft = (parentWidth - parseInt(domelement.style.width.replace("px", ""), 10)) / 2;
+		style.top = (parentHeight - style.height) / 2;
+		style.left = (parentWidth - style.width) / 2;
+		jwplayer.utils.css(domelement, style);
 	};
 	
 	jwplayer.utils.stretching = {
@@ -1596,14 +1596,12 @@ playerReady = function(obj) {
 								}
 							}
 							
-							// TODO: serialize levels & playlist, de-serialize in
-							// Flash
+							// TODO: serialize levels & playlist, de-serialize in Flash
 							if (this.config.levels || this.config.playlist) {
 								this.api.onReady(this.loadAfterReady(this.config));
 							}
 							
-							// Make sure we're passing the correct ID into Flash for
-							// Linux API support
+							// Make sure we're passing the correct ID into Flash for Linux API support
 							this.config.id = this.api.id;
 							
 							var flashPlayer = jwplayer.embed.embedFlash(document.getElementById(this.api.id), player, this.config);
@@ -1625,7 +1623,6 @@ playerReady = function(obj) {
 						}
 						break;
 					case 'download':
-						// TODO: [ticket:1076]
 						var downloadplayer = jwplayer.embed.embedDownloadLink(document.getElementById(this.api.id), player, this.config);
 						this.api.container = document.getElementById(this.api.id);
 						this.api.setPlayer(downloadplayer);
@@ -1772,8 +1769,7 @@ playerReady = function(obj) {
 				screencolor: '0x000000'
 			}, options);
 			jwplayer.embed.parseConfigBlock(playerOptions, 'components');
-			// TODO: remove this requirement from the html5 player (sources
-			// instead of levels)
+			// TODO: remove this requirement from the html5 player (sources instead of levels)
 			if (playerOptions.levels && !playerOptions.sources) {
 				playerOptions.sources = options.levels;
 			}
@@ -1924,7 +1920,7 @@ playerReady = function(obj) {
 	};
 	
 	jwplayer.embed.jsonToFlashvars = function(json) {
-		var flashvars = 'netstreambasepath=' + escape(window.location.href) + '&';
+		var flashvars = json.netstreambasepath ? '' : 'netstreambasepath=' + escape(window.location.href) + '&';
 		for (var key in json) {
 			flashvars += key + '=' + escape(json[key]) + '&';
 		}
@@ -2072,7 +2068,8 @@ playerReady = function(obj) {
 				width: _model.width,
 				padding: 0,
 				backgroundColor: getBackgroundColor(),
-				zIndex: 0
+				zIndex: 0,
+				overflow: "hidden"
 			});
 			
 			function getBackgroundColor() {
@@ -2312,16 +2309,15 @@ playerReady = function(obj) {
 		}
 		
 		function _resizeMedia() {
-			//TODO: [ticket:1104]
 			_box.style.position = "absolute";
-			var style = {
-				position: "absolute",
-				width: parseDimension(_box.style.width),
-				height: parseDimension(_box.style.height),
-				top: parseDimension(_box.style.top),
-				left: parseDimension(_box.style.left)
-			};
-			_css(_model.getMedia().getDisplayElement(), style);
+			_model.getMedia().getDisplayElement().style.position = "absolute";
+			if (_model.getMedia().getDisplayElement().videoWidth == 0 || _model.getMedia().getDisplayElement().videoHeight == 0) {
+				setTimeout(function() {
+					_resizeMedia();
+				}, 100);
+				return;
+			}
+			jwplayer.utils.stretch(_api.jwGetStretching(), _model.getMedia().getDisplayElement(), parseDimension(_box.style.width), parseDimension(_box.style.height), _model.getMedia().getDisplayElement().videoWidth, _model.getMedia().getDisplayElement().videoHeight);
 		}
 		
 		function _getComponentPosition(pluginName) {
@@ -2436,7 +2432,8 @@ playerReady = function(obj) {
 		OVER: "OVER",
 		NONE: "NONE"
 	};
-})(jwplayer);/**
+})(jwplayer);
+/**
  * jwplayer controlbar component of the JW Player.
  *
  * @author zach
@@ -3586,7 +3583,8 @@ playerReady = function(obj) {
 				style: {
 					cursor: "pointer",
 					top: 0,
-					left: 0
+					left: 0,
+					overflow: "hidden"
 				},
 				click: _displayClickHandler
 			},
@@ -3689,25 +3687,19 @@ playerReady = function(obj) {
 				top: ((_height - _api.skin.getSkinElement("display", "background").height) / 2),
 				left: ((_width - _api.skin.getSkinElement("display", "background").width) / 2)
 			});
-			jwplayer.utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
-			_css(_display.display_image, {
-				top: _width - _imageHeight
-			});
-			
-			console.log(_width - _imageHeight);
+			_stretch();
 			_stateHandler({});
 		};
 		
 		function _onImageLoad(evt){
 			_imageWidth = _display.display_image.naturalWidth;
 			_imageHeight = _display.display_image.naturalHeight;
-			jwplayer.utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
-			_css(_display.display_image, {
-				top: (_height - _imageHeight) / 2
-			});
-			
-			console.log((_height - _imageHeight) / 2);
+			_stretch();
 		}
+		
+		function _stretch(){
+			jwplayer.utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
+		};
 		
 		function createElement(tag, element) {
 			var _element = document.createElement(tag);
@@ -4702,6 +4694,7 @@ playerReady = function(obj) {
 				mute: false,
 				fullscreen: false,
 				repeat: "none",
+				stretching: jwplayer.utils.stretching.UNIFORM,
 				autostart: false,
 				debug: undefined,
 				screencolor: undefined

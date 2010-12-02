@@ -31,7 +31,8 @@
 				width: _model.width,
 				padding: 0,
 				backgroundColor: getBackgroundColor(),
-				zIndex: 0
+				zIndex: 0,
+				overflow: "hidden"
 			});
 			
 			function getBackgroundColor() {
@@ -271,16 +272,15 @@
 		}
 		
 		function _resizeMedia() {
-			//TODO: [ticket:1104]
 			_box.style.position = "absolute";
-			var style = {
-				position: "absolute",
-				width: parseDimension(_box.style.width),
-				height: parseDimension(_box.style.height),
-				top: parseDimension(_box.style.top),
-				left: parseDimension(_box.style.left)
-			};
-			_css(_model.getMedia().getDisplayElement(), style);
+			_model.getMedia().getDisplayElement().style.position = "absolute";
+			if (_model.getMedia().getDisplayElement().videoWidth == 0 || _model.getMedia().getDisplayElement().videoHeight == 0) {
+				setTimeout(function() {
+					_resizeMedia();
+				}, 100);
+				return;
+			}
+			jwplayer.utils.stretch(_api.jwGetStretching(), _model.getMedia().getDisplayElement(), parseDimension(_box.style.width), parseDimension(_box.style.height), _model.getMedia().getDisplayElement().videoWidth, _model.getMedia().getDisplayElement().videoHeight);
 		}
 		
 		function _getComponentPosition(pluginName) {

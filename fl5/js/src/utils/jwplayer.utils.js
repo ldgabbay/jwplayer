@@ -439,45 +439,47 @@
 		var y = 0;
 		domelement.style.overflow = "hidden";
 		jwplayer.utils.transform(domelement, "");
+		var style = {};
 		switch (stretching.toLowerCase()) {
 			case jwplayer.utils.stretching.NONE:
 				// Maintain original dimensions
-				domelement.style.width = elementWidth;
-				domelement.style.height = elementHeight;
+				style.width = elementWidth;
+				style.height = elementHeight;
 				break;
 			case jwplayer.utils.stretching.UNIFORM:
 				// Scale on the dimension that would overflow most
 				if (xscale > yscale) {
 					// Taller than wide
-					domelement.style.width = elementWidth * yscale;
-					domelement.style.height = elementHeight * yscale;
+					style.width = elementWidth * yscale;
+					style.height = elementHeight * yscale;
 				} else {
 					// Wider than tall
-					domelement.style.width = elementWidth * xscale;
-					domelement.style.height = elementHeight * xscale;
+					style.width = elementWidth * xscale;
+					style.height = elementHeight * xscale;
 				}
 				break;
 			case jwplayer.utils.stretching.FILL:
 				// Scale on the smaller dimension and crop
 				if (xscale > yscale) {
-					domelement.style.width = elementWidth * xscale;
-					domelement.style.height = elementHeight * xscale;
+					style.width = elementWidth * xscale;
+					style.height = elementHeight * xscale;
 				} else {
-					domelement.style.width = elementWidth * yscale;
-					domelement.style.height = elementHeight * yscale;
+					style.width = elementWidth * yscale;
+					style.height = elementHeight * yscale;
 				}
 				break;
 			case jwplayer.utils.stretching.EXACTFIT:
 				// Distort to fit
 				jwplayer.utils.transform(domelement, ["scale(", xscale, ",", yscale, ")", " translate(0px,0px)"].join(""));
-				domelement.style.width = elementWidth;
-				domelement.style.height = elementHeight;
+				style.width = elementWidth;
+				style.height = elementHeight;
 				break;
 			default:
 				break;
 		}
-		domelement.style.marginTop = (parentHeight - parseInt(domelement.style.height.replace("px", ""), 10)) / 2;
-		domelement.style.marginLeft = (parentWidth - parseInt(domelement.style.width.replace("px", ""), 10)) / 2;
+		style.top = (parentHeight - style.height) / 2;
+		style.left = (parentWidth - style.width) / 2;
+		jwplayer.utils.css(domelement, style);
 	};
 	
 	jwplayer.utils.stretching = {

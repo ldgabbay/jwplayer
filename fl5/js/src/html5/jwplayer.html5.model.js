@@ -30,6 +30,7 @@
 				mute: false,
 				fullscreen: false,
 				repeat: "none",
+				stretching: jwplayer.utils.stretching.UNIFORM,
 				autostart: false,
 				debug: undefined,
 				screencolor: undefined

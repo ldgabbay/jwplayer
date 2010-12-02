@@ -36,7 +36,8 @@
 				style: {
 					cursor: "pointer",
 					top: 0,
-					left: 0
+					left: 0,
+					overflow: "hidden"
 				},
 				click: _displayClickHandler
 			},
@@ -139,21 +140,19 @@
 				top: ((_height - _api.skin.getSkinElement("display", "background").height) / 2),
 				left: ((_width - _api.skin.getSkinElement("display", "background").width) / 2)
 			});
-			jwplayer.utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
-			_css(_display.display_image, {
-				top: (_height - _imageHeight) / 2
-			});
+			_stretch();
 			_stateHandler({});
 		};
 		
 		function _onImageLoad(evt){
 			_imageWidth = _display.display_image.naturalWidth;
 			_imageHeight = _display.display_image.naturalHeight;
-			jwplayer.utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
-			_css(_display.display_image, {
-				top: (_height - _imageHeight) / 2
-			});
+			_stretch();
 		}
+		
+		function _stretch(){
+			jwplayer.utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
+		};
 		
 		function createElement(tag, element) {
 			var _element = document.createElement(tag);
