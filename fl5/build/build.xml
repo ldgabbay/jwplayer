@@ -310,6 +310,7 @@
 			<param name="class" value="${application.class}" />
 			<param name="swf" value="player" />
 		</antcall>
+		<antcall target="debug-js" />
 		<antcall target="release-js" />
 	</target>
 

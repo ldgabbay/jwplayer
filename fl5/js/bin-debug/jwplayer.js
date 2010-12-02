@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1464';/**
+jwplayer.version = '5.4.1465';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -492,7 +492,6 @@ jwplayer.version = '5.4.1464';/**
 		}
 		style.top = (parentHeight - style.height) / 2;
 		style.left = (parentWidth - style.width) / 2;
-		console.log(style);
 		jwplayer.utils.css(domelement, style);
 	};
 	
