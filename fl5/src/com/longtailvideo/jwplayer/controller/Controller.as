@@ -83,9 +83,12 @@ package com.longtailvideo.jwplayer.controller {
 		protected var _unlockAndLoad:Boolean;
 		/** Whether the playlist has been loaded yet **/
 		protected var _playlistReady:Boolean = false;
-		/** Set this value if a seek request comes in before the seek is possible **/		
+		/** Set this value if a seek request comes in before the seek is possible **/
 		protected var _queuedSeek:Number = -1;
-		
+		/** Saving whether a seek was sent on idle. **/
+		protected var _idleSeek:Boolean;
+
+
 		/** A list with legacy CDN classes that are now redirected to buit-in ones. **/
 		protected var cdns:Object = {
 				bitgravity:{'http.startparam':'starttime', provider:'http'},
@@ -175,6 +178,7 @@ package com.longtailvideo.jwplayer.controller {
 				_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, playlistLoadHandler, false, -1);
 				_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, playlistItemHandler, false, 1000);
 				_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_COMPLETE, completeHandler, false);
+				_player.addEventListener(PlayerStateEvent.JWPLAYER_PLAYER_STATE, playerStateHandler);
 				
 				dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_READY));
 
@@ -500,6 +504,7 @@ package com.longtailvideo.jwplayer.controller {
 					return true;
 				case PlayerState.IDLE:
 					_model.playlist.currentItem.start = pos;
+					_idleSeek = true;
 					play();
 					return true;
 				case PlayerState.BUFFERING:
@@ -579,6 +584,7 @@ package com.longtailvideo.jwplayer.controller {
 			return false;
 		}
 
+
 		protected function loadNumber(item:Number):Boolean {
 			if (item >= 0 && item < _model.playlist.length) {
 				_model.playlist.currentIndex = item;
@@ -652,6 +658,14 @@ package com.longtailvideo.jwplayer.controller {
 				_lockingResume = true;
 			}
 		}
+
+
+		private function playerStateHandler(evt:PlayerStateEvent):void {
+			if(_model.media.state == PlayerState.PLAYING && _idleSeek) {
+				_model.playlist.currentItem.start = 0;
+				_idleSeek = false;
+			}
+		};
 
 
 		public function redraw():Boolean {
