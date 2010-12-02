@@ -2,7 +2,7 @@ package com.longtailvideo.jwplayer.player {
 	
 	
 	public class PlayerVersion {
-		protected static var _version:String = '5.4.1461';
+		protected static var _version:String = '5.4.1464';
 		
 		public static function get version():String {
 			return _version;

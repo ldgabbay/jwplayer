@@ -124,6 +124,9 @@
 			createWrapper();
 			layoutComponents();
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_LOADED, _loadedHandler);
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, function() {
+				_resizeMedia();
+			});
 			setResizeInterval();
 			var oldresize;
 			if (window.onresize !== null) {
@@ -139,7 +142,7 @@
 				}
 				if (_api.jwGetFullscreen()) {
 					var rect = document.body.getBoundingClientRect();
-					_model.width = rect.left + rect.right;
+					_model.width = Math.abs(rect.left) + Math.abs(rect.right);
 					_model.height = window.innerHeight;
 				}
 				_resize(_model.width, _model.height);
@@ -193,10 +196,10 @@
 					_zIndex += failed.length;
 					_resizeComponents(_overlayComponentResizer, failed, true);
 				}
-				_resizeMedia();
 			} else {
 				_resizeComponents(_fullscreenComponentResizer, plugins, true);
 			}
+			_resizeMedia();
 		}
 		
 		function _resizeComponents(componentResizer, plugins, sizeToBox) {
@@ -275,12 +278,18 @@
 			_box.style.position = "absolute";
 			_model.getMedia().getDisplayElement().style.position = "absolute";
 			if (_model.getMedia().getDisplayElement().videoWidth == 0 || _model.getMedia().getDisplayElement().videoHeight == 0) {
-				setTimeout(function() {
-					_resizeMedia();
-				}, 100);
 				return;
 			}
-			jwplayer.utils.stretch(_api.jwGetStretching(), _model.getMedia().getDisplayElement(), parseDimension(_box.style.width), parseDimension(_box.style.height), _model.getMedia().getDisplayElement().videoWidth, _model.getMedia().getDisplayElement().videoHeight);
+			var iwidth, iheight;
+			if (_box.style.width.toString().lastIndexOf("%") > -1 || _box.style.width.toString().lastIndexOf("%") > -1) {
+				var rect = _box.getBoundingClientRect();
+				iwidth = Math.abs(rect.left) + Math.abs(rect.right);
+				iheight = Math.abs(rect.top) + Math.abs(rect.bottom);
+			} else {
+				iwidth = parseDimension(_box.style.width);
+				iheight = parseDimension(_box.style.height);
+			}
+			jwplayer.utils.stretch(_api.jwGetStretching(), _model.getMedia().getDisplayElement(), iwidth, iheight, _model.getMedia().getDisplayElement().videoWidth, _model.getMedia().getDisplayElement().videoHeight);
 		}
 		
 		function _getComponentPosition(pluginName) {
@@ -350,7 +359,7 @@
 					document.onkeydown = _keyHandler;
 					clearInterval(_resizeInterval);
 					var rect = document.body.getBoundingClientRect();
-					_model.width = rect.left + rect.right;
+					_model.width = Math.abs(rect.left) + Math.abs(rect.right);
 					_model.height = window.innerHeight;
 					var style = {
 						position: "fixed",
