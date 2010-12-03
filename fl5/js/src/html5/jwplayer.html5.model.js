@@ -19,7 +19,7 @@
 			config: {
 				width: 480,
 				height: 320,
-				item: 0,
+				item: -1,
 				skin: undefined,
 				file: undefined,
 				image: undefined,
@@ -146,6 +146,8 @@
 			} else {
 				if (_model.config.item >= _model.playlist.length) {
 					_model.config.item = _model.playlist.length - 1;
+				} else if (_model.config.item < 0) {
+					_model.config.item = 0;
 				}
 				_model.item = _model.config.item;
 			}

@@ -10,6 +10,11 @@
 	};
 	
 	/** Returns the true type of an object **/
+	
+	/**
+	 *
+	 * @param {Object} value
+	 */
 	jwplayer.utils.typeOf = function(value) {
 		var s = typeof value;
 		if (s === 'object') {
@@ -36,6 +41,35 @@
 			return args[0];
 		}
 		return null;
+	};
+	
+	/**
+	 * Returns a deep copy of an object.
+	 * @param {Object} obj
+	 */
+	jwplayer.utils.clone = function(obj) {
+		var result;
+		var args = jwplayer.utils.clone['arguments'];
+		if (args.length == 1) {
+			switch (jwplayer.utils.typeOf(args[0])) {
+				case "object":
+					result = {};
+					for (var element in args[0]) {
+						result[element] = jwplayer.utils.clone(args[0][element]);
+					}
+					break;
+				case "array":
+					result = [];
+					for (var element in args[0]) {
+						result[element] = jwplayer.utils.clone(args[0][element]);
+					}
+					break;
+				default:
+					return args[0];
+					break;
+			}
+		}
+		return result;
 	};
 	
 	/** Returns the extension of a file name **/

@@ -91,13 +91,13 @@
 				return;
 			}
 			
+			// Handles iOS device issue, as play isn't called from within the API
 			if (newstate == jwplayer.api.events.state.PLAYING && _state == jwplayer.api.events.state.IDLE) {
-				_bufferFull = true;
 				_setState(jwplayer.api.events.state.BUFFERING);
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
-						bufferPercent: _model.buffer
+					bufferPercent: _model.buffer
 				});
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL);
+				_setBufferFull();
 				return;
 			}
 			
@@ -177,6 +177,13 @@
 			_progressHandler(event);
 		}
 		
+		function _setBufferFull() {
+			if (_bufferFull === false && _state == jwplayer.api.events.state.BUFFERING) {
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL);
+				_bufferFull = true;
+			}
+		}
+		
 		function _bufferBackup() {
 			var timeout = (_bufferTimes[_bufferTimes.length - 1] - _bufferTimes[0]) / _bufferTimes.length;
 			_bufferBackupTimeout = setTimeout(function() {
@@ -208,10 +215,7 @@
 				}
 			}
 			
-			if (_bufferFull === false && _state == jwplayer.api.events.state.BUFFERING) {
-				_bufferFull = true;
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL);
-			}
+			_setBufferFull();
 			
 			if (!_bufferingComplete) {
 				if (bufferPercent == 100 && _bufferingComplete === false) {
@@ -307,7 +311,9 @@
 				}
 				_container.play();
 				_startInterval();
-				_setState(jwplayer.api.events.state.PLAYING);
+				if (_bufferFull) {
+					_setState(jwplayer.api.events.state.PLAYING);
+				}
 			}
 		};
 		
