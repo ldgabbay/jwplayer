@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1468';/**
+jwplayer.version = '5.4.1470';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -1686,15 +1686,14 @@ playerReady = function(obj) {
 				} else if (loadParams.levels) {
 					var item = this.getPlaylistItem(0);
 					if (!item) {
-						item = {
-							file: loadParams.levels[0].file,
-							provider: (loadParams.provider ? loadParams.provider : "video")
-						};
+						item = loadParams;
 					}
 					if (!item.image) {
 						item.image = loadParams.image;
 					}
-					item.levels = loadParams.levels;
+					if (!item.levels) {
+						item.levels = loadParams.levels;
+					}
 					this.load(item);
 				}
 			};

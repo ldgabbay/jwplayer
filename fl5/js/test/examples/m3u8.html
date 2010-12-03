@@ -19,19 +19,21 @@
         <p>
             This parses a &lt;video&gt; tag and sets up a player in it's place for IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
         </p>
-        <video height="270" id="player" poster="http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg" width="480">
-            <source src="http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8" />
-            <p>
-                HTML5 Player should replace this.
-            </p>
-        </video>
+		<div id="player"></div>
+		<input id="m3u8path" type="text" value="http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8"/>
+		<a href="#" onclick="setup();return false;">Update</a>
         <script type="text/javascript">
-            jwplayer("player").setup({
-            	players: settings.players(window.location.href),
-            	players: [{
-            		type: "html5"
-            	}]
-            });
+            function setup(firsttime) {
+				if (!firsttime) {
+					jwplayer("player").remove();	
+				}
+            	jwplayer("player").setup({
+            		players: settings.players(window.location.href, ["html5", "download"]),
+					image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+					file: document.getElementById("m3u8path").value
+            	});
+            }
+			setup(true);
         </script>
         <h3>HTML code</h3>
     </body>

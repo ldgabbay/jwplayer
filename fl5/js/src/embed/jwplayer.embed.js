@@ -119,15 +119,14 @@
 				} else if (loadParams.levels) {
 					var item = this.getPlaylistItem(0);
 					if (!item) {
-						item = {
-							file: loadParams.levels[0].file,
-							provider: (loadParams.provider ? loadParams.provider : "video")
-						};
+						item = loadParams;
 					}
 					if (!item.image) {
 						item.image = loadParams.image;
 					}
-					item.levels = loadParams.levels;
+					if (!item.levels) {
+						item.levels = loadParams.levels;
+					}
 					this.load(item);
 				}
 			};

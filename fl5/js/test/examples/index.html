@@ -40,16 +40,23 @@
             			"Single MP4": "single_mp4.html",
             			"Single OGV": "single_ogg.html",
             			"YouTube": "youtube.html",
-            			"Multiple sources (MP4 and OGV)": "mp4_ogg.html"
+            			"Multiple sources (MP4 and OGV)": "mp4_ogg.html",
+						"Bitrate switching": "bitrateswitching.html"
             		}
             	},
             	"Configuration Tests": {
-            		"Multiple players with custom skins": "multiple_customs.html",
+            		"Multiple players with various options": "multiple_customs.html",
             		"Skins": {
             			"All Skins": "custom_skin.html",
-            			"Invalid skin path specified": "badskin.html"
+            			"Invalid skin path specified": "badskin.html",
+						"Skin redirect": "testskin.html"
             		},
-            		"Playlists": "playlist.html",
+            		"Playlists": {
+						"Progressive download": "playlist.html?type=progressive",
+						//"HTTP Pseudo-streaming": "httpplaylist.html",
+						"RTMP": "playlist.html?type=rtmp",
+						"Mixed": "playlist.html?type=mixed"
+					}, 
             		"Components": {
             			"Controlbar": "controlbar.html",
             			"Logo": "logo.html"
@@ -90,7 +97,8 @@
             			"Loading HTML instead of a skin": "htmlskin.html",
             			"Firefox bug": "ffbug.html#",
             			"FLV failover": "failover.html",
-            			"Video URLs with query strings": "extensions.html"
+            			"Video URLs with query strings": "extensions.html",
+						"Skins: Controlbar without settings block": "testskin.html"
             		},
             		"Features": {
             			"Apple (Cupertino) Streaming": "m3u8.html",
