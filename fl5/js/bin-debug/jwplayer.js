@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1467';/**
+jwplayer.version = '5.4.1468';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -3065,6 +3065,9 @@ playerReady = function(obj) {
 		
 		/** Handles event completion **/
 		function _completeHandler(event) {
+			_bufferHandler({
+				bufferPercent: 0
+			});
 			_timeHandler(jwplayer.utils.extend(event, {
 				position: 0,
 				duration: _currentDuration
@@ -3733,13 +3736,13 @@ playerReady = function(obj) {
 			_stateHandler({});
 		};
 		
-		function _onImageLoad(evt){
+		function _onImageLoad(evt) {
 			_imageWidth = _display.display_image.naturalWidth;
 			_imageHeight = _display.display_image.naturalHeight;
 			_stretch();
 		}
 		
-		function _stretch(){
+		function _stretch() {
 			jwplayer.utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
 		};
 		
@@ -3813,7 +3816,26 @@ playerReady = function(obj) {
 			_display.display_text.style.top = ((_height - _display.display_text.getBoundingClientRect().height) / 2) + "px";
 		}
 		
+		function _oldResetPoster() {
+			_css(_display.display_image, {
+				display: "none"
+			});
+			console.log("delete");
+			delete _display.display_image.src;
+		}
+		
+		function _resetPoster() {
+			var oldDisplayImage = _display.display_image;
+			_display.display_image = createElement("img", "display_image");
+			_display.display_image.onerror = function(evt) {
+				_hide(_display.display_image);
+			};
+			_display.display_image.onload = _onImageLoad;
+			_display.display.replaceChild(_display.display_image, oldDisplayImage);
+		}
+		
 		function _stateHandler(evt) {
+			console.log(_api.jwGetItem(), _api.jwGetPlaylist()[_api.jwGetItem()].image);
 			if ((evt.type == jwplayer.api.events.JWPLAYER_PLAYER_STATE ||
 			evt.type == jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM) &&
 			_error) {
@@ -3825,6 +3847,7 @@ playerReady = function(obj) {
 				_rotationInterval = null;
 				jwplayer.utils.animations.rotate(_display.display_icon, 0);
 			}
+			console.log(_api.jwGetState());
 			switch (_api.jwGetState()) {
 				case jwplayer.api.events.state.BUFFERING:
 					_setDisplayIcon("bufferIcon");
@@ -3848,25 +3871,16 @@ playerReady = function(obj) {
 						});
 						_display.display_image.src = jwplayer.utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
 					} else {
-						_css(_display.display_image, {
-							display: "none"
-						});
-						delete _display.display_image.src;
+						_resetPoster();
 					}
 					_setDisplayIcon("playIcon");
 					break;
 				default:
 					if (_api.jwGetMute()) {
-						_css(_display.display_image, {
-							display: "none"
-						});
-						delete _display.display_image.src;
+						_resetPoster();
 						_setDisplayIcon("muteIcon");
 					} else {
-						_css(_display.display_image, {
-							display: "none"
-						});
-						delete _display.display_image.src;
+						_resetPoster();
 						_hide(_display.display_iconBackground);
 						_hide(_display.display_icon);
 					}

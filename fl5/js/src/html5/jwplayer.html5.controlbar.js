@@ -587,6 +587,9 @@
 		
 		/** Handles event completion **/
 		function _completeHandler(event) {
+			_bufferHandler({
+				bufferPercent: 0
+			});
 			_timeHandler(jwplayer.utils.extend(event, {
 				position: 0,
 				duration: _currentDuration

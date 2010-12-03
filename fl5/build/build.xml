@@ -162,6 +162,9 @@
 	</target>
 	
 	<target name="update-version">
+		<exec executable="svn" failonerror="false" failifexecutionfails="false" dir="${basedir}" >
+			<arg value="up" />
+		</exec>
 		<exec executable="bash" outputproperty="versionnumber" failonerror="false" failifexecutionfails="false" dir="${basedir}" resultproperty="execresult">
 			<arg value="-c" />
 			<arg value="echo '1+'`svn info | grep Revision | sed s\/Revision\\:\\ \/\/` | bc" />
@@ -177,8 +180,7 @@
 		<replace file="${basedir}/jwplayer.min.js" token=", logoConfig);" value=");" />
 	</target>
 
-	<target name="build-swf">
-		<antcall target="update-version" />
+	<target name="build-swf" depends="update-version">
 		<condition property="debugLine" value="-debug=true" else="">
 			<isset property="debug" />
 		</condition>
@@ -233,8 +235,7 @@
 		</exec>
 	</target>
 
-	<target name="build-js">
-		<antcall target="update-version" />
+	<target name="build-js" depends="update-version">
 		<concat destfile="${outputpath}">
 			<fileset dir="${basedir}/js/src" includes="jwplayer.js" />
 			<fileset dir="${basedir}/js/src/utils" includes="**/*.js" excludes="jwplayer.utils.extensionmap.js,jwplayer.utils.animations.js" />
@@ -295,23 +296,20 @@
 		</java>
 	</target>
 
-	<target name="build-debug-player" depends="check-properties">
+	<target name="build-debug-player" depends="check-properties, debug-js">
 		<antcall target="debug-swf">
 			<param name="package" value="${application.package}" />
 			<param name="class" value="${application.class}" />
 			<param name="swf" value="player" />
 		</antcall>
-		<antcall target="debug-js" />
 	</target>
 
-	<target name="build-release-player" depends="check-properties, clean-release">
+	<target name="build-release-player" depends="check-properties, clean-release, debug-js, release-js">
 		<antcall target="release-swf">
 			<param name="package" value="${application.package}" />
 			<param name="class" value="${application.class}" />
 			<param name="swf" value="player" />
 		</antcall>
-		<antcall target="debug-js" />
-		<antcall target="release-js" />
 	</target>
 
 	<!--
