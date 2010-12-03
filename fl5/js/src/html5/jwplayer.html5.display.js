@@ -228,7 +228,6 @@
 			_css(_display.display_image, {
 				display: "none"
 			});
-			console.log("delete");
 			delete _display.display_image.src;
 		}
 		
@@ -243,7 +242,6 @@
 		}
 		
 		function _stateHandler(evt) {
-			console.log(_api.jwGetItem(), _api.jwGetPlaylist()[_api.jwGetItem()].image);
 			if ((evt.type == jwplayer.api.events.JWPLAYER_PLAYER_STATE ||
 			evt.type == jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM) &&
 			_error) {
@@ -255,7 +253,6 @@
 				_rotationInterval = null;
 				jwplayer.utils.animations.rotate(_display.display_icon, 0);
 			}
-			console.log(_api.jwGetState());
 			switch (_api.jwGetState()) {
 				case jwplayer.api.events.state.BUFFERING:
 					_setDisplayIcon("bufferIcon");

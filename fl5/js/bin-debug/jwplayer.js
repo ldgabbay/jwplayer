@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1470';/**
+jwplayer.version = '5.4.1472';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -3819,7 +3819,6 @@ playerReady = function(obj) {
 			_css(_display.display_image, {
 				display: "none"
 			});
-			console.log("delete");
 			delete _display.display_image.src;
 		}
 		
@@ -3834,7 +3833,6 @@ playerReady = function(obj) {
 		}
 		
 		function _stateHandler(evt) {
-			console.log(_api.jwGetItem(), _api.jwGetPlaylist()[_api.jwGetItem()].image);
 			if ((evt.type == jwplayer.api.events.JWPLAYER_PLAYER_STATE ||
 			evt.type == jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM) &&
 			_error) {
@@ -3846,7 +3844,6 @@ playerReady = function(obj) {
 				_rotationInterval = null;
 				jwplayer.utils.animations.rotate(_display.display_icon, 0);
 			}
-			console.log(_api.jwGetState());
 			switch (_api.jwGetState()) {
 				case jwplayer.api.events.state.BUFFERING:
 					_setDisplayIcon("bufferIcon");
