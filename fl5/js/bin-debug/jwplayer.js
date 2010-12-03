@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1472';/**
+jwplayer.version = '5.4.1473';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -2101,8 +2101,7 @@ playerReady = function(obj) {
 				width: _model.width,
 				padding: 0,
 				backgroundColor: getBackgroundColor(),
-				zIndex: 0,
-				overflow: "hidden"
+				zIndex: 0
 			});
 			
 			function getBackgroundColor() {

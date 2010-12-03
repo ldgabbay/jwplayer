@@ -31,8 +31,7 @@
 				width: _model.width,
 				padding: 0,
 				backgroundColor: getBackgroundColor(),
-				zIndex: 0,
-				overflow: "hidden"
+				zIndex: 0
 			});
 			
 			function getBackgroundColor() {
