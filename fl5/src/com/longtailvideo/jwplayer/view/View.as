@@ -79,7 +79,6 @@ package com.longtailvideo.jwplayer.view {
 		protected var ErrorScreen:Class;
 
 		protected var loaderScreen:Sprite;
-		protected var loaderAnim:DisplayObject;
 		
 		protected var currentLayer:Number = 0;
 
@@ -93,9 +92,6 @@ package com.longtailvideo.jwplayer.view {
 
 			loaderScreen = new Sprite();
 			loaderScreen.name = 'loaderScreen';
-
-			loaderAnim = new LoadingScreen() as DisplayObject;
-			loaderScreen.addChild(loaderAnim);
 
 			RootReference.stage.addChildAt(loaderScreen, 0);
 
@@ -119,9 +115,6 @@ package com.longtailvideo.jwplayer.view {
 			loaderScreen.graphics.beginFill(0, 0);
 			loaderScreen.graphics.drawRect(0, 0, RootReference.stage.stageWidth, RootReference.stage.stageHeight);
 			loaderScreen.graphics.endFill();
-
-			loaderAnim.x = (RootReference.stage.stageWidth - loaderAnim.width) / 2;
-			loaderAnim.y = (RootReference.stage.stageHeight - loaderAnim.height) / 2;
 		}
 
 
@@ -146,7 +139,6 @@ package com.longtailvideo.jwplayer.view {
 
 			_model.addEventListener(MediaEvent.JWPLAYER_MEDIA_LOADED, mediaLoaded);
 			_model.playlist.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, itemHandler);
-			//_model.playlist.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, itemHandler);
 			_model.playlist.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_UPDATED, itemHandler);
 			_model.addEventListener(PlayerStateEvent.JWPLAYER_PLAYER_STATE, stateHandler);
 
@@ -166,7 +158,6 @@ package com.longtailvideo.jwplayer.view {
 				_root.visible = true;
 				loaderScreen.parent.removeChild(loaderScreen);
 			} else {
-				loaderScreen.removeChild(loaderAnim);
 				var errorScreen:DisplayObject = new ErrorScreen() as DisplayObject;
 				var errorMessage:TextField = new TextField();
 				errorMessage.defaultTextFormat = new TextFormat("_sans", 12, 0xffffff);

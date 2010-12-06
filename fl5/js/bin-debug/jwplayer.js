@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1473';/**
+jwplayer.version = '5.4.1475';/**
  * Utility methods for the JW Player.
  *
  * @author zach
