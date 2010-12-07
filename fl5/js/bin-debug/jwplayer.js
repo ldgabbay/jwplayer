@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1475';/**
+jwplayer.version = '5.4.1477';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -4792,11 +4792,15 @@ playerReady = function(obj) {
 			if (typeof _model.plugins == "string") {
 				var userplugins = _model.plugins.split(",");
 				for (var userplugin in userplugins) {
-					pluginorder.push(userplugins[userplugin].replace(/^\s+|\s+$/g, ""));
+					if (typeof userplugins[userplugin] == "string"){
+						pluginorder.push(userplugins[userplugin].replace(/^\s+|\s+$/g, ""));	
+					}
 				}
 			} else {
 				for (var plugin in _model.plugins) {
-					pluginorder.push(_model.plugins[plugin].replace(/^\s+|\s+$/g, ""));
+					if (typeof_model.plugins[plugin] == "string") {
+						pluginorder.push(_model.plugins[plugin].replace(/^\s+|\s+$/g, ""));
+					}
 				}
 			}
 		}
