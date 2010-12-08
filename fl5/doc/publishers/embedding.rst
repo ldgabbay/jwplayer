@@ -497,3 +497,22 @@ In addition to setting up a player, the JW Player embed script contains a functi
     jwplayer("container").remove();
 
 This formal **remove()** function will make sure the player stops its streams, the DOM is re-set to its original state and all event listeners are cleaned up.
+
+Flash Window Mode (wmode) Configuration
++++++++++++++++++++++++++++++++++++++++
+
+The JW Player embed script allows publishers to configure the window mode of Flash through the **wmode** configuration parameter. It may be set to any of the `allowed values <http://kb2.adobe.com/cps/127/tn_12701.html>`_  (**window**, **opaque**, or **transparent**). The default window mode used by the embed script is **opaque** as this provides the best performance. 
+
+.. code-block:: html
+    
+    <div id="container">Loading the player ...</div>
+    
+    <script type="text/javascript">
+        jwplayer("container").setup({
+            flashplayer: "/jwplayer/player.swf",
+            file: "/uploads/video.mp4",
+            height: 270,
+            width: 480,
+            wmode: "opaque"
+        });
+    </script>

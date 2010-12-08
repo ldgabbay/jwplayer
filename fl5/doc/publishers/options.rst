@@ -82,7 +82,19 @@ The following flashvars can be set instead of **playlistfile**. They are used to
 
    Technically, any playlist item property is also available as an option. In practice though, the properties *author*, *date*, *description*, *link*, *tags* and *title* are not used anywhere if a single media file is loaded.
 
+.. describe:: netstreambasepath ( undefined )
 
+   The netstreambasepath should be set to a string reprenting a URL. Introduced in JW Player 5.4, this configuration parameter directs the **video** and **http** media providers to request video files relative to the specified netstreambasepath rather than relative to the player SWF (see below). This will likely cause issues for publishers using the JW Embedder with relative file paths. 
+   
+.. note::
+
+   This does not affect any other URLs (such as skins, playlists, or plugins), but relative URLs contained within a playlist will be calculated relative to this path.
+   
+.. note::
+   
+   The netstreambasepath configuration option exists as a workaround for a technical limitation in Flash. All video in Flash must be loaded using Adobe's NetStream class. For historical reason, relative file paths passed into the NetStream are always resolved relative to the SWF making the request.
+   
+   The JW Player uses the NetStream class to load media for the **video** and **http** media providers. With the introduction of the HTML5 player, it became impossible to consistently reference a video file via a relative path, as in Flash mode would load it relative to the player SWF, while in HTML5 mode it would load relative to the current page. The netstreambasepath is a workaround that allow for a consistent referencing by specifing the original path from which relative URLs should be resolved.
 
 .. _options-layout:
 
