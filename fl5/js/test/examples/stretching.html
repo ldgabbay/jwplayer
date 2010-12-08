@@ -14,114 +14,58 @@
         <p>
             This page contains a player with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
         </p>
-        <table>
-            <tr>
-                <td>
-                    None
-                </td>
-                <td>
-                    <div height="270" id="player-none-flash" width="480">
-                        HTML5 Player should replace this.
-                    </div>
-                </td>
-                <td>
-                    <div height="270" id="player-none-html5" width="480">
-                        HTML5 Player should replace this.
-                    </div>
-                </td>
-                <td>
-                    <a href="#" onclick="testPlay('none');return false;">Play</a>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    Uniform
-                </td>
-                <td>
-                    <div height="270" id="player-uniform-flash" width="480">
-                        HTML5 Player should replace this.
-                    </div>
-                </td>
-                <td>
-                    <div height="270" id="player-uniform-html5" width="480">
-                        HTML5 Player should replace this.
-                    </div>
-                </td>
-                <td>
-                    <a href="#" onclick="testPlay('uniform');return false;">Play</a>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    Fill
-                </td>
-                <td>
-                    <div height="270" id="player-fill-flash" width="480">
-                        HTML5 Player should replace this.
-                    </div>
-                </td>
-                <td>
-                    <div height="270" id="player-fill-html5" width="480">
-                        HTML5 Player should replace this.
-                    </div>
-                </td>
-                <td>
-                    <a href="#" onclick="testPlay('fill');return false;">Play</a>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    Exactfit
-                </td>
-                <td>
-                    <div height="270" id="player-exactfit-flash" width="480">
-                        HTML5 Player should replace this.
-                    </div>
-                </td>
-                <td>
-                    <div height="270" id="player-exactfit-html5" width="480">
-                        HTML5 Player should replace this.
-                    </div>
-                </td>
-                <td>
-                    <a href="#" onclick="testPlay('exactfit');return false;">Play</a>
-                </td>
-            </tr>
+        <table id="examplestable">
         </table>
         <script type="text/javascript">
             function testPlay(stretching) {
             	jwplayer("player-" + stretching + "-flash").play();
-				jwplayer("player-" + stretching + "-html5").play();
+            	jwplayer("player-" + stretching + "-html5").play();
             }
             
+            var tests = [];
             for (var stretching in jwplayer.utils.stretching) {
             	if (typeof stretching == "string") {
-            		jwplayer("player-" + stretching.toLowerCase() + "-flash").setup({
-            			flashplayer: "http://player.longtailvideo.com/player.swf",
-            			levels: [{
-            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
-            			}, {
-            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
-            			}],
-            			image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
-            			stretching: stretching.toLowerCase(),
-						height: 480,
-						width: 640
+            		tests.push({
+            			name: stretching.toLowerCase(),
+            			players: [["flash", "html5", "download"], ["html5", "flash", "download"]],
+            			config: {
+            				levels: [{
+            					file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            				}, {
+            					file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            				}],
+            				image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+            				stretching: stretching.toLowerCase(),
+            				height: 480,
+            				width: 640
+            			}
             		});
-            		jwplayer("player-" + stretching.toLowerCase() + "-html5").setup({
-            			players: [{
-            				type: "html5"
-            			}],
-            			levels: [{
-            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
-            			}, {
-            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
-            			}],
-            			image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
-            			stretching: stretching.toLowerCase(),
-						height: 480,
-						width: 640
-            		});
+            	}
+            }
+            
+            var examplestable = document.getElementById("examplestable");
+            
+            for (var test in tests) {
+            	var row = document.createElement("tr");
+            	examplestable.appendChild(row);
+            	var label = document.createElement("td");
+	           	row.appendChild(label);
+				var labelTag = document.createElement("h2");
+				label.appendChild(labelTag);
+            	labelTag.innerHTML = tests[test].name;
+            	for (var player in tests[test].players) {
+            		var column = document.createElement("td");
+            		row.appendChild(column);
+            		var div = document.createElement("div");
+            		column.appendChild(div);
+            		var playerName = "player-" + tests[test].name + "-" + tests[test].players[player].join("-");
+            		div.id = playerName;
+            		div.height = 270;
+            		div.width = 480;
+					var config = jwplayer.utils.extend({
+            			players: settings.players(window.location.href, tests[test].players[player])
+            		}, tests[test].config);
+            		var setup = jwplayer(playerName).setup(config);
             	}
             }
         </script>
