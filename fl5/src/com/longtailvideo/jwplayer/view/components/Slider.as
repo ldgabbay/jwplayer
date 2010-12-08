@@ -7,8 +7,8 @@ package com.longtailvideo.jwplayer.view.components {
 	import flash.events.MouseEvent;
 	import flash.geom.ColorTransform;
 	import flash.geom.Rectangle;
-
-
+	
+	
 	public class Slider extends Sprite {
 		protected var _rail:Sprite;
 		protected var _buffer:Sprite;
@@ -33,7 +33,7 @@ package com.longtailvideo.jwplayer.view.components {
 		protected var _lock:Boolean;
 		/** If the buffer has a percentage offset **/
 		protected var _bufferOffset:Number = 0;
-
+		
 		public function Slider(rail:DisplayObject, buffer:DisplayObject, progress:DisplayObject, thumb:DisplayObject, capLeft:DisplayObject=null, capRight:DisplayObject=null) {
 			super();
 			
@@ -56,8 +56,8 @@ package com.longtailvideo.jwplayer.view.components {
 			_clickArea.addEventListener(MouseEvent.MOUSE_OVER, overHandler);
 			_clickArea.addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 		}
-
-
+		
+		
 		private function addElement(element:DisplayObject, name:String, visible:Boolean=false):Sprite {
 			if (!element) {
 				element = new Sprite();
@@ -67,22 +67,25 @@ package com.longtailvideo.jwplayer.view.components {
 			element.name = name;
 			return element as Sprite;
 		}
-
-
+		
+		
 		protected function setThumb(progress:Number):void {
 			_currentThumb = progress;
 		}
-
-
+		
+		
 		public function setProgress(progress:Number):void {
+			if (isNaN(progress)){
+				progress = 0;
+			}
 			_currentProgress = progress;
 			if (_progress) {
 				_progress.visible = true;
 			}
 			setThumb(progress);
 		}
-
-
+		
+		
 		public function setBuffer(buffer:Number):void {
 			_currentBuffer = buffer;
 			if (_buffer) {
@@ -90,11 +93,11 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 			resize(this.width, this.height);
 		}
-
+		
 		public function setBufferOffset(offset:Number):void {
 			_bufferOffset = offset;
 		}
-
+		
 		public function resize(width:Number, height:Number):void {
 			var scale:Number = this.scaleX;
 			this.scaleX = 1;
@@ -129,8 +132,8 @@ package com.longtailvideo.jwplayer.view.components {
 			_clickArea.graphics.drawRect(_capLeft.width, 0, _width, height); 
 			verticalCenter();
 		}
-
-
+		
+		
 		private function resizeElement(element:DisplayObject, maskpercentage:Number=100):void {
 			if (element) {
 				if (_width && _height) {
@@ -151,11 +154,11 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 			}
 		}
-
+		
 		private function verticalCenter():void {
 			var maxHeight:Number = 0;
 			var element:DisplayObject;
-
+			
 			for(var i:Number = 0; i < numChildren; i++) {
 				element = getChildAt(i);
 				if (element.height > maxHeight) maxHeight = element.height;
@@ -166,7 +169,7 @@ package com.longtailvideo.jwplayer.view.components {
 				element.y = (maxHeight - element.height) / 2;
 			}
 		}
-
+		
 		/** Handle mouse downs. **/
 		private function downHandler(evt:MouseEvent):void {
 			if (_thumb && !_lock) {
@@ -176,8 +179,8 @@ package com.longtailvideo.jwplayer.view.components {
 				RootReference.stage.addEventListener(MouseEvent.MOUSE_UP, upHandler);
 			}
 		}
-
-
+		
+		
 		/** Handle mouse releases. **/
 		private function upHandler(evt:MouseEvent):void {
 			RootReference.stage.removeEventListener(MouseEvent.MOUSE_UP, upHandler);
@@ -187,19 +190,19 @@ package com.longtailvideo.jwplayer.view.components {
 			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_CLICK, percent));
 			setThumb(percent * 100);
 		}
-
-
+		
+		
 		/** Handle mouseouts. **/
 		private function outHandler(evt:MouseEvent):void {
 			//slider.transform.colorTransform = front;
 		}
-
-
+		
+		
 		/** Handle mouseovers. **/
 		private function overHandler(evt:MouseEvent):void {
 			//slider.transform.colorTransform = light;
 		}
-
+		
 		/** Reset the slider to its original state**/
 		public function reset():void {
 			setBuffer(0);

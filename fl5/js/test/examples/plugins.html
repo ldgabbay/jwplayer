@@ -29,7 +29,8 @@
             		}],
             		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
             		plugins: "hd",
-					"hd.file": "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
+            		"hd.file": "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
+            		"hd.state": true,
             		components: {
             			controlbar: {
             				position: "top"
@@ -47,11 +48,7 @@
             		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
             		plugins: "hd-1",
             		"hd.file": "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
-            		plugins: {
-            			"hd-1": {
-            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
-            			}
-            		},
+            		"hd.state": true,
             		components: {
             			controlbar: {
             				position: "top"
@@ -69,6 +66,7 @@
             		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
             		plugins: "http://plugins.longtailvideo.com/5/hd/hd-1.swf",
             		"hd.file": "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
+            		"hd.state": true,
             		components: {
             			controlbar: {
             				position: "top"
@@ -86,7 +84,8 @@
             		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
             		plugins: {
             			hd: {
-            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
+            				state: true
             			}
             		},
             		components: {
@@ -106,7 +105,8 @@
             		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
             		plugins: {
             			"hd-1": {
-            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
+            				state: true
             			}
             		},
             		components: {
@@ -126,7 +126,8 @@
             		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
             		plugins: {
             			"http://plugins.longtailvideo.com/5/hd/hd-1.swf": {
-            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
+            				state: true
             			}
             		},
             		components: {
@@ -155,10 +156,9 @@
             		div.height = 270;
             		div.width = 480;
             		var config = jwplayer.utils.extend({
-						name: playerName,
+            			name: playerName,
             			players: settings.players(window.location.href, players[player])
             		}, tests[test].config);
-					console.log(config);
             		var setup = jwplayer(playerName).setup(config);
             	}
             }

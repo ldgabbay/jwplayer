@@ -344,7 +344,7 @@ package com.longtailvideo.jwplayer.view.components {
 				case MediaEvent.JWPLAYER_MEDIA_BUFFER:
 				case MediaEvent.JWPLAYER_MEDIA_TIME:
 					if (scrubber) {
-						scrubber.setProgress(evt.position / evt.duration *100);
+						scrubber.setProgress(evt.position / evt.duration * 100);
 						scrubber.thumbVisible = (evt.duration > 0);
 						if (evt.bufferPercent > 0) {
 							scrubber.setBuffer(evt.bufferPercent);

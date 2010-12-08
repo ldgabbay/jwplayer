@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1477';/**
+jwplayer.version = '5.4.1479';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -4794,12 +4794,6 @@ playerReady = function(obj) {
 				for (var userplugin in userplugins) {
 					if (typeof userplugins[userplugin] == "string"){
 						pluginorder.push(userplugins[userplugin].replace(/^\s+|\s+$/g, ""));	
-					}
-				}
-			} else {
-				for (var plugin in _model.plugins) {
-					if (typeof_model.plugins[plugin] == "string") {
-						pluginorder.push(_model.plugins[plugin].replace(/^\s+|\s+$/g, ""));
 					}
 				}
 			}

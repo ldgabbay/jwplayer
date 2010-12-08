@@ -75,12 +75,6 @@
 						pluginorder.push(userplugins[userplugin].replace(/^\s+|\s+$/g, ""));	
 					}
 				}
-			} else {
-				for (var plugin in _model.plugins) {
-					if (typeof_model.plugins[plugin] == "string") {
-						pluginorder.push(_model.plugins[plugin].replace(/^\s+|\s+$/g, ""));
-					}
-				}
 			}
 		}
 		
