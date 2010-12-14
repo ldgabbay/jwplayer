@@ -77,10 +77,8 @@
 		path = path.substring(path.lastIndexOf("/") + 1, path.length);
 		path = path.split("?")[0];
 		if (path.lastIndexOf('.') > -1) {
-			console.log (path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase());
 			return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
 		}
-		console.log("");
 		return "";
 	};
 	

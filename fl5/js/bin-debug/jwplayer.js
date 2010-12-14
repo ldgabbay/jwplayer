@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1490';/**
+jwplayer.version = '5.4.1491';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -90,10 +90,8 @@ jwplayer.version = '5.4.1490';/**
 		path = path.substring(path.lastIndexOf("/") + 1, path.length);
 		path = path.split("?")[0];
 		if (path.lastIndexOf('.') > -1) {
-			console.log (path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase());
 			return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
 		}
-		console.log("");
 		return "";
 	};
 	
