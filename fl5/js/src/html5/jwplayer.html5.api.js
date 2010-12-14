@@ -9,7 +9,7 @@
 	jwplayer.html5.api = function(container, options) {
 		var _api = {};
 		
-		if (!jwplayer.utils.browserSupportsConfig()) {
+		if (!jwplayer.utils.html5SupportsConfig()) {
 			return _api;
 		}
 		

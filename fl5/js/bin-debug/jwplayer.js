@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1479';/**
+jwplayer.version = '5.4.1488';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -87,8 +87,12 @@ jwplayer.version = '5.4.1479';/**
 	
 	/** Returns the extension of a file name **/
 	jwplayer.utils.extension = function(path) {
+		path = path.substring(path.lastIndexOf("/") + 1, path.length);
 		path = path.split("?")[0];
-		return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
+		if (path.lastIndexOf('.') > -1) {
+			return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
+		}
+		return "";
 	};
 	
 	/** Updates the contents of an HTML element **/
@@ -190,6 +194,33 @@ jwplayer.version = '5.4.1479';/**
 		return (agent.match(/iP(hone|ad)/i) !== null);
 	};
 	
+	jwplayer.utils.getFirstPlaylistItemFromConfig = function(config) {
+		var item = {};
+		var playlistItem;
+		if (config.playlist && config.playlist.length) {
+			playlistItem = config.playlist[0];
+		} else {
+			playlistItem = config;
+		}
+		item.file = playlistItem.file;
+		item.levels = playlistItem.levels;
+		item.streamer = playlistItem.streamer;
+		item.playlistfile = playlistItem.playlistfile;
+		if (item.file && item.file.toLowerCase().indexOf("youtube.com") > -1) {
+			item.provider = "youtube";
+		}
+		if (item.streamer && item.streamer.toLowerCase().indexOf("rtmp://") == 0) {
+			item.provider = "rtmp";
+		}
+		if (playlistItem.type) {
+			item.provider = playlistItem.type.toLowerCase();
+		} else if (playlistItem.provider) {
+			item.provider = playlistItem.provider.toLowerCase();
+		}
+		
+		return item;
+	}
+	
 	/**
 	 * Detects whether Flash supports this configuration
 	 * @param config (optional) If set, check to see if the first playable item
@@ -197,21 +228,14 @@ jwplayer.version = '5.4.1479';/**
 	jwplayer.utils.flashSupportsConfig = function(config) {
 		if (jwplayer.utils.hasFlash()) {
 			if (config) {
-				var item = {};
-				if (config.playlist && config.playlist.length) {
-					item.file = config.playlist[0].file;
-					item.levels = config.playlist[0].levels;
-				} else {
-					item.file = config.file;
-					item.levels = config.levels;
-				}
+				var item = jwplayer.utils.getFirstPlaylistItemFromConfig(config);
 				if (typeof item.file == "undefined" && typeof item.levels == "undefined") {
 					return true;
 				} else if (item.file) {
-					return jwplayer.utils.flashCanPlay(item.file);
+					return jwplayer.utils.flashCanPlay(item);
 				} else if (item.levels && item.levels.length) {
 					for (var i = 0; i < item.levels.length; i++) {
-						if (item.levels[i].file && jwplayer.utils.flashCanPlay(item.levels[i].file)) {
+						if (item.levels[i].file && jwplayer.utils.flashCanPlay(item)) {
 							return true;
 						}
 					}
@@ -224,31 +248,44 @@ jwplayer.version = '5.4.1479';/**
 	};
 	
 	/**
-	 * Detects whether the browser can handle HTML5 video.
-	 * Using this as a proxy for detecting all HTML5 features needed for the JW HTML5 Player.  Do we need more granularity?
+	 * Determines if a Flash can play a particular file, based on its extension
+	 */
+	jwplayer.utils.flashCanPlay = function(item) {
+		var providers = ["video", "http", "sound", "image"];
+		// Provider is set, and is not video, http, sound, image - play in Flash
+		if (item.provider && (providers.indexOf(item.provider < 0))) {
+			return true;
+		}
+		var extension = jwplayer.utils.extension(item.file);
+		// If there is no extension, use Flash
+		if (!extension) {
+			return true;
+		}
+		// Extension is in the extension map, but not supported by Flash - fail
+		if (jwplayer.utils.extensionmap[extension] !== undefined &&
+		jwplayer.utils.extensionmap[extension].flash === undefined) {
+			return false;
+		}
+		return true;
+	};
+	
+	/**
+	 * Detects whether the html5 player supports this cofiguration.
 	 *
 	 * @param config (optional) If set, check to see if the first playable item
 	 */
-	jwplayer.utils.browserSupportsConfig = function(config) {
+	jwplayer.utils.html5SupportsConfig = function(config) {
 		var vid = document.createElement('video');
-		
 		if (!!vid.canPlayType) {
 			if (config) {
-				var item = {};
-				if (config.playlist && config.playlist.length) {
-					item.file = config.playlist[0].file;
-					item.levels = config.playlist[0].levels;
-				} else {
-					item.file = config.file;
-					item.levels = config.levels;
-				}
+				var item = jwplayer.utils.getFirstPlaylistItemFromConfig(config);
 				if (typeof item.file == "undefined" && typeof item.levels == "undefined") {
 					return true;
 				} else if (item.file) {
-					return jwplayer.utils.browserCanPlay(vid, item.file);
+					return jwplayer.utils.html5CanPlay(vid, item);
 				} else if (item.levels && item.levels.length) {
 					for (var i = 0; i < item.levels.length; i++) {
-						if (item.levels[i].file && jwplayer.utils.browserCanPlay(vid, item.levels[i].file)) {
+						if (item.levels[i].file && jwplayer.utils.html5CanPlay(vid, item)) {
 							return true;
 						}
 					}
@@ -264,30 +301,73 @@ jwplayer.version = '5.4.1479';/**
 	/**
 	 * Determines if a video element can play a particular file, based on its extension
 	 */
-	jwplayer.utils.browserCanPlay = function(video, file) {
-		var extension = jwplayer.utils.extension(file);
-		if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 !== undefined) {
+	jwplayer.utils.html5CanPlay = function(video, item) {
+		// Don't support playlists
+		if (item.playlistfile) {
+			return false;
+		}
+		
+		// YouTube is supported
+		if (item.provider && item.provider == "youtube") {
+			return true;
+		}
+		
+		// If a provider is set, only proceed if video
+		if (item.provider && item.provider != "video") {
+			return false;
+		}
+		
+		var extension = jwplayer.utils.extension(item.file);
+		
+		// Check for Android, which returns false for canPlayType
+		if (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/)) {
+			return true;
+		}
+		
+		// Last, but not least, ask the browser
+		return jwplayer.utils.browserCanPlay(video, extension);
+	};
+	
+	/**
+	 * 
+	 * @param {String} extension
+	 * @return {Boolean} 
+	 */
+	jwplayer.utils.browserCanPlay = function(video, extension) {
+		var sourceType;
+		// OK to use HTML5 with no extension
+		if (!extension) {
+			return true;
+		} else if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 !== undefined) {
 			sourceType = jwplayer.utils.extensionmap[extension].html5;
 		} else {
 			sourceType = 'video/' + extension + ';';
 		}
-		if (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/)) {
-			return true;
-		}
-		return (video.canPlayType(sourceType) || file.toLowerCase().indexOf("youtube.com") > -1);
-	};
-	
+		
+		return video.canPlayType(sourceType);
+	}
 	
 	/**
-	 * Determines if a Flash can play a particular file, based on its extension
+	 *
+	 * @param {Object} element
 	 */
-	jwplayer.utils.flashCanPlay = function(file) {
-		var result = false;
-		var extension = jwplayer.utils.extension(file);
-		if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].flash !== undefined) {
-			result = jwplayer.utils.extensionmap[extension].flash;
+	jwplayer.utils.downloadSupportsConfig = function(config) {
+		var item = jwplayer.utils.getFirstPlaylistItemFromConfig(config);
+		
+		// Don't support playlists
+		if (item.playlistfile) {
+			return false;
 		}
-		return (result || file.toLowerCase().indexOf("youtube.com") > -1);
+		
+		var extension = jwplayer.utils.extension(item.file);
+		// Only download if it's in the extension map or YouTube
+		if (extension && jwplayer.utils.extensionmap[extension]) {
+			return true;
+		}
+		if (item.provider && item.provider == "youtube") {
+			return true;
+		}
+		return false;
 	};
 	
 	/**
@@ -1647,7 +1727,7 @@ playerReady = function(obj) {
 						}
 						break;
 					case 'html5':
-						if (jwplayer.utils.browserSupportsConfig(this.config)) {
+						if (jwplayer.utils.html5SupportsConfig(this.config)) {
 							var html5player = jwplayer.embed.embedHTML5(document.getElementById(this.api.id), player, this.config);
 							this.api.container = document.getElementById(this.api.id);
 							this.api.setPlayer(html5player);
@@ -1657,9 +1737,15 @@ playerReady = function(obj) {
 						}
 						break;
 					case 'download':
-						var downloadplayer = jwplayer.embed.embedDownloadLink(document.getElementById(this.api.id), player, this.config);
-						this.api.container = document.getElementById(this.api.id);
-						this.api.setPlayer(downloadplayer);
+						if (jwplayer.utils.downloadSupportsConfig(this.config)) {
+							var item = jwplayer.utils.getFirstPlaylistItemFromConfig(this.config);
+							var downloadplayer = jwplayer.embed.embedDownloadLink(document.getElementById(this.api.id), player, this.config);
+							this.api.container = document.getElementById(this.api.id);
+							this.api.setPlayer(downloadplayer);
+						} else {
+							this.players.splice(0, 1);
+							return this.embedPlayer();
+						}
 						break;
 				}
 			} else {
@@ -4631,7 +4717,7 @@ playerReady = function(obj) {
 				} else {
 					sourceType = sourceModel.type;
 				}
-				if (jwplayer.utils.browserCanPlay(vid, sourceModel.file)) {
+				if (jwplayer.utils.html5CanPlay(vid, sourceModel)) {
 					var source = _container.ownerDocument.createElement("source");
 					source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
 					if (!jwplayer.utils.isLegacyAndroid()) {
@@ -5263,7 +5349,7 @@ playerReady = function(obj) {
 	jwplayer.html5.api = function(container, options) {
 		var _api = {};
 		
-		if (!jwplayer.utils.browserSupportsConfig()) {
+		if (!jwplayer.utils.html5SupportsConfig()) {
 			return _api;
 		}
 		

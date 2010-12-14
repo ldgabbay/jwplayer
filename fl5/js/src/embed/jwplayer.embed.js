@@ -80,7 +80,7 @@
 						}
 						break;
 					case 'html5':
-						if (jwplayer.utils.browserSupportsConfig(this.config)) {
+						if (jwplayer.utils.html5SupportsConfig(this.config)) {
 							var html5player = jwplayer.embed.embedHTML5(document.getElementById(this.api.id), player, this.config);
 							this.api.container = document.getElementById(this.api.id);
 							this.api.setPlayer(html5player);
@@ -90,9 +90,15 @@
 						}
 						break;
 					case 'download':
-						var downloadplayer = jwplayer.embed.embedDownloadLink(document.getElementById(this.api.id), player, this.config);
-						this.api.container = document.getElementById(this.api.id);
-						this.api.setPlayer(downloadplayer);
+						if (jwplayer.utils.downloadSupportsConfig(this.config)) {
+							var item = jwplayer.utils.getFirstPlaylistItemFromConfig(this.config);
+							var downloadplayer = jwplayer.embed.embedDownloadLink(document.getElementById(this.api.id), player, this.config);
+							this.api.container = document.getElementById(this.api.id);
+							this.api.setPlayer(downloadplayer);
+						} else {
+							this.players.splice(0, 1);
+							return this.embedPlayer();
+						}
 						break;
 				}
 			} else {

@@ -11,4 +11,4 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1479';
+jwplayer.version = '5.4.1488';
