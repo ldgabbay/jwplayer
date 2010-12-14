@@ -31,6 +31,7 @@
             			"File paths": {
             				"No file specified": "nofile.html",
             				"Invalid file path specified": "badfile.html",
+							//"No file extension": "noextension.html",
             				"Absolute file path": "filepathsabsolute.html",
             				"Root file path": "filepathsroot.html",
             				"Relative file path": "filepathsrelative.html"
@@ -41,28 +42,31 @@
             			"Single OGV": "single_ogg.html",
             			"YouTube": "youtube.html",
             			"Multiple sources (MP4 and OGV)": "mp4_ogg.html",
-						"Bitrate switching": "bitrateswitching.html"
+            			"Bitrate switching": "bitrateswitching.html",
+            			"RTMP": "rtmp.html"
             		}
             	},
             	"Configuration Tests": {
+					"Providers": "providers.html", 
             		"Multiple players with various options": "multiple_customs.html",
             		"Skins": {
             			"All Skins": "custom_skin.html",
             			"Invalid skin path specified": "badskin.html",
-						"Skin redirect": "testskin.html"
+            			"Skin redirect": "testskin.html"
             		},
             		"Playlists": {
-						"Progressive download": "playlist.html?type=progressive",
-						//"HTTP Pseudo-streaming": "httpplaylist.html",
-						"RTMP": "playlist.html?type=rtmp",
-						"Mixed": "playlist.html?type=mixed"
-					}, 
+            			"Progressive download": "playlist.html?type=progressive",
+            			//"HTTP Pseudo-streaming": "httpplaylist.html",
+            			"RTMP": "playlist.html?type=rtmp",
+            			"Mixed": "playlist.html?type=mixed",
+            			"XML Playlits": "xmlplaylists.html"
+            		},
             		"Components": {
             			"Controlbar": "controlbar.html",
             			"Logo": "logo.html"
             		},
             		"Plugins": "plugins.html",
-					"Stretching": "stretching.html",
+            		"Stretching": "stretching.html",
             		"Chromeless": "chromeless.html"
             	},
             	"API": {
@@ -95,10 +99,10 @@
             		"Bugs": {
             			"Social media": "socialmedia.html",
             			"Loading HTML instead of a skin": "htmlskin.html",
-            			"Firefox bug": "ffbug.html#",
+            			"Firefox bug": "ff3bug.html#",
             			"FLV failover": "failover.html",
             			"Video URLs with query strings": "extensions.html",
-						"Skins: Controlbar without settings block": "testskin.html"
+            			"Skins: Controlbar without settings block": "testskin.html"
             		},
             		"Features": {
             			"Apple (Cupertino) Streaming": "m3u8.html",
@@ -129,7 +133,6 @@
             
             
             createList(examplePages, list);
-            
         </script>
     </body>
 </html>

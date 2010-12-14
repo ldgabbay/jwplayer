@@ -332,6 +332,8 @@
 		// OK to use HTML5 with no extension
 		if (!extension) {
 			return true;
+		} else if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 === undefined) {
+			return false;
 		} else if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 !== undefined) {
 			sourceType = jwplayer.utils.extensionmap[extension].html5;
 		} else {
@@ -377,14 +379,20 @@
 			return false;
 		}
 		
-		var extension = jwplayer.utils.extension(file);
-		// Only download if it's in the extension map or YouTube
-		if (extension && jwplayer.utils.extensionmap[extension]) {
+		var providers = ["image", "sound", "youtube"];
+		// If the media provider is supported, return true
+		if (provider && (providers.indexOf(provider) > -1)) {
 			return true;
 		}
 		
-		if (provider && provider == "youtube") {
-			return true;
+		// If a provider is set, only proceed if video
+		if (!provider || (provider && provider == "video")) {
+			var extension = jwplayer.utils.extension(file);
+			
+			// Only download if it's in the extension map or YouTube
+			if (extension && jwplayer.utils.extensionmap[extension]) {
+				return true;
+			}
 		}
 		
 		return false;

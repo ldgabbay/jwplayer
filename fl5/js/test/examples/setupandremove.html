@@ -11,14 +11,40 @@
         <script type="text/javascript">
             document.write("<h1>" + document.title + "</h1>");
         </script>
-		 <p>
-           This page contains a player with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
+        <p>
+            This page contains a player with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
         </p>
-        <div height="270" id="player" width="480">
-        	 HTML5 Player should replace this.
+        <h2>Standard player</h2>
+        <div height="270" id="player1" width="480">
+            HTML5 Player should replace this.
         </div>
         <script type="text/javascript">
-            jwplayer("player").setup({
+            jwplayer("player1").setup({
+            	players: settings.players(window.location.href),
+            	levels: [{
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
+            });
+            jwplayer("player1").remove();
+            jwplayer("player1").setup({
+            	players: settings.players(window.location.href),
+            	levels: [{
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
+            });
+        </script>
+        <h2>Download only</h2>
+        <div height="270" id="player2" width="480">
+            HTML5 Player should replace this.
+        </div>
+        <script type="text/javascript">
+            jwplayer("player2").setup({
             	players: settings.players(window.location.href, ["download"]),
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
@@ -27,8 +53,8 @@
             	}],
             	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
             });
-            jwplayer("player").remove();
-            jwplayer("player").setup({
+            jwplayer("player2").remove();
+            jwplayer("player2").setup({
             	players: settings.players(window.location.href, ["download"]),
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
