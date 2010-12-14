@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1488';/**
+jwplayer.version = '5.4.1489';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -90,8 +90,10 @@ jwplayer.version = '5.4.1488';/**
 		path = path.substring(path.lastIndexOf("/") + 1, path.length);
 		path = path.split("?")[0];
 		if (path.lastIndexOf('.') > -1) {
+			console.log (path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase());
 			return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
 		}
+		console.log("");
 		return "";
 	};
 	
@@ -232,10 +234,10 @@ jwplayer.version = '5.4.1488';/**
 				if (typeof item.file == "undefined" && typeof item.levels == "undefined") {
 					return true;
 				} else if (item.file) {
-					return jwplayer.utils.flashCanPlay(item);
+					return jwplayer.utils.flashCanPlay(item.file, item.provider);
 				} else if (item.levels && item.levels.length) {
 					for (var i = 0; i < item.levels.length; i++) {
-						if (item.levels[i].file && jwplayer.utils.flashCanPlay(item)) {
+						if (item.levels[i].file && jwplayer.utils.flashCanPlay(item.levels[i].file, item.provider)) {
 							return true;
 						}
 					}
@@ -250,13 +252,13 @@ jwplayer.version = '5.4.1488';/**
 	/**
 	 * Determines if a Flash can play a particular file, based on its extension
 	 */
-	jwplayer.utils.flashCanPlay = function(item) {
+	jwplayer.utils.flashCanPlay = function(file, provider) {
 		var providers = ["video", "http", "sound", "image"];
 		// Provider is set, and is not video, http, sound, image - play in Flash
-		if (item.provider && (providers.indexOf(item.provider < 0))) {
+		if (provider && (providers.indexOf(provider < 0))) {
 			return true;
 		}
-		var extension = jwplayer.utils.extension(item.file);
+		var extension = jwplayer.utils.extension(file);
 		// If there is no extension, use Flash
 		if (!extension) {
 			return true;
@@ -270,9 +272,10 @@ jwplayer.version = '5.4.1488';/**
 	};
 	
 	/**
-	 * Detects whether the html5 player supports this cofiguration.
+	 * Detects whether the html5 player supports this configuration.
 	 *
 	 * @param config (optional) If set, check to see if the first playable item
+	 * @return {Boolean}
 	 */
 	jwplayer.utils.html5SupportsConfig = function(config) {
 		var vid = document.createElement('video');
@@ -282,10 +285,10 @@ jwplayer.version = '5.4.1488';/**
 				if (typeof item.file == "undefined" && typeof item.levels == "undefined") {
 					return true;
 				} else if (item.file) {
-					return jwplayer.utils.html5CanPlay(vid, item);
+					return jwplayer.utils.html5CanPlay(vid, item.file, item.provider, item.playlistfile);
 				} else if (item.levels && item.levels.length) {
 					for (var i = 0; i < item.levels.length; i++) {
-						if (item.levels[i].file && jwplayer.utils.html5CanPlay(vid, item)) {
+						if (item.levels[i].file && jwplayer.utils.html5CanPlay(vid, item.levels[i].file, item.provider, item.playlistfile)) {
 							return true;
 						}
 					}
@@ -300,24 +303,29 @@ jwplayer.version = '5.4.1488';/**
 	
 	/**
 	 * Determines if a video element can play a particular file, based on its extension
+	 * @param {Object} video
+	 * @param {Object} file
+	 * @param {Object} provider
+	 * @param {Object} playlistfile
+	 * @return {Boolean}
 	 */
-	jwplayer.utils.html5CanPlay = function(video, item) {
+	jwplayer.utils.html5CanPlay = function(video, file, provider, playlistfile) {
 		// Don't support playlists
-		if (item.playlistfile) {
+		if (playlistfile) {
 			return false;
 		}
 		
 		// YouTube is supported
-		if (item.provider && item.provider == "youtube") {
+		if (provider && provider == "youtube") {
 			return true;
 		}
 		
 		// If a provider is set, only proceed if video
-		if (item.provider && item.provider != "video") {
+		if (provider && provider != "video") {
 			return false;
 		}
 		
-		var extension = jwplayer.utils.extension(item.file);
+		var extension = jwplayer.utils.extension(file);
 		
 		// Check for Android, which returns false for canPlayType
 		if (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/)) {
@@ -329,9 +337,10 @@ jwplayer.version = '5.4.1488';/**
 	};
 	
 	/**
-	 * 
+	 *
+	 * @param {DOMElement} video tag
 	 * @param {String} extension
-	 * @return {Boolean} 
+	 * @return {Boolean}
 	 */
 	jwplayer.utils.browserCanPlay = function(video, extension) {
 		var sourceType;
@@ -349,24 +358,50 @@ jwplayer.version = '5.4.1488';/**
 	
 	/**
 	 *
-	 * @param {Object} element
+	 * @param {Object} config
 	 */
 	jwplayer.utils.downloadSupportsConfig = function(config) {
-		var item = jwplayer.utils.getFirstPlaylistItemFromConfig(config);
-		
+		if (config) {
+			var item = jwplayer.utils.getFirstPlaylistItemFromConfig(config);
+			
+			if (typeof item.file == "undefined" && typeof item.levels == "undefined") {
+				return true;
+			} else if (item.file) {
+				return jwplayer.utils.canDownload(vid, item.file, item.provider, item.playlistfile);
+			} else if (item.levels && item.levels.length) {
+				for (var i = 0; i < item.levels.length; i++) {
+					if (item.levels[i].file && jwplayer.utils.canDownload(vid, item.levels[i].file, item.provider, item.playlistfile)) {
+						return true;
+					}
+				}
+			}
+		} else {
+			return true;
+		}
+	};
+	
+	/**
+	 *
+	 * @param {Object} file
+	 * @param {Object} provider
+	 * @param {Object} playlistfile
+	 */
+	jwplayer.utils.canDownload = function(file, provider, playlistfile) {
 		// Don't support playlists
-		if (item.playlistfile) {
+		if (playlistfile) {
 			return false;
 		}
 		
-		var extension = jwplayer.utils.extension(item.file);
+		var extension = jwplayer.utils.extension(file);
 		// Only download if it's in the extension map or YouTube
 		if (extension && jwplayer.utils.extensionmap[extension]) {
 			return true;
 		}
-		if (item.provider && item.provider == "youtube") {
+		
+		if (provider && provider == "youtube") {
 			return true;
 		}
+		
 		return false;
 	};
 	
@@ -4717,7 +4752,7 @@ playerReady = function(obj) {
 				} else {
 					sourceType = sourceModel.type;
 				}
-				if (jwplayer.utils.html5CanPlay(vid, sourceModel)) {
+				if (jwplayer.utils.html5CanPlay(vid, sourceModel.file)) {
 					var source = _container.ownerDocument.createElement("source");
 					source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
 					if (!jwplayer.utils.isLegacyAndroid()) {

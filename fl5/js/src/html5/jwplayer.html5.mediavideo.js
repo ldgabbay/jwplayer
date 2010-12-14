@@ -445,7 +445,7 @@
 				} else {
 					sourceType = sourceModel.type;
 				}
-				if (jwplayer.utils.html5CanPlay(vid, sourceModel)) {
+				if (jwplayer.utils.html5CanPlay(vid, sourceModel.file)) {
 					var source = _container.ownerDocument.createElement("source");
 					source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
 					if (!jwplayer.utils.isLegacyAndroid()) {
