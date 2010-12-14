@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1489';/**
+jwplayer.version = '5.4.1490';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -367,10 +367,10 @@ jwplayer.version = '5.4.1489';/**
 			if (typeof item.file == "undefined" && typeof item.levels == "undefined") {
 				return true;
 			} else if (item.file) {
-				return jwplayer.utils.canDownload(vid, item.file, item.provider, item.playlistfile);
+				return jwplayer.utils.canDownload(item.file, item.provider, item.playlistfile);
 			} else if (item.levels && item.levels.length) {
 				for (var i = 0; i < item.levels.length; i++) {
-					if (item.levels[i].file && jwplayer.utils.canDownload(vid, item.levels[i].file, item.provider, item.playlistfile)) {
+					if (item.levels[i].file && jwplayer.utils.canDownload(item.levels[i].file, item.provider, item.playlistfile)) {
 						return true;
 					}
 				}
