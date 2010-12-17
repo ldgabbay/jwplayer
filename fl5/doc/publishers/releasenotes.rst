@@ -4,6 +4,51 @@
 Release Notes
 =============
 
+Version 5.4
+===========
+
+Build 1492
+----------
+
+JW Embedder
++++++++++++
+ * Fixes an issue where playlist items with no file extension or file extensions not in the extension map failed over to the download link.
+
+Build 1479
+----------
+
+JW Embedder
++++++++++++
+ * Embedder now offers download link when no playback mechanism is available.
+ * Fixed a bug where the remove() call did not work in Firefox
+ * Fixed a bug where configuration was not passed to plugins with non-CDNed paths.
+
+Flash Mode
+++++++++++
+ * Added support for netstreambasepath configuration parameter
+ * Seek calls are now queued if they are made while the player is not yet playing.
+ * Logger now performs all logging inside of a try / catch
+ * Fixed an issue where 
+ * Updated API events for consistency across players
+ 
+HTML5 Mode
+++++++++++
+ * Stretching mode configuration is honored
+ * Fixes an issue where the player would fail to initialize when some popular JavaScript libraries (including Mootools and ProtoType) were loaded on the page.
+ * Seek calls are now queued if they are made while the player is not yet playing.
+ * Fixed an issue where the controlbar would render under browser scrollbars
+ * Fixed an issue where playlists on iOS did not auto-advance
+ * Fixed several issue related to skin loading, where the result of the file request was not XML or was a redirect.
+ * Updated watermark behavior to mirror that of Flash player
+ * Updated API events for consistency across players
+ 
+API
++++
+ * Updated API events for consistency across players
+ * Added item parameter to getPlaylistItem()
+ 
+A full changelog of Flash player updates can be found `here <http://developer.longtailvideo.com/trac/query?status=assigned&status=closed&status=new&status=reopened&group=type&order=type&col=id&col=summary&milestone=Player+5.4&resolution=fixed>`_
+
 Version 5.3
 ===========
 

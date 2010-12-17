@@ -319,7 +319,7 @@ jwplayer.version = '5.4.1492';/**
 		}
 		
 		// If a provider is set, only proceed if video
-		if (provider && provider != "video") {
+		if (provider && provider != "video" && provider != "http") {
 			return false;
 		}
 		
@@ -392,9 +392,9 @@ jwplayer.version = '5.4.1492';/**
 			return false;
 		}
 		
-		var providers = ["image", "sound", "youtube"];
+		var providers = ["image", "sound", "youtube", "http"];
 		// If the media provider is supported, return true
-		if (provider && (providers.indexOf(provider) > -1)) {
+		if (provider && (providers.toString().indexOf(provider) > -1)) {
 			return true;
 		}
 		
