@@ -230,6 +230,10 @@ Unlicensed copies of the JW Player contain a small watermark that pops up when t
 
    By default, the logo will automatically show when the player buffers and hide 3 seconds later. When this option is set *false*, the logo will stay visible all the time.
 
+.. describe:: logo.margin ( 8 ) 
+
+   The distance of the logo, in pixels from the sides of the player.
+
 .. describe:: logo.position ( bottom-left )
 
    This sets the corner in which to display the watermark. It can be one of the following:
