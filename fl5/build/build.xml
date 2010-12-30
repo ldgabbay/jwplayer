@@ -180,7 +180,7 @@
 		<replace file="${basedir}/jwplayer.min.js" token=", logoConfig);" value=");" />
 	</target>
 
-	<target name="build-swf" depends="update-version">
+	<target name="build-swf">
 		<condition property="debugLine" value="-debug=true" else="">
 			<isset property="debug" />
 		</condition>
@@ -235,7 +235,7 @@
 		</exec>
 	</target>
 
-	<target name="build-js" depends="update-version">
+	<target name="build-js">
 		<concat destfile="${outputpath}">
 			<fileset dir="${basedir}/js/src" includes="jwplayer.js" />
 			<fileset dir="${basedir}/js/src/utils" includes="**/*.js" excludes="jwplayer.utils.extensionmap.js,jwplayer.utils.animations.js" />
@@ -304,7 +304,7 @@
 		</antcall>
 	</target>
 
-	<target name="build-release-player" depends="check-properties, clean-release, debug-js, release-js">
+	<target name="build-release-player" depends="check-properties, clean-release, update-version, debug-js, release-js">
 		<antcall target="release-swf">
 			<param name="package" value="${application.package}" />
 			<param name="class" value="${application.class}" />
@@ -312,6 +312,16 @@
 		</antcall>
 	</target>
 
+	<target name="build-release-player-viral" depends="check-properties, clean-release">
+		<replaceregexp file="${src.dir}/com/longtailvideo/jwplayer/model/PlayerConfig.as" match="protected var _plugins:String(.+);" replace='protected var _plugins:String 		= "viral-2d";' byline="true"/>
+		<antcall target="release-swf">
+			<param name="package" value="${application.package}" />
+			<param name="class" value="${application.class}" />
+			<param name="swf" value="player-viral" />
+		</antcall>
+		<replaceregexp file="${src.dir}/com/longtailvideo/jwplayer/model/PlayerConfig.as" match='protected var _plugins:String(.+);' replace='protected var _plugins:String  	= "";' byline="true" />
+	</target>
+	
 	<!--
 		 Builds the player code library used by plugins
 	-->

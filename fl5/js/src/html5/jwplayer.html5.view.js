@@ -76,7 +76,7 @@
 				for (var pluginIndex = 0; pluginIndex < _model.plugins.order.length; pluginIndex++) {
 					var pluginName = _model.plugins.order[pluginIndex];
 					if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
-						if (_model.config.chromeless || _model.getMedia().hasChrome()) {
+						if (_model.getMedia().hasChrome()) {
 							_model.plugins.config[pluginName].currentPosition = jwplayer.html5.view.positions.NONE;
 						} else {
 							_model.plugins.config[pluginName].currentPosition = _model.plugins.config[pluginName].position;
@@ -392,7 +392,7 @@
 	};
 	
 	function _hasPosition(position) {
-		return ([jwplayer.html5.view.positions.TOP, jwplayer.html5.view.positions.RIGHT, jwplayer.html5.view.positions.BOTTOM, jwplayer.html5.view.positions.LEFT].indexOf(position.toUpperCase()) > -1);
+		return ([jwplayer.html5.view.positions.TOP, jwplayer.html5.view.positions.RIGHT, jwplayer.html5.view.positions.BOTTOM, jwplayer.html5.view.positions.LEFT].toString().indexOf(position.toUpperCase()) > -1);
 	}
 	
 	jwplayer.html5.view.positions = {

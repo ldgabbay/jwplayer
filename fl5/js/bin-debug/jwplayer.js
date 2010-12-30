@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1492';/**
+jwplayer.version = '5.4.1524';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -253,7 +253,7 @@ jwplayer.version = '5.4.1492';/**
 	jwplayer.utils.flashCanPlay = function(file, provider) {
 		var providers = ["video", "http", "sound", "image"];
 		// Provider is set, and is not video, http, sound, image - play in Flash
-		if (provider && (providers.indexOf(provider < 0))) {
+		if (provider && (providers.toString().indexOf(provider < 0))) {
 			return true;
 		}
 		var extension = jwplayer.utils.extension(file);
@@ -548,9 +548,9 @@ jwplayer.version = '5.4.1492';/**
 							continue;
 						}
 						if (style.match(/color/i)) {
-							styles[style] = "#" + _pad(styles[style].toString(16), 6);
+							styles[style] = "#" + jwplayer.utils.strings.pad(styles[style].toString(16), 6);
 						} else {
-							styles[style] = styles[style] + "px";
+							styles[style] = Math.ceil(styles[style]) + "px";
 						}
 					}
 					domelement.style[style] = styles[style];
@@ -559,13 +559,6 @@ jwplayer.version = '5.4.1492';/**
 			}
 		}
 	};
-	
-	function _pad(string, length) {
-		while (string.length < length) {
-			string = "0" + string;
-		}
-		return string;
-	}
 	
 	jwplayer.utils.isYouTube = function(path) {
 		return path.indexOf("youtube.com") > -1;
@@ -884,6 +877,22 @@ jwplayer.version = '5.4.1492';/**
 		return inputString.replace(/^\s*/, "").replace(/\s*$/, "");
 	};
 	
+	/**
+	 * Pads a string
+	 * @param {String} string
+	 * @param {Number} length
+	 * @param {String} padder
+	 */
+	jwplayer.utils.strings.pad = function (string, length, padder) {
+		if (!padder){
+			padder = "0";
+		}
+		while (string.length < length) {
+			string = padder + string;
+		}
+		return string;
+	}
+	
 })(jwplayer);/**
  * Utility methods for the JW Player.
  *
@@ -900,7 +909,7 @@ jwplayer.version = '5.4.1492';/**
 	
 	function _guessType(value) {
 		var bools = ["true", "false", "t", "f"];
-		if (bools.indexOf(value.toLowerCase().replace(" ", "")) >= 0) {
+		if (bools.toString().indexOf(value.toLowerCase().replace(" ", "")) >= 0) {
 			return "boolean";
 		} else if (_colorPattern.test(value)) {
 			return "color";
@@ -1790,7 +1799,13 @@ playerReady = function(obj) {
 						break;
 				}
 			} else {
-				this.api.container.innerHTML = "<p>No suitable players found</p>";
+				var _wrapper = document.createElement("div");
+				this.api.container.appendChild(_wrapper);
+				_wrapper.style.position = "relative";
+				var _text = document.createElement("p");
+				_wrapper.appendChild(_text);
+				_text.innerHTML = "No suitable players found";
+				jwplayer.embed.embedLogo(jwplayer.utils.extend({position: "bottom-right", margin: 0},this.config.components.logo), "none", _wrapper, this.api.id);
 			}
 			
 			this.setupEvents();
@@ -1828,6 +1843,44 @@ playerReady = function(obj) {
 		
 		parseConfig: function(config) {
 			var parsedConfig = jwplayer.utils.extend({}, config);
+			for (var option in parsedConfig) {
+				if (option.indexOf(".") > -1) {
+					var path = option.split(".");
+					for (var edge in path) {
+						if (edge == path.length - 1) {
+							config[path[edge]] = parsedConfig[option];
+						} else {
+							if (config[path[edge]] === undefined) {
+								config[path[edge]] = {};
+							}
+							config = config[path[edge]];
+						}
+					}
+				}
+			}
+						
+			if (parsedConfig.playlist) {
+				parsedConfig.components = parsedConfig.playlist;
+				if (typeof parsedConfig.playlist === "string") {
+				 	if (!parsedConfig.components.playlist){
+						parsedConfig.components.playlist = {};
+					}
+					parsedConfig.components.playlist.position = parsedConfig.playlist;
+				}
+				delete parsedConfig.playlist;
+			}
+			
+			if (parsedConfig.controlbar) {
+				parsedConfig.components = parsedConfig.controlbar;
+				if (typeof parsedConfig.controlbar === "string") {
+				 	if (!parsedConfig.components.controlbar){
+						parsedConfig.components.controlbar = {};
+					}
+					parsedConfig.components.controlbar.position = parsedConfig.controlbar;
+				}
+				delete parsedConfig.controlbar;
+			}
+			
 			if (parsedConfig.events) {
 				this.events = parsedConfig.events;
 				delete parsedConfig.events;
@@ -1841,15 +1894,11 @@ playerReady = function(obj) {
 					parsedConfig = jwplayer.utils.extend(parsedConfig, jwplayer.embed.parsePlugins(parsedConfig.plugins));
 				}
 			}
-			
-			if (parsedConfig.playlist && typeof parsedConfig.playlist === "string" && !parsedConfig['playlist.position']) {
-				parsedConfig['playlist.position'] = parsedConfig.playlist;
-				delete parsedConfig.playlist;
-			}
-			
-			if (parsedConfig.controlbar && typeof parsedConfig.controlbar === "string" && !parsedConfig['controlbar.position']) {
-				parsedConfig['controlbar.position'] = parsedConfig.controlbar;
-				delete parsedConfig.controlbar;
+
+			if (parsedConfig.components) {
+				if (typeof parsedConfig.plugins == "object") {
+					parsedConfig = jwplayer.utils.extend(parsedConfig, jwplayer.embed.parseComponents(parsedConfig.components));
+				}
 			}
 			
 			return parsedConfig;
@@ -1941,6 +1990,122 @@ playerReady = function(obj) {
 			return null;
 		}
 	};
+	
+	jwplayer.embed.embedLogo = function(logoConfig, mode, container, id) {
+		var _defaults = {
+			prefix: "http://l.longtailvideo.com/"+mode+"/",
+			file: "logo.png",
+			link: "http://www.longtailvideo.com/players/jw-flv-player/",
+			margin: 8,
+			out: 0.5,
+			over: 1,
+			timeout: 3,
+			hide: false,
+			position: "bottom-left"
+		};
+		
+		_css = jwplayer.utils.css;
+		
+		var _logo;
+		var _settings;
+		
+		_setup();
+		
+		function _setup() {
+			_setupConfig();
+			_setupDisplayElements();
+			_setupMouseEvents();
+		}
+		
+		function _setupConfig() {
+			if (_defaults.prefix) {
+				var version = jwplayer.version.split(/\W/).splice(0, 2).join("/");
+				if (_defaults.prefix.indexOf(version) < 0) {
+					_defaults.prefix += version + "/";
+				}
+			}
+			
+			_settings = jwplayer.utils.extend({}, _defaults, logoConfig);
+		}
+		
+		function _getStyle() {
+			var _imageStyle = {
+				textDecoration: "none",
+				position: "absolute",
+				cursor: "pointer",
+				zIndex: 10
+			};
+			_imageStyle.display = _settings.hide ? "none" : "block";
+			var positions = _settings.position.toLowerCase().split("-");
+			for (var position in positions) {
+				_imageStyle[positions[position]] = _settings.margin;
+			}
+			return _imageStyle;
+		}
+		
+		function _setupDisplayElements() {
+			_logo = document.createElement("img");
+			_logo.id = id + "_jwplayer_logo";
+			_logo.style.display = "none";
+			
+			_logo.onload = function(evt) {
+				_css(_logo, _getStyle());
+				_outHandler();
+			};
+			
+			if (!_settings.file) {
+				return;
+			}
+			
+			if (_settings.file.indexOf("http://") === 0) {
+				_logo.src = _settings.file;
+			} else {
+				_logo.src = _settings.prefix + _settings.file;
+			}
+		}
+		
+		if (!_settings.file) {
+			return;
+		}
+		
+		
+		function _setupMouseEvents() {
+			if (_settings.link) {
+				_logo.onmouseover = _overHandler;
+				_logo.onmouseout = _outHandler;
+				_logo.onclick = _clickHandler;
+			} else {
+				this.mouseEnabled = false;
+			}
+		}
+		
+		
+		function _clickHandler(evt) {
+			if (typeof evt != "undefined") {
+				evt.stopPropagation();
+			}
+			if (_settings.link) {
+				window.open(_settings.link, "_blank");
+			}
+			return;
+		}
+		
+		function _outHandler(evt) {
+			if (_settings.link) {
+				_logo.style.opacity = _settings.out;
+			}
+			return;
+		}
+		
+		function _overHandler(evt) {
+			if (_settings.hide) {
+				_logo.style.opacity = _settings.over;
+			}
+			return;
+		}
+		
+		container.appendChild(_logo);
+	}
 	
 	jwplayer.embed.embedDownloadLink = function(_container, _player, _options) {
 		var params = jwplayer.utils.extend({}, _options);
@@ -2069,6 +2234,10 @@ playerReady = function(obj) {
 		
 		_container.parentNode.replaceChild(_display.display, _container);
 		
+		var logoConfig = (_options.plugins && _options.plugins.logo) ? _options.plugins.logo : {};
+		
+		jwplayer.embed.embedLogo(_options.components.logo, "download", _display.display, _container.id);
+		
 		return _display.display;
 	};
 	
@@ -2103,6 +2272,23 @@ playerReady = function(obj) {
 			}
 		}
 		flat.plugins = pluginKeys.join(',');
+		return flat;
+	};
+	
+	jwplayer.embed.parseComponents = function(componentBlock) {
+		if (!componentBlock) {
+			return {};
+		}
+		
+		var flat = {};
+		
+		for (var component in componentBlock) {
+			var componentConfig = componentBlock[component];
+			for (var param in componentConfig) {
+				flat[component + '.' + param] = componentConfig[param];
+			}
+		}
+		
 		return flat;
 	};
 	
@@ -2273,7 +2459,7 @@ playerReady = function(obj) {
 				for (var pluginIndex = 0; pluginIndex < _model.plugins.order.length; pluginIndex++) {
 					var pluginName = _model.plugins.order[pluginIndex];
 					if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
-						if (_model.config.chromeless || _model.getMedia().hasChrome()) {
+						if (_model.getMedia().hasChrome()) {
 							_model.plugins.config[pluginName].currentPosition = jwplayer.html5.view.positions.NONE;
 						} else {
 							_model.plugins.config[pluginName].currentPosition = _model.plugins.config[pluginName].position;
@@ -2589,7 +2775,7 @@ playerReady = function(obj) {
 	};
 	
 	function _hasPosition(position) {
-		return ([jwplayer.html5.view.positions.TOP, jwplayer.html5.view.positions.RIGHT, jwplayer.html5.view.positions.BOTTOM, jwplayer.html5.view.positions.LEFT].indexOf(position.toUpperCase()) > -1);
+		return ([jwplayer.html5.view.positions.TOP, jwplayer.html5.view.positions.RIGHT, jwplayer.html5.view.positions.BOTTOM, jwplayer.html5.view.positions.LEFT].toString().indexOf(position.toUpperCase()) > -1);
 	}
 	
 	jwplayer.html5.view.positions = {
@@ -4306,7 +4492,7 @@ playerReady = function(obj) {
 				_show();
 			}
 		}
-		
+				
 		return this;
 	};
 	
@@ -4931,7 +5117,7 @@ playerReady = function(obj) {
 		}
 		
 		if (_model.config.chromeless) {
-			pluginorder = [];
+			pluginorder = ["logo"];
 		}
 		
 		_model.plugins = {

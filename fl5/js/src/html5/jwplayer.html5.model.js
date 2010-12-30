@@ -83,7 +83,7 @@
 		}
 		
 		if (_model.config.chromeless) {
-			pluginorder = [];
+			pluginorder = ["logo"];
 		}
 		
 		_model.plugins = {

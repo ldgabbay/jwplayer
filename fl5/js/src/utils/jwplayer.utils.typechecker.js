@@ -14,7 +14,7 @@
 	
 	function _guessType(value) {
 		var bools = ["true", "false", "t", "f"];
-		if (bools.indexOf(value.toLowerCase().replace(" ", "")) >= 0) {
+		if (bools.toString().indexOf(value.toLowerCase().replace(" ", "")) >= 0) {
 			return "boolean";
 		} else if (_colorPattern.test(value)) {
 			return "color";

@@ -14,4 +14,20 @@
 		return inputString.replace(/^\s*/, "").replace(/\s*$/, "");
 	};
 	
+	/**
+	 * Pads a string
+	 * @param {String} string
+	 * @param {Number} length
+	 * @param {String} padder
+	 */
+	jwplayer.utils.strings.pad = function (string, length, padder) {
+		if (!padder){
+			padder = "0";
+		}
+		while (string.length < length) {
+			string = padder + string;
+		}
+		return string;
+	}
+	
 })(jwplayer);

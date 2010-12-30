@@ -102,7 +102,13 @@
 						break;
 				}
 			} else {
-				this.api.container.innerHTML = "<p>No suitable players found</p>";
+				var _wrapper = document.createElement("div");
+				this.api.container.appendChild(_wrapper);
+				_wrapper.style.position = "relative";
+				var _text = document.createElement("p");
+				_wrapper.appendChild(_text);
+				_text.innerHTML = "No suitable players found";
+				jwplayer.embed.embedLogo(jwplayer.utils.extend({position: "bottom-right", margin: 0},this.config.components.logo), "none", _wrapper, this.api.id);
 			}
 			
 			this.setupEvents();
@@ -140,6 +146,44 @@
 		
 		parseConfig: function(config) {
 			var parsedConfig = jwplayer.utils.extend({}, config);
+			for (var option in parsedConfig) {
+				if (option.indexOf(".") > -1) {
+					var path = option.split(".");
+					for (var edge in path) {
+						if (edge == path.length - 1) {
+							config[path[edge]] = parsedConfig[option];
+						} else {
+							if (config[path[edge]] === undefined) {
+								config[path[edge]] = {};
+							}
+							config = config[path[edge]];
+						}
+					}
+				}
+			}
+						
+			if (parsedConfig.playlist) {
+				parsedConfig.components = parsedConfig.playlist;
+				if (typeof parsedConfig.playlist === "string") {
+				 	if (!parsedConfig.components.playlist){
+						parsedConfig.components.playlist = {};
+					}
+					parsedConfig.components.playlist.position = parsedConfig.playlist;
+				}
+				delete parsedConfig.playlist;
+			}
+			
+			if (parsedConfig.controlbar) {
+				parsedConfig.components = parsedConfig.controlbar;
+				if (typeof parsedConfig.controlbar === "string") {
+				 	if (!parsedConfig.components.controlbar){
+						parsedConfig.components.controlbar = {};
+					}
+					parsedConfig.components.controlbar.position = parsedConfig.controlbar;
+				}
+				delete parsedConfig.controlbar;
+			}
+			
 			if (parsedConfig.events) {
 				this.events = parsedConfig.events;
 				delete parsedConfig.events;
@@ -153,15 +197,11 @@
 					parsedConfig = jwplayer.utils.extend(parsedConfig, jwplayer.embed.parsePlugins(parsedConfig.plugins));
 				}
 			}
-			
-			if (parsedConfig.playlist && typeof parsedConfig.playlist === "string" && !parsedConfig['playlist.position']) {
-				parsedConfig['playlist.position'] = parsedConfig.playlist;
-				delete parsedConfig.playlist;
-			}
-			
-			if (parsedConfig.controlbar && typeof parsedConfig.controlbar === "string" && !parsedConfig['controlbar.position']) {
-				parsedConfig['controlbar.position'] = parsedConfig.controlbar;
-				delete parsedConfig.controlbar;
+
+			if (parsedConfig.components) {
+				if (typeof parsedConfig.plugins == "object") {
+					parsedConfig = jwplayer.utils.extend(parsedConfig, jwplayer.embed.parseComponents(parsedConfig.components));
+				}
 			}
 			
 			return parsedConfig;
@@ -253,6 +293,122 @@
 			return null;
 		}
 	};
+	
+	jwplayer.embed.embedLogo = function(logoConfig, mode, container, id) {
+		var _defaults = {
+			prefix: "http://l.longtailvideo.com/"+mode+"/",
+			file: "logo.png",
+			link: "http://www.longtailvideo.com/players/jw-flv-player/",
+			margin: 8,
+			out: 0.5,
+			over: 1,
+			timeout: 3,
+			hide: false,
+			position: "bottom-left"
+		};
+		
+		_css = jwplayer.utils.css;
+		
+		var _logo;
+		var _settings;
+		
+		_setup();
+		
+		function _setup() {
+			_setupConfig();
+			_setupDisplayElements();
+			_setupMouseEvents();
+		}
+		
+		function _setupConfig() {
+			if (_defaults.prefix) {
+				var version = jwplayer.version.split(/\W/).splice(0, 2).join("/");
+				if (_defaults.prefix.indexOf(version) < 0) {
+					_defaults.prefix += version + "/";
+				}
+			}
+			
+			_settings = jwplayer.utils.extend({}, _defaults, logoConfig);
+		}
+		
+		function _getStyle() {
+			var _imageStyle = {
+				textDecoration: "none",
+				position: "absolute",
+				cursor: "pointer",
+				zIndex: 10
+			};
+			_imageStyle.display = _settings.hide ? "none" : "block";
+			var positions = _settings.position.toLowerCase().split("-");
+			for (var position in positions) {
+				_imageStyle[positions[position]] = _settings.margin;
+			}
+			return _imageStyle;
+		}
+		
+		function _setupDisplayElements() {
+			_logo = document.createElement("img");
+			_logo.id = id + "_jwplayer_logo";
+			_logo.style.display = "none";
+			
+			_logo.onload = function(evt) {
+				_css(_logo, _getStyle());
+				_outHandler();
+			};
+			
+			if (!_settings.file) {
+				return;
+			}
+			
+			if (_settings.file.indexOf("http://") === 0) {
+				_logo.src = _settings.file;
+			} else {
+				_logo.src = _settings.prefix + _settings.file;
+			}
+		}
+		
+		if (!_settings.file) {
+			return;
+		}
+		
+		
+		function _setupMouseEvents() {
+			if (_settings.link) {
+				_logo.onmouseover = _overHandler;
+				_logo.onmouseout = _outHandler;
+				_logo.onclick = _clickHandler;
+			} else {
+				this.mouseEnabled = false;
+			}
+		}
+		
+		
+		function _clickHandler(evt) {
+			if (typeof evt != "undefined") {
+				evt.stopPropagation();
+			}
+			if (_settings.link) {
+				window.open(_settings.link, "_blank");
+			}
+			return;
+		}
+		
+		function _outHandler(evt) {
+			if (_settings.link) {
+				_logo.style.opacity = _settings.out;
+			}
+			return;
+		}
+		
+		function _overHandler(evt) {
+			if (_settings.hide) {
+				_logo.style.opacity = _settings.over;
+			}
+			return;
+		}
+		
+		container.appendChild(_logo);
+	}
 	
 	jwplayer.embed.embedDownloadLink = function(_container, _player, _options) {
 		var params = jwplayer.utils.extend({}, _options);
@@ -381,6 +537,10 @@
 		
 		_container.parentNode.replaceChild(_display.display, _container);
 		
+		var logoConfig = (_options.plugins && _options.plugins.logo) ? _options.plugins.logo : {};
+		
+		jwplayer.embed.embedLogo(_options.components.logo, "download", _display.display, _container.id);
+		
 		return _display.display;
 	};
 	
@@ -415,6 +575,23 @@
 			}
 		}
 		flat.plugins = pluginKeys.join(',');
+		return flat;
+	};
+	
+	jwplayer.embed.parseComponents = function(componentBlock) {
+		if (!componentBlock) {
+			return {};
+		}
+		
+		var flat = {};
+		
+		for (var component in componentBlock) {
+			var componentConfig = componentBlock[component];
+			for (var param in componentConfig) {
+				flat[component + '.' + param] = componentConfig[param];
+			}
+		}
+		
 		return flat;
 	};
 	

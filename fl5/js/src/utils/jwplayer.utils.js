@@ -240,7 +240,7 @@
 	jwplayer.utils.flashCanPlay = function(file, provider) {
 		var providers = ["video", "http", "sound", "image"];
 		// Provider is set, and is not video, http, sound, image - play in Flash
-		if (provider && (providers.indexOf(provider < 0))) {
+		if (provider && (providers.toString().indexOf(provider < 0))) {
 			return true;
 		}
 		var extension = jwplayer.utils.extension(file);
@@ -535,9 +535,9 @@
 							continue;
 						}
 						if (style.match(/color/i)) {
-							styles[style] = "#" + _pad(styles[style].toString(16), 6);
+							styles[style] = "#" + jwplayer.utils.strings.pad(styles[style].toString(16), 6);
 						} else {
-							styles[style] = styles[style] + "px";
+							styles[style] = Math.ceil(styles[style]) + "px";
 						}
 					}
 					domelement.style[style] = styles[style];
@@ -546,13 +546,6 @@
 			}
 		}
 	};
-	
-	function _pad(string, length) {
-		while (string.length < length) {
-			string = "0" + string;
-		}
-		return string;
-	}
 	
 	jwplayer.utils.isYouTube = function(path) {
 		return path.indexOf("youtube.com") > -1;
