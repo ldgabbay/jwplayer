@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1524';/**
+jwplayer.version = '5.4.1529';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -1860,19 +1860,17 @@ playerReady = function(obj) {
 			}
 						
 			if (parsedConfig.playlist) {
-				parsedConfig.components = parsedConfig.playlist;
-				if (typeof parsedConfig.playlist === "string") {
+				if (typeof parsedConfig.playlist == "string") {
 				 	if (!parsedConfig.components.playlist){
 						parsedConfig.components.playlist = {};
 					}
 					parsedConfig.components.playlist.position = parsedConfig.playlist;
+					delete parsedConfig.playlist;
 				}
-				delete parsedConfig.playlist;
 			}
 			
 			if (parsedConfig.controlbar) {
-				parsedConfig.components = parsedConfig.controlbar;
-				if (typeof parsedConfig.controlbar === "string") {
+				if (typeof parsedConfig.controlbar == "string") {
 				 	if (!parsedConfig.components.controlbar){
 						parsedConfig.components.controlbar = {};
 					}
@@ -1993,7 +1991,7 @@ playerReady = function(obj) {
 	
 	jwplayer.embed.embedLogo = function(logoConfig, mode, container, id) {
 		var _defaults = {
-			prefix: "http://l.longtailvideo.com/"+mode+"/",
+			prefix: 'http://l.longtailvideo.com/'+mode+'/',
 			file: "logo.png",
 			link: "http://www.longtailvideo.com/players/jw-flv-player/",
 			margin: 8,
@@ -2030,6 +2028,7 @@ playerReady = function(obj) {
 		
 		function _getStyle() {
 			var _imageStyle = {
+				border: "none",
 				textDecoration: "none",
 				position: "absolute",
 				cursor: "pointer",
@@ -2082,6 +2081,7 @@ playerReady = function(obj) {
 		
 		function _clickHandler(evt) {
 			if (typeof evt != "undefined") {
+				evt.preventDefault();
 				evt.stopPropagation();
 			}
 			if (_settings.link) {

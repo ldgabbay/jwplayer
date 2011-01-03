@@ -163,19 +163,17 @@
 			}
 						
 			if (parsedConfig.playlist) {
-				parsedConfig.components = parsedConfig.playlist;
-				if (typeof parsedConfig.playlist === "string") {
+				if (typeof parsedConfig.playlist == "string") {
 				 	if (!parsedConfig.components.playlist){
 						parsedConfig.components.playlist = {};
 					}
 					parsedConfig.components.playlist.position = parsedConfig.playlist;
+					delete parsedConfig.playlist;
 				}
-				delete parsedConfig.playlist;
 			}
 			
 			if (parsedConfig.controlbar) {
-				parsedConfig.components = parsedConfig.controlbar;
-				if (typeof parsedConfig.controlbar === "string") {
+				if (typeof parsedConfig.controlbar == "string") {
 				 	if (!parsedConfig.components.controlbar){
 						parsedConfig.components.controlbar = {};
 					}
@@ -296,7 +294,7 @@
 	
 	jwplayer.embed.embedLogo = function(logoConfig, mode, container, id) {
 		var _defaults = {
-			prefix: "http://l.longtailvideo.com/"+mode+"/",
+			prefix: 'http://l.longtailvideo.com/'+mode+'/',
 			file: "logo.png",
 			link: "http://www.longtailvideo.com/players/jw-flv-player/",
 			margin: 8,
@@ -333,6 +331,7 @@
 		
 		function _getStyle() {
 			var _imageStyle = {
+				border: "none",
 				textDecoration: "none",
 				position: "absolute",
 				cursor: "pointer",
@@ -385,6 +384,7 @@
 		
 		function _clickHandler(evt) {
 			if (typeof evt != "undefined") {
+				evt.preventDefault();
 				evt.stopPropagation();
 			}
 			if (_settings.link) {
