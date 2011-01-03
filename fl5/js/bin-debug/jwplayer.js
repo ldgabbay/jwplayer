@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.4.1529';/**
+jwplayer.version = '5.4.1530';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -1859,23 +1859,19 @@ playerReady = function(obj) {
 				}
 			}
 						
-			if (parsedConfig.playlist) {
-				if (typeof parsedConfig.playlist == "string") {
-				 	if (!parsedConfig.components.playlist){
-						parsedConfig.components.playlist = {};
-					}
-					parsedConfig.components.playlist.position = parsedConfig.playlist;
-					delete parsedConfig.playlist;
+			if (typeof parsedConfig.playlist == "string") {
+			 	if (!parsedConfig.components.playlist){
+					parsedConfig.components.playlist = {};
 				}
+				parsedConfig.components.playlist.position = parsedConfig.playlist;
+				delete parsedConfig.playlist;
 			}
 			
-			if (parsedConfig.controlbar) {
-				if (typeof parsedConfig.controlbar == "string") {
-				 	if (!parsedConfig.components.controlbar){
-						parsedConfig.components.controlbar = {};
-					}
-					parsedConfig.components.controlbar.position = parsedConfig.controlbar;
+			if (typeof parsedConfig.controlbar == "string") {
+			 	if (!parsedConfig.components.controlbar){
+					parsedConfig.components.controlbar = {};
 				}
+				parsedConfig.components.controlbar.position = parsedConfig.controlbar;	
 				delete parsedConfig.controlbar;
 			}
 			
