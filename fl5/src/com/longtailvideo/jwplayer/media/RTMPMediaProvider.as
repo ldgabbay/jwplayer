@@ -411,10 +411,13 @@ package com.longtailvideo.jwplayer.media {
 
         /** Resume playing. **/
         override public function play():void {
-			if (!_stream) return;
 			if (_lockOnStream) {
 				_lockOnStream = false;
-				seek(_timeoffset);
+				if (_stream) {
+					seek(_timeoffset);
+				} else {
+					setStream();
+				}
 			} else if (state == PlayerState.PAUSED) {
 				_stream.resume();
 			}
