@@ -29,11 +29,9 @@ package com.longtailvideo.jwplayer.media {
 		/** Whether to connect to a stream when bandwidth is detected. **/
 		private var _bandwidthSwitch:Boolean;
 		/** Save that we're connected to either the tunneled or untunneled connection. **/
-		private var _connection:Number = -1;
-        /** Array with the two netconnections; tunneled and untunneled **/
-        private var _connections:Array;
-        /** Timeout ID for the attempt to connect to tunneled connection. **/
-        private var _connectionTimeout:Number;
+		private var _connection:NetConnection;
+		/** Save that we received any response from the untunneled connection. **/
+		private var _responded:Boolean;
         /** Is dynamic streaming possible. **/
         private var _dynamic:Boolean;
 		/** The currently playing RTMP stream. **/
@@ -73,7 +71,7 @@ package com.longtailvideo.jwplayer.media {
 		/** Interval for bw checking - with dynamic streaming. **/
 		private var _streamInfoInterval:Number;
 		/** Set if the duration comes from the configuration **/ 
-		private var _userDuration:Boolean; 
+		private var _userDuration:Boolean;
 
         public function RTMPMediaProvider() {
             super('rtmp');
@@ -83,18 +81,13 @@ package com.longtailvideo.jwplayer.media {
         /** Constructor; sets up the connection and display. **/
 		public override function initializeMediaProvider(cfg:PlayerConfig):void {
 			super.initializeMediaProvider(cfg);
-			_connections = new Array();
-            var untunneled:NetConnection = new NetConnection();
-            untunneled.addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
-            untunneled.objectEncoding = ObjectEncoding.AMF0;
-            untunneled.client = new NetClient(this);
-            _connections.push(untunneled);
-            var tunneled:NetConnection = new NetConnection();
-            tunneled = new NetConnection();
-            tunneled.addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
-            tunneled.objectEncoding = ObjectEncoding.AMF0;
-            tunneled.client = new NetClient(this);
-            _connections.push(tunneled);
+            _connection = new NetConnection();
+            _connection.addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
+            _connection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, errorHandler);
+            _connection.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
+            _connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR, errorHandler);
+            _connection.objectEncoding = ObjectEncoding.AMF0;
+            _connection.client = new NetClient(this);
 			_xmlLoaders = new Dictionary();
             _transformer = new SoundTransform();
             _video = new Video(320, 240);
@@ -114,24 +107,39 @@ package com.longtailvideo.jwplayer.media {
         }
 
 
-		/** Connect to a tunneled version of the connection; in case the firewall blocks 1935. **/
+		/** Connect to a tunneled connection in case the firewall blocks 1935 or RTMP. **/
 		private function connectTunneled():void {
-			var streamer:String = item.streamer;
-			var slash:Number = item.streamer.indexOf('/',10);
-			streamer = streamer.substr(0,slash) + ':80' + streamer.substr(slash);
-			if(item.streamer.substr(0,7) == 'rtmp://') { 
+		    // Only attempt a connect if the server didn't respond at all.
+		    if(_responded) {
+		        return;
+		    }
+		    var streamer:String = item.streamer;
+		    // First switch to a tunneling protocol ONLY if not tunneled.
+			if(streamer.substr(0,7) == 'rtmp://') {
 				streamer = streamer.replace('rtmp://','rtmpt://');
-				
-			} else if(item.streamer.substr(0,8) == 'rtmpe://') {
+			} else if(streamer.substr(0,8) == 'rtmpe://') {
 				streamer = streamer.replace('rtmpe://','rtmpte://');
+			} else {
+			    return;
 			}
-			_connections[1].connect(streamer);
+			// Next hard-code port 80, stripping out any existing port designation.
+			var slash:Number = streamer.indexOf('/',10);
+			var colon:Number = streamer.indexOf(':',10);
+			if(colon > -1 && colon < slash) {
+			    streamer = streamer.substr(0,colon) + ':80' + streamer.substr(slash);
+			} else {
+			    streamer = streamer.substr(0,slash) + ':80' + streamer.substr(slash);
+			}
+			// When all done, connect to the tunneled streamer.
+		    Logger.log("Fallback to tunneled connection: "+streamer);
+		    item.streamer = streamer;
+			_connection.connect(item.streamer);
 		};
 
 
 		/** Try pulling info from a DVRCast application. **/
 		private function doDVRInfo(id:String):void {
-			_connections[_connection].call("DVRGetStreamInfo", new Responder(doDVRInfoCallback), id);
+			_connection.call("DVRGetStreamInfo", new Responder(doDVRInfoCallback), id);
 		};
 
 
@@ -178,7 +186,7 @@ package com.longtailvideo.jwplayer.media {
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, 
 					{message: "Subscribing to the live stream timed out."});
 			} else { 
-				_connections[_connection].call("FCSubscribe", null, id);
+				_connection.call("FCSubscribe", null, id);
 			}
 		};
 
@@ -312,10 +320,13 @@ package com.longtailvideo.jwplayer.media {
 			}
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_LOADED);
 			try {
-				_connections[0].connect(item.streamer);
-				_connectionTimeout = setTimeout(connectTunneled,500);
+			    _responded = false;
+				_connection.connect(item.streamer);
+				if(getConfigProperty("fallback") !== false) {
+				    setTimeout(connectTunneled,3000);
+			    }
 			} catch(e:Error) {
-				error("Could not connect to streamer: " + e.message);
+				error("Could not connect to application: " + e.message);
 			}
 		}
 
@@ -346,7 +357,7 @@ package com.longtailvideo.jwplayer.media {
 			if (!dat) return;
             if (dat.type == 'fcsubscribe') {
                 if (dat.code == "NetStream.Play.StreamNotFound") {
-					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR,{message: "Subscription failed: " + item.file}); 
+					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR,{message: "Subscription failed: " + item.file});
                 } else if (dat.code == "NetStream.Play.Start") {
 					if (item.levels.length > 0) {
 						if (_dynamic || _bandwidthChecked) {
@@ -354,7 +365,7 @@ package com.longtailvideo.jwplayer.media {
 						} else {
 							_bandwidthChecked = true;
 							_bandwidthSwitch = true;
-							_connections[_connection].call('checkBandwidth', null);
+							_connection.call('checkBandwidth', null);
 						}
 					} else {
 						setStream();
@@ -452,6 +463,7 @@ package com.longtailvideo.jwplayer.media {
             }
         }
 
+
         /** Check if the level must be switched on resize. **/
         override public function resize(width:Number, height:Number):void {
             super.resize(width, height);
@@ -466,6 +478,7 @@ package com.longtailvideo.jwplayer.media {
 				}
             }
         }
+
 
         /** Seek to a new position. **/
 		override public function seek(pos:Number):void {
@@ -518,7 +531,7 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Start the netstream object. **/
 		private function setStream():void {
-			_stream = new NetStream(_connections[_connection]);
+			_stream = new NetStream(_connection);
 			_stream.checkPolicyFile = true;
 			_stream.addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
 			_stream.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
@@ -536,34 +549,21 @@ package com.longtailvideo.jwplayer.media {
 			}
 		};
 
+
         /** Receive NetStream status updates. **/
         private function statusHandler(evt:NetStatusEvent):void {
+            _responded = true;
             switch (evt.info.code) {
                 case 'NetConnection.Connect.Success':
-                    if(_connection == -1) {
-                        if(evt.target == _connections[0]) {
-                            _connection = 0;
-                        } else { 
-                            _connection = 1;
-                            evt.info['connection'] = 'tunneled';
-                        }
-                        _connections[_connection].addEventListener(SecurityErrorEvent.SECURITY_ERROR, errorHandler);
-                        _connections[_connection].addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
-                        _connections[_connection].addEventListener(AsyncErrorEvent.ASYNC_ERROR, errorHandler);
-                        clearTimeout(_connectionTimeout);
-                    } else {
-						evt.target.close();
-                        return;
-                    }
                     if (evt.info.secureToken != undefined) {
-                      	_connections[_connection].call("secureTokenResponse", null, TEA.decrypt(evt.info.secureToken,
-                                                                                  config.token));
+                        _connection.call("secureTokenResponse", null, 
+                            TEA.decrypt(evt.info.secureToken,config.token));
                     }
                     if (evt.info.data) {
                         checkDynamic(evt.info.data.version);
 					}
 					if(getConfigProperty('dvr')) {
-						_connections[_connection].call("DVRSubscribe", null, getID(item.file));
+						_connection.call("DVRSubscribe", null, getID(item.file));
 						setTimeout(doDVRInfo,2000,getID(item.file));
 					} else if (getConfigProperty('subscribe')) {
 						_subscribeInterval = setInterval(doSubscribe, 2000, getID(item.file));
@@ -574,14 +574,12 @@ package com.longtailvideo.jwplayer.media {
                             } else {
 								_bandwidthChecked = true;
 								_bandwidthSwitch = true;
-                                _connections[_connection].call('checkBandwidth', null);
+                                _connection.call('checkBandwidth', null);
                             }
                         } else {
                             setStream();
                         }
-                        //if (item.file.substr(-4) == '.mp3' || item.file.substr(0,4) == 'mp3:') {
-                            _connections[_connection].call("getStreamLength", new Responder(streamlengthHandler), getID(item.file));
-                        //}
+                        _connection.call("getStreamLength", new Responder(streamlengthHandler), getID(item.file));
                     }
                     break;
                 case 'NetStream.Seek.Notify':
@@ -611,7 +609,7 @@ package com.longtailvideo.jwplayer.media {
                         onClientData({type: 'complete'});
                     } else {
                         stop();
-						sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: "Stream not found: " + item.file}); 
+						sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: "Stream not found: " + item.file});
                     }
                     break;
 				case 'NetStream.Seek.Failed':
@@ -619,17 +617,15 @@ package com.longtailvideo.jwplayer.media {
 						onClientData({type: 'complete'});
 					} else {
 						stop();
-						sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: "Could not seek: " + item.file}); 
+						sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: "Could not seek: " + item.file});
 					}
 					break;
 				case 'NetConnection.Connect.Closed':
 					stop();
 					break;
 				case 'NetConnection.Connect.Failed':
-					if(_connection == -1 && evt.target == _connections[1]) {
-						stop();
-						sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: "Server not found: " + item.streamer});
-					}
+					stop();
+					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: "Server not found: " + item.streamer});
 					break;
                 case 'NetStream.Play.UnpublishNotify':
                     stop();
@@ -651,19 +647,17 @@ package com.longtailvideo.jwplayer.media {
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: evt.info});
         }
 
+
 		/** Destroy the stream. **/
 		override public function stop():void {
 			if (_stream && _stream.time) {
 				_stream.close();
 			}
 			_stream = null;
-			_isStreaming = false;
+			_isStreaming =  false;
 			_currentFile = undefined;
 			_video.clear();
-			if(_connection > -1) {
-				_connections[_connection].close();
-				_connection = -1;
-			}
+			_connection.close();
 			clearInterval(_positionInterval);
 			_position = 0;
 			_timeoffset = -1;
@@ -723,13 +717,15 @@ package com.longtailvideo.jwplayer.media {
 				_stream.soundTransform = _transformer;
 			}
 		}
-		
+
+
 		/** Completes video playback **/
 		override protected function complete():void {
 			stop();
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_COMPLETE);
 		}
-		
+
+
 		/** Determines if the stream is a live stream **/
 		protected function get isLivestream():Boolean {
 			// We assume it's a livestream until we hear otherwise.
