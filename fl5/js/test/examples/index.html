@@ -59,13 +59,60 @@
             			//"HTTP Pseudo-streaming": "httpplaylist.html",
             			"RTMP": "playlist.html?type=rtmp",
             			"Mixed": "playlist.html?type=mixed",
-            			"XML Playlits": "xmlplaylists.html"
+            			"XML Playlits": "xmlplaylists.html",
+						//"Playlist formats": {
+						//	"ASX" : "playlistparsing.html?"+escape('var config = {title:"ASX Playlists", "playlist":"../files/asx.xml"}'),
+						//	"Atom" : "playlistparsing.html?"+escape('var config = {title:"Atom Playlists", "playlist":"../files/atom.xml"}'),
+						//	"iTunes" : "playlistparsing.html?"+escape('var config = {title:"iTunes Playlists", "playlist":"../files/irss.xml"}'),
+						//	"mRSS" : "playlistparsing.html?"+escape('var config = {title:"mRSS Playlists", "playlist":"../files/mrss.xml"}'),
+						//	"XSPF" : "playlistparsing.html?"+escape('var config = {title:"XSPF Playlists", "playlist":"../files/xspf.xml"}')							
+						//},
+						"Bitrate Switching" : "playlistparsing.html?"+escape('var config = {title:"Bitrate Switching", "playlist":"../files/bitrates.xml"}'),
+						"Dynamic Streaming" : "playlistparsing.html?"+escape('var config = {title:"Dynamic Streaming", "playlist":"../files/dynamic.xml"}'),
+						"Highwinds" : "playlistparsing.html?"+escape('var config = {title:"Highwinds", "playlist":"../files/highwinds.xml"}'),
+						"SMIL Loadbalancing" : "playlistparsing.html?"+escape('var config = {title:"SMIL Loadbalancing", "playlist":"../files/smil.xml"}')
             		},
             		"Components": {
             			"Controlbar": "controlbar.html",
             			"Logo": "logo.html"
             		},
-            		"Plugins": "plugins.html",
+            		"Plugins": {
+						"Overview": "plugins.html",
+						"Loading and Configuration" : {
+							"Local": {
+								"Absolute referenced": {
+									"JavaScript": "plugins.html?"+escape('var config = {title:"Absolute Path - JavaScript", plugins:{"http://localhost/player-5.5a/js/test/examples/plugins/textplugin.js":{text:"Plugin successfully loaded!"}}}'),
+									"Flash":"plugins.html?"+escape('var config = {title:"Absolute Path - Flash", plugins:{"http://localhost/player-5.5a/js/test/examples/plugins/hd.swf":{"file":"http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"}}}')
+								},
+								"Root referenced": {
+									"JavaScript": "plugins.html?"+escape('var config = {title:"Root Path - JavaScript", plugins:{"/player-5.5a/js/test/examples/plugins/textplugin.js":{text:"Plugin successfully loaded!"}}}'),
+									"Flash":"plugins.html?"+escape('var config = {title:"Root Path - Flash", plugins:{"/player-5.5a/js/test/examples/plugins/hd.swf":{"file":"http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"}}}')
+								},
+								"Relatively referenced": {
+									"JavaScript": "plugins.html?"+escape('var config = {title:"Relative Path - JavaScript", plugins:{"plugins/textplugin.js":{text:"Plugin successfully loaded!"}}}'),
+									"Flash":"plugins.html?"+escape('var config = {title:"Relative Path - Flash", plugins:{"plugins/hd.swf":{"file":"http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"}}}')
+								},
+								"Bad Path": {
+									"JavaScript": "plugins.html?"+escape('var config = {title:"Bad Path - JavaScript", plugins:{"plugins/textplugin.js":{text:"Plugin successfully loaded!"}, "plugins/textplugin1.js":{text:"Plugin successfully loaded!"}}}'),
+									"Flash":"plugins.html?"+escape('var config = {title:"Bad Path - Flash", plugins:{"http://localhost/player-5.5a/js/test/examples/plugins/hd1.swf":{"file":"http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"}}}')
+								},
+								"Mixed Mode": {
+									"CDN": "plugins.html?"+escape('var config = {title:"Mixed Mode - CDN", plugins:{"plugins/hd-cdn.js":{text:"Plugin successfully loaded!", "file":"http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"}}}'),
+									"Absolute": "plugins.html?"+escape('var config = {title:"Mixed Mode - Absolute", plugins:{"plugins/hd-absolute.js":{text:"Plugin successfully loaded!", "file":"http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"}}}'),
+									"Root": "plugins.html?"+escape('var config = {title:"Mixed Mode - Root", plugins:{"plugins/hd-root.js":{text:"Plugin successfully loaded!", "file":"http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"}}}'),
+									"Relative": "plugins.html?"+escape('var config = {title:"Mixed Mode - Relative", plugins:{"plugins/hd-relative.js":{text:"Plugin successfully loaded!", "file":"http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"}}}'),
+									"Bad": "plugins.html?"+escape('var config = {title:"Mixed Mode - Bad", plugins:{"plugins/hd-bad.js":{text:"Plugin successfully loaded!", "file":"http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"}}}')
+								},
+								"Flash Only": "plugins/local/flash.html",
+								"Multiple plugins": "plugins/local/multiple.html",
+								"Versioning": "plugins/local/versioning.html"
+							},
+							"Hosted": {
+								"JavaScript": "plugins.html?"+escape('var config = {title:"Absolute Path - JavaScript", plugins:{"textplugin":{text:"Plugin successfully loaded!"}}}'),
+								"Flash":"plugins.html?"+escape('var config = {title:"Absolute Path - Flash", plugins:{"hd":{"file":"http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"}}}')
+							}
+						}
+					},
             		"Stretching": "stretching.html",
             		"Chromeless": "chromeless.html"
             	},

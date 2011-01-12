@@ -241,6 +241,7 @@
 			<fileset dir="${basedir}/js/src/utils" includes="**/*.js" excludes="jwplayer.utils.extensionmap.js,jwplayer.utils.animations.js" />
 			<fileset dir="${basedir}/js/src/utils" includes="jwplayer.utils.animations.js" />
 			<fileset dir="${basedir}/js/src/utils" includes="jwplayer.utils.extensionmap.js" />
+			<fileset dir="${basedir}/js/src/plugins" includes="**/*.js" />
 			<fileset dir="${basedir}/js/src/api" includes="**/*.js" />
 			<fileset dir="${basedir}/js/src/embed" includes="**/*.js" />
 			<fileset dir="${basedir}/js/src/html5" includes="jwplayer.html5.js" />
@@ -325,7 +326,7 @@
 	<!--
 		 Builds the player code library used by plugins
 	-->
-	<target name="build-lib">
+	<target name="build-lib" depends="build-release-player">
 		<!-- Clean the SDK directory -->
 		<antcall target="clean-dir">
 			<param name="clean-directory" value="${sdk.dir}"/>

@@ -35,34 +35,14 @@
         </table>
         <script type="text/javascript">
             var examplestable = document.getElementById("examplestable");
-            var players = [["flash", "html5", "download"], ["flash", "download"], ["html5", "download"]];
-            var test = {
-        		levels: [{
-        			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
-        		}, {
-        			file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
-        		}],
-        		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
-        		"controlbar.position": "top"
-            };
-            
-        	var row = document.createElement("tr");
-        	examplestable.appendChild(row);
-        	for (var player = 0; player < players.length; player++) {
-        		var column = document.createElement("td");
-        		row.appendChild(column);
-        		var div = document.createElement("div");
-        		column.appendChild(div);
-        		var playerName = ("player-" + players[player].join("-")).replace(/[^A-Za-z0-9\-\_]/g, "").toLowerCase();
-        		div.id = playerName;
-        		div.height = 270;
-        		div.width = 480;
-        		var setup = jwplayer.utils.extend({
-        			name: playerName,
-        			players: settings.players(window.location.href, players[player])
-        		}, test, config);
-        		jwplayer(playerName).setup(setup);
-        	}
+			jwplayer.utils.ajax(config.playlist, function(xmlhttp){
+				console.log(jwplayer.utils.parsers);
+				console.log(jwplayer.utils.parsers.parserfactory);
+				console.log(jwplayer.utils.parsers.parserfactory.getParser(xmlhttp.responseXML.childNodes[0]));
+				console.log(jwplayer.utils.parsers.parserfactory.getParser(xmlhttp.responseXML.childNodes[0]).parse(xmlhttp.responseXML.childNodes[0]));
+			}, function(path){
+				console.log("failed to load", path);
+			});
         </script>
         <h3>HTML code</h3>
     </body>

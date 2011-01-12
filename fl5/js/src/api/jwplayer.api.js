@@ -415,6 +415,11 @@
 		setup: function(options) {
 			return this;
 		},
+		
+		registerPlugin: function(id, arg1, arg2){
+			return this;
+		},
+		
 		remove: function() {
 			this.destroy();
 		},
@@ -486,12 +491,19 @@
 		}
 		if (index >= 0) {
 			var toDestroy = document.getElementById(_players[index].id);
+			if (document.getElementById(_players[index].id+"_wrapper")){
+				toDestroy = document.getElementById(_players[index].id+"_wrapper");
+			}
 			if (toDestroy) {
 				if (replacementHTML) {
 					jwplayer.utils.setOuterHTML(toDestroy, replacementHTML);
 				} else {
 					var replacement = document.createElement('div');
-					replacement.setAttribute('id', toDestroy.id);
+					var newId = toDestroy.id;
+					if (toDestroy.id.indexOf("_wrapper") == toDestroy.id.length - 8) {
+						newID = toDestroy.id.substring(0, toDestroy.id.length - 8);
+					}
+					replacement.setAttribute('id', newId);
 					toDestroy.parentNode.replaceChild(replacement, toDestroy);
 				}
 			}

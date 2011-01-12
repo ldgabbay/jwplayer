@@ -39,76 +39,80 @@
 		api: undefined,
 		events: {},
 		players: undefined,
+		pluginloader: undefined,
 		
 		constructor: function(playerApi) {
 			this.api = playerApi;
 			var mediaConfig = jwplayer.utils.mediaparser.parseMedia(this.api.container);
 			this.config = this.parseConfig(jwplayer.utils.extend({}, jwplayer.embed.defaults, mediaConfig, this.api.config));
+			this.pluginloader = new jwplayer.plugins.loadPlugins(this);
 		},
 		
 		embedPlayer: function() {
-			// TODO: Parse playlist for playable content
-			var player = this.players[0];
-			if (player && player.type) {
-				switch (player.type) {
-					case 'flash':
-						if (jwplayer.utils.flashSupportsConfig(this.config)) {
-							if (this.config.file && !this.config.provider) {
-								switch (jwplayer.utils.extension(this.config.file).toLowerCase()) {
-									case "webm":
-									case "ogv":
-									case "ogg":
-										this.config.provider = "video";
-										break;
+			if (this.pluginloader.isComplete()) {
+				// TODO: Parse playlist for playable content
+				var player = this.players[0];
+				if (player && player.type) {
+					switch (player.type) {
+						case 'flash':
+							if (jwplayer.utils.flashSupportsConfig(this.config)) {
+								if (this.config.file && !this.config.provider) {
+									switch (jwplayer.utils.extension(this.config.file).toLowerCase()) {
+										case "webm":
+										case "ogv":
+										case "ogg":
+											this.config.provider = "video";
+											break;
+									}
 								}
+								
+								// TODO: serialize levels & playlist, de-serialize in Flash
+								if (this.config.levels || this.config.playlist) {
+									this.api.onReady(this.loadAfterReady(this.config));
+								}
+								
+								// Make sure we're passing the correct ID into Flash for Linux API support
+								this.config.id = this.api.id;
+								
+								var flashPlayer = jwplayer.embed.embedFlash(document.getElementById(this.api.id), player, this.config, this.pluginloader, this.api);
+								this.api.container = flashPlayer;
+								this.api.setPlayer(flashPlayer);
+							} else {
+								this.players.splice(0, 1);
+								return this.embedPlayer();
 							}
-							
-							// TODO: serialize levels & playlist, de-serialize in Flash
-							if (this.config.levels || this.config.playlist) {
-								this.api.onReady(this.loadAfterReady(this.config));
+							break;
+						case 'html5':
+							if (jwplayer.utils.html5SupportsConfig(this.config)) {
+								var html5player = jwplayer.embed.embedHTML5(document.getElementById(this.api.id), player, this.config, this.pluginloader, this.api);
+								this.api.container = document.getElementById(this.api.id);
+								this.api.setPlayer(html5player);
+							} else {
+								this.players.splice(0, 1);
+								return this.embedPlayer();
 							}
-							
-							// Make sure we're passing the correct ID into Flash for Linux API support
-							this.config.id = this.api.id;
-							
-							var flashPlayer = jwplayer.embed.embedFlash(document.getElementById(this.api.id), player, this.config);
-							this.api.container = flashPlayer;
-							this.api.setPlayer(flashPlayer);
-						} else {
-							this.players.splice(0, 1);
-							return this.embedPlayer();
-						}
-						break;
-					case 'html5':
-						if (jwplayer.utils.html5SupportsConfig(this.config)) {
-							var html5player = jwplayer.embed.embedHTML5(document.getElementById(this.api.id), player, this.config);
-							this.api.container = document.getElementById(this.api.id);
-							this.api.setPlayer(html5player);
-						} else {
-							this.players.splice(0, 1);
-							return this.embedPlayer();
-						}
-						break;
-					case 'download':
-						if (jwplayer.utils.downloadSupportsConfig(this.config)) {
-							var item = jwplayer.utils.getFirstPlaylistItemFromConfig(this.config);
-							var downloadplayer = jwplayer.embed.embedDownloadLink(document.getElementById(this.api.id), player, this.config);
-							this.api.container = document.getElementById(this.api.id);
-							this.api.setPlayer(downloadplayer);
-						} else {
-							this.players.splice(0, 1);
-							return this.embedPlayer();
-						}
-						break;
+							break;
+						case 'download':
+							if (jwplayer.utils.downloadSupportsConfig(this.config)) {
+								var item = jwplayer.utils.getFirstPlaylistItemFromConfig(this.config);
+								var downloadplayer = jwplayer.embed.embedDownloadLink(document.getElementById(this.api.id), player, this.config);
+								this.api.container = document.getElementById(this.api.id);
+								this.api.setPlayer(downloadplayer);
+							} else {
+								this.players.splice(0, 1);
+								return this.embedPlayer();
+							}
+							break;
+					}
+				} else {
+					var _wrapper = document.createElement("div");
+					this.api.container.appendChild(_wrapper);
+					_wrapper.style.position = "relative";
+					var _text = document.createElement("p");
+					_wrapper.appendChild(_text);
+					_text.innerHTML = "No suitable players found";
+					jwplayer.embed.embedLogo(jwplayer.utils.extend({position: "bottom-right", margin: 0},this.config.components.logo), "none", _wrapper, this.api.id);
 				}
-			} else {
-				var _wrapper = document.createElement("div");
-				this.api.container.appendChild(_wrapper);
-				_wrapper.style.position = "relative";
-				var _text = document.createElement("p");
-				_wrapper.appendChild(_text);
-				_text.innerHTML = "No suitable players found";
-				jwplayer.embed.embedLogo(jwplayer.utils.extend({position: "bottom-right", margin: 0},this.config.components.logo), "none", _wrapper, this.api.id);
 			}
 			
 			this.setupEvents();
@@ -149,15 +153,31 @@
 			for (var option in parsedConfig) {
 				if (option.indexOf(".") > -1) {
 					var path = option.split(".");
-					for (var edge in path) {
+					var tempConfig = parsedConfig;
+					for (var edge = 0; edge < path.length; edge++) {
 						if (edge == path.length - 1) {
-							config[path[edge]] = parsedConfig[option];
+							tempConfig[path[edge]] = parsedConfig[option];
+							delete parsedConfig[option];
 						} else {
-							if (config[path[edge]] === undefined) {
-								config[path[edge]] = {};
+							if (tempConfig[path[edge]] === undefined) {
+								tempConfig[path[edge]] = {};
 							}
-							config = config[path[edge]];
+							tempConfig = tempConfig[path[edge]];
 						}
+					}
+				}
+			}
+			
+			if (typeof parsedConfig.plugins == "string"){
+				var pluginArray = parsedConfig.plugins.split(","); 
+				for (var plugin = 0; plugin < pluginArray.length; plugin++) {
+					var pluginName = jwplayer.utils.getPluginName(pluginArray[plugin]);
+					if (typeof parsedConfig[pluginName] == "object"){
+						if (typeof parsedConfig.plugins != "object") {
+							parsedConfig.plugins = {};
+						}
+						parsedConfig.plugins[pluginArray[plugin]] = parsedConfig[pluginName];
+						delete parsedConfig[pluginName];
 					}
 				}
 			}
@@ -186,26 +206,70 @@
 				this.players = parsedConfig.players;
 				delete parsedConfig.players;
 			}
-			if (parsedConfig.plugins) {
-				if (typeof parsedConfig.plugins == "object") {
-					parsedConfig = jwplayer.utils.extend(parsedConfig, jwplayer.embed.parsePlugins(parsedConfig.plugins));
-				}
-			}
-
-			if (parsedConfig.components) {
-				if (typeof parsedConfig.plugins == "object") {
-					parsedConfig = jwplayer.utils.extend(parsedConfig, jwplayer.embed.parseComponents(parsedConfig.components));
-				}
-			}
 			
 			return parsedConfig;
 		}
 		
 	};
 	
-	jwplayer.embed.embedFlash = function(_container, _player, _options) {
+	function _resizeFlashPlugin(plugin, div, container){
+		return function(evt){
+			var display = document.getElementById(container.id).getPluginConfig("display");
+			plugin.resize(display.width, display.height);
+			var style = {
+				left: display.x,
+				top: display.y
+			}
+			jwplayer.utils.css(div, style);
+		}
+	}
+	
+	jwplayer.embed.embedFlash = function(_container, _player, _options, _loader, _api) {
+		var _wrapper;
+		// Hack for when adding / removing happens too quickly
+		if (_container.id + "_wrapper" == _container.parentNode.id) {
+			_wrapper = document.getElementById(_container.id + "_wrapper");
+		} else {
+			_wrapper = document.createElement("div");
+			_wrapper.id = _container.id + "_wrapper";
+			jwplayer.utils.wrap(_container, _wrapper);
+			_wrapper.style.position = "relative";
+		}
+		
+		
 		var params = jwplayer.utils.extend({}, _options);
 		
+		var plugins = _loader.getPlugins();
+		var flashPlugins = {
+			length: 0,
+			plugins: {}
+		};
+		var jsplugins = [];
+		for (var plugin = 0; plugin < plugins.length; plugin++) {
+			var pluginName = jwplayer.utils.getPluginName(plugins[plugin].id);
+			if (plugins[plugin].flash.src) {
+				flashPlugins.plugins[plugins[plugin].flash.src] = params.plugins[plugins[plugin].id];
+				flashPlugins.length++;
+			} 
+			if (plugins[plugin].js.template) {
+				var div = document.createElement("div");
+				div.id = _container.id + "_" + pluginName;
+				div.style.position = "absolute";
+				_wrapper.appendChild(div);
+				var newplugin = new plugins[plugin].js.template(_api, div, params.plugins[plugins[plugin].id]);
+				if (typeof newplugin.resize != "undefined") {
+					_api.onReady(_resizeFlashPlugin(newplugin, div, _container));
+					_api.onResize(_resizeFlashPlugin(newplugin, div, _container));
+				}
+			}
+		}
+		
+		if (flashPlugins.length > 0){
+			jwplayer.utils.extend(params, jwplayer.embed.parsePlugins(flashPlugins.plugins));	
+		} else {
+			delete params.plugins;
+		}
+				
 		var width = params.width;
 		delete params.width;
 		
@@ -250,6 +314,7 @@
 				// jwplayer.utils.setOuterHTML(_container, html);
 				_container.outerHTML = html;
 			}
+			
 			return document.getElementById(_container.id);
 		} else {
 			var obj = document.createElement('object');
@@ -268,21 +333,55 @@
 		}
 	};
 	
-	jwplayer.embed.embedHTML5 = function(container, player, options) {
+	function _resizeHTML5Plugin(plugin, div, onready, container){
+		return function(evt){
+			var displayarea = document.getElementById(container.id + "_displayarea");
+			if (onready) {
+				displayarea.appendChild(div);
+			}
+			var display = displayarea.style;
+			plugin.resize(display.width, display.height);
+			div.left = display.left;
+			div.top = display.top;
+		}
+	}
+	
+
+	
+	jwplayer.embed.embedHTML5 = function(_container, _player, _options, _loader, _api) {
 		if (jwplayer.html5) {
-			container.innerHTML = "";
+			var plugins = _loader.getPlugins();
+			var jsplugins = [];
+			
+			for (var plugin = 0; plugin < plugins.length; plugin++) {
+				var pluginName = jwplayer.utils.getPluginName(plugins[plugin].id);
+				if (plugins[plugin].js.template) {
+					var div = document.createElement("div");
+					div.id = _container.id + "_" + pluginName;
+					var newplugin = new plugins[plugin].js.template(_api, div, _options.plugins[plugins[plugin].id]);
+					if (typeof newplugin.resize != "undefined") {
+						_api.onReady(_resizeHTML5Plugin(newplugin, div, true, _container));
+						_api.onResize(_resizeHTML5Plugin(newplugin, div, _container));
+					}
+				}
+			}
+			
+			_container.innerHTML = "";
 			var playerOptions = jwplayer.utils.extend({
 				screencolor: '0x000000'
-			}, options);
+			}, _options);
+			if (playerOptions.plugins) {
+				delete playerOptions.plugins;
+			}
 			jwplayer.embed.parseConfigBlock(playerOptions, 'components');
-			// TODO: remove this requirement from the html5 player (sources instead of levels)
+			// TODO: remove this requirement from the html5 _player (sources instead of levels)
 			if (playerOptions.levels && !playerOptions.sources) {
-				playerOptions.sources = options.levels;
+				playerOptions.sources = _options.levels;
 			}
 			if (playerOptions.skin && playerOptions.skin.toLowerCase().indexOf(".zip") > 0) {
 				playerOptions.skin = playerOptions.skin.replace(/\.zip/i, ".xml");
 			}
-			return new (jwplayer.html5(container)).setup(playerOptions);
+			return new (jwplayer.html5(_container)).setup(playerOptions);
 		} else {
 			return null;
 		}
@@ -548,9 +647,9 @@
 	};
 	
 	jwplayer.embed.jsonToFlashvars = function(json) {
-		var flashvars = json.netstreambasepath ? '' : 'netstreambasepath=' + escape(window.location.href) + '&';
+		var flashvars = json.netstreambasepath ? '' : 'netstreambasepath=' + encodeURIComponent(window.location.href) + '&';
 		for (var key in json) {
-			flashvars += key + '=' + escape(json[key]) + '&';
+			flashvars += key + '=' + encodeURIComponent(json[key]) + '&';
 		}
 		return flashvars.substring(0, flashvars.length - 1);
 	};
@@ -638,6 +737,10 @@
 		newApi.config = options;
 		return (new jwplayer.embed.Embedder(newApi)).embedPlayer();
 	};
+	
+	jwplayer.api.PlayerAPI.prototype.registerPlugin = function(id, param1, param2) {
+		jwplayer.plugins.registerPlugin(id, param1, param2);
+	}
 	
 	function noviceEmbed() {
 		if (!document.body) {

@@ -452,6 +452,9 @@
 		if (pluginName.lastIndexOf(".swf") >= 0) {
 			pluginName = pluginName.substring(0, pluginName.lastIndexOf(".swf"));
 		}
+		if (pluginName.lastIndexOf(".js") >= 0) {
+			pluginName = pluginName.substring(0, pluginName.lastIndexOf(".js"));
+		}
 		return pluginName;
 	};
 	
