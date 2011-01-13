@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1537';/**
+jwplayer.version = '5.5.1541';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -1981,7 +1981,11 @@ playerReady = function(obj) {
 			if (this.pluginloader.isComplete()) {
 				for (var player = 0; player < this.players.length; player++) {
 					if (this.players[player].type && jwplayer.embed[this.players[player].type]) {
-						var embedder = new jwplayer.embed[this.players[player].type](document.getElementById(this.api.id), this.players[player], this.config, this.pluginloader, this.api);
+						var configClone = this.config;
+						if (this.players[player].config){
+							configClone = jwplayer.utils.extend(jwplayer.utils.clone(this.config), this.players[player].config);
+						}
+						var embedder = new jwplayer.embed[this.players[player].type](document.getElementById(this.api.id), this.players[player], configClone, this.pluginloader, this.api);
 						if (embedder.supportsConfig()) {
 							embedder.embed();
 							return;
@@ -2522,8 +2526,6 @@ playerReady = function(obj) {
 			parseConfigBlock(params, 'components');
 			parseConfigBlock(params, 'providers');
 			
-			
-			//console.log(params);
 			
 			var flashPlayer;
 			if (jwplayer.utils.isIE()) {
@@ -5517,43 +5519,6 @@ playerReady = function(obj) {
 		this.hasChrome = function() {
 			return _hasChrome;
 		};
-		
-		/**
-		 * Determines if a video element can play a particular file, based on its extension
-		 * @param {Object} video
-		 * @param {Object} file
-		 * @param {Object} provider
-		 * @param {Object} playlistfile
-		 * @return {Boolean}
-		 */
-		html5CanPlay = function(video, file, provider, playlistfile) {
-			// Don't support playlists
-			if (playlistfile) {
-				return false;
-			}
-			
-			// YouTube is supported
-			if (provider && provider == "youtube") {
-				return true;
-			}
-			
-			// If a provider is set, only proceed if video
-			if (provider && provider != "video" && provider != "http") {
-				return false;
-			}
-			
-			var extension = jwplayer.utils.extension(file);
-			
-			// Check for Android, which returns false for canPlayType
-			if (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/)) {
-				return true;
-			}
-			
-			// Last, but not least, ask the browser
-			return browserCanPlay(video, extension);
-		};
-		
-
 		
 		function _embed(playlistItem) {
 			_model.duration = playlistItem.duration;

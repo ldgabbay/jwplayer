@@ -52,7 +52,11 @@
 			if (this.pluginloader.isComplete()) {
 				for (var player = 0; player < this.players.length; player++) {
 					if (this.players[player].type && jwplayer.embed[this.players[player].type]) {
-						var embedder = new jwplayer.embed[this.players[player].type](document.getElementById(this.api.id), this.players[player], this.config, this.pluginloader, this.api);
+						var configClone = this.config;
+						if (this.players[player].config){
+							configClone = jwplayer.utils.extend(jwplayer.utils.clone(this.config), this.players[player].config);
+						}
+						var embedder = new jwplayer.embed[this.players[player].type](document.getElementById(this.api.id), this.players[player], configClone, this.pluginloader, this.api);
 						if (embedder.supportsConfig()) {
 							embedder.embed();
 							return;
