@@ -60,7 +60,7 @@
 					plugins.push(pluginObject);
 				}
 			}
-			console.log(pluginObject);
+
 			return plugins;
 		}
 		

@@ -436,16 +436,11 @@
 				}
 				var sourceType;
 				if (sourceModel.type === undefined) {
-					var extension = jwplayer.utils.extension(sourceModel.file);
-					if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 !== undefined) {
-						sourceType = jwplayer.utils.extensionmap[extension].html5;
-					} else {
-						sourceType = 'video/' + extension + ';';
-					}
+					sourceType = jwplayer.utils.getMIMEType(jwplayer.utils.extension(sourceModel.file));
 				} else {
 					sourceType = sourceModel.type;
 				}
-				if (jwplayer.utils.html5CanPlay(vid, sourceModel.file)) {
+				if (vid.canPlayType(sourceType)) {
 					var source = _container.ownerDocument.createElement("source");
 					source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
 					if (!jwplayer.utils.isLegacyAndroid()) {

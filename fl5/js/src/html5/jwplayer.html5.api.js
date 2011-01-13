@@ -8,11 +8,7 @@
 
 	jwplayer.html5.api = function(container, options) {
 		var _api = {};
-		
-		if (!jwplayer.utils.html5SupportsConfig()) {
-			return _api;
-		}
-		
+				
 		var _container = document.createElement('div');
 		container.parentNode.replaceChild(_container, container);
 		_container.id = container.id;

@@ -209,196 +209,6 @@
 	}
 	
 	/**
-	 * Detects whether Flash supports this configuration
-	 * @param config (optional) If set, check to see if the first playable item
-	 */
-	jwplayer.utils.flashSupportsConfig = function(config) {
-		if (jwplayer.utils.hasFlash()) {
-			if (config) {
-				var item = jwplayer.utils.getFirstPlaylistItemFromConfig(config);
-				if (typeof item.file == "undefined" && typeof item.levels == "undefined") {
-					return true;
-				} else if (item.file) {
-					return jwplayer.utils.flashCanPlay(item.file, item.provider);
-				} else if (item.levels && item.levels.length) {
-					for (var i = 0; i < item.levels.length; i++) {
-						if (item.levels[i].file && jwplayer.utils.flashCanPlay(item.levels[i].file, item.provider)) {
-							return true;
-						}
-					}
-				}
-			} else {
-				return true;
-			}
-		}
-		return false;
-	};
-	
-	/**
-	 * Determines if a Flash can play a particular file, based on its extension
-	 */
-	jwplayer.utils.flashCanPlay = function(file, provider) {
-		var providers = ["video", "http", "sound", "image"];
-		// Provider is set, and is not video, http, sound, image - play in Flash
-		if (provider && (providers.toString().indexOf(provider < 0))) {
-			return true;
-		}
-		var extension = jwplayer.utils.extension(file);
-		// If there is no extension, use Flash
-		if (!extension) {
-			return true;
-		}
-		// Extension is in the extension map, but not supported by Flash - fail
-		if (jwplayer.utils.extensionmap[extension] !== undefined &&
-		jwplayer.utils.extensionmap[extension].flash === undefined) {
-			return false;
-		}
-		return true;
-	};
-	
-	/**
-	 * Detects whether the html5 player supports this configuration.
-	 *
-	 * @param config (optional) If set, check to see if the first playable item
-	 * @return {Boolean}
-	 */
-	jwplayer.utils.html5SupportsConfig = function(config) {
-		var vid = document.createElement('video');
-		if (!!vid.canPlayType) {
-			if (config) {
-				var item = jwplayer.utils.getFirstPlaylistItemFromConfig(config);
-				if (typeof item.file == "undefined" && typeof item.levels == "undefined") {
-					return true;
-				} else if (item.file) {
-					return jwplayer.utils.html5CanPlay(vid, item.file, item.provider, item.playlistfile);
-				} else if (item.levels && item.levels.length) {
-					for (var i = 0; i < item.levels.length; i++) {
-						if (item.levels[i].file && jwplayer.utils.html5CanPlay(vid, item.levels[i].file, item.provider, item.playlistfile)) {
-							return true;
-						}
-					}
-				}
-			} else {
-				return true;
-			}
-		}
-		
-		return false;
-	};
-	
-	/**
-	 * Determines if a video element can play a particular file, based on its extension
-	 * @param {Object} video
-	 * @param {Object} file
-	 * @param {Object} provider
-	 * @param {Object} playlistfile
-	 * @return {Boolean}
-	 */
-	jwplayer.utils.html5CanPlay = function(video, file, provider, playlistfile) {
-		// Don't support playlists
-		if (playlistfile) {
-			return false;
-		}
-		
-		// YouTube is supported
-		if (provider && provider == "youtube") {
-			return true;
-		}
-		
-		// If a provider is set, only proceed if video
-		if (provider && provider != "video" && provider != "http") {
-			return false;
-		}
-		
-		var extension = jwplayer.utils.extension(file);
-		
-		// Check for Android, which returns false for canPlayType
-		if (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/)) {
-			return true;
-		}
-		
-		// Last, but not least, ask the browser
-		return jwplayer.utils.browserCanPlay(video, extension);
-	};
-	
-	/**
-	 *
-	 * @param {DOMElement} video tag
-	 * @param {String} extension
-	 * @return {Boolean}
-	 */
-	jwplayer.utils.browserCanPlay = function(video, extension) {
-		var sourceType;
-		// OK to use HTML5 with no extension
-		if (!extension) {
-			return true;
-		} else if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 === undefined) {
-			return false;
-		} else if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 !== undefined) {
-			sourceType = jwplayer.utils.extensionmap[extension].html5;
-		} else {
-			sourceType = 'video/' + extension + ';';
-		}
-		
-		return video.canPlayType(sourceType);
-	}
-	
-	/**
-	 *
-	 * @param {Object} config
-	 */
-	jwplayer.utils.downloadSupportsConfig = function(config) {
-		if (config) {
-			var item = jwplayer.utils.getFirstPlaylistItemFromConfig(config);
-			
-			if (typeof item.file == "undefined" && typeof item.levels == "undefined") {
-				return true;
-			} else if (item.file) {
-				return jwplayer.utils.canDownload(item.file, item.provider, item.playlistfile);
-			} else if (item.levels && item.levels.length) {
-				for (var i = 0; i < item.levels.length; i++) {
-					if (item.levels[i].file && jwplayer.utils.canDownload(item.levels[i].file, item.provider, item.playlistfile)) {
-						return true;
-					}
-				}
-			}
-		} else {
-			return true;
-		}
-	};
-	
-	/**
-	 *
-	 * @param {Object} file
-	 * @param {Object} provider
-	 * @param {Object} playlistfile
-	 */
-	jwplayer.utils.canDownload = function(file, provider, playlistfile) {
-		// Don't support playlists
-		if (playlistfile) {
-			return false;
-		}
-		
-		var providers = ["image", "sound", "youtube", "http"];
-		// If the media provider is supported, return true
-		if (provider && (providers.toString().indexOf(provider) > -1)) {
-			return true;
-		}
-		
-		// If a provider is set, only proceed if video
-		if (!provider || (provider && provider == "video")) {
-			var extension = jwplayer.utils.extension(file);
-			
-			// Only download if it's in the extension map or YouTube
-			if (extension && jwplayer.utils.extensionmap[extension]) {
-				return true;
-			}
-		}
-		
-		return false;
-	};
-	
-	/**
 	 * Replacement for "outerHTML" getter (not available in FireFox)
 	 */
 	jwplayer.utils.getOuterHTML = function(element) {
@@ -526,6 +336,21 @@
 			}
 		}
 	};
+	
+	/**
+	 * 
+	 * @param {Object} extension
+	 * @return {String} MIME Type
+	 */
+	jwplayer.utils.getMIMEType = function (extension){
+		if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 === undefined) {
+			return null;
+		} else if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 !== undefined) {
+			return jwplayer.utils.extensionmap[extension].html5;
+		} 
+		
+		return 'video/' + extension + ';';
+	}
 	
 	jwplayer.utils.css = function(domelement, styles, debug) {
 		if (domelement !== undefined) {
