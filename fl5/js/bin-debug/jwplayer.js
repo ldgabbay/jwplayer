@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1542';/**
+jwplayer.version = '5.5.1543';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -2534,11 +2534,14 @@ playerReady = function(obj) {
 			parseConfigBlock(params, 'components');
 			parseConfigBlock(params, 'providers');
 			
+			var bgcolor = "#000000";
 			
 			var flashPlayer;
 			if (jwplayer.utils.isIE()) {
 				var html = '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" ' +
-				'width="' +
+				'bgcolor="' +
+				bgcolor +
+				'" width="' +
 				width +
 				'" height="' +
 				height +
@@ -2571,6 +2574,7 @@ playerReady = function(obj) {
 				obj.setAttribute('data', _player.src);
 				obj.setAttribute('width', width);
 				obj.setAttribute('height', height);
+				obj.setAttribute('bgcolor', '#000000');
 				obj.setAttribute('id', _container.id);
 				obj.setAttribute('name', _container.id);
 				appendAttribute(obj, 'allowfullscreen', 'true');

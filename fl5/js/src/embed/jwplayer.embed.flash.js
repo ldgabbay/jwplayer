@@ -194,11 +194,14 @@
 			parseConfigBlock(params, 'components');
 			parseConfigBlock(params, 'providers');
 			
+			var bgcolor = "#000000";
 			
 			var flashPlayer;
 			if (jwplayer.utils.isIE()) {
 				var html = '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" ' +
-				'width="' +
+				'bgcolor="' +
+				bgcolor +
+				'" width="' +
 				width +
 				'" height="' +
 				height +
@@ -231,6 +234,7 @@
 				obj.setAttribute('data', _player.src);
 				obj.setAttribute('width', width);
 				obj.setAttribute('height', height);
+				obj.setAttribute('bgcolor', '#000000');
 				obj.setAttribute('id', _container.id);
 				obj.setAttribute('name', _container.id);
 				appendAttribute(obj, 'allowfullscreen', 'true');
