@@ -53,7 +53,7 @@
 				}
 				var html5player = new (jwplayer.html5(_container)).setup(playerOptions);
 				_api.container = document.getElementById(_api.id);
-				_api.setPlayer(html5player);
+				_api.setPlayer(html5player, "html5");
 			} else {
 				return null;
 			}

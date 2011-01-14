@@ -242,7 +242,7 @@
 			}
 			
 			_api.container = flashPlayer;
-			_api.setPlayer(flashPlayer);
+			_api.setPlayer(flashPlayer, "flash");
 		}
 		/**
 		 * Detects whether Flash supports this configuration

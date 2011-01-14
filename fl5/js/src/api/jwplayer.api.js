@@ -57,8 +57,9 @@
 		var _currentItem = 0;
 		
 		/** Use this function to set the internal low-level player.  This is a javascript object which contains the low-level API calls. **/
-		this.setPlayer = function(player) {
+		this.setPlayer = function(player, renderingMode) {
 			_player = player;
+			this.renderingMode = renderingMode;
 		};
 		
 		this.stateListener = function(state, callback) {
@@ -223,10 +224,14 @@
 		container: undefined,
 		options: undefined,
 		id: undefined,
+		renderingMode: undefined,
 		
 		// Player Getters
 		getBuffer: function() {
 			return this.callInternal('jwGetBuffer');
+		},
+		getContainer: function(){
+			return this.container;
 		},
 		getDuration: function() {
 			return this.callInternal('jwGetDuration');
@@ -263,6 +268,9 @@
 		},
 		getPosition: function() {
 			return this.callInternal('jwGetPosition');
+		},
+		getRenderingMode: function(){
+			return this.renderingMode;
 		},
 		getState: function() {
 			return this.callInternal('jwGetState');

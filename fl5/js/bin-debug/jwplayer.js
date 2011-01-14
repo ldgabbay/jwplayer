@@ -11,7 +11,7 @@ jwplayer.constructor = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1541';/**
+jwplayer.version = '5.5.1542';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -1452,8 +1452,9 @@ jwplayer.version = '5.5.1541';/**
 		var _currentItem = 0;
 		
 		/** Use this function to set the internal low-level player.  This is a javascript object which contains the low-level API calls. **/
-		this.setPlayer = function(player) {
+		this.setPlayer = function(player, renderingMode) {
 			_player = player;
+			this.renderingMode = renderingMode;
 		};
 		
 		this.stateListener = function(state, callback) {
@@ -1618,10 +1619,14 @@ jwplayer.version = '5.5.1541';/**
 		container: undefined,
 		options: undefined,
 		id: undefined,
+		renderingMode: undefined,
 		
 		// Player Getters
 		getBuffer: function() {
 			return this.callInternal('jwGetBuffer');
+		},
+		getContainer: function(){
+			return this.container;
 		},
 		getDuration: function() {
 			return this.callInternal('jwGetDuration');
@@ -1658,6 +1663,9 @@ jwplayer.version = '5.5.1541';/**
 		},
 		getPosition: function() {
 			return this.callInternal('jwGetPosition');
+		},
+		getRenderingMode: function(){
+			return this.renderingMode;
 		},
 		getState: function() {
 			return this.callInternal('jwGetState');
@@ -2274,7 +2282,7 @@ playerReady = function(obj) {
 			_display.display.appendChild(new jwplayer.embed.logo(_options.components.logo, "download", _container.id));
 			
 			_api.container = document.getElementById(_api.id);
-			_api.setPlayer(_display.display);
+			_api.setPlayer(_display.display, "download");
 		};
 		
 		this.supportsConfig = function() {
@@ -2574,7 +2582,7 @@ playerReady = function(obj) {
 			}
 			
 			_api.container = flashPlayer;
-			_api.setPlayer(flashPlayer);
+			_api.setPlayer(flashPlayer, "flash");
 		}
 		/**
 		 * Detects whether Flash supports this configuration
@@ -2680,7 +2688,7 @@ playerReady = function(obj) {
 				}
 				var html5player = new (jwplayer.html5(_container)).setup(playerOptions);
 				_api.container = document.getElementById(_api.id);
-				_api.setPlayer(html5player);
+				_api.setPlayer(html5player, "html5");
 			} else {
 				return null;
 			}

@@ -138,7 +138,7 @@
 			_display.display.appendChild(new jwplayer.embed.logo(_options.components.logo, "download", _container.id));
 			
 			_api.container = document.getElementById(_api.id);
-			_api.setPlayer(_display.display);
+			_api.setPlayer(_display.display, "download");
 		};
 		
 		this.supportsConfig = function() {
