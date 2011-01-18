@@ -121,6 +121,7 @@ package com.longtailvideo.jwplayer.player {
 				ExternalInterface.addCallback("jwPlaylistItem", js_playlistItem);
 				ExternalInterface.addCallback("jwPlaylistNext", js_playlistNext);
 				ExternalInterface.addCallback("jwPlaylistPrev", js_playlistPrev);
+				ExternalInterface.addCallback("jwDockSetButton", js_dockSetButton);
 				ExternalInterface.addCallback("jwSetMute", js_mute);
 				ExternalInterface.addCallback("jwSetVolume", js_volume);
 
@@ -305,6 +306,10 @@ package com.longtailvideo.jwplayer.player {
 		/***********************************************
 		 **                 PLAYBACK                  **
 		 ***********************************************/
+
+		protected function js_dockSetButton(name:String,click:String=null,out:String=null,over:String=null):void {
+		    _player.controls.dock.setButton(name,click,out,over);
+		};
 	
 		protected function js_play(playstate:*=null):void {
 			if (playstate == null){
@@ -313,7 +318,7 @@ package com.longtailvideo.jwplayer.player {
 				if (String(playstate).toLowerCase() == "true"){
 					_player.play();
 				} else {
-					_player.pause();	
+					_player.pause();
 				}
 			}
 		}
