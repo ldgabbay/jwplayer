@@ -8,7 +8,7 @@
 	jwplayer.embed.html5 = function(_container, _player, _options, _loader, _api) {
 		function _resizePlugin (plugin, div, onready) {
 			return function(evt) {
-				var displayarea = document.getElementById(container.id + "_displayarea");
+				var displayarea = document.getElementById(_container.id + "_displayarea");
 				if (onready) {
 					displayarea.appendChild(div);
 				}

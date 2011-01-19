@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1547';/**
+jwplayer.version = '5.5.1548';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -2616,7 +2616,7 @@ playerReady = function(obj) {
 	jwplayer.embed.html5 = function(_container, _player, _options, _loader, _api) {
 		function _resizePlugin (plugin, div, onready) {
 			return function(evt) {
-				var displayarea = document.getElementById(container.id + "_displayarea");
+				var displayarea = document.getElementById(_container.id + "_displayarea");
 				if (onready) {
 					displayarea.appendChild(div);
 				}
