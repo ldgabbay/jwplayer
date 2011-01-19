@@ -86,7 +86,6 @@
 			delete parsedConfig.players; 
 		}
 		
-		console.log(parsedConfig);
 		return parsedConfig;
 	};
 	

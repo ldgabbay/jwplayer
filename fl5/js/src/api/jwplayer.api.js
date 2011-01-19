@@ -229,7 +229,7 @@
 			return this;
 		};
 		this.registerPlugin = function(id, arg1, arg2) {
-			jwplayer.plugins.registerPlugin(id, param1, param2);
+			jwplayer.plugins.registerPlugin(id, arg1, arg2);
 		};
 		this.container = container;
 		this.id = container.id;

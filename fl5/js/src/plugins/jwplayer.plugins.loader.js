@@ -192,14 +192,14 @@
 				}
 				if (plugins[plugin].js.template) {
 					var div = document.createElement("div");
-					div.id = _container.id + "_" + pluginName;
+					div.id = api.id + "_" + pluginName;
 					div.style.position = "absolute";
 					div.style.zIndex = plugin + 10;
 					var newplugin = new plugins[plugin].js.template(api, div, config.plugins[plugins[plugin].id]);
 					jsplugins[pluginName] = newplugin;
 					if (typeof newplugin.resize != "undefined") {
-						api.onReady(resizer(newplugin, div, _container, true));
-						api.onResize(resizer(newplugin, div, _container));
+						api.onReady(resizer(newplugin, div, true));
+						api.onResize(resizer(newplugin, div));
 					}
 				}
 			}

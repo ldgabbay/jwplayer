@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1546';/**
+jwplayer.version = '5.5.1547';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -1404,14 +1404,14 @@ jwplayer.version = '5.5.1546';/**
 				}
 				if (plugins[plugin].js.template) {
 					var div = document.createElement("div");
-					div.id = _container.id + "_" + pluginName;
+					div.id = api.id + "_" + pluginName;
 					div.style.position = "absolute";
 					div.style.zIndex = plugin + 10;
 					var newplugin = new plugins[plugin].js.template(api, div, config.plugins[plugins[plugin].id]);
 					jsplugins[pluginName] = newplugin;
 					if (typeof newplugin.resize != "undefined") {
-						api.onReady(resizer(newplugin, div, _container, true));
-						api.onResize(resizer(newplugin, div, _container));
+						api.onReady(resizer(newplugin, div, true));
+						api.onResize(resizer(newplugin, div));
 					}
 				}
 			}
@@ -1655,7 +1655,7 @@ jwplayer.version = '5.5.1546';/**
 			return this;
 		};
 		this.registerPlugin = function(id, arg1, arg2) {
-			jwplayer.plugins.registerPlugin(id, param1, param2);
+			jwplayer.plugins.registerPlugin(id, arg1, arg2);
 		};
 		this.container = container;
 		this.id = container.id;
@@ -2127,7 +2127,6 @@ playerReady = function(obj) {
 			delete parsedConfig.players; 
 		}
 		
-		console.log(parsedConfig);
 		return parsedConfig;
 	};
 	
@@ -4711,7 +4710,7 @@ playerReady = function(obj) {
 				jwplayer.utils.arrays.remove(_buttonArray, id);
 				_dock.removeChild(_buttons[id].div);
 				delete _buttons[id];
-			} else {
+			} else if (handler) {
 				var div;
 				if (!_buttons[id]) {
 					_buttonArray.push(id);
@@ -4808,7 +4807,7 @@ playerReady = function(obj) {
 			
 			if (_buttonArray.length > 0) {
 				var margin = 10;
-				var xStart = width - _buttons[_buttonArray[0]].div.getBoundingClientRect().width - margin;
+				var xStart = width - api.skin.getSkinElement("dock", "button").width - margin;
 				var usedHeight = margin;
 				var direction = -1;
 				if (_config.align == 'left') {
@@ -4817,14 +4816,14 @@ playerReady = function(obj) {
 				}
 				for (var i = 0; i < _buttonArray.length; i++) {
 					var row = Math.floor(usedHeight / height);
-					if ((usedHeight + _buttons[_buttonArray[i]].div.getBoundingClientRect().height + margin) > ((row + 1) * height)) {
+					if ((usedHeight + api.skin.getSkinElement("dock", "button").height + margin) > ((row + 1) * height)) {
 						usedHeight = ((row + 1) * height) + margin;
 						row = Math.floor(usedHeight / height);
 					}
 					_buttons[_buttonArray[i]].div.style.top = (usedHeight % height) + "px";
-					_buttons[_buttonArray[i]].div.style.left = (xStart + (_buttons[_buttonArray[i]].div.getBoundingClientRect().width + margin) * row * direction) + "px";
+					_buttons[_buttonArray[i]].div.style.left = (xStart + (api.skin.getSkinElement("dock", "button").width + margin) * row * direction) + "px";
 					;
-					usedHeight += _buttons[_buttonArray[i]].div.getBoundingClientRect().height + margin;
+					usedHeight += api.skin.getSkinElement("dock", "button").height + margin;
 				}
 			}
 		}
