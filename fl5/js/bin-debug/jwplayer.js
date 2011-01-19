@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1545';/**
+jwplayer.version = '5.5.1546';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -1643,46 +1643,8 @@ jwplayer.version = '5.5.1545';/**
 			}
 		};
 		
-		function _playerDefaults() {
-			return [{
-				type: "flash",
-				src: "player.swf"
-			}, {
-				type: 'html5'
-			}, {
-				type: 'download'
-			}];
-		}
-		
-		_defaults = {
-			width: 400,
-			height: 300,
-			players: _playerDefaults(),
-			components: {
-				controlbar: {
-					position: 'over'
-				}
-			}
-		};
-		
-		this.setup = function(options, players) {
-			if (jwplayer.embed) {
-				if (options && options.flashplayer && !options.players) {
-					options.players = _playerDefaults();
-					options.players[0].src = options.flashplayer;
-					delete options.flashplayer;
-				}
-				if (players && !options.players) {
-					if (typeof players == "string") {
-						options.players = _playerDefaults();
-						options.players[0].src = players;
-					} else if (players instanceof Array) {
-						options.players = players;
-					} else if (typeof players == "object" && players.type) {
-						options.players = [players];
-					}
-				}
-				
+		this.setup = function(options) {
+			if (jwplayer.embed) {		
 				// Destroy original API on setup() to remove existing listeners
 				var newId = this.id;
 				this.remove();
@@ -1790,14 +1752,14 @@ jwplayer.version = '5.5.1545';/**
 			
 			return translated;
 		}
-
-		this.callInternal = function(funcName, args) {		
-		/*this.callInternal = function() {
-			var	funcName = arguments[0],
-				args = [];
-			for (var argument = 1; argument < arguments.length; argument++){
-				args[argument] = arguments[argument]; 
-			}*/
+		
+		this.callInternal = function(funcName, args) {
+			/*this.callInternal = function() {
+			 var	funcName = arguments[0],
+			 args = [];
+			 for (var argument = 1; argument < arguments.length; argument++){
+			 args[argument] = arguments[argument];
+			 }*/
 			if (_playerReady) {
 				if (typeof _player != "undefined" && typeof _player[funcName] == "function") {
 					if (args !== undefined) {
@@ -2005,13 +1967,29 @@ playerReady = function(obj) {
  * @version 5.5
  */
 (function(jwplayer) {
-
-	jwplayer.embed = function(api) {
-		this.api = api;
+	jwplayer.embed = function(playerApi) {
+		var _defaults = {
+			width: 400,
+			height: 300,
+			components: {
+				controlbar: {
+					position: 'over'
+				}
+			}
+		};
+		this.api = playerApi;
 		var mediaConfig = jwplayer.utils.mediaparser.parseMedia(this.api.container);
-		this.config = new jwplayer.embed.config(jwplayer.utils.extend({}, jwplayer.embed.defaults, mediaConfig, this.api.config), this);
+		this.config = new jwplayer.embed.config(jwplayer.utils.extend(_defaults, mediaConfig, this.api.config), this);
 		this.pluginloader = new jwplayer.plugins.loadPlugins(this);
-		this.events = {};
+		
+		this.setupEvents = function() {
+			for (var evt in this.events) {
+				if (typeof this.api[evt] == "function") {
+					(this.api[evt]).call(this.api, this.events[evt]);
+				}
+			}
+		}
+		
 		this.embedPlayer = function() {
 			if (this.pluginloader.isComplete()) {
 				for (var player = 0; player < this.players.length; player++) {
@@ -2036,17 +2014,9 @@ playerReady = function(obj) {
 			
 			return this.api;
 		};
-		
-		this.setupEvents = function() {
-			for (var evt in this.events) {
-				if (typeof this.api[evt] == "function") {
-					(this.api[evt]).call(this.api, this.events[evt]);
-				}
-			}
-		};
 		return this;
 	};
-	
+
 	function noviceEmbed() {
 		if (!document.body) {
 			return setTimeout(noviceEmbed, 15);
@@ -2075,7 +2045,17 @@ playerReady = function(obj) {
  * @version 5.5
  */
 (function(jwplayer) {
-
+	function _playerDefaults() {
+		return [{
+			type: "flash",
+			src: "player.swf"
+		}, {
+			type: 'html5'
+		}, {
+			type: 'download'
+		}];
+	}
+	
 	jwplayer.embed.config = function(config, embedder) {
 		var parsedConfig = jwplayer.utils.extend({}, config);
 		for (var option in parsedConfig) {
@@ -2130,13 +2110,25 @@ playerReady = function(obj) {
 			embedder.events = parsedConfig.events;
 			delete parsedConfig.events;
 		}
-		if (parsedConfig.players) {
-			embedder.players = parsedConfig.players;
-			delete parsedConfig.players;
+		
+		if (parsedConfig.flashplayer && !parsedConfig.players) {
+			embedder.players = _playerDefaults();
+			embedder.players[0].src = parsedConfig.flashplayer;
+			delete parsedConfig.flashplayer;
+		} else if (parsedConfig.players) {
+			if (typeof parsedConfig.players == "string") {
+				embedder.players = _playerDefaults();
+				embedder.players[0].src = parsedConfig.players;
+			} else if (parsedConfig.players instanceof Array) {
+				embedder.players = parsedConfig.players;
+			} else if (typeof parsedConfig.players == "object" && parsedConfig.players.type) {
+				embedder.players = [parsedConfig.players];
+			}
+			delete parsedConfig.players; 
 		}
 		
+		console.log(parsedConfig);
 		return parsedConfig;
-		
 	};
 	
 })(jwplayer);
@@ -4724,7 +4716,7 @@ playerReady = function(obj) {
 				if (!_buttons[id]) {
 					_buttonArray.push(id);
 					div = document.createElement("div");
-					div.style.position = "absolute";
+					div.style.position = "relative";
 					_dock.appendChild(div);
 					
 					div.appendChild(document.createElement("img"));

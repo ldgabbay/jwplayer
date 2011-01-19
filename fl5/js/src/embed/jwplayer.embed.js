@@ -4,13 +4,29 @@
  * @version 5.5
  */
 (function(jwplayer) {
-
-	jwplayer.embed = function(api) {
-		this.api = api;
+	jwplayer.embed = function(playerApi) {
+		var _defaults = {
+			width: 400,
+			height: 300,
+			components: {
+				controlbar: {
+					position: 'over'
+				}
+			}
+		};
+		this.api = playerApi;
 		var mediaConfig = jwplayer.utils.mediaparser.parseMedia(this.api.container);
-		this.config = new jwplayer.embed.config(jwplayer.utils.extend({}, jwplayer.embed.defaults, mediaConfig, this.api.config), this);
+		this.config = new jwplayer.embed.config(jwplayer.utils.extend(_defaults, mediaConfig, this.api.config), this);
 		this.pluginloader = new jwplayer.plugins.loadPlugins(this);
-		this.events = {};
+		
+		this.setupEvents = function() {
+			for (var evt in this.events) {
+				if (typeof this.api[evt] == "function") {
+					(this.api[evt]).call(this.api, this.events[evt]);
+				}
+			}
+		}
+		
 		this.embedPlayer = function() {
 			if (this.pluginloader.isComplete()) {
 				for (var player = 0; player < this.players.length; player++) {
@@ -35,17 +51,9 @@
 			
 			return this.api;
 		};
-		
-		this.setupEvents = function() {
-			for (var evt in this.events) {
-				if (typeof this.api[evt] == "function") {
-					(this.api[evt]).call(this.api, this.events[evt]);
-				}
-			}
-		};
 		return this;
 	};
-	
+
 	function noviceEmbed() {
 		if (!document.body) {
 			return setTimeout(noviceEmbed, 15);

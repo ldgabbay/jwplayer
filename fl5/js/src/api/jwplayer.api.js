@@ -217,46 +217,8 @@
 			}
 		};
 		
-		function _playerDefaults() {
-			return [{
-				type: "flash",
-				src: "player.swf"
-			}, {
-				type: 'html5'
-			}, {
-				type: 'download'
-			}];
-		}
-		
-		_defaults = {
-			width: 400,
-			height: 300,
-			players: _playerDefaults(),
-			components: {
-				controlbar: {
-					position: 'over'
-				}
-			}
-		};
-		
-		this.setup = function(options, players) {
-			if (jwplayer.embed) {
-				if (options && options.flashplayer && !options.players) {
-					options.players = _playerDefaults();
-					options.players[0].src = options.flashplayer;
-					delete options.flashplayer;
-				}
-				if (players && !options.players) {
-					if (typeof players == "string") {
-						options.players = _playerDefaults();
-						options.players[0].src = players;
-					} else if (players instanceof Array) {
-						options.players = players;
-					} else if (typeof players == "object" && players.type) {
-						options.players = [players];
-					}
-				}
-				
+		this.setup = function(options) {
+			if (jwplayer.embed) {		
 				// Destroy original API on setup() to remove existing listeners
 				var newId = this.id;
 				this.remove();
@@ -364,14 +326,14 @@
 			
 			return translated;
 		}
-
-		this.callInternal = function(funcName, args) {		
-		/*this.callInternal = function() {
-			var	funcName = arguments[0],
-				args = [];
-			for (var argument = 1; argument < arguments.length; argument++){
-				args[argument] = arguments[argument]; 
-			}*/
+		
+		this.callInternal = function(funcName, args) {
+			/*this.callInternal = function() {
+			 var	funcName = arguments[0],
+			 args = [];
+			 for (var argument = 1; argument < arguments.length; argument++){
+			 args[argument] = arguments[argument];
+			 }*/
 			if (_playerReady) {
 				if (typeof _player != "undefined" && typeof _player[funcName] == "function") {
 					if (args !== undefined) {

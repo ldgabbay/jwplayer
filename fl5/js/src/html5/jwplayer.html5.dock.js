@@ -34,7 +34,7 @@
 				if (!_buttons[id]) {
 					_buttonArray.push(id);
 					div = document.createElement("div");
-					div.style.position = "absolute";
+					div.style.position = "relative";
 					_dock.appendChild(div);
 					
 					div.appendChild(document.createElement("img"));

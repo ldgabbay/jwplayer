@@ -4,7 +4,17 @@
  * @version 5.5
  */
 (function(jwplayer) {
-
+	function _playerDefaults() {
+		return [{
+			type: "flash",
+			src: "player.swf"
+		}, {
+			type: 'html5'
+		}, {
+			type: 'download'
+		}];
+	}
+	
 	jwplayer.embed.config = function(config, embedder) {
 		var parsedConfig = jwplayer.utils.extend({}, config);
 		for (var option in parsedConfig) {
@@ -59,13 +69,25 @@
 			embedder.events = parsedConfig.events;
 			delete parsedConfig.events;
 		}
-		if (parsedConfig.players) {
-			embedder.players = parsedConfig.players;
-			delete parsedConfig.players;
+		
+		if (parsedConfig.flashplayer && !parsedConfig.players) {
+			embedder.players = _playerDefaults();
+			embedder.players[0].src = parsedConfig.flashplayer;
+			delete parsedConfig.flashplayer;
+		} else if (parsedConfig.players) {
+			if (typeof parsedConfig.players == "string") {
+				embedder.players = _playerDefaults();
+				embedder.players[0].src = parsedConfig.players;
+			} else if (parsedConfig.players instanceof Array) {
+				embedder.players = parsedConfig.players;
+			} else if (typeof parsedConfig.players == "object" && parsedConfig.players.type) {
+				embedder.players = [parsedConfig.players];
+			}
+			delete parsedConfig.players; 
 		}
 		
+		console.log(parsedConfig);
 		return parsedConfig;
-		
 	};
 	
 })(jwplayer);
