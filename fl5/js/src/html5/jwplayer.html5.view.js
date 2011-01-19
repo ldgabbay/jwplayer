@@ -100,24 +100,6 @@
 			return dimension;
 		}
 		
-		function setResizeInterval() {
-			_resizeInterval = setInterval(function() {
-				if ((typeof _model.width == "string" && _model.width.lastIndexOf("%") > -1) ||
-				(typeof _model.height == "string" && _model.height.lastIndexOf("%") > -1)) {
-					return;
-				}
-				if (_wrapper.width && _wrapper.height && (_model.width !== parseDimension(_wrapper.width) || _model.height !== parseDimension(_wrapper.height))) {
-					_resize(parseDimension(_wrapper.width), parseDimension(_wrapper.height));
-				} else {
-					var rect = _wrapper.getBoundingClientRect();
-					if (_model.width !== rect.width || _model.height !== rect.height) {
-						_resize(rect.width, rect.height);
-					}
-					delete rect;
-				}
-			}, 100);
-		}
-		
 		this.setup = function(container) {
 			_container = container;
 			createWrapper();
@@ -126,7 +108,6 @@
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, function() {
 				_resizeMedia();
 			});
-			setResizeInterval();
 			var oldresize;
 			if (window.onresize !== null) {
 				oldresize = window.onresize;
@@ -375,7 +356,6 @@
 					_css(_box, style);
 				} else {
 					document.onkeydown = "";
-					setResizeInterval();
 					_model.width = _width;
 					_model.height = _height;
 					_css(_wrapper, {

@@ -3,12 +3,11 @@
  * @version 5.4
  */
 var jwplayer = function(container) {
-	return jwplayer.constructor(container);
-};
-
-jwplayer.constructor = function(container) {
+	if (jwplayer.api){
+		return jwplayer.api.selectPlayer(container);
+	}
 };
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1544';
+jwplayer.version = '5.5.1545';

@@ -6,7 +6,7 @@
 (function(jwplayer) {
 
 	jwplayer.embed.html5 = function(_container, _player, _options, _loader, _api) {
-		function _resizeHTML5Plugin(plugin, div, onready, container) {
+		function _resizePlugin (plugin, div, onready) {
 			return function(evt) {
 				var displayarea = document.getElementById(container.id + "_displayarea");
 				if (onready) {
@@ -21,22 +21,7 @@
 		
 		this.embed = function() {
 			if (jwplayer.html5) {
-				var plugins = _loader.getPlugins();
-				var jsplugins = [];
-				
-				for (var plugin = 0; plugin < plugins.length; plugin++) {
-					var pluginName = jwplayer.utils.getPluginName(plugins[plugin].id);
-					if (plugins[plugin].js.template) {
-						var div = document.createElement("div");
-						div.id = _container.id + "_" + pluginName;
-						var newplugin = new plugins[plugin].js.template(_api, div, _options.plugins[plugins[plugin].id]);
-						if (typeof newplugin.resize != "undefined") {
-							_api.onReady(_resizeHTML5Plugin(newplugin, div, true, _container));
-							_api.onResize(_resizeHTML5Plugin(newplugin, div, _container));
-						}
-					}
-				}
-				
+				_loader.setupPlugins(_api, _options, _resizePlugin);
 				_container.innerHTML = "";
 				var playerOptions = jwplayer.utils.extend({
 					screencolor: '0x000000'

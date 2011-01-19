@@ -39,7 +39,7 @@
 		/**
 		 * Returns the plugins that have been registered
 		 */
-		this.getPlugins = function() {
+		function _getPlugins() {
 			var plugins = [];
 			for (var plugin = 0; plugin < _pluginOrder.length; plugin++) {
 				var pluginName = jwplayer.utils.getPluginName(_pluginOrder[plugin]);
@@ -176,6 +176,38 @@
 		}
 		
 		_setup();
+		
+		this.setupPlugins = function(api, config, resizer){
+			plugins = _getPlugins();
+			var flashPlugins = {
+				length: 0,
+				plugins: {}
+			};
+			var jsplugins = {};
+			for (var plugin = 0; plugin < plugins.length; plugin++) {
+				var pluginName = jwplayer.utils.getPluginName(plugins[plugin].id);
+				if (plugins[plugin].flash.src) {
+					flashPlugins.plugins[plugins[plugin].flash.src] = config.plugins[plugins[plugin].id];
+					flashPlugins.length++;
+				}
+				if (plugins[plugin].js.template) {
+					var div = document.createElement("div");
+					div.id = _container.id + "_" + pluginName;
+					div.style.position = "absolute";
+					div.style.zIndex = plugin + 10;
+					var newplugin = new plugins[plugin].js.template(api, div, config.plugins[plugins[plugin].id]);
+					jsplugins[pluginName] = newplugin;
+					if (typeof newplugin.resize != "undefined") {
+						api.onReady(resizer(newplugin, div, _container, true));
+						api.onResize(resizer(newplugin, div, _container));
+					}
+				}
+			}
+			
+			api.plugins = jsplugins;
+			
+			return flashPlugins;
+		};
 		
 		return this;
 	}

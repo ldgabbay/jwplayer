@@ -13,8 +13,11 @@
 			object.appendChild(param);
 		};
 		
-		function _resizeFlashPlugin(plugin, div, container) {
+		function _resizePlugin(plugin, div, onready) {
 			return function(evt) {
+				if (onready) {
+					_container.appendChild(div);
+				}
 				var display = document.getElementById(container.id).getPluginConfig("display");
 				plugin.resize(display.width, display.height);
 				var style = {
@@ -146,30 +149,7 @@
 			
 			var params = jwplayer.utils.extend({}, _options);
 			
-			var plugins = _loader.getPlugins();
-			var flashPlugins = {
-				length: 0,
-				plugins: {}
-			};
-			var jsplugins = [];
-			for (var plugin = 0; plugin < plugins.length; plugin++) {
-				var pluginName = jwplayer.utils.getPluginName(plugins[plugin].id);
-				if (plugins[plugin].flash.src) {
-					flashPlugins.plugins[plugins[plugin].flash.src] = params.plugins[plugins[plugin].id];
-					flashPlugins.length++;
-				}
-				if (plugins[plugin].js.template) {
-					var div = document.createElement("div");
-					div.id = _container.id + "_" + pluginName;
-					div.style.position = "absolute";
-					_wrapper.appendChild(div);
-					var newplugin = new plugins[plugin].js.template(_api, div, params.plugins[plugins[plugin].id]);
-					if (typeof newplugin.resize != "undefined") {
-						_api.onReady(_resizeFlashPlugin(newplugin, div, _container));
-						_api.onResize(_resizeFlashPlugin(newplugin, div, _container));
-					}
-				}
-			}
+			var flashPlugins = _loader.setupPlugins(_api, params, _resizePlugin);
 			
 			if (flashPlugins.length > 0) {
 				jwplayer.utils.extend(params, parsePlugins(flashPlugins.plugins));
