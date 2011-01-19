@@ -195,7 +195,7 @@
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
 						"index": item
 					});
-					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING || _model.config.chromeless) {
+					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING || _model.config.chromeless || model.config.autostart === true) {
 						_play();
 					}
 				}

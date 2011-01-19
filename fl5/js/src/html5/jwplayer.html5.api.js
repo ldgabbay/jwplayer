@@ -126,11 +126,7 @@
 					"playlist": model.playlist
 				});
 				
-				controller.item(model.item);
-				
-				if (model.config.autostart === true && !model.config.chromeless) {
-					controller.play();
-				}
+				controller.item(model.item);				
 			};
 		}
 		

@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1548';/**
+jwplayer.version = '5.5.1549';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -2056,16 +2056,53 @@ playerReady = function(obj) {
 		}];
 	}
 	
+	function _isPosition(string) {
+		var lower = string.toLowerCase();
+		var positions = ["left", "right", "top", "bottom"];
+		
+		for (var position = 0; position < positions.length; position++) {
+			if (lower == positions[position]) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	function _isPlaylist(property) {
+		var result = false;
+		 // XML Playlists
+		result = (typeof property == "string" && !_isPosition(property)) ||
+		// JSON Playlist
+		(property instanceof Array) ||
+		// Single playlist item as an Object
+		(typeof property == "object" && !property.position && !property.size);
+		return result;
+	}
+	
 	jwplayer.embed.config = function(config, embedder) {
 		var parsedConfig = jwplayer.utils.extend({}, config);
+		
+		/*
+		 *  Special handler for playlists; has a component later for non-string playlists
+		 *  This must be handled in two stages to allow things like playlist.position 
+		 *  to be handled
+		 */
+		if (_isPlaylist(parsedConfig.playlist)) {
+			parsedConfig.playlistfile = parsedConfig.playlist;
+			delete parsedConfig.playlist;
+		}
+		
 		for (var option in parsedConfig) {
 			if (option.indexOf(".") > -1) {
 				var path = option.split(".");
 				var tempConfig = parsedConfig;
 				for (var edge = 0; edge < path.length; edge++) {
 					if (edge == path.length - 1) {
-						tempConfig[path[edge]] = parsedConfig[option];
-						delete parsedConfig[option];
+						if (jwplayer.utils.typeOf(tempConfig) == "object") {
+							tempConfig[path[edge]] = parsedConfig[option];
+							delete parsedConfig[option];
+						}
 					} else {
 						if (tempConfig[path[edge]] === undefined) {
 							tempConfig[path[edge]] = {};
@@ -2090,20 +2127,25 @@ playerReady = function(obj) {
 			}
 		}
 		
-		if (typeof parsedConfig.playlist == "string") {
-			if (!parsedConfig.components.playlist) {
-				parsedConfig.components.playlist = {};
+		var components = ["playlist", "dock", "controlbar"];
+		
+		for (var component = 0; component < components.length; component++) {
+			if (typeof parsedConfig[components[component]] == "string") {
+				if (!parsedConfig.components[components[component]]) {
+					parsedConfig.components[components[component]] = {};
+				}
+				parsedConfig.components[components[component]].position = parsedConfig[components[component]];
+				delete parsedConfig[components[component]];
+			} else if (parsedConfig[components[component]]) {
+				parsedConfig.components[components[component]] = parsedConfig[components[component]];
+				delete parsedConfig[components[component]];
 			}
-			parsedConfig.components.playlist.position = parsedConfig.playlist;
-			delete parsedConfig.playlist;
 		}
 		
-		if (typeof parsedConfig.controlbar == "string") {
-			if (!parsedConfig.components.controlbar) {
-				parsedConfig.components.controlbar = {};
-			}
-			parsedConfig.components.controlbar.position = parsedConfig.controlbar;
-			delete parsedConfig.controlbar;
+		// Special handler for playlists; This moves back non-string playlists
+		if (typeof parsedConfig.playlistfile != "string") {
+			parsedConfig.playlist = parsedConfig.playlistfile;
+			delete parsedConfig.playlistfile;
 		}
 		
 		if (parsedConfig.events) {
@@ -2124,7 +2166,7 @@ playerReady = function(obj) {
 			} else if (typeof parsedConfig.players == "object" && parsedConfig.players.type) {
 				embedder.players = [parsedConfig.players];
 			}
-			delete parsedConfig.players; 
+			delete parsedConfig.players;
 		}
 		
 		return parsedConfig;
@@ -4196,7 +4238,7 @@ playerReady = function(obj) {
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
 						"index": item
 					});
-					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING || _model.config.chromeless) {
+					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING || _model.config.chromeless || model.config.autostart === true) {
 						_play();
 					}
 				}
@@ -4776,6 +4818,7 @@ playerReady = function(obj) {
 					div.onclick = function(evt) {
 						evt.preventDefault();
 						if (typeof handler == "string") {
+							//handler();
 							window[handler]();
 							return;
 						}
@@ -6319,11 +6362,7 @@ playerReady = function(obj) {
 					"playlist": model.playlist
 				});
 				
-				controller.item(model.item);
-				
-				if (model.config.autostart === true && !model.config.chromeless) {
-					controller.play();
-				}
+				controller.item(model.item);				
 			};
 		}
 		

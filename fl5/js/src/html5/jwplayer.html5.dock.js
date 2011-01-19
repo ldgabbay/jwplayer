@@ -95,6 +95,7 @@
 					div.onclick = function(evt) {
 						evt.preventDefault();
 						if (typeof handler == "string") {
+							//handler();
 							window[handler]();
 							return;
 						}
