@@ -88,6 +88,8 @@
 		
 		var components = ["playlist", "dock", "controlbar"];
 		
+		//TODO : Make this handle playlistsize? / controlbar.size?
+		
 		for (var component = 0; component < components.length; component++) {
 			if (typeof parsedConfig[components[component]] == "string") {
 				if (!parsedConfig.components[components[component]]) {
@@ -107,9 +109,23 @@
 			delete parsedConfig.playlistfile;
 		}
 		
+		// Special handler for the display icons setting
+		if (typeof parsedConfig.icons != "undefined"){
+			if (!parsedConfig.components.display) {
+					parsedConfig.components.display = {};
+				}
+			parsedConfig.components.display.icons = parsedConfig.icons;
+			delete parsedConfig.icons;
+		}
+		
 		if (parsedConfig.events) {
 			embedder.events = parsedConfig.events;
 			delete parsedConfig.events;
+		}
+		
+		if (parsedConfig.modes) {
+			parsedConfig.players = parsedConfig.modes;
+			delete parsedConfig.modes;
 		}
 		
 		if (parsedConfig.flashplayer && !parsedConfig.players) {

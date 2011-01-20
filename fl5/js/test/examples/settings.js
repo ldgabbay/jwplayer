@@ -3,6 +3,7 @@ var settings = {
 		var basepath = location.substring(0, location.indexOf("/js/test/examples") + 1);
 		var defaults = {
 			html5: {type:"html5"},
+			//flash: {type:"flash", src:basepath+"bin-debug/player.swf"},
 			flash: {type:"flash", src:basepath+"player.swf"},
 			download: {type:"download"}
 		};

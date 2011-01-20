@@ -79,7 +79,7 @@
 		if (path.lastIndexOf('.') > -1) {
 			return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
 		}
-		return "";
+		return;
 	};
 	
 	/** Updates the contents of an HTML element **/
@@ -336,22 +336,13 @@
 			}
 		}
 	};
-	
+
 	/**
 	 * 
-	 * @param {Object} extension
-	 * @return {String} MIME Type
-	 */
-	jwplayer.utils.getMIMEType = function (extension){
-		if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 === undefined) {
-			return null;
-		} else if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 !== undefined) {
-			return jwplayer.utils.extensionmap[extension].html5;
-		} 
-		
-		return 'video/' + extension + ';';
-	}
-	
+	 * @param {Object} domelement
+	 * @param {Object} styles
+	 * @param {Object} debug
+	 */	
 	jwplayer.utils.css = function(domelement, styles, debug) {
 		if (domelement !== undefined) {
 			for (var style in styles) {

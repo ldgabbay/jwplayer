@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1549';/**
+jwplayer.version = '5.5.1550';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -91,7 +91,7 @@ jwplayer.version = '5.5.1549';/**
 		if (path.lastIndexOf('.') > -1) {
 			return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
 		}
-		return "";
+		return;
 	};
 	
 	/** Updates the contents of an HTML element **/
@@ -348,22 +348,13 @@ jwplayer.version = '5.5.1549';/**
 			}
 		}
 	};
-	
+
 	/**
 	 * 
-	 * @param {Object} extension
-	 * @return {String} MIME Type
-	 */
-	jwplayer.utils.getMIMEType = function (extension){
-		if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 === undefined) {
-			return null;
-		} else if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 !== undefined) {
-			return jwplayer.utils.extensionmap[extension].html5;
-		} 
-		
-		return 'video/' + extension + ';';
-	}
-	
+	 * @param {Object} domelement
+	 * @param {Object} styles
+	 * @param {Object} debug
+	 */	
 	jwplayer.utils.css = function(domelement, styles, debug) {
 		if (domelement !== undefined) {
 			for (var style in styles) {
@@ -2129,6 +2120,8 @@ playerReady = function(obj) {
 		
 		var components = ["playlist", "dock", "controlbar"];
 		
+		//TODO : Make this handle playlistsize? / controlbar.size?
+		
 		for (var component = 0; component < components.length; component++) {
 			if (typeof parsedConfig[components[component]] == "string") {
 				if (!parsedConfig.components[components[component]]) {
@@ -2148,9 +2141,23 @@ playerReady = function(obj) {
 			delete parsedConfig.playlistfile;
 		}
 		
+		// Special handler for the display icons setting
+		if (typeof parsedConfig.icons != "undefined"){
+			if (!parsedConfig.components.display) {
+					parsedConfig.components.display = {};
+				}
+			parsedConfig.components.display.icons = parsedConfig.icons;
+			delete parsedConfig.icons;
+		}
+		
 		if (parsedConfig.events) {
 			embedder.events = parsedConfig.events;
 			delete parsedConfig.events;
+		}
+		
+		if (parsedConfig.modes) {
+			parsedConfig.players = parsedConfig.modes;
+			delete parsedConfig.modes;
 		}
 		
 		if (parsedConfig.flashplayer && !parsedConfig.players) {
@@ -2487,17 +2494,7 @@ playerReady = function(obj) {
 			};
 		};
 		
-		this.embed = function() {
-			if (_options.file && !_options.provider) {
-				switch (jwplayer.utils.extension(_options.file).toLowerCase()) {
-					case "webm":
-					case "ogv":
-					case "ogg":
-						_options.provider = "video";
-						break;
-				}
-			}
-			
+		this.embed = function() {		
 			// TODO: serialize levels & playlist, de-serialize in Flash
 			if (_options.levels || _options.playlist) {
 				_api.onReady(loadAfterReady(_options));
@@ -2742,35 +2739,45 @@ playerReady = function(obj) {
 				return true;
 			}
 			
-			// If a provider is set, only proceed if video
+			// If a provider is set, only proceed if video or HTTP
 			if (provider && provider != "video" && provider != "http") {
 				return false;
 			}
 			
 			var extension = jwplayer.utils.extension(file);
+			// If no extension or unrecognized extension, allow to play
+			if (!extension || jwplayer.utils.extensionmap[extension] === undefined){
+				return true;
+			}
 			
+			// If extension is defined but not supported by HTML5, don't play 
+			if (jwplayer.utils.extensionmap[extension].html5 === undefined) {
+				return false;
+			}
+						
 			// Check for Android, which returns false for canPlayType
 			if (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/)) {
 				return true;
 			}
 			
-			// Last, but not least, ask the browser
-			return browserCanPlay(video, extension);
+			// Last, but not least, we ask the browser 
+			// (But only if it's a video with an extension known to work in HTML5)
+			return browserCanPlay(video, jwplayer.utils.extensionmap[extension].html5);
 		};
 		
 		/**
 		 * 
-		 * @param {Object} video
-		 * @param {Object} extension
+		 * @param {DOMMediaElement} video
+		 * @param {String} mimetype
 		 * @return {Boolean}
 		 */
-		browserCanPlay = function(video, extension) {
+		browserCanPlay = function(video, mimetype) {
 			// OK to use HTML5 with no extension
-			if (!extension) {
+			if (!mimetype) {
 				return true;
-			} 
+			}
 
-			return video.canPlayType(jwplayer.utils.getMIMEType(extension));
+			return video.canPlayType(mimetype);
 		}
 	};
 	
@@ -4442,6 +4449,10 @@ playerReady = function(obj) {
 	};
 	
 	jwplayer.html5.display = function(api, config) {
+		var _defaults = {
+			icons: true
+		}
+		var _config = jwplayer.utils.extend({}, _defaults, config);
 		var _api = api;
 		var _display = {};
 		var _width;
@@ -4608,7 +4619,8 @@ playerReady = function(obj) {
 		
 		
 		function _setDisplayIcon(newIcon) {
-			if (_error) {
+			if (_error || !_config.icons) {
+				_hideDisplayIcon();
 				return;
 			}
 			_show(_display.display_iconBackground);
@@ -5609,14 +5621,17 @@ playerReady = function(obj) {
 				}
 				var sourceType;
 				if (sourceModel.type === undefined) {
-					sourceType = jwplayer.utils.getMIMEType(jwplayer.utils.extension(sourceModel.file));
+					var extension = jwplayer.utils.extension(sourceModel.file);
+					if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 !== undefined) {
+						sourceType = jwplayer.utils.extensionmap[extension].html5;
+					}
 				} else {
 					sourceType = sourceModel.type;
 				}
-				if (vid.canPlayType(sourceType)) {
+				if (!sourceType || vid.canPlayType(sourceType)) {
 					var source = _container.ownerDocument.createElement("source");
 					source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
-					if (!jwplayer.utils.isLegacyAndroid()) {
+					if (sourceType && !jwplayer.utils.isLegacyAndroid()) {
 						source.type = sourceType;
 					}
 					_sourceError++;

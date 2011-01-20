@@ -92,35 +92,45 @@
 				return true;
 			}
 			
-			// If a provider is set, only proceed if video
+			// If a provider is set, only proceed if video or HTTP
 			if (provider && provider != "video" && provider != "http") {
 				return false;
 			}
 			
 			var extension = jwplayer.utils.extension(file);
+			// If no extension or unrecognized extension, allow to play
+			if (!extension || jwplayer.utils.extensionmap[extension] === undefined){
+				return true;
+			}
 			
+			// If extension is defined but not supported by HTML5, don't play 
+			if (jwplayer.utils.extensionmap[extension].html5 === undefined) {
+				return false;
+			}
+						
 			// Check for Android, which returns false for canPlayType
 			if (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/)) {
 				return true;
 			}
 			
-			// Last, but not least, ask the browser
-			return browserCanPlay(video, extension);
+			// Last, but not least, we ask the browser 
+			// (But only if it's a video with an extension known to work in HTML5)
+			return browserCanPlay(video, jwplayer.utils.extensionmap[extension].html5);
 		};
 		
 		/**
 		 * 
-		 * @param {Object} video
-		 * @param {Object} extension
+		 * @param {DOMMediaElement} video
+		 * @param {String} mimetype
 		 * @return {Boolean}
 		 */
-		browserCanPlay = function(video, extension) {
+		browserCanPlay = function(video, mimetype) {
 			// OK to use HTML5 with no extension
-			if (!extension) {
+			if (!mimetype) {
 				return true;
-			} 
+			}
 
-			return video.canPlayType(jwplayer.utils.getMIMEType(extension));
+			return video.canPlayType(mimetype);
 		}
 	};
 	

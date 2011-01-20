@@ -436,14 +436,17 @@
 				}
 				var sourceType;
 				if (sourceModel.type === undefined) {
-					sourceType = jwplayer.utils.getMIMEType(jwplayer.utils.extension(sourceModel.file));
+					var extension = jwplayer.utils.extension(sourceModel.file);
+					if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 !== undefined) {
+						sourceType = jwplayer.utils.extensionmap[extension].html5;
+					}
 				} else {
 					sourceType = sourceModel.type;
 				}
-				if (vid.canPlayType(sourceType)) {
+				if (!sourceType || vid.canPlayType(sourceType)) {
 					var source = _container.ownerDocument.createElement("source");
 					source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
-					if (!jwplayer.utils.isLegacyAndroid()) {
+					if (sourceType && !jwplayer.utils.isLegacyAndroid()) {
 						source.type = sourceType;
 					}
 					_sourceError++;

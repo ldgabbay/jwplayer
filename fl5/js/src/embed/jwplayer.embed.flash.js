@@ -116,17 +116,7 @@
 			};
 		};
 		
-		this.embed = function() {
-			if (_options.file && !_options.provider) {
-				switch (jwplayer.utils.extension(_options.file).toLowerCase()) {
-					case "webm":
-					case "ogv":
-					case "ogg":
-						_options.provider = "video";
-						break;
-				}
-			}
-			
+		this.embed = function() {		
 			// TODO: serialize levels & playlist, de-serialize in Flash
 			if (_options.levels || _options.playlist) {
 				_api.onReady(loadAfterReady(_options));

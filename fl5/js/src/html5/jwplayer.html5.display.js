@@ -20,6 +20,10 @@
 	};
 	
 	jwplayer.html5.display = function(api, config) {
+		var _defaults = {
+			icons: true
+		}
+		var _config = jwplayer.utils.extend({}, _defaults, config);
 		var _api = api;
 		var _display = {};
 		var _width;
@@ -186,7 +190,8 @@
 		
 		
 		function _setDisplayIcon(newIcon) {
-			if (_error) {
+			if (_error || !_config.icons) {
+				_hideDisplayIcon();
 				return;
 			}
 			_show(_display.display_iconBackground);

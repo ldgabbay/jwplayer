@@ -7,6 +7,7 @@
 	import com.longtailvideo.jwplayer.player.IPlayer;
 	import com.longtailvideo.jwplayer.player.PlayerState;
 	import com.longtailvideo.jwplayer.utils.Draw;
+	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.view.interfaces.IDisplayComponent;
 	import com.longtailvideo.jwplayer.view.skins.PNGSkin;
 	
@@ -230,7 +231,7 @@
 				removeChild(icon);
 			} catch (err:Error) {
 			}
-			if (displayIcon && _player.config.icons) {
+			if (displayIcon && _player.config.icons && (getConfigParam("icons") === true || typeof(getConfigParam("icons")) == "undefined")) {
 				if (displayIcon is Sprite) {
 					setIconHover(displayIcon as Sprite, false);
 				}

@@ -28,31 +28,55 @@
             var examplestable = document.getElementById("examplestable");
             var players = [["flash", "html5", "download"], ["flash", "download"], ["html5", "download"]];
             var tests = [{
-            	name: "bunnym",
+            	name: "No file extension",
             	config: {
-					file: "../../../js/test/files/bunnym",
+            		levels: [{
+            			file: "../../../js/test/files/bunnym"
+            		}, {
+            			file: "../../../js/test/files/bunnyo"
+            		}],
             		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
             	}
             }, {
-            	name: "bunnymp4",
+            	name: "No file extension + type = video",
             	config: {
-					file: "../../../js/test/files/bunnymp4",
-            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
+            		levels: [{
+            			file: "../../../js/test/files/bunnym"
+            		}, {
+            			file: "../../../js/test/files/bunnyo"
+            		}],
+            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+            		type: "video"
             	}
             }, {
-            	name: "bunnyo",
+            	name: "Unknown file extension",
             	config: {
-					file: "../../../js/test/files/bunnyo",
+            		levels: [{
+            			file: "../../../js/test/files/bunnymp4.jsp"
+            		}, {
+            			file: "../../../js/test/files/bunnyogv.jsp"
+            		}],
             		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
             	}
-            }, {
-            	name: "bunnyogv",
+            },{
+            	name: "Unknown file extension (mp4) + type = video",
             	config: {
-					file: "../../../js/test/files/bunnyogv",
-            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
+            		levels: [{
+            			file: "../../../js/test/files/bunnymp4.jsp"
+            		}],
+            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+					type: "video"
             	}
-            }
-            ];
+            },{
+            	name: "Unknown file extension (ogv) + type = video",
+            	config: {
+            		levels: [{
+            			file: "../../../js/test/files/bunnyogv.jsp"
+            		}],
+            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+					type: "video"
+            	}
+            }];
             
             for (var test in tests) {
             	if (isNaN(test)) {
