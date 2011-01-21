@@ -64,7 +64,7 @@
 			
 			jwplayer.utils.wrap(_container, _wrapper);
 			jwplayer.utils.wrap(_container, _videowrapper);
-
+			
 			_box = document.createElement("div");
 			_box.id = _wrapper.id + "_displayarea";
 			_wrapper.appendChild(_box);
@@ -187,7 +187,7 @@
 					_zIndex += failed.length;
 					_resizeComponents(_overlayComponentResizer, failed, true);
 				}
-			} else {
+			} else if (navigator.vendor.indexOf("Apple") !== 0) {
 				_resizeComponents(_fullscreenComponentResizer, plugins, true);
 			}
 			_resizeMedia();
@@ -337,13 +337,16 @@
 			if (navigator.vendor.indexOf("Apple") === 0) {
 				if (_model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
 					if (state) {
-						_model.fullscreen = false;
-						_model.getMedia().getDisplayElement().webkitEnterFullscreen();
+						try {
+							_model.getMedia().getDisplayElement().webkitEnterFullscreen();
+						} catch (err) {
+						}
 					} else {
-						_model.getMedia().getDisplayElement().webkitExitFullscreen();
+						try {
+							_model.getMedia().getDisplayElement().webkitExitFullscreen();
+						} catch (err) {
+						}
 					}
-				} else {
-					_model.fullscreen = false;
 				}
 			} else {
 				if (state) {
