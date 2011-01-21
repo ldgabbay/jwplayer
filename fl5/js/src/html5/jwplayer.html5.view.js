@@ -23,6 +23,8 @@
 			_wrapper = document.createElement("div");
 			_wrapper.id = _container.id;
 			_wrapper.className = _container.className;
+			_videowrapper = document.createElement("div");
+			_videowrapper.id = _wrapper.id + "_video_wrapper";
 			_container.id = _wrapper.id + "_video";
 			
 			_css(_wrapper, {
@@ -42,7 +44,6 @@
 			}
 			
 			_css(_container, {
-				position: "absolute",
 				width: _model.width,
 				height: _model.height,
 				top: 0,
@@ -52,8 +53,18 @@
 				display: "block"
 			});
 			
-			jwplayer.utils.wrap(_container, _wrapper);
+			_css(_videowrapper, {
+				overflow: "hidden",
+				position: "absolute",
+				top: 0,
+				left: 0,
+				bottom: 0,
+				right: 0
+			});
 			
+			jwplayer.utils.wrap(_container, _wrapper);
+			jwplayer.utils.wrap(_container, _videowrapper);
+
 			_box = document.createElement("div");
 			_box.id = _wrapper.id + "_displayarea";
 			_wrapper.appendChild(_box);

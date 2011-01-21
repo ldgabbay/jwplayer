@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1551';/**
+jwplayer.version = '5.5.1552';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -2954,6 +2954,8 @@ playerReady = function(obj) {
 			_wrapper = document.createElement("div");
 			_wrapper.id = _container.id;
 			_wrapper.className = _container.className;
+			_videowrapper = document.createElement("div");
+			_videowrapper.id = _wrapper.id + "_video_wrapper";
 			_container.id = _wrapper.id + "_video";
 			
 			_css(_wrapper, {
@@ -2973,7 +2975,6 @@ playerReady = function(obj) {
 			}
 			
 			_css(_container, {
-				position: "absolute",
 				width: _model.width,
 				height: _model.height,
 				top: 0,
@@ -2983,8 +2984,18 @@ playerReady = function(obj) {
 				display: "block"
 			});
 			
-			jwplayer.utils.wrap(_container, _wrapper);
+			_css(_videowrapper, {
+				overflow: "hidden",
+				position: "absolute",
+				top: 0,
+				left: 0,
+				bottom: 0,
+				right: 0
+			});
 			
+			jwplayer.utils.wrap(_container, _wrapper);
+			jwplayer.utils.wrap(_container, _videowrapper);
+
 			_box = document.createElement("div");
 			_box.id = _wrapper.id + "_displayarea";
 			_wrapper.appendChild(_box);
@@ -5652,7 +5663,6 @@ playerReady = function(obj) {
 				vid.poster = jwplayer.utils.getAbsolutePath(playlistItem.image);
 				vid.controls = "controls";
 			}
-			vid.style.position = _container.style.position;
 			vid.style.top = _container.style.top;
 			vid.style.left = _container.style.left;
 			vid.style.width = _container.style.width;

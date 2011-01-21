@@ -465,7 +465,6 @@
 				vid.poster = jwplayer.utils.getAbsolutePath(playlistItem.image);
 				vid.controls = "controls";
 			}
-			vid.style.position = _container.style.position;
 			vid.style.top = _container.style.top;
 			vid.style.left = _container.style.left;
 			vid.style.width = _container.style.width;
