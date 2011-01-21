@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1550';/**
+jwplayer.version = '5.5.1551';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -2562,6 +2562,7 @@ playerReady = function(obj) {
 				html += '<param name="movie" value="' + _player.src + '">';
 				html += '<param name="allowfullscreen" value="true">';
 				html += '<param name="allowscriptaccess" value="always">';
+				html += '<param name="seamlesstabbing" value="true">';
 				html += '<param name="wmode" value="' + wmode + '">';
 				html += '<param name="flashvars" value="' +
 				jsonToFlashvars(params) +
@@ -2587,6 +2588,7 @@ playerReady = function(obj) {
 				obj.setAttribute('name', _container.id);
 				appendAttribute(obj, 'allowfullscreen', 'true');
 				appendAttribute(obj, 'allowscriptaccess', 'always');
+				appendAttribute(obj, 'seamlesstabbing', 'true');
 				appendAttribute(obj, 'wmode', wmode);
 				appendAttribute(obj, 'flashvars', jsonToFlashvars(params));
 				_container.parentNode.replaceChild(obj, _container);
