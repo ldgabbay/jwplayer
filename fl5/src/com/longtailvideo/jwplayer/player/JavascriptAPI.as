@@ -124,6 +124,7 @@ package com.longtailvideo.jwplayer.player {
 				ExternalInterface.addCallback("jwDockSetButton", js_dockSetButton);
 				ExternalInterface.addCallback("jwSetMute", js_mute);
 				ExternalInterface.addCallback("jwSetVolume", js_volume);
+				ExternalInterface.addCallback("jwSetFullscreen", js_fullscreen);
 
 				// UNIMPLEMENTED
 				//ExternalInterface.addCallback("jwGetBandwidth", js_getBandwidth); 
@@ -384,6 +385,17 @@ package com.longtailvideo.jwplayer.player {
 			_player.volume(volume);
 		}
 
+		protected function js_fullscreen(fullscreenstate:*=null):void {
+			if (fullscreenstate == null){
+				_player.fullscreen(!_player.config.fullscreen);
+			} else {
+				if (String(fullscreenstate).toLowerCase() == "true") {
+					_player.fullscreen(true);
+				} else {
+					_player.fullscreen(false);
+				}
+			}
+		}
 		
 	}
 
