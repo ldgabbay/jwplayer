@@ -193,9 +193,7 @@
 				if (_container.tagName.toLowerCase() == "video") {
 					jwplayer.utils.mediaparser.replaceMediaElement(_container, html);
 				} else {
-					// TODO: This is not required to fix [ticket:1094], but we may want to do it anyway 
-					// jwplayer.utils.setOuterHTML(_container, html);
-					_container.outerHTML = html;
+					jwplayer.utils.setOuterHTML(_container, html);
 				}
 				
 				flashPlayer = document.getElementById(_container.id);

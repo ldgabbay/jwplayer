@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1554';/**
+jwplayer.version = '5.5.1558';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -97,11 +97,6 @@ jwplayer.version = '5.5.1554';/**
 	/** Updates the contents of an HTML element **/
 	jwplayer.utils.html = function(element, content) {
 		element.innerHTML = content;
-	};
-	
-	/** Appends an HTML element to another element HTML element **/
-	jwplayer.utils.append = function(originalElement, appendedElement) {
-		originalElement.appendChild(appendedElement);
 	};
 	
 	/** Wraps an HTML element with another element **/
@@ -228,10 +223,12 @@ jwplayer.version = '5.5.1554';/**
 			return element.outerHTML;
 		} else {
 			var parent = element.parentNode;
-			var tmp = document.createElement(parent.tagName);
-			tmp.appendChild(element);
-			var elementHTML = tmp.innerHTML;
-			parent.appendChild(element);
+			var container = document.createElement(parent.tagName);
+			var placeholder = document.createElement(element.tagName);
+			parent.replaceChild(placeholder, element);
+			container.appendChild(element);
+			var elementHTML = container.innerHTML;
+			parent.replaceChild(element, placeholder);
 			return elementHTML;
 		}
 	};
@@ -348,13 +345,13 @@ jwplayer.version = '5.5.1554';/**
 			}
 		}
 	};
-
+	
 	/**
-	 * 
+	 *
 	 * @param {Object} domelement
 	 * @param {Object} styles
 	 * @param {Object} debug
-	 */	
+	 */
 	jwplayer.utils.css = function(domelement, styles, debug) {
 		if (domelement !== undefined) {
 			for (var style in styles) {
@@ -2571,9 +2568,7 @@ playerReady = function(obj) {
 				if (_container.tagName.toLowerCase() == "video") {
 					jwplayer.utils.mediaparser.replaceMediaElement(_container, html);
 				} else {
-					// TODO: This is not required to fix [ticket:1094], but we may want to do it anyway 
-					// jwplayer.utils.setOuterHTML(_container, html);
-					_container.outerHTML = html;
+					jwplayer.utils.setOuterHTML(_container, html);
 				}
 				
 				flashPlayer = document.getElementById(_container.id);

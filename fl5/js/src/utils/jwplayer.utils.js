@@ -87,11 +87,6 @@
 		element.innerHTML = content;
 	};
 	
-	/** Appends an HTML element to another element HTML element **/
-	jwplayer.utils.append = function(originalElement, appendedElement) {
-		originalElement.appendChild(appendedElement);
-	};
-	
 	/** Wraps an HTML element with another element **/
 	jwplayer.utils.wrap = function(originalElement, appendedElement) {
 		originalElement.parentNode.replaceChild(appendedElement, originalElement);
@@ -216,10 +211,12 @@
 			return element.outerHTML;
 		} else {
 			var parent = element.parentNode;
-			var tmp = document.createElement(parent.tagName);
-			tmp.appendChild(element);
-			var elementHTML = tmp.innerHTML;
-			parent.appendChild(element);
+			var container = document.createElement(parent.tagName);
+			var placeholder = document.createElement(element.tagName);
+			parent.replaceChild(placeholder, element);
+			container.appendChild(element);
+			var elementHTML = container.innerHTML;
+			parent.replaceChild(element, placeholder);
 			return elementHTML;
 		}
 	};
@@ -336,13 +333,13 @@
 			}
 		}
 	};
-
+	
 	/**
-	 * 
+	 *
 	 * @param {Object} domelement
 	 * @param {Object} styles
 	 * @param {Object} debug
-	 */	
+	 */
 	jwplayer.utils.css = function(domelement, styles, debug) {
 		if (domelement !== undefined) {
 			for (var style in styles) {
