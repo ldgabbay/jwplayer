@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1558';/**
+jwplayer.version = '5.5.1566';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -1528,8 +1528,12 @@ jwplayer.version = '5.5.1558';/**
 			return this;
 		};
 		this.resize = function(width, height) {
-			this.container.width = width;
-			this.container.height = height;
+			if (this.renderingMode == "html5") {
+				_player.jwResize(width, height);
+			} else {
+				this.container.width = width;
+				this.container.height = height;				
+			}
 			return this;
 		};
 		this.play = function(state) {
@@ -1970,10 +1974,10 @@ playerReady = function(obj) {
 		this.config = new jwplayer.embed.config(jwplayer.utils.extend(_defaults, mediaConfig, this.api.config), this);
 		this.pluginloader = new jwplayer.plugins.loadPlugins(this);
 		
-		this.setupEvents = function() {
-			for (var evt in this.events) {
-				if (typeof this.api[evt] == "function") {
-					(this.api[evt]).call(this.api, this.events[evt]);
+		function _setupEvents(embedder) {
+			for (var evt in embedder.events) {
+				if (typeof embedder.api[evt] == "function") {
+					(embedder.api[evt]).call(embedder.api, embedder.events[evt]);
 				}
 			}
 		}
@@ -1989,7 +1993,10 @@ playerReady = function(obj) {
 						var embedder = new jwplayer.embed[this.players[player].type](document.getElementById(this.api.id), this.players[player], configClone, this.pluginloader, this.api);
 						if (embedder.supportsConfig()) {
 							embedder.embed();
-							return;
+							
+							_setupEvents(this);
+							
+							return this.api;
 						}
 					}
 				}
@@ -1998,13 +2005,11 @@ playerReady = function(obj) {
 					hide: true
 				}, this.config.components.logo), "none", this.api.id);
 			}
-			this.setupEvents();
-			
-			return this.api;
 		};
+		
 		return this;
 	};
-
+	
 	function noviceEmbed() {
 		if (!document.body) {
 			return setTimeout(noviceEmbed, 15);

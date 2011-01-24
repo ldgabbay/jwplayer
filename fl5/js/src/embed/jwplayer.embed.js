@@ -19,10 +19,10 @@
 		this.config = new jwplayer.embed.config(jwplayer.utils.extend(_defaults, mediaConfig, this.api.config), this);
 		this.pluginloader = new jwplayer.plugins.loadPlugins(this);
 		
-		this.setupEvents = function() {
-			for (var evt in this.events) {
-				if (typeof this.api[evt] == "function") {
-					(this.api[evt]).call(this.api, this.events[evt]);
+		function _setupEvents(embedder) {
+			for (var evt in embedder.events) {
+				if (typeof embedder.api[evt] == "function") {
+					(embedder.api[evt]).call(embedder.api, embedder.events[evt]);
 				}
 			}
 		}
@@ -38,7 +38,10 @@
 						var embedder = new jwplayer.embed[this.players[player].type](document.getElementById(this.api.id), this.players[player], configClone, this.pluginloader, this.api);
 						if (embedder.supportsConfig()) {
 							embedder.embed();
-							return;
+							
+							_setupEvents(this);
+							
+							return this.api;
 						}
 					}
 				}
@@ -47,13 +50,11 @@
 					hide: true
 				}, this.config.components.logo), "none", this.api.id);
 			}
-			this.setupEvents();
-			
-			return this.api;
 		};
+		
 		return this;
 	};
-
+	
 	function noviceEmbed() {
 		if (!document.body) {
 			return setTimeout(noviceEmbed, 15);

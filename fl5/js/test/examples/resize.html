@@ -29,8 +29,7 @@
             });
 			
 			function resize(width, height){
-				document.getElementById("player").width = width;
-				document.getElementById("player").height = height;
+				jwplayer("player").resize(width, height);
 			}
         </script>
 		<a href="#" onclick="resize(340, 280);return false;">small</a>

@@ -114,8 +114,12 @@
 			return this;
 		};
 		this.resize = function(width, height) {
-			this.container.width = width;
-			this.container.height = height;
+			if (this.renderingMode == "html5") {
+				_player.jwResize(width, height);
+			} else {
+				this.container.width = width;
+				this.container.height = height;				
+			}
 			return this;
 		};
 		this.play = function(state) {
