@@ -190,12 +190,9 @@
 				jsonToFlashvars(params) +
 				'">';
 				html += '</object>';
-				if (_container.tagName.toLowerCase() == "video") {
-					jwplayer.utils.mediaparser.replaceMediaElement(_container, html);
-				} else {
-					jwplayer.utils.setOuterHTML(_container, html);
-				}
-				
+
+				jwplayer.utils.setOuterHTML(_container, html);
+								
 				flashPlayer = document.getElementById(_container.id);
 			} else {
 				var obj = document.createElement('object');

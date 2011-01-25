@@ -65,7 +65,6 @@
 					}
 				}
 			}
-			//configuration.screencolor =
 			var bgColor = domElement.style['#background-color'];
 			if (bgColor && !(bgColor == "transparent" || bgColor == "rgba(0, 0, 0, 0)")) {
 				configuration.screencolor = bgColor;
@@ -77,22 +76,10 @@
 	function parseMediaElement(domElement, attributes) {
 		attributes = getAttributeList('media', attributes);
 		var sources = [];
-		if (jwplayer.utils.isIE()) {
-			// IE6/7/8 case
-			var currentElement = domElement.nextSibling;
-			if (currentElement !== undefined){
-				while(currentElement.tagName.toLowerCase() == "source") {
-					sources.push(parseSourceElement(currentElement));
-					currentElement = currentElement.nextSibling;
-				}				
-			}
-		} else {
-			//var sourceTags = domElement.getElementsByTagName("source");
-			var sourceTags = jwplayer.utils.selectors("source", domElement);
-			for (var i in sourceTags) {
-				if (!isNaN(i)){
-					sources.push(parseSourceElement(sourceTags[i]));					
-				}
+		var sourceTags = jwplayer.utils.selectors("source", domElement);
+		for (var i in sourceTags) {
+			if (!isNaN(i)){
+				sources.push(parseSourceElement(sourceTags[i]));					
 			}
 		}
 		var configuration = parseElement(domElement, attributes);
@@ -118,38 +105,6 @@
 		var result = parseMediaElement(domElement, attributes);
 		return result;
 	}
-	
-	/** For IE browsers, replacing a media element's contents isn't possible, since only the start tag 
-	 * is matched by document.getElementById.  This method traverses the elements siblings until it finds 
-	 * the closing tag.  If it can't find one, it will not remove the element's siblings.
-	 * 
-	 * @param toReplace The media element to be replaced
-	 * @param html The replacement HTML code (string)
-	 **/
-	jwplayer.utils.mediaparser.replaceMediaElement = function(toReplace, html) {
-		if (jwplayer.utils.isIE()) {
-			var endTagFound = false;
-			var siblings = [];
-			var currentSibling = toReplace.nextSibling;
-			while (currentSibling && !endTagFound) {
-				siblings.push(currentSibling);
-				if (currentSibling.nodeType == 1 && currentSibling.tagName.toLowerCase() == ("/")+toReplace.tagName.toLowerCase() ) {
-					endTagFound = true;
-				}
-				currentSibling = currentSibling.nextSibling;
-			}
-			if (endTagFound) {
-				while (siblings.length > 0) {
-					var element = siblings.pop();
-					element.parentNode.removeChild(element);
-				}
-			}
-			
-			// TODO: This is not required to fix [ticket:1094], but we may want to do it anyway
-			// jwplayer.utils.setOuterHTML(toReplace, html);
-			toReplace.outerHTML = html;
-		}
-	};
 	
 	parsers.media = parseMediaElement;
 	parsers.audio = parseMediaElement;
