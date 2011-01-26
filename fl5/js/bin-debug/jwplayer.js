@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1572';
+jwplayer.version = '5.5.1574';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -3420,10 +3420,16 @@ playerReady = function(obj) {
 			var domelementcss = {
 				position: "absolute",
 				height: _api.skin.getSkinElement("controlbar", "background").height,
-				background: " url(" + _api.skin.getSkinElement("controlbar", "background").src + ") repeat-x center left",
-				left: _api.skin.getSkinElement("controlbar", "capLeft").width
+				//background: " url(" + _api.skin.getSkinElement("controlbar", "background").src + ") repeat-x center left",
+				left: _api.skin.getSkinElement("controlbar", "capLeft").width,
+				zIndex: 0
 			};
-			_appendNewElement("elements", _wrapper, domelementcss);
+			_appendNewElement("background", _wrapper, domelementcss, "img");
+			if (_api.skin.getSkinElement("controlbar", "background")){
+				_elements.background.src = _api.skin.getSkinElement("controlbar", "background").src
+			}
+			domelementcss.zIndex = 1;
+			_appendNewElement("elements", _wrapper, domelementcss);			
 			_addElement("capRight", "right", false, _wrapper);
 		}
 		
@@ -3486,10 +3492,13 @@ playerReady = function(obj) {
 			return true;
 		}
 		
-		function _appendNewElement(id, parent, css) {
+		function _appendNewElement(id, parent, css, domelement) {
 			var element;
 			if (!_ready) {
-				element = document.createElement("div");
+				if (!domelement) {
+					domelement = "div";
+				}
+				element = document.createElement(domelement);
 				_elements[id] = element;
 				element.id = _wrapper.id + "_" + id;
 				parent.appendChild(element);
@@ -3536,7 +3545,7 @@ playerReady = function(obj) {
 					_buildHandler("pauseButton", "jwPause");
 					break;
 				case "divider":
-					_addElement("divider" + getNewDividerId(), alignment, true);
+					_addElement("divider" + getNewDividerId(), alignment, true, undefined, undefined, element.width);
 					break;
 				case "prev":
 					_addElement("prevButton", alignment, true);
@@ -3608,7 +3617,7 @@ playerReady = function(obj) {
 			}
 		}
 		
-		function _addElement(element, alignment, offset, parent, position) {
+		function _addElement(element, alignment, offset, parent, position, width) {
 			if ((_api.skin.getSkinElement("controlbar", element) !== undefined || element.indexOf("Text") > 0 || element.indexOf("divider") === 0) && !(element.indexOf("divider") === 0 && _prevElement.indexOf("divider") === 0)) {
 				_prevElement = element;
 				var css = {
@@ -3632,25 +3641,32 @@ playerReady = function(obj) {
 					css.cursor = "default";
 					wid = 14 + 3 * _settings.fontsize;
 				} else if (element.indexOf("divider") === 0) {
-					css.background = "url(" + _api.skin.getSkinElement("controlbar", "divider").src + ") repeat-x center left";
-					wid = _api.skin.getSkinElement("controlbar", "divider").width;
+					if (width) {
+						if (!isNaN(parseInt(width))) {
+							wid = parseInt(width);
+						}
+					}  else {
+						css.background = "url(" + _api.skin.getSkinElement("controlbar", "divider").src + ") repeat-x center left";
+						wid = _api.skin.getSkinElement("controlbar", "divider").width;	
+					}
 				} else {
 					css.background = "url(" + _api.skin.getSkinElement("controlbar", element).src + ") repeat-x center left";
 					wid = _api.skin.getSkinElement("controlbar", element).width;
 				}
 				if (alignment == "left") {
-					css.left = position === undefined ? _marginleft : position;
+					css.left = isNaN(position) ? _marginleft : position;
 					if (offset) {
 						_marginleft += wid;
 					}
 				} else if (alignment == "right") {
-					css.right = position === undefined ? _marginright : position;
+					css.right = isNaN(position) ? _marginright : position;
 					if (offset) {
 						_marginright += wid;
 					}
 				}
 				
-				if (parent === undefined) {
+				
+				if (jwplayer.utils.typeOf(parent) == "undefined") {
 					parent = _elements.elements;
 				}
 				
@@ -3965,7 +3981,7 @@ playerReady = function(obj) {
 			
 			elementcss.left = _api.skin.getSkinElement("controlbar", "capLeft").width;
 			elementcss.width = controlbarcss.width - _api.skin.getSkinElement("controlbar", "capLeft").width - _api.skin.getSkinElement("controlbar", "capRight").width;
-			
+
 			var timeSliderLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
 			_css(_elements.timeSliderRail, {
 				width: (elementcss.width - _marginleft - _marginright),
@@ -3978,6 +3994,7 @@ playerReady = function(obj) {
 			}
 			_css(_wrapper, controlbarcss);
 			_css(_elements.elements, elementcss);
+			_css(_elements.background, elementcss);
 			_updatePositions();
 			return controlbarcss;
 		}
