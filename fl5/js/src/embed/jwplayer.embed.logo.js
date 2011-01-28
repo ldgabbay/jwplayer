@@ -48,7 +48,7 @@
 				textDecoration: "none",
 				position: "absolute",
 				cursor: "pointer",
-				zIndex: 10
+				zIndex: 10				
 			};
 			_imageStyle.display = _settings.hide ? "none" : "block";
 			var positions = _settings.position.toLowerCase().split("-");

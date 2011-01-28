@@ -1,8 +1,8 @@
 <html>
 <head>
 <title>JW Player Testing</title>
-<link rel="stylesheet" href="files/style.css" type="text/css">
-<script type="text/javascript" src="files/jquery.js"></script>
+<link rel="stylesheet" href="../../../../testing/files/style.css" type="text/css">
+<script type="text/javascript" src="../../../../testing/files/jquery.js"></script>
 <script type="text/javascript" src="../bin-debug/jwplayer.js"></script>
 <script type="text/javascript" src="../../../../testing/settings.js"></script>
 <script type="text/javascript">
@@ -193,6 +193,7 @@
 			if(settings['skins'][skn]) { 
 				skn = settings['skins'][skn]; 
 			}
+			skn = skn.replace("../skins/","../../../../skins/"); 
 			vrs['skin'] =skn;
 		}
 		if($("#plugins").val() != null) {
@@ -211,8 +212,12 @@
 		var arr = $("#flashvarsform").find('input');
 		for(var i=0; i<arr.length; i++) {
 			if($(arr[i]).val()) {
-				vrs[$(arr[i]).attr('name')] = $(arr[i]).val();
-				variables[$(arr[i]).attr('name')] = $(arr[i]).val();
+				var value = $(arr[i]).val();
+				if (value.indexOf("files/") > -1){
+					value = window.location.href.split("index.html")[0]+"files/"+value.split("files/")[1];
+				}
+				vrs[$(arr[i]).attr('name')] = value;
+				variables[$(arr[i]).attr('name')] = value;
 			}
 		}
 		$('#preview').css('height',vrs['height']);

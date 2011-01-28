@@ -7,6 +7,22 @@
 	var _players = [];
 	
 	jwplayer.api = function(container) {
+		this.container = container;
+		this.id = container.id;
+		
+		var _listeners = {};
+		var _stateListeners = {};
+		var _readyListeners = [];
+		var _player = undefined;
+		var _playerReady = false;
+		var _queuedCalls = [];
+		
+		var _originalHTML = jwplayer.utils.getOuterHTML(container);
+		
+		var _itemMeta = {};
+		var _currentItem = 0;
+		var _callbacks = {};
+		
 		// Player Getters
 		this.getBuffer = function() {
 			return this.callInternal('jwGetBuffer');
@@ -14,17 +30,33 @@
 		this.getContainer = function() {
 			return this.container;
 		};
+		
+		function _setButton(containerid) {
+			
+			return function(id, handler, outGraphic, overGraphic) {
+				var handlerString;
+				if (handler) {
+					_callbacks[id] = handler;
+					handlerString = "jwplayer('" + containerid + "').callback('" + id + "')";
+				} else if (!handler && _callbacks[id]) {
+					delete _callbacks[id];
+				}
+				_player['jwDockSetButton'](id, handlerString, outGraphic, overGraphic);
+			};
+		}
 		this.getPlugin = function(pluginName) {
 			var _callInternal = this.callInternal;
 			if (pluginName == "dock") {
 				return {
-					setButton: function(id, handler, outGraphic, overGraphic) {
-						_player['jwDockSetButton'](id, handler, outGraphic, overGraphic);
-						//_callInternal('jwDockSetButton', id, handler, outGraphic, overGraphic);
-					}
+					setButton: _setButton(this.id)
 				};
 			}
 			return this.plugins[pluginName];
+		};
+		this.callback = function(id) {
+			if (_callbacks[id]) {
+				return _callbacks[id]();
+			}
 		};
 		this.getDuration = function() {
 			return this.callInternal('jwGetDuration');
@@ -118,7 +150,7 @@
 				_player.jwResize(width, height);
 			} else {
 				this.container.width = width;
-				this.container.height = height;				
+				this.container.height = height;
 			}
 			return this;
 		};
@@ -222,7 +254,7 @@
 		};
 		
 		this.setup = function(options) {
-			if (jwplayer.embed) {		
+			if (jwplayer.embed) {
 				// Destroy original API on setup() to remove existing listeners
 				var newId = this.id;
 				this.remove();
@@ -235,20 +267,6 @@
 		this.registerPlugin = function(id, arg1, arg2) {
 			jwplayer.plugins.registerPlugin(id, arg1, arg2);
 		};
-		this.container = container;
-		this.id = container.id;
-		
-		var _listeners = {};
-		var _stateListeners = {};
-		var _readyListeners = [];
-		var _player = undefined;
-		var _playerReady = false;
-		var _queuedCalls = [];
-		
-		var _originalHTML = jwplayer.utils.getOuterHTML(container);
-		
-		var _itemMeta = {};
-		var _currentItem = 0;
 		
 		/** Use this function to set the internal low-level player.  This is a javascript object which contains the low-level API calls. **/
 		this.setPlayer = function(player, renderingMode) {

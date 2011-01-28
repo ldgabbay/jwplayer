@@ -229,13 +229,6 @@
 			_display.display_text.style.top = ((_height - _display.display_text.getBoundingClientRect().height) / 2) + "px";
 		}
 		
-		function _oldResetPoster() {
-			_css(_display.display_image, {
-				display: "none"
-			});
-			delete _display.display_image.src;
-		}
-		
 		function _resetPoster() {
 			var oldDisplayImage = _display.display_image;
 			_display.display_image = createElement("img", "display_image");

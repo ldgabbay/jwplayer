@@ -17,7 +17,7 @@
 		
 		/** Load the skin **/
 		function _load() {
-			if (_skinPath === undefined || _skinPath === "") {
+			if (typeof _skinPath != "string" || _skinPath === "") {
 				_loadSkin(jwplayer.html5.defaultSkin().xml);
 			} else {
 				jwplayer.utils.ajax(jwplayer.utils.getAbsolutePath(_skinPath), function(xmlrequest) {

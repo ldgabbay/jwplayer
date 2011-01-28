@@ -62,14 +62,7 @@
 		var videoTags = jwplayer.utils.selectors.getElementsByTagAndClass('video', 'jwplayer');
 		for (var i = 0; i < videoTags.length; i++) {
 			var video = videoTags[i];
-			jwplayer(video.id).setup({
-				players: [{
-					type: 'flash',
-					src: '/jwplayer/player.swf'
-				}, {
-					type: 'html5'
-				}]
-			});
+			jwplayer(video.id).setup({});
 		}
 	}
 	

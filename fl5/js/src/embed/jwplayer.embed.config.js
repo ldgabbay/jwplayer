@@ -7,7 +7,7 @@
 	function _playerDefaults() {
 		return [{
 			type: "flash",
-			src: "player.swf"
+			src: "/jwplayer/player.swf"
 		}, {
 			type: 'html5'
 		}, {
@@ -142,6 +142,8 @@
 				embedder.players = [parsedConfig.players];
 			}
 			delete parsedConfig.players;
+		} else {
+			embedder.players = _playerDefaults();
 		}
 		
 		return parsedConfig;

@@ -71,19 +71,19 @@
 			if (typeof _model.plugins == "string") {
 				var userplugins = _model.plugins.split(",");
 				for (var userplugin in userplugins) {
-					if (typeof userplugins[userplugin] == "string"){
-						pluginorder.push(userplugins[userplugin].replace(/^\s+|\s+$/g, ""));	
+					if (typeof userplugins[userplugin] == "string") {
+						pluginorder.push(userplugins[userplugin].replace(/^\s+|\s+$/g, ""));
 					}
 				}
 			}
 		}
 		
-		if (jwplayer.utils.isIOS()) {
+		if (typeof _model.config.chromeless == "undefined" && jwplayer.utils.isIOS()) {
 			_model.config.chromeless = true;
 		}
 		
 		if (_model.config.chromeless) {
-			pluginorder = ["logo"];
+			pluginorder = ["logo", "dock"];
 		}
 		
 		_model.plugins = {

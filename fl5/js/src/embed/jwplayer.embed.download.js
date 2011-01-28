@@ -130,6 +130,28 @@
 				_display.display_iconBackground.appendChild(_display.display_icon);
 				_display.display.appendChild(_display.display_iconBackground);
 			}
+			_css = jwplayer.utils.css;
+			
+			_hide = function(element) {
+				_css(element, {
+					display: "none"
+				});
+			};
+			
+			function _onImageLoad(evt) {
+				_imageWidth = _display.display_image.naturalWidth;
+				_imageHeight = _display.display_image.naturalHeight;
+				_stretch();
+			}
+			
+			function _stretch() {
+				jwplayer.utils.stretch(jwplayer.utils.stretching.UNIFORM, _display.display_image, _width, _height, _imageWidth, _imageHeight);
+			};
+			
+			_display.display_image.onerror = function(evt) {
+				_hide(_display.display_image);
+			};
+			_display.display_image.onload = _onImageLoad;
 			
 			_container.parentNode.replaceChild(_display.display, _container);
 			
@@ -140,6 +162,8 @@
 			_api.container = document.getElementById(_api.id);
 			_api.setPlayer(_display.display, "download");
 		};
+		
+		
 		
 		this.supportsConfig = function() {
 			if (_options) {

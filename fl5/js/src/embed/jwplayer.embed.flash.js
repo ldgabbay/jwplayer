@@ -16,9 +16,9 @@
 		function _resizePlugin(plugin, div, onready) {
 			return function(evt) {
 				if (onready) {
-					_container.appendChild(div);
+					document.getElementById(_api.id+"_wrapper").appendChild(div);
 				}
-				var display = document.getElementById(container.id).getPluginConfig("display");
+				var display = document.getElementById(_api.id).getPluginConfig("display");
 				plugin.resize(display.width, display.height);
 				var style = {
 					left: display.x,
