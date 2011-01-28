@@ -187,7 +187,10 @@
 			for (var plugin = 0; plugin < plugins.length; plugin++) {
 				var pluginName = jwplayer.utils.getPluginName(plugins[plugin].id);
 				if (plugins[plugin].flash.src) {
-					flashPlugins.plugins[plugins[plugin].flash.src] = config.plugins[plugins[plugin].id];
+					if (jwplayer.utils.getPathType(plugins[plugin].flash.src) == "relative") {
+						plugins[plugin].flash.src = jwplayer.utils.getAbsolutePath(plugins[plugin].flash.src, jwplayer.utils.getAbsolutePath(plugins[plugin].id));
+					}
+					flashPlugins.plugins[plugins[plugin].flash.src] = config.plugins[plugins[plugin].id];	
 					flashPlugins.length++;
 				}
 				if (plugins[plugin].js.template) {

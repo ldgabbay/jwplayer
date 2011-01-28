@@ -308,6 +308,37 @@
 		return (protocol > 0 && (queryparams < 0 || (queryparams > protocol)));
 	}
 	
+	/*
+	 * Test cases
+	 * getPathType('hd')
+	 * getPathType('hd-1')
+	 * getPathType('hd-1.4')
+	 * 
+	 * getPathType('http://plugins.longtailvideo.com/5/hd/hd.swf')
+	 * getPathType('http://plugins.longtailvideo.com/5/hd/hd-1.swf')
+	 * getPathType('http://plugins.longtailvideo.com/5/hd/hd-1.4.swf')
+	 * 
+	 * getPathType('./hd.swf')
+	 * getPathType('./hd-1.swf')
+	 * getPathType('./hd-1.4.swf')
+	 */
+	jwplayer.utils.getPathType = function(path){
+		if (typeof path != "string") {
+			return;
+		}
+		path = path.split("?")[0];
+		var protocol = path.indexOf("://");
+		if (protocol > 0) {
+			return "absolute";
+		}
+		var folder = path.indexOf("/");
+		var extension = jwplayer.utils.extension(path);
+		if (protocol < 0 && folder < 0 && (!extension || !isNaN(extension))) {
+			return "cdn";
+		}
+		return "relative";
+	};
+	
 	jwplayer.utils.mapEmpty = function(map) {
 		for (var val in map) {
 			return false;

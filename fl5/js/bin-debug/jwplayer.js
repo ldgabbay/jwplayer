@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1579';
+jwplayer.version = '5.5.1581';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -322,6 +322,37 @@ jwplayer.source = document.createElement("source");/**
 		var queryparams = path.indexOf("?");
 		return (protocol > 0 && (queryparams < 0 || (queryparams > protocol)));
 	}
+	
+	/*
+	 * Test cases
+	 * getPathType('hd')
+	 * getPathType('hd-1')
+	 * getPathType('hd-1.4')
+	 * 
+	 * getPathType('http://plugins.longtailvideo.com/5/hd/hd.swf')
+	 * getPathType('http://plugins.longtailvideo.com/5/hd/hd-1.swf')
+	 * getPathType('http://plugins.longtailvideo.com/5/hd/hd-1.4.swf')
+	 * 
+	 * getPathType('./hd.swf')
+	 * getPathType('./hd-1.swf')
+	 * getPathType('./hd-1.4.swf')
+	 */
+	jwplayer.utils.getPathType = function(path){
+		if (typeof path != "string") {
+			return;
+		}
+		path = path.split("?")[0];
+		var protocol = path.indexOf("://");
+		if (protocol > 0) {
+			return "absolute";
+		}
+		var folder = path.indexOf("/");
+		var extension = jwplayer.utils.extension(path);
+		if (protocol < 0 && folder < 0 && (!extension || !isNaN(extension))) {
+			return "cdn";
+		}
+		return "relative";
+	};
 	
 	jwplayer.utils.mapEmpty = function(map) {
 		for (var val in map) {
@@ -1345,7 +1376,10 @@ jwplayer.source = document.createElement("source");/**
 			for (var plugin = 0; plugin < plugins.length; plugin++) {
 				var pluginName = jwplayer.utils.getPluginName(plugins[plugin].id);
 				if (plugins[plugin].flash.src) {
-					flashPlugins.plugins[plugins[plugin].flash.src] = config.plugins[plugins[plugin].id];
+					if (jwplayer.utils.getPathType(plugins[plugin].flash.src) == "relative") {
+						plugins[plugin].flash.src = jwplayer.utils.getAbsolutePath(plugins[plugin].flash.src, jwplayer.utils.getAbsolutePath(plugins[plugin].id));
+					}
+					flashPlugins.plugins[plugins[plugin].flash.src] = config.plugins[plugins[plugin].id];	
 					flashPlugins.length++;
 				}
 				if (plugins[plugin].js.template) {
