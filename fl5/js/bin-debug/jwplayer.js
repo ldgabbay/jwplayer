@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1581';
+jwplayer.version = '5.5.1602';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -166,12 +166,12 @@ jwplayer.source = document.createElement("source");/**
 	};
 	
 	/**
-	 * Detects whether the current browser is IE (version 8 or below).
-	 * Technique from http://webreflection.blogspot.com/2009/01/32-bytes-to-know-if-your-browser-is-ie.html
-	 * Note - this detection no longer works for IE9.
+	 * Detects whether the current browser is IE
+	 * !+"\v1" technique from http://webreflection.blogspot.com/2009/01/32-bytes-to-know-if-your-browser-is-ie.html
+	 * Note - this detection no longer works for IE9, hence the detection for window.ActiveXObject
 	 **/
 	jwplayer.utils.isIE = function() {
-		return (!+"\v1");
+		return ((!+"\v1") || (typeof window.ActiveXObject != "undefined"));
 	};
 	
 	/**

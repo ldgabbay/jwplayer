@@ -27,6 +27,7 @@
 						
 						$('#preview').css('height',height);
 						$('#preview').html('<div id="container"></div>');
+						
 						swfobject.embedSWF(
 							$('#players').val() ? $('#players').val() : $_GET['player'],
 							'container',
@@ -68,15 +69,19 @@
 		
 	</head>
 	<body>
-		<div id="preview">This will be replaced</div>
+		<div id="preview"></div>
 		<form id="theForm">
 			<fieldset>
 				<label>Player</label>
 				<select id="players">
 					<option value=''></option>
-					<option value='../trunk/fl5/player.swf'>v5</option>
-					<option value='../trunk/as3/player.swf'>v4</option>
-					<option value='../tags/mediaplayer-5.0/player.swf'>5.0</option>
+					<option value='../../player.swf'>v5</option>
+					<option value='../../../../tags/mediaplayer-5.4/player.swf'>5.4</option>
+					<option value='../../../../tags/mediaplayer-5.3/player.swf'>5.3</option>
+					<option value='../../../../tags/mediaplayer-5.2/player.swf'>5.2</option>
+					<option value='../../../../tags/mediaplayer-5.1/player.swf'>5.1</option>
+					<option value='../../../../tags/mediaplayer-5.0/player.swf'>5.0</option>
+					<option value='../../../as3/player.swf'>v4</option>
 				</select>
 			</fieldset>
 			<fieldset>
