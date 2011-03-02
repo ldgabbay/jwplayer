@@ -406,18 +406,17 @@ package com.longtailvideo.jwplayer.media {
 
         /** Pause playback. **/
         override public function pause():void {
-			if (isLivestream) {
-				stop();
-				return;
-			}
-			//clearInterval(_positionInterval);
-			super.pause();
+            super.pause();
             if (_stream) {
-				_stream.pause(); 
-			} else {
-				_lockOnStream = true;
-			}
-        }
+                if (isLivestream) {
+                    _stream.close();
+                } else { 
+                    _stream.pause();
+                }
+            } else {
+                _lockOnStream = true;
+            }
+        };
 
 
         /** Resume playing. **/
@@ -430,7 +429,11 @@ package com.longtailvideo.jwplayer.media {
 					setStream();
 				}
 			} else if (state == PlayerState.PAUSED) {
-				_stream.resume();
+			    if (isLivestream) {
+					_stream.play(getID(item.file),-1);
+		        } else { 
+				    _stream.resume();
+	            }
 			}
 			super.play();
 			clearInterval(_positionInterval);
@@ -729,7 +732,7 @@ package com.longtailvideo.jwplayer.media {
 		/** Determines if the stream is a live stream **/
 		protected function get isLivestream():Boolean {
 			// We assume it's a livestream until we hear otherwise.
-			return (!(duration > 0) && _stream && _stream.bufferLength > 0);
+			return (!(duration > 0) && _stream);
 		}
 
 
