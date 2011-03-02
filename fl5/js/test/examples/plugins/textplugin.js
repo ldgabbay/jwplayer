@@ -1,6 +1,12 @@
-jwplayer().registerPlugin('textplugin', function(player, div, config){
-	this.resize = function (width, height){
-		div.style.color = "white";
-		div.innerHTML = config.text;
-	};
-});
+(function(jwplayer) {
+
+	var template = function(player, config, div) {
+		this.resize = function(width, height) {
+			div.style.color = "white";
+			div.innerHTML = config.text;
+		};
+	}
+	
+	jwplayer().registerPlugin('textplugin', template);
+	
+})(jwplayer);

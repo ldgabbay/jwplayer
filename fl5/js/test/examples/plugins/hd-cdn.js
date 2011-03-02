@@ -1,6 +1,12 @@
-jwplayer().registerPlugin('hd', function(player, div, config){
-	this.resize = function (width, height){
-		div.style.color = "white";
-		div.innerHTML = config.text;
-	};
-}, 'hd-1.4');
+(function(jwplayer) {
+
+	var template = function(player, config, div) {
+		this.resize = function(width, height) {
+			div.style.color = "white";
+			div.innerHTML = config.text;
+		};
+	}
+	
+	jwplayer().registerPlugin('hd', template, 'hd-1.4');
+	
+})(jwplayer);
