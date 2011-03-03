@@ -399,8 +399,42 @@ package com.longtailvideo.jwplayer.view.components {
 					}
 				}
 			}
-			
-		} 
+		}
+		
+		private function get _playlist():Array {
+			var arr:Array = [];
+			for (var i:Number = 0; i < _player.playlist.length; i++) {
+				if (_player.playlist.getItemAt(i).hasOwnProperty("ova.hidden")){
+					continue;
+				}
+				arr.push(_player.playlist.getItemAt(i));
+			}
+			return arr;
+		}
+		
+		private function translateUIToModelPlaylistIndex(index:Number):Number{
+			for (var i:Number = 0; i < _player.playlist.length; i++) {
+				if (_player.playlist.getItemAt(i).hasOwnProperty("ova.hidden")){
+					continue;
+				} else {
+					if (index == 0){
+						return i;
+					}
+					index--;
+				}
+			}
+			return 0;
+		}
+		
+		private function translateModelToUIPlaylistIndex(index:Number):Number{
+			var result = index;
+			for (var i:Number = 0; i < index; i++) {
+				if (_player.playlist.getItemAt(i).hasOwnProperty("ova.hidden")){
+					result--;
+				}
+			}
+			return result;
+		}
 		
 		
 		/** Setup all buttons in the playlist **/
@@ -417,7 +451,7 @@ package com.longtailvideo.jwplayer.view.components {
 			var hei:Number = getConfigParam("height");
 			listmask.height = hei;
 			listmask.width = wid;
-			proportion = _player.playlist.length * buttonheight / hei;
+			proportion = _playlist.length * buttonheight / hei;
 			if (proportion > 1.01) {
 				wid -= slider.width;
 				layoutSlider();
@@ -437,7 +471,7 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 			}
 			var currentTab:Number=500;
-			for (var i:Number = 0; i < _player.playlist.length; i++) {
+			for (var i:Number = 0; i < _playlist.length; i++) {
 				if (clr) {
 					var btn:MovieClip;
 					if (swfSkinned) {
@@ -546,7 +580,7 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** Setup button elements **/
 		private function setContents(idx:Number):void {
-			var playlistItem:PlaylistItem = _player.playlist.getItemAt(idx);
+			var playlistItem:PlaylistItem = _playlist[idx];
 			var btn:Sprite = getButton(idx); 
 			var title:TextField = btn.getChildByName("title") as TextField;
 			var description:TextField = btn.getChildByName("description") as TextField;
@@ -724,7 +758,7 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** Handle a click on a button. **/
 		private function clickHandler(evt:MouseEvent):void {
-			var itemNumber:Number = Number(evt.target.name); 
+			var itemNumber:Number = translateUIToModelPlaylistIndex(Number(evt.target.name)); 
 			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_ITEM, itemNumber)); 
 			_player.playlistItem(itemNumber);
 		}
@@ -756,7 +790,7 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** Switch the currently active item */
 		protected function itemHandler(evt:PlaylistEvent = null):void {
-			var idx:Number = _player.playlist.currentIndex;
+			var idx:Number = translateModelToUIPlaylistIndex(_player.playlist.currentIndex);
 			
 			if (!skinLoaded) return;
 			

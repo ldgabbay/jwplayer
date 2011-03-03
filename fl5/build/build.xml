@@ -300,7 +300,7 @@
 		</java>
 	</target>
 
-	<target name="build-debug-player" depends="check-properties, debug-js">
+	<target name="build-debug-player" depends="check-properties">
 		<antcall target="debug-swf">
 			<param name="package" value="${application.package}" />
 			<param name="class" value="${application.class}" />
@@ -308,7 +308,7 @@
 		</antcall>
 	</target>
 
-	<target name="build-release-player" depends="check-properties, clean-release, debug-js, release-js">
+	<target name="build-release-player" depends="check-properties, clean-release">
 		<antcall target="release-swf">
 			<param name="package" value="${application.package}" />
 			<param name="class" value="${application.class}" />
