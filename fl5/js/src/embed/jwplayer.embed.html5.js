@@ -13,7 +13,7 @@
 					displayarea.appendChild(div);
 				}
 				var display = displayarea.style;
-				plugin.resize(display.width, display.height);
+				plugin.resize(parseInt(display.width.replace("px","")), parseInt(display.height.replace("px","")));
 				div.left = display.left;
 				div.top = display.top;
 			}
@@ -26,8 +26,11 @@
 				var playerOptions = jwplayer.utils.extend({
 					screencolor: '0x000000'
 				}, _options);
-				if (playerOptions.plugins) {
-					delete playerOptions.plugins;
+
+				var toDelete = ["plugins", "modes", "events"];
+				
+				for (var i = 0; i < toDelete.length; i++){
+					delete playerOptions[toDelete[i]];
 				}
 				// TODO: remove this requirement from the html5 _player (sources instead of levels)
 				if (playerOptions.levels && !playerOptions.sources) {

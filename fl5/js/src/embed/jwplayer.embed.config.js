@@ -102,11 +102,6 @@
 			delete parsedConfig.icons;
 		}
 		
-		if (parsedConfig.events) {
-			embedder.events = parsedConfig.events;
-			delete parsedConfig.events;
-		}
-		
 		if (parsedConfig.players) {
 			parsedConfig.modes = parsedConfig.players;
 			delete parsedConfig.players;

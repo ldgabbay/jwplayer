@@ -136,7 +136,6 @@
 				_wrapper.style.position = "relative";
 			}
 			
-			
 			var params = jwplayer.utils.extend({}, _options);
 			
 			var flashPlugins = _loader.setupPlugins(_api, params, _resizePlugin);
@@ -147,15 +146,14 @@
 				delete params.plugins;
 			}
 			
-			var width = params.width;
-			delete params.width;
-			
+			var width = params.width;	
 			var height = params.height;
-			delete params.height;
 			
-			delete params.levels;
-			delete params.playlist;
-			delete params.modes;
+			var toDelete = ["height", "width", "levels", "playlist", "modes", "events"];
+				
+			for (var i = 0; i < toDelete.length; i++){
+				delete params[toDelete[i]];
+			}
 			
 			var wmode = "opaque";
 			if (params.wmode) {

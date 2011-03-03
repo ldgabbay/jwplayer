@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1627';
+jwplayer.version = '5.5.1628';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -1557,7 +1557,7 @@ jwplayer.source = document.createElement("source");/**
 					return jwplayer.utils.getAbsolutePath(url, window.location.href);
 				case jwplayer.utils.pluginPathType.CDN:
 					var pluginName = jwplayer.utils.getPluginName(url);
-					return pluginRepository + jwplayer.version.split(".")[0] + "/" + pluginName + "/" + pluginName + ".js";
+					return _repo + jwplayer.version.split(".")[0] + "/" + pluginName + "/" + pluginName + ".js";
 			}
 		}
 		
@@ -2472,11 +2472,6 @@ playerReady = function(obj) {
 			delete parsedConfig.icons;
 		}
 		
-		if (parsedConfig.events) {
-			embedder.events = parsedConfig.events;
-			delete parsedConfig.events;
-		}
-		
 		if (parsedConfig.players) {
 			parsedConfig.modes = parsedConfig.players;
 			delete parsedConfig.players;
@@ -2864,7 +2859,6 @@ playerReady = function(obj) {
 				_wrapper.style.position = "relative";
 			}
 			
-			
 			var params = jwplayer.utils.extend({}, _options);
 			
 			var flashPlugins = _loader.setupPlugins(_api, params, _resizePlugin);
@@ -2875,15 +2869,14 @@ playerReady = function(obj) {
 				delete params.plugins;
 			}
 			
-			var width = params.width;
-			delete params.width;
-			
+			var width = params.width;	
 			var height = params.height;
-			delete params.height;
 			
-			delete params.levels;
-			delete params.playlist;
-			delete params.modes;
+			var toDelete = ["height", "width", "levels", "playlist", "modes", "events"];
+				
+			for (var i = 0; i < toDelete.length; i++){
+				delete params[toDelete[i]];
+			}
 			
 			var wmode = "opaque";
 			if (params.wmode) {
@@ -3008,7 +3001,7 @@ playerReady = function(obj) {
 					displayarea.appendChild(div);
 				}
 				var display = displayarea.style;
-				plugin.resize(display.width, display.height);
+				plugin.resize(parseInt(display.width.replace("px","")), parseInt(display.height.replace("px","")));
 				div.left = display.left;
 				div.top = display.top;
 			}
@@ -3021,8 +3014,11 @@ playerReady = function(obj) {
 				var playerOptions = jwplayer.utils.extend({
 					screencolor: '0x000000'
 				}, _options);
-				if (playerOptions.plugins) {
-					delete playerOptions.plugins;
+
+				var toDelete = ["plugins", "modes", "events"];
+				
+				for (var i = 0; i < toDelete.length; i++){
+					delete playerOptions[toDelete[i]];
 				}
 				// TODO: remove this requirement from the html5 _player (sources instead of levels)
 				if (playerOptions.levels && !playerOptions.sources) {
