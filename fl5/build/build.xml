@@ -239,8 +239,11 @@
 		<concat destfile="${outputpath}">
 			<fileset dir="${basedir}/js/src" includes="jwplayer.js" />
 			<fileset dir="${basedir}/js/src/utils" includes="jwplayer.utils.js" />
+			<fileset dir="${basedir}/js/src/events" includes="jwplayer.events.js" />
+			<fileset dir="${basedir}/js/src/events" includes="**/*.js" excludes="jwplayer.events.js" />
 			<fileset dir="${basedir}/js/src/utils" includes="**/*.js" excludes="jwplayer.utils.js" />
-			<fileset dir="${basedir}/js/src/plugins" includes="**/*.js" />
+			<fileset dir="${basedir}/js/src/plugins" includes="jwplayer.plugins.js" />
+			<fileset dir="${basedir}/js/src/plugins" includes="**/*.js" excludes="jwplayer.plugins.js" />
 			<fileset dir="${basedir}/js/src/api" includes="**/*.js" />
 			<fileset dir="${basedir}/js/src/embed" includes="jwplayer.embed.js" />
 			<fileset dir="${basedir}/js/src/embed" includes="**/*.js" excludes="jwplayer.embed.js" />
@@ -305,7 +308,7 @@
 		</antcall>
 	</target>
 
-	<target name="build-release-player" depends="check-properties, clean-release, update-version, debug-js, release-js">
+	<target name="build-release-player" depends="check-properties, clean-release, debug-js, release-js">
 		<antcall target="release-swf">
 			<param name="package" value="${application.package}" />
 			<param name="class" value="${application.class}" />

@@ -308,6 +308,16 @@
 		return (protocol > 0 && (queryparams < 0 || (queryparams > protocol)));
 	}
 	
+	/**
+	 * Types of plugin paths
+	 */
+	jwplayer.utils.pluginPathType = {
+		//TODO: enum
+		ABSOLUTE: "ABSOLUTE",
+		RELATIVE: "RELATIVE",
+		CDN: "CDN"
+	}
+	
 	/*
 	 * Test cases
 	 * getPathType('hd')
@@ -322,21 +332,21 @@
 	 * getPathType('./hd-1.swf')
 	 * getPathType('./hd-1.4.swf')
 	 */
-	jwplayer.utils.getPathType = function(path){
+	jwplayer.utils.getPluginPathType = function(path){
 		if (typeof path != "string") {
 			return;
 		}
 		path = path.split("?")[0];
 		var protocol = path.indexOf("://");
 		if (protocol > 0) {
-			return "absolute";
+			return jwplayer.utils.pluginPathType.ABSOLUTE;
 		}
 		var folder = path.indexOf("/");
 		var extension = jwplayer.utils.extension(path);
 		if (protocol < 0 && folder < 0 && (!extension || !isNaN(extension))) {
-			return "cdn";
+			return jwplayer.utils.pluginPathType.CDN;
 		}
-		return "relative";
+		return jwplayer.utils.pluginPathType.RELATIVE;
 	};
 	
 	jwplayer.utils.mapEmpty = function(map) {
@@ -435,7 +445,7 @@
 		domelement.style.overflow = "hidden";
 		jwplayer.utils.transform(domelement, "");
 		var style = {};
-		switch (stretching.toLowerCase()) {
+		switch (stretching.toUpperCase()) {
 			case jwplayer.utils.stretching.NONE:
 				// Maintain original dimensions
 				style.width = elementWidth;
@@ -477,10 +487,11 @@
 		jwplayer.utils.css(domelement, style);
 	};
 	
+	//TODO: enum
 	jwplayer.utils.stretching = {
-		"NONE": "none",
-		"FILL": "fill",
-		"UNIFORM": "uniform",
-		"EXACTFIT": "exactfit"
+		NONE: "NONE",
+		FILL: "FILL",
+		UNIFORM: "UNIFORM",
+		EXACTFIT: "EXACTFIT"
 	};
 })(jwplayer);

@@ -260,7 +260,7 @@
 				this.remove();
 				var newApi = jwplayer(newId);
 				newApi.config = options;
-				return (new jwplayer.embed(newApi)).embedPlayer();
+				return new jwplayer.embed(newApi);
 			}
 			return this;
 		};

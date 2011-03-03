@@ -14,45 +14,47 @@
 				}
 			}
 		};
-		this.api = playerApi;
-		var mediaConfig = jwplayer.utils.mediaparser.parseMedia(this.api.container);
-		this.config = new jwplayer.embed.config(jwplayer.utils.extend(_defaults, mediaConfig, this.api.config), this);
-		this.pluginloader = new jwplayer.plugins.loadPlugins(this);
+		var mediaConfig = jwplayer.utils.mediaparser.parseMedia(playerApi.container);
+		var _config = new jwplayer.embed.config(jwplayer.utils.extend(_defaults, mediaConfig, playerApi.config), this);
+		var _pluginloader = jwplayer.plugins.loadPlugins(_config.plugins);
 		
-		function _setupEvents(embedder) {
-			for (var evt in embedder.events) {
-				if (typeof embedder.api[evt] == "function") {
-					(embedder.api[evt]).call(embedder.api, embedder.events[evt]);
+		function _setupEvents(api, events) {
+			for (var evt in events) {
+				if (typeof api[evt] == "function") {
+					(api[evt]).call(api, events[evt]);
 				}
 			}
 		}
 		
-		this.embedPlayer = function() {
-			if (this.pluginloader.isComplete()) {
-				for (var player = 0; player < this.players.length; player++) {
-					if (this.players[player].type && jwplayer.embed[this.players[player].type]) {
-						var configClone = this.config;
-						if (this.players[player].config) {
-							configClone = jwplayer.utils.extend(jwplayer.utils.clone(this.config), this.players[player].config);
+		function _embedPlayer() {
+			if (_pluginloader.getStatus() == jwplayer.utils.loaderstatus.COMPLETE) {
+				for (var mode = 0; mode < _config.modes.length; mode++) {
+					if (_config.modes[mode].type && jwplayer.embed[_config.modes[mode].type]) {
+						var configClone = _config;
+						if (_config.modes[mode].config) {
+							configClone = jwplayer.utils.extend(jwplayer.utils.clone(_config), _config.modes[mode].config);
 						}
-						var embedder = new jwplayer.embed[this.players[player].type](document.getElementById(this.api.id), this.players[player], configClone, this.pluginloader, this.api);
+						var embedder = new jwplayer.embed[_config.modes[mode].type](document.getElementById(playerApi.id), _config.modes[mode], configClone, _pluginloader, playerApi);
 						if (embedder.supportsConfig()) {
 							embedder.embed();
 							
-							_setupEvents(this);
+							_setupEvents(playerApi, _config.events);
 							
-							return this.api;
+							return playerApi;
 						}
 					}
 				}
 				jwplayer.utils.log("No suitable players found");
 				new jwplayer.embed.logo(jwplayer.utils.extend({
 					hide: true
-				}, this.config.components.logo), "none", this.api.id);
+				}, _config.components.logo), "none", playerApi.id);
 			}
 		};
 		
-		return this;
+		_pluginloader.addEventListener(jwplayer.events.COMPLETE, _embedPlayer);
+		_pluginloader.load();
+		
+		return playerApi;
 	};
 	
 	function noviceEmbed() {

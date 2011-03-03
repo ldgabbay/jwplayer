@@ -3,7 +3,6 @@
  */
 (function(jwplayer) {
 	jwplayer.html5.dock = function(api, config) {
-		// TODO: Config parser needs to move dock to dock.align
 		function _defaults() {
 			return {
 				align: jwplayer.html5.view.positions.RIGHT
@@ -12,6 +11,9 @@
 		
 		var _config = jwplayer.utils.extend({}, _defaults(), config);
 		
+		if (_config.align == "FALSE") {
+			return;
+		}
 		var _buttons = {};
 		var _buttonArray = [];
 		var _width;
@@ -30,86 +32,76 @@
 				_dock.removeChild(_buttons[id].div);
 				delete _buttons[id];
 			} else if (handler) {
-				var div;
 				if (!_buttons[id]) {
+					_buttons[id] = {
+					}
+				}
+				_buttons[id].handler = handler;
+				_buttons[id].outGraphic = outGraphic;
+				_buttons[id].overGraphic = overGraphic;
+				if (!_buttons[id].div) {
 					_buttonArray.push(id);
-					div = document.createElement("div");
-					div.style.position = "relative";
-					_dock.appendChild(div);
+					_buttons[id].div = document.createElement("div");
+					_buttons[id].div.style.position = "relative";
+					_dock.appendChild(_buttons[id].div);
 					
-					div.appendChild(document.createElement("img"));
-					div.childNodes[0].style.position = "absolute";
-					div.childNodes[0].style.left = 0;
-					div.childNodes[0].style.top = 0;
-					div.childNodes[0].style.zIndex = 10;
+					_buttons[id].div.appendChild(document.createElement("img"));
+					_buttons[id].div.childNodes[0].style.position = "absolute";
+					_buttons[id].div.childNodes[0].style.left = 0;
+					_buttons[id].div.childNodes[0].style.top = 0;
+					_buttons[id].div.childNodes[0].style.zIndex = 10;
+					_buttons[id].div.childNodes[0].style.cursor = "pointer";
 					
-					div.appendChild(document.createElement("img"));
-					div.childNodes[1].style.display = "none";
-					div.childNodes[1].style.position = "absolute";
-					div.childNodes[1].style.left = 0;
-					div.childNodes[1].style.top = 0;
-					div.childNodes[1].style.zIndex = 9;
-					
-					div.appendChild(document.createElement("img"));
-					div.childNodes[2].style.position = "absolute";
-					div.childNodes[2].style.left = 0;
-					div.childNodes[2].style.top = 0;
+					_buttons[id].div.appendChild(document.createElement("img"));
+					_buttons[id].div.childNodes[1].style.position = "absolute";
+					_buttons[id].div.childNodes[1].style.left = 0;
+					_buttons[id].div.childNodes[1].style.top = 0;
 					if (api.skin.getSkinElement("dock", "button")) {
-						div.childNodes[2].src = api.skin.getSkinElement("dock", "button").src;
+						_buttons[id].div.childNodes[1].src = api.skin.getSkinElement("dock", "button").src;
 					}
-					div.childNodes[2].style.zIndex = 8;
+					_buttons[id].div.childNodes[1].style.zIndex = 9;
+					_buttons[id].div.childNodes[1].style.cursor = "pointer";
 					
-					div.appendChild(document.createElement("img"));
-					div.childNodes[3].style.display = "none";
-					div.childNodes[3].style.position = "absolute";
-					div.childNodes[3].style.left = 0;
-					div.childNodes[3].style.top = 0;
-					div.childNodes[3].style.display = "none";
-					div.childNodes[3].style.zIndex = 7;
-					if (api.skin.getSkinElement("dock", "buttonOver")) {
-						div.childNodes[3].src = api.skin.getSkinElement("dock", "buttonOver").src;
-					}
-					
-					div.onmouseover = function() {
-						div.childNodes[0].style.display = "none";
-						div.childNodes[1].style.display = "block";
+					_buttons[id].div.onmouseover = function() {
+						if (_buttons[id].overGraphic) {
+							_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
+						}
 						if (api.skin.getSkinElement("dock", "buttonOver")) {
-							div.childNodes[2].style.display = "none";
-							div.childNodes[3].style.display = "block";
+							_buttons[id].div.childNodes[1].src = api.skin.getSkinElement("dock", "buttonOver").src;
 						}
 					}
 					
-					div.onmouseout = function() {
-						div.childNodes[0].style.display = "block";
-						div.childNodes[1].style.display = "none";
-						if (api.skin.getSkinElement("dock", "buttonOver")) {
-							div.childNodes[2].style.display = "block";
-							div.childNodes[3].style.display = "none";
+					_buttons[id].div.onmouseout = function() {
+						if (_buttons[id].outGraphic) {
+							_buttons[id].div.childNodes[0].src = _buttons[id].outGraphic;
+						}
+						if (api.skin.getSkinElement("dock", "button")) {
+							_buttons[id].div.childNodes[1].src = api.skin.getSkinElement("dock", "button").src;
 						}
 					}
+					// Make sure that this gets loaded and is cached so that rollovers are smooth
+					if (_buttons[id].overGraphic) {
+						_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
+					}
+					if (_buttons[id].outGraphic) {
+						_buttons[id].div.childNodes[0].src = _buttons[id].outGraphic;
+					}
+					if (api.skin.getSkinElement("dock", "button")) {
+						_buttons[id].div.childNodes[1].src = api.skin.getSkinElement("dock", "button").src;
+					}
 				}
-				if (!div) {
-					div = _buttons[id].div;
-				}
+				
 				if (handler) {
-					div.onclick = function(evt) {
+					_buttons[id].div.onclick = function(evt) {
 						evt.preventDefault();
 						jwplayer(api.id).callback(id);
+						if (_buttons[id].overGraphic) {
+							_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
+						}
+						if (api.skin.getSkinElement("dock", "button")) {
+							_buttons[id].div.childNodes[1].src = api.skin.getSkinElement("dock", "button").src;
+						}
 					}
-				}
-				if (outGraphic) {
-					div.childNodes[0].src = outGraphic;
-					div.childNodes[0].style.display = "block";
-				}
-				if (overGraphic) {
-					div.childNodes[1].style.display = "none";
-					div.childNodes[1].src = overGraphic;
-				}
-				_buttons[id] = {
-					handler: handler,
-					outGraphic: outGraphic,
-					overGraphic: overGraphic,
-					div: div
 				}
 			}
 			
@@ -125,7 +117,7 @@
 				var xStart = width - api.skin.getSkinElement("dock", "button").width - margin;
 				var usedHeight = margin;
 				var direction = -1;
-				if (_config.align == 'left') {
+				if (_config.align == jwplayer.html5.view.positions.LEFT) {
 					direction = 1;
 					xStart = margin;
 				}
@@ -137,7 +129,6 @@
 					}
 					_buttons[_buttonArray[i]].div.style.top = (usedHeight % height) + "px";
 					_buttons[_buttonArray[i]].div.style.left = (xStart + (api.skin.getSkinElement("dock", "button").width + margin) * row * direction) + "px";
-					;
 					usedHeight += api.skin.getSkinElement("dock", "button").height + margin;
 				}
 			}

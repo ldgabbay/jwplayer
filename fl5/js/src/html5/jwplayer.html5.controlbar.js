@@ -95,6 +95,10 @@
 	jwplayer.html5.controlbar = function(api, config) {
 		var _api = api;
 		var _settings = jwplayer.utils.extend({}, _defaults, _api.skin.getComponentSettings("controlbar"), config);
+		if (_settings.position == jwplayer.html5.view.positions.NONE
+			|| typeof jwplayer.html5.view.positions[_settings.position] == "undefined"){
+			return;
+		}
 		if (jwplayer.utils.mapLength(_api.skin.getComponentLayout("controlbar")) > 0) {
 			_settings.layout = _api.skin.getComponentLayout("controlbar");
 		}
@@ -200,7 +204,7 @@
 			if (_api.jwGetFullscreen()) {
 				return false;
 			}
-			if (_settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER) {
+			if (_settings.position == jwplayer.html5.view.positions.OVER) {
 				return false;
 			}
 			return true;
@@ -684,7 +688,7 @@
 				width: _width
 			};
 			var elementcss = {};
-			if (_settings.position.toUpperCase() == jwplayer.html5.view.positions.OVER || _api.jwGetFullscreen()) {
+			if (_settings.position == jwplayer.html5.view.positions.OVER || _api.jwGetFullscreen()) {
 				controlbarcss.left = _settings.margin;
 				controlbarcss.width -= 2 * _settings.margin;
 				controlbarcss.top = _height - _api.skin.getSkinElement("controlbar", "background").height - _settings.margin;

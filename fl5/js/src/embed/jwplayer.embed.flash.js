@@ -155,6 +155,7 @@
 			
 			delete params.levels;
 			delete params.playlist;
+			delete params.modes;
 			
 			var wmode = "opaque";
 			if (params.wmode) {

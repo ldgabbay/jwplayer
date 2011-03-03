@@ -28,72 +28,148 @@
             var examplestable = document.getElementById("examplestable");
             var players = [["flash", "html5", "download"], ["flash", "download"], ["html5", "download"]];
             var tests = [{
-            	name: "JSON Playlist + playlist.position",
-            	config: {
-            		"playlist.position": "bottom",
-					playlistsize: 100,
-					icons: false,
-            		playlist: [{
-            			levels: [{
-            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
-            			}, {
-            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
-            			}],
-            			image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg"
-            		}],
-            		controlbar: "top",
-            		dock: "left"
-            	}
-            }, {
             	name: "playlist, controlbar, dock",
             	config: {
-            		playlist: "bottom",
-					playlistsize: 100,
-					icons: false,
+					playlistfile: "../files/bitrates.xml",
             		levels: [{
             			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             		}, {
             			file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
             		}],
             		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+					icons: false,
+					plugins: {
+						'./plugins/dockplugin.js': {}
+					},
+					playlist: "bottom",
+					playlistsize: 100,
             		controlbar: "top",
             		dock: "left"
             	}
             }, {
             	name: "playlist.position, controlbar.position, dock.position",
             	config: {
-            		"playlist.position": "bottom",
-					playlistsize: 100,
-					icons: false,
+					playlistfile: "../files/bitrates.xml",
             		levels: [{
             			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             		}, {
             			file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
             		}],
             		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+					icons: false,
+					plugins: {
+						'./plugins/dockplugin.js': {}
+					},
+					"playlist.position": "bottom",
+					playlistsize: 100,
             		"controlbar.position": "top",
             		"dock.position": "left"
             	}
             }, {
             	name: "playlist, controlbar, and dock objects",
             	config: {
-            		playlist: {
-						position: "bottom"
-					},
-					playlistsize: 100,
-					icons: false,
+					playlistfile: "../files/bitrates.xml",
             		levels: [{
             			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             		}, {
             			file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
             		}],
             		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
-            		controlbar: {
+					icons: false,
+            		plugins: {
+						'./plugins/dockplugin.js': {}
+					},
+					playlist: {
+						position: "bottom"
+					},
+					playlistsize: 100,
+					controlbar: {
 						position: "top"
 					},
 					dock: {
 						position: "left"
 					}
+            	}
+            }, {
+            	name: "components block",
+            	config: {
+					playlistfile: "../files/bitrates.xml",
+            		levels: [{
+            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            		}, {
+            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            		}],
+            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+					icons: false,
+					plugins: {
+						'./plugins/dockplugin.js': {}
+					},
+					components: {
+						playlist: {
+							position: "bottom"
+						},
+						controlbar: {
+							position: "top"
+						},
+						dock: {
+							position: "left"
+						}
+					},
+					playlistsize: 100
+            	}
+            }, {
+            	name: "invalid values",
+            	config: {
+					playlistfile: "../files/bitrates.xml",
+            		levels: [{
+            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            		}, {
+            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            		}],
+            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+					icons: false,
+					plugins: {
+						'./plugins/dockplugin.js': {}
+					},
+					components: {
+						playlist: {
+							position: true
+						},
+						controlbar: {
+							position: true
+						},
+						dock: {
+							position: true
+						}
+					},
+					playlistsize: 100
+            	}
+            }, {
+            	name: "none",
+            	config: {
+					playlistfile: "../files/bitrates.xml",
+            		levels: [{
+            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            		}, {
+            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            		}],
+            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+					icons: false,
+					plugins: {
+						'./plugins/dockplugin.js': {}
+					},
+					components: {
+						playlist: {
+							position: "none"
+						},
+						controlbar: {
+							position: "none"
+						},
+						dock: {
+							position: "none"
+						}
+					},
+					playlistsize: 100
             	}
             }];
             
@@ -124,6 +200,9 @@
             			name: playerName,
             			players: settings.players(window.location.href, players[player])
             		}, tests[test].config);
+					if (players[player][0] == "html5") {
+						delete config.playlistfile;
+					}
             		var setup = jwplayer(playerName).setup(config);
             	}
             }

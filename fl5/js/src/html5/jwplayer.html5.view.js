@@ -198,7 +198,7 @@
 			for (var pluginIndex = 0; pluginIndex < plugins.length; pluginIndex++) {
 				var pluginName = plugins[pluginIndex];
 				if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
-					if (_model.plugins.config[pluginName].currentPosition.toUpperCase() !== jwplayer.html5.view.positions.NONE) {
+					if (_model.plugins.config[pluginName].currentPosition != jwplayer.html5.view.positions.NONE) {
 						var style = componentResizer(pluginName, _zIndex--);
 						if (!style) {
 							failed.push(pluginName);
@@ -222,7 +222,7 @@
 		
 		function _normalscreenComponentResizer(pluginName, zIndex) {
 			if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
-				if (_hasPosition(_model.plugins.config[pluginName].position)) {
+				if (_model.plugins.config[pluginName].position && _hasPosition(_model.plugins.config[pluginName].position)) {
 					if (_model.plugins.object[pluginName].getDisplayElement().parentNode === null) {
 						_wrapper.appendChild(_model.plugins.object[pluginName].getDisplayElement());
 					}
@@ -290,6 +290,7 @@
 				padding: 0,
 				top: null
 			};
+			// Not a code error - toLowerCase is needed for the CSS position
 			var position = _model.plugins.config[pluginName].currentPosition.toLowerCase();
 			switch (position.toUpperCase()) {
 				case jwplayer.html5.view.positions.TOP:
@@ -389,6 +390,7 @@
 		return ([jwplayer.html5.view.positions.TOP, jwplayer.html5.view.positions.RIGHT, jwplayer.html5.view.positions.BOTTOM, jwplayer.html5.view.positions.LEFT].toString().indexOf(position.toUpperCase()) > -1);
 	}
 	
+	//TODO: Enum
 	jwplayer.html5.view.positions = {
 		TOP: "TOP",
 		RIGHT: "RIGHT",

@@ -89,7 +89,9 @@
 		_api.jwSendEvent = _controller.sendEvent;
 		
 		_api.jwDockSetButton = function(id, handler, outGraphic, overGraphic) {
-			_model.plugins.object["dock"].setButton(id, handler, outGraphic, overGraphic);
+			if (_model.plugins.object["dock"].setButton) {
+				_model.plugins.object["dock"].setButton(id, handler, outGraphic, overGraphic);	
+			}
 		}
 		
 		//UNIMPLEMENTED

@@ -88,11 +88,7 @@
 		
 		_model.plugins = {
 			order: pluginorder,
-			config: {
-				controlbar: {
-					position: jwplayer.html5.view.positions.BOTTOM
-				}
-			},
+			config: {},
 			object: {}
 		};
 		
@@ -106,9 +102,23 @@
 			var pluginName = _model.plugins.order[pluginIndex];
 			var pluginConfig = _model.config[pluginName] === undefined ? {} : _model.config[pluginName];
 			_model.plugins.config[pluginName] = _model.plugins.config[pluginName] === undefined ? pluginConfig : jwplayer.utils.extend(_model.plugins.config[pluginName], pluginConfig);
-			if (_model.plugins.config[pluginName].position === undefined) {
+			if (typeof _model.plugins.config[pluginName].position == "undefined") {
 				_model.plugins.config[pluginName].position = jwplayer.html5.view.positions.OVER;
+			} else {
+				_model.plugins.config[pluginName].position = _model.plugins.config[pluginName].position.toString().toUpperCase();
 			}
+		}
+		
+		// Fix the dock
+		if (typeof _model.plugins.config.dock != "object") {
+			var position = _model.plugins.config.dock.toString().toUpperCase();
+			_model.plugins.config.dock = {
+				position: position
+			}
+		}
+		if (typeof _model.plugins.config.dock.position != "undefined") {
+			_model.plugins.config.dock.align = _model.plugins.config.dock.position;
+			_model.plugins.config.dock.position = jwplayer.html5.view.positions.OVER;
 		}
 		
 		_model.loadPlaylist = function(arg, ready) {
@@ -199,15 +209,14 @@
 		_model.setupPlugins = function() {
 			for (var plugin in _model.plugins.order) {
 				try {
-					if (jwplayer.html5[_model.plugins.order[plugin]] !== undefined) {
-						_model.plugins.object[_model.plugins.order[plugin]] = new jwplayer.html5[_model.plugins.order[plugin]](_api, _model.plugins.config[_model.plugins.order[plugin]]);
-					} else if (window[_model.plugins.order[plugin]] !== undefined) {
-						_model.plugins.object[_model.plugins.order[plugin]] = new window[_model.plugins.order[plugin]](_api, _model.plugins.config[_model.plugins.order[plugin]]);
+					var pluginName = _model.plugins.order[plugin];
+					if (jwplayer.html5[pluginName] !== undefined) {
+						_model.plugins.object[pluginName] = new jwplayer.html5[pluginName](_api, _model.plugins.config[pluginName]);
 					} else {
 						_model.plugins.order.splice(plugin, plugin + 1);
 					}
 				} catch (err) {
-					jwplayer.utils.log("Could not setup " + _model.plugins.order[plugin]);
+					jwplayer.utils.log("Could not setup " + pluginName);
 				}
 			}
 			

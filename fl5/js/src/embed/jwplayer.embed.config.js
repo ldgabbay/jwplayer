@@ -42,16 +42,6 @@
 	jwplayer.embed.config = function(config, embedder) {
 		var parsedConfig = jwplayer.utils.extend({}, config);
 		
-		/*
-		 *  Special handler for playlists; has a component later for non-string playlists
-		 *  This must be handled in two stages to allow things like playlist.position 
-		 *  to be handled
-		 */
-		if (_isPlaylist(parsedConfig.playlist)) {
-			parsedConfig.playlistfile = parsedConfig.playlist;
-			delete parsedConfig.playlist;
-		}
-		
 		for (var option in parsedConfig) {
 			if (option.indexOf(".") > -1) {
 				var path = option.split(".");
@@ -103,12 +93,6 @@
 			}
 		}
 		
-		// Special handler for playlists; This moves back non-string playlists
-		if (typeof parsedConfig.playlistfile != "string") {
-			parsedConfig.playlist = parsedConfig.playlistfile;
-			delete parsedConfig.playlistfile;
-		}
-		
 		// Special handler for the display icons setting
 		if (typeof parsedConfig.icons != "undefined"){
 			if (!parsedConfig.components.display) {
@@ -123,28 +107,30 @@
 			delete parsedConfig.events;
 		}
 		
-		if (parsedConfig.modes) {
-			parsedConfig.players = parsedConfig.modes;
-			delete parsedConfig.modes;
+		if (parsedConfig.players) {
+			parsedConfig.modes = parsedConfig.players;
+			delete parsedConfig.players;
 		}
 		
-		if (parsedConfig.flashplayer && !parsedConfig.players) {
-			embedder.players = _playerDefaults();
-			embedder.players[0].src = parsedConfig.flashplayer;
+		var _modes;
+		if (parsedConfig.flashplayer && !parsedConfig.modes) {
+			_modes = _playerDefaults();
+			_modes[0].src = parsedConfig.flashplayer;
 			delete parsedConfig.flashplayer;
-		} else if (parsedConfig.players) {
-			if (typeof parsedConfig.players == "string") {
-				embedder.players = _playerDefaults();
-				embedder.players[0].src = parsedConfig.players;
-			} else if (parsedConfig.players instanceof Array) {
-				embedder.players = parsedConfig.players;
-			} else if (typeof parsedConfig.players == "object" && parsedConfig.players.type) {
-				embedder.players = [parsedConfig.players];
+		} else if (parsedConfig.modes) {
+			if (typeof parsedConfig.modes == "string") {
+				_modes = _playerDefaults();
+				_modes[0].src = parsedConfig.modes;
+			} else if (parsedConfig.modes instanceof Array) {
+				_modes = parsedConfig.modes;
+			} else if (typeof parsedConfig.modes == "object" && parsedConfig.modes.type) {
+				_modes = [parsedConfig.modes];
 			}
-			delete parsedConfig.players;
+			delete parsedConfig.modes;
 		} else {
-			embedder.players = _playerDefaults();
+			_modes = _playerDefaults();
 		}
+		parsedConfig.modes = _modes;
 		
 		return parsedConfig;
 	};
