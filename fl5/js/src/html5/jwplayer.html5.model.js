@@ -83,7 +83,7 @@
 		}
 		
 		if (_model.config.chromeless) {
-			pluginorder = ["logo", "dock"];
+			pluginorder = ["logo"];
 		}
 		
 		_model.plugins = {
@@ -110,15 +110,18 @@
 		}
 		
 		// Fix the dock
-		if (typeof _model.plugins.config.dock != "object") {
-			var position = _model.plugins.config.dock.toString().toUpperCase();
-			_model.plugins.config.dock = {
-				position: position
+		if (typeof _model.plugins.config.dock != "undefined") {
+			if (typeof _model.plugins.config.dock != "object") {
+				var position = _model.plugins.config.dock.toString().toUpperCase();
+				_model.plugins.config.dock = {
+					position: position
+				}
 			}
-		}
-		if (typeof _model.plugins.config.dock.position != "undefined") {
-			_model.plugins.config.dock.align = _model.plugins.config.dock.position;
-			_model.plugins.config.dock.position = jwplayer.html5.view.positions.OVER;
+			
+			if (typeof _model.plugins.config.dock.position != "undefined") {
+				_model.plugins.config.dock.align = _model.plugins.config.dock.position;
+				_model.plugins.config.dock.position = jwplayer.html5.view.positions.OVER;
+			}
 		}
 		
 		_model.loadPlaylist = function(arg, ready) {

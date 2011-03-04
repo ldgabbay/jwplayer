@@ -9,7 +9,7 @@
 		var _plugins = {};
 		var _status = jwplayer.utils.loaderstatus.NEW;
 		var _loading = false;
-		var _complete = false;
+		var _iscomplete = false;
 		var _eventDispatcher = new jwplayer.events.eventdispatcher();
 		jwplayer.utils.extend(this, _eventDispatcher);
 		
@@ -26,20 +26,27 @@
 		 * arrive later, retriggering the completeness check and triggering a complete
 		 * to fire, if necessary.
 		 */
-				
-		// This is not entirely efficient, but it's simple
-		function checkComplete() {
-			var incomplete = 0;
-			for (plugin in _plugins) {
-				if (_plugins[plugin].getStatus() == jwplayer.utils.loaderstatus.LOADING) {
-					incomplete++;
-				}
-			}
-			
-			if (incomplete == 0 && !_complete) {
+		function _complete() {
+			if (!_iscomplete) {
 				_complete = true;
 				_status = jwplayer.utils.loaderstatus.COMPLETE;
 				_eventDispatcher.sendEvent(jwplayer.events.COMPLETE);
+			}
+		}
+		
+		// This is not entirely efficient, but it's simple
+		function _checkComplete() {
+			if (!_iscomplete) {
+				var incomplete = 0;
+				for (plugin in _plugins) {
+					if (_plugins[plugin].getStatus() == jwplayer.utils.loaderstatus.LOADING) {
+						incomplete++;
+					}
+				}
+				
+				if (incomplete == 0) {
+					_complete();
+				}
 			}
 		}
 		
@@ -53,6 +60,7 @@
 				var pluginName = _plugins[plugin].getPluginName();
 				if (_plugins[plugin].getFlashPath()) {
 					flashPlugins.plugins[_plugins[plugin].getFlashPath()] = config.plugins[_plugins[plugin].getURL()];
+					flashPlugins.plugins[_plugins[plugin].getFlashPath()].pluginmode = _plugins[plugin].getPluginmode();
 					flashPlugins.length++;
 				}
 				if (_plugins[plugin].getJS()) {
@@ -79,8 +87,8 @@
 			
 			for (var plugin in config) {
 				_plugins[plugin] = model.addPlugin(plugin);
-				_plugins[plugin].addEventListener(jwplayer.events.COMPLETE, checkComplete);
-				_plugins[plugin].addEventListener(jwplayer.events.ERROR, checkComplete);
+				_plugins[plugin].addEventListener(jwplayer.events.COMPLETE, _checkComplete);
+				_plugins[plugin].addEventListener(jwplayer.events.ERROR, _checkComplete);
 				// Plugin object ensures that it's only loaded once
 				_plugins[plugin].load();
 			}
@@ -88,12 +96,16 @@
 			_loading = false;
 			
 			// Make sure we're not hanging around waiting for plugins that already finished loading
-			checkComplete();
+			_checkComplete();
+		}
+		
+		this.pluginFailed = function() {
+			_complete();
 		}
 		
 		this.getStatus = function() {
 			return _status;
 		}
-
+		
 	}
 })(jwplayer);

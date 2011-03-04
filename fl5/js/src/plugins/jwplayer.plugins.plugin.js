@@ -4,6 +4,12 @@
  * @version 5.5
  */
 (function(jwplayer) {
+	jwplayer.plugins.pluginmodes = {
+		FLASH: "FLASH",
+		JAVASCRIPT: "JAVASCRIPT",
+		HYBRID: "HYBRID"
+	}
+	
 	jwplayer.plugins.plugin = function(url) {
 		var _repo = "http://plugins.longtailvideo.com"
 		var _status = jwplayer.utils.loaderstatus.NEW;
@@ -80,7 +86,10 @@
 						}
 						return jwplayer.utils.getAbsolutePath(_flashPath, getJSPath());
 					case jwplayer.utils.pluginPathType.CDN:
-						return _flashPath;
+						if (_flashPath.indexOf("-") > -1){
+							return _flashPath+"h";
+						}
+						return _flashPath+"-h";
 				}
 			}
 			return null;
@@ -88,6 +97,17 @@
 		
 		this.getJS = function() {
 			return _js;
+		}
+
+		this.getPluginmode = function() {
+			if (typeof _flashPath != "undefined"
+			 && typeof _js != "undefined") {
+			 	return jwplayer.plugins.pluginmodes.HYBRID;
+			 } else if (typeof _flashPath != "undefined") {
+			 	return jwplayer.plugins.pluginmodes.FLASH;
+			 } else if (typeof _js != "undefined") {
+			 	return jwplayer.plugins.pluginmodes.JAVASCRIPT;
+			 }
 		}
 		
 		this.getNewInstance = function(api, config, div) {

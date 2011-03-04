@@ -29,7 +29,12 @@
         <script type="text/javascript">
             while (document.getElementsByTagName('video').length > 0){
 				jwplayer(document.getElementsByTagName('video')[0].id).setup({
-            		players: settings.players(window.location.href)
+            		players: settings.players(window.location.href),
+					events: {
+						onResize: function(evt){
+							console.log(evt.width, evt.height);
+						}
+					}
             	});
 			} 
         </script>

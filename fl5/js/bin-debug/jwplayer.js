@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1628';
+jwplayer.version = '5.5.1629';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -1287,17 +1287,26 @@ jwplayer.source = document.createElement("source");/**
  */
 (function(jwplayer) {
 	var _plugins = {};		
+	var _pluginLoaders = {};
 	
 	jwplayer.plugins = function() {
 	}
 	
-	jwplayer.plugins.loadPlugins = function(config) {
-		return new jwplayer.plugins.pluginloader(new jwplayer.plugins.model(_plugins), config);
+	jwplayer.plugins.loadPlugins = function(id, config) {
+		if (!_pluginLoaders[id]){
+			_pluginLoaders[id] = new jwplayer.plugins.pluginloader(new jwplayer.plugins.model(_plugins), config);
+		}
+		return _pluginLoaders[id];
 	}
 	
 	jwplayer.plugins.registerPlugin = function(id, arg1, arg2) {
 		if (_plugins[id]) {
 			_plugins[id].registerPlugin(id, arg1, arg2);
+		} else {
+			jwplayer.utils.log("A plugin ("+id+") was registered with the player that was not loaded. Please check your configuration.");
+			for (var pluginloader in _pluginLoaders){
+				_pluginLoaders[pluginloader].pluginFailed();
+			}
 		}
 	}
 })(jwplayer);
@@ -1540,6 +1549,12 @@ jwplayer.source = document.createElement("source");/**
  * @version 5.5
  */
 (function(jwplayer) {
+	jwplayer.plugins.pluginmodes = {
+		FLASH: "FLASH",
+		JAVASCRIPT: "JAVASCRIPT",
+		HYBRID: "HYBRID"
+	}
+	
 	jwplayer.plugins.plugin = function(url) {
 		var _repo = "http://plugins.longtailvideo.com"
 		var _status = jwplayer.utils.loaderstatus.NEW;
@@ -1616,7 +1631,10 @@ jwplayer.source = document.createElement("source");/**
 						}
 						return jwplayer.utils.getAbsolutePath(_flashPath, getJSPath());
 					case jwplayer.utils.pluginPathType.CDN:
-						return _flashPath;
+						if (_flashPath.indexOf("-") > -1){
+							return _flashPath+"h";
+						}
+						return _flashPath+"-h";
 				}
 			}
 			return null;
@@ -1624,6 +1642,17 @@ jwplayer.source = document.createElement("source");/**
 		
 		this.getJS = function() {
 			return _js;
+		}
+
+		this.getPluginmode = function() {
+			if (typeof _flashPath != "undefined"
+			 && typeof _js != "undefined") {
+			 	return jwplayer.plugins.pluginmodes.HYBRID;
+			 } else if (typeof _flashPath != "undefined") {
+			 	return jwplayer.plugins.pluginmodes.FLASH;
+			 } else if (typeof _js != "undefined") {
+			 	return jwplayer.plugins.pluginmodes.JAVASCRIPT;
+			 }
 		}
 		
 		this.getNewInstance = function(api, config, div) {
@@ -1647,7 +1676,7 @@ jwplayer.source = document.createElement("source");/**
 		var _plugins = {};
 		var _status = jwplayer.utils.loaderstatus.NEW;
 		var _loading = false;
-		var _complete = false;
+		var _iscomplete = false;
 		var _eventDispatcher = new jwplayer.events.eventdispatcher();
 		jwplayer.utils.extend(this, _eventDispatcher);
 		
@@ -1664,20 +1693,27 @@ jwplayer.source = document.createElement("source");/**
 		 * arrive later, retriggering the completeness check and triggering a complete
 		 * to fire, if necessary.
 		 */
-				
-		// This is not entirely efficient, but it's simple
-		function checkComplete() {
-			var incomplete = 0;
-			for (plugin in _plugins) {
-				if (_plugins[plugin].getStatus() == jwplayer.utils.loaderstatus.LOADING) {
-					incomplete++;
-				}
-			}
-			
-			if (incomplete == 0 && !_complete) {
+		function _complete() {
+			if (!_iscomplete) {
 				_complete = true;
 				_status = jwplayer.utils.loaderstatus.COMPLETE;
 				_eventDispatcher.sendEvent(jwplayer.events.COMPLETE);
+			}
+		}
+		
+		// This is not entirely efficient, but it's simple
+		function _checkComplete() {
+			if (!_iscomplete) {
+				var incomplete = 0;
+				for (plugin in _plugins) {
+					if (_plugins[plugin].getStatus() == jwplayer.utils.loaderstatus.LOADING) {
+						incomplete++;
+					}
+				}
+				
+				if (incomplete == 0) {
+					_complete();
+				}
 			}
 		}
 		
@@ -1691,6 +1727,7 @@ jwplayer.source = document.createElement("source");/**
 				var pluginName = _plugins[plugin].getPluginName();
 				if (_plugins[plugin].getFlashPath()) {
 					flashPlugins.plugins[_plugins[plugin].getFlashPath()] = config.plugins[_plugins[plugin].getURL()];
+					flashPlugins.plugins[_plugins[plugin].getFlashPath()].pluginmode = _plugins[plugin].getPluginmode();
 					flashPlugins.length++;
 				}
 				if (_plugins[plugin].getJS()) {
@@ -1717,8 +1754,8 @@ jwplayer.source = document.createElement("source");/**
 			
 			for (var plugin in config) {
 				_plugins[plugin] = model.addPlugin(plugin);
-				_plugins[plugin].addEventListener(jwplayer.events.COMPLETE, checkComplete);
-				_plugins[plugin].addEventListener(jwplayer.events.ERROR, checkComplete);
+				_plugins[plugin].addEventListener(jwplayer.events.COMPLETE, _checkComplete);
+				_plugins[plugin].addEventListener(jwplayer.events.ERROR, _checkComplete);
 				// Plugin object ensures that it's only loaded once
 				_plugins[plugin].load();
 			}
@@ -1726,13 +1763,17 @@ jwplayer.source = document.createElement("source");/**
 			_loading = false;
 			
 			// Make sure we're not hanging around waiting for plugins that already finished loading
-			checkComplete();
+			_checkComplete();
+		}
+		
+		this.pluginFailed = function() {
+			_complete();
 		}
 		
 		this.getStatus = function() {
 			return _status;
 		}
-
+		
 	}
 })(jwplayer);
 /**
@@ -2312,7 +2353,7 @@ playerReady = function(obj) {
 		};
 		var mediaConfig = jwplayer.utils.mediaparser.parseMedia(playerApi.container);
 		var _config = new jwplayer.embed.config(jwplayer.utils.extend(_defaults, mediaConfig, playerApi.config), this);
-		var _pluginloader = jwplayer.plugins.loadPlugins(_config.plugins);
+		var _pluginloader = jwplayer.plugins.loadPlugins(playerApi.id, _config.plugins);
 		
 		function _setupEvents(api, events) {
 			for (var evt in events) {
@@ -2348,6 +2389,7 @@ playerReady = function(obj) {
 		};
 		
 		_pluginloader.addEventListener(jwplayer.events.COMPLETE, _embedPlayer);
+		_pluginloader.addEventListener(jwplayer.events.ERROR, _embedPlayer);
 		_pluginloader.load();
 		
 		return playerApi;
@@ -6054,7 +6096,7 @@ playerReady = function(obj) {
 		}
 		
 		if (_model.config.chromeless) {
-			pluginorder = ["logo", "dock"];
+			pluginorder = ["logo"];
 		}
 		
 		_model.plugins = {
@@ -6081,15 +6123,18 @@ playerReady = function(obj) {
 		}
 		
 		// Fix the dock
-		if (typeof _model.plugins.config.dock != "object") {
-			var position = _model.plugins.config.dock.toString().toUpperCase();
-			_model.plugins.config.dock = {
-				position: position
+		if (typeof _model.plugins.config.dock != "undefined") {
+			if (typeof _model.plugins.config.dock != "object") {
+				var position = _model.plugins.config.dock.toString().toUpperCase();
+				_model.plugins.config.dock = {
+					position: position
+				}
 			}
-		}
-		if (typeof _model.plugins.config.dock.position != "undefined") {
-			_model.plugins.config.dock.align = _model.plugins.config.dock.position;
-			_model.plugins.config.dock.position = jwplayer.html5.view.positions.OVER;
+			
+			if (typeof _model.plugins.config.dock.position != "undefined") {
+				_model.plugins.config.dock.align = _model.plugins.config.dock.position;
+				_model.plugins.config.dock.position = jwplayer.html5.view.positions.OVER;
+			}
 		}
 		
 		_model.loadPlaylist = function(arg, ready) {
@@ -6602,7 +6647,7 @@ playerReady = function(obj) {
 		_api.jwSendEvent = _controller.sendEvent;
 		
 		_api.jwDockSetButton = function(id, handler, outGraphic, overGraphic) {
-			if (_model.plugins.object["dock"].setButton) {
+			if (_model.plugins.object["dock"] && _model.plugins.object["dock"].setButton) {
 				_model.plugins.object["dock"].setButton(id, handler, outGraphic, overGraphic);	
 			}
 		}

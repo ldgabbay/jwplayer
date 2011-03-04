@@ -16,7 +16,7 @@
 		};
 		var mediaConfig = jwplayer.utils.mediaparser.parseMedia(playerApi.container);
 		var _config = new jwplayer.embed.config(jwplayer.utils.extend(_defaults, mediaConfig, playerApi.config), this);
-		var _pluginloader = jwplayer.plugins.loadPlugins(_config.plugins);
+		var _pluginloader = jwplayer.plugins.loadPlugins(playerApi.id, _config.plugins);
 		
 		function _setupEvents(api, events) {
 			for (var evt in events) {
@@ -52,6 +52,7 @@
 		};
 		
 		_pluginloader.addEventListener(jwplayer.events.COMPLETE, _embedPlayer);
+		_pluginloader.addEventListener(jwplayer.events.ERROR, _embedPlayer);
 		_pluginloader.load();
 		
 		return playerApi;

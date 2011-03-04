@@ -7,6 +7,6 @@
 		};
 	}
 	
-	jwplayer().registerPlugin('hd', template, 'hd-1.4');
+	jwplayer().registerPlugin('hd', template, 'hd');
 	
 })(jwplayer);
