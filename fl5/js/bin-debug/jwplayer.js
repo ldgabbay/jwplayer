@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1629';
+jwplayer.version = '5.5.1633';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -624,7 +624,7 @@ jwplayer.source = document.createElement("source");/**
 					try {
 						_listeners[type][listenerIndex].listener(data);
 					} catch (err) {
-						jwplayer.utils.log("There was an error while handling a listener", _listeners[type][listenerIndex].listener, err);
+						jwplayer.utils.log("There was an error while handling a listener: " + err.toString(), _listeners[type][listenerIndex].listener);
 					}
 					if (_listeners[type][listenerIndex].count === 1) {
 						delete _listeners[type][listenerIndex];
@@ -637,7 +637,7 @@ jwplayer.source = document.createElement("source");/**
 				try {
 					_globallisteners[globalListenerIndex].listener(data);
 				} catch (err) {
-					jwplayer.utils.log("There was an error while handling a listener", _globallisteners[globalListenerIndex].listener, err);
+					jwplayer.utils.log("There was an error while handling a listener: " + err.toString(), _globallisteners[globalListenerIndex].listener);
 				}
 				if (_globallisteners[globalListenerIndex].count === 1) {
 					delete _globallisteners[globalListenerIndex];
@@ -1293,9 +1293,7 @@ jwplayer.source = document.createElement("source");/**
 	}
 	
 	jwplayer.plugins.loadPlugins = function(id, config) {
-		if (!_pluginLoaders[id]){
-			_pluginLoaders[id] = new jwplayer.plugins.pluginloader(new jwplayer.plugins.model(_plugins), config);
-		}
+		_pluginLoaders[id] = new jwplayer.plugins.pluginloader(new jwplayer.plugins.model(_plugins), config);
 		return _pluginLoaders[id];
 	}
 	
@@ -1572,7 +1570,7 @@ jwplayer.source = document.createElement("source");/**
 					return jwplayer.utils.getAbsolutePath(url, window.location.href);
 				case jwplayer.utils.pluginPathType.CDN:
 					var pluginName = jwplayer.utils.getPluginName(url);
-					return _repo + jwplayer.version.split(".")[0] + "/" + pluginName + "/" + pluginName + ".js";
+					return _repo + "/" + jwplayer.version.split(".")[0] + "/" + pluginName + "/" + pluginName + ".js";
 			}
 		}
 		
@@ -1695,7 +1693,7 @@ jwplayer.source = document.createElement("source");/**
 		 */
 		function _complete() {
 			if (!_iscomplete) {
-				_complete = true;
+				_iscomplete = true;
 				_status = jwplayer.utils.loaderstatus.COMPLETE;
 				_eventDispatcher.sendEvent(jwplayer.events.COMPLETE);
 			}
@@ -1726,7 +1724,7 @@ jwplayer.source = document.createElement("source");/**
 			for (var plugin in _plugins) {
 				var pluginName = _plugins[plugin].getPluginName();
 				if (_plugins[plugin].getFlashPath()) {
-					flashPlugins.plugins[_plugins[plugin].getFlashPath()] = config.plugins[_plugins[plugin].getURL()];
+					flashPlugins.plugins[_plugins[plugin].getFlashPath()] = config.plugins[plugin];
 					flashPlugins.plugins[_plugins[plugin].getFlashPath()].pluginmode = _plugins[plugin].getPluginmode();
 					flashPlugins.length++;
 				}
@@ -1735,7 +1733,7 @@ jwplayer.source = document.createElement("source");/**
 					div.id = api.id + "_" + pluginName;
 					div.style.position = "absolute";
 					div.style.zIndex = plugin + 10;
-					jsplugins[pluginName] = _plugins[plugin].getNewInstance(api, config.plugins[_plugins[plugin].getURL()], div);
+					jsplugins[pluginName] = _plugins[plugin].getNewInstance(api, config.plugins[plugin], div);
 					if (typeof jsplugins[pluginName].resize != "undefined") {
 						api.onReady(resizer(jsplugins[pluginName], div, true));
 						api.onResize(resizer(jsplugins[pluginName], div));
@@ -2442,10 +2440,10 @@ playerReady = function(obj) {
 	
 	function _isPlaylist(property) {
 		var result = false;
-		 // XML Playlists
-		result = (typeof property == "string" && !_isPosition(property)) ||
+		// XML Playlists
+		// (typeof property == "string" && !_isPosition(property)) ||
 		// JSON Playlist
-		(property instanceof Array) ||
+		result = (property instanceof Array) ||
 		// Single playlist item as an Object
 		(typeof property == "object" && !property.position && !property.size);
 		return result;
@@ -2453,6 +2451,13 @@ playerReady = function(obj) {
 	
 	jwplayer.embed.config = function(config, embedder) {
 		var parsedConfig = jwplayer.utils.extend({}, config);
+		
+		var _tempPlaylist;
+		
+		if (_isPlaylist(parsedConfig.playlist)){
+			_tempPlaylist = parsedConfig.playlist;
+			delete parsedConfig.playlist;
+		}
 		
 		for (var option in parsedConfig) {
 			if (option.indexOf(".") > -1) {
@@ -2489,9 +2494,7 @@ playerReady = function(obj) {
 		}
 		
 		var components = ["playlist", "dock", "controlbar"];
-		
-		//TODO : Make this handle playlistsize? / controlbar.size?
-		
+				
 		for (var component = 0; component < components.length; component++) {
 			if (typeof parsedConfig[components[component]] == "string") {
 				if (!parsedConfig.components[components[component]]) {
@@ -2502,6 +2505,10 @@ playerReady = function(obj) {
 			} else if (parsedConfig[components[component]]) {
 				parsedConfig.components[components[component]] = parsedConfig[components[component]];
 				delete parsedConfig[components[component]];
+			}
+			if (typeof parsedConfig[components[component]+"size"] != "undefined") {
+				parsedConfig.components[components[component]].size = parsedConfig[components[component]+"size"];
+				delete parsedConfig[components[component]+"size"];
 			}
 		}
 		
@@ -2538,6 +2545,10 @@ playerReady = function(obj) {
 			_modes = _playerDefaults();
 		}
 		parsedConfig.modes = _modes;
+		
+		if (_tempPlaylist) {
+			parsedConfig.playlist = _tempPlaylist;
+		}
 		
 		return parsedConfig;
 	};
@@ -5880,7 +5891,7 @@ playerReady = function(obj) {
 			_bufferFull = false;
 			_bufferingComplete = false;
 			_start = false;
-			if (!_model.config.chromeless) {
+			if (!_model.config.chromeless && !_hasChrome) {
 				_bufferTimes = [];
 				_addBufferEvent();
 				_setState(jwplayer.api.events.state.BUFFERING);

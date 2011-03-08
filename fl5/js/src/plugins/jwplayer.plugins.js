@@ -11,9 +11,7 @@
 	}
 	
 	jwplayer.plugins.loadPlugins = function(id, config) {
-		if (!_pluginLoaders[id]){
-			_pluginLoaders[id] = new jwplayer.plugins.pluginloader(new jwplayer.plugins.model(_plugins), config);
-		}
+		_pluginLoaders[id] = new jwplayer.plugins.pluginloader(new jwplayer.plugins.model(_plugins), config);
 		return _pluginLoaders[id];
 	}
 	

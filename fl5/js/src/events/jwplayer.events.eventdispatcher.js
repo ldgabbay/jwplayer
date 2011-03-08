@@ -99,7 +99,7 @@
 					try {
 						_listeners[type][listenerIndex].listener(data);
 					} catch (err) {
-						jwplayer.utils.log("There was an error while handling a listener", _listeners[type][listenerIndex].listener, err);
+						jwplayer.utils.log("There was an error while handling a listener: " + err.toString(), _listeners[type][listenerIndex].listener);
 					}
 					if (_listeners[type][listenerIndex].count === 1) {
 						delete _listeners[type][listenerIndex];
@@ -112,7 +112,7 @@
 				try {
 					_globallisteners[globalListenerIndex].listener(data);
 				} catch (err) {
-					jwplayer.utils.log("There was an error while handling a listener", _globallisteners[globalListenerIndex].listener, err);
+					jwplayer.utils.log("There was an error while handling a listener: " + err.toString(), _globallisteners[globalListenerIndex].listener);
 				}
 				if (_globallisteners[globalListenerIndex].count === 1) {
 					delete _globallisteners[globalListenerIndex];

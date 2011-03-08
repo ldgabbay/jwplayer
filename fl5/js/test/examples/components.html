@@ -30,7 +30,6 @@
             var tests = [{
             	name: "playlist, controlbar, dock",
             	config: {
-					playlistfile: "../files/bitrates.xml",
             		levels: [{
             			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             		}, {
@@ -49,13 +48,14 @@
             }, {
             	name: "playlist.position, controlbar.position, dock.position",
             	config: {
-					playlistfile: "../files/bitrates.xml",
-            		levels: [{
-            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
-            		}, {
-            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            		playlist: [{
+	            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+            			levels: [{
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            			}, {
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            			}]
             		}],
-            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
 					icons: false,
 					plugins: {
 						'./plugins/dockplugin.js': {}
@@ -68,7 +68,6 @@
             }, {
             	name: "playlist, controlbar, and dock objects",
             	config: {
-					playlistfile: "../files/bitrates.xml",
             		levels: [{
             			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             		}, {
@@ -93,13 +92,14 @@
             }, {
             	name: "components block",
             	config: {
-					playlistfile: "../files/bitrates.xml",
-            		levels: [{
-            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
-            		}, {
-            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            		playlist: [{
+	            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+            			levels: [{
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            			}, {
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            			}]
             		}],
-            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
 					icons: false,
 					plugins: {
 						'./plugins/dockplugin.js': {}
@@ -120,13 +120,14 @@
             }, {
             	name: "invalid values",
             	config: {
-					playlistfile: "../files/bitrates.xml",
-            		levels: [{
-            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
-            		}, {
-            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            		playlist: [{
+	            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+            			levels: [{
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            			}, {
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            			}]
             		}],
-            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
 					icons: false,
 					plugins: {
 						'./plugins/dockplugin.js': {}
@@ -147,13 +148,14 @@
             }, {
             	name: "none",
             	config: {
-					playlistfile: "../files/bitrates.xml",
-            		levels: [{
-            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
-            		}, {
-            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            		playlist: [{
+	            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+            			levels: [{
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            			}, {
+            				file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            			}]
             		}],
-            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
 					icons: false,
 					plugins: {
 						'./plugins/dockplugin.js': {}

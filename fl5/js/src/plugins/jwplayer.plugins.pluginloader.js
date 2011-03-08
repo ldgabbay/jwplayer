@@ -28,7 +28,7 @@
 		 */
 		function _complete() {
 			if (!_iscomplete) {
-				_complete = true;
+				_iscomplete = true;
 				_status = jwplayer.utils.loaderstatus.COMPLETE;
 				_eventDispatcher.sendEvent(jwplayer.events.COMPLETE);
 			}
@@ -59,7 +59,7 @@
 			for (var plugin in _plugins) {
 				var pluginName = _plugins[plugin].getPluginName();
 				if (_plugins[plugin].getFlashPath()) {
-					flashPlugins.plugins[_plugins[plugin].getFlashPath()] = config.plugins[_plugins[plugin].getURL()];
+					flashPlugins.plugins[_plugins[plugin].getFlashPath()] = config.plugins[plugin];
 					flashPlugins.plugins[_plugins[plugin].getFlashPath()].pluginmode = _plugins[plugin].getPluginmode();
 					flashPlugins.length++;
 				}
@@ -68,7 +68,7 @@
 					div.id = api.id + "_" + pluginName;
 					div.style.position = "absolute";
 					div.style.zIndex = plugin + 10;
-					jsplugins[pluginName] = _plugins[plugin].getNewInstance(api, config.plugins[_plugins[plugin].getURL()], div);
+					jsplugins[pluginName] = _plugins[plugin].getNewInstance(api, config.plugins[plugin], div);
 					if (typeof jsplugins[pluginName].resize != "undefined") {
 						api.onReady(resizer(jsplugins[pluginName], div, true));
 						api.onResize(resizer(jsplugins[pluginName], div));
