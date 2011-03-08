@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1633';
+jwplayer.version = '5.5.1634';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -2507,6 +2507,9 @@ playerReady = function(obj) {
 				delete parsedConfig[components[component]];
 			}
 			if (typeof parsedConfig[components[component]+"size"] != "undefined") {
+				if (!parsedConfig.components[components[component]]) {
+					parsedConfig.components[components[component]] = {};
+				}
 				parsedConfig.components[components[component]].size = parsedConfig[components[component]+"size"];
 				delete parsedConfig[components[component]+"size"];
 			}
