@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1637';
+jwplayer.version = '5.5.1639';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -2485,14 +2485,16 @@ playerReady = function(obj) {
 		
 		if (typeof parsedConfig.plugins == "string") {
 			var pluginArray = parsedConfig.plugins.split(",");
+			if (typeof parsedConfig.plugins != "object") {
+				parsedConfig.plugins = {};
+			}
 			for (var plugin = 0; plugin < pluginArray.length; plugin++) {
 				var pluginName = jwplayer.utils.getPluginName(pluginArray[plugin]);
 				if (typeof parsedConfig[pluginName] == "object") {
-					if (typeof parsedConfig.plugins != "object") {
-						parsedConfig.plugins = {};
-					}
 					parsedConfig.plugins[pluginArray[plugin]] = parsedConfig[pluginName];
 					delete parsedConfig[pluginName];
+				} else {
+					parsedConfig.plugins[pluginArray[plugin]] = {};
 				}
 			}
 		}

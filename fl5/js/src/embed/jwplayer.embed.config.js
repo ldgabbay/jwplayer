@@ -71,14 +71,16 @@
 		
 		if (typeof parsedConfig.plugins == "string") {
 			var pluginArray = parsedConfig.plugins.split(",");
+			if (typeof parsedConfig.plugins != "object") {
+				parsedConfig.plugins = {};
+			}
 			for (var plugin = 0; plugin < pluginArray.length; plugin++) {
 				var pluginName = jwplayer.utils.getPluginName(pluginArray[plugin]);
 				if (typeof parsedConfig[pluginName] == "object") {
-					if (typeof parsedConfig.plugins != "object") {
-						parsedConfig.plugins = {};
-					}
 					parsedConfig.plugins[pluginArray[plugin]] = parsedConfig[pluginName];
 					delete parsedConfig[pluginName];
+				} else {
+					parsedConfig.plugins[pluginArray[plugin]] = {};
 				}
 			}
 		}
