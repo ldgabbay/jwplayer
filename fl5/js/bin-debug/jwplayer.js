@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1634';
+jwplayer.version = '5.5.1637';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -1720,7 +1720,10 @@ jwplayer.source = document.createElement("source");/**
 				length: 0,
 				plugins: {}
 			};
-			var jsplugins = {};
+			var jsplugins = {
+				length: 0,
+				plugins: {}
+			};
 			for (var plugin in _plugins) {
 				var pluginName = _plugins[plugin].getPluginName();
 				if (_plugins[plugin].getFlashPath()) {
@@ -1732,16 +1735,17 @@ jwplayer.source = document.createElement("source");/**
 					var div = document.createElement("div");
 					div.id = api.id + "_" + pluginName;
 					div.style.position = "absolute";
-					div.style.zIndex = plugin + 10;
-					jsplugins[pluginName] = _plugins[plugin].getNewInstance(api, config.plugins[plugin], div);
-					if (typeof jsplugins[pluginName].resize != "undefined") {
-						api.onReady(resizer(jsplugins[pluginName], div, true));
-						api.onResize(resizer(jsplugins[pluginName], div));
+					div.style.zIndex = jsplugins.length + 10;
+					jsplugins.plugins[pluginName] = _plugins[plugin].getNewInstance(api, config.plugins[plugin], div);
+					jsplugins.length++;
+					if (typeof jsplugins.plugins[pluginName].resize != "undefined") {
+						api.onReady(resizer(jsplugins.plugins[pluginName], div, true));
+						api.onResize(resizer(jsplugins.plugins[pluginName], div));
 					}
 				}
 			}
 			
-			api.plugins = jsplugins;
+			api.plugins = jsplugins.plugins;
 			
 			return flashPlugins;
 		};
