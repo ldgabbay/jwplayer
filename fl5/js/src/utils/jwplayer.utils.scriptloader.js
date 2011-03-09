@@ -32,7 +32,7 @@
 				}
 				// IE
 				scriptTag.onreadystatechange = function() {
-					if (script.readyState == 'loaded' || script.readyState == 'complete') {
+					if (scriptTag.readyState == 'loaded' || scriptTag.readyState == 'complete') {
 						_status = jwplayer.utils.loaderstatus.COMPLETE;
 						_eventDispatcher.sendEvent(jwplayer.events.COMPLETE);
 					}

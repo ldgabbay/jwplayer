@@ -427,7 +427,7 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		private function translateModelToUIPlaylistIndex(index:Number):Number{
-			var result = index;
+			var result:Number = index;
 			for (var i:Number = 0; i < index; i++) {
 				if (_player.playlist.getItemAt(i).hasOwnProperty("ova.hidden")){
 					result--;

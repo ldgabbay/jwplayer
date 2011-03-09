@@ -15,6 +15,7 @@
 		var _status = jwplayer.utils.loaderstatus.NEW;
 		var _flashPath;
 		var _js;
+		var _completeTimeout;
 		
 		var _eventDispatcher = new jwplayer.events.eventdispatcher();
 		jwplayer.utils.extend(this, _eventDispatcher);
@@ -29,6 +30,13 @@
 					var pluginName = jwplayer.utils.getPluginName(url);
 					return _repo + "/" + jwplayer.version.split(".")[0] + "/" + pluginName + "/" + pluginName + ".js";
 			}
+		}
+		
+		function completeHandler(evt) {
+			_completeTimeout = setTimeout(function(){
+				_status = jwplayer.utils.loaderstatus.COMPLETE;
+				_eventDispatcher.sendEvent(jwplayer.events.COMPLETE);		
+			}, 1000);
 		}
 		
 		function errorHandler(evt) {
@@ -47,12 +55,17 @@
 				_status = jwplayer.utils.loaderstatus.LOADING;
 				var _loader = new jwplayer.utils.scriptloader(getJSPath());
 				// Complete doesn't matter - we're waiting for registerPlugin 
+				_loader.addEventListener(jwplayer.events.COMPLETE, completeHandler);
 				_loader.addEventListener(jwplayer.events.ERROR, errorHandler);
 				_loader.load();
 			}
 		}
 		
 		this.registerPlugin = function(id, arg1, arg2) {
+			if (_completeTimeout){
+				clearTimeout(_completeTimeout);
+				_completeTimeout = undefined;
+			}
 			if (arg1 && arg2) {
 				_flashPath = arg2;
 				_js = arg1;
