@@ -115,7 +115,7 @@
 	};
 	/** Insert a specific plugin fieldset. **/
 	function parsePluginXML(url,nam) {
-		$.get(url,{},function(xml) {
+		$.get("../../../"+url,{},function(xml) {
 			var arr = $('flashvars',xml).find('flashvar');
 			if(arr.length > 0) {
 				insertFieldset(xml,nam,true);
@@ -201,9 +201,9 @@
 			var arr = $("#plugins").val();
 			for(var i=0; i<arr.length; i++) {
 				if(settings['plugins'][arr[i]]) { 
-					plg.push(settings['plugins'][arr[i]]);
+					plg.push(settings['plugins'][arr[i]].replace("../plugins/","../../../../plugins/"));
 				} else { 
-					plg.push(arr[i]);
+					plg.push(arr[i].replace("../plugins/","../../../../plugins/"));
 				}
 			}
 			vrs['plugins'] = plg.join(',');
