@@ -1,7 +1,7 @@
 License
 =======
 
-The JW Player is free for non-commerical use under the Creative Commons BY-CC-SA license.
+The JW Player is free for non-commerical use under the Creative Commons BY-NC-SA license.
 To buy a license for commercial use, please visit www.longtailvideo.com/players/order.
 
 
