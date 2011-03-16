@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1651';
+jwplayer.version = '5.5.1652';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -2730,9 +2730,11 @@ playerReady = function(obj) {
 				_wrapper = document.createElement("div");
 				_wrapper.id = _container.id + "_wrapper";
 				jwplayer.utils.wrap(_container, _wrapper);
-				_wrapper.style.position = "relative";
-				_wrapper.style.width = width+"px";
-				_wrapper.style.height = height+"px";
+				jwplayer.utils.css(_wrapper, {
+					position: "relative",
+					width: width,
+					height: height
+				});
 			}
 			
 			

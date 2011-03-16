@@ -139,9 +139,11 @@
 				_wrapper = document.createElement("div");
 				_wrapper.id = _container.id + "_wrapper";
 				jwplayer.utils.wrap(_container, _wrapper);
-				_wrapper.style.position = "relative";
-				_wrapper.style.width = width+"px";
-				_wrapper.style.height = height+"px";
+				jwplayer.utils.css(_wrapper, {
+					position: "relative",
+					width: width,
+					height: height
+				});
 			}
 			
 			
