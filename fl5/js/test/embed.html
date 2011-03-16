@@ -4,15 +4,15 @@
 		<script type="text/javascript" src="jwplayer.html5.js"></script>
 		<script type="text/javascript">
 			var options = {
-				image:		'../../../testing/files/bunny.jpg',
+				image:		'http://playertest.longtailvideo.com/bunny.jpg',
 				skin: '',
 				levels: [
-					{file: '../../../testing/files/bunny.mp4'}
+					{file: 'http://playertest.longtailvideo.com/bunny.mp4'}
 				]
 			};
 			 
 			function embedPlayer(id) {
-				$jw(id).setup(options,'/trunk/fl5/player.swf').onPlay(function() {
+				$jw(id).setup(options,'../../player.swf').onPlay(function() {
 					alert("Playing!");
 				}).play();
 			}	
@@ -28,8 +28,8 @@
 		<a href="#" onclick="embedPlayer('div1'); return false;">Click here to embed player</a><br />
 		<h3>Embed a player on a video tag</h3>
 		<div>
-			<video id="a_video" src="/testing/files/bunny.mp4" width="320" height="240" poster="/testing/files/bunny.png"></video>
+			<video id="a_video" src="http://playertest.longtailvideo.com/bunny.mp4" width="320" height="240" poster="http://playertest.longtailvideo.com/bunny.png"></video>
 		</div>
-		<a href="#" onclick="console.log($jw('a_video').setup({flashplayer:'/trunk/fl5/player.swf'}).play().options); return false;">Click here to embed player</a><br />
+		<a href="#" onclick="console.log($jw('a_video').setup({flashplayer:'../../player.swf'}).play().options); return false;">Click here to embed player</a><br />
 	</body>
 </html>

@@ -92,7 +92,7 @@
 		</flashvar>
 		<flashvar type="field">
 			<name>flashplayer</name>
-			<default>/player/trunk/flash/player.swf</default>
+			<default>../../player.swf</default>
 			<description>location of the JW Player for Flash that is used for fallback in browsers that do not support HTML5. When set to false, the flashplayer fallback is not used.</description>
 		</flashvar>
 		<flashvar type="select">

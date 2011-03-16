@@ -8,10 +8,10 @@
 		function toggleLights() {
 			if (over) {
 				over = false;
-				player.getPlugin("dock").setButton("lightsoff", toggleLights, "http://developer.longtailvideo.com/player/trunk/fl5/js/test/examples/assets/dock_on_out.png", "http://developer.longtailvideo.com/player/trunk/fl5/js/test/examples/assets/dock_on_over.png");
+				player.getPlugin("dock").setButton("lightsoff", toggleLights, "http://playertest.longtailvideo.com/dockplugin/assets/dock_on_out.png", "http://playertest.longtailvideo.com/dockplugin/assets/dock_on_over.png");
 			} else {
 				over = true;
-				player.getPlugin("dock").setButton("lightsoff", toggleLights, "http://developer.longtailvideo.com/player/trunk/fl5/js/test/examples/assets/dock_off_out.png", "http://developer.longtailvideo.com/player/trunk/fl5/js/test/examples/assets/dock_off_over.png");
+				player.getPlugin("dock").setButton("lightsoff", toggleLights, "http://playertest.longtailvideo.com/dockplugin/assets/dock_off_out.png", "http://playertest.longtailvideo.com/dockplugin/assets/dock_off_over.png");
 			}
 		};
 	}

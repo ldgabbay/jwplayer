@@ -29,7 +29,7 @@
 	        		$jw(id).setup({
 	        			players:[
 	        				{type:'html5'},
-	        				{type:'flash',src:'../test/player-5.3.swf'},
+	        				{type:'flash',src:'../../player.swf'},
 	        			],
 	        			components: {
 	        				playlist: {
@@ -50,12 +50,12 @@
 	        
 	        <h3>API test</h3>
 	        <script type="text/javascript">
-	        	function loadSingle(id) { $jw(id).load({file:'files/bunny.mp4', image:'files/bunny.jpg'}); }
+	        	function loadSingle(id) { $jw(id).load({file:'http://playertest.longtailvideo.com/bunny.mp4', image:'http://playertest.longtailvideo.com/bunny.jpg'}); }
 	        	function loadList(id) { 
 	        		$jw(id).load([
-	        			{file:'files/bunny.mp4', image:'files/bunny.jpg'},
-	        			{file:'files/bunny.mp4', image:'files/bunny.jpg'},
-	        			{file:'files/bunny.mp4', image:'files/bunny.jpg'}
+	        			{file:'http://playertest.longtailvideo.com/bunny.mp4', image:'http://playertest.longtailvideo.com/bunny.jpg'},
+	        			{file:'http://playertest.longtailvideo.com/bunny.mp4', image:'http://playertest.longtailvideo.com/bunny.jpg'},
+	        			{file:'http://playertest.longtailvideo.com/bunny.mp4', image:'http://playertest.longtailvideo.com/bunny.jpg'}
 	        		]); 
 	        	}
 	        	function play(id) { 
