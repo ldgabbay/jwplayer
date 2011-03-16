@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1641';
+jwplayer.version = '5.5.1651';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -257,9 +257,19 @@ jwplayer.source = document.createElement("source");/**
 	 * Detects whether or not the current player has flash capabilities
 	 * TODO: Add minimum flash version constraint: 9.0.115
 	 */
-	jwplayer.utils.hasFlash = function() {
-		return (typeof navigator.plugins != "undefined" && typeof navigator.plugins['Shockwave Flash'] != "undefined") || (typeof window.ActiveXObject != "undefined");
-	};
+    jwplayer.utils.hasFlash = function() {
+        if (typeof navigator.plugins != "undefined" && typeof navigator.plugins['Shockwave Flash'] != "undefined") {
+            return true;
+        }
+        if (typeof window.ActiveXObject != "undefined") {
+            try {
+                new ActiveXObject("ShockwaveFlash.ShockwaveFlash");
+                return true
+            } catch (err) {
+            }
+        }
+        return false;
+    };
 	
 	/**
 	 * Extracts a plugin name from a string
@@ -2707,6 +2717,12 @@ playerReady = function(obj) {
 			_options.id = _api.id;
 			
 			var _wrapper;
+			
+			var params = jwplayer.utils.extend({}, _options);
+			
+			var width = params.width;	
+			var height = params.height;
+			
 			// Hack for when adding / removing happens too quickly
 			if (_container.id + "_wrapper" == _container.parentNode.id) {
 				_wrapper = document.getElementById(_container.id + "_wrapper");
@@ -2715,9 +2731,10 @@ playerReady = function(obj) {
 				_wrapper.id = _container.id + "_wrapper";
 				jwplayer.utils.wrap(_container, _wrapper);
 				_wrapper.style.position = "relative";
+				_wrapper.style.width = width+"px";
+				_wrapper.style.height = height+"px";
 			}
 			
-			var params = jwplayer.utils.extend({}, _options);
 			
 			var flashPlugins = _loader.setupPlugins(_api, params, _resizePlugin);
 			
@@ -2727,8 +2744,7 @@ playerReady = function(obj) {
 				delete params.plugins;
 			}
 			
-			var width = params.width;	
-			var height = params.height;
+			
 			
 			var toDelete = ["height", "width", "levels", "playlist", "modes", "events"];
 				
@@ -2751,11 +2767,7 @@ playerReady = function(obj) {
 				var html = '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" ' +
 				'bgcolor="' +
 				bgcolor +
-				'" width="' +
-				width +
-				'" height="' +
-				height +
-				'" ' +
+				'" width="100%" height="100%" ' +
 				'id="' +
 				_container.id +
 				'" name="' +
@@ -2778,8 +2790,8 @@ playerReady = function(obj) {
 				var obj = document.createElement('object');
 				obj.setAttribute('type', 'application/x-shockwave-flash');
 				obj.setAttribute('data', _player.src);
-				obj.setAttribute('width', width);
-				obj.setAttribute('height', height);
+				obj.setAttribute('width', "100%");
+				obj.setAttribute('height', "100%");
 				obj.setAttribute('bgcolor', '#000000');
 				obj.setAttribute('id', _container.id);
 				obj.setAttribute('name', _container.id);

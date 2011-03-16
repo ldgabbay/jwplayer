@@ -126,6 +126,12 @@
 			_options.id = _api.id;
 			
 			var _wrapper;
+			
+			var params = jwplayer.utils.extend({}, _options);
+			
+			var width = params.width;	
+			var height = params.height;
+			
 			// Hack for when adding / removing happens too quickly
 			if (_container.id + "_wrapper" == _container.parentNode.id) {
 				_wrapper = document.getElementById(_container.id + "_wrapper");
@@ -134,9 +140,10 @@
 				_wrapper.id = _container.id + "_wrapper";
 				jwplayer.utils.wrap(_container, _wrapper);
 				_wrapper.style.position = "relative";
+				_wrapper.style.width = width+"px";
+				_wrapper.style.height = height+"px";
 			}
 			
-			var params = jwplayer.utils.extend({}, _options);
 			
 			var flashPlugins = _loader.setupPlugins(_api, params, _resizePlugin);
 			
@@ -146,8 +153,7 @@
 				delete params.plugins;
 			}
 			
-			var width = params.width;	
-			var height = params.height;
+			
 			
 			var toDelete = ["height", "width", "levels", "playlist", "modes", "events"];
 				
@@ -170,11 +176,7 @@
 				var html = '<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" ' +
 				'bgcolor="' +
 				bgcolor +
-				'" width="' +
-				width +
-				'" height="' +
-				height +
-				'" ' +
+				'" width="100%" height="100%" ' +
 				'id="' +
 				_container.id +
 				'" name="' +
@@ -197,8 +199,8 @@
 				var obj = document.createElement('object');
 				obj.setAttribute('type', 'application/x-shockwave-flash');
 				obj.setAttribute('data', _player.src);
-				obj.setAttribute('width', width);
-				obj.setAttribute('height', height);
+				obj.setAttribute('width', "100%");
+				obj.setAttribute('height', "100%");
 				obj.setAttribute('bgcolor', '#000000');
 				obj.setAttribute('id', _container.id);
 				obj.setAttribute('name', _container.id);
