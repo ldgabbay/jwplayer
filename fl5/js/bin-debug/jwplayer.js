@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1652';
+jwplayer.version = '5.5.1668';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -5746,15 +5746,18 @@ playerReady = function(obj) {
 					return;
 				}
 				var sourceType;
+				var extension = jwplayer.utils.extension(sourceModel.file);
 				if (sourceModel.type === undefined) {
-					var extension = jwplayer.utils.extension(sourceModel.file);
 					if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 !== undefined) {
 						sourceType = jwplayer.utils.extensionmap[extension].html5;
 					}
 				} else {
 					sourceType = sourceModel.type;
 				}
-				if (!sourceType || vid.canPlayType(sourceType)) {
+				if (!sourceType
+					|| vid.canPlayType(sourceType)
+					|| (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/))
+				   ) {
 					var source = _container.ownerDocument.createElement("source");
 					source.src = jwplayer.utils.getAbsolutePath(sourceModel.file);
 					if (sourceType && !jwplayer.utils.isLegacyAndroid()) {
