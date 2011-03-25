@@ -160,8 +160,6 @@
 			parsedConfig.playlist = _tempPlaylist;
 		}
 		
-		console.log(parsedConfig);
-		
 		return parsedConfig;
 	};
 	
