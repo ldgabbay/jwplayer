@@ -8,8 +8,8 @@ var settings = {
 			download: {type:"download"}
 		};
 		if (!players){
-			//return [defaults.html5, defaults.flash, defaults.download];
-			return [defaults.flash, defaults.html5, defaults.download];
+			return [defaults.html5, defaults.flash, defaults.download];
+			//return [defaults.flash, defaults.html5, defaults.download];
 		} else {
 			var result = [];
 			for (var player = 0; player < players.length; player++) {

@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1668';
+jwplayer.version = '5.5.1671';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -2259,6 +2259,15 @@ playerReady = function(obj) {
 		return result;
 	}
 	
+	function getSize(size) {
+		if (typeof size == "string") {
+			if (parseInt(size).toString() == size || size.toLowerCase().indexOf("px") > -1) {
+				return parseInt(size);
+			} 
+		}
+		return size;
+	}
+	
 	jwplayer.embed.config = function(config, embedder) {
 		var parsedConfig = jwplayer.utils.extend({}, config);
 		
@@ -2288,6 +2297,9 @@ playerReady = function(obj) {
 				}
 			}
 		}
+		
+		parsedConfig.height = getSize(parsedConfig.height);
+		parsedConfig.width = getSize(parsedConfig.width);
 		
 		if (typeof parsedConfig.plugins == "string") {
 			var pluginArray = parsedConfig.plugins.split(",");

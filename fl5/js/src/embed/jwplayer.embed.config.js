@@ -39,6 +39,15 @@
 		return result;
 	}
 	
+	function getSize(size) {
+		if (typeof size == "string") {
+			if (parseInt(size).toString() == size || size.toLowerCase().indexOf("px") > -1) {
+				return parseInt(size);
+			} 
+		}
+		return size;
+	}
+	
 	jwplayer.embed.config = function(config, embedder) {
 		var parsedConfig = jwplayer.utils.extend({}, config);
 		
@@ -68,6 +77,9 @@
 				}
 			}
 		}
+		
+		parsedConfig.height = getSize(parsedConfig.height);
+		parsedConfig.width = getSize(parsedConfig.width);
 		
 		if (typeof parsedConfig.plugins == "string") {
 			var pluginArray = parsedConfig.plugins.split(",");
