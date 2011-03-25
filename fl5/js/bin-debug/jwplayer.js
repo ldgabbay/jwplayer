@@ -1,7 +1,16 @@
 /**
- * JW Player namespace definition
- * @version 5.4
+ * JW Player Source start cap
+ * 
+ * This will appear at the top of the JW Player source
+ * 
+ * @version 5.5
  */
+
+ if (typeof jwplayer == "undefined") {/**
+ * JW Player namespace definition
+ * @version 5.5
+ */
+
 var jwplayer = function(container) {
 	if (jwplayer.api){
 		return jwplayer.api.selectPlayer(container);
@@ -10,7 +19,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1671';
+jwplayer.version = '5.5.1672';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -6544,3 +6553,12 @@ playerReady = function(obj) {
 	};
 	
 })(jwplayer);
+/**
+ * JW Player Source Endcap
+ * 
+ * This will appear at the end of the JW Player source
+ * 
+ * @version 5.5
+ */
+
+ }

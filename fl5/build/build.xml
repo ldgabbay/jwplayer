@@ -237,6 +237,7 @@
 
 	<target name="build-js">
 		<concat destfile="${outputpath}">
+			<fileset dir="${basedir}/js/src" includes="jwplayer.sourcestart.js" />
 			<fileset dir="${basedir}/js/src" includes="jwplayer.js" />
 			<fileset dir="${basedir}/js/src/utils" includes="jwplayer.utils.js" />
 			<fileset dir="${basedir}/js/src/events" includes="jwplayer.events.js" />
@@ -253,6 +254,7 @@
 			<fileset dir="${basedir}/js/src/html5" includes="jwplayer.html5.view.js" />
 			<fileset dir="${basedir}/js/src/html5" includes="jwplayer.html5.*.js" excludes="jwplayer.html5.js,jwplayer.html5.states.js,jwplayer.html5.events.js,jwplayer.html5.api.js,jwplayer.html5.view.js" />
 			<fileset dir="${basedir}/js/src/html5" includes="jwplayer.html5.api.js" />
+			<fileset dir="${basedir}/js/src" includes="jwplayer.sourceend.js" />
 		</concat>
 	</target>
 
