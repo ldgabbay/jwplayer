@@ -171,6 +171,14 @@
 			parseConfigBlock(params, 'components');
 			parseConfigBlock(params, 'providers');
 			
+			// Hack for the dock
+			if (typeof params["dock.position"] != "undefined"){
+				if (params["dock.position"].toString().toLowerCase() == "false") {
+					params["dock"] = params["dock.position"];
+					delete params["dock.position"];					
+				}
+			}
+			
 			var bgcolor = "#000000";
 			
 			var flashPlayer;

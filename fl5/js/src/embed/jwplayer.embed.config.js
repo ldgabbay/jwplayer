@@ -106,8 +106,11 @@
 				}
 				parsedConfig.components[components[component]].position = parsedConfig[components[component]];
 				delete parsedConfig[components[component]];
-			} else if (parsedConfig[components[component]]) {
-				parsedConfig.components[components[component]] = parsedConfig[components[component]];
+			} else if (typeof parsedConfig[components[component]] != "undefined") {
+				if (!parsedConfig.components[components[component]]) {
+					parsedConfig.components[components[component]] = {};
+				}
+				parsedConfig.components[components[component]].position = parsedConfig[components[component]];
 				delete parsedConfig[components[component]];
 			}
 			if (typeof parsedConfig[components[component]+"size"] != "undefined") {
@@ -156,6 +159,8 @@
 		if (_tempPlaylist) {
 			parsedConfig.playlist = _tempPlaylist;
 		}
+		
+		console.log(parsedConfig);
 		
 		return parsedConfig;
 	};

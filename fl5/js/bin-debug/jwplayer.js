@@ -19,7 +19,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1672';
+jwplayer.version = '5.5.1673';
 jwplayer.vid = document.createElement("video");
 jwplayer.audio = document.createElement("audio");
 jwplayer.source = document.createElement("source");/**
@@ -2335,8 +2335,11 @@ playerReady = function(obj) {
 				}
 				parsedConfig.components[components[component]].position = parsedConfig[components[component]];
 				delete parsedConfig[components[component]];
-			} else if (parsedConfig[components[component]]) {
-				parsedConfig.components[components[component]] = parsedConfig[components[component]];
+			} else if (typeof parsedConfig[components[component]] != "undefined") {
+				if (!parsedConfig.components[components[component]]) {
+					parsedConfig.components[components[component]] = {};
+				}
+				parsedConfig.components[components[component]].position = parsedConfig[components[component]];
 				delete parsedConfig[components[component]];
 			}
 			if (typeof parsedConfig[components[component]+"size"] != "undefined") {
@@ -2385,6 +2388,8 @@ playerReady = function(obj) {
 		if (_tempPlaylist) {
 			parsedConfig.playlist = _tempPlaylist;
 		}
+		
+		console.log(parsedConfig);
 		
 		return parsedConfig;
 	};
@@ -2782,6 +2787,14 @@ playerReady = function(obj) {
 			
 			parseConfigBlock(params, 'components');
 			parseConfigBlock(params, 'providers');
+			
+			// Hack for the dock
+			if (typeof params["dock.position"] != "undefined"){
+				if (params["dock.position"].toString().toLowerCase() == "false") {
+					params["dock"] = params["dock.position"];
+					delete params["dock.position"];					
+				}
+			}
 			
 			var bgcolor = "#000000";
 			
