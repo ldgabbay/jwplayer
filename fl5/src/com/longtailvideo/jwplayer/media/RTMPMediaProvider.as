@@ -178,15 +178,19 @@ package com.longtailvideo.jwplayer.media {
 
 
 	/** Try subscribing to livestream **/
-		private function doSubscribe(id:String):void {
+		private function doSubscribe():void {
 			_subscribeCount++;
 			if(_subscribeCount > 3) {
 				clearInterval(_subscribeInterval);
 				stop();
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, 
 					{message: "Subscribing to the live stream timed out."});
-			} else { 
-				_connection.call("FCSubscribe", null, id);
+			} else if(item.levels) { 
+			    for(var i:Number=0; i<item.levels.length; i++) { 
+				    _connection.call("FCSubscribe", null, getID(item.levels[i].file));
+			    }
+			} else {
+				_connection.call("FCSubscribe", null, getID(item.file));
 			}
 		};
 
@@ -358,18 +362,8 @@ package com.longtailvideo.jwplayer.media {
             if (dat.type == 'fcsubscribe') {
                 if (dat.code == "NetStream.Play.StreamNotFound") {
 					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR,{message: "Subscription failed: " + item.file});
-                } else if (dat.code == "NetStream.Play.Start") {
-					if (item.levels.length > 0) {
-						if (_dynamic || _bandwidthChecked) {
-							setStream();
-						} else {
-							_bandwidthChecked = true;
-							_bandwidthSwitch = true;
-							_connection.call('checkBandwidth', null);
-						}
-					} else {
-						setStream();
-					}
+                } else if (dat.code == "NetStream.Play.Start" && !_stream) {
+					setStream();
                 }
                 clearInterval(_subscribeInterval);
             }
@@ -569,7 +563,7 @@ package com.longtailvideo.jwplayer.media {
 						_connection.call("DVRSubscribe", null, getID(item.file));
 						setTimeout(doDVRInfo,2000,getID(item.file));
 					} else if (getConfigProperty('subscribe')) {
-						_subscribeInterval = setInterval(doSubscribe, 2000, getID(item.file));
+						_subscribeInterval = setInterval(doSubscribe, 2000);
 					} else {
                         if (item.levels.length > 0) {
                             if (_dynamic || _bandwidthChecked) {
