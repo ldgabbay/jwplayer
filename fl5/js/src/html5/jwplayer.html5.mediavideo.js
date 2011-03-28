@@ -420,20 +420,28 @@
 		};
 		
 		function _embed(playlistItem) {
+			switch(playlistItem.provider){
+				case "youtube":
+					_embedYouTube(playlistItem);
+					break
+//				case "sound":
+//					_embedMediaElement(playlistItem, document.createElement("audio"));
+//					break
+				default:
+					_embedMediaElement(playlistItem, document.createElement("video"));
+					break
+			}
+		}
+		
+		function _embedMediaElement(playlistItem, media) {
 			_model.duration = playlistItem.duration;
 			_hasChrome = false;
 			_currentItem = playlistItem;
-			var vid = document.createElement("video");
-			vid.preload = "none";
+			media.preload = "none";
 			_error = false;
 			_sourceError = 0;
 			for (var sourceIndex = 0; sourceIndex < playlistItem.levels.length; sourceIndex++) {
 				var sourceModel = playlistItem.levels[sourceIndex];
-				if (jwplayer.utils.isYouTube(sourceModel.file)) {
-					delete vid;
-					_embedYouTube(sourceModel.file);
-					return;
-				}
 				var sourceType;
 				var extension = jwplayer.utils.extension(sourceModel.file);
 				if (sourceModel.type === undefined) {
@@ -444,7 +452,7 @@
 					sourceType = sourceModel.type;
 				}
 				if (!sourceType
-					|| vid.canPlayType(sourceType)
+					|| media.canPlayType(sourceType)
 					|| (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/))
 				   ) {
 					var source = _container.ownerDocument.createElement("source");
@@ -453,31 +461,31 @@
 						source.type = sourceType;
 					}
 					_sourceError++;
-					vid.appendChild(source);
+					media.appendChild(source);
 				}
 			}
 			
 			if (_sourceError === 0) {
 				_error = true;
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
-					error: "The video could not be loaded because the format is not supported by your browser: " + joinFiles()
+					error: "The media could not be loaded because the format is not supported by your browser: " + joinFiles()
 				});
 			}
 			
 			if (_model.config.chromeless) {
-				vid.poster = jwplayer.utils.getAbsolutePath(playlistItem.image);
-				vid.controls = "controls";
+				media.poster = jwplayer.utils.getAbsolutePath(playlistItem.image);
+				media.controls = "controls";
 			}
-			vid.style.top = _container.style.top;
-			vid.style.left = _container.style.left;
-			vid.style.width = _container.style.width;
-			vid.style.height = _container.style.height;
-			vid.style.zIndex = _container.style.zIndex;
-			vid.onload = _loadHandler;
-			vid.volume = 0;
-			_container.parentNode.replaceChild(vid, _container);
-			vid.id = _container.id;
-			_container = vid;
+			media.style.top = _container.style.top;
+			media.style.left = _container.style.left;
+			media.style.width = _container.style.width;
+			media.style.height = _container.style.height;
+			media.style.zIndex = _container.style.zIndex;
+			media.onload = _loadHandler;
+			media.volume = 0;
+			_container.parentNode.replaceChild(media, _container);
+			media.id = _container.id;
+			_container = media;
 			for (var event in _events) {
 				_container.addEventListener(event, function(evt) {
 					if (evt.target.parentNode !== null) {
@@ -487,7 +495,8 @@
 			}
 		}
 		
-		function _embedYouTube(path) {
+		function _embedYouTube(playlistItem) {
+			var path = playlistItem.levels[0].file;
 			var object = document.createElement("object");
 			path = ["http://www.youtube.com/v/", path.replace(/^[^v]+v.(.{11}).*/, "$1"), "&amp;hl=en_US&amp;fs=1&autoplay=1"].join("");
 			var objectParams = {

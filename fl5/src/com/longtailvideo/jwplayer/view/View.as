@@ -11,6 +11,7 @@ package com.longtailvideo.jwplayer.view {
 	import com.longtailvideo.jwplayer.player.IPlayer;
 	import com.longtailvideo.jwplayer.player.PlayerState;
 	import com.longtailvideo.jwplayer.player.PlayerV4Emulation;
+	import com.longtailvideo.jwplayer.player.PlayerVersion;
 	import com.longtailvideo.jwplayer.plugins.IPlugin;
 	import com.longtailvideo.jwplayer.plugins.PluginConfig;
 	import com.longtailvideo.jwplayer.utils.Draw;
@@ -36,8 +37,10 @@ package com.longtailvideo.jwplayer.view {
 	import flash.display.StageScaleMode;
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
+	import flash.events.FocusEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.MouseEvent;
+	import flash.external.ExternalInterface;
 	import flash.geom.Rectangle;
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
@@ -81,8 +84,10 @@ package com.longtailvideo.jwplayer.view {
 		protected var loaderScreen:Sprite;
 		
 		protected var currentLayer:Number = 0;
-
-
+		
+		// Keep track of the last tab index
+		protected var lastIndex:Number = -1;
+		
 		public function View(player:IPlayer, model:Model) {
 			_player = player;
 			_model = model;
@@ -136,6 +141,8 @@ package com.longtailvideo.jwplayer.view {
 			setupComponents();
 
 			RootReference.stage.addEventListener(Event.RESIZE, resizeHandler);
+			RootReference.stage.addEventListener(FocusEvent.FOCUS_IN, keyFocusOutHandler);
+			
 
 			_model.addEventListener(MediaEvent.JWPLAYER_MEDIA_LOADED, mediaLoaded);
 			_model.playlist.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, itemHandler);
@@ -147,6 +154,32 @@ package com.longtailvideo.jwplayer.view {
 
 			redraw();
 		}
+
+		/** 
+		 * Handles the loss of a button's focus.  
+		 * The player attempts to blur Flash's focus on the page after the last tabbable 
+		 * element so that keyboard users don't get stuck with their focus insideo of the player.   
+		 **/
+		protected function keyFocusOutHandler(evt:FocusEvent):void {
+			var button:Sprite = evt.target as Sprite;
+			
+			if (!button) { return; }
+			
+			if (button.tabIndex < lastIndex) {
+				// Prevent focus from wrapping to the first button
+				evt.preventDefault();
+				// Nothing should be focused now
+				RootReference.stage.focus = null;
+				// Try to blur the Flash object in the browser
+				if (ExternalInterface.available) {
+					ExternalInterface.call("(function() { try { document.getElementById('"+PlayerVersion.id+"').blur(); } catch(e) {} })"); 
+				}
+				lastIndex = -1;
+			} else {
+				lastIndex = button.tabIndex;
+			}
+		}
+		
 		
 		protected function setupRightClick():void {
 			var menu:RightclickMenu = new RightclickMenu(_player, _root);

@@ -19,6 +19,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.ColorTransform;
 	import flash.text.StyleSheet;
@@ -142,6 +143,7 @@ package com.longtailvideo.jwplayer.view.components {
 			player.addEventListener(PlayerEvent.JWPLAYER_UNLOCKED, lockHandler);
 			RootReference.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeftStage);
 			RootReference.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
+			RootReference.stage.addEventListener(KeyboardEvent.KEY_DOWN, moveHandler);
 		}
 
 
@@ -189,8 +191,8 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 		}
 		
-		/** Show above controlbar on mousemove and restart the countdown. **/
-		private function moveHandler(evt:MouseEvent=null):void {
+		/** Show above controlbar on mousemove or keyboard press and restart the countdown. **/
+		private function moveHandler(evt:Event=null):void {
 			stopFader();
 			if (_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING || hideOnIdle) {
 				startFader();
@@ -562,7 +564,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 		private function addButtonDisplayObject(icon:DisplayObject, name:String, handler:Function=null):MovieClip {
 			var acs:AccessibilityProperties = new AccessibilityProperties();
-			acs.name = name + 'Button';
+			acs.name = name;
 			if (icon is ComponentButton) {
 				icon.name = name;
 				_buttons[name] = icon;

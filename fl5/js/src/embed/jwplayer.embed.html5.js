@@ -95,8 +95,8 @@
 				return true;
 			}
 			
-			// If a provider is set, only proceed if video or HTTP
-			if (provider && provider != "video" && provider != "http") {
+			// If a provider is set, only proceed if video or HTTP or sound
+			if (provider && provider != "video" && provider != "http" && provider != "sound") {
 				return false;
 			}
 			

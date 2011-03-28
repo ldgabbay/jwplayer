@@ -91,37 +91,16 @@
 		function jsonToFlashvars(json) {
 			var flashvars = json.netstreambasepath ? '' : 'netstreambasepath=' + encodeURIComponent(window.location.href) + '&';
 			for (var key in json) {
-				flashvars += key + '=' + encodeURIComponent(json[key]) + '&';
+				if (typeof(json[key]) == "object") {
+					flashvars += key + '=' + encodeURIComponent("[[JSON]]"+jwplayer.utils.strings.jsonToString(json[key])) + '&';
+				} else {
+					flashvars += key + '=' + encodeURIComponent(json[key]) + '&';
+				}
 			}
 			return flashvars.substring(0, flashvars.length - 1);
 		};
 		
-		function loadAfterReady(loadParams) {
-			return function(obj) {
-				if (loadParams.playlist) {
-					this.load(loadParams.playlist);
-				} else if (loadParams.levels) {
-					var item = this.getPlaylistItem(0);
-					if (!item) {
-						item = loadParams;
-					}
-					if (!item.image) {
-						item.image = loadParams.image;
-					}
-					if (!item.levels) {
-						item.levels = loadParams.levels;
-					}
-					this.load(item);
-				}
-			};
-		};
-		
 		this.embed = function() {		
-			// TODO: serialize levels & playlist, de-serialize in Flash
-			if (_options.levels || _options.playlist) {
-				_api.onReady(loadAfterReady(_options));
-			}
-			
 			// Make sure we're passing the correct ID into Flash for Linux API support
 			_options.id = _api.id;
 			
@@ -156,10 +135,9 @@
 			}
 			
 			
-			
-			var toDelete = ["height", "width", "levels", "playlist", "modes", "events"];
+			var toDelete = ["height", "width", "modes", "events"];
 				
-			for (var i = 0; i < toDelete.length; i++){
+			for (var i = 0; i < toDelete.length; i++) {
 				delete params[toDelete[i]];
 			}
 			
@@ -191,6 +169,7 @@
 				_container.id +
 				'" name="' +
 				_container.id +
+				'" tabindex=0"' +
 				'">';
 				html += '<param name="movie" value="' + _player.src + '">';
 				html += '<param name="allowfullscreen" value="true">';
@@ -214,6 +193,7 @@
 				obj.setAttribute('bgcolor', '#000000');
 				obj.setAttribute('id', _container.id);
 				obj.setAttribute('name', _container.id);
+				obj.setAttribute('tabindex', 0);
 				appendAttribute(obj, 'allowfullscreen', 'true');
 				appendAttribute(obj, 'allowscriptaccess', 'always');
 				appendAttribute(obj, 'seamlesstabbing', 'true');

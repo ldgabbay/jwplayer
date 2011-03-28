@@ -1,10 +1,10 @@
 <html>
 	<head>
 		<script type="text/javascript" src="../bin-debug/jwplayer.js"></script>
-		<script type="text/javascript" src="jwplayer.html5.js"></script>
 		<script type="text/javascript">
 			var options = {
 				image:		'http://playertest.longtailvideo.com/bunny.jpg',
+				flashplayer: '../../player.swf',
 				skin: '',
 				levels: [
 					{file: 'http://playertest.longtailvideo.com/bunny.mp4'}
@@ -12,9 +12,9 @@
 			};
 			 
 			function embedPlayer(id) {
-				$jw(id).setup(options,'../../player.swf').onPlay(function() {
+				return(jwplayer(id).setup(options).onPlay(function() {
 					alert("Playing!");
-				}).play();
+				}).play());
 			}	
 		</script>
 		<title>JWPlayer JS Embedder Testing Page</title>
@@ -30,6 +30,6 @@
 		<div>
 			<video id="a_video" src="http://playertest.longtailvideo.com/bunny.mp4" width="320" height="240" poster="http://playertest.longtailvideo.com/bunny.png"></video>
 		</div>
-		<a href="#" onclick="console.log($jw('a_video').setup({flashplayer:'../../player.swf'}).play().options); return false;">Click here to embed player</a><br />
+		<a href="#" onclick="embedPlayer('a_video')"); return false;">Click here to embed player</a><br />
 	</body>
 </html>

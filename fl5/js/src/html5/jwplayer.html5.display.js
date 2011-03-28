@@ -262,9 +262,11 @@
 					_setDisplayIcon("bufferIcon");
 					break;
 				case jwplayer.api.events.state.PAUSED:
-					_css(_display.display_image, {
-						background: "transparent no-repeat center center"
-					});
+					if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
+						_css(_display.display_image, {
+							background: "transparent no-repeat center center"
+						});
+					}
 					_setDisplayIcon("playIcon");
 					break;
 				case jwplayer.api.events.state.IDLE:
@@ -280,10 +282,14 @@
 					break;
 				default:
 					if (_api.jwGetMute()) {
-						_resetPoster();
+						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
+							_resetPoster();
+						}
 						_setDisplayIcon("muteIcon");
 					} else {
-						_resetPoster();
+						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
+							_resetPoster();
+						}
 						_hide(_display.display_iconBackground);
 						_hide(_display.display_icon);
 					}

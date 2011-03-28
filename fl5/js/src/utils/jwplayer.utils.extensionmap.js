@@ -79,7 +79,7 @@
 			"flash": "video"
 		},
 		"mp3": {
-			//"html5": "audio/mp3",
+			"html5": "audio/mp3",
 			"flash": "sound"
 		},
 		"ogg": {

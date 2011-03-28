@@ -8,9 +8,8 @@
 
  if (typeof jwplayer == "undefined") {/**
  * JW Player namespace definition
- * @version 5.5
+ * @version 5.4
  */
-
 var jwplayer = function(container) {
 	if (jwplayer.api){
 		return jwplayer.api.selectPlayer(container);
@@ -19,10 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.5.1677';
-jwplayer.vid = document.createElement("video");
-jwplayer.audio = document.createElement("audio");
-jwplayer.source = document.createElement("source");/**
+jwplayer.version = '5.6.1681';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -866,7 +862,7 @@ jwplayer.source = document.createElement("source");/**
 			"flash": "video"
 		},
 		"mp3": {
-			//"html5": "audio/mp3",
+			"html5": "audio/mp3",
 			"flash": "sound"
 		},
 		"ogg": {
@@ -1213,6 +1209,62 @@ jwplayer.source = document.createElement("source");/**
 				return xml.attributes[attrib].value.toString();
 		}
 		return "";
+	}
+	
+	/**
+	 * Converts a JSON object into its string representation.
+	 * @param obj {Object} String, Number, Array or nested Object to serialize
+	 * Serialization code borrowed from 
+	 */
+	jwplayer.utils.strings.jsonToString = function(obj) {
+		// Use browser's native JSON implementation if it exists.
+		var JSON = JSON || {}
+		if (JSON && JSON.stringify) {
+				return JSON.stringify(obj);
+		}
+
+		var type = typeof (obj);
+		if (type != "object" || obj === null) {
+			// Object is string or number
+			if (type == "string") {
+				obj = '"'+obj+'"';
+			} else {
+				return String(obj);
+			}
+		}
+		else {
+			// Object is an array or object
+			var toReturn = [],
+				isArray = (obj && obj.constructor == Array);
+				
+			for (var item in obj) {
+				var value = obj[item];
+				
+				switch (typeof(value)) {
+					case "string":
+						value = '"' + value + '"';
+						break;
+					case "object":
+						if (value !== null) {
+							value = jwplayer.utils.strings.jsonToString(value);
+						}
+						break;
+				}
+				if (isArray) {
+					// Array
+					toReturn.push(String(value)); 
+				} else {
+					// Object
+					toReturn.push('"' + item + '":' + String(value)); 
+				}
+			}
+			
+			if (isArray) {
+				return "[" + String(toReturn) + "]";
+			} else {
+				return "{" + String(toReturn) + "}";
+			}
+		}
 	}
 	
 })(jwplayer);/**
@@ -2706,37 +2758,16 @@ playerReady = function(obj) {
 		function jsonToFlashvars(json) {
 			var flashvars = json.netstreambasepath ? '' : 'netstreambasepath=' + encodeURIComponent(window.location.href) + '&';
 			for (var key in json) {
-				flashvars += key + '=' + encodeURIComponent(json[key]) + '&';
+				if (typeof(json[key]) == "object") {
+					flashvars += key + '=' + encodeURIComponent("[[JSON]]"+jwplayer.utils.strings.jsonToString(json[key])) + '&';
+				} else {
+					flashvars += key + '=' + encodeURIComponent(json[key]) + '&';
+				}
 			}
 			return flashvars.substring(0, flashvars.length - 1);
 		};
 		
-		function loadAfterReady(loadParams) {
-			return function(obj) {
-				if (loadParams.playlist) {
-					this.load(loadParams.playlist);
-				} else if (loadParams.levels) {
-					var item = this.getPlaylistItem(0);
-					if (!item) {
-						item = loadParams;
-					}
-					if (!item.image) {
-						item.image = loadParams.image;
-					}
-					if (!item.levels) {
-						item.levels = loadParams.levels;
-					}
-					this.load(item);
-				}
-			};
-		};
-		
 		this.embed = function() {		
-			// TODO: serialize levels & playlist, de-serialize in Flash
-			if (_options.levels || _options.playlist) {
-				_api.onReady(loadAfterReady(_options));
-			}
-			
 			// Make sure we're passing the correct ID into Flash for Linux API support
 			_options.id = _api.id;
 			
@@ -2771,10 +2802,9 @@ playerReady = function(obj) {
 			}
 			
 			
-			
-			var toDelete = ["height", "width", "levels", "playlist", "modes", "events"];
+			var toDelete = ["height", "width", "modes", "events"];
 				
-			for (var i = 0; i < toDelete.length; i++){
+			for (var i = 0; i < toDelete.length; i++) {
 				delete params[toDelete[i]];
 			}
 			
@@ -2806,6 +2836,7 @@ playerReady = function(obj) {
 				_container.id +
 				'" name="' +
 				_container.id +
+				'" tabindex=0"' +
 				'">';
 				html += '<param name="movie" value="' + _player.src + '">';
 				html += '<param name="allowfullscreen" value="true">';
@@ -2829,6 +2860,7 @@ playerReady = function(obj) {
 				obj.setAttribute('bgcolor', '#000000');
 				obj.setAttribute('id', _container.id);
 				obj.setAttribute('name', _container.id);
+				obj.setAttribute('tabindex', 0);
 				appendAttribute(obj, 'allowfullscreen', 'true');
 				appendAttribute(obj, 'allowscriptaccess', 'always');
 				appendAttribute(obj, 'seamlesstabbing', 'true');
@@ -2987,8 +3019,8 @@ playerReady = function(obj) {
 				return true;
 			}
 			
-			// If a provider is set, only proceed if video or HTTP
-			if (provider && provider != "video" && provider != "http") {
+			// If a provider is set, only proceed if video or HTTP or sound
+			if (provider && provider != "video" && provider != "http" && provider != "sound") {
 				return false;
 			}
 			
@@ -4976,9 +5008,11 @@ playerReady = function(obj) {
 					_setDisplayIcon("bufferIcon");
 					break;
 				case jwplayer.api.events.state.PAUSED:
-					_css(_display.display_image, {
-						background: "transparent no-repeat center center"
-					});
+					if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
+						_css(_display.display_image, {
+							background: "transparent no-repeat center center"
+						});
+					}
 					_setDisplayIcon("playIcon");
 					break;
 				case jwplayer.api.events.state.IDLE:
@@ -4994,10 +5028,14 @@ playerReady = function(obj) {
 					break;
 				default:
 					if (_api.jwGetMute()) {
-						_resetPoster();
+						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
+							_resetPoster();
+						}
 						_setDisplayIcon("muteIcon");
 					} else {
-						_resetPoster();
+						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
+							_resetPoster();
+						}
 						_hide(_display.display_iconBackground);
 						_hide(_display.display_icon);
 					}
@@ -5763,20 +5801,28 @@ playerReady = function(obj) {
 		};
 		
 		function _embed(playlistItem) {
+			switch(playlistItem.provider){
+				case "youtube":
+					_embedYouTube(playlistItem);
+					break
+//				case "sound":
+//					_embedMediaElement(playlistItem, document.createElement("audio"));
+//					break
+				default:
+					_embedMediaElement(playlistItem, document.createElement("video"));
+					break
+			}
+		}
+		
+		function _embedMediaElement(playlistItem, media) {
 			_model.duration = playlistItem.duration;
 			_hasChrome = false;
 			_currentItem = playlistItem;
-			var vid = document.createElement("video");
-			vid.preload = "none";
+			media.preload = "none";
 			_error = false;
 			_sourceError = 0;
 			for (var sourceIndex = 0; sourceIndex < playlistItem.levels.length; sourceIndex++) {
 				var sourceModel = playlistItem.levels[sourceIndex];
-				if (jwplayer.utils.isYouTube(sourceModel.file)) {
-					delete vid;
-					_embedYouTube(sourceModel.file);
-					return;
-				}
 				var sourceType;
 				var extension = jwplayer.utils.extension(sourceModel.file);
 				if (sourceModel.type === undefined) {
@@ -5787,7 +5833,7 @@ playerReady = function(obj) {
 					sourceType = sourceModel.type;
 				}
 				if (!sourceType
-					|| vid.canPlayType(sourceType)
+					|| media.canPlayType(sourceType)
 					|| (jwplayer.utils.isLegacyAndroid() && extension.match(/m4v|mp4/))
 				   ) {
 					var source = _container.ownerDocument.createElement("source");
@@ -5796,31 +5842,31 @@ playerReady = function(obj) {
 						source.type = sourceType;
 					}
 					_sourceError++;
-					vid.appendChild(source);
+					media.appendChild(source);
 				}
 			}
 			
 			if (_sourceError === 0) {
 				_error = true;
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
-					error: "The video could not be loaded because the format is not supported by your browser: " + joinFiles()
+					error: "The media could not be loaded because the format is not supported by your browser: " + joinFiles()
 				});
 			}
 			
 			if (_model.config.chromeless) {
-				vid.poster = jwplayer.utils.getAbsolutePath(playlistItem.image);
-				vid.controls = "controls";
+				media.poster = jwplayer.utils.getAbsolutePath(playlistItem.image);
+				media.controls = "controls";
 			}
-			vid.style.top = _container.style.top;
-			vid.style.left = _container.style.left;
-			vid.style.width = _container.style.width;
-			vid.style.height = _container.style.height;
-			vid.style.zIndex = _container.style.zIndex;
-			vid.onload = _loadHandler;
-			vid.volume = 0;
-			_container.parentNode.replaceChild(vid, _container);
-			vid.id = _container.id;
-			_container = vid;
+			media.style.top = _container.style.top;
+			media.style.left = _container.style.left;
+			media.style.width = _container.style.width;
+			media.style.height = _container.style.height;
+			media.style.zIndex = _container.style.zIndex;
+			media.onload = _loadHandler;
+			media.volume = 0;
+			_container.parentNode.replaceChild(media, _container);
+			media.id = _container.id;
+			_container = media;
 			for (var event in _events) {
 				_container.addEventListener(event, function(evt) {
 					if (evt.target.parentNode !== null) {
@@ -5830,7 +5876,8 @@ playerReady = function(obj) {
 			}
 		}
 		
-		function _embedYouTube(path) {
+		function _embedYouTube(playlistItem) {
+			var path = playlistItem.levels[0].file;
 			var object = document.createElement("object");
 			path = ["http://www.youtube.com/v/", path.replace(/^[^v]+v.(.{11}).*/, "$1"), "&amp;hl=en_US&amp;fs=1&autoplay=1"].join("");
 			var objectParams = {
@@ -5962,6 +6009,9 @@ playerReady = function(obj) {
 		
 		if (_model.config.chromeless) {
 			pluginorder = ["logo"];
+			if (_model.config.repeat === undefined || _model.config.repeat == "none") {
+				_model.config.repeat = "list";
+			}
 		}
 		
 		_model.plugins = {
@@ -6134,11 +6184,11 @@ playerReady = function(obj) {
  * JW Player playlist item model
  *
  * @author zach
- * @version 5.4
+ * @version 5.6
  */
 (function(jwplayer) {
 	jwplayer.html5.playlistitem = function(config) {
-		var _playlistitem = {
+		var _defaults = {
 			author: "",
 			date: "",
 			description: "",
@@ -6158,18 +6208,51 @@ playerReady = function(obj) {
 			levels: []
 		};
 		
-		for (var property in _playlistitem) {
-			if (config[property] !== undefined) {
-				_playlistitem[property] = config[property];
-			}
+		
+		var _playlistitem = jwplayer.utils.extend({}, _defaults, config);
+		
+		if (_playlistitem.type) {
+			_playlistitem.provider = _playlistitem.type;
+			delete _playlistitem.type;
 		}
+		
 		if (_playlistitem.levels.length === 0) {
 			_playlistitem.levels[0] = new jwplayer.html5.playlistitemlevel(_playlistitem);
 		}
+		
+		if (!_playlistitem.provider) {
+			_playlistitem.provider = _getProvider(_playlistitem.levels[0]);
+		} else {
+			_playlistitem.provider = _playlistitem.provider.toLowerCase();
+		}
+		
 		return _playlistitem;
 	};
-})(jwplayer);
-/**
+	
+	function _getProvider(item) {
+		if (jwplayer.utils.isYouTube(item.file)) {
+			return "youtube";
+		} else {
+			var extension = jwplayer.utils.extension(item.file);
+			var mimetype;
+			if (extension) {
+				mimetype = jwplayer.utils.extensionmap[extension].html5;
+			} else if (item.type) {
+				mimetype = item.type;
+			}
+			
+			if (mimetype) {
+				var mimeprefix = mimetype.split("/")[0];
+				if (mimeprefix == "audio") {
+					return "sound";
+				} else if (mimeprefix == "video") {
+					return mimeprefix;
+				}
+			}
+		}
+		return "";
+	}
+})(jwplayer);/**
  * JW Player playlist item level model
  *
  * @author zach

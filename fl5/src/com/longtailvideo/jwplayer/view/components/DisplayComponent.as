@@ -7,7 +7,6 @@
 	import com.longtailvideo.jwplayer.player.IPlayer;
 	import com.longtailvideo.jwplayer.player.PlayerState;
 	import com.longtailvideo.jwplayer.utils.Draw;
-	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.view.interfaces.IDisplayComponent;
 	import com.longtailvideo.jwplayer.view.skins.PNGSkin;
 	
@@ -213,11 +212,8 @@
 			_background.height = height;
 			
 			_youtubeMask.graphics.clear();
-			_youtubeMask.graphics.beginFill(0x00AA00, 1);
-			_youtubeMask.graphics.drawRect(0, 0, width-120, height);
-			_youtubeMask.graphics.endFill();
-			_youtubeMask.graphics.beginFill(0x00AA00, 1);
-			_youtubeMask.graphics.drawRect(0, 0, width, height-60);
+			_youtubeMask.graphics.beginFill(0x00AA00, 0.3);
+			_youtubeMask.graphics.drawRect(0, 0, width, height - 100);
 			_youtubeMask.graphics.endFill();
 			
 			positionIcon();

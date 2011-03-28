@@ -21,6 +21,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.ColorTransform;
 	import flash.geom.Rectangle;
@@ -28,8 +29,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import flash.ui.Mouse;
 	import flash.utils.clearTimeout;
 	import flash.utils.setTimeout;
-
-
+	
 	public class ControlbarComponentV4 extends CoreComponent implements IControlbarComponent {
 		/** Reference to the original skin **/
 		private var skin:Sprite;
@@ -95,6 +95,7 @@ package com.longtailvideo.jwplayer.view.components {
 			_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, itemHandler);
 			RootReference.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeftStage);
 			RootReference.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
+			RootReference.stage.addEventListener(KeyboardEvent.KEY_DOWN, moveHandler);
 			stacker = new Stacker(skin as MovieClip);
 			try {
 				getSkinComponent("linkButton").visible = false;
@@ -125,7 +126,7 @@ package com.longtailvideo.jwplayer.view.components {
 				btn.visible = true;
 				btn.tabEnabled = true;
 				var acs:AccessibilityProperties = new AccessibilityProperties();
-				acs.name = name + 'Button';
+				acs.name = name;
 				btn.accessibilityProperties = acs;
 				skin.addChild(btn);
 				var off:Number = Math.round((btn.height - icon.height) / 2);
@@ -312,28 +313,34 @@ package com.longtailvideo.jwplayer.view.components {
 
 		/** Clickhandler for all buttons. **/
 		private function setButtons():void {
+			var dispObj:DisplayObject;
 			for (var btn:String in BUTTONS) {
-				if (getSkinComponent(btn)) {
-					(getSkinComponent(btn) as MovieClip).mouseChildren = false;
-					(getSkinComponent(btn) as MovieClip).buttonMode = true;
-					getSkinComponent(btn).addEventListener(MouseEvent.CLICK, clickHandler);
-					getSkinComponent(btn).addEventListener(MouseEvent.MOUSE_OVER, overHandler);
-					getSkinComponent(btn).addEventListener(MouseEvent.MOUSE_OUT, outHandler);
+				dispObj = getSkinComponent(btn) 
+				if (dispObj) {
+					dispObj.addEventListener(MouseEvent.CLICK, clickHandler);
+					dispObj.addEventListener(MouseEvent.MOUSE_OVER, overHandler);
+					dispObj.addEventListener(MouseEvent.MOUSE_OUT, outHandler);
+					if (dispObj is MovieClip) {
+						(dispObj as MovieClip).mouseChildren = false;
+						(dispObj as MovieClip).buttonMode = true;
+					}
 				}
 			}
 			for (var sld:String in SLIDERS) {
-				if (getSkinComponent(sld)) {
-					(getSkinComponent(sld) as MovieClip).mouseChildren = false;
-					(getSkinComponent(sld) as MovieClip).tabEnabled = false;
-					(getSkinComponent(sld) as MovieClip).buttonMode = true;
+				dispObj =getSkinComponent(sld) 
+				if (dispObj) {
 					getSkinComponent(sld).addEventListener(MouseEvent.MOUSE_DOWN, downHandler);
 					getSkinComponent(sld).addEventListener(MouseEvent.MOUSE_OVER, overHandler);
 					getSkinComponent(sld).addEventListener(MouseEvent.MOUSE_OUT, outHandler);
+					if (dispObj is MovieClip) {
+						(dispObj as MovieClip).mouseChildren = false;
+						(dispObj as MovieClip).tabEnabled = false;
+						(dispObj as MovieClip).buttonMode = true;
+					}
 				}
 			}
 		}
-
-
+		
 		/** Init the colors. **/
 		private function setColors():void {
 			if (_player.config.backcolor && getSkinElementChild('playButton', 'icon')) {
@@ -406,7 +413,7 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		/** Show above controlbar on mousemove and restart the countdown. **/
-		private function moveHandler(evt:MouseEvent=null):void {
+		private function moveHandler(evt:Event=null):void {
 			stopFader();
 			if (_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING || hideOnIdle) {
 				startFader();

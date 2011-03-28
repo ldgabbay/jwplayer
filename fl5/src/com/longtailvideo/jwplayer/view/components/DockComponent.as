@@ -12,6 +12,8 @@ package com.longtailvideo.jwplayer.view.components {
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
+	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.utils.clearTimeout;
 	import flash.utils.setTimeout;
@@ -38,7 +40,9 @@ package com.longtailvideo.jwplayer.view.components {
 			buttons = new Array();
 			if (player.config.dock) {
 				player.addEventListener(PlayerStateEvent.JWPLAYER_PLAYER_STATE, stateHandler);
+				RootReference.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeftStage);
 				RootReference.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
+				RootReference.stage.addEventListener(KeyboardEvent.KEY_DOWN, moveHandler);
 			} else {
 				visible = false;
 			}
@@ -54,7 +58,7 @@ package com.longtailvideo.jwplayer.view.components {
 				button.colorize = true;
 			}
 			var acs:AccessibilityProperties = new AccessibilityProperties();
-			acs.name = (name ? name : icon.name) + "Button";
+			acs.name = (name ? name : icon.name);
 			button.accessibilityProperties = acs;
 			button.tabEnabled = true;
 			button.tabChildren = false;
@@ -112,9 +116,13 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 		}
 		
+		/** If the mouse leaves the stage, hide the dock **/
+		private function mouseLeftStage(evt:Event=null):void {
+			animations.fade(0);
+		}
 		
 		/** Show the buttons on mousemove. **/
-		private function moveHandler(evt:MouseEvent = null):void {
+		private function moveHandler(evt:Event = null):void {
 			clearTimeout(timeout);
 			if (player.state == PlayerState.BUFFERING || player.state == PlayerState.PLAYING) {
 				timeout = setTimeout(moveTimeout, 2000);

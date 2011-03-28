@@ -44,6 +44,7 @@ package com.longtailvideo.jwplayer.model {
 				}
 			}
 		}
+		
 
 		/** File property is now a getter, to take levels into account **/
 		public function get file():String {

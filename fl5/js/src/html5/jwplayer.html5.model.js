@@ -84,6 +84,9 @@
 		
 		if (_model.config.chromeless) {
 			pluginorder = ["logo"];
+			if (_model.config.repeat === undefined || _model.config.repeat == "none") {
+				_model.config.repeat = "list";
+			}
 		}
 		
 		_model.plugins = {

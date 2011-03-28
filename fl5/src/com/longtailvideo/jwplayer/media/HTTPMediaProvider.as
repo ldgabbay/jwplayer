@@ -221,8 +221,8 @@ package com.longtailvideo.jwplayer.media {
 			if (_item != itm) {
 				_item = itm;
 				media = _video;
-				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_LOADED);
 			}
+			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_LOADED);
 			_bufferFull = false;
 			_bufferingComplete = false;
 			

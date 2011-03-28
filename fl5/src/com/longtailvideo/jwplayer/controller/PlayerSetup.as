@@ -60,6 +60,9 @@ package com.longtailvideo.jwplayer.controller {
 		/** User-defined configuration **/
 		protected var confHash:Object;
 		
+		/** JSON Playlist passed in **/
+		protected var confPlaylist:Array;
+		
 		public function PlayerSetup(player:IPlayer, model:Model, view:View) {
 			_player = player;
 			_model = model;
@@ -116,6 +119,11 @@ package com.longtailvideo.jwplayer.controller {
 
 		protected function loadConfigComplete(evt:Event):void {
 			confHash = (evt.target as Configger).config;
+			
+			if (confHash['playlist'] && confHash['playlist'] is Array) {
+				confPlaylist = confHash['playlist'];
+				delete confHash['playlist'];
+			}
 		}
 
 		protected function loadSkin(evt:ErrorEvent=null):void {
@@ -217,7 +225,9 @@ package com.longtailvideo.jwplayer.controller {
 			_model.playlist.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, tasker.success);
 			_model.playlist.addEventListener(PlayerEvent.JWPLAYER_ERROR, tasker.failure);
 
-			if (_model.config.playlistfile) {
+			if (confPlaylist && confPlaylist.length > 0) {
+				_model.playlist.load(confPlaylist);
+			} else if (_model.config.playlistfile) {
 				_model.playlist.load(_model.config.playlistfile);
 			} else if (_model.config.singleItem.file) {
 				_model.playlist.load(_model.config.singleItem);

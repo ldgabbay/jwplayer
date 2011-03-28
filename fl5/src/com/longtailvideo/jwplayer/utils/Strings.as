@@ -1,4 +1,5 @@
 package com.longtailvideo.jwplayer.utils {
+	import com.adobe.serialization.json.JSONDecoder;
 	
 	/**
 	 * This class groups a couple of commonly used string operations.
@@ -75,6 +76,14 @@ package com.longtailvideo.jwplayer.utils {
 				return true;
 			} else if (val == 'false') {
 				return false;
+			} else if (val.indexOf("[[JSON]]") == 0) {
+				var jsonString:String = val.substring(8, val.length);
+				try {
+					return (new JSONDecoder(jsonString, false)).getValue();
+				} catch(e:Error) {
+					Logger.log("Error parsing JSON string: " + e.message + ".  String: " + jsonString);
+				}
+				return jsonString;
 			} else if (isNaN(Number(val)) || val.length > 5 || val.length == 0) {
 				return val;
 			} else {

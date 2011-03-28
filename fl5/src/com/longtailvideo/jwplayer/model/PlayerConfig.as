@@ -7,6 +7,7 @@ package com.longtailvideo.jwplayer.model {
 	import com.longtailvideo.jwplayer.utils.TypeChecker;
 	
 	import flash.events.EventDispatcher;
+	import flash.utils.getQualifiedClassName;
 
 	/**
 	 * Configuration data for the player
@@ -73,6 +74,11 @@ package com.longtailvideo.jwplayer.model {
 				} else if (_singleItem.hasOwnProperty(item)) {
 					if (item == "file" && Strings.extension(config[item]) == "xml") {
 						setProperty("playlistfile", config[item]);					
+					} else if (item == "levels" && config[item] is Array) {
+						for (var i:Number = 0; i < (config[item] as Array).length; i++) {
+							var level:Object = config[item][i];
+							_singleItem.addLevel(new PlaylistItemLevel(level.file, level.bitrate, level.width, level.streamer));
+						}
 					} else {
 						_singleItem[item.toLowerCase()] = config[item];
 					}
@@ -82,8 +88,8 @@ package com.longtailvideo.jwplayer.model {
 			}
 		}
 		
-		protected function setProperty(name:String, value:String):void {
-			if (hasOwnProperty(name)) {
+		protected function setProperty(name:String, value:*):void {
+			if (hasOwnProperty(name) && value is String) {
 				try {
 					this[name] = TypeChecker.fromString(value, TypeChecker.getType(this, name));
 				} catch (e:Error) {
@@ -99,7 +105,7 @@ package com.longtailvideo.jwplayer.model {
 		 * @param name The parameter name in the form "pluginId.propertyname"
 		 * @param value The value to set.
 		 */
-		protected function setPluginProperty(name:String, value:String):void {
+		protected function setPluginProperty(name:String, value:*):void {
 			var pluginId:String = name.substring(0, name.indexOf(".")).toLowerCase();
 			var pluginProperty:String = name.substring(name.indexOf(".") + 1, name.length).toLowerCase();
 
@@ -107,7 +113,11 @@ package com.longtailvideo.jwplayer.model {
 				if (!_pluginConfig.hasOwnProperty(pluginId)) {
 					_pluginConfig[pluginId] = new PluginConfig(pluginId);
 				}
-				_pluginConfig[pluginId][pluginProperty] = TypeChecker.fromString(value);
+				if (value is String) {
+					_pluginConfig[pluginId][pluginProperty] = TypeChecker.fromString(value);
+				} else {
+					_pluginConfig[pluginId][pluginProperty] = value;
+				}
 			}
 		}
 
@@ -212,8 +222,8 @@ package com.longtailvideo.jwplayer.model {
 
 		/** Position of the controlbar. Can be set to top, bottom, over and none.  @default bottom **/
 		public function get controlbar():String { 
-			if (pluginConfig('controlbar').hasOwnProperty('position'))
-				return pluginConfig('controlbar')['position'];
+			if (_pluginConfig['controlbar'] && _pluginConfig['controlbar'].hasOwnProperty('position'))
+				return _pluginConfig['controlbar']['position'];
 			else return _controlbar;
 		}
 		public function set controlbar(x:String):void { 
@@ -236,8 +246,8 @@ package com.longtailvideo.jwplayer.model {
 
 		/** Location of an external jpg, png or gif image to show in a corner of the display. With the default skin, this is top-right, but every skin can freely place the logo. **/
 		public function get logo():String { 
-			if (pluginConfig('logo').hasOwnProperty('file'))
-				return pluginConfig('logo')['file'];
+			if (_pluginConfig['logo'] &&  _pluginConfig['logo'].hasOwnProperty('file'))
+				return _pluginConfig['logo']['file'];
 			else return _logo;
 		}
 		public function set logo(x:String):void {
@@ -248,8 +258,8 @@ package com.longtailvideo.jwplayer.model {
 
 		/** Position of the playlist. Can be set to bottom, over, right or none. @default none **/
 		public function get playlist():String { 
-			if (pluginConfig('playlist').hasOwnProperty('position'))
-				return pluginConfig('playlist')['position'];
+			if (_pluginConfig['playlist'] && _pluginConfig['playlist'].hasOwnProperty('position'))
+				return _pluginConfig['playlist'] && _pluginConfig['playlist']['position'];
 			else return _playlist;
 		}
 		public function set playlist(x:String):void { 
@@ -362,6 +372,10 @@ package com.longtailvideo.jwplayer.model {
 			pluginId = pluginId.toLowerCase();
 			if (_pluginConfig.hasOwnProperty(pluginId)) {
 				return _pluginConfig[pluginId] as PluginConfig;
+			} else if (this[pluginId] && getQualifiedClassName(this[pluginId]) == "Object") {
+				var duplicatedConfig:PluginConfig = new PluginConfig(pluginId, this[pluginId]);
+				_pluginConfig[pluginId] = duplicatedConfig;
+				return duplicatedConfig;
 			} else {
 				var newConfig:PluginConfig = new PluginConfig(pluginId);
 				_pluginConfig[pluginId] = newConfig;
