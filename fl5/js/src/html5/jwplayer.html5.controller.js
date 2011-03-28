@@ -95,7 +95,7 @@
 						case jwplayer.api.events.state.PLAYING:
 						case jwplayer.api.events.state.PAUSED:
 						case jwplayer.api.events.state.BUFFERING:
-							_model.getMedia().seek(position);
+							_model.seek(position);
 							break;
 					}
 				}

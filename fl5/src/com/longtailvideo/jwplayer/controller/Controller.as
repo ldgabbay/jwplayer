@@ -415,9 +415,11 @@ package com.longtailvideo.jwplayer.controller {
 			if (locking) {
 				return false;
 			}
-			if (!_model.media)
+			
+			if (!_model.media) {
 				return false;
-
+			}
+			
 			switch (_model.media.state) {
 				case PlayerState.PLAYING:
 				case PlayerState.BUFFERING:
@@ -500,7 +502,7 @@ package com.longtailvideo.jwplayer.controller {
 			switch (_model.media.state) {
 				case PlayerState.PLAYING:
 				case PlayerState.PAUSED:
-					_model.media.seek(pos);
+					_model.seek(pos);
 					return true;
 				case PlayerState.IDLE:
 					_model.playlist.currentItem.start = pos;

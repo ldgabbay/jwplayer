@@ -525,10 +525,10 @@
 				} else if (pos > _currentDuration) {
 					pos = _currentDuration - 3;
 				}
-				_api.jwSeek(pos);
-				if (_api.jwGetState() != jwplayer.api.events.state.PLAYING) {
+				if (_api.jwGetState() == jwplayer.api.events.state.PAUSED || _api.jwGetState() == jwplayer.api.events.state.IDLE) {
 					_api.jwPlay();
 				}
+				_api.jwSeek(pos);
 			} else if (_scrubber == "volume") {
 				xps = msx - _positions.volumeSliderRail.left - window.pageXOffset;
 				var pct = Math.round(xps / _positions.volumeSliderRail.width * 100);

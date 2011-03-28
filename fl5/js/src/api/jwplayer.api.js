@@ -226,6 +226,9 @@
 		this.onComplete = function(callback) {
 			return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, callback);
 		};
+		this.onSeek = function(callback) {
+			return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_SEEK, callback);
+		};
 		this.onTime = function(callback) {
 			return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, callback);
 		};
@@ -470,6 +473,7 @@
 		JWPLAYER_MEDIA_ERROR: 'jwplayerMediaError',
 		JWPLAYER_MEDIA_LOADED: 'jwplayerMediaLoaded',
 		JWPLAYER_MEDIA_COMPLETE: 'jwplayerMediaComplete',
+		JWPLAYER_MEDIA_SEEK: 'jwplayerMediaSeek',
 		JWPLAYER_MEDIA_TIME: 'jwplayerMediaTime',
 		JWPLAYER_MEDIA_VOLUME: 'jwplayerMediaVolume',
 		JWPLAYER_MEDIA_META: 'jwplayerMediaMeta',

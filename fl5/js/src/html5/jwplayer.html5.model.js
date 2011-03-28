@@ -211,6 +211,15 @@
 			return _media;
 		};
 		
+		_model.seek = function(pos) {
+			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_SEEK, {
+				"position": _model.position,
+				"offset": pos
+			});
+			return _media.seek(pos);
+		};
+
+		
 		
 		_model.setupPlugins = function() {
 			for (var plugin in _model.plugins.order) {

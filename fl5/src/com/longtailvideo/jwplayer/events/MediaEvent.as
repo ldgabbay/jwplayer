@@ -92,23 +92,41 @@ package com.longtailvideo.jwplayer.events {
 		public static var JWPLAYER_MEDIA_COMPLETE:String = "jwplayerMediaComplete";
 
 		/**
-	     *  The <code>MediaEvent.JWPLAYER_MEDIA_TIME</code> constant defines the value of the 
-     	 *  <code>type</code> property of the event object for a <code>jwplayerMediaTime</code> event.
-     	 * 
+		 *  The <code>MediaEvent.JWPLAYER_MEDIA_SEEK</code> constant defines the value of the 
+		 *  <code>type</code> property of the event object for a <code>jwplayerMediaSeek</code> event.
+		 * 
 		 * <p>The properties of the event object have the following values:</p>
-	     * <table class="innertable">
-     	 *		<tr><th>Property</th><th>Value</th></tr>
-	     *		<tr><td><code>id</code></td><td>ID of the player in the HTML DOM. Used by javascript to reference the player.</td></tr>
-	     *		<tr><td><code>client</code></td><td>A string representing the client the player runs in (e.g. FLASH WIN 9,0,115,0).</td></tr>
-  	     * 		<tr><td><code>version</code></td><td>A string representing the major version, minor version and revision number of the player (e.g. 5.0.395).</td></tr>
-  	     * 		<tr><td><code>position</code></td><td>Number of seconds elapsed since the start of the media playback.</td></tr>
-  	     * 		<tr><td><code>duration</code></td><td>Total number of seconds in the currently loaded media.</td></tr>
-  	     *  </table>
-	     *
-	     *  @eventType jwplayerMediaTime
+		 * <table class="innertable">
+		 *		<tr><th>Property</th><th>Value</th></tr>
+		 *		<tr><td><code>id</code></td><td>ID of the player in the HTML DOM. Used by javascript to reference the player.</td></tr>
+		 *		<tr><td><code>client</code></td><td>A string representing the client the player runs in (e.g. FLASH WIN 9,0,115,0).</td></tr>
+		 * 		<tr><td><code>version</code></td><td>A string representing the major version, minor version and revision number of the player (e.g. 5.0.395).</td></tr>
+		 * 		<tr><td><code>position</code></td><td>The current position of the media, in seconds.</td></tr>
+		 * 		<tr><td><code>offset</code></td><td>The requested seek offset, in seconds.</td></tr>
+		 *  </table>
+		 *
+		 *  @eventType jwplayerMediaSeek
+		 */
+		public static var JWPLAYER_MEDIA_SEEK:String = "jwplayerMediaSeek";
+		
+		/**
+		 *  The <code>MediaEvent.JWPLAYER_MEDIA_TIME</code> constant defines the value of the 
+		 *  <code>type</code> property of the event object for a <code>jwplayerMediaTime</code> event.
+		 * 
+		 * <p>The properties of the event object have the following values:</p>
+		 * <table class="innertable">
+		 *		<tr><th>Property</th><th>Value</th></tr>
+		 *		<tr><td><code>id</code></td><td>ID of the player in the HTML DOM. Used by javascript to reference the player.</td></tr>
+		 *		<tr><td><code>client</code></td><td>A string representing the client the player runs in (e.g. FLASH WIN 9,0,115,0).</td></tr>
+		 * 		<tr><td><code>version</code></td><td>A string representing the major version, minor version and revision number of the player (e.g. 5.0.395).</td></tr>
+		 * 		<tr><td><code>position</code></td><td>Number of seconds elapsed since the start of the media playback.</td></tr>
+		 * 		<tr><td><code>duration</code></td><td>Total number of seconds in the currently loaded media.</td></tr>
+		 *  </table>
+		 *
+		 *  @eventType jwplayerMediaTime
 		 */
 		public static var JWPLAYER_MEDIA_TIME:String = "jwplayerMediaTime";
-
+		
 		/**
 	     *  The <code>MediaEvent.JWPLAYER_MEDIA_VOLUME</code> constant defines the value of the 
      	 *  <code>type</code> property of the event object for a <code>jwplayerMediaVolume</code> event.

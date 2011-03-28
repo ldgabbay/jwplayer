@@ -39,13 +39,19 @@ package com.longtailvideo.jwplayer.model {
 	 */
 	[Event(name="jwplayerMediaLoaded", type="com.longtailvideo.jwplayer.events.MediaEvent")]
 	/**
-	 * Sent after a load() command has completed
+	 * Sent when a seek has been requested, but before the seek actually takes place.
+	 * 
+	 * @eventType com.longtailvideo.jwplayer.events.MediaEvent.JWPLAYER_MEDIA_SEEK
+	 */
+	[Event(name="jwplayerMediaSeek", type="com.longtailvideo.jwplayer.events.MediaEvent")]
+	/**
+	 * Sends the position and duration of the currently playing media
 	 * 
 	 * @eventType com.longtailvideo.jwplayer.events.MediaEvent.JWPLAYER_MEDIA_TIME
 	 */
 	[Event(name="jwplayerMediaTime", type="com.longtailvideo.jwplayer.events.MediaEvent")]
 	/**
-	 * Sends the position and duration of the currently playing media
+	 * Sent when the volume has been updated
 	 * 
 	 * @eventType com.longtailvideo.jwplayer.events.MediaEvent.JWPLAYER_MEDIA_VOLUME
 	 */
@@ -149,6 +155,16 @@ package com.longtailvideo.jwplayer.model {
 			setMediaProvider('youtube', new YouTubeMediaProvider());
 
 			setActiveMediaProvider('default');
+		}
+		
+		/** Instruct the currently playing media to seek to the specified position. **/
+		public function seek(pos:Number):void {
+			var newEvent:MediaEvent = new MediaEvent(MediaEvent.JWPLAYER_MEDIA_SEEK);
+			newEvent.position = media.position;
+			newEvent.offset = pos;
+			dispatchEvent(newEvent);
+			
+			media.seek(pos);
 		}
 
 		/**
