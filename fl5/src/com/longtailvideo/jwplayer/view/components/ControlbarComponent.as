@@ -332,10 +332,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 		private function removeButtonFromLayout(button:String, layout:String):String {
 			layout = layout.replace(button, "");
-			layout = layout.replace(/\|\|/g, "|");
-			layout = layout.replace(/\[\|/g, "[");
-			layout = layout.replace(/\|\]/g, "]");
-			layout = layout.replace(/\[\]/g, "");
+			layout = layout.replace(/\|+/g, "|");
 			return layout;
 		}
 

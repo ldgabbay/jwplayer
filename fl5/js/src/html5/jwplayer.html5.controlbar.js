@@ -96,7 +96,7 @@
 		var _api = api;
 		var _settings = jwplayer.utils.extend({}, _defaults, _api.skin.getComponentSettings("controlbar"), config);
 		if (_settings.position == jwplayer.html5.view.positions.NONE
-			|| typeof jwplayer.html5.view.positions[_settings.position] == "undefined"){
+			|| typeof jwplayer.html5.view.positions[_settings.position] == "undefined") {
 			return;
 		}
 		if (jwplayer.utils.mapLength(_api.skin.getComponentLayout("controlbar")) > 0) {
@@ -113,11 +113,22 @@
 		var _currentBuffer;
 		var _width;
 		var _height;
-		var _prevElement;
 		var _elements = {};
 		var _ready = false;
 		var _positions = {};
+		var _bgElement;
 		
+		function _getBack() {
+			if (!_bgElement) {
+				_bgElement = _api.skin.getSkinElement("controlbar", "background");
+				if (!_bgElement) {
+					_bgElement = {
+					   width: 0, height: 0, src: null		
+					}
+				}
+			}
+			return _bgElement;
+		}
 		
 		function _buildBase() {
 			_marginleft = 0;
@@ -125,7 +136,7 @@
 			_dividerid = 0;
 			if (!_ready) {
 				var wrappercss = {
-					height: _api.skin.getSkinElement("controlbar", "background").height,
+					height: _getBack().height,
 					backgroundColor: _settings.backgroundcolor
 				};
 				
@@ -133,22 +144,28 @@
 				_wrapper.id = _api.id + "_jwplayer_controlbar";
 				_css(_wrapper, wrappercss);
 			}
-			
-			_addElement("capLeft", "left", false, _wrapper);
+
+			var capLeft = (_api.skin.getSkinElement("controlbar", "capLeft"));
+			var capRight = (_api.skin.getSkinElement("controlbar", "capRight"));
+
+			if (capLeft) {
+				_addElement("capLeft", "left", false, _wrapper);
+			}
 			var domelementcss = {
 				position: "absolute",
-				height: _api.skin.getSkinElement("controlbar", "background").height,
-				//background: " url(" + _api.skin.getSkinElement("controlbar", "background").src + ") repeat-x center left",
-				left: _api.skin.getSkinElement("controlbar", "capLeft").width,
+				height: _getBack().height,
+				left: (capLeft ? capLeft.width : 0),
 				zIndex: 0
 			};
 			_appendNewElement("background", _wrapper, domelementcss, "img");
-			if (_api.skin.getSkinElement("controlbar", "background")){
-				_elements.background.src = _api.skin.getSkinElement("controlbar", "background").src
+			if (_getBack().src) {
+				_elements.background.src = _getBack().src;
 			}
 			domelementcss.zIndex = 1;
-			_appendNewElement("elements", _wrapper, domelementcss);			
-			_addElement("capRight", "right", false, _wrapper);
+			_appendNewElement("elements", _wrapper, domelementcss);
+			if (capRight) {
+				_addElement("capRight", "right", false, _wrapper);
+			}
 		}
 		
 		this.getDisplayElement = function() {
@@ -255,15 +272,18 @@
 		/** Draw a single element into the jwplayerControlbar. **/
 		function _buildElement(element, alignment) {
 			var offset, offsetLeft, offsetRight, width, slidercss;
+			
+			if (element.type == "divider") {
+				_addElement("divider" + getNewDividerId(), alignment, true, undefined, undefined, element.width, element.element);
+				return;
+			}
+			
 			switch (element.name) {
 				case "play":
 					_addElement("playButton", alignment, false);
 					_addElement("pauseButton", alignment, true);
 					_buildHandler("playButton", "jwPlay");
 					_buildHandler("pauseButton", "jwPause");
-					break;
-				case "divider":
-					_addElement("divider" + getNewDividerId(), alignment, true, undefined, undefined, element.width);
 					break;
 				case "prev":
 					_addElement("prevButton", alignment, true);
@@ -282,7 +302,7 @@
 					offset = alignment == "left" ? offsetLeft : offsetRight;
 					width = _api.skin.getSkinElement("controlbar", "timeSliderRail").width + offsetLeft + offsetRight;
 					slidercss = {
-						height: _api.skin.getSkinElement("controlbar", "background").height,
+						height: _getBack().height,
 						position: "absolute",
 						top: 0,
 						width: width
@@ -309,7 +329,7 @@
 					offset = alignment == "left" ? offsetLeft : offsetRight;
 					width = _api.skin.getSkinElement("controlbar", "volumeSliderRail").width + offsetLeft + offsetRight;
 					slidercss = {
-						height: _api.skin.getSkinElement("controlbar", "background").height,
+						height: _getBack().height,
 						position: "absolute",
 						top: 0,
 						width: width
@@ -335,11 +355,10 @@
 			}
 		}
 		
-		function _addElement(element, alignment, offset, parent, position, width) {
-			if ((_api.skin.getSkinElement("controlbar", element) !== undefined || element.indexOf("Text") > 0 || element.indexOf("divider") === 0) && !(element.indexOf("divider") === 0 && _prevElement.indexOf("divider") === 0)) {
-				_prevElement = element;
+		function _addElement(element, alignment, offset, parent, position, width, skinElement) {
+			if (_api.skin.getSkinElement("controlbar", element) !== undefined || element.indexOf("Text") > 0 || element.indexOf("divider") === 0)  {
 				var css = {
-					height: _api.skin.getSkinElement("controlbar", "background").height,
+					height: _getBack().height,
 					position: "absolute",
 					display: "block",
 					top: 0
@@ -351,7 +370,7 @@
 				var wid;
 				if (element.indexOf("Text") > 0) {
 					element.innerhtml = "00:00";
-					css.font = _settings.fontsize + "px/" + (_api.skin.getSkinElement("controlbar", "background").height + 1) + "px " + _settings.font;
+					css.font = _settings.fontsize + "px/" + (_getBack().height + 1) + "px " + _settings.font;
 					css.color = _settings.fontcolor;
 					css.textAlign = "center";
 					css.fontWeight = _settings.fontweight;
@@ -363,7 +382,13 @@
 						if (!isNaN(parseInt(width))) {
 							wid = parseInt(width);
 						}
-					}  else {
+					} else if (skinElement) {
+						var altDivider = _api.skin.getSkinElement("controlbar", skinElement);
+						if (altDivider) {
+							css.background = "url(" + altDivider.src + ") repeat-x center left";
+							wid = altDivider.width;
+						}
+					} else {
 						css.background = "url(" + _api.skin.getSkinElement("controlbar", "divider").src + ") repeat-x center left";
 						wid = _api.skin.getSkinElement("controlbar", "divider").width;	
 					}
@@ -551,11 +576,13 @@
 			if (event.bufferPercent !== null) {
 				_currentBuffer = event.bufferPercent;
 			}
-			var wid = _positions.timeSliderRail.width;
-			var bufferWidth = isNaN(Math.round(wid * _currentBuffer / 100)) ? 0 : Math.round(wid * _currentBuffer / 100);
-			_css(_elements.timeSliderBuffer, {
-				width: bufferWidth
-			});
+			if (_positions.timeSliderRail) {
+				var wid = _positions.timeSliderRail.width;
+				var bufferWidth = isNaN(Math.round(wid * _currentBuffer / 100)) ? 0 : Math.round(wid * _currentBuffer / 100);
+				_css(_elements.timeSliderBuffer, {
+					width: bufferWidth
+				});
+			}
 		}
 		
 		
@@ -626,13 +653,17 @@
 				_currentDuration = event.duration;
 			}
 			var progress = (_currentPosition === _currentDuration === 0) ? 0 : _currentPosition / _currentDuration;
-			var progressWidth = isNaN(Math.round(_positions.timeSliderRail.width * progress)) ? 0 : Math.round(_positions.timeSliderRail.width * progress);
-			var thumbPosition = progressWidth;
-			
-			_elements.timeSliderProgress.style.width = progressWidth + "px";
-			if (!_mousedown) {
-				if (_elements.timeSliderThumb) {
-					_elements.timeSliderThumb.style.left = thumbPosition + "px";
+			var progressElement = _positions.timeSliderRail;
+			if (progressElement) {
+				var progressWidth = isNaN(Math.round(progressElement.width * progress)) ? 0 : Math.round(progressElement.width * progress);
+				var thumbPosition = progressWidth;
+				if (_elements.timeSliderProgress) {
+					_elements.timeSliderProgress.style.width = progressWidth + "px";
+					if (!_mousedown) {
+						if (_elements.timeSliderThumb) {
+							_elements.timeSliderThumb.style.left = thumbPosition + "px";
+						}
+					}
 				}
 			}
 			if (_elements.durationText) {
@@ -662,9 +693,12 @@
 				if (isNaN(parseInt(childNode, 10))) {
 					continue;
 				}
-				if (childNodes[childNode].id.indexOf(_wrapper.id + "_divider") === 0 && lastVisibleElement.id.indexOf(_wrapper.id + "_divider") === 0) {
+				if (childNodes[childNode].id.indexOf(_wrapper.id + "_divider") === 0 
+						&& lastVisibleElement 
+						&& lastVisibleElement.id.indexOf(_wrapper.id + "_divider") === 0 
+						&& childNodes[childNode].style.backgroundImage == lastVisibleElement.style.backgroundImage) {
 					childNodes[childNode].style.display = "none";
-				} else if (childNodes[childNode].id.indexOf(_wrapper.id + "_divider") === 0 && lastElement.style.display != "none") {
+				} else if (childNodes[childNode].id.indexOf(_wrapper.id + "_divider") === 0 && lastElement && lastElement.style.display != "none") {
 					childNodes[childNode].style.display = "block";
 				}
 				if (childNodes[childNode].style.display != "none") {
@@ -691,14 +725,17 @@
 			if (_settings.position == jwplayer.html5.view.positions.OVER || _api.jwGetFullscreen()) {
 				controlbarcss.left = _settings.margin;
 				controlbarcss.width -= 2 * _settings.margin;
-				controlbarcss.top = _height - _api.skin.getSkinElement("controlbar", "background").height - _settings.margin;
-				controlbarcss.height = _api.skin.getSkinElement("controlbar", "background").height;
+				controlbarcss.top = _height - _getBack().height - _settings.margin;
+				controlbarcss.height = _getBack().height;
 			} else {
 				controlbarcss.left = 0;
 			}
 			
-			elementcss.left = _api.skin.getSkinElement("controlbar", "capLeft").width;
-			elementcss.width = controlbarcss.width - _api.skin.getSkinElement("controlbar", "capLeft").width - _api.skin.getSkinElement("controlbar", "capRight").width;
+			var capLeft = _api.skin.getSkinElement("controlbar", "capLeft"); 
+			var capRight = _api.skin.getSkinElement("controlbar", "capRight"); 
+			
+			elementcss.left = capLeft ? capLeft.width : 0;
+			elementcss.width = controlbarcss.width - elementcss.left - (capRight ? capRight.width : 0);
 
 			var timeSliderLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
 			_css(_elements.timeSliderRail, {
