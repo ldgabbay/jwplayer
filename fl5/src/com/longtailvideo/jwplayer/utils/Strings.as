@@ -44,8 +44,10 @@ package com.longtailvideo.jwplayer.utils {
 			str = str.replace(',', '.');
 			var arr:Array = str.split(':');
 			var sec:Number = 0;
-			if (str.substr(-1) == 's') {
-				sec = Number(str.substr(0, str.length - 1));
+			if (str.substr(-2) == 'ms') {
+				sec = Number(str.substr(0, str.length - 2)) / 1000;
+			} else if (str.substr(-1) == 's') {
+					sec = Number(str.substr(0, str.length - 1));
 			} else if (str.substr(-1) == 'm') {
 				sec = Number(str.substr(0, str.length - 1)) * 60;
 			} else if (str.substr(-1) == 'h') {
