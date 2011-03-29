@@ -43,6 +43,9 @@ package com.longtailvideo.jwplayer.view.components {
 				RootReference.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeftStage);
 				RootReference.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
 				RootReference.stage.addEventListener(KeyboardEvent.KEY_DOWN, moveHandler);
+				if (hideOnIdle) {
+					alpha = 0;
+				}
 			} else {
 				visible = false;
 			}
@@ -116,16 +119,29 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 		}
 		
+		/** Hide the dock if the controlbar is set to be hidden on idle **/
+		private function get hideOnIdle():Boolean {
+			return String(_player.config.pluginConfig("controlbar")['idlehide']) == "true";
+		}
+		
+		/** Start the fade timer **/
+		private function startFader():void {
+			if (!isNaN(timeout)) {
+				clearTimeout(timeout);
+			}
+			timeout = setTimeout(moveTimeout, 2000);
+		}
+		
 		/** If the mouse leaves the stage, hide the dock **/
 		private function mouseLeftStage(evt:Event=null):void {
-			animations.fade(0);
+			moveTimeout();
 		}
 		
 		/** Show the buttons on mousemove. **/
 		private function moveHandler(evt:Event = null):void {
 			clearTimeout(timeout);
-			if (player.state == PlayerState.BUFFERING || player.state == PlayerState.PLAYING) {
-				timeout = setTimeout(moveTimeout, 2000);
+			if (player.state == PlayerState.BUFFERING || player.state == PlayerState.PLAYING || hideOnIdle) {
+				startFader();
 				if (alpha < 1) {
 					animations.fade(1);
 				}
@@ -135,7 +151,9 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** Hide the buttons again when move has timed out. **/
 		private function moveTimeout():void {
-			animations.fade(0);
+			if (player.state == PlayerState.BUFFERING || player.state == PlayerState.PLAYING || hideOnIdle) {
+				animations.fade(0);
+			}
 		}
 
 
@@ -179,12 +197,15 @@ package com.longtailvideo.jwplayer.view.components {
 			switch (player.state) {
 				case PlayerState.PLAYING:
 				case PlayerState.BUFFERING:
-					moveHandler();
+					startFader();
 					break;
 				default:
 					clearTimeout(timeout);
-					animations.fade(1);
-					break;
+					if (hideOnIdle) {
+						moveTimeout();
+					} else {
+						animations.fade(1);
+					}
 			}
 		}
 	}

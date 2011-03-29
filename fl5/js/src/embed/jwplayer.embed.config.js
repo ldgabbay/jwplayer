@@ -110,7 +110,7 @@
 				if (!parsedConfig.components[components[component]]) {
 					parsedConfig.components[components[component]] = {};
 				}
-				parsedConfig.components[components[component]].position = parsedConfig[components[component]];
+				jwplayer.utils.extend(parsedConfig.components[components[component]], parsedConfig[components[component]]);
 				delete parsedConfig[components[component]];
 			}
 			if (typeof parsedConfig[components[component]+"size"] != "undefined") {

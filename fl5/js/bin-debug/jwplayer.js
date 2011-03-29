@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1688';/**
+jwplayer.version = '5.6.1689';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -2395,7 +2395,7 @@ playerReady = function(obj) {
 				if (!parsedConfig.components[components[component]]) {
 					parsedConfig.components[components[component]] = {};
 				}
-				parsedConfig.components[components[component]].position = parsedConfig[components[component]];
+				jwplayer.utils.extend(parsedConfig.components[components[component]], parsedConfig[components[component]]);
 				delete parsedConfig[components[component]];
 			}
 			if (typeof parsedConfig[components[component]+"size"] != "undefined") {
