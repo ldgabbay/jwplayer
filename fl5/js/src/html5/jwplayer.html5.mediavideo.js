@@ -484,9 +484,21 @@
 			media.style.zIndex = _container.style.zIndex;
 			media.onload = _loadHandler;
 			media.volume = 0;
+			var oldContainer = _container;
 			_container.parentNode.replaceChild(media, _container);
 			media.id = _container.id;
 			_container = media;
+			
+			try {
+				/** This should stop the previous media from loading **/
+				oldContainer.src = "";
+				if (typeof oldContainer.load == "function") {
+					oldContainer.load();
+				}
+			} catch (e) {
+				jwplayer.utils.log(e);
+			}
+				
 			for (var event in _events) {
 				_container.addEventListener(event, function(evt) {
 					if (evt.target.parentNode !== null) {

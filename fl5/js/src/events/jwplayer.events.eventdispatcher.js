@@ -101,10 +101,12 @@
 					} catch (err) {
 						jwplayer.utils.log("There was an error while handling a listener: " + err.toString(), _listeners[type][listenerIndex].listener);
 					}
-					if (_listeners[type][listenerIndex].count === 1) {
-						delete _listeners[type][listenerIndex];
-					} else if (_listeners[type][listenerIndex].count > 0) {
-						_listeners[type][listenerIndex].count = _listeners[type][listenerIndex].count - 1;
+					if (_listeners[type][listenerIndex]) {
+						if (_listeners[type][listenerIndex].count === 1) {
+							delete _listeners[type][listenerIndex];
+						} else if (_listeners[type][listenerIndex].count > 0) {
+							_listeners[type][listenerIndex].count = _listeners[type][listenerIndex].count - 1;
+						}
 					}
 				}
 			}
@@ -114,10 +116,12 @@
 				} catch (err) {
 					jwplayer.utils.log("There was an error while handling a listener: " + err.toString(), _globallisteners[globalListenerIndex].listener);
 				}
-				if (_globallisteners[globalListenerIndex].count === 1) {
-					delete _globallisteners[globalListenerIndex];
-				} else if (_globallisteners[globalListenerIndex].count > 0) {
-					_globallisteners[globalListenerIndex].count = _globallisteners[globalListenerIndex].count - 1;
+				if (_globallisteners[globalListenerIndex]) {
+					if (_globallisteners[globalListenerIndex].count === 1) {
+						delete _globallisteners[globalListenerIndex];
+					} else if (_globallisteners[globalListenerIndex].count > 0) {
+						_globallisteners[globalListenerIndex].count = _globallisteners[globalListenerIndex].count - 1;
+					}
 				}
 			}
 		};

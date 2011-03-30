@@ -3,7 +3,7 @@
  * 
  * This will appear at the top of the JW Player source
  * 
- * @version 5.5
+ * @version 5.6
  */
 
  if (typeof jwplayer == "undefined") {/**
@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1696';/**
+jwplayer.version = '5.6.1698';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -667,10 +667,12 @@ jwplayer.version = '5.6.1696';/**
 					} catch (err) {
 						jwplayer.utils.log("There was an error while handling a listener: " + err.toString(), _listeners[type][listenerIndex].listener);
 					}
-					if (_listeners[type][listenerIndex].count === 1) {
-						delete _listeners[type][listenerIndex];
-					} else if (_listeners[type][listenerIndex].count > 0) {
-						_listeners[type][listenerIndex].count = _listeners[type][listenerIndex].count - 1;
+					if (_listeners[type][listenerIndex]) {
+						if (_listeners[type][listenerIndex].count === 1) {
+							delete _listeners[type][listenerIndex];
+						} else if (_listeners[type][listenerIndex].count > 0) {
+							_listeners[type][listenerIndex].count = _listeners[type][listenerIndex].count - 1;
+						}
 					}
 				}
 			}
@@ -680,10 +682,12 @@ jwplayer.version = '5.6.1696';/**
 				} catch (err) {
 					jwplayer.utils.log("There was an error while handling a listener: " + err.toString(), _globallisteners[globalListenerIndex].listener);
 				}
-				if (_globallisteners[globalListenerIndex].count === 1) {
-					delete _globallisteners[globalListenerIndex];
-				} else if (_globallisteners[globalListenerIndex].count > 0) {
-					_globallisteners[globalListenerIndex].count = _globallisteners[globalListenerIndex].count - 1;
+				if (_globallisteners[globalListenerIndex]) {
+					if (_globallisteners[globalListenerIndex].count === 1) {
+						delete _globallisteners[globalListenerIndex];
+					} else if (_globallisteners[globalListenerIndex].count > 0) {
+						_globallisteners[globalListenerIndex].count = _globallisteners[globalListenerIndex].count - 1;
+					}
 				}
 			}
 		};
@@ -830,7 +834,6 @@ jwplayer.version = '5.6.1696';/**
 			"html5": "video/3gpp2"
 		},
 		"flv": {
-			//"html5": "video/x-flv",
 			"flash": "video"
 		},
 		"f4a": {
@@ -838,10 +841,6 @@ jwplayer.version = '5.6.1696';/**
 		},
 		"f4b": {
 			"html5": "audio/mp4",
-			"flash": "video"
-		},
-		"f4p": {
-			"html5": "video/mp4",
 			"flash": "video"
 		},
 		"f4v": {
@@ -866,22 +865,12 @@ jwplayer.version = '5.6.1696';/**
 			"html5": "video/mp4",
 			"flash": "video"
 		},
-		"mkv": {
-			"html5": "video/x-matroska"
-		},
 		"mp4": {
 			"html5": "video/mp4",
 			"flash": "video"
 		},
 		"rbs":{
 			"flash": "sound"
-		},
-		"sdp": {
-			"html5": "application/sdp",
-			"flash": "video"
-		},
-		"vp6": {
-			"html5": "video/x-vp6"
 		},
 		"aac": {
 			"html5": "audio/aac",
@@ -892,15 +881,12 @@ jwplayer.version = '5.6.1696';/**
 			"flash": "sound"
 		},
 		"ogg": {
-			//"flash" : "video",
 			"html5": "audio/ogg"
 		},
 		"ogv": {
-			//"flash" : "video",
 			"html5": "video/ogg"
 		},
 		"webm": {
-			//"flash" : "video",
 			"html5": "video/webm"
 		},
 		"m3u8": {
@@ -5935,9 +5921,21 @@ playerReady = function(obj) {
 			media.style.zIndex = _container.style.zIndex;
 			media.onload = _loadHandler;
 			media.volume = 0;
+			var oldContainer = _container;
 			_container.parentNode.replaceChild(media, _container);
 			media.id = _container.id;
 			_container = media;
+			
+			try {
+				/** This should stop the previous media from loading **/
+				oldContainer.src = "";
+				if (typeof oldContainer.load == "function") {
+					oldContainer.load();
+				}
+			} catch (e) {
+				jwplayer.utils.log(e);
+			}
+				
 			for (var event in _events) {
 				_container.addEventListener(event, function(evt) {
 					if (evt.target.parentNode !== null) {
@@ -6732,7 +6730,7 @@ playerReady = function(obj) {
  * 
  * This will appear at the end of the JW Player source
  * 
- * @version 5.5
+ * @version 5.6
  */
 
  }

@@ -21,7 +21,6 @@
 			"html5": "video/3gpp2"
 		},
 		"flv": {
-			//"html5": "video/x-flv",
 			"flash": "video"
 		},
 		"f4a": {
@@ -29,10 +28,6 @@
 		},
 		"f4b": {
 			"html5": "audio/mp4",
-			"flash": "video"
-		},
-		"f4p": {
-			"html5": "video/mp4",
 			"flash": "video"
 		},
 		"f4v": {
@@ -57,22 +52,12 @@
 			"html5": "video/mp4",
 			"flash": "video"
 		},
-		"mkv": {
-			"html5": "video/x-matroska"
-		},
 		"mp4": {
 			"html5": "video/mp4",
 			"flash": "video"
 		},
 		"rbs":{
 			"flash": "sound"
-		},
-		"sdp": {
-			"html5": "application/sdp",
-			"flash": "video"
-		},
-		"vp6": {
-			"html5": "video/x-vp6"
 		},
 		"aac": {
 			"html5": "audio/aac",
@@ -83,15 +68,12 @@
 			"flash": "sound"
 		},
 		"ogg": {
-			//"flash" : "video",
 			"html5": "audio/ogg"
 		},
 		"ogv": {
-			//"flash" : "video",
 			"html5": "video/ogg"
 		},
 		"webm": {
-			//"flash" : "video",
 			"html5": "video/webm"
 		},
 		"m3u8": {

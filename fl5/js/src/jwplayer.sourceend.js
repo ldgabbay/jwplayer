@@ -3,7 +3,7 @@
  * 
  * This will appear at the end of the JW Player source
  * 
- * @version 5.5
+ * @version 5.6
  */
 
  }
