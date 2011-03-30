@@ -32,11 +32,23 @@ package com.longtailvideo.jwplayer.model {
 					var levels:Array = obj[itm] as Array;
 					for each (var level:Object in levels) {
 						if (level['file']) {
-							addLevel(
-								new PlaylistItemLevel(level['file'], 
-									Number(level['bitrate']), 
-									Number(level['width']), 
-									level['streamer']));
+							var newLevel:PlaylistItemLevel = new PlaylistItemLevel(level['file'], 
+								Number(level['bitrate']), 
+								Number(level['width']), 
+								level['streamer']);
+							for (var otherProp:String in level) {
+								switch(otherProp) {
+									case "file":
+									case "bitrate":
+									case "width":
+									case "streamer":
+										break;
+									default:
+										newLevel[otherProp] = level[otherProp];
+										break;
+								}
+							}
+							addLevel(newLevel);
 						}
 					}
 				} else {
@@ -84,7 +96,6 @@ package com.longtailvideo.jwplayer.model {
 		/** Insert an additional bitrate level, keeping the array sorted from highest to lowest. **/
 		public function addLevel(newLevel:PlaylistItemLevel):void {
 			if (validExtension(newLevel.file)) {
-
 				if (_currentLevel < 0) _currentLevel = 0;
 				for (var i:Number = 0; i < _levels.length; i++) {
 					var level:PlaylistItemLevel = _levels[i] as PlaylistItemLevel;
@@ -114,7 +125,6 @@ package com.longtailvideo.jwplayer.model {
 		 * This is useful for unified HTML5 / Flash failover setups.
 		 **/
 		protected function validExtension(filename:String):Boolean {
-			var foo:String = Strings.extension(filename); 
 			switch(Strings.extension(filename)) {
 				case "ogv":
 				case "ogg":

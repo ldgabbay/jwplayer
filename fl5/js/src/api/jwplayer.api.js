@@ -78,6 +78,9 @@
 		};
 		this.getPlaylist = function() {
 			var playlist = this.callInternal('jwGetPlaylist');
+			if (this.renderingMode == "flash") {
+				jwplayer.utils.deepReplaceKeyName(playlist, "__dot__", ".");	
+			}
 			for (var i = 0; i < playlist.length; i++) {
 				if (playlist[i].index === undefined) {
 					playlist[i].index = i;

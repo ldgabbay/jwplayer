@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1690';/**
+jwplayer.version = '5.6.1696';/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -524,6 +524,32 @@ jwplayer.version = '5.6.1690';/**
 		UNIFORM: "UNIFORM",
 		EXACTFIT: "EXACTFIT"
 	};
+	
+	/** Recursively traverses nested object, replacing key names containing a search string with a replacement string.
+	 * @param searchString The string to search for in the object's key names
+	 * @param replaceString The string to replace in the object's key names
+	 * @returns The modified object.
+	 **/
+	jwplayer.utils.deepReplaceKeyName = function(obj, searchString, replaceString) {
+		switch (jwplayer.utils.typeOf(obj)) {
+			case "array":
+				for (var i = 0; i < obj.length; i++) {
+					obj[i] = jwplayer.utils.deepReplaceKeyName(obj[i], searchString, replaceString);
+				}
+				break;
+			case "object":
+				for (var key in obj) {
+					var newkey = key.replace(new RegExp(searchString, "g"), replaceString);
+					obj[newkey] = jwplayer.utils.deepReplaceKeyName(obj[key], searchString, replaceString);
+					if (key != newkey) {
+						delete obj[key];
+					}
+				}
+				break;
+		}
+		return obj;
+	}
+	
 })(jwplayer);
 /**
  * Event namespace defintion for the JW Player
@@ -1725,6 +1751,9 @@ jwplayer.version = '5.6.1690';/**
 		};
 		this.getPlaylist = function() {
 			var playlist = this.callInternal('jwGetPlaylist');
+			if (this.renderingMode == "flash") {
+				jwplayer.utils.deepReplaceKeyName(playlist, "__dot__", ".");	
+			}
 			for (var i = 0; i < playlist.length; i++) {
 				if (playlist[i].index === undefined) {
 					playlist[i].index = i;
@@ -5860,6 +5889,7 @@ playerReady = function(obj) {
 			_hasChrome = false;
 			_currentItem = playlistItem;
 			media.preload = "none";
+			media.setAttribute("x-webkit-airplay", "allow");
 			_error = false;
 			_sourceError = 0;
 			for (var sourceIndex = 0; sourceIndex < playlistItem.levels.length; sourceIndex++) {

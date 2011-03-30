@@ -1,6 +1,6 @@
 package com.longtailvideo.jwplayer.model {
 	
-	public class PlaylistItemLevel {
+	public dynamic class PlaylistItemLevel {
 
 		public var file:String		= "";
 		public var bitrate:Number	= 0;

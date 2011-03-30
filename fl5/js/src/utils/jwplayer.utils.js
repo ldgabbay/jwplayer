@@ -504,4 +504,30 @@
 		UNIFORM: "UNIFORM",
 		EXACTFIT: "EXACTFIT"
 	};
+	
+	/** Recursively traverses nested object, replacing key names containing a search string with a replacement string.
+	 * @param searchString The string to search for in the object's key names
+	 * @param replaceString The string to replace in the object's key names
+	 * @returns The modified object.
+	 **/
+	jwplayer.utils.deepReplaceKeyName = function(obj, searchString, replaceString) {
+		switch (jwplayer.utils.typeOf(obj)) {
+			case "array":
+				for (var i = 0; i < obj.length; i++) {
+					obj[i] = jwplayer.utils.deepReplaceKeyName(obj[i], searchString, replaceString);
+				}
+				break;
+			case "object":
+				for (var key in obj) {
+					var newkey = key.replace(new RegExp(searchString, "g"), replaceString);
+					obj[newkey] = jwplayer.utils.deepReplaceKeyName(obj[key], searchString, replaceString);
+					if (key != newkey) {
+						delete obj[key];
+					}
+				}
+				break;
+		}
+		return obj;
+	}
+	
 })(jwplayer);

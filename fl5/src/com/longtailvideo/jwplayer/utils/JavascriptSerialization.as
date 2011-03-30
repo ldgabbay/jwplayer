@@ -3,6 +3,8 @@ package com.longtailvideo.jwplayer.utils
 	import com.longtailvideo.jwplayer.model.IPlaylist;
 	import com.longtailvideo.jwplayer.model.PlaylistItem;
 	import com.longtailvideo.jwplayer.model.PlaylistItemLevel;
+	
+	import flash.utils.getQualifiedClassName;
 
 	public class JavascriptSerialization
 	{
@@ -42,29 +44,42 @@ package com.longtailvideo.jwplayer.utils
 			if (item.levels.length > 0) {
 				obj['levels'] = [];
 				for each (var level:PlaylistItemLevel in item.levels) {
-					obj['levels'].push({url:level.file, bitrate:level.bitrate, width:level.width});
+					var levelCopy:Object = {url:level.file, bitrate:level.bitrate, width:level.width};
+					for (var dynamicProperty:String in level) {
+						levelCopy[dynamicProperty] = level[dynamicProperty];
+					}
+					obj['levels'].push(levelCopy);
 				}
 			}
 			
 			return obj;
 		}
 		
-		public static function stripDots(obj:Object):Object {
-			// Todo: create nested objects instead of removing the dots
-			
-			var newObj:Object = (obj is Array) ? new Array() : new Object();
-			for (var i:String in obj) {
-				if (i.indexOf(".") < 0) {
-					if (typeof(obj[i]) == "object") {
-						newObj[i] = stripDots(obj[i]);
-					} else {
-						newObj[i] = obj[i];
+		public static function stripDots(obj:*):* {
+			var newObj:*;
+			var type:String = getQualifiedClassName(obj); 
+			switch(getQualifiedClassName(obj)) {
+				case "Object":
+				case "com.longtailvideo.jwplayer.model::PlaylistItem":
+				case "com.longtailvideo.jwplayer.model::PlaylistItemLevel":
+				case "com.longtailvideo.jwplayer.plugins::PluginConfig":
+					newObj = {};
+					for (var key:String in obj) {
+						var newkey:String = key.replace(".", "__dot__");
+						newObj[newkey] = stripDots(obj[key]);
 					}
-				}
+					break;
+				case "Array":
+					newObj = [];
+					for (var i:Number = 0; i < (obj as Array).length; i++) {
+						newObj[i] = stripDots(obj[i]);
+					}
+					break;
+				default:
+					newObj = obj;
+					break;
 			}
 			return newObj;
 		}
-		
-		
 	}
 }

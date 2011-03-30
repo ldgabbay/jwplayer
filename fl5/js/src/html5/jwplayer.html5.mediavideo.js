@@ -438,6 +438,7 @@
 			_hasChrome = false;
 			_currentItem = playlistItem;
 			media.preload = "none";
+			media.setAttribute("x-webkit-airplay", "allow");
 			_error = false;
 			_sourceError = 0;
 			for (var sourceIndex = 0; sourceIndex < playlistItem.levels.length; sourceIndex++) {
