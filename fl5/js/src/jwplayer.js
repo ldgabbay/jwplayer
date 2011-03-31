@@ -1,6 +1,6 @@
 /**
  * JW Player namespace definition
- * @version 5.4
+ * @version 5.6
  */
 var jwplayer = function(container) {
 	if (jwplayer.api){
@@ -10,4 +10,4 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1698';
+jwplayer.version = '5.6.1699';

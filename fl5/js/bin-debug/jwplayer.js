@@ -8,7 +8,7 @@
 
  if (typeof jwplayer == "undefined") {/**
  * JW Player namespace definition
- * @version 5.4
+ * @version 5.6
  */
 var jwplayer = function(container) {
 	if (jwplayer.api){
@@ -18,11 +18,11 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1698';/**
+jwplayer.version = '5.6.1699';/**
  * Utility methods for the JW Player.
  *
- * @author zach
- * @version 5.4
+ * @author zach, pablo
+ * @version 5.6
  */
 (function(jwplayer) {
 
@@ -136,8 +136,14 @@ jwplayer.version = '5.6.1698';/**
 				}
 			}
 		};
-		xmlhttp.open("GET", xmldocpath, true);
-		xmlhttp.send(null);
+		try {
+			xmlhttp.open("GET", xmldocpath, true);
+			xmlhttp.send(null);
+		} catch (error) {
+			if (errorcallback) {
+				errorcallback(xmldocpath);
+			}
+		}
 		return xmlhttp;
 	};
 	

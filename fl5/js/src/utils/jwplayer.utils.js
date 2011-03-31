@@ -1,8 +1,8 @@
 /**
  * Utility methods for the JW Player.
  *
- * @author zach
- * @version 5.4
+ * @author zach, pablo
+ * @version 5.6
  */
 (function(jwplayer) {
 
@@ -116,8 +116,14 @@
 				}
 			}
 		};
-		xmlhttp.open("GET", xmldocpath, true);
-		xmlhttp.send(null);
+		try {
+			xmlhttp.open("GET", xmldocpath, true);
+			xmlhttp.send(null);
+		} catch (error) {
+			if (errorcallback) {
+				errorcallback(xmldocpath);
+			}
+		}
 		return xmlhttp;
 	};
 	
