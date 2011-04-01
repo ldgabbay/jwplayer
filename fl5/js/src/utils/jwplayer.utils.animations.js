@@ -14,12 +14,14 @@
 		domelement.style.webkitTransform = value;
 		domelement.style.MozTransform = value;
 		domelement.style.OTransform = value;
+		domelement.style.msTransform = value;
 	};
 	
 	jwplayer.utils.animations.transformOrigin = function(domelement, value) {
 		domelement.style.webkitTransformOrigin = value;
 		domelement.style.MozTransformOrigin = value;
 		domelement.style.OTransformOrigin = value;
+		domelement.style.msTransformOrigin = value;
 	};
 	
 	jwplayer.utils.animations.rotate = function(domelement, deg) {

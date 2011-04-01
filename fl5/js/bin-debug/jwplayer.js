@@ -18,7 +18,8 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1699';/**
+jwplayer.version = '5.6.1702';
+/**
  * Utility methods for the JW Player.
  *
  * @author zach, pablo
@@ -715,12 +716,14 @@ jwplayer.version = '5.6.1699';/**
 		domelement.style.webkitTransform = value;
 		domelement.style.MozTransform = value;
 		domelement.style.OTransform = value;
+		domelement.style.msTransform = value;
 	};
 	
 	jwplayer.utils.animations.transformOrigin = function(domelement, value) {
 		domelement.style.webkitTransformOrigin = value;
 		domelement.style.MozTransformOrigin = value;
 		domelement.style.OTransformOrigin = value;
+		domelement.style.msTransformOrigin = value;
 	};
 	
 	jwplayer.utils.animations.rotate = function(domelement, deg) {
@@ -5551,7 +5554,7 @@ playerReady = function(obj) {
 				var _sendComplete = false;
 				if (newstate == jwplayer.api.events.state.IDLE) {
 					_clearInterval();
-					if (_model.position >= _model.duration && (_model.position || _model.duration)) {
+					if (_model.position >= _model.duration && (_model.position > 0 || _model.duration > 0)) {
 						_sendComplete = true;
 					}
 					
@@ -5781,6 +5784,14 @@ playerReady = function(obj) {
 		/** Stop playback and loading of the video. **/
 		function _stop() {
 			_container.pause();
+			_container.removeAttribute("src");
+			var sources = _container.getElementsByTagName("source");
+			for (var i=0; i < sources.length; i++) {
+				_container.removeChild(sources[i]);
+			}
+			if (typeof _container.load == "function") {
+				_container.load();
+			}
 			_clearInterval();
 			_model.position = 0;
 			_stopped = true;
@@ -5927,21 +5938,10 @@ playerReady = function(obj) {
 			media.style.zIndex = _container.style.zIndex;
 			media.onload = _loadHandler;
 			media.volume = 0;
-			var oldContainer = _container;
 			_container.parentNode.replaceChild(media, _container);
 			media.id = _container.id;
 			_container = media;
 			
-			try {
-				/** This should stop the previous media from loading **/
-				oldContainer.src = "";
-				if (typeof oldContainer.load == "function") {
-					oldContainer.load();
-				}
-			} catch (e) {
-				jwplayer.utils.log(e);
-			}
-				
 			for (var event in _events) {
 				_container.addEventListener(event, function(evt) {
 					if (evt.target.parentNode !== null) {
