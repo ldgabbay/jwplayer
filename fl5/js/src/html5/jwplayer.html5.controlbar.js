@@ -2,7 +2,7 @@
  * jwplayer controlbar component of the JW Player.
  *
  * @author zach
- * @version 5.4
+ * @version 5.6
  */
 (function(jwplayer) {
 	/** Map with config for the jwplayerControlbar plugin. **/

@@ -1,7 +1,7 @@
 /**
  * Loads plugins for a player
  * @author zach
- * @version 5.5
+ * @version 5.6
  */
 (function(jwplayer) {
 
@@ -39,7 +39,9 @@
 			if (!_iscomplete) {
 				var incomplete = 0;
 				for (plugin in _plugins) {
-					if (_plugins[plugin].getStatus() == jwplayer.utils.loaderstatus.LOADING) {
+					var status = _plugins[plugin].getStatus(); 
+					if (status == jwplayer.utils.loaderstatus.LOADING 
+							|| status == jwplayer.utils.loaderstatus.NEW) {
 						incomplete++;
 					}
 				}
@@ -89,10 +91,15 @@
 			_status = jwplayer.utils.loaderstatus.LOADING;
 			_loading = true;
 			
+			/** First pass to create the plugins and add listeners **/
 			for (var plugin in config) {
 				_plugins[plugin] = model.addPlugin(plugin);
 				_plugins[plugin].addEventListener(jwplayer.events.COMPLETE, _checkComplete);
 				_plugins[plugin].addEventListener(jwplayer.events.ERROR, _checkComplete);
+			}
+			
+			/** Second pass to actually load the plugins **/
+			for (plugin in config) {
 				// Plugin object ensures that it's only loaded once
 				_plugins[plugin].load();
 			}
