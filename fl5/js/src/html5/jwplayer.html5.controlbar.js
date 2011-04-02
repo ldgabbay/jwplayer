@@ -117,6 +117,7 @@
 		var _ready = false;
 		var _positions = {};
 		var _bgElement;
+		var _hiding = false;
 		
 		function _getBack() {
 			if (!_bgElement) {
@@ -191,6 +192,16 @@
 			return style;
 		};
 		
+		this.show = function() {
+			_hiding = false;
+			_show(_wrapper);
+		}
+
+		this.hide = function() {
+			_hiding = true;
+			_hide(_wrapper);
+		}
+
 		function _updatePositions() {
 			var positionElements = ["timeSlider", "volumeSlider", "timeSliderRail", "volumeSliderRail"];
 			for (var positionElement in positionElements) {
@@ -203,6 +214,8 @@
 		
 		
 		function _setVisiblity() {
+			if (_hiding) { return; }
+			
 			jwplayer.utils.cancelAnimation(_wrapper);
 			if (_remainVisible()) {
 				jwplayer.utils.fadeTo(_wrapper, 1, 0, 1, 0);
@@ -212,6 +225,8 @@
 		}
 		
 		function _remainVisible() {
+			if (_hiding) return false;
+					
 			if (_api.jwGetState() == jwplayer.api.events.state.IDLE || _api.jwGetState() == jwplayer.api.events.state.PAUSED) {
 				if (_settings.idlehide) {
 					return false;

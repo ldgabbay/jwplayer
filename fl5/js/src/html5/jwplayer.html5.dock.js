@@ -2,6 +2,9 @@
  * JW Player dock component
  */
 (function(jwplayer) {
+
+	_css = jwplayer.utils.css; 
+	
 	jwplayer.html5.dock = function(api, config) {
 		function _defaults() {
 			return {
@@ -136,6 +139,18 @@
 		
 		this.resize = _resize;
 		
+		this.show = function() {
+			_css(_dock, {
+				display: "block"
+			});
+		}
+
+		this.hide = function() {
+			_css(_dock, {
+				display: "none"
+			});
+		}
+
 		return this;
 	}
 })(jwplayer);

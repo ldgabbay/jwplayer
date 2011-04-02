@@ -9,6 +9,7 @@ package com.longtailvideo.jwplayer.player {
 	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.RootReference;
 	import com.longtailvideo.jwplayer.utils.Strings;
+	import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
 	
 	import flash.events.Event;
 	import flash.events.TimerEvent;
@@ -125,6 +126,14 @@ package com.longtailvideo.jwplayer.player {
 				ExternalInterface.addCallback("jwSetMute", js_mute);
 				ExternalInterface.addCallback("jwSetVolume", js_volume);
 				ExternalInterface.addCallback("jwSetFullscreen", js_fullscreen);
+				
+				// Showing and hiding player controls.
+				ExternalInterface.addCallback("jwShowControlbar", js_showControlbar);
+				ExternalInterface.addCallback("jwHideControlbar", js_hideControlbar);
+				ExternalInterface.addCallback("jwShowDock", js_showDock);
+				ExternalInterface.addCallback("jwHideDock", js_hideDock);
+				ExternalInterface.addCallback("jwShowDisplay", js_showDisplay);
+				ExternalInterface.addCallback("jwHideDisplay", js_hideDisplay);
 
 				// UNIMPLEMENTED
 				//ExternalInterface.addCallback("jwGetBandwidth", js_getBandwidth); 
@@ -396,6 +405,39 @@ package com.longtailvideo.jwplayer.player {
 				}
 			}
 		}
+		
+		protected function setComponentVisibility(component:IPlayerComponent, state:Boolean):void {
+			if (state) {
+				component.show();
+			} else {
+				component.hide();
+			}
+		}
+
+		protected function js_showControlbar():void {
+			setComponentVisibility(_player.controls.controlbar, true);
+		}
+		
+		protected function js_hideControlbar():void {
+			setComponentVisibility(_player.controls.controlbar, false);
+		}
+
+		protected function js_showDock():void {
+			setComponentVisibility(_player.controls.dock, true);
+		}
+		
+		protected function js_hideDock():void {
+			setComponentVisibility(_player.controls.dock, false);
+		}
+
+		protected function js_showDisplay():void {
+			setComponentVisibility(_player.controls.display, true);
+		}
+		
+		protected function js_hideDisplay():void {
+			setComponentVisibility(_player.controls.display, false);
+		}
+
 		
 	}
 

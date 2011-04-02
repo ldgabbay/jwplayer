@@ -48,8 +48,20 @@
 			var _callInternal = this.callInternal;
 			if (pluginName == "dock") {
 				return {
-					setButton: _setButton(this.id)
+					setButton: _setButton(this.id),
+					show: function() { return _callInternal('jwShowDock') },
+					hide: function() { return _callInternal('jwHideDock'); }
 				};
+			} else if (pluginName == "controlbar") {
+				return {
+					show: function() { return _callInternal('jwShowControlbar') },
+					hide: function() { return _callInternal('jwHideControlbar'); }
+				}
+			} else if (pluginName == "display") {
+				return {
+					show: function() { return _callInternal('jwShowDisplay') },
+					hide: function() { return _callInternal('jwHideDisplay'); }
+				}
 			}
 			return this.plugins[pluginName];
 		};

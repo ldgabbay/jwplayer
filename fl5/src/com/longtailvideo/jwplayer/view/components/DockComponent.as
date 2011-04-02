@@ -140,6 +140,8 @@ package com.longtailvideo.jwplayer.view.components {
 		/** Show the buttons on mousemove. **/
 		private function moveHandler(evt:Event = null):void {
 			clearTimeout(timeout);
+			if (hidden) { return; }
+			
 			if (player.state == PlayerState.BUFFERING || player.state == PlayerState.PLAYING || hideOnIdle) {
 				startFader();
 				if (alpha < 1) {
@@ -151,6 +153,8 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** Hide the buttons again when move has timed out. **/
 		private function moveTimeout():void {
+			if (hidden) return;
+			
 			if (player.state == PlayerState.BUFFERING || player.state == PlayerState.PLAYING || hideOnIdle) {
 				animations.fade(0);
 			}
@@ -201,11 +205,19 @@ package com.longtailvideo.jwplayer.view.components {
 					break;
 				default:
 					clearTimeout(timeout);
-					if (hideOnIdle) {
-						moveTimeout();
-					} else {
-						animations.fade(1);
+					if (!hidden) {
+						if (hideOnIdle) {
+							moveTimeout();
+						} else {
+							animations.fade(1);
+						}
 					}
+			}
+		}
+		
+		public override function show():void {
+			if (player.config.dock) {
+				super.show();
 			}
 		}
 	}

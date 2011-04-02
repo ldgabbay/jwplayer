@@ -13,6 +13,7 @@ package com.longtailvideo.jwplayer.view.components {
 		private var _dispatcher:IGlobalEventDispatcher;
 		protected var _player:IPlayer;
 		protected var _name:String;
+		protected var _hiding:Boolean = false;
 
 		public function CoreComponent(player:IPlayer, name:String) {
 			_dispatcher = new GlobalEventDispatcher();
@@ -22,10 +23,12 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		public function hide():void {
+			_hiding = true;
 			this.visible = false;
 		}
 		
 		public function show():void {
+			_hiding = false;
 			this.visible = true;
 		}
 		
@@ -71,6 +74,11 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		protected function get fontStyle():String {
 			return getConfigParam("fontstyle") ? String(getConfigParam("fontstyle")).toLowerCase() : "";
+		}
+		
+		/** Whether or not the component has been hidden. **/
+		protected function get hidden():Boolean {
+			return _hiding;
 		}
 
 		

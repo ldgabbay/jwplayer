@@ -29,6 +29,7 @@
 	public class DisplayComponent extends CoreComponent implements IDisplayComponent {
 		protected var _icon:DisplayObject;
 		protected var _background:MovieClip;
+		protected var _overlay:Sprite;
 		protected var _text:TextField;
 		protected var _textBack:Sprite;
 		protected var _icons:Object;
@@ -79,20 +80,24 @@
 			background.graphics.drawRect(0, 0, 1, 1);
 			background.graphics.endFill();
 			
+			_overlay = new Sprite();
+			_overlay.name = "overlay";
+			addChildAt(_overlay, 1);
+			
 			_textBack = new Sprite();
 			_textBack.name = "textBackground";
 			_textBack.graphics.beginFill(0, 0.8);
 			_textBack.graphics.drawRect(0, 0, 1, 1);
 			_textBack.visible = false;
-			addChild(_textBack);
+			_overlay.addChild(_textBack);
 			
 			_icon = new MovieClip();
-			addChildAt(icon, 2);
+			addChild(icon);
 
 			_text = new TextField();
 			text.gridFitType = GridFitType.NONE;
 			text.defaultTextFormat = new TextFormat("_sans", null, 0xFFFFFF);
-			addChildAt(text, 3);
+			_overlay.addChild(text);
 			
 			_youtubeMask = new MovieClip();
 		}
@@ -224,7 +229,7 @@
 		
 		public function setIcon(displayIcon:DisplayObject):void {
 			try {
-				removeChild(icon);
+				_overlay.removeChild(icon);
 			} catch (err:Error) {
 			}
 			if (displayIcon && _player.config.icons && (getConfigParam("icons") === true || typeof(getConfigParam("icons")) == "undefined")) {
@@ -232,7 +237,7 @@
 					setIconHover(displayIcon as Sprite, false);
 				}
 				_icon = displayIcon;
-				addChild(icon);
+				_overlay.addChild(icon);
 				positionIcon();
 			}
 		}
@@ -371,6 +376,23 @@
 		
 		protected function get background():MovieClip {
 			return _background;
+		}
+		
+		
+		/** Hide the display icon **/
+		public override function hide():void {
+			if (_overlay) {
+				_overlay.visible = false;
+			}
+			_hiding = true;
+		}
+		
+		/** Show the display icon **/
+		public override function show():void {
+			if (_overlay) {
+				_overlay.visible = true;
+			}
+			_hiding = false;
 		}
 		
 	}

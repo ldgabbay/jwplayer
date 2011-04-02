@@ -110,13 +110,14 @@ package com.longtailvideo.jwplayer.view.components {
 		protected var _fullscreen:Boolean = false;
 		
 		protected var animations:Animations;
-		protected var hiding:Number;
+		protected var _fadingOut:Number;
 		
 		public function ControlbarComponent(player:IPlayer) {
 			super(player, "controlbar");
 			animations = new Animations(this);
 			if (getConfigParam('position') == "over" && hideOnIdle) {
 				alpha = 0;
+				visible = false;
 			}
 			
 			_layoutManager = new ControlbarLayoutManager(this);
@@ -173,20 +174,22 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		private function startFader():void {
-			if (fadeOnTimeout) {
-				if (!isNaN(hiding)) {
-					clearTimeout(hiding);
+			if (fadeOnTimeout && !hidden) {
+				if (!isNaN(_fadingOut)) {
+					clearTimeout(_fadingOut);
 				}
-				hiding = setTimeout(moveTimeout, 2000);
+				_fadingOut = setTimeout(moveTimeout, 2000);
 			}
 		}
 		
 		private function stopFader():void {
+			if (hidden) return;
+			
 			if (alpha == 0) {
 				animations.fade(1, 0.5);
 			}
-			if (!isNaN(hiding)) {
-				clearTimeout(hiding);
+			if (!isNaN(_fadingOut)) {
+				clearTimeout(_fadingOut);
 				Mouse.show();
 			}
 		}
@@ -201,13 +204,15 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** Hide above controlbar again when move has timed out. **/
 		private function moveTimeout(evt:Event=null):void {
-			animations.fade(0, 0.5);
-			Mouse.hide();
+			if (!hidden) {
+				animations.fade(0, 0.5);
+				Mouse.hide();
+			}
 		}
 		
 		/** If the mouse leaves the stage, hide the controlbar if position is 'over' **/
 		private function mouseLeftStage(evt:Event=null):void {
-			if (fadeOnTimeout) {
+			if (fadeOnTimeout && !hidden) {
 				if (_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING || hideOnIdle) {
 					animations.fade(0);
 				}
@@ -435,10 +440,6 @@ package com.longtailvideo.jwplayer.view.components {
 				addChild(capRight);
 			}
 
-		/*if (shade) {
-		   _buttons['shade'] = shade;
-		   addChild(shade);
-		 }*/
 		}
 
 
@@ -778,5 +779,6 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 			return (new Sprite());
 		}
+		
 	}
 }

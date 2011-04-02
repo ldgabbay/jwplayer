@@ -59,7 +59,6 @@ package com.longtailvideo.jwplayer.view.components {
 		/** Last inserted button **/
 		private var lastInsert:MovieClip;
 
-
 		public function ControlbarComponentV4(player:IPlayer) {
 			super(player, "controlbar");
 			animations = new Animations(this);
@@ -394,7 +393,7 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		private function startFader():void {
-			if (fadeOnTimeout) {
+			if (fadeOnTimeout && !hidden) {
 				if (!isNaN(hiding)) {
 					clearTimeout(hiding);
 				}
@@ -403,6 +402,8 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		private function stopFader():void {
+			if (hidden) return;
+			
 			if (alpha == 0) {
 				animations.fade(1, 0.5);
 			}
@@ -422,13 +423,15 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** Hide above controlbar again when move has timed out. **/
 		private function moveTimeout(evt:Event=null):void {
-			animations.fade(0, 0.5);
-			Mouse.hide();
+			if (!hidden) {
+				animations.fade(0, 0.5);
+				Mouse.hide();
+			}
 		}
 		
 		/** If the mouse leaves the stage, hide the controlbar if position is 'over' **/
 		private function mouseLeftStage(evt:Event=null):void {
-			if (fadeOnTimeout) {
+			if (fadeOnTimeout && !hidden) {
 				if (_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING || hideOnIdle) {
 					animations.fade(0);
 				}
@@ -588,6 +591,6 @@ package com.longtailvideo.jwplayer.view.components {
 		private function getSkinElementChild(element:String, child:String):DisplayObject {
 			return (skin.getChildByName(element) as MovieClip).getChildByName(child);
 		}
-		
+
 	}
 }

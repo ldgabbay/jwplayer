@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1702';
+jwplayer.version = '5.6.1703';
 /**
  * Utility methods for the JW Player.
  *
@@ -1716,8 +1716,20 @@ jwplayer.version = '5.6.1702';
 			var _callInternal = this.callInternal;
 			if (pluginName == "dock") {
 				return {
-					setButton: _setButton(this.id)
+					setButton: _setButton(this.id),
+					show: function() { return _callInternal('jwShowDock') },
+					hide: function() { return _callInternal('jwHideDock'); }
 				};
+			} else if (pluginName == "controlbar") {
+				return {
+					show: function() { return _callInternal('jwShowControlbar') },
+					hide: function() { return _callInternal('jwHideControlbar'); }
+				}
+			} else if (pluginName == "display") {
+				return {
+					show: function() { return _callInternal('jwShowDisplay') },
+					hide: function() { return _callInternal('jwHideDisplay'); }
+				}
 			}
 			return this.plugins[pluginName];
 		};
@@ -3756,6 +3768,7 @@ playerReady = function(obj) {
 		var _ready = false;
 		var _positions = {};
 		var _bgElement;
+		var _hiding = false;
 		
 		function _getBack() {
 			if (!_bgElement) {
@@ -3830,6 +3843,16 @@ playerReady = function(obj) {
 			return style;
 		};
 		
+		this.show = function() {
+			_hiding = false;
+			_show(_wrapper);
+		}
+
+		this.hide = function() {
+			_hiding = true;
+			_hide(_wrapper);
+		}
+
 		function _updatePositions() {
 			var positionElements = ["timeSlider", "volumeSlider", "timeSliderRail", "volumeSliderRail"];
 			for (var positionElement in positionElements) {
@@ -3842,6 +3865,8 @@ playerReady = function(obj) {
 		
 		
 		function _setVisiblity() {
+			if (_hiding) { return; }
+			
 			jwplayer.utils.cancelAnimation(_wrapper);
 			if (_remainVisible()) {
 				jwplayer.utils.fadeTo(_wrapper, 1, 0, 1, 0);
@@ -3851,6 +3876,8 @@ playerReady = function(obj) {
 		}
 		
 		function _remainVisible() {
+			if (_hiding) return false;
+					
 			if (_api.jwGetState() == jwplayer.api.events.state.IDLE || _api.jwGetState() == jwplayer.api.events.state.PAUSED) {
 				if (_settings.idlehide) {
 					return false;
@@ -4959,6 +4986,15 @@ playerReady = function(obj) {
 			_stateHandler({});
 		};
 		
+		this.show = function() {
+			_show(_display.display_icon);
+			_show(_display.display_iconBackground);
+		}
+
+		this.hide = function() {
+			_hideDisplayIcon();
+		}
+
 		function _onImageLoad(evt) {
 			_imageWidth = _display.display_image.naturalWidth;
 			_imageHeight = _display.display_image.naturalHeight;
@@ -5118,6 +5154,9 @@ playerReady = function(obj) {
  * JW Player dock component
  */
 (function(jwplayer) {
+
+	_css = jwplayer.utils.css; 
+	
 	jwplayer.html5.dock = function(api, config) {
 		function _defaults() {
 			return {
@@ -5252,6 +5291,18 @@ playerReady = function(obj) {
 		
 		this.resize = _resize;
 		
+		this.show = function() {
+			_css(_dock, {
+				display: "block"
+			});
+		}
+
+		this.hide = function() {
+			_css(_dock, {
+				display: "none"
+			});
+		}
+
 		return this;
 	}
 })(jwplayer);
@@ -6652,6 +6703,15 @@ playerReady = function(obj) {
 			};
 		}
 		
+		function _componentCommandFactory(componentName, funcName, args) {
+			return function() {
+				var comp = _model.plugins.object[componentName];
+				if (comp && comp[funcName] && typeof comp[funcName] == "function") {
+					comp[funcName].apply(comp, args);
+				}
+			};
+		}
+		
 		_api.jwGetItem = _statevarFactory('item');
 		_api.jwGetPosition = _statevarFactory('position');
 		_api.jwGetDuration = _statevarFactory('duration');
@@ -6683,6 +6743,13 @@ playerReady = function(obj) {
 				_model.plugins.object["dock"].setButton(id, handler, outGraphic, overGraphic);	
 			}
 		}
+		
+		_api.jwShowControlbar = _componentCommandFactory("controlbar", "show");
+		_api.jwHideControlbar = _componentCommandFactory("controlbar", "hide");
+		_api.jwShowDock = _componentCommandFactory("dock", "show");
+		_api.jwHideDock = _componentCommandFactory("dock", "hide");
+		_api.jwShowDisplay = _componentCommandFactory("display", "show");
+		_api.jwHideDisplay = _componentCommandFactory("display", "hide");
 		
 		//UNIMPLEMENTED
 		_api.jwGetLevel = function() {

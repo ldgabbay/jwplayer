@@ -62,6 +62,15 @@
 			};
 		}
 		
+		function _componentCommandFactory(componentName, funcName, args) {
+			return function() {
+				var comp = _model.plugins.object[componentName];
+				if (comp && comp[funcName] && typeof comp[funcName] == "function") {
+					comp[funcName].apply(comp, args);
+				}
+			};
+		}
+		
 		_api.jwGetItem = _statevarFactory('item');
 		_api.jwGetPosition = _statevarFactory('position');
 		_api.jwGetDuration = _statevarFactory('duration');
@@ -93,6 +102,13 @@
 				_model.plugins.object["dock"].setButton(id, handler, outGraphic, overGraphic);	
 			}
 		}
+		
+		_api.jwShowControlbar = _componentCommandFactory("controlbar", "show");
+		_api.jwHideControlbar = _componentCommandFactory("controlbar", "hide");
+		_api.jwShowDock = _componentCommandFactory("dock", "show");
+		_api.jwHideDock = _componentCommandFactory("dock", "hide");
+		_api.jwShowDisplay = _componentCommandFactory("display", "show");
+		_api.jwHideDisplay = _componentCommandFactory("display", "hide");
 		
 		//UNIMPLEMENTED
 		_api.jwGetLevel = function() {

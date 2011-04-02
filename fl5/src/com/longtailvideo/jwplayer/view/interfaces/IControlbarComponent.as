@@ -68,8 +68,6 @@ package com.longtailvideo.jwplayer.view.interfaces {
 	public interface IControlbarComponent extends IPlayerComponent {
 		function addButton(icon:DisplayObject, name:String, handler:Function = null):MovieClip;
 		function removeButton(name:String):void;
-		function show():void;
-		function hide():void;
 		function getButton(buttonName:String):DisplayObject;
 	}
 }

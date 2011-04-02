@@ -148,6 +148,15 @@
 			_stateHandler({});
 		};
 		
+		this.show = function() {
+			_show(_display.display_icon);
+			_show(_display.display_iconBackground);
+		}
+
+		this.hide = function() {
+			_hideDisplayIcon();
+		}
+
 		function _onImageLoad(evt) {
 			_imageWidth = _display.display_image.naturalWidth;
 			_imageHeight = _display.display_image.naturalHeight;
