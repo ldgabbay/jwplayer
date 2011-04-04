@@ -185,7 +185,7 @@ package com.longtailvideo.jwplayer.media {
 				stop();
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, 
 					{message: "Subscribing to the live stream timed out."});
-			} else if(item.levels) { 
+			} else if(item.levels && item.levels.length > 1) { 
 			    for(var i:Number=0; i<item.levels.length; i++) { 
 				    _connection.call("FCSubscribe", null, getID(item.levels[i].file));
 			    }
