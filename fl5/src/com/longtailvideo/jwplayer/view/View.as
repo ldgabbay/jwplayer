@@ -113,8 +113,12 @@ package com.longtailvideo.jwplayer.view {
 
 
 		protected function resizeStage(evt:Event=null):void {
-			RootReference.stage.removeEventListener(Event.RESIZE, resizeStage);
-			RootReference.stage.removeEventListener(Event.ADDED_TO_STAGE, resizeStage);
+			try {
+				RootReference.stage.removeEventListener(Event.RESIZE, resizeStage);
+				RootReference.stage.removeEventListener(Event.ADDED_TO_STAGE, resizeStage);
+			} catch(err:Error) {
+				Logger.log("Can't add stage resize handlers: " + err.message);
+			}
 
 			loaderScreen.graphics.clear();
 			loaderScreen.graphics.beginFill(0, 0);

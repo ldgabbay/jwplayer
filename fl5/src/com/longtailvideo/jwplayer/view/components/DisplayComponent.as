@@ -229,7 +229,9 @@
 		
 		public function setIcon(displayIcon:DisplayObject):void {
 			try {
-				_overlay.removeChild(icon);
+				if (icon && icon.parent == _overlay) { 
+					_overlay.removeChild(icon);
+				}
 			} catch (err:Error) {
 			}
 			if (displayIcon && _player.config.icons && (getConfigParam("icons") === true || typeof(getConfigParam("icons")) == "undefined")) {
@@ -314,7 +316,7 @@
 					setDisplay(_icons['play']);
 					break;
 				default:
-					if (player.config.mute) {
+					if ( player.config.mute && getConfigParam("showmute") ) {
 						setDisplay(_icons['mute']);
 					} else {
 						clearDisplay();

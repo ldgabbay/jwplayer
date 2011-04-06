@@ -71,6 +71,7 @@
             
             function forward(id) {
             	return function(evt) {
+                	console.log(evt);
             		var result = "";
             		var properties = events[id];
             		if (jwplayer.utils.typeOf(properties) == "string") {
@@ -125,6 +126,10 @@
             	"onPause": {
             		"oldstate": "string",
             		"newstate": "string"
+            	},
+            	"onSeek": {
+            		"position": "string",
+            		"offset": "string"
             	},
             	"onBuffer": {
             		"oldstate": "string",
