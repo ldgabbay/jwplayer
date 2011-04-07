@@ -93,6 +93,9 @@
 		},
 		"png":{
 			"flash": "image"
+		},
+		"wav":{
+			"html5": "audio/x-wav"
 		}
 	};
 })(jwplayer);
