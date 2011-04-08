@@ -77,6 +77,7 @@ package com.longtailvideo.jwplayer.media {
 		 * http://www.youtube.com/watch?v=ylLzyHk54Z0
 		 * http://www.youtube.com/watch#!v=ylLzyHk54Z0
 		 * http://www.youtube.com/v/ylLzyHk54Z0
+		 * http://youtu.be/ylLzyHk54Z0
 		 * ylLzyHk54Z0
 		 **/
 		public static function getID(url:String):String {
@@ -90,6 +91,8 @@ package com.longtailvideo.jwplayer.media {
 			if (str == '') {
 				if (url.indexOf('/v/') >= 0) {
 					str = url.substr(url.indexOf('/v/') + 3);
+				} else if (url.indexOf('youtu.be') >= 0) {
+					str = url.substr(url.indexOf('youtu.be/') + 9);
 				} else {
 					str = url;
 				}

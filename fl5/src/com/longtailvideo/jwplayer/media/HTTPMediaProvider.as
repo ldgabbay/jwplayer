@@ -357,6 +357,11 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Handle a resize event **/
 		override public function resize(width:Number, height:Number):void {
+			if (width == _width && _height == height) {
+				// Dimensions are the same; no need to resize.
+				return;
+			}
+			
 			super.resize(width, height);
 			if (state != PlayerState.IDLE && item.levels.length > 0 && item.getLevel(config.bandwidth, config.width) != item.currentLevel) {
 				_byteoffset = getOffset(position);
