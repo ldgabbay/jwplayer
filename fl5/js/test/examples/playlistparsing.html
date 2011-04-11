@@ -36,10 +36,12 @@
         <script type="text/javascript">
             var examplestable = document.getElementById("examplestable");
 			jwplayer.utils.ajax(config.playlist, function(xmlhttp){
-				console.log(jwplayer.utils.parsers);
-				console.log(jwplayer.utils.parsers.parserfactory);
-				console.log(jwplayer.utils.parsers.parserfactory.getParser(xmlhttp.responseXML.childNodes[0]));
-				console.log(jwplayer.utils.parsers.parserfactory.getParser(xmlhttp.responseXML.childNodes[0]).parse(xmlhttp.responseXML.childNodes[0]));
+				if (console && console.log) {
+					console.log(jwplayer.utils.parsers);
+					console.log(jwplayer.utils.parsers.parserfactory);
+					console.log(jwplayer.utils.parsers.parserfactory.getParser(xmlhttp.responseXML.childNodes[0]));
+					console.log(jwplayer.utils.parsers.parserfactory.getParser(xmlhttp.responseXML.childNodes[0]).parse(xmlhttp.responseXML.childNodes[0]));
+				}
 			}, function(path){
 				console.log("failed to load", path);
 			});

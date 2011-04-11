@@ -50,7 +50,7 @@
 				if (document.getElementById(valueid) && document.getElementById(valueid).value !== "") {
 					player[document.getElementById(functionid).value](document.getElementById(valueid).value);
 				} else {
-					console.log(player[document.getElementById(functionid).value]());
+					if (console && console.log) console.log(player[document.getElementById(functionid).value]());
 				}
 			}
             

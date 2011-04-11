@@ -80,7 +80,7 @@
             for (var event in events) {
             	setupEvents[event] = forward(event);
             }
-			console.log(setupEvents);
+            if (console && console.log) console.log(setupEvents);
 			
             jwplayer("player").setup({
             	players: settings.players(window.location.href),
@@ -203,7 +203,7 @@
             		}, 500);
             	} else {
             		document.getElementById("result").innerHTML = "Error at step " + (scriptPos + 1) + ": Got " + script[scriptPos].getter() + " and expected " + script[scriptPos].expectedValue;
-            		console.log(script[scriptPos].action);
+            		if (console && console.log) console.log(script[scriptPos].action);
             	}
             }
 			

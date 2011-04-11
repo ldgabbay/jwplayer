@@ -48,11 +48,11 @@
             });
             
             function callPlayerFunction(functionid, valueid) {
-				console.log(functionid, valueid);
+            	if (console && console.log) console.log(functionid, valueid);
             	if (document.getElementById(valueid) && document.getElementById(valueid).value !== "") {
             		jwplayer("player")[document.getElementById(functionid).value](document.getElementById(valueid).value);
             	} else {
-            		console.log(jwplayer("player")[document.getElementById(functionid).value]());
+            		if (console && console.log) console.log(jwplayer("player")[document.getElementById(functionid).value]());
             	}
             }
             

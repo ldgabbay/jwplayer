@@ -71,7 +71,7 @@
             
             function forward(id) {
             	return function(evt) {
-                	console.log(evt);
+            		if (console && console.log) console.log(evt);
             		var result = "";
             		var properties = events[id];
             		if (jwplayer.utils.typeOf(properties) == "string") {
