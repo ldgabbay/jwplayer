@@ -10,5 +10,7 @@ package com.longtailvideo.jwplayer.view.interfaces {
 	[Event(name="jwPlayerViewItem", type = "com.longtailvideo.jwplayer.events.ViewEvent")]
 
 	public interface IPlaylistComponent extends IPlayerComponent {
+		function show():void;
+		function hide():void;
 	}
 }

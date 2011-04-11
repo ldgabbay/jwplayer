@@ -9,7 +9,5 @@ package com.longtailvideo.jwplayer.view.interfaces {
 		function set x(_x:Number):void;
 		function get y():Number;
 		function set y(_y:Number):void;
-		function show():void;
-		function hide():void;
 	}
 }

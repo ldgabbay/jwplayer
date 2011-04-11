@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1721';
+jwplayer.version = '5.6.1726';
 /**
  * Utility methods for the JW Player.
  *
@@ -215,7 +215,7 @@ jwplayer.version = '5.6.1721';
 		item.levels = playlistItem.levels;
 		item.streamer = playlistItem.streamer;
 		item.playlistfile = playlistItem.playlistfile;
-		if (item.file && item.file.toLowerCase().indexOf("youtube.com") > -1) {
+		if (item.file && (item.file.toLowerCase().indexOf("youtube.com") > -1 || item.file.toLowerCase().indexOf("youtu.be") > -1)) {
 			item.provider = "youtube";
 		}
 		if (item.streamer && item.streamer.toLowerCase().indexOf("rtmp://") == 0) {
@@ -442,11 +442,7 @@ jwplayer.version = '5.6.1721';
 	};
 	
 	jwplayer.utils.isYouTube = function(path) {
-		return path.indexOf("youtube.com") > -1;
-	};
-	
-	jwplayer.utils.getYouTubeId = function(path) {
-		path.indexOf("youtube.com" > 0);
+		return (path.indexOf("youtube.com") > -1 || path.indexOf("youtu.be") > -1);
 	};
 	
 	/**
@@ -6015,7 +6011,7 @@ playerReady = function(obj) {
 		function _embedYouTube(playlistItem) {
 			var path = playlistItem.levels[0].file;
 			var object = document.createElement("object");
-			path = ["http://www.youtube.com/v/", path.replace(/^[^v]+v.(.{11}).*/, "$1"), "&amp;hl=en_US&amp;fs=1&autoplay=1"].join("");
+			path = ["http://www.youtube.com/v/", _getYouTubeID(path), "&amp;hl=en_US&amp;fs=1&autoplay=1"].join("");
 			var objectParams = {
 				movie: path,
 				allowFullScreen: "true",
@@ -6052,6 +6048,40 @@ playerReady = function(obj) {
 			object.id = _container.id;
 			_container = object;
 			_hasChrome = true;
+		}
+		
+		/** Extract the current ID from a youtube URL.  Supported values include:
+		 * http://www.youtube.com/watch?v=ylLzyHk54Z0
+		 * http://www.youtube.com/watch#!v=ylLzyHk54Z0
+		 * http://www.youtube.com/v/ylLzyHk54Z0
+		 * http://youtu.be/ylLzyHk54Z0
+		 * ylLzyHk54Z0
+		 **/
+		function _getYouTubeID(url) {
+			var arr = url.split(/\?|\#\!/);
+			var str = '';
+			for (var i=0; i<arr.length; i++) {
+				if (arr[i].substr(0, 2) == 'v=') {
+					str = arr[i].substr(2);
+				}
+			}
+			if (str == '') {
+				if (url.indexOf('/v/') >= 0) {
+					str = url.substr(url.indexOf('/v/') + 3);
+				} else if (url.indexOf('youtu.be') >= 0) {
+					str = url.substr(url.indexOf('youtu.be/') + 9);
+				} else {
+					str = url;
+				}
+			}
+			if (str.indexOf('?') > -1) {
+				str = str.substr(0, str.indexOf('?'));
+			}
+			if (str.indexOf('&') > -1) {
+				str = str.substr(0, str.indexOf('&'));
+			}
+			
+			return str;
 		}
 		
 		this.embed = _embed;

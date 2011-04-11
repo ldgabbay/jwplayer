@@ -194,7 +194,7 @@
 		item.levels = playlistItem.levels;
 		item.streamer = playlistItem.streamer;
 		item.playlistfile = playlistItem.playlistfile;
-		if (item.file && item.file.toLowerCase().indexOf("youtube.com") > -1) {
+		if (item.file && (item.file.toLowerCase().indexOf("youtube.com") > -1 || item.file.toLowerCase().indexOf("youtu.be") > -1)) {
 			item.provider = "youtube";
 		}
 		if (item.streamer && item.streamer.toLowerCase().indexOf("rtmp://") == 0) {
@@ -421,11 +421,7 @@
 	};
 	
 	jwplayer.utils.isYouTube = function(path) {
-		return path.indexOf("youtube.com") > -1;
-	};
-	
-	jwplayer.utils.getYouTubeId = function(path) {
-		path.indexOf("youtube.com" > 0);
+		return (path.indexOf("youtube.com") > -1 || path.indexOf("youtu.be") > -1);
 	};
 	
 	/**

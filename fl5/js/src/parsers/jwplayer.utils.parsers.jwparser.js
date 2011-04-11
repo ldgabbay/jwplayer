@@ -43,7 +43,9 @@
 	jwplayer.utils.parsers.jwparser.getProvider = function(item) {
 		if (item['type']) {
 			return item['type'];
-		} else if (item['file'].indexOf('youtube.com/w') > -1 || item['file'].indexOf('youtube.com/v') > -1) {
+		} else if (item['file'].indexOf('youtube.com/w') > -1 
+					|| item['file'].indexOf('youtube.com/v') > -1
+					|| item['file'].indexOf('youtu.be/') > -1 ) {
 			return "youtube";
 		} else if (item['streamer'] && item['streamer'].indexOf('rtmp') == 0) {
 			return "rtmp";

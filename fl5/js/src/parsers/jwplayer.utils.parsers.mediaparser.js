@@ -70,7 +70,8 @@
 						itm['author'] = obj.childNodes[i].textContent;
 						break;
 					case 'player':
-						if (obj.childNodes[i].url.indexOf('youtube.com') > 0) {
+						var url = obj.childNodes[i].url;
+						if (url.indexOf('youtube.com') >= 0 || url.indexOf('youtu.be') >= 0) {
 							ytp = true;
 							itm['file'] = jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url');
 						}

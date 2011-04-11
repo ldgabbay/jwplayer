@@ -508,7 +508,7 @@
 		function _embedYouTube(playlistItem) {
 			var path = playlistItem.levels[0].file;
 			var object = document.createElement("object");
-			path = ["http://www.youtube.com/v/", path.replace(/^[^v]+v.(.{11}).*/, "$1"), "&amp;hl=en_US&amp;fs=1&autoplay=1"].join("");
+			path = ["http://www.youtube.com/v/", _getYouTubeID(path), "&amp;hl=en_US&amp;fs=1&autoplay=1"].join("");
 			var objectParams = {
 				movie: path,
 				allowFullScreen: "true",
@@ -545,6 +545,40 @@
 			object.id = _container.id;
 			_container = object;
 			_hasChrome = true;
+		}
+		
+		/** Extract the current ID from a youtube URL.  Supported values include:
+		 * http://www.youtube.com/watch?v=ylLzyHk54Z0
+		 * http://www.youtube.com/watch#!v=ylLzyHk54Z0
+		 * http://www.youtube.com/v/ylLzyHk54Z0
+		 * http://youtu.be/ylLzyHk54Z0
+		 * ylLzyHk54Z0
+		 **/
+		function _getYouTubeID(url) {
+			var arr = url.split(/\?|\#\!/);
+			var str = '';
+			for (var i=0; i<arr.length; i++) {
+				if (arr[i].substr(0, 2) == 'v=') {
+					str = arr[i].substr(2);
+				}
+			}
+			if (str == '') {
+				if (url.indexOf('/v/') >= 0) {
+					str = url.substr(url.indexOf('/v/') + 3);
+				} else if (url.indexOf('youtu.be') >= 0) {
+					str = url.substr(url.indexOf('youtu.be/') + 9);
+				} else {
+					str = url;
+				}
+			}
+			if (str.indexOf('?') > -1) {
+				str = str.substr(0, str.indexOf('?'));
+			}
+			if (str.indexOf('&') > -1) {
+				str = str.substr(0, str.indexOf('&'));
+			}
+			
+			return str;
 		}
 		
 		this.embed = _embed;

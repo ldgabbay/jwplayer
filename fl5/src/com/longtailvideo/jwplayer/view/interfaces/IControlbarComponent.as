@@ -69,5 +69,7 @@ package com.longtailvideo.jwplayer.view.interfaces {
 		function addButton(icon:DisplayObject, name:String, handler:Function = null):MovieClip;
 		function removeButton(name:String):void;
 		function getButton(buttonName:String):DisplayObject;
+		function show():void;
+		function hide():void;
 	}
 }

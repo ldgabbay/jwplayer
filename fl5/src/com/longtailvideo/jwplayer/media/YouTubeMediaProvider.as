@@ -97,6 +97,9 @@ package com.longtailvideo.jwplayer.media {
 					str = url;
 				}
 			}
+			if (str.indexOf('?') > -1) {
+				str = str.substr(0, str.indexOf('?'));
+			}
 			if (str.indexOf('&') > -1) {
 				str = str.substr(0, str.indexOf('&'));
 			}
