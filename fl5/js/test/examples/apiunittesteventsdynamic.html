@@ -200,7 +200,7 @@
             		}, 500);
             	} else {
             		document.getElementById("result").innerHTML = "Error at step " + (scriptPos + 1) + ": Got " + script[scriptPos].getter() + " and expected " + script[scriptPos].expectedValue;
-            		if (console && console.log) console.log(script[scriptPos].action);
+            		if (window.console && console.log) console.log(script[scriptPos].action);
             	}
             }
 			

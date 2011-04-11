@@ -32,7 +32,7 @@
             		players: settings.players(window.location.href),
 					events: {
 						onResize: function(evt){
-							if (console && console.log) console.log(evt.width, evt.height);
+							if (window.console && console.log) console.log(evt.width, evt.height);
 						}
 					}
             	});
