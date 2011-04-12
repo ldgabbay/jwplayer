@@ -33,8 +33,13 @@
         </p>
         <table id="examplestable">
         </table>
+		
+		<div id="player1"></div>
+		<div id="player2"></div>
+		<div id="player3"></div>
+		
         <script type="text/javascript">
-            var examplestable = document.getElementById("examplestable");
+//            var examplestable = document.getElementById("examplestable");
             var players = [["flash", "html5", "download"], ["flash", "download"], ["html5", "download"]];
             var test = {
         		levels: [{
@@ -47,13 +52,14 @@
             };
             
         	var row = document.createElement("tr");
-        	examplestable.appendChild(row);
+//        	examplestable.appendChild(row);
         	for (var player = 0; player < players.length; player++) {
         		var column = document.createElement("td");
-        		row.appendChild(column);
+  //      		row.appendChild(column);
         		var div = document.createElement("div");
-        		column.appendChild(div);
-        		var playerName = ("player-" + players[player].join("-")).replace(/[^A-Za-z0-9\-\_]/g, "").toLowerCase();
+   //     		column.appendChild(div);
+//        		var playerName = ("player-" + players[player].join("-")).replace(/[^A-Za-z0-9\-\_]/g, "").toLowerCase();
+				var playerName = "player" + (player+1);
         		div.id = playerName;
         		div.height = 270;
         		div.width = 480;
