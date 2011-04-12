@@ -72,7 +72,7 @@ package com.longtailvideo.jwplayer.model {
 					setPluginProperty(item, config[item]);
 					_singleItem[item.toLowerCase()] = config[item];
 				} else if (_singleItem.hasOwnProperty(item)) {
-					if (item == "file" && Strings.extension(config[item]) == "xml") {
+					if (item == "file" && Strings.extension(config[item]) == "xml" && !(config['provider'])) {
 						setProperty("playlistfile", config[item]);					
 					} else if (item == "levels" && config[item] is Array) {
 						for (var i:Number = 0; i < (config[item] as Array).length; i++) {
@@ -140,7 +140,9 @@ package com.longtailvideo.jwplayer.model {
 		
 		/** Location of xml playlist file to load **/
 		public function get playlistfile():String { return _playlistfile; }
-		public function set playlistfile(x:String):void { _playlistfile = x; }
+		public function set playlistfile(x:String):void { 
+			_playlistfile = x; 
+		}
 
 
 		/** Author of the video, shown in the display or playlist. **/
