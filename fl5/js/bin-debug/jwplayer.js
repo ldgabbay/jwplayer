@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1733';
+jwplayer.version = '5.6.1734';
 /**
  * Utility methods for the JW Player.
  *
@@ -2428,14 +2428,18 @@ playerReady = function(obj) {
 			}
 		}
 		
-		var components = ["playlist", "dock", "controlbar"];
+		var components = ["playlist", "dock", "controlbar", "logo"];
 				
 		for (var component = 0; component < components.length; component++) {
 			if (typeof parsedConfig[components[component]] == "string") {
 				if (!parsedConfig.components[components[component]]) {
 					parsedConfig.components[components[component]] = {};
 				}
-				parsedConfig.components[components[component]].position = parsedConfig[components[component]];
+				if (components[component] == "logo") {
+					parsedConfig.components[components[component]].file = parsedConfig[components[component]];
+				} else {
+					parsedConfig.components[components[component]].position = parsedConfig[components[component]];
+				}
 				delete parsedConfig[components[component]];
 			} else if (typeof parsedConfig[components[component]] != "undefined") {
 				if (!parsedConfig.components[components[component]]) {

@@ -97,14 +97,18 @@
 			}
 		}
 		
-		var components = ["playlist", "dock", "controlbar"];
+		var components = ["playlist", "dock", "controlbar", "logo"];
 				
 		for (var component = 0; component < components.length; component++) {
 			if (typeof parsedConfig[components[component]] == "string") {
 				if (!parsedConfig.components[components[component]]) {
 					parsedConfig.components[components[component]] = {};
 				}
-				parsedConfig.components[components[component]].position = parsedConfig[components[component]];
+				if (components[component] == "logo") {
+					parsedConfig.components[components[component]].file = parsedConfig[components[component]];
+				} else {
+					parsedConfig.components[components[component]].position = parsedConfig[components[component]];
+				}
 				delete parsedConfig[components[component]];
 			} else if (typeof parsedConfig[components[component]] != "undefined") {
 				if (!parsedConfig.components[components[component]]) {
