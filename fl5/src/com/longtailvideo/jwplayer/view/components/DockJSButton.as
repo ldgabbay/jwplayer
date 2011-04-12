@@ -1,6 +1,8 @@
 package com.longtailvideo.jwplayer.view.components {
 
 
+    import com.longtailvideo.jwplayer.utils.Logger;
+    
     import flash.display.*;
     import flash.events.*;
     import flash.external.ExternalInterface;
@@ -16,6 +18,9 @@ package com.longtailvideo.jwplayer.view.components {
         private var _overLoader:Loader;
         private var _outLoader:Loader;
 
+		/** Store the last loaded URL for each icon **/
+		private var _lastOver:String;
+		private var _lastOut:String;
 
         /** Constructor **/
         public function DockJSButton(name:String, back:DisplayObject, tab:Number):void {
@@ -27,19 +32,29 @@ package com.longtailvideo.jwplayer.view.components {
 			this.buttonMode = true;
 			_outLoader = new Loader();
             _outLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,_loadOutHandler);
+			_outLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
 			_overLoader = new Loader();
             _overLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,_loadOverHandler);
+			_overLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
         };
 
+		private function errorHandler(evt:ErrorEvent):void {
+			Logger.log("Dock image could not be loaded: " + evt.text);
+		}
 
         /** Load the out icon. **/
         public function loadOutIcon(url:String):void {
-            _outLoader.load(new URLRequest(url));
+			if (_lastOut == url && _outLoader && _outLoader.contentLoaderInfo.bytesLoaded == _outLoader.contentLoaderInfo.bytesTotal) {
+				_loadOutHandler();
+			} else {
+				_lastOut = url;
+            	_outLoader.load(new URLRequest(url));
+			}
         };
 
 
         /** Set the out icon when loaded. **/
-        private function _loadOutHandler(event:Event):void {
+        private function _loadOutHandler(event:Event=null):void {
             setOutIcon(_outLoader);
             init();
         };
@@ -47,12 +62,17 @@ package com.longtailvideo.jwplayer.view.components {
 
         /** Load the over icon. **/
         public function loadOverIcon(url:String):void {
-            _overLoader.load(new URLRequest(url));
+			if (_lastOver == url && _overLoader && _overLoader.contentLoaderInfo.bytesLoaded == _overLoader.contentLoaderInfo.bytesTotal) {
+				_loadOutHandler();
+			} else {
+				_lastOver = url;
+				_overLoader.load(new URLRequest(url));
+			}
         };
 
 
         /** Set the out icon when loaded. **/
-        private function _loadOverHandler(event:Event):void {
+        private function _loadOverHandler(event:Event=null):void {
             setOverIcon(_overLoader);
         };
 
