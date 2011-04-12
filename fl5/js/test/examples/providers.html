@@ -22,10 +22,10 @@
         <p>
             This test the various configuration options for plugins. Video should play natively on FF, Chrome, Safari, and Opera but will fail in IE.
         </p>
-        <table id="examplestable">
-        </table>
+		
+		<div id="examples"></div>
+		
         <script type="text/javascript">
-            var examplestable = document.getElementById("examplestable");
             var players = [["flash", "html5", "download"], ["flash", "download"], ["html5", "download"]];
             var tests = [{
             	name: "Video (not set)",
@@ -123,9 +123,9 @@
             	if (isNaN(test)) {
             		break;
             	}
-            	var row = document.createElement("tr");
-            	examplestable.appendChild(row);
-            	var label = document.createElement("td");
+            	var row = document.createElement("div");
+            	document.getElementById("examples").appendChild(row);
+            	var label = document.createElement("span");
             	row.appendChild(label);
             	var labelTag = document.createElement("h2");
             	label.appendChild(labelTag);
@@ -134,10 +134,8 @@
             		if (isNaN(player)) {
             			break;
             		}
-            		var column = document.createElement("td");
-            		row.appendChild(column);
             		var div = document.createElement("div");
-            		column.appendChild(div);
+            		row.appendChild(div);
             		var playerName = ("player-" + tests[test].name + "-" + players[player].join("-")).replace(/[^A-Za-z0-9\-\_]/g, "").toLowerCase();
             		div.id = playerName;
             		div.height = 270;

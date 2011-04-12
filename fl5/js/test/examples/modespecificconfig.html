@@ -22,8 +22,8 @@
         <p>
             This test the various configuration options for plugins. Video should play natively on FF, Chrome, Safari, and Opera but will fail in IE.
         </p>
-        <table id="examplestable">
-        </table>
+        <div id="examplestable">
+        </div>
         <script type="text/javascript">
             var examplestable = document.getElementById("examplestable");
             var flashsrc = window.location.href.substring(0, window.location.href.indexOf("/js/test/examples") + 1) + "player.swf";
@@ -84,9 +84,9 @@
             	if (isNaN(test)) {
             		break;
             	}
-            	var row = document.createElement("tr");
+            	var row = document.createElement("div");
             	examplestable.appendChild(row);
-            	var label = document.createElement("td");
+            	var label = document.createElement("p");
             	row.appendChild(label);
             	var labelTag = document.createElement("h2");
             	label.appendChild(labelTag);
@@ -96,7 +96,7 @@
             		if (isNaN(player)) {
             			break;
             		}
-            		var column = document.createElement("td");
+            		var column = document.createElement("span");
             		row.appendChild(column);
             		var div = document.createElement("div");
             		column.appendChild(div);
