@@ -136,10 +136,14 @@
 				}
 				if (isArray) {
 					// Array
-					toReturn.push(String(value)); 
+					if (typeof(value) != "function") {
+						toReturn.push(String(value));
+					}
 				} else {
 					// Object
-					toReturn.push('"' + item + '":' + String(value)); 
+					if (typeof(value) != "function") {
+						toReturn.push('"' + item + '":' + String(value));
+					}
 				}
 			}
 			

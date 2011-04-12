@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1726';
+jwplayer.version = '5.6.1727';
 /**
  * Utility methods for the JW Player.
  *
@@ -1272,10 +1272,14 @@ jwplayer.version = '5.6.1726';
 				}
 				if (isArray) {
 					// Array
-					toReturn.push(String(value)); 
+					if (typeof(value) != "function") {
+						toReturn.push(String(value));
+					}
 				} else {
 					// Object
-					toReturn.push('"' + item + '":' + String(value)); 
+					if (typeof(value) != "function") {
+						toReturn.push('"' + item + '":' + String(value));
+					}
 				}
 			}
 			
@@ -6410,7 +6414,7 @@ playerReady = function(obj) {
 		} else {
 			var extension = jwplayer.utils.extension(item.file);
 			var mimetype;
-			if (extension) {
+			if (extension && jwplayer.utils.extensionmap[extension]) {
 				mimetype = jwplayer.utils.extensionmap[extension].html5;
 			} else if (item.type) {
 				mimetype = item.type;

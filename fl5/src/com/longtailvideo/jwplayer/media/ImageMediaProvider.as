@@ -114,10 +114,14 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Stop the image _postitionInterval. **/
 		override public function stop():void {
-			if (_loader.contentLoaderInfo.bytesLoaded != _loader.contentLoaderInfo.bytesTotal) {
-				_loader.close();
-			} else {
-				_loader.unload();
+			try {
+				if (_loader.contentLoaderInfo.bytesLoaded != _loader.contentLoaderInfo.bytesTotal) {
+					_loader.close();
+				} else {
+					_loader.unload();
+				}
+			} catch(e:Error) {
+				Logger.log("An error occurred while trying to remove an image: " + e.message); 
 			}
 			clearInterval(_postitionInterval);
 			super.stop();

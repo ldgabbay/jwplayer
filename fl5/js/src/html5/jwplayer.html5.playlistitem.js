@@ -53,7 +53,7 @@
 		} else {
 			var extension = jwplayer.utils.extension(item.file);
 			var mimetype;
-			if (extension) {
+			if (extension && jwplayer.utils.extensionmap[extension]) {
 				mimetype = jwplayer.utils.extensionmap[extension].html5;
 			} else if (item.type) {
 				mimetype = item.type;
