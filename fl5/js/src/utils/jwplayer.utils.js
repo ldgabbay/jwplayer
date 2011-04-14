@@ -194,16 +194,18 @@
 		item.levels = playlistItem.levels;
 		item.streamer = playlistItem.streamer;
 		item.playlistfile = playlistItem.playlistfile;
-		if (item.file && (item.file.toLowerCase().indexOf("youtube.com") > -1 || item.file.toLowerCase().indexOf("youtu.be") > -1)) {
-			item.provider = "youtube";
-		}
-		if (item.streamer && item.streamer.toLowerCase().indexOf("rtmp://") == 0) {
-			item.provider = "rtmp";
-		}
-		if (playlistItem.type) {
-			item.provider = playlistItem.type.toLowerCase();
-		} else if (playlistItem.provider) {
-			item.provider = playlistItem.provider.toLowerCase();
+		
+		item.provider = playlistItem.provider;
+		if (!item.provider) {
+			if (item.file && (item.file.toLowerCase().indexOf("youtube.com") > -1 || item.file.toLowerCase().indexOf("youtu.be") > -1)) {
+				item.provider = "youtube";
+			}
+			if (item.streamer && item.streamer.toLowerCase().indexOf("rtmp://") == 0) {
+				item.provider = "rtmp";
+			}
+			if (playlistItem.type) {
+				item.provider = playlistItem.type.toLowerCase();
+			}
 		}
 		
 		return item;
