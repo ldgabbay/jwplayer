@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1737';
+jwplayer.version = '5.6.1743';
 /**
  * Utility methods for the JW Player.
  *
@@ -2332,7 +2332,7 @@ playerReady = function(obj) {
 /**
  * Configuration for the JW Player Embedder
  * @author Zach
- * @version 5.5
+ * @version 5.6
  */
 (function(jwplayer) {
 	function _playerDefaults() {
@@ -2379,6 +2379,51 @@ playerReady = function(obj) {
 		return size;
 	}
 	
+	var components = ["playlist", "dock", "controlbar", "logo"];
+	
+	function getPluginString(config) {
+		var pluginString = "";
+		switch(jwplayer.utils.typeOf(config.plugins)){
+			case "object":
+				for (var plugin in config.plugins) {
+					pluginString += plugin+",";
+				}
+				break;
+			case "string":
+				pluginString = config.plugins+",";
+				break;
+		}
+		return pluginString;
+	}
+	
+	function addConfigParameter(config, componentType, componentName, componentParameter){
+		if (jwplayer.utils.typeOf(config[componentType]) != "object"){
+			config[componentType] = {};
+		}
+		if (jwplayer.utils.typeOf(config[componentType][componentName]) != "object"){
+			config[componentType][componentName] = {};
+		}
+		config[componentType][componentName][componentParameter] = config[componentName+"."+componentParameter];
+		delete config[componentName+"."+componentParameter];
+	}
+	
+	jwplayer.embed.deserialize = function(config){
+		var pluginstring = getPluginString(config);
+		for (var parameter in config) {
+			if (parameter.indexOf(".") > -1) {
+				var path = parameter.split(".");
+				var componentName = path[0];
+				var componentParameter = path[1];
+				if ((components.toString()+",").indexOf(componentName+",") > -1) {
+					addConfigParameter(config, "components", componentName, componentParameter);
+				} else if (pluginstring.indexOf(componentName+",") > -1) {
+					addConfigParameter(config, "plugins", componentName, componentParameter);
+				}
+			}
+		}
+		return config;
+	}
+	
 	jwplayer.embed.config = function(config, embedder) {
 		var parsedConfig = jwplayer.utils.extend({}, config);
 		
@@ -2389,25 +2434,7 @@ playerReady = function(obj) {
 			delete parsedConfig.playlist;
 		}
 		
-		for (var option in parsedConfig) {
-			if (option.indexOf(".") > -1) {
-				var path = option.split(".");
-				var tempConfig = parsedConfig;
-				for (var edge = 0; edge < path.length; edge++) {
-					if (edge == path.length - 1) {
-						if (jwplayer.utils.typeOf(tempConfig) == "object") {
-							tempConfig[path[edge]] = parsedConfig[option];
-							delete parsedConfig[option];
-						}
-					} else {
-						if (tempConfig[path[edge]] === undefined) {
-							tempConfig[path[edge]] = {};
-						}
-						tempConfig = tempConfig[path[edge]];
-					}
-				}
-			}
-		}
+		parsedConfig = jwplayer.embed.deserialize(parsedConfig);
 		
 		parsedConfig.height = getSize(parsedConfig.height);
 		parsedConfig.width = getSize(parsedConfig.width);
@@ -2427,9 +2454,7 @@ playerReady = function(obj) {
 				}
 			}
 		}
-		
-		var components = ["playlist", "dock", "controlbar", "logo"];
-				
+						
 		for (var component = 0; component < components.length; component++) {
 			if (typeof parsedConfig[components[component]] == "string") {
 				if (!parsedConfig.components[components[component]]) {
