@@ -532,4 +532,20 @@
 		return obj;
 	}
 	
+	/** Returns true if an element is found in a given array
+	 * @param array The array to search
+	 * @param search The element to search
+	 **/
+	jwplayer.utils.isInArray = function(array, search) {
+		if (!(array) || !(array instanceof Array)) { return false; }
+		
+		for(var i=0; i < array.length; i++) {
+			if (search === array[i]) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 })(jwplayer);

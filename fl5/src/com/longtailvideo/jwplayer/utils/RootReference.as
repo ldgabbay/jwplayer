@@ -14,7 +14,15 @@ package com.longtailvideo.jwplayer.utils {
 		public static var root:DisplayObject;
 
 		/** A reference to the stage. **/ 
-		public static var stage:Stage;
+		private static var _stage:Stage;
+		
+		public static function get stage():Stage {
+			return _stage;
+		}
+
+		public static function set stage(s:Stage):void  {
+			_stage = s;
+		}
 
 		public function RootReference(displayObj:DisplayObject) {
 			if (!RootReference.root) {

@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1743';
+jwplayer.version = '5.6.1744';
 /**
  * Utility methods for the JW Player.
  *
@@ -551,6 +551,22 @@ jwplayer.version = '5.6.1743';
 				break;
 		}
 		return obj;
+	}
+	
+	/** Returns true if an element is found in a given array
+	 * @param array The array to search
+	 * @param search The element to search
+	 **/
+	jwplayer.utils.isInArray = function(array, search) {
+		if (!(array) || !(array instanceof Array)) { return false; }
+		
+		for(var i=0; i < array.length; i++) {
+			if (search === array[i]) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 })(jwplayer);
@@ -2381,43 +2397,57 @@ playerReady = function(obj) {
 	
 	var components = ["playlist", "dock", "controlbar", "logo"];
 	
-	function getPluginString(config) {
-		var pluginString = "";
+	function getPluginNames(config) {
+		var pluginNames = {};
 		switch(jwplayer.utils.typeOf(config.plugins)){
 			case "object":
 				for (var plugin in config.plugins) {
-					pluginString += plugin+",";
+					pluginNames[jwplayer.utils.getPluginName(plugin)] = plugin;
 				}
 				break;
 			case "string":
-				pluginString = config.plugins+",";
+				var pluginArray = config.plugins.split(",");
+				for (var i=0; i < pluginArray.length; i++) {
+					pluginNames[jwplayer.utils.getPluginName(pluginArray[i])] = pluginArray[i];	
+				}
 				break;
 		}
-		return pluginString;
+		return pluginNames;
 	}
 	
 	function addConfigParameter(config, componentType, componentName, componentParameter){
 		if (jwplayer.utils.typeOf(config[componentType]) != "object"){
 			config[componentType] = {};
 		}
-		if (jwplayer.utils.typeOf(config[componentType][componentName]) != "object"){
-			config[componentType][componentName] = {};
+		var componentConfig = config[componentType][componentName];
+
+		if (jwplayer.utils.typeOf(componentConfig) != "object") {
+			config[componentType][componentName] = componentConfig = {};
 		}
-		config[componentType][componentName][componentParameter] = config[componentName+"."+componentParameter];
-		delete config[componentName+"."+componentParameter];
+
+		if (componentType == "plugins") {
+			var pluginName = jwplayer.utils.getPluginName(componentName);
+			componentConfig[componentParameter] = config[pluginName+"."+componentParameter];
+			delete config[pluginName+"."+componentParameter];
+		} else {
+			componentConfig[componentParameter] = config[componentName+"."+componentParameter];
+			delete config[componentName+"."+componentParameter];
+		}
 	}
 	
 	jwplayer.embed.deserialize = function(config){
-		var pluginstring = getPluginString(config);
+		var pluginNames = getPluginNames(config);
+		
 		for (var parameter in config) {
 			if (parameter.indexOf(".") > -1) {
 				var path = parameter.split(".");
-				var componentName = path[0];
-				var componentParameter = path[1];
-				if ((components.toString()+",").indexOf(componentName+",") > -1) {
-					addConfigParameter(config, "components", componentName, componentParameter);
-				} else if (pluginstring.indexOf(componentName+",") > -1) {
-					addConfigParameter(config, "plugins", componentName, componentParameter);
+				var prefix = path[0];
+				var parameter = path[1];
+
+				if (jwplayer.utils.isInArray(components, prefix)) {
+					addConfigParameter(config, "components", prefix, parameter);
+				} else if (pluginNames[prefix]) {
+					addConfigParameter(config, "plugins", pluginNames[prefix], parameter);
 				}
 			}
 		}

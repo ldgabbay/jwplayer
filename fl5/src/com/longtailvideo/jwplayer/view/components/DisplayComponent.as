@@ -54,10 +54,12 @@
 		
 		private function itemHandler(evt:PlaylistEvent):void {
 			setDisplay(_icons['play'], '');
-			if (_player.playlist.currentItem && _player.playlist.currentItem.provider == "youtube") {
-				this.mask = _youtubeMask;
-			} else {
-				this.mask = null;
+			if (background) {
+				if (_player.playlist.currentItem && _player.playlist.currentItem.provider == "youtube") {
+					background.mask = _youtubeMask;
+				} else {
+					background.mask = null;
+				}
 			}
 		}
 		
