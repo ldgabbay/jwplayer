@@ -2,7 +2,7 @@
  * JW Player display component
  *
  * @author zach
- * @version 5.4
+ * @version 5.6
  */
 (function(jwplayer) {
 	_css = jwplayer.utils.css;
@@ -290,7 +290,7 @@
 					_setDisplayIcon("playIcon");
 					break;
 				default:
-					if (_api.jwGetMute()) {
+					if (_api.jwGetMute() && _config.showmute) {
 						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
 							_resetPoster();
 						}

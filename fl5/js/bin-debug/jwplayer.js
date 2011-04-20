@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1745';
+jwplayer.version = '5.6.1761';
 /**
  * Utility methods for the JW Player.
  *
@@ -4911,7 +4911,7 @@ playerReady = function(obj) {
  * JW Player display component
  *
  * @author zach
- * @version 5.4
+ * @version 5.6
  */
 (function(jwplayer) {
 	_css = jwplayer.utils.css;
@@ -5199,7 +5199,7 @@ playerReady = function(obj) {
 					_setDisplayIcon("playIcon");
 					break;
 				default:
-					if (_api.jwGetMute()) {
+					if (_api.jwGetMute() && _config.showmute) {
 						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
 							_resetPoster();
 						}
