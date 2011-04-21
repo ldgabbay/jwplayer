@@ -20,7 +20,6 @@
 		var _originalHTML = jwplayer.utils.getOuterHTML(container);
 		
 		var _itemMeta = {};
-		var _currentItem = 0;
 		var _callbacks = {};
 		
 		// Player Getters
@@ -404,9 +403,6 @@
 			}
 			
 			this.eventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, function(data) {
-				if (data.index !== undefined) {
-					_currentItem = data.index;
-				}
 				_itemMeta = {};
 			});
 			
@@ -427,7 +423,7 @@
 		};
 		
 		this.getCurrentItem = function() {
-			return _currentItem;
+			return this.callInternal('jwGetPlaylistIndex');
 		};
 		
 		/** Using this function instead of array.slice since Arguments are not an array **/

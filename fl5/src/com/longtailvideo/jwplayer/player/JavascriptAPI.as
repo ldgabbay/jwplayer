@@ -110,6 +110,7 @@ package com.longtailvideo.jwplayer.player {
 				ExternalInterface.addCallback("jwGetHeight", js_getHeight);
 				ExternalInterface.addCallback("jwGetMute", js_getMute);
 				ExternalInterface.addCallback("jwGetPlaylist", js_getPlaylist);
+				ExternalInterface.addCallback("jwGetPlaylistIndex", js_getPlaylistIndex);
 				ExternalInterface.addCallback("jwGetPosition", js_getPosition);
 				ExternalInterface.addCallback("jwGetState", js_getState);
 				ExternalInterface.addCallback("jwGetWidth", js_getWidth);
@@ -295,6 +296,12 @@ package com.longtailvideo.jwplayer.player {
 			}
 			return playlistArray; 
 		}
+
+		
+		protected function js_getPlaylistIndex():Number {
+			return _player.playlist.currentIndex; 
+		}
+		
 		
 		protected function js_getPosition():Number {
 			return _playerPosition;

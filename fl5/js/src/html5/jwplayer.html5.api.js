@@ -92,6 +92,7 @@
 		_api.jwGetPlaylist = function() {
 			return _model.playlist;
 		};
+		_api.jwGetPlaylistIndex = _api.jwGetItem;
 		
 		_api.jwAddEventListener = _controller.addEventListener;
 		_api.jwRemoveEventListener = _controller.removeEventListener;

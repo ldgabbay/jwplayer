@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1761';
+jwplayer.version = '5.6.1763';
 /**
  * Utility methods for the JW Player.
  *
@@ -1716,7 +1716,6 @@ jwplayer.version = '5.6.1761';
 		var _originalHTML = jwplayer.utils.getOuterHTML(container);
 		
 		var _itemMeta = {};
-		var _currentItem = 0;
 		var _callbacks = {};
 		
 		// Player Getters
@@ -2100,9 +2099,6 @@ jwplayer.version = '5.6.1761';
 			}
 			
 			this.eventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, function(data) {
-				if (data.index !== undefined) {
-					_currentItem = data.index;
-				}
 				_itemMeta = {};
 			});
 			
@@ -2123,7 +2119,7 @@ jwplayer.version = '5.6.1761';
 		};
 		
 		this.getCurrentItem = function() {
-			return _currentItem;
+			return this.callInternal('jwGetPlaylistIndex');
 		};
 		
 		/** Using this function instead of array.slice since Arguments are not an array **/
@@ -6838,6 +6834,7 @@ playerReady = function(obj) {
 		_api.jwGetPlaylist = function() {
 			return _model.playlist;
 		};
+		_api.jwGetPlaylistIndex = _api.jwGetItem;
 		
 		_api.jwAddEventListener = _controller.addEventListener;
 		_api.jwRemoveEventListener = _controller.removeEventListener;
