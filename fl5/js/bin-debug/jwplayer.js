@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1763';
+jwplayer.version = '5.6.1765';
 /**
  * Utility methods for the JW Player.
  *

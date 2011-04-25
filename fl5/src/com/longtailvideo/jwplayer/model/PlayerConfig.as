@@ -109,7 +109,7 @@ package com.longtailvideo.jwplayer.model {
 			var pluginId:String = name.substring(0, name.indexOf(".")).toLowerCase();
 			var pluginProperty:String = name.substring(name.indexOf(".") + 1, name.length).toLowerCase();
 
-			if (pluginId && pluginProperty && value) {
+			if (pluginId && pluginProperty) {
 				if (!_pluginConfig.hasOwnProperty(pluginId)) {
 					_pluginConfig[pluginId] = new PluginConfig(pluginId);
 				}
