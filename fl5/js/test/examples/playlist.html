@@ -352,6 +352,22 @@
         <a href="#" onclick="jwplayer('player4').playlistItem(1);return false;">Play item 2</a>
         <a href="#" onclick="jwplayer('player4').playlistItem(2);return false;">Play item 3</a>
         <p>
+            Get the current item.
+        </p>
+        <div height="270" id="player4b" width="480">
+            HTML5 Player should replace this
+        </div>
+        <script type="text/javascript">
+            jwplayer("player4b").setup({
+            	players: settings.players(window.location.href),
+            	playlist: playlist
+            });
+            jwplayer("player4b").onPlaylistItem(function() {
+		document.getElementById("current_item").innerHTML = this.getPlaylistItem().index;
+            });
+        </script>
+        <p>Current item = <span id="current_item">0</span></p>
+        <p>
             Playlist + Playlist.position
         </p>
         <div height="270" id="player5" width="480">
