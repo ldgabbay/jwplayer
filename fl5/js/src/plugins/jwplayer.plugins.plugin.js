@@ -28,7 +28,9 @@
 					return jwplayer.utils.getAbsolutePath(url, window.location.href);
 				case jwplayer.utils.pluginPathType.CDN:
 					var pluginName = jwplayer.utils.getPluginName(url);
-					return _repo + "/" + jwplayer.version.split(".")[0] + "/" + pluginName + "/" + pluginName + ".js";
+					var pluginVersion = jwplayer.utils.getPluginVersion(url);
+					return _repo + "/" + jwplayer.version.split(".")[0] + "/" + pluginName + "/" 
+							+ pluginName + (pluginVersion !== "" ? ("-" + pluginVersion) : "") + ".js";
 			}
 		}
 		

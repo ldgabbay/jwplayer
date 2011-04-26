@@ -16,8 +16,9 @@
 	}
 	
 	jwplayer.plugins.registerPlugin = function(id, arg1, arg2) {
-		if (_plugins[id]) {
-			_plugins[id].registerPlugin(id, arg1, arg2);
+		var pluginId = jwplayer.utils.getPluginName(id);
+		if (_plugins[pluginId]) {
+			_plugins[pluginId].registerPlugin(id, arg1, arg2);
 		} else {
 			jwplayer.utils.log("A plugin ("+id+") was registered with the player that was not loaded. Please check your configuration.");
 			for (var pluginloader in _pluginLoaders){

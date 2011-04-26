@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>Multiple sources</title>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.js">
+        </script>
+        <script type="text/javascript" src="settings.js">
+        </script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            document.write("<h1>" + document.title + "</h1>");
+        </script>
+        <p>
+            Bug: Versions for JS plugins are ignored.
+
+            To test, make sure Captions version 2 (captions-2h.swf) is loaded correctly; including JS stub (captions-2.js)
+        </p>
+        <div>
+            <div id="player">
+                Flash Player should replace this.
+            </div>
+            <p id="text">This text should be after the player</p>
+        </div>
+        <script type="text/javascript">
+            jwplayer("player").setup({
+            	players: settings.players(window.location.href, ["flash","html5","download"]),
+                levels: [
+                	{ file:'http://playertest.longtailvideo.com/corrie.mp4' },
+                	{ file:'http://playertest.longtailvideo.com/corrie.ogv' }
+                ],
+               	image: "http://playertest.longtailvideo.com/corrie.jpg",
+                height: "270",
+                width: "480",
+                plugins: {
+                    'captions-2': {
+                        file: "http://playertest.longtailvideo.com/corrie.srt"   
+                    }
+                } 
+            });
+        </script>
+        <h3>HTML code</h3>
+    </body>
+</html>

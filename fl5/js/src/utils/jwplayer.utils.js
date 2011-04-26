@@ -282,7 +282,23 @@
 		}
 		return pluginName;
 	};
-	
+
+	/**
+	 * Extracts a plugin version from a string
+	 */
+	jwplayer.utils.getPluginVersion = function(pluginName) {
+		if (pluginName.lastIndexOf("-") >= 0) {
+			if (pluginName.lastIndexOf(".js") >= 0) {
+				return pluginName.substring(pluginName.lastIndexOf("-")+1, pluginName.lastIndexOf(".js"));
+			} else if (pluginName.lastIndexOf(".swf") >= 0) {
+				return pluginName.substring(pluginName.lastIndexOf("-")+1, pluginName.lastIndexOf(".swf"));
+			} else {
+				return pluginName.substring(pluginName.lastIndexOf("-")+1);
+			}
+		}
+		return "";
+	};
+
 	/** Gets an absolute file path based on a relative filepath **/
 	jwplayer.utils.getAbsolutePath = function(path, base) {
 		if (base === undefined) {

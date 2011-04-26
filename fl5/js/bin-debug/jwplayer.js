@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1765';
+jwplayer.version = '5.6.1768';
 /**
  * Utility methods for the JW Player.
  *
@@ -303,7 +303,23 @@ jwplayer.version = '5.6.1765';
 		}
 		return pluginName;
 	};
-	
+
+	/**
+	 * Extracts a plugin version from a string
+	 */
+	jwplayer.utils.getPluginVersion = function(pluginName) {
+		if (pluginName.lastIndexOf("-") >= 0) {
+			if (pluginName.lastIndexOf(".js") >= 0) {
+				return pluginName.substring(pluginName.lastIndexOf("-")+1, pluginName.lastIndexOf(".js"));
+			} else if (pluginName.lastIndexOf(".swf") >= 0) {
+				return pluginName.substring(pluginName.lastIndexOf("-")+1, pluginName.lastIndexOf(".swf"));
+			} else {
+				return pluginName.substring(pluginName.lastIndexOf("-")+1);
+			}
+		}
+		return "";
+	};
+
 	/** Gets an absolute file path based on a relative filepath **/
 	jwplayer.utils.getAbsolutePath = function(path, base) {
 		if (base === undefined) {
@@ -1411,8 +1427,9 @@ jwplayer.version = '5.6.1765';
 	}
 	
 	jwplayer.plugins.registerPlugin = function(id, arg1, arg2) {
-		if (_plugins[id]) {
-			_plugins[id].registerPlugin(id, arg1, arg2);
+		var pluginId = jwplayer.utils.getPluginName(id);
+		if (_plugins[pluginId]) {
+			_plugins[pluginId].registerPlugin(id, arg1, arg2);
 		} else {
 			jwplayer.utils.log("A plugin ("+id+") was registered with the player that was not loaded. Please check your configuration.");
 			for (var pluginloader in _pluginLoaders){
@@ -1467,7 +1484,9 @@ jwplayer.version = '5.6.1765';
 					return jwplayer.utils.getAbsolutePath(url, window.location.href);
 				case jwplayer.utils.pluginPathType.CDN:
 					var pluginName = jwplayer.utils.getPluginName(url);
-					return _repo + "/" + jwplayer.version.split(".")[0] + "/" + pluginName + "/" + pluginName + ".js";
+					var pluginVersion = jwplayer.utils.getPluginVersion(url);
+					return _repo + "/" + jwplayer.version.split(".")[0] + "/" + pluginName + "/" 
+							+ pluginName + (pluginVersion !== "" ? ("-" + pluginVersion) : "") + ".js";
 			}
 		}
 		
