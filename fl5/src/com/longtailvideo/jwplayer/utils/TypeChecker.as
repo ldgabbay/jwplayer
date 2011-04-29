@@ -23,6 +23,8 @@ package com.longtailvideo.jwplayer.utils {
 				return "Boolean";
 			} else if ( value.search(/^(#|0x)[0-9a-fA-F]{3,6}/) >= 0 ) {
 				return "Color";
+			} else if (value === "") {
+				return "String";
 			} else if (!isNaN(Number(value)) ) {
 				return "Number";
 			} else {
