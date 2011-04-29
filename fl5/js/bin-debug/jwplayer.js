@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1768';
+jwplayer.version = '5.6.1776';
 /**
  * Utility methods for the JW Player.
  *
@@ -2442,18 +2442,24 @@ playerReady = function(obj) {
 			config[componentType][componentName] = componentConfig = {};
 		}
 
-		if (componentType == "plugins") {
-			var pluginName = jwplayer.utils.getPluginName(componentName);
-			componentConfig[componentParameter] = config[pluginName+"."+componentParameter];
-			delete config[pluginName+"."+componentParameter];
-		} else {
-			componentConfig[componentParameter] = config[componentName+"."+componentParameter];
-			delete config[componentName+"."+componentParameter];
+		if (componentParameter) {
+			if (componentType == "plugins") {
+				var pluginName = jwplayer.utils.getPluginName(componentName);
+				componentConfig[componentParameter] = config[pluginName+"."+componentParameter];
+				delete config[pluginName+"."+componentParameter];
+			} else {
+				componentConfig[componentParameter] = config[componentName+"."+componentParameter];
+				delete config[componentName+"."+componentParameter];
+			}
 		}
 	}
 	
 	jwplayer.embed.deserialize = function(config){
 		var pluginNames = getPluginNames(config);
+		
+		for (var pluginId in pluginNames) {
+			addConfigParameter(config, "plugins", pluginNames[pluginId]);
+		}
 		
 		for (var parameter in config) {
 			if (parameter.indexOf(".") > -1) {

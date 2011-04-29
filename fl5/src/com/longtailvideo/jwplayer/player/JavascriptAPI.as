@@ -10,6 +10,7 @@ package com.longtailvideo.jwplayer.player {
 	import com.longtailvideo.jwplayer.utils.RootReference;
 	import com.longtailvideo.jwplayer.utils.Strings;
 	import com.longtailvideo.jwplayer.view.interfaces.IControlbarComponent;
+	import com.longtailvideo.jwplayer.view.interfaces.IDisplayComponent;
 	import com.longtailvideo.jwplayer.view.interfaces.IDockComponent;
 	import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
 	import com.longtailvideo.jwplayer.view.interfaces.IPlaylistComponent;
@@ -423,6 +424,8 @@ package com.longtailvideo.jwplayer.player {
 				state ? (component as IDockComponent).show() : (component as IDockComponent).hide();
 			} else if (component is IControlbarComponent) {
 				state ? (component as IControlbarComponent).show() : (component as IControlbarComponent).hide();
+			} else if (component is IDisplayComponent) {
+				state ? (component as IDisplayComponent).show() : (component as IDisplayComponent).hide();
 			}
 		}
 
