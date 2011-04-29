@@ -553,17 +553,12 @@ package com.longtailvideo.jwplayer.view {
 				case PlayerState.IDLE:
 					_imageLayer.visible = true;
 					_mediaLayer.visible = false;
-					if (_logo) _logo.visible = false;
 					break;
 				case PlayerState.PLAYING:
 					_mediaLayer.visible = true;
 					if (_model.media.display) {
 						_imageLayer.visible = false;
 					}
-					if (_logo) _logo.visible = true;
-					break;
-				case PlayerState.BUFFERING:
-					if (_logo) _logo.visible = true;
 					break;
 			}
 		}

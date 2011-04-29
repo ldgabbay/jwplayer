@@ -96,7 +96,10 @@ package com.longtailvideo.jwplayer.view {
 		
 		/** Logo loaded - add to display **/
 		protected function loaderHandler(evt:Event):void {
-			if (getConfigParam('hide').toString() == "true") visible = false;
+			if (getConfigParam('hide').toString() == "true" 
+					&& !(_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING) ) {
+				visible = false;
+			}
 			if (loader is DisplayObject) {
 				addChild(loader);
 				resize(_width, _height);
@@ -134,7 +137,7 @@ package com.longtailvideo.jwplayer.view {
 			}
 		}
 		
-		
+
 		/** Handles state changes **/
 		protected function stateHandler(evt:PlayerStateEvent):void {
 			if (_player.state == PlayerState.BUFFERING) {
