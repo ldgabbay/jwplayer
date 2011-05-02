@@ -511,7 +511,7 @@
 			path = ["http://www.youtube.com/v/", _getYouTubeID(path), "&amp;hl=en_US&amp;fs=1&autoplay=1"].join("");
 			var objectParams = {
 				movie: path,
-				allowFullScreen: "true",
+				allowfullscreen: "true",
 				allowscriptaccess: "always"
 			};
 			for (var objectParam in objectParams) {
@@ -525,13 +525,13 @@
 			var embedParams = {
 				src: path,
 				type: "application/x-shockwave-flash",
-				allowscriptaccess: "always",
 				allowfullscreen: "true",
+				allowscriptaccess: "always",
 				width: document.getElementById(model.id).style.width,
 				height: document.getElementById(model.id).style.height
 			};
 			for (var embedParam in embedParams) {
-				embed[embedParam] = embedParams[embedParam];
+				embed.setAttribute(embedParam, embedParams[embedParam]);
 			}
 			object.appendChild(embed);
 			

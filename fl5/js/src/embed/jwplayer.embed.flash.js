@@ -89,7 +89,7 @@
 		};
 		
 		function jsonToFlashvars(json) {
-			var flashvars = json.netstreambasepath ? '' : 'netstreambasepath=' + encodeURIComponent(window.location.href) + '&';
+			var flashvars = json.netstreambasepath ? '' : 'netstreambasepath=' + encodeURIComponent(window.location.href.split("#")[0]) + '&';
 			for (var key in json) {
 				if (typeof(json[key]) == "object") {
 					flashvars += key + '=' + encodeURIComponent("[[JSON]]"+jwplayer.utils.strings.jsonToString(json[key])) + '&';
