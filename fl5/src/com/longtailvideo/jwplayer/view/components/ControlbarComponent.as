@@ -394,7 +394,6 @@ package com.longtailvideo.jwplayer.view.components {
 			if (elapsedText) elapsedText.text = Strings.digits(position);
 			var durationField:TextField = getTextField('duration');
 			if (durationField) durationField.text = Strings.digits(duration);
-			redraw();
 		}
 
 
