@@ -74,10 +74,12 @@ package com.longtailvideo.jwplayer.model {
 				} else if (_singleItem.hasOwnProperty(item)) {
 					if (item == "file" && Strings.extension(config[item]) == "xml" && !(config['provider'])) {
 						setProperty("playlistfile", config[item]);					
-					} else if (item == "levels" && config[item] is Array) {
-						for (var i:Number = 0; i < (config[item] as Array).length; i++) {
-							var level:Object = config[item][i];
-							_singleItem.addLevel(new PlaylistItemLevel(level.file, level.bitrate, level.width, level.streamer));
+					} else if (item == "levels") {
+						if (config[item] is Array) {
+							for (var i:Number = 0; i < (config[item] as Array).length; i++) {
+								var level:Object = config[item][i];
+								_singleItem.addLevel(new PlaylistItemLevel(level.file, level.bitrate, level.width, level.streamer));
+							}
 						}
 					} else {
 						_singleItem[item.toLowerCase()] = config[item];

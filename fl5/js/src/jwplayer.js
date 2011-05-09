@@ -10,4 +10,4 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1782';
+jwplayer.version = '5.6.1787';
