@@ -83,6 +83,7 @@ package com.longtailvideo.jwplayer.view.components {
 				_progress.visible = true;
 			}
 			setThumb(progress);
+			resize(this.width, this.height);
 		}
 		
 		

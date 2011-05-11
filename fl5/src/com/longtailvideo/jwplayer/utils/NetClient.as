@@ -89,8 +89,13 @@ package com.longtailvideo.jwplayer.utils {
 		}
 		
 		/** Get metadata information from netstream class. **/
-		public function onMetaData(obj:Object):void {
-			forward(obj, 'metadata');
+		public function onMetaData(obj:Object, ...rest):void {
+			if (rest && rest.length > 0) {
+				rest.splice(0, 0, obj);
+				forward({ arguments: rest }, 'metadata');
+			} else {
+				forward(obj, 'metadata');
+			}
 		}
 		
 		/** Receive NetStream playback codes. **/
