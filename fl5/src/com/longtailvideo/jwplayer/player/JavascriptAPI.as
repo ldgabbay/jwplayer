@@ -180,7 +180,7 @@ package com.longtailvideo.jwplayer.player {
 			var args:Object;
 			
 			if (evt is MediaEvent)
-				args = listnerCallbackMedia(evt as MediaEvent);
+				args = listenerCallbackMedia(evt as MediaEvent);
 			else if (evt is PlayerStateEvent)
 				args = listenerCallbackState(evt as PlayerStateEvent);
 			else if (evt is PlaylistEvent)
@@ -217,7 +217,7 @@ package com.longtailvideo.jwplayer.player {
 			return newObj;
 		}
 		
-		protected function listnerCallbackMedia(evt:MediaEvent):Object {
+		protected function listenerCallbackMedia(evt:MediaEvent):Object {
 			var returnObj:Object = {};
 
 			if (evt.bufferPercent >= 0) 		returnObj.bufferPercent = evt.bufferPercent;

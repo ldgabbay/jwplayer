@@ -90,13 +90,14 @@ package com.longtailvideo.jwplayer.view.components {
 		public function setBuffer(buffer:Number):void {
 			_currentBuffer = buffer;
 			if (_buffer) {
-				_buffer.visible = true;
+				_buffer.visible = (_currentBuffer > 0);
 			}
 			resize(this.width, this.height);
 		}
 		
 		public function setBufferOffset(offset:Number):void {
 			_bufferOffset = offset;
+			resize(this.width, this.height);
 		}
 		
 		public function resize(width:Number, height:Number):void {
@@ -115,9 +116,9 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 			var bufferMap:DisplayObject = _buffer.getChildByName("bitmap"); 
 			if (bufferMap) {
-				bufferMap.width = _width;
+				bufferMap.width = _width * (1 - (_bufferOffset / 100));
 				bufferMap.x = _capLeft.width + _width * _bufferOffset / 100;
-				resizeElement(bufferMap, _currentBuffer);
+				resizeElement(bufferMap, _currentBuffer + _bufferOffset);
 			}
 			var progressMap:DisplayObject = _progress.getChildByName("bitmap"); 
 			if (progressMap && !_dragging) {
@@ -150,7 +151,7 @@ package com.longtailvideo.jwplayer.view.components {
 					mask.x = element.x;
 					mask.graphics.clear();
 					mask.graphics.beginFill(0x0000ff, 0);
-					mask.graphics.drawRect(0, 0, _width * maskpercentage / 100, element.height);
+					mask.graphics.drawRect(0, 0, element.width * maskpercentage / 100, element.height);
 					mask.graphics.endFill();
 				}
 			}
