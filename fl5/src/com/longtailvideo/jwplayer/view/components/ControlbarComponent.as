@@ -351,8 +351,8 @@ package com.longtailvideo.jwplayer.view.components {
 						scrubber.setProgress(evt.position / evt.duration * 100);
 						scrubber.thumbVisible = (evt.duration > 0);
 						if (evt.bufferPercent > 0) {
-							scrubber.setBuffer(evt.bufferPercent);
-							scrubber.setBufferOffset(evt.offset / evt.duration * 100);
+							var offsetPercent:Number = (evt.offset / evt.duration) * 100;
+							scrubber.setBuffer(evt.bufferPercent / (1-offsetPercent/100), offsetPercent);
 						}
 						if (evt.position > 0) { setTime(evt.position, evt.duration); }
 					}

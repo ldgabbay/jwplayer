@@ -86,17 +86,20 @@ package com.longtailvideo.jwplayer.view.components {
 			resize(this.width, this.height);
 		}
 		
-		
-		public function setBuffer(buffer:Number):void {
-			_currentBuffer = buffer;
+		/**
+		 * @param buffer Percent buffered (0-100)
+		 * @param offset Percent of the slider to begin buffer offset (0-100)
+		 **/
+		public function setBuffer(buffer:Number, offset:Number=NaN):void {
+			if (!isNaN(buffer)) {
+				_currentBuffer = Math.min(Math.max(buffer, 0), 100);
+			}
+			if (!isNaN(offset)) { 
+				_bufferOffset = Math.min(Math.max(offset, 0), 100);
+			}
 			if (_buffer) {
 				_buffer.visible = (_currentBuffer > 0);
 			}
-			resize(this.width, this.height);
-		}
-		
-		public function setBufferOffset(offset:Number):void {
-			_bufferOffset = offset;
 			resize(this.width, this.height);
 		}
 		
@@ -118,7 +121,7 @@ package com.longtailvideo.jwplayer.view.components {
 			if (bufferMap) {
 				bufferMap.width = _width * (1 - (_bufferOffset / 100));
 				bufferMap.x = _capLeft.width + _width * _bufferOffset / 100;
-				resizeElement(bufferMap, _currentBuffer + _bufferOffset);
+				resizeElement(bufferMap, _currentBuffer);
 			}
 			var progressMap:DisplayObject = _progress.getChildByName("bitmap"); 
 			if (progressMap && !_dragging) {
