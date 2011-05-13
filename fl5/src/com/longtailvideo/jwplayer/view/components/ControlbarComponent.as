@@ -122,13 +122,22 @@ package com.longtailvideo.jwplayer.view.components {
 			
 			_layoutManager = new ControlbarLayoutManager(this);
 			_dividers = [];
-			_dividerElements = {'divider': true};
+			_dividerElements = {
+				'divider': setupDivider('divider') 
+			};
 			setupBackground();
 			setupDefaultButtons();
 			addEventListeners();
 			updateControlbarState();
 			setTime(0, 0);
 			updateVolumeSlider();
+		}
+		
+		private function setupDivider(name:String):Object {
+			return {
+				copies: [],
+				index: 0
+			};	
 		}
 
 		private function addEventListeners():void {
@@ -252,7 +261,9 @@ package com.longtailvideo.jwplayer.view.components {
 						if (item['type'] == "divider") { 
 							if (item['element']) {
 								layoutString += "<" + item['element'] + ">";
-								_dividerElements[item['element']] = true;
+								if (!_dividerElements[item['element']]) {
+									_dividerElements[item['element']] = setupDivider(item['element']);
+								}
 							} else if (item['width'] > 0) { 
 								layoutString += "<"+item['width']+">";
 							} else {
@@ -642,13 +653,15 @@ package com.longtailvideo.jwplayer.view.components {
 
 		public function getButton(buttonName:String):DisplayObject {
 			if (_dividerElements[buttonName]) {
-				var divider:DisplayObject = getSkinElement(buttonName);
-				if (divider) {
-					_dividers.push(divider);
+				var dividerInfo:Object = _dividerElements[buttonName];
+				if (dividerInfo.index >= dividerInfo.copies.length) {
+					dividerInfo.copies.push(getSkinElement(buttonName));
 				}
+				var divider:DisplayObject = dividerInfo.copies[dividerInfo.index++] as DisplayObject;
 				return divider;
+			} else {
+				return _buttons[buttonName];
 			}
-			return _buttons[buttonName];
 		}
 		
 		private function getTextField(textName:String):TextField {
@@ -715,11 +728,15 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		private function clearDividers():void {
-			for (var i:Number = 0; i < _dividers.length; i++) {
-				_dividers[i].visible = false;
-				_dividers[i] = null;
+			for each (var dividerInfo:Object in _dividerElements) {
+				dividerInfo.index = 0;
+				for (var i:Number=0; i < dividerInfo.copies.length; i++) {
+					var divider:DisplayObject = dividerInfo.copies[i] as DisplayObject;
+					if (divider && divider.parent) {
+						divider.parent.removeChild(divider);
+					}
+				} 
 			}
-			_dividers = [];
 		}
 		
 		private function alignTextFields():void {
