@@ -2,7 +2,7 @@
  * Utility methods for the JW Player.
  *
  * @author zach, pablo
- * @version 5.6
+ * @version 5.7
  */
 (function(jwplayer) {
 
@@ -218,14 +218,11 @@
 		if (element.outerHTML) {
 			return element.outerHTML;
 		} else {
-			var parent = element.parentNode;
-			var container = document.createElement(parent.tagName);
-			var placeholder = document.createElement(element.tagName);
-			parent.replaceChild(placeholder, element);
-			container.appendChild(element);
-			var elementHTML = container.innerHTML;
-			parent.replaceChild(element, placeholder);
-			return elementHTML;
+			try {
+				return new XMLSerializer().serializeToString(element);
+			} catch(err) {
+				return "";
+			}
 		}
 	};
 	

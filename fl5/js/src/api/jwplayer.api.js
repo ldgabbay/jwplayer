@@ -1,7 +1,7 @@
 /**
  * API for the JW Player
  * @author Pablo
- * @version 5.6
+ * @version 5.7
  */
 (function(jwplayer) {
 	var _players = [];
@@ -566,6 +566,8 @@ playerReady = function(obj) {
 	var api = jwplayer.api.playerById(obj.id);
 	if (api) {
 		api.playerReady(obj);
+	} else {
+		jwplayer.api.selectPlayer(obj.id).playerReady(obj);
 	}
 	
 	if (_userPlayerReady) {

@@ -2,7 +2,7 @@
  * JW Player component that loads PNG skins.
  *
  * @author zach
- * @version 5.4
+ * @version 5.7
  */
 (function(jwplayer) {
 	/** Constructor **/
@@ -27,7 +27,7 @@
 							return;	
 						}
 					} catch (err){
-						
+						_clearSkin();
 					}
 					_loadSkin(jwplayer.html5.defaultSkin().xml);
 				}, function(path) {
@@ -56,7 +56,7 @@
 					_loadImage(elements[elementIndex], componentName);
 				}
 				var settingsElement = components[componentIndex].getElementsByTagName('settings')[0];
-				if (settingsElement !== undefined && settingsElement.childNodes.length > 0) {
+				if (settingsElement && settingsElement.childNodes.length > 0) {
 					var settings = settingsElement.getElementsByTagName('setting');
 					for (var settingIndex = 0; settingIndex < settings.length; settingIndex++) {
 						var name = settings[settingIndex].getAttribute("name");
@@ -66,7 +66,7 @@
 					}
 				}
 				var layout = components[componentIndex].getElementsByTagName('layout')[0];
-				if (layout !== undefined && layout.childNodes.length > 0) {
+				if (layout && layout.childNodes.length > 0) {
 					var groups = layout.getElementsByTagName('group');
 					for (var groupIndex = 0; groupIndex < groups.length; groupIndex++) {
 						var group = groups[groupIndex];
@@ -129,7 +129,8 @@
 				height: 0,
 				width: 0,
 				src: '',
-				ready: false
+				ready: false,
+				image: img
 			};
 			
 			img.onload = function(evt) {
@@ -144,6 +145,20 @@
 			img.src = imgUrl;
 		}
 		
+		function _clearSkin() {
+			for (var componentName in _skin) {
+				var component = _skin[componentName];
+				for (var elementName in component.elements) {
+					var element = component.elements[elementName];
+					var img = element.image;
+					img.onload = null;
+					img.onerror = null;
+					delete element.image;
+					delete component.elements[elementName];
+				}
+				delete _skin[componentName];
+			}
+		}
 		
 		function _checkComplete() {
 			for (var component in _skin) {
@@ -163,11 +178,15 @@
 		
 		
 		function _completeImageLoad(img, element, component) {
-			_skin[component].elements[element].height = img.height;
-			_skin[component].elements[element].width = img.width;
-			_skin[component].elements[element].src = img.src;
-			_skin[component].elements[element].ready = true;
-			_resetCompleteIntervalTest();
+			if(_skin[component] && _skin[component].elements[element]) {
+				_skin[component].elements[element].height = img.height;
+				_skin[component].elements[element].width = img.width;
+				_skin[component].elements[element].src = img.src;
+				_skin[component].elements[element].ready = true;
+				_resetCompleteIntervalTest();
+			} else {
+				jwplayer.utils.log("Loaded an image for a missing element: " + component + "." + element);
+			}
 		}
 		
 		_load();

@@ -1,6 +1,6 @@
 /**
  * JW Player namespace definition
- * @version 5.6
+ * @version 5.7
  */
 var jwplayer = function(container) {
 	if (jwplayer.api){
@@ -10,7 +10,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.6.1792';
+jwplayer.version = '5.7.1793';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
