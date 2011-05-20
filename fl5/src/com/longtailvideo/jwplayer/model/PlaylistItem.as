@@ -102,7 +102,7 @@ package com.longtailvideo.jwplayer.model {
 					if (newLevel.bitrate > level.bitrate) {
 						_levels.splice(i, 0, newLevel);
 						return;
-					} else if (newLevel.bitrate == level.bitrate && newLevel.width > level.width) {
+					} else if ( (isNaN(newLevel.bitrate) || newLevel.bitrate == level.bitrate) && newLevel.width > level.width) {
 						_levels.splice(i, 0, newLevel);
 						return;
 					}
@@ -142,7 +142,7 @@ package com.longtailvideo.jwplayer.model {
 		public function getLevel(bitrate:Number, width:Number):Number {
 			for (var i:Number=0; i < _levels.length; i++) {
 				var level:PlaylistItemLevel = _levels[i] as PlaylistItemLevel;
-				if (bitrate >= level.bitrate * 1.2 && width >= level.width * 0.8 && !level.blacklisted) {
+				if ((isNaN(level.bitrate) || bitrate >= level.bitrate * 1.2) && (isNaN(level.width) || width >= level.width * 0.8) && !level.blacklisted) {
 					return i;
 				}
 			}

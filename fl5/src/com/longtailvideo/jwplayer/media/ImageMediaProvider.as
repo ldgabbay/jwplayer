@@ -42,6 +42,7 @@ package com.longtailvideo.jwplayer.media {
 		/** load image into screen **/
 		override public function load(itm:PlaylistItem):void {
 			_item = itm;
+			_item.duration = _duration; 
 			_position = 0;
 			_loader.load(new URLRequest(item.file), new LoaderContext(true));
 			setState(PlayerState.BUFFERING);
@@ -89,9 +90,9 @@ package com.longtailvideo.jwplayer.media {
 			if (state != PlayerState.PLAYING) { return; }
 
 			_position = Math.round(position * 10 + 1) / 10;
-			if (position < _item.duration) {
+			if (position < _duration) {
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_TIME, {position: position, duration: item.duration});
-			} else if (_item.duration > 0) {
+			} else if (_duration > 0) {
 				complete();
 			}
 		}
@@ -125,6 +126,14 @@ package com.longtailvideo.jwplayer.media {
 			}
 			clearInterval(_postitionInterval);
 			super.stop();
+		}
+		
+		/** Get the current duration **/
+		private function get _duration():Number {
+			if (!isNaN(getConfigProperty('duration'))) {
+				return (_item && _item.duration > 0) ? _item.duration : getConfigProperty('duration');
+			}
+			return _item.duration;
 		}
 	}
 }

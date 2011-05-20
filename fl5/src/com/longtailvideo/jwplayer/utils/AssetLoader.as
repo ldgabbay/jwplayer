@@ -63,7 +63,11 @@ package com.longtailvideo.jwplayer.utils {
 				var context:LoaderContext = new LoaderContext(true, ApplicationDomain.currentDomain, SecurityDomain.currentDomain);
 				loader.load(new URLRequest(location), context);
 			} else {
-				loader.load(new URLRequest(location));
+				try {
+					loader.load(new URLRequest(location));
+				} catch(e:Error) {
+					dispatchEvent(new SecurityErrorEvent(SecurityErrorEvent.SECURITY_ERROR, false, false, e.message));
+				}
 			}
 		}
 
