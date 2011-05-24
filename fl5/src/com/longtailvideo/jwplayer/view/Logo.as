@@ -44,6 +44,8 @@ package com.longtailvideo.jwplayer.view {
 		protected var loader:Loader;
 		/** Animations handler **/
 		protected var animations:Animations;
+		/** Whether the buffer icon has been shown for this item **/
+		protected var _alreadyShown:Boolean = false;
 		
 		/** Dimensions **/
 		protected var _width:Number;
@@ -140,9 +142,17 @@ package com.longtailvideo.jwplayer.view {
 
 		/** Handles state changes **/
 		protected function stateHandler(evt:PlayerStateEvent):void {
-			if (_player.state == PlayerState.BUFFERING) {
-				clearTimeout(timeout);
-				show();
+			switch(_player.state) {
+				case PlayerState.BUFFERING:
+					if (!_alreadyShown) {
+						clearTimeout(timeout);
+						_alreadyShown = true;
+						show();
+					}
+					break;
+				case PlayerState.IDLE:
+					_alreadyShown = false;
+					break;
 			}
 		}
 		
