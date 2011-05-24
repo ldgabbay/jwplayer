@@ -122,9 +122,6 @@ package com.longtailvideo.jwplayer.media {
 				setState(PlayerState.BUFFERING);
 				sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_BUFFER_FULL);
 			} else {
-				if (_media) {
-					_media.visible = true;
-				}
 				setState(PlayerState.PLAYING);
 			}
 		}
@@ -150,9 +147,6 @@ package com.longtailvideo.jwplayer.media {
 		public function stop():void {
 			setState(PlayerState.IDLE);
 			_position = 0;
-			if (_media) {
-				_media.visible = false;
-			}
 		}
 		
 		

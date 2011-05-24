@@ -40,12 +40,14 @@ package com.longtailvideo.jwplayer.view {
 	import flash.events.FocusEvent;
 	import flash.events.IOErrorEvent;
 	import flash.events.MouseEvent;
+	import flash.events.TimerEvent;
 	import flash.external.ExternalInterface;
 	import flash.geom.Rectangle;
 	import flash.net.URLRequest;
 	import flash.system.LoaderContext;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
+	import flash.utils.Timer;
 
 
 	public class View extends GlobalEventDispatcher {
@@ -87,6 +89,15 @@ package com.longtailvideo.jwplayer.view {
 		
 		// Keep track of the last tab index
 		protected var lastIndex:Number = -1;
+
+		// Delay between IDLE state and when the preview image is shown
+		private var imageDelay:Timer = new Timer(100, 1);
+
+		// Delay between non-IDLE state and when the media layer is shown
+		private var mediaDelay:Timer = new Timer(100, 1);
+
+		// Keep track of the last thumbnail image
+		private var _lastImage:String;
 		
 		public function View(player:IPlayer, model:Model) {
 			_player = player;
@@ -226,7 +237,11 @@ package com.longtailvideo.jwplayer.view {
 			_image = new Loader();
 			_image.contentLoaderInfo.addEventListener(Event.COMPLETE, imageComplete);
 			_image.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, imageError);
+			_imageLayer.addChild(_image);
 
+			imageDelay.addEventListener(TimerEvent.TIMER_COMPLETE, showImage);
+			mediaDelay.addEventListener(TimerEvent.TIMER_COMPLETE, showMedia);
+			
 			setupLogo();
 
 			_componentsLayer = setupLayer("components", currentLayer++);
@@ -505,7 +520,11 @@ package com.longtailvideo.jwplayer.view {
 
 
 		protected function mediaLoaded(evt:MediaEvent):void {
-			if (_model.media.display) {
+			var disp:DisplayObject = _model.media.display;
+			if (disp && disp.parent != _mediaLayer) {
+				while (_mediaLayer.numChildren) {
+					_mediaLayer.removeChildAt(0);
+				}
 				_mediaLayer.addChild(_model.media.display);
 				resizeMedia(_player.config.width, _player.config.height);
 			}
@@ -513,14 +532,11 @@ package com.longtailvideo.jwplayer.view {
 
 
 		protected function itemHandler(evt:PlaylistEvent):void {
-			while (_mediaLayer.numChildren) {
-				_mediaLayer.removeChildAt(0);
-			}
-			while (_imageLayer.numChildren) {
-				_imageLayer.removeChildAt(0);
-			}
 			if (_model.playlist.currentItem && _model.playlist.currentItem.image) {
-				loadImage(_model.playlist.currentItem.image);
+				if (_lastImage != _model.playlist.currentItem.image) {
+					_lastImage = _model.playlist.currentItem.image;
+					loadImage(_lastImage);
+				}
 			}
 		}
 
@@ -532,7 +548,6 @@ package com.longtailvideo.jwplayer.view {
 
 		protected function imageComplete(evt:Event):void {
 			if (_image) {
-				_imageLayer.addChild(_image);
 				resizeImage(_player.config.width, _player.config.height);
 				try {
 					Draw.smooth(_image.content as Bitmap);
@@ -547,18 +562,28 @@ package com.longtailvideo.jwplayer.view {
 			Logger.log('Error loading preview image: '+evt.text);
 		}
 
+		protected function showImage(evt:TimerEvent):void {
+			_imageLayer.visible = true;
+			_mediaLayer.visible = false;
+		}
 
+		protected function showMedia(evt:TimerEvent):void {
+			if (_model.media.display) {
+				_mediaLayer.visible = true;
+				_imageLayer.visible = false;
+			}
+		}
+		
 		protected function stateHandler(evt:PlayerStateEvent):void {
+			imageDelay.reset();
+			mediaDelay.reset();
 			switch (evt.newstate) {
 				case PlayerState.IDLE:
-					_imageLayer.visible = true;
-					_mediaLayer.visible = false;
+					imageDelay.start();
 					break;
 				case PlayerState.PLAYING:
-					_mediaLayer.visible = true;
-					if (_model.media.display) {
-						_imageLayer.visible = false;
-					}
+				case PlayerState.PAUSED:
+					mediaDelay.start();
 					break;
 			}
 		}

@@ -22,6 +22,8 @@ package com.longtailvideo.jwplayer.media {
 		private var _loader:Loader;
 		/** ID for the position _postitionInterval. **/
 		private var _postitionInterval:Number;
+		/** Keep track of the last file location **/
+		private var _lastFile:String;
 
 
 		/** Constructor; sets up listeners **/
@@ -42,11 +44,18 @@ package com.longtailvideo.jwplayer.media {
 		/** load image into screen **/
 		override public function load(itm:PlaylistItem):void {
 			_item = itm;
-			_item.duration = _duration; 
+			_item.duration = _duration;
 			_position = 0;
-			_loader.load(new URLRequest(item.file), new LoaderContext(true));
-			setState(PlayerState.BUFFERING);
-			sendBufferEvent(0);
+			if (item.file != _lastFile) {
+				_lastFile = item.file; 
+				_loader.load(new URLRequest(item.file), new LoaderContext(true));
+				setState(PlayerState.BUFFERING);
+				sendBufferEvent(0);
+			} else {
+				setState(PlayerState.BUFFERING);
+				sendBufferEvent(0);
+				loaderHandler();
+			}
 		}
 
 
@@ -58,7 +67,7 @@ package com.longtailvideo.jwplayer.media {
 
 
 		/** Load and place the image on stage. **/
-		private function loaderHandler(evt:Event):void {
+		private function loaderHandler(evt:Event=null):void {
 			media = _loader;
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_LOADED);
 			try {
@@ -66,7 +75,7 @@ package com.longtailvideo.jwplayer.media {
 			} catch (e:Error) {
 				Logger.log("Could not smooth image file: " + e.message);
 			}
-			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {height: evt.target.height, width: evt.target.width}});
+			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_META, {metadata: {height: _loader.content.height, width: _loader.content.width}});
 			sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_BUFFER_FULL);
 		}
 
@@ -115,15 +124,6 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Stop the image _postitionInterval. **/
 		override public function stop():void {
-			try {
-				if (_loader.contentLoaderInfo.bytesLoaded != _loader.contentLoaderInfo.bytesTotal) {
-					_loader.close();
-				} else {
-					_loader.unload();
-				}
-			} catch(e:Error) {
-				Logger.log("An error occurred while trying to remove an image: " + e.message); 
-			}
 			clearInterval(_postitionInterval);
 			super.stop();
 		}

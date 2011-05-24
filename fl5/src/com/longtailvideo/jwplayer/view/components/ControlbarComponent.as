@@ -215,7 +215,9 @@ package com.longtailvideo.jwplayer.view.components {
 		private function moveTimeout(evt:Event=null):void {
 			if (!hidden) {
 				animations.fade(0, 0.5);
-				Mouse.hide();
+				if (_fullscreen) {
+					Mouse.hide();
+				}					
 			}
 		}
 		
@@ -715,6 +717,9 @@ package com.longtailvideo.jwplayer.view.components {
 				stopFader();
 			}
 			_fullscreen = _player.config.fullscreen;
+			if (!_fullscreen) {
+				Mouse.show();
+			}
 			stateHandler();
 			redraw();
 		}
