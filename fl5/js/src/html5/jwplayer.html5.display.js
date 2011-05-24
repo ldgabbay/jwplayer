@@ -33,8 +33,8 @@
 		var _degreesRotated;
 		var _rotationInterval;
 		var _error;
-		var _bufferRotation = _api.skin.getComponentSettings("display").bufferrotation === undefined ? 15 : parseInt(_api.skin.getComponentSettings("display").bufferrotation, 10);
-		var _bufferInterval = _api.skin.getComponentSettings("display").bufferinterval === undefined ? 100 : parseInt(_api.skin.getComponentSettings("display").bufferinterval, 10);
+		var _bufferRotation = !jwplayer.utils.exists(_api.skin.getComponentSettings("display").bufferrotation) ? 15 : parseInt(_api.skin.getComponentSettings("display").bufferrotation, 10);
+		var _bufferInterval = !jwplayer.utils.exists(_api.skin.getComponentSettings("display").bufferinterval) ? 100 : parseInt(_api.skin.getComponentSettings("display").bufferinterval, 10);
 		var _elements = {
 			display: {
 				style: {
@@ -177,7 +177,7 @@
 		
 		function _setupDisplayElements() {
 			for (var element in _display) {
-				if (_elements[element].click !== undefined) {
+				if (jwplayer.utils.exists(_elements[element].click)) {
 					_display[element].onclick = _elements[element].click;
 				}
 			}
@@ -212,7 +212,7 @@
 				top: (_api.skin.getSkinElement("display", "background").height - _api.skin.getSkinElement("display", newIcon).height) / 2,
 				left: (_api.skin.getSkinElement("display", "background").width - _api.skin.getSkinElement("display", newIcon).width) / 2
 			});
-			if (_api.skin.getSkinElement("display", newIcon + "Over") !== undefined) {
+			if (jwplayer.utils.exists(_api.skin.getSkinElement("display", newIcon + "Over"))) {
 				_display.display_icon.onmouseover = function(evt) {
 					_display.display_icon.style.backgroundImage = ["url(", _api.skin.getSkinElement("display", newIcon + "Over").src, ")"].join("");
 				};
@@ -255,7 +255,7 @@
 				_error = false;
 				_hide(_display.display_text);
 			}
-			if (_rotationInterval !== undefined) {
+			if (jwplayer.utils.exists(_rotationInterval)) {
 				clearInterval(_rotationInterval);
 				_rotationInterval = null;
 				jwplayer.utils.animations.rotate(_display.display_icon, 0);

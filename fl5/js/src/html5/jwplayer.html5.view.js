@@ -73,7 +73,7 @@
 		function layoutComponents() {
 			for (var pluginIndex = 0; pluginIndex < _model.plugins.order.length; pluginIndex++) {
 				var pluginName = _model.plugins.order[pluginIndex];
-				if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
+				if (jwplayer.utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
 					_model.plugins.object[pluginName].height = parseDimension(_model.plugins.object[pluginName].getDisplayElement().style.height);
 					_model.plugins.object[pluginName].width = parseDimension(_model.plugins.object[pluginName].getDisplayElement().style.width);
 					_model.plugins.config[pluginName].currentPosition = _model.plugins.config[pluginName].position;
@@ -83,10 +83,10 @@
 		}
 		
 		function _loadedHandler(evt) {
-			if (_model.getMedia() !== undefined) {
+			if (jwplayer.utils.exists(_model.getMedia())) {
 				for (var pluginIndex = 0; pluginIndex < _model.plugins.order.length; pluginIndex++) {
 					var pluginName = _model.plugins.order[pluginIndex];
-					if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
+					if (jwplayer.utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
 						if (_model.getMedia().hasChrome()) {
 							_model.plugins.config[pluginName].currentPosition = jwplayer.html5.view.positions.NONE;
 						} else {
@@ -120,11 +120,11 @@
 				_resizeMedia();
 			});
 			var oldresize;
-			if (window.onresize !== null) {
+			if (jwplayer.utils.exists(window.onresize)) {
 				oldresize = window.onresize;
 			}
 			window.onresize = function(evt) {
-				if (oldresize !== undefined) {
+				if (jwplayer.utils.exists(oldresize)) {
 					try {
 						oldresize(evt);
 					} catch (err) {
@@ -197,7 +197,7 @@
 			var failed = [];
 			for (var pluginIndex = 0; pluginIndex < plugins.length; pluginIndex++) {
 				var pluginName = plugins[pluginIndex];
-				if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
+				if (jwplayer.utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
 					if (_model.plugins.config[pluginName].currentPosition != jwplayer.html5.view.positions.NONE) {
 						var style = componentResizer(pluginName, _zIndex--);
 						if (!style) {
@@ -221,9 +221,9 @@
 		}
 		
 		function _normalscreenComponentResizer(pluginName, zIndex) {
-			if (_model.plugins.object[pluginName].getDisplayElement !== undefined) {
+			if (jwplayer.utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
 				if (_model.plugins.config[pluginName].position && _hasPosition(_model.plugins.config[pluginName].position)) {
-					if (_model.plugins.object[pluginName].getDisplayElement().parentNode === null) {
+					if (!jwplayer.utils.exists(_model.plugins.object[pluginName].getDisplayElement().parentNode)) {
 						_wrapper.appendChild(_model.plugins.object[pluginName].getDisplayElement());
 					}
 					var style = _getComponentPosition(pluginName);
@@ -235,7 +235,7 @@
 		}
 		
 		function _overlayComponentResizer(pluginName, zIndex) {
-			if (_model.plugins.object[pluginName].getDisplayElement().parentNode === null) {
+			if (!jwplayer.utils.exists(_model.plugins.object[pluginName].getDisplayElement().parentNode)) {
 				_box.appendChild(_model.plugins.object[pluginName].getDisplayElement());
 			}
 			var _iwidth = _model.width, _iheight = _model.height;

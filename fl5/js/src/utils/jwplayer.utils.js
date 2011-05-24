@@ -1,6 +1,6 @@
 /**
  * Utility methods for the JW Player.
- *
+ * 
  * @author zach, pablo
  * @version 5.7
  */
@@ -8,12 +8,13 @@
 
 	jwplayer.utils = function() {
 	};
-	
-	/** Returns the true type of an object **/
-	
+
+	/** Returns the true type of an object * */
+
 	/**
-	 *
-	 * @param {Object} value
+	 * 
+	 * @param {Object}
+	 *            value
 	 */
 	jwplayer.utils.typeOf = function(value) {
 		var s = typeof value;
@@ -28,13 +29,13 @@
 		}
 		return s;
 	};
-	
-	/** Merges a list of objects **/
+
+	/** Merges a list of objects * */
 	jwplayer.utils.extend = function() {
 		var args = jwplayer.utils.extend['arguments'];
 		if (args.length > 1) {
-			for (var i = 1; i < args.length; i++) {
-				for (var element in args[i]) {
+			for ( var i = 1; i < args.length; i++) {
+				for ( var element in args[i]) {
 					args[0][element] = args[i][element];
 				}
 			}
@@ -42,58 +43,62 @@
 		}
 		return null;
 	};
-	
+
 	/**
 	 * Returns a deep copy of an object.
-	 * @param {Object} obj
+	 * 
+	 * @param {Object}
+	 *            obj
 	 */
 	jwplayer.utils.clone = function(obj) {
 		var result;
 		var args = jwplayer.utils.clone['arguments'];
 		if (args.length == 1) {
 			switch (jwplayer.utils.typeOf(args[0])) {
-				case "object":
-					result = {};
-					for (var element in args[0]) {
-						result[element] = jwplayer.utils.clone(args[0][element]);
-					}
-					break;
-				case "array":
-					result = [];
-					for (var element in args[0]) {
-						result[element] = jwplayer.utils.clone(args[0][element]);
-					}
-					break;
-				default:
-					return args[0];
-					break;
+			case "object":
+				result = {};
+				for ( var element in args[0]) {
+					result[element] = jwplayer.utils.clone(args[0][element]);
+				}
+				break;
+			case "array":
+				result = [];
+				for ( var element in args[0]) {
+					result[element] = jwplayer.utils.clone(args[0][element]);
+				}
+				break;
+			default:
+				return args[0];
+				break;
 			}
 		}
 		return result;
 	};
-	
-	/** Returns the extension of a file name **/
+
+	/** Returns the extension of a file name * */
 	jwplayer.utils.extension = function(path) {
 		path = path.substring(path.lastIndexOf("/") + 1, path.length);
 		path = path.split("?")[0];
 		if (path.lastIndexOf('.') > -1) {
-			return path.substr(path.lastIndexOf('.') + 1, path.length).toLowerCase();
+			return path.substr(path.lastIndexOf('.') + 1, path.length)
+					.toLowerCase();
 		}
 		return;
 	};
-	
-	/** Updates the contents of an HTML element **/
+
+	/** Updates the contents of an HTML element * */
 	jwplayer.utils.html = function(element, content) {
 		element.innerHTML = content;
 	};
-	
-	/** Wraps an HTML element with another element **/
+
+	/** Wraps an HTML element with another element * */
 	jwplayer.utils.wrap = function(originalElement, appendedElement) {
-		originalElement.parentNode.replaceChild(appendedElement, originalElement);
+		originalElement.parentNode.replaceChild(appendedElement,
+				originalElement);
 		appendedElement.appendChild(originalElement);
 	};
-	
-	/** Loads an XML file into a DOM object **/
+
+	/** Loads an XML file into a DOM object * */
 	jwplayer.utils.ajax = function(xmldocpath, completecallback, errorcallback) {
 		var xmlhttp;
 		if (window.XMLHttpRequest) {
@@ -126,8 +131,8 @@
 		}
 		return xmlhttp;
 	};
-	
-	/** Loads a file **/
+
+	/** Loads a file * */
 	jwplayer.utils.load = function(domelement, completecallback, errorcallback) {
 		domelement.onreadystatechange = function() {
 			if (domelement.readyState === 4) {
@@ -143,45 +148,46 @@
 			}
 		};
 	};
-	
-	/** Finds tags in a DOM, returning a new DOM **/
+
+	/** Finds tags in a DOM, returning a new DOM * */
 	jwplayer.utils.find = function(dom, tag) {
 		return dom.getElementsByTagName(tag);
 	};
-	
-	/** **/
-	
-	/** Appends an HTML element to another element HTML element **/
+
+	/** * */
+
+	/** Appends an HTML element to another element HTML element * */
 	jwplayer.utils.append = function(originalElement, appendedElement) {
 		originalElement.appendChild(appendedElement);
 	};
-	
+
 	/**
-	 * Detects whether the current browser is IE
-	 * !+"\v1" technique from http://webreflection.blogspot.com/2009/01/32-bytes-to-know-if-your-browser-is-ie.html
-	 * Note - this detection no longer works for IE9, hence the detection for window.ActiveXObject
-	 **/
+	 * Detects whether the current browser is IE !+"\v1" technique from
+	 * http://webreflection.blogspot.com/2009/01/32-bytes-to-know-if-your-browser-is-ie.html
+	 * Note - this detection no longer works for IE9, hence the detection for
+	 * window.ActiveXObject
+	 */
 	jwplayer.utils.isIE = function() {
 		return ((!+"\v1") || (typeof window.ActiveXObject != "undefined"));
 	};
-	
+
 	/**
-	 * Detects whether the current browser is Android 2.0, 2.1 or 2.2 which do have some support for HTML5
-	 **/
+	 * Detects whether the current browser is Android 2.0, 2.1 or 2.2 which do
+	 * have some support for HTML5
+	 */
 	jwplayer.utils.isLegacyAndroid = function() {
 		var agent = navigator.userAgent.toLowerCase();
 		return (agent.match(/android 2.[012]/i) !== null);
 	};
-	
-	
+
 	/**
 	 * Detects whether the current browser is mobile Safari.
-	 **/
+	 */
 	jwplayer.utils.isIOS = function() {
 		var agent = navigator.userAgent.toLowerCase();
 		return (agent.match(/iP(hone|ad)/i) !== null);
 	};
-	
+
 	jwplayer.utils.getFirstPlaylistItemFromConfig = function(config) {
 		var item = {};
 		var playlistItem;
@@ -194,23 +200,26 @@
 		item.levels = playlistItem.levels;
 		item.streamer = playlistItem.streamer;
 		item.playlistfile = playlistItem.playlistfile;
-		
+
 		item.provider = playlistItem.provider;
 		if (!item.provider) {
-			if (item.file && (item.file.toLowerCase().indexOf("youtube.com") > -1 || item.file.toLowerCase().indexOf("youtu.be") > -1)) {
+			if (item.file
+					&& (item.file.toLowerCase().indexOf("youtube.com") > -1 || item.file
+							.toLowerCase().indexOf("youtu.be") > -1)) {
 				item.provider = "youtube";
 			}
-			if (item.streamer && item.streamer.toLowerCase().indexOf("rtmp://") == 0) {
+			if (item.streamer
+					&& item.streamer.toLowerCase().indexOf("rtmp://") == 0) {
 				item.provider = "rtmp";
 			}
 			if (playlistItem.type) {
 				item.provider = playlistItem.type.toLowerCase();
 			}
 		}
-		
+
 		return item;
 	}
-	
+
 	/**
 	 * Replacement for "outerHTML" getter (not available in FireFox)
 	 */
@@ -220,12 +229,12 @@
 		} else {
 			try {
 				return new XMLSerializer().serializeToString(element);
-			} catch(err) {
+			} catch (err) {
 				return "";
 			}
 		}
 	};
-	
+
 	/**
 	 * Replacement for outerHTML setter (not available in FireFox)
 	 */
@@ -242,37 +251,40 @@
 			element.parentNode.removeChild(element);
 		}
 	};
-	
+
 	/**
-	 * Detects whether or not the current player has flash capabilities
-	 * TODO: Add minimum flash version constraint: 9.0.115
+	 * Detects whether or not the current player has flash capabilities TODO:
+	 * Add minimum flash version constraint: 9.0.115
 	 */
-    jwplayer.utils.hasFlash = function() {
-        if (typeof navigator.plugins != "undefined" && typeof navigator.plugins['Shockwave Flash'] != "undefined") {
-            return true;
-        }
-        if (typeof window.ActiveXObject != "undefined") {
-            try {
-                new ActiveXObject("ShockwaveFlash.ShockwaveFlash");
-                return true
-            } catch (err) {
-            }
-        }
-        return false;
-    };
-	
+	jwplayer.utils.hasFlash = function() {
+		if (typeof navigator.plugins != "undefined"
+				&& typeof navigator.plugins['Shockwave Flash'] != "undefined") {
+			return true;
+		}
+		if (typeof window.ActiveXObject != "undefined") {
+			try {
+				new ActiveXObject("ShockwaveFlash.ShockwaveFlash");
+				return true
+			} catch (err) {
+			}
+		}
+		return false;
+	};
+
 	/**
 	 * Extracts a plugin name from a string
 	 */
 	jwplayer.utils.getPluginName = function(pluginName) {
 		if (pluginName.lastIndexOf("/") >= 0) {
-			pluginName = pluginName.substring(pluginName.lastIndexOf("/") + 1, pluginName.length);
+			pluginName = pluginName.substring(pluginName.lastIndexOf("/") + 1,
+					pluginName.length);
 		}
 		if (pluginName.lastIndexOf("-") >= 0) {
 			pluginName = pluginName.substring(0, pluginName.lastIndexOf("-"));
 		}
 		if (pluginName.lastIndexOf(".swf") >= 0) {
-			pluginName = pluginName.substring(0, pluginName.lastIndexOf(".swf"));
+			pluginName = pluginName
+					.substring(0, pluginName.lastIndexOf(".swf"));
 		}
 		if (pluginName.lastIndexOf(".js") >= 0) {
 			pluginName = pluginName.substring(0, pluginName.lastIndexOf(".js"));
@@ -286,40 +298,45 @@
 	jwplayer.utils.getPluginVersion = function(pluginName) {
 		if (pluginName.lastIndexOf("-") >= 0) {
 			if (pluginName.lastIndexOf(".js") >= 0) {
-				return pluginName.substring(pluginName.lastIndexOf("-")+1, pluginName.lastIndexOf(".js"));
+				return pluginName.substring(pluginName.lastIndexOf("-") + 1,
+						pluginName.lastIndexOf(".js"));
 			} else if (pluginName.lastIndexOf(".swf") >= 0) {
-				return pluginName.substring(pluginName.lastIndexOf("-")+1, pluginName.lastIndexOf(".swf"));
+				return pluginName.substring(pluginName.lastIndexOf("-") + 1,
+						pluginName.lastIndexOf(".swf"));
 			} else {
-				return pluginName.substring(pluginName.lastIndexOf("-")+1);
+				return pluginName.substring(pluginName.lastIndexOf("-") + 1);
 			}
 		}
 		return "";
 	};
 
-	/** Gets an absolute file path based on a relative filepath **/
+	/** Gets an absolute file path based on a relative filepath * */
 	jwplayer.utils.getAbsolutePath = function(path, base) {
-		if (base === undefined) {
+		if (!jwplayer.utils.exists(base)) {
 			base = document.location.href;
 		}
-		if (path === undefined) {
+		if (!jwplayer.utils.exists(path)) {
 			return undefined;
 		}
 		if (isAbsolutePath(path)) {
 			return path;
 		}
 		var protocol = base.substring(0, base.indexOf("://") + 3);
-		var domain = base.substring(protocol.length, base.indexOf('/', protocol.length + 1));
+		var domain = base.substring(protocol.length, base.indexOf('/',
+				protocol.length + 1));
 		var patharray;
 		if (path.indexOf("/") === 0) {
 			patharray = path.split("/");
 		} else {
 			var basepath = base.split("?")[0];
-			basepath = basepath.substring(protocol.length + domain.length + 1, basepath.lastIndexOf('/'));
+			basepath = basepath.substring(protocol.length + domain.length + 1,
+					basepath.lastIndexOf('/'));
 			patharray = basepath.split("/").concat(path.split("/"));
 		}
 		var result = [];
-		for (var i = 0; i < patharray.length; i++) {
-			if (!patharray[i] || patharray[i] === undefined || patharray[i] == ".") {
+		for ( var i = 0; i < patharray.length; i++) {
+			if (!patharray[i] || !jwplayer.utils.exists(patharray[i])
+					|| patharray[i] == ".") {
 				continue;
 			} else if (patharray[i] == "..") {
 				result.pop();
@@ -329,41 +346,37 @@
 		}
 		return protocol + domain + "/" + result.join("/");
 	};
-	
+
 	function isAbsolutePath(path) {
-		if (path === null) {
+		if (!jwplayer.utils.exists(path)) {
 			return;
 		}
 		var protocol = path.indexOf("://");
 		var queryparams = path.indexOf("?");
 		return (protocol > 0 && (queryparams < 0 || (queryparams > protocol)));
 	}
-	
+
 	/**
 	 * Types of plugin paths
 	 */
 	jwplayer.utils.pluginPathType = {
-		//TODO: enum
-		ABSOLUTE: "ABSOLUTE",
-		RELATIVE: "RELATIVE",
-		CDN: "CDN"
+		// TODO: enum
+		ABSOLUTE : "ABSOLUTE",
+		RELATIVE : "RELATIVE",
+		CDN : "CDN"
 	}
-	
+
 	/*
-	 * Test cases
-	 * getPathType('hd')
-	 * getPathType('hd-1')
-	 * getPathType('hd-1.4')
+	 * Test cases getPathType('hd') getPathType('hd-1') getPathType('hd-1.4')
 	 * 
 	 * getPathType('http://plugins.longtailvideo.com/5/hd/hd.swf')
 	 * getPathType('http://plugins.longtailvideo.com/5/hd/hd-1.swf')
 	 * getPathType('http://plugins.longtailvideo.com/5/hd/hd-1.4.swf')
 	 * 
-	 * getPathType('./hd.swf')
-	 * getPathType('./hd-1.swf')
+	 * getPathType('./hd.swf') getPathType('./hd-1.swf')
 	 * getPathType('./hd-1.4.swf')
 	 */
-	jwplayer.utils.getPluginPathType = function(path){
+	jwplayer.utils.getPluginPathType = function(path) {
 		if (typeof path != "string") {
 			return;
 		}
@@ -379,23 +392,23 @@
 		}
 		return jwplayer.utils.pluginPathType.RELATIVE;
 	};
-	
+
 	jwplayer.utils.mapEmpty = function(map) {
-		for (var val in map) {
+		for ( var val in map) {
 			return false;
 		}
 		return true;
 	};
-	
+
 	jwplayer.utils.mapLength = function(map) {
 		var result = 0;
-		for (var val in map) {
+		for ( var val in map) {
 			result++;
 		}
 		return result;
 	};
-	
-	/** Logger **/
+
+	/** Logger * */
 	jwplayer.utils.log = function(msg, obj) {
 		if (typeof console != "undefined" && typeof console.log != "undefined") {
 			if (obj) {
@@ -405,25 +418,31 @@
 			}
 		}
 	};
-	
+
 	/**
-	 *
-	 * @param {Object} domelement
-	 * @param {Object} styles
-	 * @param {Object} debug
+	 * 
+	 * @param {Object}
+	 *            domelement
+	 * @param {Object}
+	 *            styles
+	 * @param {Object}
+	 *            debug
 	 */
 	jwplayer.utils.css = function(domelement, styles, debug) {
-		if (domelement !== undefined) {
-			for (var style in styles) {
+		if (jwplayer.utils.exists(domelement)) {
+			for ( var style in styles) {
 				try {
 					if (typeof styles[style] === "undefined") {
 						continue;
-					} else if (typeof styles[style] == "number" && !(style == "zIndex" || style == "opacity")) {
+					} else if (typeof styles[style] == "number"
+							&& !(style == "zIndex" || style == "opacity")) {
 						if (isNaN(styles[style])) {
 							continue;
 						}
 						if (style.match(/color/i)) {
-							styles[style] = "#" + jwplayer.utils.strings.pad(styles[style].toString(16), 6);
+							styles[style] = "#"
+									+ jwplayer.utils.strings.pad(styles[style]
+											.toString(16), 6);
 						} else {
 							styles[style] = Math.ceil(styles[style]) + "px";
 						}
@@ -434,35 +453,49 @@
 			}
 		}
 	};
-	
+
 	jwplayer.utils.isYouTube = function(path) {
 		return (path.indexOf("youtube.com") > -1 || path.indexOf("youtu.be") > -1);
 	};
-	
+
 	/**
-	 *
-	 * @param {Object} domelement
-	 * @param {Object} value
+	 * 
+	 * @param {Object}
+	 *            domelement
+	 * @param {Object}
+	 *            value
 	 */
 	jwplayer.utils.transform = function(domelement, value) {
 		domelement.style.webkitTransform = value;
 		domelement.style.MozTransform = value;
 		domelement.style.OTransform = value;
 	};
-	
+
 	/**
-	 * Stretches domelement based on stretching. parentWidth, parentHeight, elementWidth,
-	 * and elementHeight are required as the elements dimensions change as a result of the
-	 * stretching. Hence, the original dimensions must always be supplied.
-	 * @param {String} stretching
-	 * @param {DOMElement} domelement
-	 * @param {Number} parentWidth
-	 * @param {Number} parentHeight
-	 * @param {Number} elementWidth
-	 * @param {Number} elementHeight
+	 * Stretches domelement based on stretching. parentWidth, parentHeight,
+	 * elementWidth, and elementHeight are required as the elements dimensions
+	 * change as a result of the stretching. Hence, the original dimensions must
+	 * always be supplied.
+	 * 
+	 * @param {String}
+	 *            stretching
+	 * @param {DOMElement}
+	 *            domelement
+	 * @param {Number}
+	 *            parentWidth
+	 * @param {Number}
+	 *            parentHeight
+	 * @param {Number}
+	 *            elementWidth
+	 * @param {Number}
+	 *            elementHeight
 	 */
-	jwplayer.utils.stretch = function(stretching, domelement, parentWidth, parentHeight, elementWidth, elementHeight) {
-		if (typeof parentWidth == "undefined" || typeof parentHeight == "undefined" || typeof elementWidth == "undefined" || typeof elementHeight == "undefined") {
+	jwplayer.utils.stretch = function(stretching, domelement, parentWidth,
+			parentHeight, elementWidth, elementHeight) {
+		if (typeof parentWidth == "undefined"
+				|| typeof parentHeight == "undefined"
+				|| typeof elementWidth == "undefined"
+				|| typeof elementHeight == "undefined") {
 			return;
 		}
 		var xscale = parentWidth / elementWidth;
@@ -473,94 +506,130 @@
 		jwplayer.utils.transform(domelement, "");
 		var style = {};
 		switch (stretching.toUpperCase()) {
-			case jwplayer.utils.stretching.NONE:
-				// Maintain original dimensions
-				style.width = elementWidth;
-				style.height = elementHeight;
-				break;
-			case jwplayer.utils.stretching.UNIFORM:
-				// Scale on the dimension that would overflow most
-				if (xscale > yscale) {
-					// Taller than wide
-					style.width = elementWidth * yscale;
-					style.height = elementHeight * yscale;
-				} else {
-					// Wider than tall
-					style.width = elementWidth * xscale;
-					style.height = elementHeight * xscale;
-				}
-				break;
-			case jwplayer.utils.stretching.FILL:
-				// Scale on the smaller dimension and crop
-				if (xscale > yscale) {
-					style.width = elementWidth * xscale;
-					style.height = elementHeight * xscale;
-				} else {
-					style.width = elementWidth * yscale;
-					style.height = elementHeight * yscale;
-				}
-				break;
-			case jwplayer.utils.stretching.EXACTFIT:
-				// Distort to fit
-				jwplayer.utils.transform(domelement, ["scale(", xscale, ",", yscale, ")", " translate(0px,0px)"].join(""));
-				style.width = elementWidth;
-				style.height = elementHeight;
-				break;
-			default:
-				break;
+		case jwplayer.utils.stretching.NONE:
+			// Maintain original dimensions
+			style.width = elementWidth;
+			style.height = elementHeight;
+			break;
+		case jwplayer.utils.stretching.UNIFORM:
+			// Scale on the dimension that would overflow most
+			if (xscale > yscale) {
+				// Taller than wide
+				style.width = elementWidth * yscale;
+				style.height = elementHeight * yscale;
+			} else {
+				// Wider than tall
+				style.width = elementWidth * xscale;
+				style.height = elementHeight * xscale;
+			}
+			break;
+		case jwplayer.utils.stretching.FILL:
+			// Scale on the smaller dimension and crop
+			if (xscale > yscale) {
+				style.width = elementWidth * xscale;
+				style.height = elementHeight * xscale;
+			} else {
+				style.width = elementWidth * yscale;
+				style.height = elementHeight * yscale;
+			}
+			break;
+		case jwplayer.utils.stretching.EXACTFIT:
+			// Distort to fit
+			jwplayer.utils.transform(domelement, [ "scale(", xscale, ",",
+					yscale, ")", " translate(0px,0px)" ].join(""));
+			style.width = elementWidth;
+			style.height = elementHeight;
+			break;
+		default:
+			break;
 		}
 		style.top = (parentHeight - style.height) / 2;
 		style.left = (parentWidth - style.width) / 2;
 		jwplayer.utils.css(domelement, style);
 	};
-	
-	//TODO: enum
+
+	// TODO: enum
 	jwplayer.utils.stretching = {
-		NONE: "NONE",
-		FILL: "FILL",
-		UNIFORM: "UNIFORM",
-		EXACTFIT: "EXACTFIT"
+		NONE : "NONE",
+		FILL : "FILL",
+		UNIFORM : "UNIFORM",
+		EXACTFIT : "EXACTFIT"
 	};
-	
-	/** Recursively traverses nested object, replacing key names containing a search string with a replacement string.
-	 * @param searchString The string to search for in the object's key names
-	 * @param replaceString The string to replace in the object's key names
+
+	/**
+	 * Recursively traverses nested object, replacing key names containing a
+	 * search string with a replacement string.
+	 * 
+	 * @param searchString
+	 *            The string to search for in the object's key names
+	 * @param replaceString
+	 *            The string to replace in the object's key names
 	 * @returns The modified object.
-	 **/
-	jwplayer.utils.deepReplaceKeyName = function(obj, searchString, replaceString) {
+	 */
+	jwplayer.utils.deepReplaceKeyName = function(obj, searchString,
+			replaceString) {
 		switch (jwplayer.utils.typeOf(obj)) {
-			case "array":
-				for (var i = 0; i < obj.length; i++) {
-					obj[i] = jwplayer.utils.deepReplaceKeyName(obj[i], searchString, replaceString);
+		case "array":
+			for ( var i = 0; i < obj.length; i++) {
+				obj[i] = jwplayer.utils.deepReplaceKeyName(obj[i],
+						searchString, replaceString);
+			}
+			break;
+		case "object":
+			for ( var key in obj) {
+				var newkey = key.replace(new RegExp(searchString, "g"),
+						replaceString);
+				obj[newkey] = jwplayer.utils.deepReplaceKeyName(obj[key],
+						searchString, replaceString);
+				if (key != newkey) {
+					delete obj[key];
 				}
-				break;
-			case "object":
-				for (var key in obj) {
-					var newkey = key.replace(new RegExp(searchString, "g"), replaceString);
-					obj[newkey] = jwplayer.utils.deepReplaceKeyName(obj[key], searchString, replaceString);
-					if (key != newkey) {
-						delete obj[key];
-					}
-				}
-				break;
+			}
+			break;
 		}
 		return obj;
 	}
-	
-	/** Returns true if an element is found in a given array
-	 * @param array The array to search
-	 * @param search The element to search
-	 **/
+
+	/**
+	 * Returns true if an element is found in a given array
+	 * 
+	 * @param array
+	 *            The array to search
+	 * @param search
+	 *            The element to search
+	 */
 	jwplayer.utils.isInArray = function(array, search) {
-		if (!(array) || !(array instanceof Array)) { return false; }
-		
-		for(var i=0; i < array.length; i++) {
+		if (!(array) || !(array instanceof Array)) {
+			return false;
+		}
+
+		for ( var i = 0; i < array.length; i++) {
 			if (search === array[i]) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
+	/**
+	 * Returns true if the value of the object is null, undefined or the empty
+	 * string
+	 * 
+	 * @param a
+	 *            The variable to inspect
+	 */
+	jwplayer.utils.exists = function(a) {
+		switch (typeof (a)) {
+		case "string":
+			return (a.length > 0);
+			break;
+		case "object":
+			return (a !== null);
+		case "undefined":
+			return false;
+		}
+		return true;
+	}
+
 })(jwplayer);

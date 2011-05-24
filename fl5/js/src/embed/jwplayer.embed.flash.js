@@ -246,8 +246,8 @@
 				return true;
 			}
 			// Extension is in the extension map, but not supported by Flash - fail
-			if (jwplayer.utils.extensionmap[extension] !== undefined &&
-			jwplayer.utils.extensionmap[extension].flash === undefined) {
+			if (jwplayer.utils.exists(jwplayer.utils.extensionmap[extension]) &&
+					!jwplayer.utils.exists(jwplayer.utils.extensionmap[extension].flash)) {
 				return false;
 			}
 			return true;

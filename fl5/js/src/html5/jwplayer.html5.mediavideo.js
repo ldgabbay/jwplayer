@@ -149,7 +149,7 @@
 				return;
 			}
 			
-			if (event !== undefined && event.target !== undefined) {
+			if (jwplayer.utils.exists(event) && jwplayer.utils.exists(event.target)) {
 				if (_model.duration === 0 || isNaN(_model.duration)) {
 					_model.duration = Math.round(event.target.duration * 10) / 10;
 				}
@@ -199,7 +199,7 @@
 		
 		function _progressHandler(event) {
 			var bufferPercent, bufferTime;
-			if (event !== undefined && event.lengthComputable && event.total) {
+			if (jwplayer.utils.exists(event) && event.lengthComputable && event.total) {
 				_addBufferEvent();
 				bufferPercent = event.loaded / event.total * 100;
 				bufferTime = bufferPercent / 100 * (_model.duration - _container.currentTime);
@@ -207,7 +207,7 @@
 					clearTimeout(_bufferBackupTimeout);
 					_bufferBackup();
 				}
-			} else if ((_container.buffered !== undefined) && (_container.buffered.length > 0)) {
+			} else if (jwplayer.utils.exists(_container.buffered) && (_container.buffered.length > 0)) {
 				maxBufferIndex = 0;
 				if (maxBufferIndex >= 0) {
 					bufferPercent = _container.buffered.end(maxBufferIndex) / _container.duration * 100;
@@ -222,7 +222,7 @@
 					_bufferingComplete = true;
 				}
 				
-				if (bufferPercent !== null && (bufferPercent > _model.buffer)) {
+				if (jwplayer.utils.exists(bufferPercent) && (bufferPercent > _model.buffer)) {
 					_model.buffer = Math.round(bufferPercent);
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
 						bufferPercent: Math.round(bufferPercent)
@@ -234,7 +234,7 @@
 		
 		
 		function _startInterval() {
-			if (_interval === null) {
+			if (!jwplayer.utils.exists(_interval)) {
 				_interval = setInterval(function() {
 					_positionHandler();
 				}, 100);
@@ -250,7 +250,7 @@
 			var message = "There was an error: ";
 			if ((event.target.error && event.target.tagName.toLowerCase() == "video") ||
 			event.target.parentNode.error && event.target.parentNode.tagName.toLowerCase() == "video") {
-				var element = event.target.error === undefined ? event.target.parentNode.error : event.target.error;
+				var element = !jwplayer.utils.exists(event.target.error) ? event.target.parentNode.error : event.target.error;
 				switch (element.code) {
 					case element.MEDIA_ERR_ABORTED:
 						message = "You aborted the video playback: ";
@@ -453,8 +453,9 @@
 				var sourceModel = playlistItem.levels[sourceIndex];
 				var sourceType;
 				var extension = jwplayer.utils.extension(sourceModel.file);
-				if (sourceModel.type === undefined) {
-					if (jwplayer.utils.extensionmap[extension] !== undefined && jwplayer.utils.extensionmap[extension].html5 !== undefined) {
+				if (!jwplayer.utils.exists(sourceModel.type)) {
+					if (jwplayer.utils.exists(jwplayer.utils.extensionmap[extension]) && 
+							jwplayer.utils.exists(jwplayer.utils.extensionmap[extension].html5)) {
 						sourceType = jwplayer.utils.extensionmap[extension].html5;
 					}
 				} else {
@@ -498,7 +499,7 @@
 			
 			for (var event in _events) {
 				_container.addEventListener(event, function(evt) {
-					if (evt.target.parentNode !== null) {
+					if (jwplayer.utils.exists(evt.target.parentNode)) {
 						_events[evt.type](evt);
 					}
 				}, true);

@@ -129,7 +129,7 @@
 						value = '"' + value + '"';
 						break;
 					case "object":
-						if (value !== null) {
+						if (jwplayer.utils.exists(value)) {
 							value = jwplayer.utils.strings.jsonToString(value);
 						}
 						break;

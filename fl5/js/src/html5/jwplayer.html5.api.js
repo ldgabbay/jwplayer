@@ -133,11 +133,11 @@
 					version: _api.version
 				};
 				controller.sendEvent(jwplayer.api.events.JWPLAYER_READY, evt);
-				if (playerReady !== undefined) {
+				if (jwplayer.utils.exists(playerReady)) {
 					playerReady(evt);
 				}
 				
-				if (window[model.config.playerReady] !== undefined) {
+				if (jwplayer.utils.exists(window[model.config.playerReady])) {
 					window[model.config.playerReady](evt);
 				}
 				

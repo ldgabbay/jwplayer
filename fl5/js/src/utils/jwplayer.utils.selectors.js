@@ -6,7 +6,7 @@
  */
 (function(jwplayer) {
 	jwplayer.utils.selectors = function(selector, parent) {
-		if (parent === undefined) {
+		if (!jwplayer.utils.exists(parent)) {
 			parent = document;
 		}
 		selector = jwplayer.utils.strings.trim(selector);
@@ -32,12 +32,12 @@
 	
 	jwplayer.utils.selectors.getElementsByTagAndClass = function(tagName, className, parent) {
 		elements = [];
-		if (parent === undefined) {
+		if (!jwplayer.utils.exists(parent)) {
 			parent = document;
 		}
 		var selected = parent.getElementsByTagName(tagName);
 		for (var i = 0; i < selected.length; i++) {
-			if (selected[i].className !== undefined) {
+			if (jwplayer.utils.exists(selected[i].className)) {
 				var classes = selected[i].className.split(" ");
 				for (var classIndex = 0; classIndex < classes.length; classIndex++) {
 					if (classes[classIndex] == className) {

@@ -21,7 +21,7 @@
 		/** Add an event listener for a specific type of event. **/
 		this.addEventListener = function(type, listener, count) {
 			try {
-				if (_listeners[type] === undefined) {
+				if (!jwplayer.utils.exists(_listeners[type])) {
 					_listeners[type] = [];
 				}
 				
@@ -88,7 +88,7 @@
 		
 		/** Send an event **/
 		this.sendEvent = function(type, data) {
-			if (data === undefined) {
+			if (!jwplayer.utils.exists(data)) {
 				data = {};
 			}
 			if (_debug) {

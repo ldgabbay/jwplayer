@@ -53,7 +53,7 @@
 				if (edge == path.length - 1) {
 					config[path[edge]] = options[option];
 				} else {
-					if (config[path[edge]] === undefined) {
+					if (!jwplayer.utils.exists(config[path[edge]])) {
 						config[path[edge]] = {};
 					}
 					config = config[path[edge]];
@@ -67,7 +67,7 @@
 		
 		var pluginorder = _components.concat([]);
 		
-		if (_model.plugins !== undefined) {
+		if (jwplayer.utils.exists(_model.plugins)) {
 			if (typeof _model.plugins == "string") {
 				var userplugins = _model.plugins.split(",");
 				for (var userplugin in userplugins) {
@@ -84,7 +84,7 @@
 		
 		if (_model.config.chromeless) {
 			pluginorder = ["logo"];
-			if (_model.config.repeat === undefined || _model.config.repeat == "none") {
+			if (!jwplayer.utils.exists(_model.config.repeat) || _model.config.repeat == "none") {
 				_model.config.repeat = "list";
 			}
 		}
@@ -103,9 +103,9 @@
 		
 		for (var pluginIndex in _model.plugins.order) {
 			var pluginName = _model.plugins.order[pluginIndex];
-			var pluginConfig = _model.config[pluginName] === undefined ? {} : _model.config[pluginName];
-			_model.plugins.config[pluginName] = _model.plugins.config[pluginName] === undefined ? pluginConfig : jwplayer.utils.extend(_model.plugins.config[pluginName], pluginConfig);
-			if (typeof _model.plugins.config[pluginName].position == "undefined") {
+			var pluginConfig = !jwplayer.utils.exists(_model.config[pluginName]) ? {} : _model.config[pluginName];
+			_model.plugins.config[pluginName] = !jwplayer.utils.exists(_model.plugins.config[pluginName]) ? pluginConfig : jwplayer.utils.extend(_model.plugins.config[pluginName], pluginConfig);
+			if (!jwplayer.utils.exists(_model.plugins.config[pluginName].position)) {
 				_model.plugins.config[pluginName].position = jwplayer.html5.view.positions.OVER;
 			} else {
 				_model.plugins.config[pluginName].position = _model.plugins.config[pluginName].position.toString().toUpperCase();
@@ -176,7 +176,7 @@
 		function _getShuffleItem() {
 			var result = null;
 			if (_model.playlist.length > 1) {
-				while (result === null) {
+				while (!jwplayer.utils.exists(result)) {
 					result = Math.floor(Math.random() * _model.playlist.length);
 					if (result == _model.item) {
 						result = null;
@@ -196,7 +196,7 @@
 		}
 		
 		_model.setActiveMediaProvider = function(playlistItem) {
-			if (_media !== undefined) {
+			if (jwplayer.utils.exists(_media)) {
 				_media.resetEventListeners();
 			}
 			_media = new jwplayer.html5.mediavideo(_model, _container);
@@ -225,7 +225,7 @@
 			for (var plugin in _model.plugins.order) {
 				try {
 					var pluginName = _model.plugins.order[plugin];
-					if (jwplayer.html5[pluginName] !== undefined) {
+					if (jwplayer.utils.exists(jwplayer.html5[pluginName])) {
 						_model.plugins.object[pluginName] = new jwplayer.html5[pluginName](_api, _model.plugins.config[pluginName]);
 					} else {
 						_model.plugins.order.splice(plugin, plugin + 1);

@@ -34,7 +34,7 @@
 	
 	jwplayer.utils.fadeTo = function(domelement, endAlpha, time, startAlpha, delay, startTime) {
 		// Interrupting
-		if (_animations[domelement.id] != startTime && startTime !== undefined) {
+		if (_animations[domelement.id] != startTime && jwplayer.utils.exists(startTime)) {
 			return;
 		}
 		var currentTime = new Date().getTime();
@@ -44,20 +44,20 @@
 			}, startTime - currentTime);
 		}
 		domelement.style.display = "block";
-		if (startAlpha === undefined) {
+		if (!jwplayer.utils.exists(startAlpha)) {
 			startAlpha = domelement.style.opacity === "" ? 1 : domelement.style.opacity;
 		}
-		if (domelement.style.opacity == endAlpha && domelement.style.opacity !== "" && startTime !== undefined) {
+		if (domelement.style.opacity == endAlpha && domelement.style.opacity !== "" && jwplayer.utils.exists(startTime)) {
 			if (endAlpha === 0) {
 				domelement.style.display = "none";
 			}
 			return;
 		}
-		if (startTime === undefined) {
+		if (!jwplayer.utils.exists(startTime)) {
 			startTime = currentTime;
 			_animations[domelement.id] = startTime;
 		}
-		if (delay === undefined) {
+		if (!jwplayer.utils.exists(delay)) {
 			delay = 0;
 		}
 		var percentTime = (currentTime - startTime) / (time * 1000);

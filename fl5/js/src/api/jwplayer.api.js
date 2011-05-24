@@ -93,14 +93,14 @@
 				jwplayer.utils.deepReplaceKeyName(playlist, "__dot__", ".");	
 			}
 			for (var i = 0; i < playlist.length; i++) {
-				if (playlist[i].index === undefined) {
+				if (!jwplayer.utils.exists(playlist[i].index)) {
 					playlist[i].index = i;
 				}
 			}
 			return playlist;
 		};
 		this.getPlaylistItem = function(item) {
-			if (item === undefined) {
+			if (!jwplayer.utils.exists(item)) {
 				item = this.getCurrentItem();
 			}
 			return this.getPlaylist()[item];
@@ -122,7 +122,7 @@
 		};
 		// Player Public Methods
 		this.setFullscreen = function(fullscreen) {
-			if (fullscreen === undefined) {
+			if (!jwplayer.utils.exists(fullscreen)) {
 				this.callInternal("jwSetFullscreen", !this.callInternal('jwGetFullscreen'));
 			} else {
 				this.callInternal("jwSetFullscreen", fullscreen);
@@ -130,7 +130,7 @@
 			return this;
 		};
 		this.setMute = function(mute) {
-			if (mute === undefined) {
+			if (!jwplayer.utils.exists(mute)) {
 				this.callInternal("jwSetMute", !this.callInternal('jwGetMute'));
 			} else {
 				this.callInternal("jwSetMute", mute);
@@ -375,7 +375,7 @@
 			 }*/
 			if (_playerReady) {
 				if (typeof _player != "undefined" && typeof _player[funcName] == "function") {
-					if (args !== undefined) {
+					if (jwplayer.utils.exists(args)) {
 						//return (_player[funcName]).apply(this, args);
 						return (_player[funcName])(args);
 					} else {
@@ -446,7 +446,7 @@
 	jwplayer.api.selectPlayer = function(identifier) {
 		var _container;
 		
-		if (identifier === undefined) {
+		if (!jwplayer.utils.exists(identifier)) {
 			identifier = 0;
 		}
 		

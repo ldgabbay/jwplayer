@@ -11,7 +11,7 @@
 		
 		/** Send an event **/
 		this.sendEvent = function(type, data) {
-			if (data === undefined) {
+			if (!jwplayer.utils.exists(data)) {
 				data = {};
 			}
 			jwplayer.utils.extend(data, {

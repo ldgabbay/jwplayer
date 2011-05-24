@@ -14,7 +14,7 @@
 		};
 		
 		for (var property in _playlistitemlevel) {
-			if (config[property] !== undefined) {
+			if (jwplayer.utils.exists(config[property])) {
 				_playlistitemlevel[property] = config[property];
 			}
 		}

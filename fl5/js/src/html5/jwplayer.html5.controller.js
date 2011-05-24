@@ -16,7 +16,7 @@
 		var _itemUpdated = true;
 		var _oldstart = -1;
 		
-		var debug = (_model.config.debug !== undefined) && (_model.config.debug.toString().toLowerCase() == 'console');
+		var debug = jwplayer.utils.exists(_model.config.debug) && (_model.config.debug.toString().toLowerCase() == 'console');
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher(_container.id, debug);
 		jwplayer.utils.extend(this, _eventDispatcher);
 		
@@ -167,7 +167,7 @@
 		function _getShuffleItem() {
 			var result = null;
 			if (_model.playlist.length > 1) {
-				while (result === null) {
+				while (!jwplayer.utils.exists(result)) {
 					result = Math.floor(Math.random() * _model.playlist.length);
 					if (result == _model.item) {
 						result = null;

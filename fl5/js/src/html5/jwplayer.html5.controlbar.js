@@ -255,7 +255,7 @@
 			} else {
 				element = document.getElementById(_wrapper.id + "_" + id);
 			}
-			if (css !== undefined) {
+			if (jwplayer.utils.exists(css)) {
 				_css(element, css);
 			}
 			return element;
@@ -272,7 +272,7 @@
 		function _buildGroup(group, order) {
 			var alignment = group.position == "right" ? "right" : "left";
 			var elements = jwplayer.utils.extend([], group.elements);
-			if (order !== undefined) {
+			if (jwplayer.utils.exists(order)) {
 				elements.reverse();
 			}
 			for (var i = 0; i < elements.length; i++) {
@@ -312,8 +312,8 @@
 					_addElement("elapsedText", alignment, true);
 					break;
 				case "time":
-					offsetLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
-					offsetRight = _api.skin.getSkinElement("controlbar", "timeSliderCapRight") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapRight").width;
+					offsetLeft = !jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapLeft")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
+					offsetRight = !jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapRight")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapRight").width;
 					offset = alignment == "left" ? offsetLeft : offsetRight;
 					width = _api.skin.getSkinElement("controlbar", "timeSliderRail").width + offsetLeft + offsetRight;
 					slidercss = {
@@ -339,8 +339,8 @@
 					_buildHandler("normalscreenButton", "jwSetFullscreen", false);
 					break;
 				case "volume":
-					offsetLeft = _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
-					offsetRight = _api.skin.getSkinElement("controlbar", "volumeSliderCapRight") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapRight").width;
+					offsetLeft = !jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", "volumeSliderCapLeft")) ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
+					offsetRight = !jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", "volumeSliderCapRight")) ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapRight").width;
 					offset = alignment == "left" ? offsetLeft : offsetRight;
 					width = _api.skin.getSkinElement("controlbar", "volumeSliderRail").width + offsetLeft + offsetRight;
 					slidercss = {
@@ -371,7 +371,7 @@
 		}
 		
 		function _addElement(element, alignment, offset, parent, position, width, skinElement) {
-			if (_api.skin.getSkinElement("controlbar", element) !== undefined || element.indexOf("Text") > 0 || element.indexOf("divider") === 0)  {
+			if (jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", element)) || element.indexOf("Text") > 0 || element.indexOf("divider") === 0)  {
 				var css = {
 					height: _getBack().height,
 					position: "absolute",
@@ -434,7 +434,7 @@
 					_css(_elements[element], css);
 				} else {
 					var newelement = _appendNewElement(element, parent, css);
-					if (_api.skin.getSkinElement("controlbar", element + "Over") !== undefined) {
+					if (jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", element + "Over"))) {
 						newelement.onmouseover = function(evt) {
 							newelement.style.backgroundImage = ["url(", _api.skin.getSkinElement("controlbar", element + "Over").src, ")"].join("");
 						};
@@ -496,9 +496,9 @@
 			if (_ready) {
 				return;
 			}
-			if (_api.skin.getSkinElement("controlbar", element) !== undefined) {
+			if (jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", element))) {
 				var _element = _elements[element];
-				if (_element !== null) {
+				if (jwplayer.utils.exists(_element)) {
 					_css(_element, {
 						cursor: "pointer"
 					});
@@ -510,7 +510,7 @@
 					} else {
 						_element.onmouseup = function(evt) {
 							evt.stopPropagation();
-							if (args !== null) {
+							if (jwplayer.utils.exists(args)) {
 								_api[handler](args);
 							} else {
 								_api[handler]();
@@ -588,7 +588,7 @@
 		
 		/** Update the buffer percentage. **/
 		function _bufferHandler(event) {
-			if (event.bufferPercent !== null) {
+			if (jwplayer.utils.exists(event.bufferPercent)) {
 				_currentBuffer = event.bufferPercent;
 			}
 			if (_positions.timeSliderRail) {
@@ -661,10 +661,10 @@
 		
 		/** Update the playback time. **/
 		function _timeHandler(event) {
-			if (event.position !== null) {
+			if (jwplayer.utils.exists(event.position)) {
 				_currentPosition = event.position;
 			}
-			if (event.duration !== null) {
+			if (jwplayer.utils.exists(event.duration)) {
 				_currentDuration = event.duration;
 			}
 			var progress = (_currentPosition === _currentDuration === 0) ? 0 : _currentPosition / _currentDuration;
@@ -752,12 +752,12 @@
 			elementcss.left = capLeft ? capLeft.width : 0;
 			elementcss.width = controlbarcss.width - elementcss.left - (capRight ? capRight.width : 0);
 
-			var timeSliderLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
+			var timeSliderLeft = !jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapLeft")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
 			_css(_elements.timeSliderRail, {
 				width: (elementcss.width - _marginleft - _marginright),
 				left: timeSliderLeft
 			});
-			if (_elements.timeSliderCapRight !== undefined) {
+			if (jwplayer.utils.exists(_elements.timeSliderCapRight)) {
 				_css(_elements.timeSliderCapRight, {
 					left: timeSliderLeft + (elementcss.width - _marginleft - _marginright)
 				});
@@ -772,19 +772,19 @@
 		
 		/** Update the volume level. **/
 		function _volumeHandler(event) {
-			if (_elements.volumeSliderRail !== undefined) {
+			if (jwplayer.utils.exists(_elements.volumeSliderRail)) {
 				var progress = isNaN(event.volume / 100) ? 1 : event.volume / 100;
 				var width = parseInt(_elements.volumeSliderRail.style.width.replace("px", ""), 10);
 				var progressWidth = isNaN(Math.round(width * progress)) ? 0 : Math.round(width * progress);
 				var offset = parseInt(_elements.volumeSliderRail.style.right.replace("px", ""), 10);
 				
-				var volumeSliderLeft = _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft") === undefined ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
+				var volumeSliderLeft = (!jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", "volumeSliderCapLeft"))) ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
 				_css(_elements.volumeSliderProgress, {
 					width: progressWidth,
 					left: volumeSliderLeft
 				});
 				
-				if (_elements.volumeSliderCapLeft !== undefined) {
+				if (jwplayer.utils.exists(_elements.volumeSliderCapLeft)) {
 					_css(_elements.volumeSliderCapLeft, {
 						left: 0
 					});

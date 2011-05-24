@@ -43,7 +43,7 @@
 	};
 	
 	function getAttributeList(elementType, attributes) {
-		if (attributes === undefined) {
+		if (!jwplayer.utils.exists(attributes)) {
 			attributes = elementAttributes[elementType];
 		} else {
 			jwplayer.utils.extend(attributes, elementAttributes[elementType]);
@@ -52,7 +52,7 @@
 	}
 	
 	function parseElement(domElement, attributes) {
-		if (parsers[domElement.tagName.toLowerCase()] && (attributes === undefined)) {
+		if (parsers[domElement.tagName.toLowerCase()] && !jwplayer.utils.exists(attributes)) {
 			return parsers[domElement.tagName.toLowerCase()](domElement);
 		} else {
 			attributes = getAttributeList('element', attributes);
@@ -60,8 +60,8 @@
 			for (var attribute in attributes) {
 				if (attribute != "length") {
 					var value = domElement.getAttribute(attribute);
-					if (!(value === "" || value === undefined || value === null)) {
-						configuration[attributes[attribute]] = domElement.getAttribute(attribute);
+					if (jwplayer.utils.exists(value)) {
+						configuration[attributes[attribute]] = value;
 					}
 				}
 			}
@@ -83,7 +83,7 @@
 			}
 		}
 		var configuration = parseElement(domElement, attributes);
-		if (configuration.file !== undefined) {
+		if (jwplayer.utils.exists(configuration.file)) {
 			sources[0] = {
 				'file': configuration.file
 			};

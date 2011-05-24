@@ -102,12 +102,12 @@
 			
 			var extension = jwplayer.utils.extension(file);
 			// If no extension or unrecognized extension, allow to play
-			if (!extension || jwplayer.utils.extensionmap[extension] === undefined){
+			if (!jwplayer.utils.exists(extension) || !jwplayer.utils.exists(jwplayer.utils.extensionmap[extension])){
 				return true;
 			}
 			
 			// If extension is defined but not supported by HTML5, don't play 
-			if (jwplayer.utils.extensionmap[extension].html5 === undefined) {
+			if (!jwplayer.utils.exists(jwplayer.utils.extensionmap[extension].html5)) {
 				return false;
 			}
 						

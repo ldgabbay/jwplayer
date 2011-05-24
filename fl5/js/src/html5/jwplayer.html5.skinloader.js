@@ -22,7 +22,7 @@
 			} else {
 				jwplayer.utils.ajax(jwplayer.utils.getAbsolutePath(_skinPath), function(xmlrequest) {
 					try {
-						if (xmlrequest.responseXML !== null){
+						if (jwplayer.utils.exists(xmlrequest.responseXML)){
 							_loadSkin(xmlrequest.responseXML);
 							return;	
 						}
@@ -87,7 +87,7 @@
 								var elementAttribute = element.attributes[elementAttributeIndex];
 								_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex][elementAttribute.name] = elementAttribute.value;
 							}
-							if (_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex].name === undefined) {
+							if (!jwplayer.utils.exists(_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex].name)) {
 								_skin[componentName].layout[group.getAttribute("position")].elements[groupElementIndex].name = element.tagName;
 							}
 						}
