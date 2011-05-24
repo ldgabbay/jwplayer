@@ -87,7 +87,9 @@ package com.longtailvideo.jwplayer.media {
 				|| (_stream.bytesLoaded < _stream.bytesTotal > 0)) 
 			{
 				_currentFile = itm.file;
-				if (!(Strings.extension(_currentFile) == "aac" || Strings.extension(_currentFile) == "m4a")) {
+				if (Strings.extension(_currentFile) == "aac" || Strings.extension(_currentFile) == "m4a") {
+					media = null;
+				} else {
 					media = _video;
 				}
 				_stream.checkPolicyFile = true;

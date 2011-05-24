@@ -522,9 +522,6 @@ package com.longtailvideo.jwplayer.view {
 		protected function mediaLoaded(evt:MediaEvent):void {
 			var disp:DisplayObject = _model.media.display;
 			if (disp && disp.parent != _mediaLayer) {
-				while (_mediaLayer.numChildren) {
-					_mediaLayer.removeChildAt(0);
-				}
 				_mediaLayer.addChild(_model.media.display);
 				resizeMedia(_player.config.width, _player.config.height);
 			}
@@ -532,6 +529,9 @@ package com.longtailvideo.jwplayer.view {
 
 
 		protected function itemHandler(evt:PlaylistEvent):void {
+			while (_mediaLayer.numChildren) {
+				_mediaLayer.removeChildAt(0);
+			}
 			if (_model.playlist.currentItem && _model.playlist.currentItem.image) {
 				if (_lastImage != _model.playlist.currentItem.image) {
 					_lastImage = _model.playlist.currentItem.image;
@@ -568,10 +568,8 @@ package com.longtailvideo.jwplayer.view {
 		}
 
 		protected function showMedia(evt:TimerEvent):void {
-			if (_model.media.display) {
-				_mediaLayer.visible = true;
-				_imageLayer.visible = false;
-			}
+			_mediaLayer.visible = Boolean(_model.media.display);
+			_imageLayer.visible = !Boolean(_model.media.display);
 		}
 		
 		protected function stateHandler(evt:PlayerStateEvent):void {
