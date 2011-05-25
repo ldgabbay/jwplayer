@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1799';
+jwplayer.version = '5.7.1800';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -240,6 +240,10 @@ jwplayer.source = document.createElement("source");/**
 			if (playlistItem.type) {
 				item.provider = playlistItem.type.toLowerCase();
 			}
+		}
+		
+		if (item.provider == "audio") {
+			item.provider = "sound";
 		}
 
 		return item;
@@ -3369,7 +3373,7 @@ playerReady = function(obj) {
 				evt.stopPropagation();
 			}
 			if (_settings.link) {
-				window.open(_settings.link, "_blank");
+				window.open(_settings.link, "_self");
 			}
 			return;
 		}
@@ -5598,7 +5602,7 @@ playerReady = function(obj) {
 			_api.jwPause();
 			_api.jwSetFullscreen(false);
 			if (_settings.link) {
-				window.open(_settings.link, "_blank");
+				window.open(_settings.link, "_self");
 			}
 			return;
 		}
@@ -6558,6 +6562,10 @@ playerReady = function(obj) {
 			_playlistitem.provider = _getProvider(_playlistitem.levels[0]);
 		} else {
 			_playlistitem.provider = _playlistitem.provider.toLowerCase();
+		}
+		
+		if (_playlistitem.provider == "audio") {
+			_playlistitem.provider = "sound"; 
 		}
 		
 		return _playlistitem;

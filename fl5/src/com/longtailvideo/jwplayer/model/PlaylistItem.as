@@ -15,12 +15,12 @@ package com.longtailvideo.jwplayer.model {
 		public var mediaid:String		= "";
 		public var tags:String			= "";
 		public var title:String			= "";
-		public var provider:String		= "";
 		
-		protected var _file:String			= "";
-		protected var _streamer:String		= "";
 		protected var _duration:Number		= -1;
+		protected var _file:String			= "";
+		protected var _provider:String		= "";
 		protected var _start:Number			= 0;
+		protected var _streamer:String		= "";
 		
 		protected var _currentLevel:Number 	= -1;
 		protected var _levels:Array			= [];
@@ -184,9 +184,14 @@ package com.longtailvideo.jwplayer.model {
 				_duration += _start;
 			}
 		}
+
+		public function get provider():String { return _provider; }
+		public function set provider(p:*):void {
+			_provider = (p == "audio") ? "sound" : p;
+		}
 		
 		// For backwards compatibility
-		public function get type():String { return provider; }
+		public function get type():String { return _provider; }
 		public function set type(t:String):void { provider = t; }
 		
 	}

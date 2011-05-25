@@ -28,7 +28,7 @@ package com.longtailvideo.jwplayer.view {
 			prefix: "http://l.longtailvideo.com/", 
 			file: "logo.png", 
 			link: "http://www.longtailvideo.com/players/jw-flv-player/",
-			linktarget: "_blank",
+			linktarget: "_self",
 			margin: 8, 
 			out: 0.5, 
 			over: 1, 

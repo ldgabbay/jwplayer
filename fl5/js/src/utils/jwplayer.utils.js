@@ -216,6 +216,10 @@
 				item.provider = playlistItem.type.toLowerCase();
 			}
 		}
+		
+		if (item.provider == "audio") {
+			item.provider = "sound";
+		}
 
 		return item;
 	}

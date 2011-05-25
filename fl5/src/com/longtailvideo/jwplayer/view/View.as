@@ -87,7 +87,13 @@ package com.longtailvideo.jwplayer.view {
 		
 		protected var currentLayer:Number = 0;
 		
-		// Keep track of the last tab index
+		// Keep track of the first tabIndex
+		protected var firstIndex:Number = -1;
+
+		// Keep track of the next-to-last tabIndex
+		protected var nextLastIndex:Number = -1;
+		
+		// Keep track of the latest tab tabIndex
 		protected var lastIndex:Number = -1;
 
 		// Delay between IDLE state and when the preview image is shown
@@ -156,7 +162,10 @@ package com.longtailvideo.jwplayer.view {
 			setupComponents();
 
 			RootReference.stage.addEventListener(Event.RESIZE, resizeHandler);
-			RootReference.stage.addEventListener(FocusEvent.FOCUS_IN, keyFocusOutHandler);
+			RootReference.stage.addEventListener(FocusEvent.FOCUS_OUT, keyFocusOutHandler);
+			RootReference.stage.addEventListener(FocusEvent.FOCUS_IN, keyFocusInHandler);
+//			RootReference.stage.addEventListener(FocusEvent.KEY_FOCUS_CHANGE, keyFocusChanged);
+			
 			
 
 			_model.addEventListener(MediaEvent.JWPLAYER_MEDIA_LOADED, mediaLoaded);
@@ -169,18 +178,25 @@ package com.longtailvideo.jwplayer.view {
 
 			redraw();
 		}
+		
+		protected function keyFocusOutHandler(evt:FocusEvent):void {
+			var button:Sprite = evt.target as Sprite;
+			if (!button) { return; }
+			lastIndex = nextLastIndex;
+			nextLastIndex = button.tabIndex;
+		}
 
 		/** 
 		 * Handles the loss of a button's focus.  
 		 * The player attempts to blur Flash's focus on the page after the last tabbable 
 		 * element so that keyboard users don't get stuck with their focus insideo of the player.   
 		 **/
-		protected function keyFocusOutHandler(evt:FocusEvent):void {
+		protected function keyFocusInHandler(evt:FocusEvent):void {
 			var button:Sprite = evt.target as Sprite;
 			
 			if (!button) { return; }
 			
-			if (button.tabIndex < lastIndex) {
+			if (firstIndex >= 0 && button.tabIndex == firstIndex && nextLastIndex > lastIndex) {
 				// Prevent focus from wrapping to the first button
 				evt.preventDefault();
 				// Nothing should be focused now
@@ -189,9 +205,11 @@ package com.longtailvideo.jwplayer.view {
 				if (ExternalInterface.available) {
 					ExternalInterface.call("(function() { try { document.getElementById('"+PlayerVersion.id+"').blur(); } catch(e) {} })"); 
 				}
+				firstIndex = -1;
 				lastIndex = -1;
-			} else {
-				lastIndex = button.tabIndex;
+				nextLastIndex = -1;
+			} else if (firstIndex < 0) {
+				firstIndex = button.tabIndex;
 			}
 		}
 		
@@ -591,5 +609,6 @@ package com.longtailvideo.jwplayer.view {
 			if (evt is PlayerEvent)
 				dispatchEvent(evt);
 		}
+		
 	}
 }
