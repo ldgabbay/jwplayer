@@ -404,7 +404,7 @@ package com.longtailvideo.jwplayer.view.components {
 		private function get _playlist():Array {
 			var arr:Array = [];
 			for (var i:Number = 0; i < _player.playlist.length; i++) {
-				if (_player.playlist.getItemAt(i).hasOwnProperty("ova.hidden")){
+				if (_player.playlist.getItemAt(i)["ova.hidden"]) {
 					continue;
 				}
 				arr.push(_player.playlist.getItemAt(i));
@@ -790,6 +790,10 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** Switch the currently active item */
 		protected function itemHandler(evt:PlaylistEvent = null):void {
+			if (_player.playlist.length == 0) {
+				return;
+			}
+			
 			var idx:Number = translateModelToUIPlaylistIndex(_player.playlist.currentIndex);
 			
 			if (!skinLoaded) return;

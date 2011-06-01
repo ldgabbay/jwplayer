@@ -320,7 +320,7 @@
 				_bufferStateTimer.reset();
 				_playStateTimer.reset();
 				_bufferStateTimer.delay = (_icon ? 10 : 200);
-				_playStateTimer.delay = (_icon ? 10 : 50);
+				_playStateTimer.delay = (_icon ? 10 : 10);
 				switch (player.state) {
 					case PlayerState.BUFFERING:
 						_bufferStateTimer.start();

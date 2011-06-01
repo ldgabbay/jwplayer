@@ -2,7 +2,7 @@
  * JW Player model component
  *
  * @author zach
- * @version 5.4
+ * @version 5.7
  */
 (function(jwplayer) {
 	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen", "item", "plugins", "stretching"];
@@ -29,7 +29,7 @@
 				volume: 90,
 				mute: false,
 				fullscreen: false,
-				repeat: "none",
+				repeat: "",
 				stretching: jwplayer.utils.stretching.UNIFORM,
 				autostart: false,
 				debug: undefined,
@@ -78,13 +78,19 @@
 			}
 		}
 		
-		if (typeof _model.config.chromeless == "undefined" && jwplayer.utils.isIOS()) {
+		if (typeof _model.config.chromeless == "undefined" && jwplayer.utils.isIPod()) {
 			_model.config.chromeless = true;
 		}
 		
-		if (_model.config.chromeless) {
+		
+		if (jwplayer.utils.isIPad()) {
+			pluginorder = ["logo","display"];
+			if (!jwplayer.utils.exists(_model.config.repeat)) {
+				_model.config.repeat = "list";
+			}
+		} else if (_model.config.chromeless) {
 			pluginorder = ["logo"];
-			if (!jwplayer.utils.exists(_model.config.repeat) || _model.config.repeat == "none") {
+			if (!jwplayer.utils.exists(_model.config.repeat)) {
 				_model.config.repeat = "list";
 			}
 		}
@@ -195,14 +201,28 @@
 			_eventDispatcher.sendEvent(evt.type, evt);
 		}
 		
+		var _mediaProviders = {};
+		
 		_model.setActiveMediaProvider = function(playlistItem) {
-			if (jwplayer.utils.exists(_media)) {
-				_media.resetEventListeners();
+			var provider = playlistItem.provider;
+			if (provider == "sound") {
+				provider = "video";
 			}
-			_media = new jwplayer.html5.mediavideo(_model, _container);
-			_media.addGlobalListener(forward);
+			
+			if (!jwplayer.utils.exists(_mediaProviders[provider])) {
+				switch (provider) {
+				case "video":
+					_media = new jwplayer.html5.mediavideo(_model, _container);
+					break;
+				case "youtube":
+					_media = new jwplayer.html5.mediayoutube(_model, _container);
+					break;
+				}
+				_media.addGlobalListener(forward);
+				_mediaProviders[provider] = _media;
+			}
 			if (_model.config.chromeless) {
-				_media.load(playlistItem);
+				_media.load(playlistItem, false);
 			}
 			return true;
 		};

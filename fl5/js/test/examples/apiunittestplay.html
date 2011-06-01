@@ -12,7 +12,10 @@
             document.write("<h1>" + document.title + "</h1>");
         </script>
         <p>
-            This tests adding listeners to the player and responding to events. Video should play on FF, Chrome, Safari, and Opera but will fail in IE.
+            This tests adding listeners to the player and responding to events. Video should play on FF, Chrome, Safari, and Opera but will fail in IE 8 and below.
+        </p>
+        <p>
+        	This test should also fail in iOS, since volume is not settable via JavaScript for iOS devices.
         </p>
         <div height="270" id="player" width="480">
         </div>

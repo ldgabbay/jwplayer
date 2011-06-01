@@ -2,11 +2,12 @@
  * JW Player controller component
  *
  * @author zach
- * @version 5.4
+ * @version 5.7
  */
 (function(jwplayer) {
 
 	var _mediainfovariables = ["width", "height", "state", "playlist", "item", "position", "buffer", "duration", "volume", "mute", "fullscreen"];
+	var _utils = jwplayer.utils;
 	
 	jwplayer.html5.controller = function(api, container, model, view) {
 		var _api = api;
@@ -16,9 +17,9 @@
 		var _itemUpdated = true;
 		var _oldstart = -1;
 		
-		var debug = jwplayer.utils.exists(_model.config.debug) && (_model.config.debug.toString().toLowerCase() == 'console');
+		var debug = _utils.exists(_model.config.debug) && (_model.config.debug.toString().toLowerCase() == 'console');
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher(_container.id, debug);
-		jwplayer.utils.extend(this, _eventDispatcher);
+		_utils.extend(this, _eventDispatcher);
 		
 		function forward(evt) {
 			_eventDispatcher.sendEvent(evt.type, evt);
@@ -26,24 +27,25 @@
 		
 		_model.addGlobalListener(forward);
 		
+		/** Set event handlers **/
+		_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, function() {
+			_model.getMedia().play();
+		});
+		_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, function(evt) {
+			if (evt.position >= _model.playlist[_model.item].start && _oldstart >= 0) {
+				_model.playlist[_model.item].start = _oldstart;
+				_oldstart = -1;
+			}
+		});
+		_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
+			setTimeout(_completeHandler, 25);
+		});
+		
+		
 		function _play() {
 			try {
 				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					if (_itemUpdated || _model.state == jwplayer.api.events.state.IDLE) {
-						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, function() {
-							_model.getMedia().play();
-						});
-						_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, function(evt) {
-							if (evt.position >= _model.playlist[_model.item].start && _oldstart >= 0) {
-								_model.playlist[_model.item].start = _oldstart;
-								_oldstart = -1;
-							}
-						});
-						if (_model.config.repeat) {
-							_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
-								setTimeout(_completeHandler, 25);
-							});
-						}
 						_model.getMedia().load(_model.playlist[_model.item]);
 						_itemUpdated = false;
 					} else if (_model.state == jwplayer.api.events.state.PAUSED) {
@@ -125,16 +127,22 @@
 			try {
 				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					if (_model.config.shuffle) {
-						_item(_getShuffleItem());
+						_loadItem(_getShuffleItem());
 					} else if (_model.item + 1 == _model.playlist.length) {
-						_item(0);
+						_loadItem(0);
 					} else {
-						_item(_model.item + 1);
+						_loadItem(_model.item + 1);
 					}
 				}
-				if (_model.state != jwplayer.api.events.state.PLAYING && _model.state != jwplayer.api.events.state.BUFFERING) {
-					_play();
+				if (_model.state != jwplayer.api.events.state.IDLE) {
+					var oldstate = _model.state;
+					_model.state = jwplayer.api.events.state.IDLE;
+					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYER_STATE, {
+						oldstate: oldstate,
+						newstate: jwplayer.api.events.state.IDLE
+					});
 				}
+				_play();
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -154,9 +162,15 @@
 						_item(_model.item - 1);
 					}
 				}
-				if (_model.state != jwplayer.api.events.state.PLAYING && _model.state != jwplayer.api.events.state.BUFFERING) {
-					_play();
+				if (_model.state != jwplayer.api.events.state.IDLE) {
+					var oldstate = _model.state;
+					_model.state = jwplayer.api.events.state.IDLE;
+					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYER_STATE, {
+						oldstate: oldstate,
+						newstate: jwplayer.api.events.state.IDLE
+					});
 				}
+				_play();
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -167,7 +181,7 @@
 		function _getShuffleItem() {
 			var result = null;
 			if (_model.playlist.length > 1) {
-				while (!jwplayer.utils.exists(result)) {
+				while (!_utils.exists(result)) {
 					result = Math.floor(Math.random() * _model.playlist.length);
 					if (result == _model.item) {
 						result = null;
@@ -181,21 +195,15 @@
 		
 		/** Stop playback and loading of the video. **/
 		function _item(item) {
-			_model.resetEventListeners();
-			_model.addGlobalListener(forward);
 			try {
 				if (_model.playlist[item].levels[0].file.length > 0) {
 					var oldstate = _model.state;
 					if (oldstate !== jwplayer.api.events.state.IDLE) {
 						_stop();
 					}
-					_model.item = item;
-					_itemUpdated = true;
-					_model.setActiveMediaProvider(_model.playlist[_model.item]);
-					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-						"index": item
-					});
-					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING || _model.config.chromeless || model.config.autostart === true) {
+					_loadItem(item);
+					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING || 
+							(model.config.autostart === true && !_utils.isIOS())) {
 						_play();
 					}
 				}
@@ -204,6 +212,15 @@
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
 			}
 			return false;
+		}
+		
+		function _loadItem(item) {
+			_model.item = item;
+			_itemUpdated = true;
+			_model.setActiveMediaProvider(_model.playlist[_model.item]);
+			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
+				"index": item
+			});
 		}
 		
 		/** Get / set the video's volume level. **/
@@ -314,8 +331,6 @@
 		};
 		
 		function _completeHandler() {
-			_model.resetEventListeners();
-			_model.addGlobalListener(forward);
 			switch (_model.config.repeat.toUpperCase()) {
 				case jwplayer.html5.controller.repeatoptions.SINGLE:
 					_play();
@@ -331,9 +346,13 @@
 				case jwplayer.html5.controller.repeatoptions.LIST:
 					if (_model.item == _model.playlist.length - 1 && !_model.config.shuffle) {
 						_item(0);
+						_model.getMedia().stop();
 					} else {
 						_next();
 					}
+					break;
+				default:
+					_model.getMedia().stop();
 					break;
 			}
 		}

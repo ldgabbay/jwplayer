@@ -2,7 +2,7 @@
  * A factory for API calls that either set listeners or return data
  *
  * @author zach
- * @version 5.6
+ * @version 5.7
  */
 (function(jwplayer) {
 
@@ -149,7 +149,7 @@
 			};
 		}
 		
-		if (_model.config.chromeless) {
+		if (_model.config.chromeless && !jwplayer.utils.isIPad()) {
 			setTimeout(_finishLoad(_model, _view, _controller), 25);
 		} else {
 			_api.skin.load(_model.config.skin, _finishLoad(_model, _view, _controller));

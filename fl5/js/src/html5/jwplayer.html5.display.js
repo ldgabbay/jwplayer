@@ -2,10 +2,11 @@
  * JW Player display component
  *
  * @author zach
- * @version 5.6
+ * @version 5.7
  */
 (function(jwplayer) {
-	_css = jwplayer.utils.css;
+	_utils = jwplayer.utils;
+	_css = _utils.css;
 	
 	_hide = function(element) {
 		_css(element, {
@@ -23,7 +24,7 @@
 		var _defaults = {
 			icons: true
 		}
-		var _config = jwplayer.utils.extend({}, _defaults, config);
+		var _config = _utils.extend({}, _defaults, config);
 		var _api = api;
 		var _display = {};
 		var _width;
@@ -33,8 +34,8 @@
 		var _degreesRotated;
 		var _rotationInterval;
 		var _error;
-		var _bufferRotation = !jwplayer.utils.exists(_api.skin.getComponentSettings("display").bufferrotation) ? 15 : parseInt(_api.skin.getComponentSettings("display").bufferrotation, 10);
-		var _bufferInterval = !jwplayer.utils.exists(_api.skin.getComponentSettings("display").bufferinterval) ? 100 : parseInt(_api.skin.getComponentSettings("display").bufferinterval, 10);
+		var _bufferRotation = !_utils.exists(_api.skin.getComponentSettings("display").bufferrotation) ? 15 : parseInt(_api.skin.getComponentSettings("display").bufferrotation, 10);
+		var _bufferInterval = !_utils.exists(_api.skin.getComponentSettings("display").bufferinterval) ? 100 : parseInt(_api.skin.getComponentSettings("display").bufferinterval, 10);
 		var _elements = {
 			display: {
 				style: {
@@ -164,7 +165,7 @@
 		}
 		
 		function _stretch() {
-			jwplayer.utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
+			_utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
 		};
 		
 		function createElement(tag, element) {
@@ -177,7 +178,7 @@
 		
 		function _setupDisplayElements() {
 			for (var element in _display) {
-				if (jwplayer.utils.exists(_elements[element].click)) {
+				if (_utils.exists(_elements[element].click)) {
 					_display[element].onclick = _elements[element].click;
 				}
 			}
@@ -212,7 +213,7 @@
 				top: (_api.skin.getSkinElement("display", "background").height - _api.skin.getSkinElement("display", newIcon).height) / 2,
 				left: (_api.skin.getSkinElement("display", "background").width - _api.skin.getSkinElement("display", newIcon).width) / 2
 			});
-			if (jwplayer.utils.exists(_api.skin.getSkinElement("display", newIcon + "Over"))) {
+			if (_utils.exists(_api.skin.getSkinElement("display", newIcon + "Over"))) {
 				_display.display_icon.onmouseover = function(evt) {
 					_display.display_icon.style.backgroundImage = ["url(", _api.skin.getSkinElement("display", newIcon + "Over").src, ")"].join("");
 				};
@@ -255,50 +256,55 @@
 				_error = false;
 				_hide(_display.display_text);
 			}
-			if (jwplayer.utils.exists(_rotationInterval)) {
+			if (_utils.exists(_rotationInterval)) {
 				clearInterval(_rotationInterval);
 				_rotationInterval = null;
-				jwplayer.utils.animations.rotate(_display.display_icon, 0);
+				_utils.animations.rotate(_display.display_icon, 0);
 			}
 			switch (_api.jwGetState()) {
 				case jwplayer.api.events.state.BUFFERING:
-					_setDisplayIcon("bufferIcon");
-					_degreesRotated = 0;
-					_rotationInterval = setInterval(function() {
-						_degreesRotated += _bufferRotation;
-						jwplayer.utils.animations.rotate(_display.display_icon, _degreesRotated % 360);
-					}, _bufferInterval);
-					_setDisplayIcon("bufferIcon");
+					if (_utils.isIOS()) {
+						_resetPoster();
+						_hide(_display.display_iconBackground);
+						_hide(_display.display_icon);
+					} else {
+						_setDisplayIcon("bufferIcon");
+						_degreesRotated = 0;
+						_rotationInterval = setInterval(function() {
+							_degreesRotated += _bufferRotation;
+							_utils.animations.rotate(_display.display_icon, _degreesRotated % 360);
+						}, _bufferInterval);
+						_setDisplayIcon("bufferIcon");
+					}
 					break;
 				case jwplayer.api.events.state.PAUSED:
-					if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
-						_css(_display.display_image, {
-							background: "transparent no-repeat center center"
-						});
+					if (!_utils.isIOS()) {
+						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
+							_css(_display.display_image, {
+								background: "transparent no-repeat center center"
+							});
+						}
+						_setDisplayIcon("playIcon");
 					}
-					_setDisplayIcon("playIcon");
 					break;
 				case jwplayer.api.events.state.IDLE:
 					if (_api.jwGetPlaylist()[_api.jwGetItem()].image) {
 						_css(_display.display_image, {
 							display: "block"
 						});
-						_display.display_image.src = jwplayer.utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
+						_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
 					} else {
 						_resetPoster();
 					}
 					_setDisplayIcon("playIcon");
 					break;
 				default:
+					if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound" || _utils.isIOS()) {
+						_resetPoster();
+					}
 					if (_api.jwGetMute() && _config.showmute) {
-						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
-							_resetPoster();
-						}
 						_setDisplayIcon("muteIcon");
 					} else {
-						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
-							_resetPoster();
-						}
 						_hide(_display.display_iconBackground);
 						_hide(_display.display_icon);
 					}

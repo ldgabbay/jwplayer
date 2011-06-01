@@ -93,8 +93,10 @@
 
 	/** Wraps an HTML element with another element * */
 	jwplayer.utils.wrap = function(originalElement, appendedElement) {
-		originalElement.parentNode.replaceChild(appendedElement,
-				originalElement);
+		if (originalElement.parentNode) {
+			originalElement.parentNode.replaceChild(appendedElement,
+					originalElement);
+		}
 		appendedElement.appendChild(originalElement);
 	};
 
@@ -183,9 +185,20 @@
 	/**
 	 * Detects whether the current browser is mobile Safari.
 	 */
-	jwplayer.utils.isIOS = function() {
+	jwplayer.utils.isIOS = function(regex) {
+		if (typeof regex == "undefined") {
+			regex = /iP(hone|ad|od)/i;
+		}
 		var agent = navigator.userAgent.toLowerCase();
-		return (agent.match(/iP(hone|ad)/i) !== null);
+		return (agent.match(regex) !== null);
+	};
+	
+	jwplayer.utils.isIPad = function() {
+		return jwplayer.utils.isIOS(/iPad/i);
+	};
+
+	jwplayer.utils.isIPod = function() {
+		return jwplayer.utils.isIOS(/iP(hone|od)/i);
 	};
 
 	jwplayer.utils.getFirstPlaylistItemFromConfig = function(config) {
@@ -634,6 +647,17 @@
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * Removes all of an HTML container's child nodes
+	 **/
+	jwplayer.utils.empty = function(elem) {
+		if (typeof elem.hasChildNodes == "function") {
+			while(elem.hasChildNodes()) {
+				elem.removeChild(elem.firstChild);
+			}
+		}
 	}
 
 })(jwplayer);

@@ -2,7 +2,7 @@
  * JW Player view component
  *
  * @author zach
- * @version 5.4
+ * @version 5.7
  */
 (function(jwplayer) {
 
@@ -267,10 +267,11 @@
 		
 		function _resizeMedia() {
 			_box.style.position = "absolute";
-			_model.getMedia().getDisplayElement().style.position = "absolute";
-			if (_model.getMedia().getDisplayElement().videoWidth == 0 || _model.getMedia().getDisplayElement().videoHeight == 0) {
+			var media = _model.getMedia().getDisplayElement();
+			if (media.tagName.toLowerCase() != "video") {
 				return;
 			}
+			media.style.position = "absolute";
 			var iwidth, iheight;
 			if (_box.style.width.toString().lastIndexOf("%") > -1 || _box.style.width.toString().lastIndexOf("%") > -1) {
 				var rect = _box.getBoundingClientRect();
@@ -280,7 +281,9 @@
 				iwidth = parseDimension(_box.style.width);
 				iheight = parseDimension(_box.style.height);
 			}
-			jwplayer.utils.stretch(_api.jwGetStretching(), _model.getMedia().getDisplayElement(), iwidth, iheight, _model.getMedia().getDisplayElement().videoWidth, _model.getMedia().getDisplayElement().videoHeight);
+			jwplayer.utils.stretch(_api.jwGetStretching(), media, iwidth, iheight, 
+					media.videoWidth ? media.videoWidth : 400, 
+					media.videoHeight ? media.videoHeight : 300);
 		}
 		
 		function _getComponentPosition(pluginName) {
@@ -335,7 +338,7 @@
 		this.resize = _resize;
 		
 		this.fullscreen = function(state) {
-			if (navigator.vendor.indexOf("Apple") === 0) {
+			if (navigator && navigator.vendor && navigator.vendor.indexOf("Apple") === 0) {
 				if (_model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
 					if (state) {
 						try {

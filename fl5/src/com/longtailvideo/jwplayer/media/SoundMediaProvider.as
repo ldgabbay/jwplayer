@@ -211,7 +211,9 @@ package com.longtailvideo.jwplayer.media {
 		override public function stop():void {
 			clearInterval(_positionInterval);
 			_positionInterval = undefined;
-			item.duration = _userDuration;
+			if (item) {
+				item.duration = _userDuration;
+			}
 			super.stop();
 			if (_channel) {
 				_channel.stop();
