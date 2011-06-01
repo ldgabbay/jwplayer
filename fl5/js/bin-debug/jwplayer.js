@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1816';
+jwplayer.version = '5.7.1817';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -6587,7 +6587,7 @@ playerReady = function(obj) {
 		
 		_model.setActiveMediaProvider = function(playlistItem) {
 			var provider = playlistItem.provider;
-			if (provider == "sound") {
+			if (provider == "sound" || provider == "audio") {
 				provider = "video";
 			}
 			
@@ -6710,10 +6710,6 @@ playerReady = function(obj) {
 			_playlistitem.provider = _getProvider(_playlistitem.levels[0]);
 		} else {
 			_playlistitem.provider = _playlistitem.provider.toLowerCase();
-		}
-		
-		if (_playlistitem.provider == "audio") {
-			_playlistitem.provider = "sound"; 
 		}
 		
 		return _playlistitem;

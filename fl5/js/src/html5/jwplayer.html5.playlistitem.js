@@ -44,10 +44,6 @@
 			_playlistitem.provider = _playlistitem.provider.toLowerCase();
 		}
 		
-		if (_playlistitem.provider == "audio") {
-			_playlistitem.provider = "sound"; 
-		}
-		
 		return _playlistitem;
 	};
 	

@@ -205,7 +205,7 @@
 		
 		_model.setActiveMediaProvider = function(playlistItem) {
 			var provider = playlistItem.provider;
-			if (provider == "sound") {
+			if (provider == "sound" || provider == "audio") {
 				provider = "video";
 			}
 			

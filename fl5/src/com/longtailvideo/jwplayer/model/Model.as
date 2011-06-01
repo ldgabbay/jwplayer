@@ -215,7 +215,10 @@ package com.longtailvideo.jwplayer.model {
 
 		/** e.g. http://providers.longtailvideo.com/5/myProvider.swf --> myprovider **/
 		protected function url2type(type:String):String {
-			return type.substring(type.lastIndexOf("/") + 1, type.length).replace(".swf", "").toLowerCase();
+			if (type.toLowerCase() == "audio")
+				return "sound";
+			else
+				return type.substring(type.lastIndexOf("/") + 1, type.length).replace(".swf", "").toLowerCase();
 		}
 
 	}
