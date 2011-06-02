@@ -84,6 +84,7 @@
 			} else {
 				_video.src = item.file;
 			}
+			_video.style.display = "block";
 			_video.load();
 			if (_utils.isIOS()) {
 				if (item.image) {
@@ -92,7 +93,7 @@
 				_video.controls = "controls";
 			}
 			
-			_bufferingComplete = _bufferFull = false;
+			_bufferingComplete = _bufferFull = _start = false;
 			_model.buffer = 0;
 			
 			if (!_utils.exists(item.start)) {
@@ -157,7 +158,9 @@
 			_video.removeAttribute("src");
 			_video.removeAttribute("controls");
 			_video.removeAttribute("poster");
+			_video.style.display = "none";
 			if (clear) {
+				_bufferFull = false;	
 				_utils.empty(_video);
 				_video.load();
 				if(_video.webkitSupportsFullscreen) {
@@ -240,7 +243,6 @@
 		function _init() {
 			_video = document.createElement("video");
 			_state = jwplayer.api.events.state.IDLE;
-			_start = false;
  
 			for (var event in _events) {
 				_video.addEventListener(event, function(evt) {

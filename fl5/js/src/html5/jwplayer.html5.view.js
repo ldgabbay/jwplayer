@@ -18,6 +18,7 @@
 		var _box;
 		var _zIndex;
 		var _resizeInterval;
+		var _media;
 		
 		function createWrapper() {
 			_wrapper = document.createElement("div");
@@ -82,8 +83,21 @@
 			_loadedHandler();
 		}
 		
+		function _stateHandler(evt) {
+			_css(_box, {
+				display: _model.getMedia().hasChrome() ? "none" : "block"
+			});
+		}
+
 		function _loadedHandler(evt) {
-			if (jwplayer.utils.exists(_model.getMedia())) {
+			var newMedia = _model.getMedia().getDisplayElement();
+			if (jwplayer.utils.exists(newMedia)) {
+				if (_media != newMedia) {
+					if (_media && _media.parentNode) {
+						_media.parentNode.replaceChild(newMedia, _media);
+					}
+					_media = newMedia;
+				}
 				for (var pluginIndex = 0; pluginIndex < _model.plugins.order.length; pluginIndex++) {
 					var pluginName = _model.plugins.order[pluginIndex];
 					if (jwplayer.utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
@@ -115,6 +129,7 @@
 			_container = container;
 			createWrapper();
 			layoutComponents();
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_LOADED, _loadedHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, function() {
 				_resizeMedia();
@@ -268,22 +283,23 @@
 		function _resizeMedia() {
 			_box.style.position = "absolute";
 			var media = _model.getMedia().getDisplayElement();
-			if (media.tagName.toLowerCase() != "video") {
-				return;
-			}
-			media.style.position = "absolute";
-			var iwidth, iheight;
-			if (_box.style.width.toString().lastIndexOf("%") > -1 || _box.style.width.toString().lastIndexOf("%") > -1) {
-				var rect = _box.getBoundingClientRect();
-				iwidth = Math.abs(rect.left) + Math.abs(rect.right);
-				iheight = Math.abs(rect.top) + Math.abs(rect.bottom);
+			if (media.tagName.toLowerCase() == "video") {
+				media.style.position = "absolute";
+				var iwidth, iheight;
+				if (_box.style.width.toString().lastIndexOf("%") > -1 || _box.style.width.toString().lastIndexOf("%") > -1) {
+					var rect = _box.getBoundingClientRect();
+					iwidth = Math.abs(rect.left) + Math.abs(rect.right);
+					iheight = Math.abs(rect.top) + Math.abs(rect.bottom);
+				} else {
+					iwidth = parseDimension(_box.style.width);
+					iheight = parseDimension(_box.style.height);
+				}
+				jwplayer.utils.stretch(_api.jwGetStretching(), media, iwidth, iheight, 
+						media.videoWidth ? media.videoWidth : 400, 
+						media.videoHeight ? media.videoHeight : 300);
 			} else {
-				iwidth = parseDimension(_box.style.width);
-				iheight = parseDimension(_box.style.height);
+				_model.getMedia().resize(parseDimension(_box.style.width), parseDimension(_box.style.height));
 			}
-			jwplayer.utils.stretch(_api.jwGetStretching(), media, iwidth, iheight, 
-					media.videoWidth ? media.videoWidth : 400, 
-					media.videoHeight ? media.videoHeight : 300);
 		}
 		
 		function _getComponentPosition(pluginName) {

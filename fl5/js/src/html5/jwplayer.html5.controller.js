@@ -110,10 +110,16 @@
 		
 		
 		/** Stop playback and loading of the video. **/
-		function _stop() {
+		function _stop(clear) {
+			if (!_utils.exists(clear)) {
+				clear = true;
+			}
 			try {
 				if (_model.playlist[_model.item].levels[0].file.length > 0 && _model.state != jwplayer.api.events.state.IDLE) {
-					_model.getMedia().stop();
+					_model.getMedia().stop(clear);
+				}
+				if (clear) {
+					_loadItem(_model.item);
 				}
 				return true;
 			} catch (err) {
@@ -199,7 +205,11 @@
 				if (_model.playlist[item].levels[0].file.length > 0) {
 					var oldstate = _model.state;
 					if (oldstate !== jwplayer.api.events.state.IDLE) {
-						_stop();
+						if (_model.playlist[_model.item].provider == _model.playlist[item].provider) {
+							_stop(false);
+						} else {
+							_stop();
+						}
 					}
 					_loadItem(item);
 					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING || 

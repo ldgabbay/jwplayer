@@ -703,8 +703,13 @@
 		
 		function cleanupDividers() {
 			var lastElement, lastVisibleElement;
-			var childNodes = document.getElementById(_wrapper.id + "_elements").childNodes;
-			for (var childNode in document.getElementById(_wrapper.id + "_elements").childNodes) {
+			var elements = document.getElementById(_wrapper.id + "_elements");
+			if (!elements) {
+				return;
+			}
+			
+			var childNodes = elements.childNodes;
+			for (var childNode in elements.childNodes) {
 				if (isNaN(parseInt(childNode, 10))) {
 					continue;
 				}

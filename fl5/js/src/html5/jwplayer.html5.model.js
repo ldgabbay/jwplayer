@@ -205,6 +205,8 @@
 		
 		_model.setActiveMediaProvider = function(playlistItem) {
 			var provider = playlistItem.provider;
+			var current = _media ? _media.getDisplayElement() : null; 
+			
 			if (provider == "sound" || provider == "audio") {
 				provider = "video";
 			}
@@ -212,15 +214,23 @@
 			if (!jwplayer.utils.exists(_mediaProviders[provider])) {
 				switch (provider) {
 				case "video":
-					_media = new jwplayer.html5.mediavideo(_model, _container);
+					_media = new jwplayer.html5.mediavideo(_model, current ? current : _container);
 					break;
 				case "youtube":
-					_media = new jwplayer.html5.mediayoutube(_model, _container);
+					_media = new jwplayer.html5.mediayoutube(_model, current ? current : _container);
 					break;
 				}
 				_media.addGlobalListener(forward);
 				_mediaProviders[provider] = _media;
+			} else {
+				if (_media != _mediaProviders[provider]) {
+					if (_media) {
+						_media.stop();
+					}
+					_media = _mediaProviders[provider];
+				}
 			}
+			
 			if (_model.config.chromeless) {
 				_media.load(playlistItem, false);
 			}

@@ -34,8 +34,7 @@
 			<a href="#" onclick="callPlayerFunction('properties');return false;">Get Value</a>
         </div>
         <script type="text/javascript">
-            var player = new jwplayer.html5(document.getElementById("player"));
-			player.setup({
+			var player = jwplayer("player").setup({
             	players: settings.players(window.location.href),
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
@@ -55,36 +54,36 @@
 			}
             
             var controls = {
-            	Play: "jwPlay",
-            	Pause: "jwPause",
-            	Stop: "jwStop",
-            	Seek: "jwSeek",
-            	Item: "jwPlaylistItem",
-            	Next: "jwPlaylistNext",
-            	Previous: "jwPlaylistPrev",
-            	Resize: "jwResize",
-            	Load: "jwLoad",
-            	Volume: "jwSetVolume",
-            	Mute: "jwSetMute",
-            	Fullscreen: "jwSetFullscreen",
-            	"Add Listener": "jwAddEventListener",
-            	"Remove Listener": "jwRemoveEventListener",
-            	"Send Event": "jwSendEvent"
+            	Play: "play",
+            	Pause: "pause",
+            	Stop: "stop",
+            	Seek: "seek",
+            	Item: "playlistItem",
+            	Next: "playlistNext",
+            	Previous: "playlistPrev",
+            	Resize: "resize",
+            	Load: "load",
+            	Volume: "setVolume",
+            	Mute: "setMute",
+            	Fullscreen: "setFullscreen"
+//            	"Add Listener": "jwAddEventListener",
+//            	"Remove Listener": "jwRemoveEventListener",
+ //           	"Send Event": "jwSendEvent"
             };
             
             var properties = {
-            	Version: "jwGetVersion",
-            	State: "jwGetState",
-            	Item: "jwGetItem",
-            	Width: "jwGetWidth",
-            	Height: "jwGetHeight",
-            	Volume: "jwGetVolume",
-            	Mute: "jwGetMute",
-            	Position: "jwGetPosition",
-            	Duration: "jwGetDuration",
-            	Buffer: "jwGetBuffer",
-            	Fullscreen: "jwGetFullscreen",
-            	Playlist: "jwGetPlaylist"
+            	Version: "getVersion",
+            	State: "getState",
+            	Item: "getItem",
+            	Width: "getWidth",
+            	Height: "getHeight",
+            	Volume: "getVolume",
+            	Mute: "getMute",
+            	Position: "getPosition",
+            	Duration: "getDuration",
+            	Buffer: "getBuffer",
+            	Fullscreen: "getFullscreen",
+            	Playlist: "getPlaylist"
             };
 			
 			for (var control in controls){
