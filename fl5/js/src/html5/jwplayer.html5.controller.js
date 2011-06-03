@@ -115,12 +115,7 @@
 				clear = true;
 			}
 			try {
-				if (_model.playlist[_model.item].levels[0].file.length > 0 && _model.state != jwplayer.api.events.state.IDLE) {
-					_model.getMedia().stop(clear);
-				}
-				if (clear) {
-					_loadItem(_model.item);
-				}
+				_model.getMedia().stop(clear);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -161,11 +156,11 @@
 			try {
 				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					if (_model.config.shuffle) {
-						_item(_getShuffleItem());
+						_loadItem(_getShuffleItem());
 					} else if (_model.item === 0) {
-						_item(_model.playlist.length - 1);
+						_loadItem(_model.playlist.length - 1);
 					} else {
-						_item(_model.item - 1);
+						_loadItem(_model.item - 1);
 					}
 				}
 				if (_model.state != jwplayer.api.events.state.IDLE) {
@@ -212,10 +207,7 @@
 						}
 					}
 					_loadItem(item);
-					if (oldstate == jwplayer.api.events.state.PLAYING || oldstate == jwplayer.api.events.state.BUFFERING || 
-							(model.config.autostart === true && !_utils.isIOS())) {
-						_play();
-					}
+					_play();
 				}
 				return true;
 			} catch (err) {
@@ -325,7 +317,7 @@
 			try {
 				_stop();
 				_model.loadPlaylist(arg);
-				_item(_model.item);
+				_loadItem(_model.item);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -348,21 +340,20 @@
 				case jwplayer.html5.controller.repeatoptions.ALWAYS:
 					if (_model.item == _model.playlist.length - 1 && !_model.config.shuffle) {
 						_item(0);
-						_play();
 					} else {
 						_next();
 					}
 					break;
 				case jwplayer.html5.controller.repeatoptions.LIST:
 					if (_model.item == _model.playlist.length - 1 && !_model.config.shuffle) {
-						_item(0);
-						_model.getMedia().stop();
+						_stop();
+						_loadItem(0);
 					} else {
 						_next();
 					}
 					break;
 				default:
-					_model.getMedia().stop();
+					_stop();
 					break;
 			}
 		}

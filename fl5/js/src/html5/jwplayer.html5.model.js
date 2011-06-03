@@ -38,7 +38,7 @@
 		};
 		var _media;
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
-		var _components = ["display", "logo", "controlbar", "dock"];
+		var _components = ["display", "logo", "controlbar", "dock","playlist"];
 		
 		jwplayer.utils.extend(_model, _eventDispatcher);
 		
@@ -84,12 +84,12 @@
 		
 		
 		if (jwplayer.utils.isIPad()) {
-			pluginorder = ["logo","display"];
+			pluginorder = ["logo","display","playlist"];
 			if (!jwplayer.utils.exists(_model.config.repeat)) {
 				_model.config.repeat = "list";
 			}
 		} else if (_model.config.chromeless) {
-			pluginorder = ["logo"];
+			pluginorder = ["logo","playlist"];
 			if (!jwplayer.utils.exists(_model.config.repeat)) {
 				_model.config.repeat = "list";
 			}
@@ -256,7 +256,11 @@
 				try {
 					var pluginName = _model.plugins.order[plugin];
 					if (jwplayer.utils.exists(jwplayer.html5[pluginName])) {
-						_model.plugins.object[pluginName] = new jwplayer.html5[pluginName](_api, _model.plugins.config[pluginName]);
+						if (pluginName == "playlist") {
+							_model.plugins.object[pluginName] = new jwplayer.html5.playlistcomponent(_api, _model.plugins.config[pluginName]);
+						} else {
+							_model.plugins.object[pluginName] = new jwplayer.html5[pluginName](_api, _model.plugins.config[pluginName]);
+						}
 					} else {
 						_model.plugins.order.splice(plugin, plugin + 1);
 					}

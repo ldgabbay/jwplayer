@@ -145,7 +145,9 @@
 					"playlist": model.playlist
 				});
 				
-				controller.item(model.item);				
+				if (model.config.autostart && !jwplayer.utils.isIOS()) {
+					controller.item(model.item);
+				}
 			};
 		}
 		

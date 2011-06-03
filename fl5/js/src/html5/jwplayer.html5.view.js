@@ -294,6 +294,10 @@
 					iwidth = parseDimension(_box.style.width);
 					iheight = parseDimension(_box.style.height);
 				}
+				if (media.parentNode) {
+					media.parentNode.style.left = _box.style.left;
+					media.parentNode.style.top = _box.style.top;
+				}
 				jwplayer.utils.stretch(_api.jwGetStretching(), media, iwidth, iheight, 
 						media.videoWidth ? media.videoWidth : 400, 
 						media.videoHeight ? media.videoHeight : 300);
@@ -323,7 +327,7 @@
 				case jwplayer.html5.view.positions.RIGHT:
 					plugincss.top = parseDimension(_box.style.top);
 					plugincss.right = parseDimension(_box.style.right);
-					plugincss.width = plugincss.width = _model.plugins.object[pluginName].width;
+					plugincss.width = _model.plugins.object[pluginName].width;
 					plugincss.height = _height - parseDimension(_box.style.top) - parseDimension(_box.style.bottom);
 					_box.style[position] = parseDimension(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
 					_box.style.width = parseDimension(_box.style.width) - plugincss.width + "px";

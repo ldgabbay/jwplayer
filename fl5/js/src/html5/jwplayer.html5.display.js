@@ -36,6 +36,9 @@
 		var _error;
 		var _bufferRotation = !_utils.exists(_api.skin.getComponentSettings("display").bufferrotation) ? 15 : parseInt(_api.skin.getComponentSettings("display").bufferrotation, 10);
 		var _bufferInterval = !_utils.exists(_api.skin.getComponentSettings("display").bufferinterval) ? 100 : parseInt(_api.skin.getComponentSettings("display").bufferinterval, 10);
+		var _updateTimeout = -1;
+		var _lastState = "";
+		var _showing = true;
 		var _elements = {
 			display: {
 				style: {
@@ -240,6 +243,7 @@
 		}
 		
 		function _resetPoster() {
+			/*
 			var oldDisplayImage = _display.display_image;
 			_display.display_image = createElement("img", "display_image");
 			_display.display_image.onerror = function(evt) {
@@ -247,6 +251,8 @@
 			};
 			_display.display_image.onload = _onImageLoad;
 			_display.display.replaceChild(_display.display_image, oldDisplayImage);
+			*/
+			_display.display_image.style.display = "none";
 		}
 		
 		function _stateHandler(evt) {
@@ -256,25 +262,51 @@
 				_error = false;
 				_hide(_display.display_text);
 			}
+			
+			var state = _api.jwGetState();
+			if (state == _lastState) {
+				return;
+			}
+
+			if (_updateTimeout >= 0) {
+				clearTimeout(_updateTimeout);
+			}
+
+			if (_showing || _api.jwGetState() == jwplayer.api.events.state.PLAYING || _api.jwGetState() == jwplayer.api.events.state.PAUSED) {
+				_updateDisplay(_api.jwGetState());
+			} else {
+				_updateTimeout = setTimeout(_stateCallback(_api.jwGetState()), 300);
+			}
+		}
+		
+		function _stateCallback(state) {
+			return (function() {
+				_updateDisplay(state);
+			});
+		}
+		
+		
+		function _updateDisplay(state) {
 			if (_utils.exists(_rotationInterval)) {
 				clearInterval(_rotationInterval);
 				_rotationInterval = null;
 				_utils.animations.rotate(_display.display_icon, 0);
 			}
-			switch (_api.jwGetState()) {
+			switch (state) {
 				case jwplayer.api.events.state.BUFFERING:
 					if (_utils.isIOS()) {
 						_resetPoster();
 						_hide(_display.display_iconBackground);
 						_hide(_display.display_icon);
 					} else {
-						_setDisplayIcon("bufferIcon");
+//						_setDisplayIcon("bufferIcon");
 						_degreesRotated = 0;
 						_rotationInterval = setInterval(function() {
 							_degreesRotated += _bufferRotation;
 							_utils.animations.rotate(_display.display_icon, _degreesRotated % 360);
 						}, _bufferInterval);
 						_setDisplayIcon("bufferIcon");
+						_showing = true;
 					}
 					break;
 				case jwplayer.api.events.state.PAUSED:
@@ -285,22 +317,29 @@
 							});
 						}
 						_setDisplayIcon("playIcon");
+						_showing = true;
 					}
 					break;
 				case jwplayer.api.events.state.IDLE:
 					if (_api.jwGetPlaylist()[_api.jwGetItem()].image) {
-						_css(_display.display_image, {
-							display: "block"
-						});
-						_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
+						_showImage();
 					} else {
 						_resetPoster();
 					}
 					_setDisplayIcon("playIcon");
+					_showing = true;
 					break;
 				default:
-					if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound" || _utils.isIOS()) {
+					if (_api.jwGetPlaylist()[_api.jwGetItem()].provider == "sound") {
+						if (_utils.isIOS()) {
+							_resetPoster();
+							_showing = false;
+						} else {
+							_showImage();
+						}
+					} else {
 						_resetPoster();
+						_showing = false;
 					}
 					if (_api.jwGetMute() && _config.showmute) {
 						_setDisplayIcon("muteIcon");
@@ -310,6 +349,15 @@
 					}
 					break;
 			}
+			_lastState = state;
+			_updateTimeout = -1;
+		}
+		
+		function _showImage() {
+			_css(_display.display_image, {
+				display: "block"
+			});
+			_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
 		}
 		
 		return this;

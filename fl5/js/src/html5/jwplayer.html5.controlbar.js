@@ -747,8 +747,6 @@
 				controlbarcss.width -= 2 * _settings.margin;
 				controlbarcss.top = _height - _getBack().height - _settings.margin;
 				controlbarcss.height = _getBack().height;
-			} else {
-				controlbarcss.left = 0;
 			}
 			
 			var capLeft = _api.skin.getSkinElement("controlbar", "capLeft"); 

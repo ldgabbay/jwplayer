@@ -16,6 +16,7 @@
 	
 	var _utils = jwplayer.utils;
 	var _css = _utils.css;
+	var _isIOS = _utils.isIOS();
 	
 	jwplayer.html5.mediavideo = function(model, container) {
 		var _events = {
@@ -56,7 +57,9 @@
 			_start,
 			_currentItem,
 			_interval,
-			_bufferingComplete, _bufferFull;
+			_emptied = false,
+			_bufferingComplete, _bufferFull,
+			_sourceError;
 			
 		_init();
 		
@@ -74,19 +77,27 @@
 			}
 			_currentItem = item;
 			_utils.empty(_video);
+
+			_sourceError = 0; 
+
 			if (item.levels && item.levels.length > 0) {
-				_video.removeAttribute("src");
-				for (var i=0; i < item.levels.length; i++) {
-					var src = _video.ownerDocument.createElement("source");
-					src.src = item.levels[i].file;
-					_video.appendChild(src);
+				if (item.levels.length == 1) {
+					_video.src = item.levels[0].file;
+				} else {
+					if (_video.src) {
+						_video.removeAttribute("src");
+					}
+					for (var i=0; i < item.levels.length; i++) {
+						var src = _video.ownerDocument.createElement("source");
+						src.src = item.levels[i].file;
+						_video.appendChild(src);
+						_sourceError++;
+					}
 				}
 			} else {
 				_video.src = item.file;
 			}
-			_video.style.display = "block";
-			_video.load();
-			if (_utils.isIOS()) {
+			if (_isIOS) {
 				if (item.image) {
 					_video.poster = item.image;
 				}
@@ -101,6 +112,10 @@
 			}
 			_model.duration = item.duration;
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_LOADED);
+			if((!_isIOS && item.levels.length == 1) || !_emptied) {
+				_video.load();
+			}
+			_emptied = false;
 			
 			if (play) {
 				_setState(jwplayer.api.events.state.BUFFERING);
@@ -154,15 +169,15 @@
 				clear = true;
 			}
 			_clearInterval();
-			_video.pause();
-			_video.removeAttribute("src");
-			_video.removeAttribute("controls");
-			_video.removeAttribute("poster");
-			_video.style.display = "none";
 			if (clear) {
-				_bufferFull = false;	
+				_video.style.display = "none";
+				_bufferFull = false;
+				_video.removeAttribute("src");
+				_video.removeAttribute("controls");
+				_video.removeAttribute("poster");
 				_utils.empty(_video);
 				_video.load();
+				_emptied = true;
 				if(_video.webkitSupportsFullscreen) {
 					try {
 						_video.webkitExitFullscreen();
@@ -198,7 +213,7 @@
 		
 		/** Change the video's volume level. **/
 		this.volume = function(position) {
-			if (!_utils.isIOS()) {
+			if (!_isIOS) {
 				_video.volume = position / 100;
 				_model.volume = position;
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
@@ -210,7 +225,7 @@
 		
 		/** Switch the mute state of the player. **/
 		this.mute = function(state) {
-			if (!_utils.isIOS()) {
+			if (!_isIOS) {
 				_video.muted = state;
 				_model.mute = state;
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
@@ -323,6 +338,7 @@
 					_model.duration = Math.round(event.target.duration * 10) / 10;
 				}
 				if (!_start && _video.readyState > 0) {
+					_video.style.display = "block";
 					_setState(jwplayer.api.events.state.PLAYING);
 				}
 				if (_state == jwplayer.api.events.state.PLAYING) {
@@ -379,6 +395,10 @@
 		}
 
 		function _errorHandler(event) {
+			if (_state == jwplayer.api.events.state.IDLE) {
+				return;
+			}
+			
 			var message = "There was an error: ";
 			if ((event.target.error && event.target.tagName.toLowerCase() == "video") ||
 					event.target.parentNode.error && event.target.parentNode.tagName.toLowerCase() == "video") {
@@ -410,7 +430,7 @@
 				_utils.log("An unknown error occurred.  Continuing...");
 				return;
 			}
-			_stop();
+			_stop(false);
 			message += _joinFiles();
 			_error = true;
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
