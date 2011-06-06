@@ -172,7 +172,14 @@
 			if (clear) {
 				_video.style.display = "none";
 				_bufferFull = false;
-				_video.removeAttribute("src");
+				var agent = navigator.userAgent;
+				if(agent.match(/chrome/i)) {
+					_video.src = undefined;
+				} else if(agent.match(/safari/i)) {
+					_video.removeAttribute("src");
+				} else {
+					_video.src = "";
+				}
 				_video.removeAttribute("controls");
 				_video.removeAttribute("poster");
 				_utils.empty(_video);

@@ -304,6 +304,10 @@
 					_addElement("prevButton", alignment, true);
 					_buildHandler("prevButton", "jwPlaylistPrev");
 					break;
+				case "stop":
+					_addElement("stopButton", alignment, true);
+					_buildHandler("stopButton", "jwStop");
+					break;
 				case "next":
 					_addElement("nextButton", alignment, true);
 					_buildHandler("nextButton", "jwPlaylistNext");

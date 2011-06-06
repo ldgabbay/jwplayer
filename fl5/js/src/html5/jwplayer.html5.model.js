@@ -112,7 +112,11 @@
 			var pluginConfig = !jwplayer.utils.exists(_model.config[pluginName]) ? {} : _model.config[pluginName];
 			_model.plugins.config[pluginName] = !jwplayer.utils.exists(_model.plugins.config[pluginName]) ? pluginConfig : jwplayer.utils.extend(_model.plugins.config[pluginName], pluginConfig);
 			if (!jwplayer.utils.exists(_model.plugins.config[pluginName].position)) {
-				_model.plugins.config[pluginName].position = jwplayer.html5.view.positions.OVER;
+				if (pluginName == "playlist") {
+					_model.plugins.config[pluginName].position = jwplayer.html5.view.positions.NONE;
+				} else {
+					_model.plugins.config[pluginName].position = jwplayer.html5.view.positions.OVER;
+				}
 			} else {
 				_model.plugins.config[pluginName].position = _model.plugins.config[pluginName].position.toString().toUpperCase();
 			}

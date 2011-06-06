@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1823';
+jwplayer.version = '5.7.1824';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -2609,29 +2609,33 @@ playerReady = function(obj) {
 		}
 						
 		for (var component = 0; component < components.length; component++) {
-			if (typeof parsedConfig[components[component]] == "string") {
-				if (!parsedConfig.components[components[component]]) {
-					parsedConfig.components[components[component]] = {};
-				}
-				if (components[component] == "logo") {
-					parsedConfig.components[components[component]].file = parsedConfig[components[component]];
+			var comp = components[component];
+			if (jwplayer.utils.exists(parsedConfig[comp])) {
+				if (typeof parsedConfig[comp] != "object") {
+					if (!parsedConfig.components[comp]) {
+						parsedConfig.components[comp] = {};
+					}
+					if (comp == "logo") {
+						parsedConfig.components[comp].file = parsedConfig[comp];
+					} else {
+						parsedConfig.components[comp].position = parsedConfig[comp];
+					}
+					delete parsedConfig[comp];
 				} else {
-					parsedConfig.components[components[component]].position = parsedConfig[components[component]];
+					if (!parsedConfig.components[comp]) {
+						parsedConfig.components[comp] = {};
+					}
+					jwplayer.utils.extend(parsedConfig.components[comp], parsedConfig[comp]);
+					delete parsedConfig[comp];
 				}
-				delete parsedConfig[components[component]];
-			} else if (typeof parsedConfig[components[component]] != "undefined") {
-				if (!parsedConfig.components[components[component]]) {
-					parsedConfig.components[components[component]] = {};
+			} 
+ 
+			if (typeof parsedConfig[comp+"size"] != "undefined") {
+				if (!parsedConfig.components[comp]) {
+					parsedConfig.components[comp] = {};
 				}
-				jwplayer.utils.extend(parsedConfig.components[components[component]], parsedConfig[components[component]]);
-				delete parsedConfig[components[component]];
-			}
-			if (typeof parsedConfig[components[component]+"size"] != "undefined") {
-				if (!parsedConfig.components[components[component]]) {
-					parsedConfig.components[components[component]] = {};
-				}
-				parsedConfig.components[components[component]].size = parsedConfig[components[component]+"size"];
-				delete parsedConfig[components[component]+"size"];
+				parsedConfig.components[comp].size = parsedConfig[comp+"size"];
+				delete parsedConfig[comp+"size"];
 			}
 		}
 		
@@ -4169,6 +4173,10 @@ playerReady = function(obj) {
 				case "prev":
 					_addElement("prevButton", alignment, true);
 					_buildHandler("prevButton", "jwPlaylistPrev");
+					break;
+				case "stop":
+					_addElement("stopButton", alignment, true);
+					_buildHandler("stopButton", "jwStop");
 					break;
 				case "next":
 					_addElement("nextButton", alignment, true);
@@ -5961,7 +5969,14 @@ playerReady = function(obj) {
 			if (clear) {
 				_video.style.display = "none";
 				_bufferFull = false;
-				_video.removeAttribute("src");
+				var agent = navigator.userAgent;
+				if(agent.match(/chrome/i)) {
+					_video.src = undefined;
+				} else if(agent.match(/safari/i)) {
+					_video.removeAttribute("src");
+				} else {
+					_video.src = "";
+				}
 				_video.removeAttribute("controls");
 				_video.removeAttribute("poster");
 				_utils.empty(_video);
@@ -6611,7 +6626,11 @@ playerReady = function(obj) {
 			var pluginConfig = !jwplayer.utils.exists(_model.config[pluginName]) ? {} : _model.config[pluginName];
 			_model.plugins.config[pluginName] = !jwplayer.utils.exists(_model.plugins.config[pluginName]) ? pluginConfig : jwplayer.utils.extend(_model.plugins.config[pluginName], pluginConfig);
 			if (!jwplayer.utils.exists(_model.plugins.config[pluginName].position)) {
-				_model.plugins.config[pluginName].position = jwplayer.html5.view.positions.OVER;
+				if (pluginName == "playlist") {
+					_model.plugins.config[pluginName].position = jwplayer.html5.view.positions.NONE;
+				} else {
+					_model.plugins.config[pluginName].position = jwplayer.html5.view.positions.OVER;
+				}
 			} else {
 				_model.plugins.config[pluginName].position = _model.plugins.config[pluginName].position.toString().toUpperCase();
 			}

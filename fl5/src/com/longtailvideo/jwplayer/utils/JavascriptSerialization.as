@@ -66,6 +66,7 @@ package com.longtailvideo.jwplayer.utils
 					newObj = {};
 					for (var key:String in obj) {
 						var newkey:String = key.replace(".", "__dot__");
+						newkey = newkey.replace("-", "_");
 						newObj[newkey] = stripDots(obj[key]);
 					}
 					break;

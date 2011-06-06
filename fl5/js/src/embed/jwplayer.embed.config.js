@@ -145,29 +145,33 @@
 		}
 						
 		for (var component = 0; component < components.length; component++) {
-			if (typeof parsedConfig[components[component]] == "string") {
-				if (!parsedConfig.components[components[component]]) {
-					parsedConfig.components[components[component]] = {};
-				}
-				if (components[component] == "logo") {
-					parsedConfig.components[components[component]].file = parsedConfig[components[component]];
+			var comp = components[component];
+			if (jwplayer.utils.exists(parsedConfig[comp])) {
+				if (typeof parsedConfig[comp] != "object") {
+					if (!parsedConfig.components[comp]) {
+						parsedConfig.components[comp] = {};
+					}
+					if (comp == "logo") {
+						parsedConfig.components[comp].file = parsedConfig[comp];
+					} else {
+						parsedConfig.components[comp].position = parsedConfig[comp];
+					}
+					delete parsedConfig[comp];
 				} else {
-					parsedConfig.components[components[component]].position = parsedConfig[components[component]];
+					if (!parsedConfig.components[comp]) {
+						parsedConfig.components[comp] = {};
+					}
+					jwplayer.utils.extend(parsedConfig.components[comp], parsedConfig[comp]);
+					delete parsedConfig[comp];
 				}
-				delete parsedConfig[components[component]];
-			} else if (typeof parsedConfig[components[component]] != "undefined") {
-				if (!parsedConfig.components[components[component]]) {
-					parsedConfig.components[components[component]] = {};
+			} 
+ 
+			if (typeof parsedConfig[comp+"size"] != "undefined") {
+				if (!parsedConfig.components[comp]) {
+					parsedConfig.components[comp] = {};
 				}
-				jwplayer.utils.extend(parsedConfig.components[components[component]], parsedConfig[components[component]]);
-				delete parsedConfig[components[component]];
-			}
-			if (typeof parsedConfig[components[component]+"size"] != "undefined") {
-				if (!parsedConfig.components[components[component]]) {
-					parsedConfig.components[components[component]] = {};
-				}
-				parsedConfig.components[components[component]].size = parsedConfig[components[component]+"size"];
-				delete parsedConfig[components[component]+"size"];
+				parsedConfig.components[comp].size = parsedConfig[comp+"size"];
+				delete parsedConfig[comp+"size"];
 			}
 		}
 		

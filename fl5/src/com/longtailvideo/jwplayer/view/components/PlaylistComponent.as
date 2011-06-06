@@ -83,6 +83,10 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		public function PlaylistComponent(player:IPlayer) {
 			super(player, "playlist");
+			
+			imageLoaderMap = new Dictionary();
+			buttons = [];
+			
 			player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, itemHandler);
 			player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, playlistHandler);
 			player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_UPDATED, playlistHandler);
@@ -156,7 +160,6 @@ package com.longtailvideo.jwplayer.view.components {
 			list.addEventListener(MouseEvent.MOUSE_OUT, outHandler);
 			addElement(list);
 			
-			buttons = new Array();
 			this.addEventListener(MouseEvent.MOUSE_WHEEL, wheelHandler);
 			try {
 				image = new Array(button.getChildByName("image").width, button.getChildByName("image").height);
@@ -439,12 +442,9 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** Setup all buttons in the playlist **/
 		private function buildPlaylist(clr:Boolean):void {
-			if (!_playlist.length < 1) {
-				return;
-			}
 			if (!skinLoaded) {
 				pendingBuild = true;
-				return
+				return;
 			}
 
 			var wid:Number = getConfigParam("width");
@@ -459,12 +459,12 @@ package com.longtailvideo.jwplayer.view.components {
 				slider.visible = false;
 			}
 			if (clr) {
+				buttons = [];
+				imageLoaderMap = new Dictionary();
 				list.y = listmask.y;
 				for (var j:Number = 0; j < buttons.length; j++) {
 					list.removeChild(getButton(j));
 				}
-				buttons = new Array();
-				imageLoaderMap = new Dictionary();
 			} else {
 				if (proportion > 1) {
 					scrollEase();
@@ -884,7 +884,7 @@ package com.longtailvideo.jwplayer.view.components {
 			if (buttons[id]) {
 				return buttons[id].c as Sprite;
 			} else {
-				return null;
+				return new Sprite();
 			}
 		}
 		
