@@ -472,7 +472,7 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 			var currentTab:Number=500;
 			for (var i:Number = 0; i < _playlist.length; i++) {
-				if (clr) {
+				if (clr || buttons.length == 0) {
 					var btn:MovieClip;
 					if (swfSkinned) {
 						btn = Draw.clone(button, true) as MovieClip;
