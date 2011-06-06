@@ -13,7 +13,7 @@
 			margin: 8,
 			out: 0.5,
 			over: 1,
-			timeout: 3,
+			timeout: 5,
 			hide: false,
 			position: "bottom-left"
 		};

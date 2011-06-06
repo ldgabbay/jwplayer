@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1821';
+jwplayer.version = '5.7.1822';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -3309,7 +3309,7 @@ playerReady = function(obj) {
 			margin: 8,
 			out: 0.5,
 			over: 1,
-			timeout: 3,
+			timeout: 5,
 			hide: false,
 			position: "bottom-left"
 		};
@@ -5343,6 +5343,7 @@ playerReady = function(obj) {
 			if (state == _lastState) {
 				return;
 			}
+			_lastState = state;
 
 			if (_updateTimeout >= 0) {
 				clearTimeout(_updateTimeout);
@@ -5425,7 +5426,6 @@ playerReady = function(obj) {
 					}
 					break;
 			}
-			_lastState = state;
 			_updateTimeout = -1;
 		}
 		
@@ -5638,7 +5638,7 @@ playerReady = function(obj) {
 		margin: 8,
 		out: 0.5,
 		over: 1,
-		timeout: 3,
+		timeout: 5,
 		hide: true,
 		position: "bottom-left"
 	};
@@ -6177,7 +6177,6 @@ playerReady = function(obj) {
 			if (_model.duration === 0 || isNaN(_model.duration)) {
 				_model.duration = Math.round(event.target.duration * 10) / 10;
 			}
-			_currentItem = _utils.extend(_currentItem, meta);
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_META, {
 				metadata: meta
 			});			

@@ -439,7 +439,7 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** Setup all buttons in the playlist **/
 		private function buildPlaylist(clr:Boolean):void {
-			if (!_player.playlist || player.playlist.length < 1) {
+			if (!_playlist.length < 1) {
 				return;
 			}
 			if (!skinLoaded) {
@@ -790,7 +790,7 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** Switch the currently active item */
 		protected function itemHandler(evt:PlaylistEvent = null):void {
-			if (_player.playlist.length == 0) {
+			if (_playlist.length == 0) {
 				return;
 			}
 			

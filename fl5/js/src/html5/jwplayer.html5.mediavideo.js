@@ -388,7 +388,6 @@
 			if (_model.duration === 0 || isNaN(_model.duration)) {
 				_model.duration = Math.round(event.target.duration * 10) / 10;
 			}
-			_currentItem = _utils.extend(_currentItem, meta);
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_META, {
 				metadata: meta
 			});			

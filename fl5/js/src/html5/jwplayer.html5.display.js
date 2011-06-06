@@ -267,6 +267,7 @@
 			if (state == _lastState) {
 				return;
 			}
+			_lastState = state;
 
 			if (_updateTimeout >= 0) {
 				clearTimeout(_updateTimeout);
@@ -349,7 +350,6 @@
 					}
 					break;
 			}
-			_lastState = state;
 			_updateTimeout = -1;
 		}
 		
