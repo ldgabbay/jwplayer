@@ -136,10 +136,9 @@ package com.longtailvideo.jwplayer.utils {
 		public static function extension(filename:String):String {
 			if (filename && filename.lastIndexOf(".") > 0) {
 				if (filename.lastIndexOf("?") > 0){
-					return filename.substring(filename.lastIndexOf(".")+1, filename.lastIndexOf("?")).toLowerCase();	
-				} else {
-					return filename.substring(filename.lastIndexOf(".")+1, filename.length).toLowerCase();
+					filename = String(filename.split("?")[0]); 
 				}
+				return filename.substring(filename.lastIndexOf(".")+1, filename.length).toLowerCase();
 			} else {
 				return "";
 			}
