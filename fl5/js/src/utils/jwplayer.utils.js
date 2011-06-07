@@ -77,6 +77,7 @@
 
 	/** Returns the extension of a file name * */
 	jwplayer.utils.extension = function(path) {
+		if (!path) { return ""; }
 		path = path.substring(path.lastIndexOf("/") + 1, path.length);
 		path = path.split("?")[0];
 		if (path.lastIndexOf('.') > -1) {

@@ -2,7 +2,7 @@
  * Parse a MRSS group into a playlistitem (used in RSS and ATOM).
  *
  * author zach
- * version 5.5
+ * version 5.7
  */
 (function(jwplayer) {
 

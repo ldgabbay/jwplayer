@@ -220,9 +220,11 @@
 				if (_remainVisible() || jwplayer.utils.exists(evt)) {
 					_fadeIn();
 					clearTimeout(_fadeTimeout);
-					_fadeTimeout = setTimeout(function() {
-						_fadeOut();
-					}, 2000);
+					if (_api.jwGetState() != jwplayer.api.events.state.IDLE) {
+						_fadeTimeout = setTimeout(function() {
+							_fadeOut();
+						}, 2000);
+					}
 				} else {
 					clearTimeout(_fadeTimeout);
 					if (parseFloat(_wrapper.style.opacity) > 0) {
@@ -468,6 +470,7 @@
 		function _addListeners() {
 			// Register events with the player.
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistHandler);
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, _itemHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, _bufferHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, _timeHandler);
@@ -482,7 +485,20 @@
 			_resizeBar();
 			_init();
 		}
-		
+
+		function _itemHandler(evt) {
+			_currentDuration = _api.jwGetPlaylist()[evt.index].duration;
+			_timeHandler({
+				id: _api.id,
+				duration: _currentDuration(),
+				position: 0
+			});
+			_bufferHandler({
+				id: _api.id,
+				bufferProgress: 0
+			});
+		}
+
 		/** Add interactivity to the jwplayerControlbar elements. **/
 		function _init() {
 			// Trigger a few events so the bar looks good on startup.

@@ -300,7 +300,9 @@
 						_hide(_display.display_iconBackground);
 						_hide(_display.display_icon);
 					} else {
-//						_setDisplayIcon("bufferIcon");
+						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider == "sound") {
+							_showImage();
+						}
 						_degreesRotated = 0;
 						_rotationInterval = setInterval(function() {
 							_degreesRotated += _bufferRotation;

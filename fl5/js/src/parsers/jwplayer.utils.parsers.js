@@ -2,7 +2,7 @@
  * Parser class definition
  *
  * @author zach
- * @version 5.5
+ * @version 5.7
  */
 (function(jwplayer) {
 

@@ -2,7 +2,7 @@
  * Parse a feed item for JWPlayer content.
  *
  * @author zach
- * @version 5.5
+ * @version 5.7
  */
 (function(jwplayer) {
 

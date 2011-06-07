@@ -2,7 +2,7 @@
  * Parse an RSS feed and translate it to a playlist.
  *
  * @author zach
- * @version 5.5
+ * @version 5.7
  */
 (function(jwplayer) {
 
@@ -67,7 +67,7 @@
 					break;
 			}
 		}
-		itm = jwplayer.utils.parsers.itunesparser.parseEntry(obj, itm);
+//		itm = jwplayer.utils.parsers.itunesparser.parseEntry(obj, itm);
 		itm = jwplayer.utils.parsers.mediaparser.parseGroup(obj, itm);
 		itm = jwplayer.utils.parsers.jwparser.parseEntry(obj, itm);
 

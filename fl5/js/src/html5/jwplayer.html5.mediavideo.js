@@ -362,7 +362,7 @@
 					_model.position = Math.round(event.target.currentTime * 10) / 10;
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_TIME, {
 						position: event.target.currentTime,
-						duration: event.target.duration
+						duration: _model.duration
 					});
 					if (_model.position >= _model.duration && (_model.position > 0 || _model.duration > 0)) {
 						_complete();

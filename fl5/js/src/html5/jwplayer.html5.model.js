@@ -137,7 +137,39 @@
 			}
 		}
 		
-		_model.loadPlaylist = function(arg, ready) {
+		function _loadExternal(playlistfile) {
+			var loader = new jwplayer.html5.playlistloader();
+			loader.addEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, function(evt) {
+				_model.playlist = new jwplayer.html5.playlist(evt);
+				_loadComplete(true);
+			});
+			loader.addEventListener(jwplayer.api.events.JWPLAYER_ERROR, function(evt) {
+				_model.playlist = new jwplayer.html5.playlist({playlist:[]});
+				_loadComplete(false);
+			});
+			loader.load(playlistfile);
+		}
+		
+		function _loadComplete() {
+			if (_model.config.shuffle) {
+				_model.item = _getShuffleItem();
+			} else {
+				if (_model.config.item >= _model.playlist.length) {
+					_model.config.item = _model.playlist.length - 1;
+				} else if (_model.config.item < 0) {
+					_model.config.item = 0;
+				}
+				_model.item = _model.config.item;
+			}
+			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
+				"playlist": _model.playlist
+			});
+			if (_model.playlist[_model.item].file || _model.playlist[_model.item].levels[0].file) {
+				_model.setActiveMediaProvider(_model.playlist[_model.item]);
+			}
+		}
+		
+		_model.loadPlaylist = function(arg) {
 			var input;
 			if (typeof arg == "string") {
 				try {
@@ -159,29 +191,15 @@
 					};
 					break;
 				default:
-					config = {
-						file: input
-					};
+					_loadExternal(input);
+					return;
 					break;
 			}
 			_model.playlist = new jwplayer.html5.playlist(config);
-			if (_model.config.shuffle) {
-				_model.item = _getShuffleItem();
+			if (jwplayer.utils.extension(_model.playlist[0].file) == "xml" ) {
+				_loadExternal(_model.playlist[0].file);
 			} else {
-				if (_model.config.item >= _model.playlist.length) {
-					_model.config.item = _model.playlist.length - 1;
-				} else if (_model.config.item < 0) {
-					_model.config.item = 0;
-				}
-				_model.item = _model.config.item;
-			}
-			if (!ready) {
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
-					"playlist": _model.playlist
-				});
-			}
-			if (_model.playlist[_model.item].file || _model.playlist[_model.item].levels[0].file) {
-				_model.setActiveMediaProvider(_model.playlist[_model.item]);
+				_loadComplete();
 			}
 		};
 		
@@ -216,7 +234,7 @@
 			var provider = playlistItem.provider;
 			var current = _media ? _media.getDisplayElement() : null; 
 			
-			if (provider == "sound" || provider == "http") {
+			if (provider == "sound" || provider == "http" || provider == "") {
 				provider = "video";
 			}
 			
@@ -228,6 +246,9 @@
 				case "youtube":
 					_media = new jwplayer.html5.mediayoutube(_model, current ? current : _container);
 					break;
+				}
+				if (!jwplayer.utils.exists(_media)) {
+					return false;
 				}
 				_media.addGlobalListener(forward);
 				_mediaProviders[provider] = _media;

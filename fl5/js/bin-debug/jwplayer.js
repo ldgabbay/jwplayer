@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1832';
+jwplayer.version = '5.7.1833';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -102,6 +102,7 @@ jwplayer.source = document.createElement("source");/**
 
 	/** Returns the extension of a file name * */
 	jwplayer.utils.extension = function(path) {
+		if (!path) { return ""; }
 		path = path.substring(path.lastIndexOf("/") + 1, path.length);
 		path = path.split("?")[0];
 		if (path.lastIndexOf('.') > -1) {
@@ -744,8 +745,8 @@ jwplayer.source = document.createElement("source");/**
 		this.removeEventListener = function(type, listener) {
 			try {
 				for (var listenerIndex = 0; listenerIndex < _listeners[type].length; listenerIndex++) {
-					if (_listeners[type][lisenterIndex].toString() == listener.toString()) {
-						_listeners[type].slice(lisenterIndex, lisenterIndex + 1);
+					if (_listeners[type][listenerIndex].listener.toString() == listener.toString()) {
+						_listeners[type].splice(listenerIndex, 1);
 						break;
 					}
 				}
@@ -775,8 +776,8 @@ jwplayer.source = document.createElement("source");/**
 		this.removeGlobalListener = function(listener) {
 			try {
 				for (var globalListenerIndex = 0; globalListenerIndex < _globallisteners.length; globalListenerIndex++) {
-					if (_globallisteners[globalListenerIndex].toString() == listener.toString()) {
-						_globallisteners.slice(globalListenerIndex, globalListenerIndex + 1);
+					if (_globallisteners[globalListenerIndex].listener.toString() == listener.toString()) {
+						_globallisteners.splice(globalListenerIndex, 1);
 						break;
 					}
 				}
@@ -1508,6 +1509,247 @@ jwplayer.source = document.createElement("source");/**
 		
 		return parseInt("000000", 16);
 	}
+	
+})(jwplayer);
+/**
+ * Parser class definition
+ *
+ * @author zach
+ * @version 5.7
+ */
+(function(jwplayer) {
+
+	jwplayer.utils.parsers = function() {
+	};
+	
+})(jwplayer);
+/**
+ * Parse a feed item for JWPlayer content.
+ *
+ * @author zach
+ * @version 5.7
+ */
+(function(jwplayer) {
+
+	jwplayer.utils.parsers.jwparser = function() {
+	};
+	
+	jwplayer.utils.parsers.jwparser.PREFIX = 'jwplayer';
+	
+	/**
+	 * Parse a feed entry for JWPlayer content.
+	 *
+	 * @param	{XML}		obj	The XML object to parse.
+	 * @param	{Object}	itm	The playlistentry to amend the object to.
+	 * @return	{Object}		The playlistentry, amended with the JWPlayer info.
+	 * @see			ASXParser
+	 * @see			ATOMParser
+	 * @see			RSSParser
+	 * @see			SMILParser
+	 * @see			XSPFParser
+	 */
+	jwplayer.utils.parsers.jwparser.parseEntry = function(obj, itm) {
+		for (var i in obj.childNodes) {
+			if (obj.childNodes[i].prefix == jwplayer.utils.parsers.jwparser.PREFIX) {
+				itm[obj.childNodes[i].localName] = jwplayer.utils.strings.serialize(obj.childNodes[i].textContent);
+			}
+			if (!itm['file'] && String(itm['link']).toLowerCase().indexOf('youtube') > -1) {
+				itm['file'] = itm['link'];
+			}
+		}
+		return itm;
+	}
+	
+	/**
+	 * Determine the provider of an item
+	 * @param {Object} item
+	 * @return {String} provider
+	 */
+	jwplayer.utils.parsers.jwparser.getProvider = function(item) {
+		if (item['type']) {
+			return item['type'];
+		} else if (item['file'].indexOf('youtube.com/w') > -1 
+					|| item['file'].indexOf('youtube.com/v') > -1
+					|| item['file'].indexOf('youtu.be/') > -1 ) {
+			return "youtube";
+		} else if (item['streamer'] && item['streamer'].indexOf('rtmp') == 0) {
+			return "rtmp";
+		} else if (item['streamer'] && item['streamer'].indexOf('http') == 0) {
+			return "http";
+		} else {
+			var ext = jwplayer.utils.strings.extension(item['file']);
+			if (extensions.hasOwnProperty(ext)) {
+				return extensions[ext];
+			}
+		}
+		return "";
+	}
+	
+})(jwplayer);
+/**
+ * Parse a MRSS group into a playlistitem (used in RSS and ATOM).
+ *
+ * author zach
+ * version 5.7
+ */
+(function(jwplayer) {
+
+	jwplayer.utils.parsers.mediaparser = function() {
+	};
+	
+	/** Prefix for the JW Player namespace. **/
+	jwplayer.utils.parsers.mediaparser.PREFIX = 'media';
+	
+	/**
+	 * Parse a feeditem for Yahoo MediaRSS extensions.
+	 * The 'content' and 'group' elements can nest other MediaRSS elements.
+	 * @param	{XML}		obj		The entire MRSS XML object.
+	 * @param	{Object}	itm		The playlistentry to amend the object to.
+	 * @return	{Object}			The playlistentry, amended with the MRSS info.
+	 * @see ATOMParser
+	 * @see RSSParser
+	 **/
+	jwplayer.utils.parsers.mediaparser.parseGroup = function(obj, itm) {
+		var ytp = false;
+		
+		for (var i in obj.childNodes) {
+			if (obj.childNodes[i].prefix == jwplayer.utils.parsers.mediaparser.PREFIX) {
+				if (!obj.childNodes[i].localName){
+					continue;
+				}
+				switch (obj.childNodes[i].localName.toLowerCase()) {
+					case 'content':
+						if (!ytp) {
+							itm['file'] = jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url');
+						}
+						if (obj.childNodes[i].attributes.duration) {
+							itm['duration'] = jwplayer.utils.strings.seconds(jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'duration'));
+						}
+						if (obj.childNodes[i].attributes.start) {
+							itm['start'] = jwplayer.utils.strings.seconds(jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'start'));
+						}
+						if (obj.childNodes[i].childNodes && obj.childNodes[i].childNodes.length > 0) {
+							itm = jwplayer.utils.parsers.mediaparser.parseGroup(obj.childNodes[i], itm);
+						}
+						if (obj.childNodes[i].attributes.width || obj.childNodes[i].attributes.bitrate) {
+							if (!itm.levels) {
+								itm.levels = [];
+							}
+							itm.levels.push({
+								width: jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'width'),
+								bitrate: jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'bitrate'),
+								file: jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url')
+							});
+						}
+						break;
+					case 'title':
+						itm['title'] = obj.childNodes[i].textContent;
+						break;
+					case 'description':
+						itm['description'] = obj.childNodes[i].textContent;
+						break;
+					case 'keywords':
+						itm['tags'] = obj.childNodes[i].textContent;
+						break;
+					case 'thumbnail':
+						itm['image'] = jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url');
+						break;
+					case 'credit':
+						itm['author'] = obj.childNodes[i].textContent;
+						break;
+					case 'player':
+						var url = obj.childNodes[i].url;
+						if (url.indexOf('youtube.com') >= 0 || url.indexOf('youtu.be') >= 0) {
+							ytp = true;
+							itm['file'] = jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url');
+						}
+						break;
+					case 'group':
+						itm = jwplayer.utils.parsers.mediaparser.parseGroup(obj.childNodes[i], itm);
+						break;
+				}
+			}
+		}
+		return itm;
+	}
+	
+})(jwplayer);
+/**
+ * Parse an RSS feed and translate it to a playlist.
+ *
+ * @author zach
+ * @version 5.7
+ */
+(function(jwplayer) {
+
+	jwplayer.utils.parsers.rssparser = function() {
+	};
+	
+	/**
+	 * Parse an RSS playlist for feed items.
+	 *
+	 * @param {XML} dat
+	 * @reuturn {Array} playlistarray
+	 */
+	jwplayer.utils.parsers.rssparser.parse = function(dat) {
+		var arr = [];
+		for (var i in dat.childNodes) {
+			if (dat.childNodes[i].localName && dat.childNodes[i].localName.toLowerCase() == 'channel') {
+				for (var j in dat.childNodes[i].childNodes) {
+					if (dat.childNodes[i].childNodes[j].localName && dat.childNodes[i].childNodes[j].localName.toLowerCase() == 'item') {
+						arr.push(_parseItem(dat.childNodes[i].childNodes[j]));
+					}
+				}
+			}
+		}
+		return arr;
+	};
+	
+	
+	/** 
+	 * Translate RSS item to playlist item.
+	 *
+	 * @param {XML} obj
+	 * @return {PlaylistItem} PlaylistItem
+	 */
+	function _parseItem(obj) {
+		var itm = {};
+		for (var i in obj.childNodes) {
+			if (!obj.childNodes[i].localName){
+				continue;
+			}
+			switch (obj.childNodes[i].localName.toLowerCase()) {
+				case 'enclosure':
+					itm['file'] = jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url');
+					break;
+				case 'title':
+					itm['title'] = obj.childNodes[i].textContent;
+					break;
+				case 'pubdate':
+					itm['date'] = obj.childNodes[i].textContent;
+					break;
+				case 'description':
+					itm['description'] = obj.childNodes[i].textContent;
+					break;
+				case 'link':
+					itm['link'] = obj.childNodes[i].textContent;
+					break;
+				case 'category':
+					if (itm['tags']) {
+						itm['tags'] += obj.childNodes[i].textContent;
+					} else {
+						itm['tags'] = obj.childNodes[i].textContent;
+					}
+					break;
+			}
+		}
+//		itm = jwplayer.utils.parsers.itunesparser.parseEntry(obj, itm);
+		itm = jwplayer.utils.parsers.mediaparser.parseGroup(obj, itm);
+		itm = jwplayer.utils.parsers.jwparser.parseEntry(obj, itm);
+
+		return new jwplayer.html5.playlistitem(itm);
+	}
+	
 	
 })(jwplayer);
 /**
@@ -4099,9 +4341,11 @@ playerReady = function(obj) {
 				if (_remainVisible() || jwplayer.utils.exists(evt)) {
 					_fadeIn();
 					clearTimeout(_fadeTimeout);
-					_fadeTimeout = setTimeout(function() {
-						_fadeOut();
-					}, 2000);
+					if (_api.jwGetState() != jwplayer.api.events.state.IDLE) {
+						_fadeTimeout = setTimeout(function() {
+							_fadeOut();
+						}, 2000);
+					}
 				} else {
 					clearTimeout(_fadeTimeout);
 					if (parseFloat(_wrapper.style.opacity) > 0) {
@@ -4347,6 +4591,7 @@ playerReady = function(obj) {
 		function _addListeners() {
 			// Register events with the player.
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistHandler);
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, _itemHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, _bufferHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, _timeHandler);
@@ -4361,7 +4606,20 @@ playerReady = function(obj) {
 			_resizeBar();
 			_init();
 		}
-		
+
+		function _itemHandler(evt) {
+			_currentDuration = _api.jwGetPlaylist()[evt.index].duration;
+			_timeHandler({
+				id: _api.id,
+				duration: _currentDuration(),
+				position: 0
+			});
+			_bufferHandler({
+				id: _api.id,
+				bufferProgress: 0
+			});
+		}
+
 		/** Add interactivity to the jwplayerControlbar elements. **/
 		function _init() {
 			// Trigger a few events so the bar looks good on startup.
@@ -5411,7 +5669,9 @@ playerReady = function(obj) {
 						_hide(_display.display_iconBackground);
 						_hide(_display.display_icon);
 					} else {
-//						_setDisplayIcon("bufferIcon");
+						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider == "sound") {
+							_showImage();
+						}
 						_degreesRotated = 0;
 						_rotationInterval = setInterval(function() {
 							_degreesRotated += _bufferRotation;
@@ -6186,7 +6446,7 @@ playerReady = function(obj) {
 					_model.position = Math.round(event.target.currentTime * 10) / 10;
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_TIME, {
 						position: event.target.currentTime,
-						duration: event.target.duration
+						duration: _model.duration
 					});
 					if (_model.position >= _model.duration && (_model.position > 0 || _model.duration > 0)) {
 						_complete();
@@ -6678,7 +6938,39 @@ playerReady = function(obj) {
 			}
 		}
 		
-		_model.loadPlaylist = function(arg, ready) {
+		function _loadExternal(playlistfile) {
+			var loader = new jwplayer.html5.playlistloader();
+			loader.addEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, function(evt) {
+				_model.playlist = new jwplayer.html5.playlist(evt);
+				_loadComplete(true);
+			});
+			loader.addEventListener(jwplayer.api.events.JWPLAYER_ERROR, function(evt) {
+				_model.playlist = new jwplayer.html5.playlist({playlist:[]});
+				_loadComplete(false);
+			});
+			loader.load(playlistfile);
+		}
+		
+		function _loadComplete() {
+			if (_model.config.shuffle) {
+				_model.item = _getShuffleItem();
+			} else {
+				if (_model.config.item >= _model.playlist.length) {
+					_model.config.item = _model.playlist.length - 1;
+				} else if (_model.config.item < 0) {
+					_model.config.item = 0;
+				}
+				_model.item = _model.config.item;
+			}
+			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
+				"playlist": _model.playlist
+			});
+			if (_model.playlist[_model.item].file || _model.playlist[_model.item].levels[0].file) {
+				_model.setActiveMediaProvider(_model.playlist[_model.item]);
+			}
+		}
+		
+		_model.loadPlaylist = function(arg) {
 			var input;
 			if (typeof arg == "string") {
 				try {
@@ -6700,29 +6992,15 @@ playerReady = function(obj) {
 					};
 					break;
 				default:
-					config = {
-						file: input
-					};
+					_loadExternal(input);
+					return;
 					break;
 			}
 			_model.playlist = new jwplayer.html5.playlist(config);
-			if (_model.config.shuffle) {
-				_model.item = _getShuffleItem();
+			if (jwplayer.utils.extension(_model.playlist[0].file) == "xml" ) {
+				_loadExternal(_model.playlist[0].file);
 			} else {
-				if (_model.config.item >= _model.playlist.length) {
-					_model.config.item = _model.playlist.length - 1;
-				} else if (_model.config.item < 0) {
-					_model.config.item = 0;
-				}
-				_model.item = _model.config.item;
-			}
-			if (!ready) {
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
-					"playlist": _model.playlist
-				});
-			}
-			if (_model.playlist[_model.item].file || _model.playlist[_model.item].levels[0].file) {
-				_model.setActiveMediaProvider(_model.playlist[_model.item]);
+				_loadComplete();
 			}
 		};
 		
@@ -6757,7 +7035,7 @@ playerReady = function(obj) {
 			var provider = playlistItem.provider;
 			var current = _media ? _media.getDisplayElement() : null; 
 			
-			if (provider == "sound" || provider == "http") {
+			if (provider == "sound" || provider == "http" || provider == "") {
 				provider = "video";
 			}
 			
@@ -6769,6 +7047,9 @@ playerReady = function(obj) {
 				case "youtube":
 					_media = new jwplayer.html5.mediayoutube(_model, current ? current : _container);
 					break;
+				}
+				if (!jwplayer.utils.exists(_media)) {
+					return false;
 				}
 				_media.addGlobalListener(forward);
 				_mediaProviders[provider] = _media;
@@ -7166,6 +7447,42 @@ playerReady = function(obj) {
 	
 })(jwplayer);
 /**
+ * JW Player playlist loader
+ *
+ * @author pablo
+ * @version 5.7
+ */
+(function(jwplayer) {
+	jwplayer.html5.playlistloader = function() {
+		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
+		jwplayer.utils.extend(this, _eventDispatcher);
+		
+		this.load = function(playlistfile) {
+			jwplayer.utils.ajax(playlistfile, _playlistLoaded, _playlistError)
+		}
+		
+		function _playlistLoaded(loadedEvent) {
+			var playlistObj = [];  //[{file:'/testing/files/bunny.mp4'}];
+
+			try {
+				var playlistObj = jwplayer.utils.parsers.rssparser.parse(loadedEvent.responseXML.firstChild);
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
+					"playlist": new jwplayer.html5.playlist({playlist: playlistObj})
+				});
+			} catch (e) {
+				_playlistError("Could not parse the playlist");
+			}
+		}
+		
+		function _playlistError(msg) {
+			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
+				error: msg ? msg : 'could not load playlist for whatever reason.  too bad'
+			});
+		}
+	};
+	
+})(jwplayer);
+/**
  * JW Player component that loads PNG skins.
  *
  * @author zach
@@ -7537,32 +7854,47 @@ playerReady = function(obj) {
 		_api.jwUnlock = function() {
 		};
 		
+		var _playlistLoadComplete = _completeHandler(_model, _view, _controller); 
+		
 		function _finishLoad(model, view, controller) {
 			return function() {
-				model.loadPlaylist(model.config, true);
+				model.addEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistLoadComplete);
+				if (model.config.playlistfile) {
+					model.loadPlaylist(model.config.playlistfile);
+				} else if (typeof model.config.playlist == "array") {
+					model.loadPlaylist(model.config.file);
+				} else {
+					model.loadPlaylist(model.config);
+				}
+			};
+		}
+		
+		function _completeHandler(model, view, controller) {
+			return function(evt) {
+				model.removeEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistLoadComplete);
 				model.setupPlugins();
 				view.setup();
 				var evt = {
-					id: _api.id,
-					version: _api.version
+						id: _api.id,
+						version: _api.version
 				};
 				controller.sendEvent(jwplayer.api.events.JWPLAYER_READY, evt);
 				if (jwplayer.utils.exists(playerReady)) {
 					playerReady(evt);
 				}
-				
+			
 				if (jwplayer.utils.exists(window[model.config.playerReady])) {
 					window[model.config.playerReady](evt);
 				}
-				
+			
 				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
 					"playlist": model.playlist
 				});
-				
+			
 				if (model.config.autostart && !jwplayer.utils.isIOS()) {
 					controller.item(model.item);
-				}
-			};
+				}			
+			}
 		}
 		
 		if (_model.config.chromeless && !jwplayer.utils.isIPad()) {

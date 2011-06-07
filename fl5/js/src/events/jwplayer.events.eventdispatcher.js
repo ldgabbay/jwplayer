@@ -43,8 +43,8 @@
 		this.removeEventListener = function(type, listener) {
 			try {
 				for (var listenerIndex = 0; listenerIndex < _listeners[type].length; listenerIndex++) {
-					if (_listeners[type][lisenterIndex].toString() == listener.toString()) {
-						_listeners[type].slice(lisenterIndex, lisenterIndex + 1);
+					if (_listeners[type][listenerIndex].listener.toString() == listener.toString()) {
+						_listeners[type].splice(listenerIndex, 1);
 						break;
 					}
 				}
@@ -74,8 +74,8 @@
 		this.removeGlobalListener = function(listener) {
 			try {
 				for (var globalListenerIndex = 0; globalListenerIndex < _globallisteners.length; globalListenerIndex++) {
-					if (_globallisteners[globalListenerIndex].toString() == listener.toString()) {
-						_globallisteners.slice(globalListenerIndex, globalListenerIndex + 1);
+					if (_globallisteners[globalListenerIndex].listener.toString() == listener.toString()) {
+						_globallisteners.splice(globalListenerIndex, 1);
 						break;
 					}
 				}
