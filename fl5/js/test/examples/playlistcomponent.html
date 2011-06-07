@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
     <head>
-        <title>Playlist</title>
+        <title>Playlist UI Component</title>
         <script type="text/javascript" src="../../bin-debug/jwplayer.js">
         </script>
         <script type="text/javascript" src="settings.js"></script>
@@ -36,107 +36,132 @@
             	}];
         </script>
         <p>
-            This shows all of the rendering options for the playlist component (Flash only)
+            This shows all of the rendering options for the playlist component.
         </p>
-		<p>
-			Default (Position="none")
-		</p>
+        
+        <p>
+          Select a rendering mode: 
+          <select id="renderer">
+            <option value="flashonly">Flash Only</option>
+            <option value="html5only" selected="selected">HTML5 Only</option>
+          </select>
+          <button id="go" onclick="setupAll()">Go</button>
+        </p>
+        
+  		  <p>
+    			Default (Position="none")
+    		</p>
         <div height="270" id="player1" width="480">
             JW Player should replace this
-        </div>
-		<p>
-			Position="right"
-		</p>
-        <div height="270" id="player2" width="480">
-            JW Player should replace this
-        </div>
-		<p>
-			Position="left"
-		</p>
-        <div height="270" id="player3" width="480">
-            JW Player should replace this
-        </div>
-		<p>
-			Position="top"
-		</p>
-        <div height="270" id="player4" width="480">
-            JW Player should replace this
-        </div>
-		<p>
-			Position="bottom"
-		</p>
-        <div height="270" id="player5" width="480">
-            JW Player should replace this
-        </div>
-		<p>
-			Playlist.thumbs = false
-		</p>
-        <div height="270" id="player6" width="480">
-            JW Player should replace this
-        </div>
-		<p>
-			Playlist with a skin
-		</p>
-        <div height="270" id="player7" width="580">
-            JW Player should replace this
-        </div>
+       </div>
+  		<p>
+  			Position="right"
+  		</p>
+          <div height="270" id="player2" width="480">
+              JW Player should replace this
+          </div>
+  		<p>
+  			Position="left"
+  		</p>
+          <div height="270" id="player3" width="480">
+              JW Player should replace this
+          </div>
+  		<p>
+  			Position="top"
+  		</p>
+          <div height="270" id="player4" width="480">
+              JW Player should replace this
+          </div>
+  		<p>
+  			Position="bottom"
+  		</p>
+          <div height="270" id="player5" width="480">
+              JW Player should replace this
+          </div>
+  		<p>
+  			Position="over"
+  		</p>
+          <div height="270" id="player6" width="480">
+              JW Player should replace this
+          </div>
+  		<p>
+  			Playlist.thumbs = false
+  		</p>
+          <div height="270" id="player7" width="480">
+              JW Player should replace this
+          </div>
+  		<p>
+  			Playlist with a skin
+  		</p>
+          <div height="270" id="player8" width="580">
+              JW Player should replace this
+          </div>
+        
 
         <script type="text/javascript">
-           	jwplayer("player1").setup({
-            	players: settings.players(window.location.href, ["flash"]),
+          function setupAll() {
+            var mode = document.getElementById('renderer').value;
+            if (!mode) mode = "standard";
+
+            var idx=1;
+            
+           	jwplayer("player" + idx++).setup({
+            	modes: settings.modes[mode],
            		playlist: playlistObj
             });
-        </script>
-        <script type="text/javascript">
-           	jwplayer("player2").setup({
-            	players: settings.players(window.location.href, ["flash"]),
+
+           	jwplayer("player" + idx++).setup({
+            	modes: settings.modes[mode],
            		playlist: playlistObj,
            		"playlist.position": "right",
            		"playlist.size": "195",
             });
-        </script>
-        <script type="text/javascript">
-           	jwplayer("player3").setup({
-            	players: settings.players(window.location.href, ["flash"]),
+            
+           	jwplayer("player" + idx++).setup({
+            	modes: settings.modes[mode],
            		playlist: playlistObj,
            		"playlist.position": "left",
            		"playlist.size": "195",
             });
-        </script>
-        <script type="text/javascript">
-           	jwplayer("player4").setup({
-            	players: settings.players(window.location.href, ["flash"]),
+
+           	jwplayer("player" + idx++).setup({
+            	modes: settings.modes[mode],
            		playlist: playlistObj,
            		"playlist.position": "top",
            		"playlist.size": "120",
             });
-        </script>
-        <script type="text/javascript">
-           	jwplayer("player5").setup({
-            	players: settings.players(window.location.href, ["flash"]),
+
+           	jwplayer("player" + idx++).setup({
+            	modes: settings.modes[mode],
            		playlist: playlistObj,
            		"playlist.position": "bottom",
            		"playlist.size": "120",
             });
-        </script>
-        <script type="text/javascript">
-           	jwplayer("player6").setup({
-            	players: settings.players(window.location.href, ["flash"]),
+
+           	jwplayer("player" + idx++).setup({
+            	modes: settings.modes[mode],
+           		playlist: playlistObj,
+           		"playlist.position": "over"
+            });
+
+           	jwplayer("player" + idx++).setup({
+            	modes: settings.modes[mode],
            		playlist: playlistObj,
            		"playlist.position": "right",
            		"playlist.size": "160",
            		"playlist.thumbs": false
             });
-        </script>
-        <script type="text/javascript">
-           	jwplayer("player7").setup({
-            	players: settings.players(window.location.href, ["flash"]),
+
+           	jwplayer("player" + idx++).setup({
+            	modes: settings.modes[mode],
            		playlist: playlistObj,
            		"playlist.position": "right",
            		"playlist.size": "260",
            		skin: "http://playertest.longtailvideo.com/glow.zip"
             });
+          }
+          
+          setupAll();
         </script>
-        <h3>HTML code</h3>
     </body>
 </html>

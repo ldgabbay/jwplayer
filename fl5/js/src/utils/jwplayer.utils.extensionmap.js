@@ -70,6 +70,9 @@
 		"ogg": {
 			"html5": "audio/ogg"
 		},
+		"oga": {
+			"html5": "audio/ogg"
+		},
 		"ogv": {
 			"html5": "video/ogg"
 		},

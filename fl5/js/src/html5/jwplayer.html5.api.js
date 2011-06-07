@@ -127,7 +127,7 @@
 			return function() {
 				model.loadPlaylist(model.config, true);
 				model.setupPlugins();
-				view.setup(model.getMedia().getDisplayElement());
+				view.setup();
 				var evt = {
 					id: _api.id,
 					version: _api.version

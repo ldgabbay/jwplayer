@@ -90,7 +90,8 @@
 		}
 
 		function _loadedHandler(evt) {
-			var newMedia = _model.getMedia().getDisplayElement();
+			var newMedia = _model.getMedia() ? _model.getMedia().getDisplayElement() : null;
+			
 			if (jwplayer.utils.exists(newMedia)) {
 				if (_media != newMedia) {
 					if (_media && _media.parentNode) {
@@ -125,8 +126,10 @@
 			return dimension;
 		}
 		
-		this.setup = function(container) {
-			_container = container;
+		this.setup = function() {
+			if (_model && _model.getMedia()) {
+				_container = _model.getMedia().getDisplayElement();
+			}
 			createWrapper();
 			layoutComponents();
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
@@ -281,9 +284,12 @@
 		}
 		
 		function _resizeMedia() {
+			if (!jwplayer.utils.exists(_model.getMedia())) {
+				return;
+			}
 			_box.style.position = "absolute";
 			var media = _model.getMedia().getDisplayElement();
-			if (media.tagName.toLowerCase() == "video") {
+			if (media && media.tagName.toLowerCase() == "video") {
 				media.style.position = "absolute";
 				var iwidth, iheight;
 				if (_box.style.width.toString().lastIndexOf("%") > -1 || _box.style.width.toString().lastIndexOf("%") > -1) {

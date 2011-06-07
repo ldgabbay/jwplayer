@@ -14,26 +14,54 @@
         <p>
             This sets up a player for IE9, FF, Chrome, Safari, and Opera, however, playback will fail in FF and Opera. IE < 9 will simply display "HTML5 Player should replace this".
         </p>
-        <div height="270" id="player" width="480">
-        	HTML5 Player should replace this
+        
+        <p>
+          Select a rendering mode: 
+          <select id="renderer">
+            <option value="flashonly">Flash Only</option>
+            <option value="html5only" selected="selected">HTML5 Only</option>
+          </select>
+          <button id="go" onclick="setupAll()">Go</button>
+        </p>
+
+        
+        <h3>Auto-detect provider</h3>
+        <div height="270" id="player1" width="480">
+        	JW Player should replace this
+        </div>
+        <h3>Provider set to "audio" (should alias to Sound)</h3>
+        <div height="270" id="player2" width="480">
+        	JW Player should replace this
         </div>
         <script type="text/javascript">
-            jwplayer("player").setup({
-            	modes: settings.players(window.location.href),
+          function setupAll() {
+            var mode = document.getElementById('renderer').value;
+            if (!mode) mode = "standard";
+          
+            jwplayer("player1").setup({
+            	modes: settings.modes[mode],
+            	playlist: [
+	            	{ 
+            		  file: "http://playertest.longtailvideo.com/bunny.mp3",
+            		  image: "http://playertest.longtailvideo.com/bunny.jpg"
+	            	}
+            	],
+            	controlbar: "bottom"
+            });
+            
+            jwplayer("player2").setup({
+            	modes: settings.modes[mode],
             	playlist: [
 	            	{ 
             		  file: "http://playertest.longtailvideo.com/bunny.mp3",
             		  image: "http://playertest.longtailvideo.com/bunny.jpg",
-	            	},
-	            	{ 
-	            	  file: "http://playertest.longtailvideo.com/bunny.mp4",
-	           		  image: "http://playertest.longtailvideo.com/bunny.png"
+            		  provider: "audio"
 	            	}
             	],
-            	controlbar: "bottom",
-            	autoplay: true,
-            	repeat: "list"
+            	controlbar: "bottom"
             });
+          }
+          setupAll();
         </script>
         <h3>HTML code</h3>
     </body>

@@ -38,7 +38,7 @@
 		};
 		var _media;
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
-		var _components = ["display", "logo", "controlbar", "dock","playlist"];
+		var _components = ["display", "logo", "playlist", "controlbar", "dock"];
 		
 		jwplayer.utils.extend(_model, _eventDispatcher);
 		
@@ -109,7 +109,7 @@
 		
 		for (var pluginIndex in _model.plugins.order) {
 			var pluginName = _model.plugins.order[pluginIndex];
-			var pluginConfig = !jwplayer.utils.exists(_model.config[pluginName]) ? {} : _model.config[pluginName];
+			var pluginConfig = !jwplayer.utils.exists(_model.plugins.config[pluginName]) ? {} : _model.plugins.config[pluginName];
 			_model.plugins.config[pluginName] = !jwplayer.utils.exists(_model.plugins.config[pluginName]) ? pluginConfig : jwplayer.utils.extend(_model.plugins.config[pluginName], pluginConfig);
 			if (!jwplayer.utils.exists(_model.plugins.config[pluginName].position)) {
 				if (pluginName == "playlist") {
@@ -180,7 +180,9 @@
 					"playlist": _model.playlist
 				});
 			}
-			_model.setActiveMediaProvider(_model.playlist[_model.item]);
+			if (_model.playlist[_model.item].file || _model.playlist[_model.item].levels[0].file) {
+				_model.setActiveMediaProvider(_model.playlist[_model.item]);
+			}
 		};
 		
 		function _getShuffleItem() {
@@ -208,10 +210,13 @@
 		var _mediaProviders = {};
 		
 		_model.setActiveMediaProvider = function(playlistItem) {
+			if (playlistItem.provider == "audio") {
+				playlistItem.provider = "sound";
+			}
 			var provider = playlistItem.provider;
 			var current = _media ? _media.getDisplayElement() : null; 
 			
-			if (provider == "sound" || provider == "audio") {
+			if (provider == "sound") {
 				provider = "video";
 			}
 			

@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1826';
+jwplayer.version = '5.7.1831';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -1018,6 +1018,9 @@ jwplayer.source = document.createElement("source");/**
 			"flash": "sound"
 		},
 		"ogg": {
+			"html5": "audio/ogg"
+		},
+		"oga": {
 			"html5": "audio/ogg"
 		},
 		"ogv": {
@@ -3535,7 +3538,8 @@ playerReady = function(obj) {
 		}
 
 		function _loadedHandler(evt) {
-			var newMedia = _model.getMedia().getDisplayElement();
+			var newMedia = _model.getMedia() ? _model.getMedia().getDisplayElement() : null;
+			
 			if (jwplayer.utils.exists(newMedia)) {
 				if (_media != newMedia) {
 					if (_media && _media.parentNode) {
@@ -3570,8 +3574,10 @@ playerReady = function(obj) {
 			return dimension;
 		}
 		
-		this.setup = function(container) {
-			_container = container;
+		this.setup = function() {
+			if (_model && _model.getMedia()) {
+				_container = _model.getMedia().getDisplayElement();
+			}
 			createWrapper();
 			layoutComponents();
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
@@ -3726,9 +3732,12 @@ playerReady = function(obj) {
 		}
 		
 		function _resizeMedia() {
+			if (!jwplayer.utils.exists(_model.getMedia())) {
+				return;
+			}
 			_box.style.position = "absolute";
 			var media = _model.getMedia().getDisplayElement();
-			if (media.tagName.toLowerCase() == "video") {
+			if (media && media.tagName.toLowerCase() == "video") {
 				media.style.position = "absolute";
 				var iwidth, iheight;
 				if (_box.style.width.toString().lastIndexOf("%") > -1 || _box.style.width.toString().lastIndexOf("%") > -1) {
@@ -3988,6 +3997,7 @@ playerReady = function(obj) {
 		var _positions = {};
 		var _bgElement;
 		var _hiding = false;
+		var _fadeTimeout;
 		
 		function _getBack() {
 			if (!_bgElement) {
@@ -4083,15 +4093,32 @@ playerReady = function(obj) {
 		}
 		
 		
-		function _setVisiblity() {
+		function _setVisiblity(evt) {
 			if (_hiding) { return; }
-			
-			jwplayer.utils.cancelAnimation(_wrapper);
-			if (_remainVisible()) {
-				jwplayer.utils.fadeTo(_wrapper, 1, 0, 1, 0);
-			} else {
-				jwplayer.utils.fadeTo(_wrapper, 0, 0.1, 1, 2);
+			if (_settings.position == jwplayer.html5.view.positions.OVER) {
+				if (_remainVisible() || jwplayer.utils.exists(evt)) {
+					_fadeIn();
+					clearTimeout(_fadeTimeout);
+					_fadeTimeout = setTimeout(function() {
+						_fadeOut();
+					}, 2000);
+				} else {
+					clearTimeout(_fadeTimeout);
+					if (parseFloat(_wrapper.style.opacity) > 0) {
+						_fadeOut();
+					}
+				}
 			}
+		}
+		
+		function _fadeOut(delay) {
+			jwplayer.utils.cancelAnimation(_wrapper);
+			jwplayer.utils.fadeTo(_wrapper, 0, 0.1, 1, 0);
+		}
+		
+		function _fadeIn() {
+			jwplayer.utils.cancelAnimation(_wrapper);
+			jwplayer.utils.fadeTo(_wrapper, 1, 0, 1, 0);
 		}
 		
 		function _remainVisible() {
@@ -4104,9 +4131,6 @@ playerReady = function(obj) {
 				return true;
 			}
 			if (_api.jwGetFullscreen()) {
-				return false;
-			}
-			if (_settings.position == jwplayer.html5.view.positions.OVER) {
 				return false;
 			}
 			return true;
@@ -4675,8 +4699,11 @@ playerReady = function(obj) {
 			_updatePositions();
 			_ready = true;
 			_addListeners();
+			_settings.idlehide = (_settings.idlehide.toString().toLowerCase() == "true");
+			if (_settings.position == jwplayer.html5.view.positions.OVER && _settings.idlehide) {
+				_wrapper.style.opacity = 0;
+			}
 			_init();
-			_wrapper.style.opacity = _settings.idlehide ? 0 : 1;
 		}
 		
 		_setup();
@@ -6552,7 +6579,7 @@ playerReady = function(obj) {
 		};
 		var _media;
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
-		var _components = ["display", "logo", "controlbar", "dock","playlist"];
+		var _components = ["display", "logo", "playlist", "controlbar", "dock"];
 		
 		jwplayer.utils.extend(_model, _eventDispatcher);
 		
@@ -6623,7 +6650,7 @@ playerReady = function(obj) {
 		
 		for (var pluginIndex in _model.plugins.order) {
 			var pluginName = _model.plugins.order[pluginIndex];
-			var pluginConfig = !jwplayer.utils.exists(_model.config[pluginName]) ? {} : _model.config[pluginName];
+			var pluginConfig = !jwplayer.utils.exists(_model.plugins.config[pluginName]) ? {} : _model.plugins.config[pluginName];
 			_model.plugins.config[pluginName] = !jwplayer.utils.exists(_model.plugins.config[pluginName]) ? pluginConfig : jwplayer.utils.extend(_model.plugins.config[pluginName], pluginConfig);
 			if (!jwplayer.utils.exists(_model.plugins.config[pluginName].position)) {
 				if (pluginName == "playlist") {
@@ -6694,7 +6721,9 @@ playerReady = function(obj) {
 					"playlist": _model.playlist
 				});
 			}
-			_model.setActiveMediaProvider(_model.playlist[_model.item]);
+			if (_model.playlist[_model.item].file || _model.playlist[_model.item].levels[0].file) {
+				_model.setActiveMediaProvider(_model.playlist[_model.item]);
+			}
 		};
 		
 		function _getShuffleItem() {
@@ -6722,10 +6751,13 @@ playerReady = function(obj) {
 		var _mediaProviders = {};
 		
 		_model.setActiveMediaProvider = function(playlistItem) {
+			if (playlistItem.provider == "audio") {
+				playlistItem.provider = "sound";
+			}
 			var provider = playlistItem.provider;
 			var current = _media ? _media.getDisplayElement() : null; 
 			
-			if (provider == "sound" || provider == "audio") {
+			if (provider == "sound") {
 				provider = "video";
 			}
 			
@@ -7509,7 +7541,7 @@ playerReady = function(obj) {
 			return function() {
 				model.loadPlaylist(model.config, true);
 				model.setupPlugins();
-				view.setup(model.getMedia().getDisplayElement());
+				view.setup();
 				var evt = {
 					id: _api.id,
 					version: _api.version

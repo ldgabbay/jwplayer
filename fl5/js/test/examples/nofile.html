@@ -17,16 +17,27 @@
 		 <p>
            Players should appear in IE9, FF, Chrome, Safari, and Opera, but they will not play. IE < 9 will simply display "HTML5 Player should replace this".
         </p>
-        <div height="270" id="player" width="480">
+        <h3>HTML5</h3>
+        <div height="270" id="player1" width="480">
         	 HTML5 Player should replace this.
         </div>
+        <h3>Flash</h3>
+        <div height="270" id="player2" width="480">
+        	 Flash Player should replace this.
+        </div>
+        
         <script type="text/javascript">
-            jwplayer("player").setup({
-            	players: settings.players(window.location.href),
-				players: [{
+            jwplayer("player1").setup({
+      				modes: [{
             		type: "html5"
             	}]
-			});
+      			});
+
+            jwplayer("player2").setup({
+      				modes: [{
+            		type: "flash", src: "../../../player.swf"
+            	}]
+      			});
         </script>
         <h3>HTML code</h3>
     </body>
