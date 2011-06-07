@@ -216,7 +216,7 @@
 			var provider = playlistItem.provider;
 			var current = _media ? _media.getDisplayElement() : null; 
 			
-			if (provider == "sound") {
+			if (provider == "sound" || provider == "http") {
 				provider = "video";
 			}
 			

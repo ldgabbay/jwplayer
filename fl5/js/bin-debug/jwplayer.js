@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1831';
+jwplayer.version = '5.7.1832';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -6757,7 +6757,7 @@ playerReady = function(obj) {
 			var provider = playlistItem.provider;
 			var current = _media ? _media.getDisplayElement() : null; 
 			
-			if (provider == "sound") {
+			if (provider == "sound" || provider == "http") {
 				provider = "video";
 			}
 			
