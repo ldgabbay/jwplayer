@@ -459,12 +459,12 @@ package com.longtailvideo.jwplayer.view.components {
 				slider.visible = false;
 			}
 			if (clr) {
-				buttons = [];
-				imageLoaderMap = new Dictionary();
 				list.y = listmask.y;
 				for (var j:Number = 0; j < buttons.length; j++) {
 					list.removeChild(getButton(j));
 				}
+				buttons = [];
+				imageLoaderMap = new Dictionary();
 			} else {
 				if (proportion > 1) {
 					scrollEase();
