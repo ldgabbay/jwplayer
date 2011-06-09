@@ -6,6 +6,7 @@ package com.longtailvideo.jwplayer.view {
 	import com.longtailvideo.jwplayer.utils.Draw;
 	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.RootReference;
+	import com.longtailvideo.jwplayer.utils.Strings;
 	
 	import flash.display.Bitmap;
 	import flash.display.DisplayObject;
@@ -123,9 +124,7 @@ package com.longtailvideo.jwplayer.view {
 			_player.fullscreen(false);
 			var link:String = getConfigParam('link');
 			if (link) {
-				if (link.indexOf('asfunction:') != 0 && link.indexOf('javascript:') != 0) {
-					navigateToURL(new URLRequest(getConfigParam('link')), getConfigParam('linktarget'));
-				}
+				navigateToURL(new URLRequest(Strings.cleanLink(link)), getConfigParam('linktarget'));
 			}
 		}
 		

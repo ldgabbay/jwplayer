@@ -224,6 +224,13 @@ package com.longtailvideo.jwplayer.utils {
 			var queryparams:int = path.indexOf("?");
 			return (protocol > 0 && (queryparams < 0 || (queryparams > protocol)));
 		}
+
+		/** Removes potentially harmful string headers from a link **/
+		public static function cleanLink(link:String):String {
+			return link.replace(/^(javascript|asfunction|vbscript)\:/, "");
+		}
+		
+
 		
 		
 	}

@@ -7,6 +7,7 @@
 	import com.longtailvideo.jwplayer.player.IPlayer;
 	import com.longtailvideo.jwplayer.player.PlayerState;
 	import com.longtailvideo.jwplayer.utils.Draw;
+	import com.longtailvideo.jwplayer.utils.Strings;
 	import com.longtailvideo.jwplayer.view.interfaces.IDisplayComponent;
 	import com.longtailvideo.jwplayer.view.skins.PNGSkin;
 	
@@ -381,9 +382,7 @@
 			if(_player.config.displayclick == 'link') {
 				var link:String = _player.playlist.currentItem.link;
 				if(link) {
-					if (link.indexOf('asfunction:') != 0 && link.indexOf('javascript:') != 0) {
-						navigateToURL(new URLRequest(link),_player.config.linktarget);
-					}
+					navigateToURL(new URLRequest(Strings.cleanLink(link)),_player.config.linktarget);
 				}
 			} else if (player.state == PlayerState.PLAYING || player.state == PlayerState.BUFFERING) {
 				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_PAUSE));
