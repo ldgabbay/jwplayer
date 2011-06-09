@@ -1,14 +1,16 @@
 package com.longtailvideo.jwplayer.view.components {
+	import com.longtailvideo.jwplayer.events.ComponentEvent;
 	import com.longtailvideo.jwplayer.events.GlobalEventDispatcher;
 	import com.longtailvideo.jwplayer.events.IGlobalEventDispatcher;
 	import com.longtailvideo.jwplayer.model.Color;
 	import com.longtailvideo.jwplayer.player.IPlayer;
+	import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
 	
 	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.events.Event;
 
-	public class CoreComponent extends MovieClip implements IGlobalEventDispatcher {
+	public class CoreComponent extends MovieClip implements IGlobalEventDispatcher,IPlayerComponent {
 
 		private var _dispatcher:IGlobalEventDispatcher;
 		protected var _player:IPlayer;
@@ -23,13 +25,22 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		public function hide():void {
-			_hiding = true;
-			this.visible = false;
+			if (!_hiding) {
+				_hiding = true;
+				this.visible = false;
+				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_HIDE, this, getBounds(this.parent)));
+			}
 		}
 		
 		public function show():void {
-			_hiding = false;
-			this.visible = true;
+			if (_hiding) { 
+				_hiding = false;
+				this.visible = true;
+				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, getBounds(this.parent)));
+			}
+		}
+		
+		public function resize(width:Number, height:Number):void {
 		}
 		
 		protected function get player():IPlayer {

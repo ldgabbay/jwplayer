@@ -765,7 +765,7 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		
 		/** Process resizing requests **/
-		public function resize(width:Number, height:Number):void {
+		override public function resize(width:Number, height:Number):void {
 			if (skinLoaded) {
 				setConfigParam("width", width);
 				setConfigParam("height", height);

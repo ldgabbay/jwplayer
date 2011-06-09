@@ -1,4 +1,5 @@
 package com.longtailvideo.jwplayer.view.components {
+	import com.longtailvideo.jwplayer.events.ComponentEvent;
 	import com.longtailvideo.jwplayer.events.MediaEvent;
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
 	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
@@ -22,6 +23,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.geom.ColorTransform;
+	import flash.geom.Rectangle;
 	import flash.text.StyleSheet;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
@@ -68,29 +70,42 @@ package com.longtailvideo.jwplayer.view.components {
 	 */
 	[Event(name="jwPlayerViewLink", type="com.longtailvideo.jwplayer.events.ViewEvent")]
 	/**
-	 *
+	 * Sent when the user clicks the "mute" or "unmute" controlbar button
 	 *
 	 * @eventType com.longtailvideo.jwplayer.events.ViewEvent.JWPLAYER_VIEW_MUTE
 	 */
 	[Event(name="jwPlayerViewMute", type="com.longtailvideo.jwplayer.events.ViewEvent")]
 	/**
-	 *
+	 * Sent when the user clicks the "fullscreen" or "end fullscreen" button
 	 *
 	 * @eventType com.longtailvideo.jwplayer.events.ViewEvent.JWPLAYER_VIEW_FULLSCREEN
 	 */
 	[Event(name="jwPlayerViewFullscreen", type="com.longtailvideo.jwplayer.events.ViewEvent")]
 	/**
-	 *
+	 * Sent when the user clicks the volume slider
 	 *
 	 * @eventType com.longtailvideo.jwplayer.events.ViewEvent.JWPLAYER_VIEW_VOLUME
 	 */
 	[Event(name="jwPlayerViewVolume", type="com.longtailvideo.jwplayer.events.ViewEvent")]
 	/**
-	 *
+	 * Sent when the user clicks to seek to a point in the video
 	 *
 	 * @eventType com.longtailvideo.jwplayer.events.ViewEvent.JWPLAYER_VIEW_SEEK
 	 */
 	[Event(name="jwPlayerViewSeek", type="com.longtailvideo.jwplayer.events.ViewEvent")]
+	/**
+	 * Sent when the controlbar begins to become visible
+	 *
+	 * @eventType com.longtailvideo.jwplayer.events.ComponentEvent.JWPLAYER_COMPONENT_SHOW
+	 */
+	[Event(name="jwPlayerComponentShow", type="com.longtailvideo.jwplayer.events.ComponentEvent")]
+	/**
+	 * Sent when the controlbar begins to hide
+	 *
+	 * @eventType com.longtailvideo.jwplayer.events.ComponentEvent.JWPLAYER_COMPONENT_HIDE
+	 */
+	[Event(name="jwPlayerComponentHide", type="com.longtailvideo.jwplayer.events.ComponentEvent")]
+	
 	public class ControlbarComponent extends CoreComponent implements IControlbarComponent {
 		protected var _buttons:Object = {};
 		protected var _customButtons:Array = [];
@@ -111,6 +126,8 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		protected var animations:Animations;
 		protected var _fadingOut:Number;
+		private var _sentShow:Boolean = false;
+		private var _sentHide:Boolean = false;
 		
 		public function ControlbarComponent(player:IPlayer) {
 			super(player, "controlbar");
@@ -195,6 +212,7 @@ package com.longtailvideo.jwplayer.view.components {
 			if (hidden) return;
 			
 			if (alpha == 0) {
+				sendShow();
 				animations.fade(1, 0.5);
 			}
 			if (!isNaN(_fadingOut)) {
@@ -214,7 +232,10 @@ package com.longtailvideo.jwplayer.view.components {
 		/** Hide above controlbar again when move has timed out. **/
 		private function moveTimeout(evt:Event=null):void {
 			if (!hidden) {
-				animations.fade(0, 0.5);
+				if (alpha > 0) {
+					sendHide();
+					animations.fade(0, 0.5);
+				}
 				if (_fullscreen) {
 					Mouse.hide();
 				}					
@@ -225,6 +246,7 @@ package com.longtailvideo.jwplayer.view.components {
 		private function mouseLeftStage(evt:Event=null):void {
 			if (fadeOnTimeout && !hidden) {
 				if (_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING || hideOnIdle) {
+					if (evt) { sendHide(); }
 					animations.fade(0);
 				}
 			}
@@ -680,7 +702,7 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 
 
-		public function resize(width:Number, height:Number):void {
+		override public function resize(width:Number, height:Number):void {
 			if (getConfigParam('position') == "none") {
 				visible = false;
 				return;
@@ -719,6 +741,9 @@ package com.longtailvideo.jwplayer.view.components {
 			_fullscreen = _player.config.fullscreen;
 			if (!_fullscreen) {
 				Mouse.show();
+			}
+			if (visible && alpha > 0) {
+				sendShow();
 			}
 			stateHandler();
 			redraw();
@@ -777,7 +802,30 @@ package com.longtailvideo.jwplayer.view.components {
 			return _currentLayout.replace(/\|/g, "<divider>");
 		}
 
+		override public function show():void {
+			if (getConfigParam('position') != "none" && _hiding) {
+				_hiding = false;
+				this.visible = true;
+				sendShow();
+			}
+		}
+		
+		override public function hide():void {
+			if (getConfigParam('position') != "none" && !_hiding) {
+				_hiding = true;
+				this.visible = false;
+				sendHide();
+			}
+		}
 
+		private function get displayRect():Rectangle {
+			if (this.parent && getConfigParam('position') == "over") {
+				return getBounds(this.parent);
+			} else {
+				return new Rectangle(0, 0, 0, 0);
+			}
+		}
+		
 		private function get background():DisplayObject {
 			if (_buttons['background']) {
 				return _buttons['background'];
@@ -799,6 +847,23 @@ package com.longtailvideo.jwplayer.view.components {
 				return _buttons['capRight'];
 			}
 			return (new Sprite());
+		}
+	
+		
+		private function sendShow():void {
+			if (!_sentShow) {
+				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, displayRect));
+				_sentShow = true;
+				_sentHide = false;
+			}
+		}
+		
+		private function sendHide():void {
+			if (!_sentHide) {
+				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_HIDE, this, displayRect));
+				_sentShow = false;
+				_sentHide = true;
+			}
 		}
 		
 	}

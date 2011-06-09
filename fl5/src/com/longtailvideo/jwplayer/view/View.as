@@ -18,11 +18,7 @@ package com.longtailvideo.jwplayer.view {
 	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.RootReference;
 	import com.longtailvideo.jwplayer.utils.Stretcher;
-	import com.longtailvideo.jwplayer.view.interfaces.IControlbarComponent;
-	import com.longtailvideo.jwplayer.view.interfaces.IDisplayComponent;
-	import com.longtailvideo.jwplayer.view.interfaces.IDockComponent;
 	import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
-	import com.longtailvideo.jwplayer.view.interfaces.IPlaylistComponent;
 	import com.longtailvideo.jwplayer.view.interfaces.ISkin;
 	
 	import flash.display.Bitmap;
@@ -476,17 +472,7 @@ package com.longtailvideo.jwplayer.view {
 
 		/** This feature, while not yet implemented, will allow the API to replace the built-in components with any class that implements the control interfaces. **/
 		public function overrideComponent(newComponent:IPlayerComponent):void {
-			if (newComponent is IControlbarComponent) {
-				// Replace controlbar
-			} else if (newComponent is IDisplayComponent) {
-				// Replace display
-			} else if (newComponent is IDockComponent) {
-				// Replace dock
-			} else if (newComponent is IPlaylistComponent) {
-				// Replace playlist
-			} else {
-				dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, "Component must implement a component interface"));
-			}
+			dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, "overrideComponent not implemented"));
 		}
 
 

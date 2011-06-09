@@ -1,4 +1,5 @@
 package com.longtailvideo.jwplayer.view.components {
+	import com.longtailvideo.jwplayer.events.ComponentEvent;
 	import com.longtailvideo.jwplayer.events.MediaEvent;
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
 	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
@@ -58,12 +59,15 @@ package com.longtailvideo.jwplayer.view.components {
 		private var animations:Animations;
 		/** Last inserted button **/
 		private var lastInsert:MovieClip;
+		
+		private var _sentShow:Boolean = false;
+		private var _sentHide:Boolean = false;
 
 		public function ControlbarComponentV4(player:IPlayer) {
 			super(player, "controlbar");
 			animations = new Animations(this);
 			controlbarConfig = _player.config.pluginConfig("controlbar");
-			if (controlbarConfig['position'] == "over" && String(controlbarConfig['idlehide']) == "true") {
+			if (controlbarConfig['position'] == "over" && hideOnIdle) {
 				alpha = 0;
 			}
 			
@@ -162,7 +166,7 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 		}
 
-		public function resize(width:Number, height:Number):void {
+		override public function resize(width:Number, height:Number):void {
 			if (!(PlayerLayoutManager.testPosition(controlbarConfig['position']) || controlbarConfig['position'] == "over")) {
 				skin.visible = false;
 				return;
@@ -192,11 +196,14 @@ package com.longtailvideo.jwplayer.view.components {
 			} catch (err:Error) {
 			}
 			stacker.rearrange(wid);
-			stopFader();
+			//stopFader();
 			stateHandler();
 			fixTime();
 			if (!_player.config.fullscreen) {
 				Mouse.show();
+			}
+			if (visible && alpha > 0) {
+				sendShow();
 			}
 		}
 
@@ -211,8 +218,7 @@ package com.longtailvideo.jwplayer.view.components {
 			blocking = stt;
 			timeHandler();
 		}
-
-
+		
 		/** Handle clicks from all buttons. **/
 		private function clickHandler(evt:MouseEvent):void {
 			var act:String = BUTTONS[evt.target.name];
@@ -408,6 +414,7 @@ package com.longtailvideo.jwplayer.view.components {
 			if (hidden) return;
 			
 			if (alpha == 0) {
+				sendShow();
 				animations.fade(1, 0.5);
 			}
 			if (!isNaN(hiding)) {
@@ -427,7 +434,10 @@ package com.longtailvideo.jwplayer.view.components {
 		/** Hide above controlbar again when move has timed out. **/
 		private function moveTimeout(evt:Event=null):void {
 			if (!hidden) {
-				animations.fade(0, 0.5);
+				if (alpha > 0) {
+					sendHide();
+					animations.fade(0, 0.5);
+				}
 				if (_player.config.fullscreen) {
 					Mouse.hide();
 				}
@@ -438,6 +448,7 @@ package com.longtailvideo.jwplayer.view.components {
 		private function mouseLeftStage(evt:Event=null):void {
 			if (fadeOnTimeout && !hidden) {
 				if (_player.state == PlayerState.BUFFERING || _player.state == PlayerState.PLAYING || hideOnIdle) {
+					sendHide();
 					animations.fade(0);
 				}
 			}
@@ -595,6 +606,46 @@ package com.longtailvideo.jwplayer.view.components {
 
 		private function getSkinElementChild(element:String, child:String):DisplayObject {
 			return (skin.getChildByName(element) as MovieClip).getChildByName(child);
+		}
+		
+		override public function show():void {
+			if (getConfigParam('position') != "none" && _hiding) {
+				_hiding = false;
+				this.visible = true;
+				sendShow();
+			}
+		}
+		
+		override public function hide():void {
+			if (getConfigParam('position') != "none" && !_hiding) {
+				_hiding = true;
+				this.visible = false;
+				sendHide();
+			}
+		}
+
+		private function sendShow():void {
+			if (!_sentShow) {
+				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, displayRect));
+				_sentShow = true;
+				_sentHide = false;
+			}
+		}
+
+		private function sendHide():void {
+			if (!_sentHide) {
+				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_HIDE, this, displayRect));
+				_sentShow = false;
+				_sentHide = true;
+			}
+		}
+
+		private function get displayRect():Rectangle {
+			if (this.parent && getConfigParam('position') == "over") {
+				return getBounds(this.parent);
+			} else {
+				return new Rectangle(0, 0, 0, 0);
+			}
 		}
 
 	}

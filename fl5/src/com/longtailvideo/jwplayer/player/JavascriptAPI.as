@@ -9,11 +9,7 @@ package com.longtailvideo.jwplayer.player {
 	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.RootReference;
 	import com.longtailvideo.jwplayer.utils.Strings;
-	import com.longtailvideo.jwplayer.view.interfaces.IControlbarComponent;
-	import com.longtailvideo.jwplayer.view.interfaces.IDisplayComponent;
-	import com.longtailvideo.jwplayer.view.interfaces.IDockComponent;
 	import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
-	import com.longtailvideo.jwplayer.view.interfaces.IPlaylistComponent;
 	
 	import flash.events.Event;
 	import flash.events.TimerEvent;
@@ -418,15 +414,7 @@ package com.longtailvideo.jwplayer.player {
 		}
 		
 		protected function setComponentVisibility(component:IPlayerComponent, state:Boolean):void {
-			if (component is IPlaylistComponent) {
-				state ? (component as IPlaylistComponent).show() : (component as IPlaylistComponent).hide();
-			} else if (component is IDockComponent) {
-				state ? (component as IDockComponent).show() : (component as IDockComponent).hide();
-			} else if (component is IControlbarComponent) {
-				state ? (component as IControlbarComponent).show() : (component as IControlbarComponent).hide();
-			} else if (component is IDisplayComponent) {
-				state ? (component as IDisplayComponent).show() : (component as IDisplayComponent).hide();
-			}
+			state ? component.show() : component.hide();
 		}
 
 		protected function js_showControlbar():void {

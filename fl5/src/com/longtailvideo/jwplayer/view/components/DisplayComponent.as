@@ -1,4 +1,5 @@
 ﻿package com.longtailvideo.jwplayer.view.components {
+	import com.longtailvideo.jwplayer.events.ComponentEvent;
 	import com.longtailvideo.jwplayer.events.MediaEvent;
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
 	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
@@ -18,6 +19,7 @@
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.geom.ColorTransform;
+	import flash.geom.Rectangle;
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
 	import flash.text.GridFitType;
@@ -27,10 +29,23 @@
 	import flash.utils.Timer;
 	import flash.utils.clearInterval;
 	import flash.utils.setInterval;
-	
+
+	/**
+	 * Sent when the display icon begins to become visible
+	 *
+	 * @eventType com.longtailvideo.jwplayer.events.ComponentEvent.JWPLAYER_COMPONENT_SHOW
+	 */
+	[Event(name="jwPlayerComponentShow", type="com.longtailvideo.jwplayer.events.ComponentEvent")]
+	/**
+	 * Sent when the display icon begins to hide
+	 *
+	 * @eventType com.longtailvideo.jwplayer.events.ComponentEvent.JWPLAYER_COMPONENT_HIDE
+	 */
+	[Event(name="jwPlayerComponentHide", type="com.longtailvideo.jwplayer.events.ComponentEvent")]
 	
 	public class DisplayComponent extends CoreComponent implements IDisplayComponent {
 		protected var _icon:DisplayObject;
+		protected var _iconArea:Rectangle;
 		protected var _background:MovieClip;
 		protected var _overlay:Sprite;
 		protected var _text:TextField;
@@ -224,7 +239,7 @@
 			}		
 		}
 		
-		public function resize(width:Number, height:Number):void {
+		override public function resize(width:Number, height:Number):void {
 			_background.width = width;
 			_background.height = height;
 			
@@ -240,10 +255,15 @@
 		
 		
 		public function setIcon(displayIcon:DisplayObject):void {
+			var sendShow:Boolean = false;
+			var sendHide:Boolean = false;
 			try {
 				if (_icon && _icon.parent == _overlay) { 
 					_overlay.removeChild(_icon);
 					_icon = null;
+					sendHide = !_hiding;
+				} else {
+					sendShow = !_hiding;
 				}
 			} catch (err:Error) {
 			}
@@ -254,6 +274,15 @@
 				_icon = displayIcon;
 				_overlay.addChild(_icon);
 				positionIcon();
+				_iconArea = _icon.getRect(_overlay);
+				if (sendShow) {
+					dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, _iconArea));
+				}
+			} else {
+				if (sendHide) {
+					dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_HIDE, this, _iconArea));
+				}
+				_iconArea = null;
 			}
 		}
 		
@@ -407,7 +436,12 @@
 			if (_overlay) {
 				_overlay.visible = false;
 			}
-			_hiding = true;
+			if (!_hiding) {
+				if (_icon) {
+					dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_HIDE, this, _iconArea));
+				}
+				_hiding = true;
+			}
 		}
 		
 		/** Show the display icon **/
@@ -415,7 +449,12 @@
 			if (_overlay) {
 				_overlay.visible = true;
 			}
-			_hiding = false;
+			if (_hiding) {
+				if (_icon) {
+					dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, _iconArea));
+				}
+				_hiding = false;
+			}
 		}
 		
 	}

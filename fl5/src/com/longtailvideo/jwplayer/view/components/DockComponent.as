@@ -1,4 +1,5 @@
 package com.longtailvideo.jwplayer.view.components {
+	import com.longtailvideo.jwplayer.events.ComponentEvent;
 	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
 	import com.longtailvideo.jwplayer.player.IPlayer;
 	import com.longtailvideo.jwplayer.player.PlayerState;
@@ -15,9 +16,22 @@ package com.longtailvideo.jwplayer.view.components {
 	import flash.events.Event;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.geom.Rectangle;
 	import flash.utils.clearTimeout;
 	import flash.utils.setTimeout;
 	
+	/**
+	 * Sent when the dock begins to become visible
+	 *
+	 * @eventType com.longtailvideo.jwplayer.events.ComponentEvent.JWPLAYER_COMPONENT_SHOW
+	 */
+	[Event(name="jwPlayerComponentShow", type="com.longtailvideo.jwplayer.events.ComponentEvent")]
+	/**
+	 * Sent when the dock begins to hide
+	 *
+	 * @eventType com.longtailvideo.jwplayer.events.ComponentEvent.JWPLAYER_COMPONENT_HIDE
+	 */
+	[Event(name="jwPlayerComponentHide", type="com.longtailvideo.jwplayer.events.ComponentEvent")]
 	
 	public class DockComponent extends CoreComponent implements IDockComponent {
 
@@ -32,6 +46,12 @@ package com.longtailvideo.jwplayer.view.components {
 		private var animations:Animations;
 		/** Tab index for accessibility options **/
 		private var currentTab:Number = 400;
+		/** Keep track of dock icon dimensions **/
+		private var dimensions:Rectangle;
+		/** Have we last sent a show event? **/
+		private var sentShow:Boolean = false;
+		/** Have we last sent a hide event? **/
+		private var sentHide:Boolean = false;
 
 
 		public function DockComponent(player:IPlayer) {
@@ -93,7 +113,9 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		
-		public function resize(width:Number, height:Number):void {
+		override public function resize(width:Number, height:Number):void {
+			var topleft:Rectangle;
+			var bottomright:Rectangle;
 			if (buttons.length > 0) {
 				var margin:Number = 10;
 				var xStart:Number = width - buttons[0].width - margin;
@@ -105,18 +127,31 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 				for (var i:Number = 0; i < buttons.length; i++) {
 					var row:Number = Math.floor(usedHeight / height);
-					if ((usedHeight + buttons[i].height + margin) > ((row + 1) * height)){
+					var button:DisplayObject = buttons[i] as DisplayObject;
+					if ((usedHeight + button.height + margin) > ((row + 1) * height)){
 						usedHeight = ((row + 1) * height) + margin;
 						row = Math.floor(usedHeight / height);
 					}
-					buttons[i].y = usedHeight % height;
-					buttons[i].x = xStart + (buttons[i].width + margin) * row * direction;
-					usedHeight += buttons[i].height + margin;
-					if(buttons[i] is DockButton) {
-					    (buttons[i] as DockButton).centerText();
+					button.y = usedHeight % height;
+					button.x = xStart + (button.width + margin) * row * direction;
+					
+					if (!topleft || (button.x <= topleft.x && button.y >= topleft.y))
+						topleft = new Rectangle(button.x, button.y, button.width, button.height);
+					if (!bottomright || (button.x >= bottomright.x && button.y <= bottomright.y))
+						bottomright = new Rectangle(button.x, button.y, button.width, button.height);
+					
+					usedHeight += button.height + margin;
+					if(button is DockButton) {
+					    (button as DockButton).centerText();
 					}
 				}
 			}
+			if (topleft && bottomright) {
+				dimensions = new Rectangle(topleft.x, topleft.y, bottomright.x - topleft.x + bottomright.width, topleft.y - bottomright.y + bottomright.height);
+			} else {
+				dimensions = new Rectangle();
+			}
+			stateHandler();
 		}
 		
 		/** Hide the dock if the controlbar is set to be hidden on idle **/
@@ -145,6 +180,7 @@ package com.longtailvideo.jwplayer.view.components {
 			if (player.state == PlayerState.BUFFERING || player.state == PlayerState.PLAYING || hideOnIdle) {
 				startFader();
 				if (alpha < 1) {
+					sendShow();
 					animations.fade(1);
 				}
 			}
@@ -156,6 +192,7 @@ package com.longtailvideo.jwplayer.view.components {
 			if (hidden) return;
 			
 			if (player.state == PlayerState.BUFFERING || player.state == PlayerState.PLAYING || hideOnIdle) {
+				sendHide();
 				animations.fade(0);
 			}
 		}
@@ -209,6 +246,7 @@ package com.longtailvideo.jwplayer.view.components {
 						if (hideOnIdle) {
 							moveTimeout();
 						} else {
+							sendShow();
 							animations.fade(1);
 						}
 					}
@@ -216,8 +254,34 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		public override function show():void {
-			if (player.config.dock) {
-				super.show();
+			if (player.config.dock && hidden) {
+				_hiding = false;
+				this.visible = true;
+				sendShow();
+			}
+		}
+
+		public override function hide():void {
+			if (player.config.dock && !hidden) {
+				_hiding = false;
+				this.visible = true;
+				sendShow();
+			}
+		}
+
+		private function sendShow():void {
+			if (!sentShow) {
+				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, dimensions));
+				sentShow = true;
+				sentHide = false;
+			}
+		}
+
+		private function sendHide():void {
+			if (!sentHide) {
+				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_HIDE, this, dimensions));
+				sentShow = false;
+				sentHide = true;
 			}
 		}
 	}
