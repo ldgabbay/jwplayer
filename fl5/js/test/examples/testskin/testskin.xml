@@ -9,7 +9,10 @@
 
 	<components>
 		<component name="controlbar">
-
+			<settings>
+				<setting name="fontcolor" value="0xffffff" />
+			</settings>
+			
 			<layout>
 				<group position="left">
 					<button name="play" />

@@ -490,7 +490,7 @@
 			_currentDuration = _api.jwGetPlaylist()[evt.index].duration;
 			_timeHandler({
 				id: _api.id,
-				duration: _currentDuration(),
+				duration: _currentDuration,
 				position: 0
 			});
 			_bufferHandler({

@@ -43,11 +43,15 @@
 					
 					setupForm: function() {
 						for(var i in $_GET) {
-							if($_GET[i]) {
+							if($_GET[i] && i != "player") {
 								$("#flashvars").text($("#flashvars").text() + i + "=" + $_GET[i] + "\n");
 							}
 						}
 					}
+				});
+				
+				$("#players").change(function() {
+				  $.setupPlayer();
 				});
 				
 				$("#theForm").submit(function() {
@@ -60,7 +64,7 @@
 					return false;
 				});
 				
-		        var $_GET = {};
+        var $_GET = {};
 				$.getVars();
 				$.setupPlayer();
 				$.setupForm();
@@ -76,12 +80,21 @@
 				<select id="players">
 					<option value=''></option>
 					<option value='../../player.swf'>v5</option>
+					<option value='../../../../commercial/trunk/player-licensed.swf'>v5c</option>
+					<option value='../../../../tags/mediaplayer-5.6/player.swf'>5.6</option>
 					<option value='../../../../tags/mediaplayer-5.5/player.swf'>5.5</option>
 					<option value='../../../../tags/mediaplayer-5.4/player.swf'>5.4</option>
 					<option value='../../../../tags/mediaplayer-5.3/player.swf'>5.3</option>
 					<option value='../../../../tags/mediaplayer-5.2/player.swf'>5.2</option>
 					<option value='../../../../tags/mediaplayer-5.1/player.swf'>5.1</option>
 					<option value='../../../../tags/mediaplayer-5.0/player.swf'>5.0</option>
+					<option value='../../../../tags/mediaplayer-4.7/player.swf'>4.7</option>
+					<option value='../../../../tags/mediaplayer-4.6/player.swf'>4.6</option>
+					<option value='../../../../tags/mediaplayer-4.5/player.swf'>4.5</option>
+					<option value='../../../../tags/mediaplayer-4.4/player.swf'>4.4</option>
+					<option value='../../../../tags/mediaplayer-4.3/player.swf'>4.3</option>
+					<option value='../../../../tags/mediaplayer-4.2/player.swf'>4.2</option>
+					<option value='../../../../tags/mediaplayer-4.1/player.swf'>4.1</option>
 					<option value='../../../as3/player.swf'>v4</option>
 				</select>
 			</fieldset>

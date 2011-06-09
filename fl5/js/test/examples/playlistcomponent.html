@@ -12,26 +12,28 @@
             
             var playlistObj = [{
            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
-            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
-            		title: "Item 1"
+            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-580.jpg",
+            		title: "Item 1",
+            		description: "Lorem ipsum dolor est, blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah "
             	}, {
            			file: "http://content.bitsontherun.com/videos/guYqV1AB-486405.mp4",
-            		title: "Item 2"
+            		title: "Item 2",
+            		description: "Lorem ipsum dolor est, blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah "
 	           	}, {
            			file: "http://content.bitsontherun.com/videos/DMJODX8R-486405.mp4",
-            		image: "http://content.bitsontherun.com/thumbs/DMJODX8R-480.jpg",
+            		image: "http://content.bitsontherun.com/thumbs/DMJODX8R-580.jpg",
             		title: "Item 3"
             	}, {
            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
-            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-580.jpg",
             		title: "Item 4"
             	}, {
            			file: "http://content.bitsontherun.com/videos/guYqV1AB-486405.mp4",
-            		image: "http://content.bitsontherun.com/thumbs/guYqV1AB-480.jpg",
+            		image: "http://content.bitsontherun.com/thumbs/guYqV1AB-580.jpg",
             		title: "Item 5"
             	}, {
            			file: "http://content.bitsontherun.com/videos/DMJODX8R-486405.mp4",
-            		image: "http://content.bitsontherun.com/thumbs/DMJODX8R-480.jpg",
+            		image: "http://content.bitsontherun.com/thumbs/DMJODX8R-580.jpg",
             		title: "Item 6"
             	}];
         </script>
@@ -51,51 +53,53 @@
   		  <p>
     			Default (Position="none")
     		</p>
-        <div height="270" id="player1" width="480">
+        <div height="270" id="player1" width="580">
             JW Player should replace this
        </div>
   		<p>
   			Position="right"
   		</p>
-          <div height="270" id="player2" width="480">
+          <div height="270" id="player2" width="580">
               JW Player should replace this
           </div>
   		<p>
   			Position="left"
   		</p>
-          <div height="270" id="player3" width="480">
+          <div height="270" id="player3" width="580">
               JW Player should replace this
           </div>
   		<p>
   			Position="top"
   		</p>
-          <div height="270" id="player4" width="480">
+          <div height="270" id="player4" width="580">
               JW Player should replace this
           </div>
   		<p>
   			Position="bottom"
   		</p>
-          <div height="270" id="player5" width="480">
+          <div height="270" id="player5" width="580">
               JW Player should replace this
           </div>
   		<p>
   			Position="over"
   		</p>
-          <div height="270" id="player6" width="480">
+          <div height="270" id="player6" width="580">
               JW Player should replace this
           </div>
   		<p>
   			Playlist.thumbs = false
   		</p>
-          <div height="270" id="player7" width="480">
+          <div height="270" id="player7" width="580">
               JW Player should replace this
           </div>
+        
   		<p>
   			Playlist with a skin
   		</p>
           <div height="270" id="player8" width="580">
               JW Player should replace this
           </div>
+
         
 
         <script type="text/javascript">
@@ -143,7 +147,6 @@
            		playlist: playlistObj,
            		"playlist.position": "over"
             });
-
            	jwplayer("player" + idx++).setup({
             	modes: settings.modes[mode],
            		playlist: playlistObj,
@@ -152,13 +155,14 @@
            		"playlist.thumbs": false
             });
 
-           	jwplayer("player" + idx++).setup({
+            jwplayer("player" + idx++).setup({
             	modes: settings.modes[mode],
-           		playlist: playlistObj,
+           		playlist: playlistObj.slice(0,2),
            		"playlist.position": "right",
            		"playlist.size": "260",
-           		skin: "http://playertest.longtailvideo.com/glow.zip"
+           		skin: "testskin/testskin.xml"
             });
+
           }
           
           setupAll();
