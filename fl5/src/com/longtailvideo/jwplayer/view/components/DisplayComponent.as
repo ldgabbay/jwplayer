@@ -247,7 +247,7 @@
 			_youtubeMask.graphics.beginFill(0x00AA00, 0.3);
 			_youtubeMask.graphics.drawRect(0, 0, width, height - 100);
 			_youtubeMask.graphics.endFill();
-			
+
 			positionIcon();
 			positionText();
 			stateHandler();
@@ -266,6 +266,10 @@
 					sendShow = !_hiding;
 				}
 			} catch (err:Error) {
+			}
+			if (_fullscreen != _player.config.fullscreen) {
+				_fullscreen = _player.config.fullscreen;
+				sendShow = true;
 			}
 			if (displayIcon && _player.config.icons && (getConfigParam("icons") === true || typeof(getConfigParam("icons")) == "undefined")) {
 				if (displayIcon is Sprite) {

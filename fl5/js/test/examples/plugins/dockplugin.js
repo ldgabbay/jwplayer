@@ -16,6 +16,6 @@
 		};
 	}
 	
-	jwplayer().registerPlugin('dockplugin', template, 'hd');
+	jwplayer().registerPlugin('dockplugin', template, '');
 	
 })(jwplayer);

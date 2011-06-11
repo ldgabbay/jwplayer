@@ -1,4 +1,5 @@
 package com.longtailvideo.jwplayer.player {
+	import com.longtailvideo.jwplayer.events.ComponentEvent;
 	import com.longtailvideo.jwplayer.events.MediaEvent;
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
 	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
@@ -9,7 +10,11 @@ package com.longtailvideo.jwplayer.player {
 	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.RootReference;
 	import com.longtailvideo.jwplayer.utils.Strings;
+	import com.longtailvideo.jwplayer.view.interfaces.IControlbarComponent;
+	import com.longtailvideo.jwplayer.view.interfaces.IDisplayComponent;
+	import com.longtailvideo.jwplayer.view.interfaces.IDockComponent;
 	import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
+	import com.longtailvideo.jwplayer.view.interfaces.IPlaylistComponent;
 	
 	import flash.events.Event;
 	import flash.events.TimerEvent;
@@ -181,11 +186,14 @@ package com.longtailvideo.jwplayer.player {
 				args = listenerCallbackState(evt as PlayerStateEvent);
 			else if (evt is PlaylistEvent)
 				args = listenerCallbackPlaylist(evt as PlaylistEvent);
+			else if (evt is ComponentEvent)
+				args = listenerCallbackComponent(evt as ComponentEvent);
 			else if (evt is ViewEvent && (evt as ViewEvent).data != null)
 				args = { data: JavascriptSerialization.stripDots((evt as ViewEvent).data) };
 			else
 				args = { message: evt.message };
 			
+			args.type = evt.type;
 			var callbacks:Array = _listeners[evt.type] as Array;
 			
 			//Insert 1ms delay to allow all Flash listeners to complete before notifying JavaScript
@@ -219,7 +227,6 @@ package com.longtailvideo.jwplayer.player {
 			if (evt.bufferPercent >= 0) 		returnObj.bufferPercent = evt.bufferPercent;
 			if (evt.duration >= 0)		 		returnObj.duration = evt.duration;
 			if (evt.message)					returnObj.message = evt.message;
-			// todo: strip out 'name.properties' named properties
 			if (evt.metadata != null)	 		returnObj.metadata = JavascriptSerialization.stripDots(evt.metadata);
 			if (evt.offset > 0)					returnObj.offset = evt.offset;
 			if (evt.position >= 0)				returnObj.position = evt.position;
@@ -248,6 +255,27 @@ package com.longtailvideo.jwplayer.player {
 			} else if (evt.type == PlaylistEvent.JWPLAYER_PLAYLIST_ITEM) {
 				return { index: _player.playlist.currentIndex };
 			} else return {};
+		}
+
+		protected function listenerCallbackComponent(evt:ComponentEvent):Object {
+			var obj:Object = {};
+			if (evt.component is IControlbarComponent)
+				obj.component = "controlbar";
+			else if (evt.component is IPlaylistComponent)
+				obj.component = "playlist";
+			else if (evt.component is IDisplayComponent)
+				obj.component = "display";
+			else if (evt.component is IDockComponent)
+				obj.component = "dock";
+			
+			obj.boundingRect = { 
+				x: evt.boundingRect.x,
+				y: evt.boundingRect.y,
+				width: evt.boundingRect.width,
+				height: evt.boundingRect.height
+			};
+
+			return obj;
 		}
 
 		/***********************************************

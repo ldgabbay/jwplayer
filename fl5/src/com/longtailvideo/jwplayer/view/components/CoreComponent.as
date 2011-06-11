@@ -16,6 +16,8 @@ package com.longtailvideo.jwplayer.view.components {
 		protected var _player:IPlayer;
 		protected var _name:String;
 		protected var _hiding:Boolean = false;
+		protected var _fullscreen:Boolean = false;
+		
 
 		public function CoreComponent(player:IPlayer, name:String) {
 			_dispatcher = new GlobalEventDispatcher();
@@ -41,6 +43,7 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 		
 		public function resize(width:Number, height:Number):void {
+			_fullscreen = _player.config.fullscreen;
 		}
 		
 		protected function get player():IPlayer {

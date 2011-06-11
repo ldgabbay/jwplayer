@@ -27,6 +27,18 @@
         	JW Player should replace this
         </div>
 
+        <h3>Flash, display.showmute=false<h3>
+
+	<div id="player3">
+        	JW Player should replace this
+        </div>
+        
+        <h3>HTML5, display.showmute=false</h3>
+
+        <div id="player4">
+        	JW Player should replace this
+        </div>
+
          <p>Here is a <a href="#">link</a> that goes after the players.</p>
         
         <script type="text/javascript">
@@ -49,7 +61,28 @@
             	height: "270",
             	width: "480"
             });
-        </script>
+
+		jwplayer("player3").setup({
+            	players: settings.players(window.location.href, ["html5","flash"]),
+            	file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+		'display.showmute': false,
+		mute: true,
+            	height: "270",
+            	width: "480"
+            });
+            
+                        jwplayer("player4").setup({
+            	players: settings.players(window.location.href, ["html5","flash"]),
+            	file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+		'display.showmute': false,
+		mute: true,
+            	height: "270",
+            	width: "480"
+            });
+            
+</script>
         <h3>HTML code</h3>
     </body>
 </html>

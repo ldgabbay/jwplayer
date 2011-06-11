@@ -48,7 +48,7 @@
 		return size;
 	}
 	
-	var components = ["playlist", "dock", "controlbar", "logo"];
+	var components = ["playlist", "dock", "controlbar", "logo", "display"];
 	
 	function getPluginNames(config) {
 		var pluginNames = {};

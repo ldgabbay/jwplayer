@@ -22,7 +22,8 @@
 	
 	jwplayer.html5.display = function(api, config) {
 		var _defaults = {
-			icons: true
+			icons: true,
+			showmute: false
 		}
 		var _config = _utils.extend({}, _defaults, config);
 		var _api = api;
@@ -39,6 +40,12 @@
 		var _updateTimeout = -1;
 		var _lastState = "";
 		var _showing = true;
+		var _lastSent;
+		var _hiding = false;
+		
+		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
+		_utils.extend(this, _eventDispatcher);
+		
 		var _elements = {
 			display: {
 				style: {
@@ -58,7 +65,8 @@
 					border: 0,
 					margin: 0,
 					padding: 0,
-					zIndex: 3
+					zIndex: 3,
+					display: "none"
 				}
 			},
 			display_iconBackground: {
@@ -73,7 +81,8 @@
 					height: _api.skin.getSkinElement("display", "background").height,
 					margin: 0,
 					padding: 0,
-					zIndex: 2
+					zIndex: 2,
+					display: "none"
 				}
 			},
 			display_image: {
@@ -126,6 +135,7 @@
 			_display.display_iconBackground.appendChild(_display.display_icon);
 			_display.display.appendChild(_display.display_iconBackground);
 			_setupDisplayElements();
+			
 		}
 		
 		
@@ -134,31 +144,42 @@
 		};
 		
 		this.resize = function(width, height) {
-			_width = width;
-			_height = height;
 			_css(_display.display, {
 				width: width,
 				height: height
 			});
 			_css(_display.display_text, {
 				width: (width - 10),
-				top: ((_height - _display.display_text.getBoundingClientRect().height) / 2)
+				top: ((height - _display.display_text.getBoundingClientRect().height) / 2)
 			});
 			_css(_display.display_iconBackground, {
-				top: ((_height - _api.skin.getSkinElement("display", "background").height) / 2),
-				left: ((_width - _api.skin.getSkinElement("display", "background").width) / 2)
+				top: ((height - _api.skin.getSkinElement("display", "background").height) / 2),
+				left: ((width - _api.skin.getSkinElement("display", "background").width) / 2)
 			});
+			if (_width != width || _height != height) {
+				_width = width;
+				_height = height;
+				_lastSent = undefined;
+				_sendShow();
+			}
 			_stretch();
 			_stateHandler({});
 		};
 		
 		this.show = function() {
-			_show(_display.display_icon);
-			_show(_display.display_iconBackground);
+			if (_hiding) {
+				_hiding = false;
+				_lastSent = undefined;
+				_showDisplayIcon();
+			}
 		}
 
 		this.hide = function() {
-			_hideDisplayIcon();
+			if (!_hiding) {
+				_lastSent = undefined;
+				_hideDisplayIcon();
+				_hiding = true;
+			}
 		}
 
 		function _onImageLoad(evt) {
@@ -203,19 +224,18 @@
 		
 		
 		function _setDisplayIcon(newIcon) {
-			if (_error || !_config.icons) {
+			if (_error) {
 				_hideDisplayIcon();
 				return;
 			}
-			_show(_display.display_iconBackground);
 			_display.display_icon.style.backgroundImage = (["url(", _api.skin.getSkinElement("display", newIcon).src, ")"]).join("");
 			_css(_display.display_icon, {
-				display: "block",
 				width: _api.skin.getSkinElement("display", newIcon).width,
 				height: _api.skin.getSkinElement("display", newIcon).height,
 				top: (_api.skin.getSkinElement("display", "background").height - _api.skin.getSkinElement("display", newIcon).height) / 2,
 				left: (_api.skin.getSkinElement("display", "background").width - _api.skin.getSkinElement("display", newIcon).width) / 2
 			});
+			_showDisplayIcon();
 			if (_utils.exists(_api.skin.getSkinElement("display", newIcon + "Over"))) {
 				_display.display_icon.onmouseover = function(evt) {
 					_display.display_icon.style.backgroundImage = ["url(", _api.skin.getSkinElement("display", newIcon + "Over").src, ")"].join("");
@@ -230,10 +250,21 @@
 		}
 		
 		function _hideDisplayIcon() {
-			_hide(_display.display_icon);
-			_hide(_display.display_iconBackground);
+			if (_config.icons.toString() == "true") {
+				_hide(_display.display_icon);
+				_hide(_display.display_iconBackground);
+				_sendHide();
+			}
 		}
-		
+
+		function _showDisplayIcon() {
+			if (!_hiding && _config.icons.toString() == "true") {
+				_show(_display.display_icon);
+				_show(_display.display_iconBackground);
+				_sendShow();
+			}
+		}
+
 		function _errorHandler(evt) {
 			_error = true;
 			_hideDisplayIcon();
@@ -297,8 +328,7 @@
 				case jwplayer.api.events.state.BUFFERING:
 					if (_utils.isIOS()) {
 						_resetPoster();
-						_hide(_display.display_iconBackground);
-						_hide(_display.display_icon);
+						_hideDisplayIcon();
 					} else {
 						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider == "sound") {
 							_showImage();
@@ -347,8 +377,7 @@
 					if (_api.jwGetMute() && _config.showmute) {
 						_setDisplayIcon("muteIcon");
 					} else {
-						_hide(_display.display_iconBackground);
-						_hide(_display.display_icon);
+						_hideDisplayIcon();
 					}
 					break;
 			}
@@ -361,6 +390,23 @@
 			});
 			_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
 		}
+		
+		
+		function _sendVisibilityEvent(eventType) {
+			return function() {
+				if (!_hiding && _lastSent != eventType) {
+					_lastSent = eventType;
+					_eventDispatcher.sendEvent(eventType, {
+						component: "display",
+						boundingRect: _utils.getDimensions(_display.display_iconBackground)
+					});
+				}
+			}
+		}
+
+		var _sendShow = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_SHOW);
+		var _sendHide = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_HIDE);
+
 		
 		return this;
 	};

@@ -660,5 +660,38 @@
 			}
 		}
 	}
+	
+	/**
+	 * Cleans up a css dimension (e.g. '420px') and returns an integer.
+	 */
+	jwplayer.utils.parseDimension = function(dimension) {
+		if (typeof dimension == "string") {
+			if (dimension === "") {
+				return 0;
+			} else if (dimension.lastIndexOf("%") > -1) {
+				return dimension;
+			} else {
+				return parseInt(dimension.replace("px", ""), 10);
+			}
+		}
+		return dimension;
+	}
+
+	/**
+	 * Returns dimensions (x,y,width,height) of a display object
+	 */
+	jwplayer.utils.getDimensions = function(obj) {
+		if (obj && obj.style) {
+			return {
+				x: jwplayer.utils.parseDimension(obj.style.left),
+				y: jwplayer.utils.parseDimension(obj.style.top),
+				width: jwplayer.utils.parseDimension(obj.style.width),
+				height: jwplayer.utils.parseDimension(obj.style.height)
+			};
+		} else {
+			return {};
+		}
+	}
+
 
 })(jwplayer);

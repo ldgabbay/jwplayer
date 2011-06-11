@@ -121,9 +121,7 @@ package com.longtailvideo.jwplayer.view.components {
 		protected var _volSlider:Slider;
 
 		protected var _bgColorSheet:Sprite;
-		
-		protected var _fullscreen:Boolean = false;
-		
+
 		protected var animations:Animations;
 		protected var _fadingOut:Number;
 		private var _sentShow:Boolean = false;
@@ -735,10 +733,11 @@ package com.longtailvideo.jwplayer.view.components {
 			_bgColorSheet.width = _width;
 			_bgColorSheet.height = background.height;
 
-			if (_fullscreen && !_player.config.fullscreen) {
+			if (_fullscreen != _player.config.fullscreen) {
+				_fullscreen = _player.config.fullscreen;
+				_sentShow = false;
 				stopFader();
 			}
-			_fullscreen = _player.config.fullscreen;
 			if (!_fullscreen) {
 				Mouse.show();
 			}
@@ -819,7 +818,7 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 
 		private function get displayRect():Rectangle {
-			if (this.parent && getConfigParam('position') == "over") {
+			if (this.parent && getConfigParam('position') == "over" || _player.config.fullscreen) {
 				return getBounds(this.parent);
 			} else {
 				return new Rectangle(0, 0, 0, 0);

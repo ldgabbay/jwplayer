@@ -21,6 +21,13 @@
 		var _buttonArray = [];
 		var _width;
 		var _height;
+		var _hiding = false;
+		var _fullscreen = false;
+		var _dimensions = { x: 0, y: 0, width: 0, height: 0 };
+		var _lastSent;
+		
+		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
+		_utils.extend(this, _eventDispatcher);
 		
 		var _dock = document.createElement("div");
 		_dock.id = api.id + "_jwplayer_dock";
@@ -117,40 +124,92 @@
 			
 			if (_buttonArray.length > 0) {
 				var margin = 10;
-				var xStart = width - api.skin.getSkinElement("dock", "button").width - margin;
 				var usedHeight = margin;
 				var direction = -1;
+				var buttonHeight = api.skin.getSkinElement("dock", "button").height;
+				var buttonWidth = api.skin.getSkinElement("dock", "button").width;
+				var xStart = width - buttonWidth - margin;
+				var topLeft, bottomRight;
 				if (_config.align == jwplayer.html5.view.positions.LEFT) {
 					direction = 1;
 					xStart = margin;
 				}
 				for (var i = 0; i < _buttonArray.length; i++) {
 					var row = Math.floor(usedHeight / height);
-					if ((usedHeight + api.skin.getSkinElement("dock", "button").height + margin) > ((row + 1) * height)) {
+					if ((usedHeight + buttonHeight + margin) > ((row + 1) * height)) {
 						usedHeight = ((row + 1) * height) + margin;
 						row = Math.floor(usedHeight / height);
 					}
-					_buttons[_buttonArray[i]].div.style.top = (usedHeight % height) + "px";
-					_buttons[_buttonArray[i]].div.style.left = (xStart + (api.skin.getSkinElement("dock", "button").width + margin) * row * direction) + "px";
+					var button = _buttons[_buttonArray[i]].div;
+					button.style.top = (usedHeight % height) + "px";
+					button.style.left = (xStart + (api.skin.getSkinElement("dock", "button").width + margin) * row * direction) + "px";
+					var buttonDims = {
+						x: jwplayer.utils.parseDimension(button.style.left),
+						y: jwplayer.utils.parseDimension(button.style.top),
+						width: buttonWidth,
+						height: buttonHeight
+					}
+					if (!topLeft || (buttonDims.x <= topLeft.x && buttonDims.y <= topLeft.y))
+						topLeft = buttonDims;
+					if (!bottomRight || (buttonDims.x >= bottomRight.x && buttonDims.y >= bottomRight.y))
+						bottomRight = buttonDims;
+					
 					usedHeight += api.skin.getSkinElement("dock", "button").height + margin;
+				}
+				_dimensions = {
+					x: topLeft.x,
+					y:  topLeft.y,
+					width: bottomRight.x - topLeft.x + bottomRight.width,
+					height: topLeft.y - bottomRight.y + bottomRight.height
+				};
+			}
+			
+			if (_fullscreen != api.jwGetFullscreen()) {
+				_fullscreen = api.jwGetFullscreen();
+				_lastSent = undefined;
+				_sendShow();
+			}
+			
+		}
+		
+		function _sendVisibilityEvent(eventType) {
+			return function() {
+				if (!_hiding && _lastSent != eventType && _buttonArray.length > 0) {
+					_lastSent = eventType;
+					_eventDispatcher.sendEvent(eventType, {
+						component: "dock",
+						boundingRect: _dimensions
+					});
 				}
 			}
 		}
-		
+
+		var _sendShow = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_SHOW);
+		var _sendHide = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_HIDE);
+
 		this.resize = _resize;
 		
 		this.show = function() {
 			_css(_dock, {
 				display: "block"
 			});
+			if (_hiding) {
+				_hiding = false;
+				_sendShow();
+			}
 		}
 
 		this.hide = function() {
 			_css(_dock, {
 				display: "none"
 			});
+			if (!_hiding) {
+				_sendHide();
+				_hiding = true;
+			}
+			
 		}
-
+		
 		return this;
 	}
 })(jwplayer);

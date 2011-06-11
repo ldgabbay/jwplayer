@@ -12,6 +12,7 @@
 		
 		var _listeners = {};
 		var _stateListeners = {};
+		var _componentListeners = {};
 		var _readyListeners = [];
 		var _player = undefined;
 		var _playerReady = false;
@@ -30,40 +31,50 @@
 			return this.container;
 		};
 		
-		function _setButton(containerid) {
-			
+		function _setButton(ref) {
 			return function(id, handler, outGraphic, overGraphic) {
 				var handlerString;
 				if (handler) {
 					_callbacks[id] = handler;
-					handlerString = "jwplayer('" + containerid + "').callback('" + id + "')";
+					handlerString = "jwplayer('" + ref.id + "').callback('" + id + "')";
 				} else if (!handler && _callbacks[id]) {
 					delete _callbacks[id];
 				}
 				_player['jwDockSetButton'](id, handlerString, outGraphic, overGraphic);
+				return ref;
 			};
 		}
+		
 		this.getPlugin = function(pluginName) {
-			var _callInternal = this.callInternal;
+			var _this = this;
 			if (pluginName == "dock") {
 				return {
-					setButton: _setButton(this.id),
-					show: function() { return _callInternal('jwShowDock') },
-					hide: function() { return _callInternal('jwHideDock'); }
+					setButton: _setButton(_this),
+					show: function() { _this.callInternal('jwShowDock'); },
+					hide: function() { 
+						_this.callInternal('jwHideDock'); 
+					},
+					onShow: function(callback) { _this.componentListener("dock", jwplayer.api.events.JWPLAYER_COMPONENT_SHOW, callback); },
+					onHide: function(callback) { _this.componentListener("dock", jwplayer.api.events.JWPLAYER_COMPONENT_HIDE, callback); }
 				};
 			} else if (pluginName == "controlbar") {
 				return {
-					show: function() { return _callInternal('jwShowControlbar') },
-					hide: function() { return _callInternal('jwHideControlbar'); }
+					show: function() { _this.callInternal('jwShowControlbar'); },
+					hide: function() { _this.callInternal('jwHideControlbar'); },
+					onShow: function(callback) { _this.componentListener("controlbar", jwplayer.api.events.JWPLAYER_COMPONENT_SHOW, callback); },
+					onHide: function(callback) { _this.componentListener("controlbar", jwplayer.api.events.JWPLAYER_COMPONENT_HIDE, callback); }
 				}
 			} else if (pluginName == "display") {
 				return {
-					show: function() { return _callInternal('jwShowDisplay') },
-					hide: function() { return _callInternal('jwHideDisplay'); }
+					show: function() { _this.callInternal('jwShowDisplay'); },
+					hide: function() { _this.callInternal('jwHideDisplay'); },
+					onShow: function(callback) { _this.componentListener("display", jwplayer.api.events.JWPLAYER_COMPONENT_SHOW, callback); },
+					onHide: function(callback) { _this.componentListener("display", jwplayer.api.events.JWPLAYER_COMPONENT_HIDE, callback); }
 				}
 			}
 			return this.plugins[pluginName];
 		};
+		
 		this.callback = function(id) {
 			if (_callbacks[id]) {
 				return _callbacks[id]();
@@ -319,6 +330,33 @@
 			};
 		}
 		
+		this.componentListener = function(component, type, callback) {
+			if (!_componentListeners[component]) {
+				_componentListeners[component] = {};
+			}
+			if (!_componentListeners[component][type]) {
+				_componentListeners[component][type] = [];
+				this.eventListener(type, _componentCallback(component, type));
+			}
+			_componentListeners[component][type].push(callback);
+			return this;
+		};
+		
+		function _componentCallback(component, type) {
+			return function(event) {
+				if (component == event.component) {
+					var callbacks = _componentListeners[component][type];
+					if (callbacks) {
+						for (var c = 0; c < callbacks.length; c++) {
+							if (typeof callbacks[c] == 'function') {
+								callbacks[c].call(this, event);
+							}
+						}
+					}
+				}
+			};
+		}		
+		
 		this.addInternalListener = function(player, type) {
 			player.jwAddEventListener(type, 'function(dat) { jwplayer("' + this.id + '").dispatchEvent("' + type + '", dat); }');
 		};
@@ -479,6 +517,8 @@
 		JWPLAYER_FULLSCREEN: 'jwplayerFullscreen',
 		JWPLAYER_RESIZE: 'jwplayerResize',
 		JWPLAYER_ERROR: 'jwplayerError',
+		JWPLAYER_COMPONENT_SHOW: 'jwplayerComponentShow',
+		JWPLAYER_COMPONENT_HIDE: 'jwplayerComponentHide',
 		JWPLAYER_MEDIA_BUFFER: 'jwplayerMediaBuffer',
 		JWPLAYER_MEDIA_BUFFER_FULL: 'jwplayerMediaBufferFull',
 		JWPLAYER_MEDIA_ERROR: 'jwplayerMediaError',

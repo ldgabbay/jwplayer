@@ -17,6 +17,14 @@
         <p>
             It contains nine players with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
         </p>
+        <p>
+          Select a rendering mode: 
+          <select id="renderer">
+            <option value="flashonly">Flash Only</option>
+            <option value="html5only" selected="selected">HTML5 Only</option>
+          </select>
+          <button id="go" onclick="setupAll()">Go</button>
+        </p>
 		<p>
 			Default (Boolean true)
 		</p>
@@ -73,8 +81,12 @@
         </div>
 
         <script type="text/javascript">
+       	  function setupAll() {
+            var mode = document.getElementById('renderer').value;
+            if (!mode) mode = "standard";
+             	  
            	jwplayer("player1").setup({
-            	players: settings.players(window.location.href),
+            	modes: settings.modes[mode],
              	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -86,7 +98,7 @@
 				}
             });
             jwplayer("player2").setup({
-            	players: settings.players(window.location.href),
+            	modes: settings.modes[mode],
              	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -99,7 +111,7 @@
             	dock: true
             });
             jwplayer("player3").setup({
-            	players: settings.players(window.location.href),
+            	modes: settings.modes[mode],
              	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -112,7 +124,7 @@
             	dock: "true"
             });
             jwplayer("player4").setup({
-            	players: settings.players(window.location.href),
+            	modes: settings.modes[mode],
              	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -125,7 +137,7 @@
 				dock: false
             });
             jwplayer("player5").setup({
-            	players: settings.players(window.location.href),
+            	modes: settings.modes[mode],
              	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -138,7 +150,7 @@
 				dock: "false"
             });
             jwplayer("player6").setup({
-            	players: settings.players(window.location.href),
+            	modes: settings.modes[mode],
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -153,7 +165,7 @@
 				}
             });
             jwplayer("player7").setup({
-            	players: settings.players(window.location.href),
+            	modes: settings.modes[mode],
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -168,7 +180,7 @@
 				}
             });
             jwplayer("player8").setup({
-            	players: settings.players(window.location.href),
+            	modes: settings.modes[mode],
              	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -181,7 +193,7 @@
 				dock: "left"
             });
             jwplayer("player9").setup({
-            	players: settings.players(window.location.href),
+            	modes: settings.modes[mode],
              	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -193,7 +205,10 @@
 				},
 				dock: "right"
             });
+       	  }
+
+       	  setupAll();
         </script>
         <h3>HTML code</h3>
-    </body>
+	    </body>
 </html>

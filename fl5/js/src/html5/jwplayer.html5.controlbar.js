@@ -2,7 +2,7 @@
  * jwplayer controlbar component of the JW Player.
  *
  * @author zach
- * @version 5.6
+ * @version 5.7
  */
 (function(jwplayer) {
 	/** Map with config for the jwplayerControlbar plugin. **/
@@ -78,7 +78,8 @@
 		}
 	};
 	
-	_css = jwplayer.utils.css;
+	_utils = jwplayer.utils;
+	_css = _utils.css;
 	
 	_hide = function(element) {
 		_css(element, {
@@ -94,12 +95,12 @@
 	
 	jwplayer.html5.controlbar = function(api, config) {
 		var _api = api;
-		var _settings = jwplayer.utils.extend({}, _defaults, _api.skin.getComponentSettings("controlbar"), config);
+		var _settings = _utils.extend({}, _defaults, _api.skin.getComponentSettings("controlbar"), config);
 		if (_settings.position == jwplayer.html5.view.positions.NONE
 			|| typeof jwplayer.html5.view.positions[_settings.position] == "undefined") {
 			return;
 		}
-		if (jwplayer.utils.mapLength(_api.skin.getComponentLayout("controlbar")) > 0) {
+		if (_utils.mapLength(_api.skin.getComponentLayout("controlbar")) > 0) {
 			_settings.layout = _api.skin.getComponentLayout("controlbar");
 		}
 		var _wrapper;
@@ -119,6 +120,12 @@
 		var _bgElement;
 		var _hiding = false;
 		var _fadeTimeout;
+		var _lastSent;
+		var _eventReady = false;
+		var _fullscreen = false;
+		
+		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
+		_utils.extend(this, _eventDispatcher);
 		
 		function _getBack() {
 			if (!_bgElement) {
@@ -175,12 +182,18 @@
 		};
 		
 		this.resize = function(width, height) {
-			jwplayer.utils.cancelAnimation(_wrapper);
+			_utils.cancelAnimation(_wrapper);
 			document.getElementById(_api.id).onmousemove = _setVisiblity;
 			_width = width;
 			_height = height;
-			_setVisiblity();
+			
+			if (_fullscreen != _api.jwGetFullscreen()) {
+				_fullscreen = _api.jwGetFullscreen();
+				_lastSent = undefined;
+			}
+			
 			var style = _resizeBar();
+			_setVisiblity();
 			_timeHandler({
 				id: _api.id,
 				duration: _currentDuration,
@@ -194,13 +207,19 @@
 		};
 		
 		this.show = function() {
-			_hiding = false;
-			_show(_wrapper);
+			if (_hiding) {
+				_hiding = false;
+				_show(_wrapper);
+				_sendShow();
+			}
 		}
 
 		this.hide = function() {
-			_hiding = true;
-			_hide(_wrapper);
+			if (!_hiding) {
+				_hiding = true;
+				_hide(_wrapper);
+				_sendHide();
+			}
 		}
 
 		function _updatePositions() {
@@ -217,7 +236,7 @@
 		function _setVisiblity(evt) {
 			if (_hiding) { return; }
 			if (_settings.position == jwplayer.html5.view.positions.OVER) {
-				if (_remainVisible() || jwplayer.utils.exists(evt)) {
+				if (_remainVisible() || _utils.exists(evt)) {
 					_fadeIn();
 					clearTimeout(_fadeTimeout);
 					if (_api.jwGetState() != jwplayer.api.events.state.IDLE) {
@@ -235,13 +254,15 @@
 		}
 		
 		function _fadeOut(delay) {
-			jwplayer.utils.cancelAnimation(_wrapper);
-			jwplayer.utils.fadeTo(_wrapper, 0, 0.1, 1, 0);
+			_sendHide();
+			_utils.cancelAnimation(_wrapper);
+			_utils.fadeTo(_wrapper, 0, 0.1, 1, 0);
 		}
 		
 		function _fadeIn() {
-			jwplayer.utils.cancelAnimation(_wrapper);
-			jwplayer.utils.fadeTo(_wrapper, 1, 0, 1, 0);
+			_sendShow();
+			_utils.cancelAnimation(_wrapper);
+			_utils.fadeTo(_wrapper, 1, 0, 1, 0);
 		}
 		
 		function _remainVisible() {
@@ -259,6 +280,29 @@
 			return true;
 		}
 		
+		function _sendVisibilityEvent(eventType) {
+			return function() {
+				if (_eventReady && _lastSent != eventType) {
+					_lastSent = eventType;
+					_eventDispatcher.sendEvent(eventType, {
+						component: "controlbar",
+						boundingRect: _getBoundingRect()
+					});
+				}
+			}
+		}
+
+		var _sendShow = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_SHOW);
+		var _sendHide = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_HIDE);
+		
+		function _getBoundingRect() {
+			if (_settings.position == jwplayer.html5.view.positions.OVER || _api.jwGetFullscreen()) {
+				return _utils.getDimensions(_wrapper);
+			} else {
+				return { x: 0, y:0, width: 0, height: 0 };
+			}
+		}
+
 		function _appendNewElement(id, parent, css, domelement) {
 			var element;
 			if (!_ready) {
@@ -272,7 +316,7 @@
 			} else {
 				element = document.getElementById(_wrapper.id + "_" + id);
 			}
-			if (jwplayer.utils.exists(css)) {
+			if (_utils.exists(css)) {
 				_css(element, css);
 			}
 			return element;
@@ -288,8 +332,8 @@
 		/** Layout a group of elements**/
 		function _buildGroup(group, order) {
 			var alignment = group.position == "right" ? "right" : "left";
-			var elements = jwplayer.utils.extend([], group.elements);
-			if (jwplayer.utils.exists(order)) {
+			var elements = _utils.extend([], group.elements);
+			if (_utils.exists(order)) {
 				elements.reverse();
 			}
 			for (var i = 0; i < elements.length; i++) {
@@ -333,8 +377,8 @@
 					_addElement("elapsedText", alignment, true);
 					break;
 				case "time":
-					offsetLeft = !jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapLeft")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
-					offsetRight = !jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapRight")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapRight").width;
+					offsetLeft = !_utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapLeft")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
+					offsetRight = !_utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapRight")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapRight").width;
 					offset = alignment == "left" ? offsetLeft : offsetRight;
 					width = _api.skin.getSkinElement("controlbar", "timeSliderRail").width + offsetLeft + offsetRight;
 					slidercss = {
@@ -360,8 +404,8 @@
 					_buildHandler("normalscreenButton", "jwSetFullscreen", false);
 					break;
 				case "volume":
-					offsetLeft = !jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", "volumeSliderCapLeft")) ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
-					offsetRight = !jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", "volumeSliderCapRight")) ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapRight").width;
+					offsetLeft = !_utils.exists(_api.skin.getSkinElement("controlbar", "volumeSliderCapLeft")) ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
+					offsetRight = !_utils.exists(_api.skin.getSkinElement("controlbar", "volumeSliderCapRight")) ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapRight").width;
 					offset = alignment == "left" ? offsetLeft : offsetRight;
 					width = _api.skin.getSkinElement("controlbar", "volumeSliderRail").width + offsetLeft + offsetRight;
 					slidercss = {
@@ -392,7 +436,7 @@
 		}
 		
 		function _addElement(element, alignment, offset, parent, position, width, skinElement) {
-			if (jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", element)) || element.indexOf("Text") > 0 || element.indexOf("divider") === 0)  {
+			if (_utils.exists(_api.skin.getSkinElement("controlbar", element)) || element.indexOf("Text") > 0 || element.indexOf("divider") === 0)  {
 				var css = {
 					height: _getBack().height,
 					position: "absolute",
@@ -445,7 +489,7 @@
 				}
 				
 				
-				if (jwplayer.utils.typeOf(parent) == "undefined") {
+				if (_utils.typeOf(parent) == "undefined") {
 					parent = _elements.elements;
 				}
 				
@@ -455,7 +499,7 @@
 					_css(_elements[element], css);
 				} else {
 					var newelement = _appendNewElement(element, parent, css);
-					if (jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", element + "Over"))) {
+					if (_utils.exists(_api.skin.getSkinElement("controlbar", element + "Over"))) {
 						newelement.onmouseover = function(evt) {
 							newelement.style.backgroundImage = ["url(", _api.skin.getSkinElement("controlbar", element + "Over").src, ")"].join("");
 						};
@@ -531,9 +575,9 @@
 			if (_ready) {
 				return;
 			}
-			if (jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", element))) {
+			if (_utils.exists(_api.skin.getSkinElement("controlbar", element))) {
 				var _element = _elements[element];
-				if (jwplayer.utils.exists(_element)) {
+				if (_utils.exists(_element)) {
 					_css(_element, {
 						cursor: "pointer"
 					});
@@ -545,7 +589,7 @@
 					} else {
 						_element.onmouseup = function(evt) {
 							evt.stopPropagation();
-							if (jwplayer.utils.exists(args)) {
+							if (_utils.exists(args)) {
 								_api[handler](args);
 							} else {
 								_api[handler]();
@@ -623,7 +667,7 @@
 		
 		/** Update the buffer percentage. **/
 		function _bufferHandler(event) {
-			if (jwplayer.utils.exists(event.bufferPercent)) {
+			if (_utils.exists(event.bufferPercent)) {
 				_currentBuffer = event.bufferPercent;
 			}
 			if (_positions.timeSliderRail) {
@@ -687,7 +731,7 @@
 			_bufferHandler({
 				bufferPercent: 0
 			});
-			_timeHandler(jwplayer.utils.extend(event, {
+			_timeHandler(_utils.extend(event, {
 				position: 0,
 				duration: _currentDuration
 			}));
@@ -696,10 +740,10 @@
 		
 		/** Update the playback time. **/
 		function _timeHandler(event) {
-			if (jwplayer.utils.exists(event.position)) {
+			if (_utils.exists(event.position)) {
 				_currentPosition = event.position;
 			}
-			if (jwplayer.utils.exists(event.duration)) {
+			if (_utils.exists(event.duration)) {
 				_currentDuration = event.duration;
 			}
 			var progress = (_currentPosition === _currentDuration === 0) ? 0 : _currentPosition / _currentDuration;
@@ -790,12 +834,12 @@
 			elementcss.left = capLeft ? capLeft.width : 0;
 			elementcss.width = controlbarcss.width - elementcss.left - (capRight ? capRight.width : 0);
 
-			var timeSliderLeft = !jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapLeft")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
+			var timeSliderLeft = !_utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapLeft")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
 			_css(_elements.timeSliderRail, {
 				width: (elementcss.width - _marginleft - _marginright),
 				left: timeSliderLeft
 			});
-			if (jwplayer.utils.exists(_elements.timeSliderCapRight)) {
+			if (_utils.exists(_elements.timeSliderCapRight)) {
 				_css(_elements.timeSliderCapRight, {
 					left: timeSliderLeft + (elementcss.width - _marginleft - _marginright)
 				});
@@ -810,19 +854,19 @@
 		
 		/** Update the volume level. **/
 		function _volumeHandler(event) {
-			if (jwplayer.utils.exists(_elements.volumeSliderRail)) {
+			if (_utils.exists(_elements.volumeSliderRail)) {
 				var progress = isNaN(event.volume / 100) ? 1 : event.volume / 100;
-				var width = parseInt(_elements.volumeSliderRail.style.width.replace("px", ""), 10);
+				var width = _utils.parseDimension(_elements.volumeSliderRail.style.width);
 				var progressWidth = isNaN(Math.round(width * progress)) ? 0 : Math.round(width * progress);
-				var offset = parseInt(_elements.volumeSliderRail.style.right.replace("px", ""), 10);
+				var offset = _utils.parseDimension(_elements.volumeSliderRail.style.right);
 				
-				var volumeSliderLeft = (!jwplayer.utils.exists(_api.skin.getSkinElement("controlbar", "volumeSliderCapLeft"))) ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
+				var volumeSliderLeft = (!_utils.exists(_api.skin.getSkinElement("controlbar", "volumeSliderCapLeft"))) ? 0 : _api.skin.getSkinElement("controlbar", "volumeSliderCapLeft").width;
 				_css(_elements.volumeSliderProgress, {
 					width: progressWidth,
 					left: volumeSliderLeft
 				});
 				
-				if (jwplayer.utils.exists(_elements.volumeSliderCapLeft)) {
+				if (_utils.exists(_elements.volumeSliderCapLeft)) {
 					_css(_elements.volumeSliderCapLeft, {
 						left: 0
 					});
@@ -839,7 +883,12 @@
 			_settings.idlehide = (_settings.idlehide.toString().toLowerCase() == "true");
 			if (_settings.position == jwplayer.html5.view.positions.OVER && _settings.idlehide) {
 				_wrapper.style.opacity = 0;
-			}
+			} else {
+				setTimeout((function() { 
+					_eventReady = true;
+					_sendShow();
+				}), 1);
+			}				
 			_init();
 		}
 		

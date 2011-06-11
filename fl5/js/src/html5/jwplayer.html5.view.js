@@ -6,7 +6,8 @@
  */
 (function(jwplayer) {
 
-	var _css = jwplayer.utils.css;
+	var _utils = jwplayer.utils;
+	var _css = _utils.css;
 	
 	jwplayer.html5.view = function(api, container, model) {
 		var _api = api;
@@ -63,8 +64,8 @@
 				right: 0
 			});
 			
-			jwplayer.utils.wrap(_container, _wrapper);
-			jwplayer.utils.wrap(_container, _videowrapper);
+			_utils.wrap(_container, _wrapper);
+			_utils.wrap(_container, _videowrapper);
 			
 			_box = document.createElement("div");
 			_box.id = _wrapper.id + "_displayarea";
@@ -74,9 +75,9 @@
 		function layoutComponents() {
 			for (var pluginIndex = 0; pluginIndex < _model.plugins.order.length; pluginIndex++) {
 				var pluginName = _model.plugins.order[pluginIndex];
-				if (jwplayer.utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
-					_model.plugins.object[pluginName].height = parseDimension(_model.plugins.object[pluginName].getDisplayElement().style.height);
-					_model.plugins.object[pluginName].width = parseDimension(_model.plugins.object[pluginName].getDisplayElement().style.width);
+				if (_utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
+					_model.plugins.object[pluginName].height = _utils.parseDimension(_model.plugins.object[pluginName].getDisplayElement().style.height);
+					_model.plugins.object[pluginName].width = _utils.parseDimension(_model.plugins.object[pluginName].getDisplayElement().style.width);
 					_model.plugins.config[pluginName].currentPosition = _model.plugins.config[pluginName].position;
 				}
 			}
@@ -92,7 +93,7 @@
 		function _loadedHandler(evt) {
 			var newMedia = _model.getMedia() ? _model.getMedia().getDisplayElement() : null;
 			
-			if (jwplayer.utils.exists(newMedia)) {
+			if (_utils.exists(newMedia)) {
 				if (_media != newMedia) {
 					if (_media && _media.parentNode) {
 						_media.parentNode.replaceChild(newMedia, _media);
@@ -101,7 +102,7 @@
 				}
 				for (var pluginIndex = 0; pluginIndex < _model.plugins.order.length; pluginIndex++) {
 					var pluginName = _model.plugins.order[pluginIndex];
-					if (jwplayer.utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
+					if (_utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
 						if (_model.getMedia().hasChrome()) {
 							_model.plugins.config[pluginName].currentPosition = jwplayer.html5.view.positions.NONE;
 						} else {
@@ -111,19 +112,6 @@
 				}
 			}
 			_resize(_model.width, _model.height);
-		}
-		
-		function parseDimension(dimension) {
-			if (typeof dimension == "string") {
-				if (dimension === "") {
-					return 0;
-				} else if (dimension.lastIndexOf("%") > -1) {
-					return dimension;
-				} else {
-					return parseInt(dimension.replace("px", ""), 10);
-				}
-			}
-			return dimension;
 		}
 		
 		this.setup = function() {
@@ -138,11 +126,11 @@
 				_resizeMedia();
 			});
 			var oldresize;
-			if (jwplayer.utils.exists(window.onresize)) {
+			if (_utils.exists(window.onresize)) {
 				oldresize = window.onresize;
 			}
 			window.onresize = function(evt) {
-				if (jwplayer.utils.exists(oldresize)) {
+				if (_utils.exists(oldresize)) {
 					try {
 						oldresize(evt);
 					} catch (err) {
@@ -215,7 +203,7 @@
 			var failed = [];
 			for (var pluginIndex = 0; pluginIndex < plugins.length; pluginIndex++) {
 				var pluginName = plugins[pluginIndex];
-				if (jwplayer.utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
+				if (_utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
 					if (_model.plugins.config[pluginName].currentPosition != jwplayer.html5.view.positions.NONE) {
 						var style = componentResizer(pluginName, _zIndex--);
 						if (!style) {
@@ -239,9 +227,9 @@
 		}
 		
 		function _normalscreenComponentResizer(pluginName, zIndex) {
-			if (jwplayer.utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
+			if (_utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
 				if (_model.plugins.config[pluginName].position && _hasPosition(_model.plugins.config[pluginName].position)) {
-					if (!jwplayer.utils.exists(_model.plugins.object[pluginName].getDisplayElement().parentNode)) {
+					if (!_utils.exists(_model.plugins.object[pluginName].getDisplayElement().parentNode)) {
 						_wrapper.appendChild(_model.plugins.object[pluginName].getDisplayElement());
 					}
 					var style = _getComponentPosition(pluginName);
@@ -253,7 +241,7 @@
 		}
 		
 		function _overlayComponentResizer(pluginName, zIndex) {
-			if (!jwplayer.utils.exists(_model.plugins.object[pluginName].getDisplayElement().parentNode)) {
+			if (!_utils.exists(_model.plugins.object[pluginName].getDisplayElement().parentNode)) {
 				_box.appendChild(_model.plugins.object[pluginName].getDisplayElement());
 			}
 			var _iwidth = _model.width, _iheight = _model.height;
@@ -268,8 +256,8 @@
 			}
 			return {
 				position: "absolute",
-				width: (_iwidth - parseDimension(_box.style.left) - parseDimension(_box.style.right)),
-				height: (_iheight - parseDimension(_box.style.top) - parseDimension(_box.style.bottom)),
+				width: (_iwidth - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right)),
+				height: (_iheight - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom)),
 				zIndex: zIndex
 			};
 		}
@@ -284,7 +272,7 @@
 		}
 		
 		function _resizeMedia() {
-			if (!jwplayer.utils.exists(_model.getMedia())) {
+			if (!_utils.exists(_model.getMedia())) {
 				return;
 			}
 			_box.style.position = "absolute";
@@ -297,18 +285,18 @@
 					iwidth = Math.abs(rect.left) + Math.abs(rect.right);
 					iheight = Math.abs(rect.top) + Math.abs(rect.bottom);
 				} else {
-					iwidth = parseDimension(_box.style.width);
-					iheight = parseDimension(_box.style.height);
+					iwidth = _utils.parseDimension(_box.style.width);
+					iheight = _utils.parseDimension(_box.style.height);
 				}
 				if (media.parentNode) {
 					media.parentNode.style.left = _box.style.left;
 					media.parentNode.style.top = _box.style.top;
 				}
-				jwplayer.utils.stretch(_api.jwGetStretching(), media, iwidth, iheight, 
+				_utils.stretch(_api.jwGetStretching(), media, iwidth, iheight, 
 						media.videoWidth ? media.videoWidth : 400, 
 						media.videoHeight ? media.videoHeight : 300);
 			} else {
-				_model.getMedia().resize(parseDimension(_box.style.width), parseDimension(_box.style.height));
+				_model.getMedia().resize(_utils.parseDimension(_box.style.width), _utils.parseDimension(_box.style.height));
 			}
 		}
 		
@@ -323,36 +311,36 @@
 			var position = _model.plugins.config[pluginName].currentPosition.toLowerCase();
 			switch (position.toUpperCase()) {
 				case jwplayer.html5.view.positions.TOP:
-					plugincss.top = parseDimension(_box.style.top);
-					plugincss.left = parseDimension(_box.style.left);
-					plugincss.width = _width - parseDimension(_box.style.left) - parseDimension(_box.style.right);
+					plugincss.top = _utils.parseDimension(_box.style.top);
+					plugincss.left = _utils.parseDimension(_box.style.left);
+					plugincss.width = _width - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right);
 					plugincss.height = _model.plugins.object[pluginName].height;
-					_box.style[position] = parseDimension(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
-					_box.style.height = parseDimension(_box.style.height) - plugincss.height + "px";
+					_box.style[position] = _utils.parseDimension(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
+					_box.style.height = _utils.parseDimension(_box.style.height) - plugincss.height + "px";
 					break;
 				case jwplayer.html5.view.positions.RIGHT:
-					plugincss.top = parseDimension(_box.style.top);
-					plugincss.right = parseDimension(_box.style.right);
+					plugincss.top = _utils.parseDimension(_box.style.top);
+					plugincss.right = _utils.parseDimension(_box.style.right);
 					plugincss.width = _model.plugins.object[pluginName].width;
-					plugincss.height = _height - parseDimension(_box.style.top) - parseDimension(_box.style.bottom);
-					_box.style[position] = parseDimension(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
-					_box.style.width = parseDimension(_box.style.width) - plugincss.width + "px";
+					plugincss.height = _height - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom);
+					_box.style[position] = _utils.parseDimension(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
+					_box.style.width = _utils.parseDimension(_box.style.width) - plugincss.width + "px";
 					break;
 				case jwplayer.html5.view.positions.BOTTOM:
-					plugincss.bottom = parseDimension(_box.style.bottom);
-					plugincss.left = parseDimension(_box.style.left);
-					plugincss.width = _width - parseDimension(_box.style.left) - parseDimension(_box.style.right);
+					plugincss.bottom = _utils.parseDimension(_box.style.bottom);
+					plugincss.left = _utils.parseDimension(_box.style.left);
+					plugincss.width = _width - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right);
 					plugincss.height = _model.plugins.object[pluginName].height;
-					_box.style[position] = parseDimension(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
-					_box.style.height = parseDimension(_box.style.height) - plugincss.height + "px";
+					_box.style[position] = _utils.parseDimension(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
+					_box.style.height = _utils.parseDimension(_box.style.height) - plugincss.height + "px";
 					break;
 				case jwplayer.html5.view.positions.LEFT:
-					plugincss.top = parseDimension(_box.style.top);
-					plugincss.left = parseDimension(_box.style.left);
+					plugincss.top = _utils.parseDimension(_box.style.top);
+					plugincss.left = _utils.parseDimension(_box.style.left);
 					plugincss.width = _model.plugins.object[pluginName].width;
-					plugincss.height = _height - parseDimension(_box.style.top) - parseDimension(_box.style.bottom);
-					_box.style[position] = parseDimension(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
-					_box.style.width = parseDimension(_box.style.width) - plugincss.width + "px";
+					plugincss.height = _height - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom);
+					_box.style[position] = _utils.parseDimension(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
+					_box.style.width = _utils.parseDimension(_box.style.width) - plugincss.width + "px";
 					break;
 				default:
 					break;

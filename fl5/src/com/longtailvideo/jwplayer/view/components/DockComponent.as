@@ -49,9 +49,9 @@ package com.longtailvideo.jwplayer.view.components {
 		/** Keep track of dock icon dimensions **/
 		private var dimensions:Rectangle;
 		/** Have we last sent a show event? **/
-		private var sentShow:Boolean = false;
+		private var _sentShow:Boolean = false;
 		/** Have we last sent a hide event? **/
-		private var sentHide:Boolean = false;
+		private var _sentHide:Boolean = false;
 
 
 		public function DockComponent(player:IPlayer) {
@@ -135,9 +135,9 @@ package com.longtailvideo.jwplayer.view.components {
 					button.y = usedHeight % height;
 					button.x = xStart + (button.width + margin) * row * direction;
 					
-					if (!topleft || (button.x <= topleft.x && button.y >= topleft.y))
+					if (!topleft || (button.x <= topleft.x && button.y <= topleft.y))
 						topleft = new Rectangle(button.x, button.y, button.width, button.height);
-					if (!bottomright || (button.x >= bottomright.x && button.y <= bottomright.y))
+					if (!bottomright || (button.x >= bottomright.x && button.y >= bottomright.y))
 						bottomright = new Rectangle(button.x, button.y, button.width, button.height);
 					
 					usedHeight += button.height + margin;
@@ -147,9 +147,13 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 			}
 			if (topleft && bottomright) {
-				dimensions = new Rectangle(topleft.x, topleft.y, bottomright.x - topleft.x + bottomright.width, topleft.y - bottomright.y + bottomright.height);
+				dimensions = new Rectangle(topleft.x, topleft.y, bottomright.x - topleft.x + bottomright.width, bottomright.y - topleft.y + bottomright.height);
 			} else {
 				dimensions = new Rectangle();
+			}
+			if (_fullscreen != _player.config.fullscreen) {
+				_fullscreen = _player.config.fullscreen;
+				_sentShow = false;
 			}
 			stateHandler();
 		}
@@ -263,25 +267,25 @@ package com.longtailvideo.jwplayer.view.components {
 
 		public override function hide():void {
 			if (player.config.dock && !hidden) {
-				_hiding = false;
-				this.visible = true;
-				sendShow();
+				_hiding = true;
+				this.visible = false;
+				sendHide();
 			}
 		}
 
 		private function sendShow():void {
-			if (!sentShow) {
+			if (!_sentShow) {
 				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, dimensions));
-				sentShow = true;
-				sentHide = false;
+				_sentShow = true;
+				_sentHide = false;
 			}
 		}
 
 		private function sendHide():void {
-			if (!sentHide) {
+			if (!_sentHide) {
 				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_HIDE, this, dimensions));
-				sentShow = false;
-				sentHide = true;
+				_sentShow = false;
+				_sentHide = true;
 			}
 		}
 	}

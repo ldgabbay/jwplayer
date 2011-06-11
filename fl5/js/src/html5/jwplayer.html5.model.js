@@ -294,6 +294,9 @@
 					} else {
 						_model.plugins.order.splice(plugin, plugin + 1);
 					}
+					if (typeof _model.plugins.object[pluginName].addGlobalListener == "function") {
+						_model.plugins.object[pluginName].addGlobalListener(forward);
+					}
 				} catch (err) {
 					jwplayer.utils.log("Could not setup " + pluginName);
 				}

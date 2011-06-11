@@ -59,7 +59,6 @@ package com.longtailvideo.jwplayer.view.components {
 		private var animations:Animations;
 		/** Last inserted button **/
 		private var lastInsert:MovieClip;
-		
 		private var _sentShow:Boolean = false;
 		private var _sentHide:Boolean = false;
 
@@ -201,6 +200,10 @@ package com.longtailvideo.jwplayer.view.components {
 			fixTime();
 			if (!_player.config.fullscreen) {
 				Mouse.show();
+			}
+			if (_fullscreen != _player.config.fullscreen) {
+				_fullscreen = _player.config.fullscreen;
+				_sentShow = false;
 			}
 			if (visible && alpha > 0) {
 				sendShow();
@@ -641,7 +644,7 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 
 		private function get displayRect():Rectangle {
-			if (this.parent && getConfigParam('position') == "over") {
+			if (this.parent && getConfigParam('position') == "over" || _fullscreen) {
 				return getBounds(this.parent);
 			} else {
 				return new Rectangle(0, 0, 0, 0);

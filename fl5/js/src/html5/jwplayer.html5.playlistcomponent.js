@@ -247,7 +247,6 @@
 	        if (item.description) {
 	        	var desc = document.createElement("span");
 	        	desc.className = 'description';
-	        	console.log("Description height : " + (_settings.itemheight - parseInt(title.style.height.replace("px", ""))));
 	        	_css(desc,{
 	        	    display: 'block',
 	        		margin: 0,
