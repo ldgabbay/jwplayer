@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>Component Show / Hide events</title>
+        <script type="text/javascript" src="../../bin-debug/jwplayer.js">
+        </script>
+        <script type="text/javascript" src="settings.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            document.write("<h1>" + document.title + "</h1>");
+        </script>
+            
+        <p>
+            This shows all of the rendering options for the playlist component.
+        </p>
+        
+        <p>
+          Select a rendering mode: 
+          <select id="renderer">
+            <option value="flashonly">Flash Only</option>
+            <option value="html5only" selected="selected">HTML5 Only</option>
+          </select><br/>
+          controlbar.idlehide: 
+          <select id="idlehide">
+            <option value="true">True</option>
+            <option value="false" selected="selected">False</option>
+          </select><br/>
+          display.icons: 
+          <select id="icons">
+            <option value="true" selected="selected">True</option>
+            <option value="false" >False</option>
+          </select><br/>
+          skin:
+          <select id="skin">
+            <option value="" selected="selected">None</option>
+            <option value="testskin/testskin.zip" >Test Skin</option>
+          </select>
+          <button id="go" onclick="setupAll()">Go</button>
+        </p>
+        
+        <div>
+          <h3>Default</h3>
+          <div style="float:left; margin-right: 10px">
+            <div id="player1"></div>
+          </div>
+          <div>
+            <span id="player1_output" style="overflow: auto; width: 400px; display:block; height: 290px; border:1px solid black; padding:5px;"></span>
+          </div>
+        </div>        
+
+        <script type="text/javascript">
+          function setupAll() {
+            var mode = document.getElementById('renderer').value;
+            if (!mode) mode = "standard";
+
+            var idlehide = document.getElementById('idlehide').value;
+            var icons = document.getElementById('icons').value;
+            var skin = document.getElementById('skin').value;
+
+            var idx = 1;
+
+            setupPlayer("player"+idx++, {
+            	modes: settings.modes[mode],
+         			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
+          		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-580.jpg",
+          		"controlbar.idlehide": idlehide,
+          		"display.icons": icons,
+          		skin: skin
+            });
+
+            
+          }
+          
+          function setupPlayer(id, config) {
+           	jwplayer(id).setup(config);
+            
+            var output = document.getElementById(id + "_output");
+            output.innerHTML = "";
+            
+            jwplayer(id).getPlugin("controlbar").onShow(function(evt) {
+              output.innerHTML += "Controlbar showing at " + dims(evt.boundingRect) + "<br/>";
+            });
+
+            jwplayer(id).getPlugin("controlbar").onHide(function(evt) {
+              output.innerHTML += "Controlbar hidden at " + dims(evt.boundingRect) + "<br/>";
+            });
+
+            jwplayer(id).getPlugin("dock").onShow(function(evt) {
+              output.innerHTML += "Dock showing at " + dims(evt.boundingRect) + "<br/>";
+            });
+
+            jwplayer(id).getPlugin("dock").onHide(function(evt) {
+              output.innerHTML += "Dock hidden at " + dims(evt.boundingRect) + "<br/>";
+            });
+            
+            jwplayer(id).getPlugin("display").onShow(function(evt) {
+              output.innerHTML += "Display icon showing at " + dims(evt.boundingRect) + "<br/>";
+            });
+
+            jwplayer(id).getPlugin("display").onHide(function(evt) {
+              output.innerHTML += "Display icon hidden at " + dims(evt.boundingRect) + "<br/>";
+            });
+            
+          }
+          
+          function dims(rect) {
+            return "(" + rect.x + "," + rect.y + "), " + rect.width + "x" + rect.height;
+          }
+          
+          setupAll();
+        </script>
+    </body>
+</html>

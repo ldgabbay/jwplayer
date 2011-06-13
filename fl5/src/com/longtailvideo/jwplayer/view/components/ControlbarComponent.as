@@ -124,11 +124,19 @@ package com.longtailvideo.jwplayer.view.components {
 
 		protected var animations:Animations;
 		protected var _fadingOut:Number;
-		private var _sentShow:Boolean = false;
-		private var _sentHide:Boolean = false;
+		protected var _sentShow:Boolean = false;
+		protected var _sentHide:Boolean = false;
+		protected var _playerReady:Boolean = false;
+		protected var _showOnReady:Boolean = false;
 		
 		public function ControlbarComponent(player:IPlayer) {
 			super(player, "controlbar");
+			player.addEventListener(PlayerEvent.JWPLAYER_READY, function(evt:PlayerEvent):void {
+				_playerReady = true;
+				if (_showOnReady) {
+					sendShow();
+				}
+			});
 			animations = new Animations(this);
 			if (getConfigParam('position') == "over" && hideOnIdle) {
 				alpha = 0;
@@ -847,13 +855,16 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 			return (new Sprite());
 		}
-	
 		
 		private function sendShow():void {
 			if (!_sentShow) {
-				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, displayRect));
-				_sentShow = true;
-				_sentHide = false;
+				if (_playerReady) {
+					dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, displayRect));
+					_sentShow = true;
+					_sentHide = false;
+				} else {
+					_showOnReady = true;
+				}
 			}
 		}
 		

@@ -39,7 +39,7 @@ package com.longtailvideo.jwplayer.view.components {
 		/** Default configuration vars for this plugin. **/
 		public var defaults:Object = { align: 'right' };
 		/** Object with all the buttons in the dock. **/
-		private var buttons:Object;
+		private var buttons:Array;
 		/** Timeout for hiding the buttons when the video plays. **/
 		private var timeout:Number;
 		/** Reference to the animations handler **/
@@ -274,7 +274,7 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 
 		private function sendShow():void {
-			if (!_sentShow) {
+			if (!_sentShow && buttons.length > 0) {
 				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, dimensions));
 				_sentShow = true;
 				_sentHide = false;
@@ -282,7 +282,7 @@ package com.longtailvideo.jwplayer.view.components {
 		}
 
 		private function sendHide():void {
-			if (!_sentHide) {
+			if (!_sentHide && buttons.length > 0) {
 				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_HIDE, this, dimensions));
 				_sentShow = false;
 				_sentHide = true;

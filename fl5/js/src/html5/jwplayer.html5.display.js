@@ -42,6 +42,7 @@
 		var _showing = true;
 		var _lastSent;
 		var _hiding = false;
+		var _ready = false;
 		
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
 		_utils.extend(this, _eventDispatcher);
@@ -136,6 +137,12 @@
 			_display.display.appendChild(_display.display_iconBackground);
 			_setupDisplayElements();
 			
+			setTimeout((function() {
+				_ready = true;
+				if (_config.icons.toString() == "true") {
+					_sendShow();
+				}
+			}), 1);
 		}
 		
 		
@@ -394,6 +401,8 @@
 		
 		function _sendVisibilityEvent(eventType) {
 			return function() {
+				if (!_ready) return;
+					
 				if (!_hiding && _lastSent != eventType) {
 					_lastSent = eventType;
 					_eventDispatcher.sendEvent(eventType, {

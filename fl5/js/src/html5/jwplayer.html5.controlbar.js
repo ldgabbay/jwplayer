@@ -235,20 +235,26 @@
 		
 		function _setVisiblity(evt) {
 			if (_hiding) { return; }
-			if (_settings.position == jwplayer.html5.view.positions.OVER) {
-				if (_remainVisible() || _utils.exists(evt)) {
+			if (_settings.position == jwplayer.html5.view.positions.OVER || _api.jwGetFullscreen()) {
+				clearTimeout(_fadeTimeout);
+				switch(_api.jwGetState()) {
+				case jwplayer.api.events.state.PLAYING:
+				case jwplayer.api.events.state.BUFFERING:
 					_fadeIn();
-					clearTimeout(_fadeTimeout);
-					if (_api.jwGetState() != jwplayer.api.events.state.IDLE) {
+					_fadeTimeout = setTimeout(function() {
+						_fadeOut();
+					}, 2000);
+					break;
+				default:
+					if (!_settings.idlehide || _utils.exists(evt)) {
+						_fadeIn();
+					}
+					if (_settings.idlehide ) {
 						_fadeTimeout = setTimeout(function() {
 							_fadeOut();
 						}, 2000);
 					}
-				} else {
-					clearTimeout(_fadeTimeout);
-					if (parseFloat(_wrapper.style.opacity) > 0) {
-						_fadeOut();
-					}
+					break;
 				}
 			}
 		}
@@ -263,21 +269,6 @@
 			_sendShow();
 			_utils.cancelAnimation(_wrapper);
 			_utils.fadeTo(_wrapper, 1, 0, 1, 0);
-		}
-		
-		function _remainVisible() {
-			if (_hiding) return false;
-					
-			if (_api.jwGetState() == jwplayer.api.events.state.IDLE || _api.jwGetState() == jwplayer.api.events.state.PAUSED) {
-				if (_settings.idlehide) {
-					return false;
-				}
-				return true;
-			}
-			if (_api.jwGetFullscreen()) {
-				return false;
-			}
-			return true;
 		}
 		
 		function _sendVisibilityEvent(eventType) {
@@ -883,6 +874,7 @@
 			_settings.idlehide = (_settings.idlehide.toString().toLowerCase() == "true");
 			if (_settings.position == jwplayer.html5.view.positions.OVER && _settings.idlehide) {
 				_wrapper.style.opacity = 0;
+				_eventReady = true;
 			} else {
 				setTimeout((function() { 
 					_eventReady = true;
