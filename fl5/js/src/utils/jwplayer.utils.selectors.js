@@ -21,7 +21,7 @@
 			}
 		} else {
 			if (selector.indexOf(".") > 0) {
-				selectors = selector.split(".");
+				var selectors = selector.split(".");
 				return jwplayer.utils.selectors.getElementsByTagAndClass(selectors[0], selectors[1]);
 			} else {
 				return parent.getElementsByTagName(selector);
@@ -31,7 +31,7 @@
 	};
 	
 	jwplayer.utils.selectors.getElementsByTagAndClass = function(tagName, className, parent) {
-		elements = [];
+		var elements = [];
 		if (!jwplayer.utils.exists(parent)) {
 			parent = document;
 		}

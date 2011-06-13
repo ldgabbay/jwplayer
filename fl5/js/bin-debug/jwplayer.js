@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1839';
+jwplayer.version = '5.7.1840';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -1275,7 +1275,7 @@ jwplayer.source = document.createElement("source");/**
 			}
 		} else {
 			if (selector.indexOf(".") > 0) {
-				selectors = selector.split(".");
+				var selectors = selector.split(".");
 				return jwplayer.utils.selectors.getElementsByTagAndClass(selectors[0], selectors[1]);
 			} else {
 				return parent.getElementsByTagName(selector);
@@ -1285,7 +1285,7 @@ jwplayer.source = document.createElement("source");/**
 	};
 	
 	jwplayer.utils.selectors.getElementsByTagAndClass = function(tagName, className, parent) {
-		elements = [];
+		var elements = [];
 		if (!jwplayer.utils.exists(parent)) {
 			parent = document;
 		}
