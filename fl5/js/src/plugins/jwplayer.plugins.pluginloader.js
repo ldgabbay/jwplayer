@@ -93,13 +93,15 @@
 			
 			/** First pass to create the plugins and add listeners **/
 			for (var plugin in config) {
-				_plugins[plugin] = model.addPlugin(plugin);
-				_plugins[plugin].addEventListener(jwplayer.events.COMPLETE, _checkComplete);
-				_plugins[plugin].addEventListener(jwplayer.events.ERROR, _checkComplete);
+				if (jwplayer.utils.exists(plugin)) {
+					_plugins[plugin] = model.addPlugin(plugin);
+					_plugins[plugin].addEventListener(jwplayer.events.COMPLETE, _checkComplete);
+					_plugins[plugin].addEventListener(jwplayer.events.ERROR, _checkComplete);
+				}
 			}
 			
 			/** Second pass to actually load the plugins **/
-			for (plugin in config) {
+			for (plugin in _plugins) {
 				// Plugin object ensures that it's only loaded once
 				_plugins[plugin].load();
 			}

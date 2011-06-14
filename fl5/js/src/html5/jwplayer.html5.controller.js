@@ -196,6 +196,10 @@
 		
 		/** Stop playback and loading of the video. **/
 		function _item(item) {
+			if (!_model.playlist || !_model.playlist[item]) {
+				return false;
+			}
+			
 			try {
 				if (_model.playlist[item].levels[0].file.length > 0) {
 					var oldstate = _model.state;

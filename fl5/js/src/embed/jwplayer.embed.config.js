@@ -1,7 +1,7 @@
 /**
  * Configuration for the JW Player Embedder
  * @author Zach
- * @version 5.6
+ * @version 5.7
  */
 (function(jwplayer) {
 	function _playerDefaults() {
@@ -14,6 +14,11 @@
 			type: 'download'
 		}];
 	}
+	
+	var _aliases = {
+		'players': 'modes',
+		'autoplay': 'autostart'
+	};
 	
 	function _isPosition(string) {
 		var lower = string.toLowerCase();
@@ -184,9 +189,12 @@
 			delete parsedConfig.icons;
 		}
 		
-		if (parsedConfig.players) {
-			parsedConfig.modes = parsedConfig.players;
-			delete parsedConfig.players;
+		for (var alias in _aliases)
+		if (parsedConfig[alias]) {
+			if (!parsedConfig[_aliases[alias]]) {
+				parsedConfig[_aliases[alias]] = parsedConfig[alias];
+			}
+			delete parsedConfig[alias];
 		}
 		
 		var _modes;

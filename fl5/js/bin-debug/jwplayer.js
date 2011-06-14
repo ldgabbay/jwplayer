@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1843';
+jwplayer.version = '5.7.1845';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -2062,13 +2062,15 @@ jwplayer.source = document.createElement("source");/**
 			
 			/** First pass to create the plugins and add listeners **/
 			for (var plugin in config) {
-				_plugins[plugin] = model.addPlugin(plugin);
-				_plugins[plugin].addEventListener(jwplayer.events.COMPLETE, _checkComplete);
-				_plugins[plugin].addEventListener(jwplayer.events.ERROR, _checkComplete);
+				if (jwplayer.utils.exists(plugin)) {
+					_plugins[plugin] = model.addPlugin(plugin);
+					_plugins[plugin].addEventListener(jwplayer.events.COMPLETE, _checkComplete);
+					_plugins[plugin].addEventListener(jwplayer.events.ERROR, _checkComplete);
+				}
 			}
 			
 			/** Second pass to actually load the plugins **/
-			for (plugin in config) {
+			for (plugin in _plugins) {
 				// Plugin object ensures that it's only loaded once
 				_plugins[plugin].load();
 			}
@@ -2091,6 +2093,7 @@ jwplayer.source = document.createElement("source");/**
 })(jwplayer);
 /**
  * API for the JW Player
+ * 
  * @author Pablo
  * @version 5.7
  */
@@ -2122,7 +2125,7 @@ jwplayer.source = document.createElement("source");/**
 			return this.container;
 		};
 		
-		function _setButton(ref) {
+		function _setButton(ref, plugin) {
 			return function(id, handler, outGraphic, overGraphic) {
 				var handlerString;
 				if (handler) {
@@ -2132,38 +2135,56 @@ jwplayer.source = document.createElement("source");/**
 					delete _callbacks[id];
 				}
 				_player['jwDockSetButton'](id, handlerString, outGraphic, overGraphic);
-				return ref;
+				return plugin;
 			};
 		}
 		
 		this.getPlugin = function(pluginName) {
 			var _this = this;
+			var _plugin = {};
 			if (pluginName == "dock") {
-				return {
-					setButton: _setButton(_this),
-					show: function() { _this.callInternal('jwShowDock'); },
-					hide: function() { 
-						_this.callInternal('jwHideDock'); 
+				return jwplayer.utils.extend(_plugin, {
+					setButton: _setButton(_this, _plugin),
+					show: function() { _this.callInternal('jwDockShow'); return _plugin; },
+					hide: function() { _this.callInternal('jwDockHide'); return _plugin; },
+					onShow: function(callback) { 
+						_this.componentListener("dock", jwplayer.api.events.JWPLAYER_COMPONENT_SHOW, callback); 
+						return _plugin; 
 					},
-					onShow: function(callback) { _this.componentListener("dock", jwplayer.api.events.JWPLAYER_COMPONENT_SHOW, callback); },
-					onHide: function(callback) { _this.componentListener("dock", jwplayer.api.events.JWPLAYER_COMPONENT_HIDE, callback); }
-				};
+					onHide: function(callback) { 
+						_this.componentListener("dock", jwplayer.api.events.JWPLAYER_COMPONENT_HIDE, callback); 
+						return _plugin; 
+					}
+				});
 			} else if (pluginName == "controlbar") {
-				return {
-					show: function() { _this.callInternal('jwShowControlbar'); },
-					hide: function() { _this.callInternal('jwHideControlbar'); },
-					onShow: function(callback) { _this.componentListener("controlbar", jwplayer.api.events.JWPLAYER_COMPONENT_SHOW, callback); },
-					onHide: function(callback) { _this.componentListener("controlbar", jwplayer.api.events.JWPLAYER_COMPONENT_HIDE, callback); }
-				}
+				return jwplayer.utils.extend(_plugin, {
+					show: function() { _this.callInternal('jwControlbarShow'); return _plugin; },
+					hide: function() { _this.callInternal('jwControlbarHide'); return _plugin; },
+					onShow: function(callback) { 
+						_this.componentListener("controlbar", jwplayer.api.events.JWPLAYER_COMPONENT_SHOW, callback); 
+						return _plugin; 
+					},
+					onHide: function(callback) { 
+						_this.componentListener("controlbar", jwplayer.api.events.JWPLAYER_COMPONENT_HIDE, callback); 
+						return _plugin; 
+					}
+				});
 			} else if (pluginName == "display") {
-				return {
-					show: function() { _this.callInternal('jwShowDisplay'); },
-					hide: function() { _this.callInternal('jwHideDisplay'); },
-					onShow: function(callback) { _this.componentListener("display", jwplayer.api.events.JWPLAYER_COMPONENT_SHOW, callback); },
-					onHide: function(callback) { _this.componentListener("display", jwplayer.api.events.JWPLAYER_COMPONENT_HIDE, callback); }
-				}
+				return jwplayer.utils.extend(_plugin, {
+					show: function() { _this.callInternal('jwDisplayShow'); return _plugin; },
+					hide: function() { _this.callInternal('jwDisplayHide'); return _plugin; },
+					onShow: function(callback) { 
+						_this.componentListener("display", jwplayer.api.events.JWPLAYER_COMPONENT_SHOW, callback); 
+						return _plugin; 
+					},
+					onHide: function(callback) { 
+						_this.componentListener("display", jwplayer.api.events.JWPLAYER_COMPONENT_HIDE, callback); 
+						return _plugin; 
+					}
+				});
+			} else {
+				return this.plugins[pluginName];
 			}
-			return this.plugins[pluginName];
 		};
 		
 		this.callback = function(id) {
@@ -2783,7 +2804,7 @@ playerReady = function(obj) {
 /**
  * Configuration for the JW Player Embedder
  * @author Zach
- * @version 5.6
+ * @version 5.7
  */
 (function(jwplayer) {
 	function _playerDefaults() {
@@ -2796,6 +2817,11 @@ playerReady = function(obj) {
 			type: 'download'
 		}];
 	}
+	
+	var _aliases = {
+		'players': 'modes',
+		'autoplay': 'autostart'
+	};
 	
 	function _isPosition(string) {
 		var lower = string.toLowerCase();
@@ -2966,9 +2992,12 @@ playerReady = function(obj) {
 			delete parsedConfig.icons;
 		}
 		
-		if (parsedConfig.players) {
-			parsedConfig.modes = parsedConfig.players;
-			delete parsedConfig.players;
+		for (var alias in _aliases)
+		if (parsedConfig[alias]) {
+			if (!parsedConfig[_aliases[alias]]) {
+				parsedConfig[_aliases[alias]] = parsedConfig[alias];
+			}
+			delete parsedConfig[alias];
 		}
 		
 		var _modes;
@@ -4428,22 +4457,25 @@ playerReady = function(obj) {
 			if (_settings.position == jwplayer.html5.view.positions.OVER || _api.jwGetFullscreen()) {
 				clearTimeout(_fadeTimeout);
 				switch(_api.jwGetState()) {
-				case jwplayer.api.events.state.PLAYING:
-				case jwplayer.api.events.state.BUFFERING:
-					_fadeIn();
-					_fadeTimeout = setTimeout(function() {
-						_fadeOut();
-					}, 2000);
-					break;
-				default:
+				case jwplayer.api.events.state.PAUSED:
+				case jwplayer.api.events.state.IDLE:
 					if (!_settings.idlehide || _utils.exists(evt)) {
 						_fadeIn();
 					}
-					if (_settings.idlehide ) {
+					if (_settings.idlehide) {
 						_fadeTimeout = setTimeout(function() {
 							_fadeOut();
 						}, 2000);
 					}
+					break;
+				default:
+					if (evt) {
+						// Fade in on mouse move
+						_fadeIn();
+					}
+					_fadeTimeout = setTimeout(function() {
+						_fadeOut();
+					}, 2000);
 					break;
 				}
 			}
@@ -5276,6 +5308,10 @@ playerReady = function(obj) {
 		
 		/** Stop playback and loading of the video. **/
 		function _item(item) {
+			if (!_model.playlist || !_model.playlist[item]) {
+				return false;
+			}
+			
 			try {
 				if (_model.playlist[item].levels[0].file.length > 0) {
 					var oldstate = _model.state;
@@ -6023,9 +6059,6 @@ playerReady = function(obj) {
 		}
 		
 		function _resize(width, height) {
-			_width = width;
-			_height = height;
-			
 			if (_buttonArray.length > 0) {
 				var margin = 10;
 				var usedHeight = margin;
@@ -6068,10 +6101,13 @@ playerReady = function(obj) {
 				};
 			}
 			
-			if (_fullscreen != api.jwGetFullscreen()) {
+			if (_fullscreen != api.jwGetFullscreen() || _width != width || _height != height) {
+				_width = width;
+				_height = height;
 				_fullscreen = api.jwGetFullscreen();
 				_lastSent = undefined;
-				_sendShow();
+				// Delay to allow resize event handlers to complete
+				setTimeout(_sendShow, 1);
 			}
 			
 		}
@@ -8188,12 +8224,12 @@ playerReady = function(obj) {
 			}
 		}
 		
-		_api.jwShowControlbar = _componentCommandFactory("controlbar", "show");
-		_api.jwHideControlbar = _componentCommandFactory("controlbar", "hide");
-		_api.jwShowDock = _componentCommandFactory("dock", "show");
-		_api.jwHideDock = _componentCommandFactory("dock", "hide");
-		_api.jwShowDisplay = _componentCommandFactory("display", "show");
-		_api.jwHideDisplay = _componentCommandFactory("display", "hide");
+		_api.jwControlbarShow = _componentCommandFactory("controlbar", "show");
+		_api.jwControlbarHide = _componentCommandFactory("controlbar", "hide");
+		_api.jwDockShow = _componentCommandFactory("dock", "show");
+		_api.jwDockHide = _componentCommandFactory("dock", "hide");
+		_api.jwDisplayShow = _componentCommandFactory("display", "show");
+		_api.jwDisplayHide = _componentCommandFactory("display", "hide");
 		
 		//UNIMPLEMENTED
 		_api.jwGetLevel = function() {

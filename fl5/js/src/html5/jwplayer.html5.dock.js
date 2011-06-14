@@ -119,9 +119,6 @@
 		}
 		
 		function _resize(width, height) {
-			_width = width;
-			_height = height;
-			
 			if (_buttonArray.length > 0) {
 				var margin = 10;
 				var usedHeight = margin;
@@ -164,10 +161,13 @@
 				};
 			}
 			
-			if (_fullscreen != api.jwGetFullscreen()) {
+			if (_fullscreen != api.jwGetFullscreen() || _width != width || _height != height) {
+				_width = width;
+				_height = height;
 				_fullscreen = api.jwGetFullscreen();
 				_lastSent = undefined;
-				_sendShow();
+				// Delay to allow resize event handlers to complete
+				setTimeout(_sendShow, 1);
 			}
 			
 		}

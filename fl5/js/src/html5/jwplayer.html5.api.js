@@ -104,12 +104,12 @@
 			}
 		}
 		
-		_api.jwShowControlbar = _componentCommandFactory("controlbar", "show");
-		_api.jwHideControlbar = _componentCommandFactory("controlbar", "hide");
-		_api.jwShowDock = _componentCommandFactory("dock", "show");
-		_api.jwHideDock = _componentCommandFactory("dock", "hide");
-		_api.jwShowDisplay = _componentCommandFactory("display", "show");
-		_api.jwHideDisplay = _componentCommandFactory("display", "hide");
+		_api.jwControlbarShow = _componentCommandFactory("controlbar", "show");
+		_api.jwControlbarHide = _componentCommandFactory("controlbar", "hide");
+		_api.jwDockShow = _componentCommandFactory("dock", "show");
+		_api.jwDockHide = _componentCommandFactory("dock", "hide");
+		_api.jwDisplayShow = _componentCommandFactory("display", "show");
+		_api.jwDisplayHide = _componentCommandFactory("display", "hide");
 		
 		//UNIMPLEMENTED
 		_api.jwGetLevel = function() {

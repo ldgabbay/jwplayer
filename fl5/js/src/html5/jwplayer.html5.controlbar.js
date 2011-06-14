@@ -238,22 +238,25 @@
 			if (_settings.position == jwplayer.html5.view.positions.OVER || _api.jwGetFullscreen()) {
 				clearTimeout(_fadeTimeout);
 				switch(_api.jwGetState()) {
-				case jwplayer.api.events.state.PLAYING:
-				case jwplayer.api.events.state.BUFFERING:
-					_fadeIn();
-					_fadeTimeout = setTimeout(function() {
-						_fadeOut();
-					}, 2000);
-					break;
-				default:
+				case jwplayer.api.events.state.PAUSED:
+				case jwplayer.api.events.state.IDLE:
 					if (!_settings.idlehide || _utils.exists(evt)) {
 						_fadeIn();
 					}
-					if (_settings.idlehide ) {
+					if (_settings.idlehide) {
 						_fadeTimeout = setTimeout(function() {
 							_fadeOut();
 						}, 2000);
 					}
+					break;
+				default:
+					if (evt) {
+						// Fade in on mouse move
+						_fadeIn();
+					}
+					_fadeTimeout = setTimeout(function() {
+						_fadeOut();
+					}, 2000);
 					break;
 				}
 			}

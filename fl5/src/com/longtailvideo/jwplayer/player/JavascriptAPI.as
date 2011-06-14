@@ -128,19 +128,21 @@ package com.longtailvideo.jwplayer.player {
 				ExternalInterface.addCallback("jwPlaylistItem", js_playlistItem);
 				ExternalInterface.addCallback("jwPlaylistNext", js_playlistNext);
 				ExternalInterface.addCallback("jwPlaylistPrev", js_playlistPrev);
-				ExternalInterface.addCallback("jwDockSetButton", js_dockSetButton);
 				ExternalInterface.addCallback("jwSetMute", js_mute);
 				ExternalInterface.addCallback("jwSetVolume", js_volume);
 				ExternalInterface.addCallback("jwSetFullscreen", js_fullscreen);
 				
-				// Showing and hiding player controls.
-				ExternalInterface.addCallback("jwShowControlbar", js_showControlbar);
-				ExternalInterface.addCallback("jwHideControlbar", js_hideControlbar);
-				ExternalInterface.addCallback("jwShowDock", js_showDock);
-				ExternalInterface.addCallback("jwHideDock", js_hideDock);
-				ExternalInterface.addCallback("jwShowDisplay", js_showDisplay);
-				ExternalInterface.addCallback("jwHideDisplay", js_hideDisplay);
+				// Player Controls APIs
+				ExternalInterface.addCallback("jwControlbarShow", js_showControlbar);
+				ExternalInterface.addCallback("jwControlbarHide", js_hideControlbar);
 
+				ExternalInterface.addCallback("jwDisplayShow", js_showDisplay);
+				ExternalInterface.addCallback("jwDisplayHide", js_hideDisplay);
+				
+				ExternalInterface.addCallback("jwDockHide", js_hideDock);
+				ExternalInterface.addCallback("jwDockSetButton", js_dockSetButton);
+				ExternalInterface.addCallback("jwDockShow", js_showDock);
+				
 				// UNIMPLEMENTED
 				//ExternalInterface.addCallback("jwGetBandwidth", js_getBandwidth); 
 				//ExternalInterface.addCallback("jwGetLevel", js_getLevel);

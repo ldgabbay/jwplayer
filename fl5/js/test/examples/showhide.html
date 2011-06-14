@@ -5,6 +5,25 @@
         <script type="text/javascript" src="../../bin-debug/jwplayer.js">
         </script>
         <script type="text/javascript" src="settings.js"></script>
+        <style type="text/css">
+          form{
+            width:400px;
+          }
+          label {
+            display:block;
+            font-weight:bold;
+            text-align:right;
+            width:180px;
+            float:left;
+          }
+          select {
+            float:left;
+            font-size:12px;
+            padding:4px 2px;
+            width:200px;
+            margin:2px 0 3px 3px;
+          }
+        </style>
     </head>
     <body>
         <script type="text/javascript">
@@ -12,32 +31,38 @@
         </script>
             
         <p>
-            This shows all of the rendering options for the playlist component.
+            This page demonstrates the show / hide events for the following components:
+            <ul><li>controlbar</li><li>dock</li><li>display</li></ul>
         </p>
         
-        <p>
-          Select a rendering mode: 
+        <form onsubmit="return false">
+          <label>Select a rendering mode:</label>
           <select id="renderer">
             <option value="flashonly">Flash Only</option>
             <option value="html5only" selected="selected">HTML5 Only</option>
-          </select><br/>
-          controlbar.idlehide: 
+          </select>
+          <label>controlbar.idlehide:</label>
           <select id="idlehide">
             <option value="true">True</option>
             <option value="false" selected="selected">False</option>
-          </select><br/>
-          display.icons: 
+          </select>
+          <label>display.icons:</label>
           <select id="icons">
             <option value="true" selected="selected">True</option>
             <option value="false" >False</option>
           </select><br/>
-          skin:
+          <label>skin:</label>
           <select id="skin">
             <option value="" selected="selected">None</option>
             <option value="testskin/testskin.zip" >Test Skin</option>
+          </select><br/>
+          <label>plugins:</label>
+          <select id="plugins">
+            <option value="" selected="selected">None</option>
+            <option value="plugins/dockplugin.js" >Test Dock Plugin</option>
           </select>
           <button id="go" onclick="setupAll()">Go</button>
-        </p>
+        </form>
         
         <div>
           <h3>Default</h3>
@@ -47,9 +72,16 @@
           <div>
             <span id="player1_output" style="overflow: auto; width: 400px; display:block; height: 290px; border:1px solid black; padding:5px;"></span>
           </div>
+          <div id="player1_toggles"></div>
         </div>        
 
         <script type="text/javascript">
+          var showing = {
+            controlbar: true,
+            display: true,
+            dock: true
+          }
+        
           function setupAll() {
             var mode = document.getElementById('renderer').value;
             if (!mode) mode = "standard";
@@ -57,6 +89,7 @@
             var idlehide = document.getElementById('idlehide').value;
             var icons = document.getElementById('icons').value;
             var skin = document.getElementById('skin').value;
+            var plugins = document.getElementById('plugins').value;
 
             var idx = 1;
 
@@ -66,10 +99,9 @@
           		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-580.jpg",
           		"controlbar.idlehide": idlehide,
           		"display.icons": icons,
-          		skin: skin
+          		skin: skin,
+          		plugins: plugins
             });
-
-            
           }
           
           function setupPlayer(id, config) {
@@ -78,6 +110,11 @@
             var output = document.getElementById(id + "_output");
             output.innerHTML = "";
             
+            var toggles = document.getElementById(id + "_toggles");
+            toggles.innerHTML = "<a href='#' onclick='toggle(\""+id+"\",\"controlbar\"); return false;'>Toggle Controlbar</a> ";
+            toggles.innerHTML += "<a href='#' onclick='toggle(\""+id+"\",\"display\"); return false;'>Toggle Display Icons</a> ";
+            toggles.innerHTML += "<a href='#' onclick='toggle(\""+id+"\",\"dock\"); return false;'>Toggle Dock</a> ";
+
             jwplayer(id).getPlugin("controlbar").onShow(function(evt) {
               output.innerHTML += "Controlbar showing at " + dims(evt.boundingRect) + "<br/>";
             });
@@ -102,6 +139,12 @@
               output.innerHTML += "Display icon hidden at " + dims(evt.boundingRect) + "<br/>";
             });
             
+          }
+          
+          function toggle(id, component) {
+            var comp = jwplayer(id).getPlugin(component);
+            showing[component] ? comp.hide() : comp.show();
+            showing[component] = !showing[component];
           }
           
           function dims(rect) {
