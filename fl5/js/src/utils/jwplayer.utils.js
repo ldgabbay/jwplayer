@@ -693,5 +693,17 @@
 		}
 	}
 
+	/** Format the elapsed / remaining text. **/
+	jwplayer.utils.timeFormat = function(sec) {
+		str = "00:00";
+		if (sec > 0) {
+			str = Math.floor(sec / 60) < 10 ? "0" + Math.floor(sec / 60) + ":" : Math.floor(sec / 60) + ":";
+			str += Math.floor(sec % 60) < 10 ? "0" + Math.floor(sec % 60) : Math.floor(sec % 60);
+		}
+		return str;
+	}
+	
+	
+
 
 })(jwplayer);

@@ -11,28 +11,53 @@
             document.write("<h1>" + document.title + "</h1>");
             
             var playlistObj = [{
-           			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
+	        		levels: [{
+	        			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+	        		}, {
+	        			file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+	        		}],
             		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-580.jpg",
             		title: "Item 1",
             		description: "Lorem ipsum dolor est, blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah "
             	}, {
-           			file: "http://content.bitsontherun.com/videos/guYqV1AB-486405.mp4",
-            		title: "Item 2",
+            		levels: [{
+            			file: "http://content.bitsontherun.com/videos/guYqV1AB-486405.mp4"
+            		}, {
+            			file: "http://content.bitsontherun.com/videos/guYqV1AB-604476.ogv"
+            		}],
+            		title: "Item 2 with a longer title",
+            		duration: 30,
             		description: "Lorem ipsum dolor est, blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah "
 	           	}, {
-           			file: "http://content.bitsontherun.com/videos/DMJODX8R-486405.mp4",
+            		levels: [{
+            			file: "http://content.bitsontherun.com/videos/DMJODX8R-486405.mp4"
+            		}, {
+            			file: "http://content.bitsontherun.com/videos/DMJODX8R-604476.ogv"
+            		}],
             		image: "http://content.bitsontherun.com/thumbs/DMJODX8R-580.jpg",
-            		title: "Item 3"
+            		title: "Item 3 Without A Duration"
             	}, {
-           			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
-            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-580.jpg",
+            		levels: [{
+            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            		}, {
+            			file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            		}],
+            		image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
             		title: "Item 4"
             	}, {
-           			file: "http://content.bitsontherun.com/videos/guYqV1AB-486405.mp4",
+            		levels: [{
+            			file: "http://content.bitsontherun.com/videos/guYqV1AB-486405.mp4"
+            		}, {
+            			file: "http://content.bitsontherun.com/videos/guYqV1AB-604476.ogv"
+            		}],
             		image: "http://content.bitsontherun.com/thumbs/guYqV1AB-580.jpg",
             		title: "Item 5"
             	}, {
-           			file: "http://content.bitsontherun.com/videos/DMJODX8R-486405.mp4",
+            		levels: [{
+            			file: "http://content.bitsontherun.com/videos/DMJODX8R-486405.mp4"
+            		}, {
+            			file: "http://content.bitsontherun.com/videos/DMJODX8R-604476.ogv"
+            		}],
             		image: "http://content.bitsontherun.com/thumbs/DMJODX8R-580.jpg",
             		title: "Item 6"
             	}];
@@ -108,11 +133,12 @@
             if (!mode) mode = "standard";
 
             var idx=1;
-            
+
            	jwplayer("player" + idx++).setup({
             	modes: settings.modes[mode],
            		playlist: playlistObj
             });
+            
 
            	jwplayer("player" + idx++).setup({
             	modes: settings.modes[mode],
@@ -151,13 +177,12 @@
             	modes: settings.modes[mode],
            		playlist: playlistObj,
            		"playlist.position": "right",
-           		"playlist.size": "160",
+           		"playlist.size": "200",
            		"playlist.thumbs": false
             });
-
             jwplayer("player" + idx++).setup({
             	modes: settings.modes[mode],
-           		playlist: playlistObj.slice(0,2),
+           		playlist: playlistObj.slice(0,3),
            		"playlist.position": "right",
            		"playlist.size": "260",
            		skin: "testskin/testskin.xml"

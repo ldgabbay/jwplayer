@@ -182,7 +182,8 @@
 					left: 0,
 					right: 0,
 					width: width,
-					height: height
+					height: height,
+					position: "relative"
 				});
 				_css(_wrapper, {
 					height: _height,

@@ -755,22 +755,11 @@
 				}
 			}
 			if (_elements.durationText) {
-				_elements.durationText.innerHTML = _timeFormat(_currentDuration);
+				_elements.durationText.innerHTML = _utils.timeFormat(_currentDuration);
 			}
 			if (_elements.elapsedText) {
-				_elements.elapsedText.innerHTML = _timeFormat(_currentPosition);
+				_elements.elapsedText.innerHTML = _utils.timeFormat(_currentPosition);
 			}
-		}
-		
-		
-		/** Format the elapsed / remaining text. **/
-		function _timeFormat(sec) {
-			str = "00:00";
-			if (sec > 0) {
-				str = Math.floor(sec / 60) < 10 ? "0" + Math.floor(sec / 60) + ":" : Math.floor(sec / 60) + ":";
-				str += Math.floor(sec % 60) < 10 ? "0" + Math.floor(sec % 60) : Math.floor(sec % 60);
-			}
-			return str;
 		}
 		
 		

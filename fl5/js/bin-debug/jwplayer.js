@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1845';
+jwplayer.version = '5.7.1846';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -717,6 +717,18 @@ jwplayer.source = document.createElement("source");/**
 			return {};
 		}
 	}
+
+	/** Format the elapsed / remaining text. **/
+	jwplayer.utils.timeFormat = function(sec) {
+		str = "00:00";
+		if (sec > 0) {
+			str = Math.floor(sec / 60) < 10 ? "0" + Math.floor(sec / 60) + ":" : Math.floor(sec / 60) + ":";
+			str += Math.floor(sec % 60) < 10 ? "0" + Math.floor(sec % 60) : Math.floor(sec % 60);
+		}
+		return str;
+	}
+	
+	
 
 
 })(jwplayer);
@@ -3982,7 +3994,8 @@ playerReady = function(obj) {
 					left: 0,
 					right: 0,
 					width: width,
-					height: height
+					height: height,
+					position: "relative"
 				});
 				_css(_wrapper, {
 					height: _height,
@@ -4974,22 +4987,11 @@ playerReady = function(obj) {
 				}
 			}
 			if (_elements.durationText) {
-				_elements.durationText.innerHTML = _timeFormat(_currentDuration);
+				_elements.durationText.innerHTML = _utils.timeFormat(_currentDuration);
 			}
 			if (_elements.elapsedText) {
-				_elements.elapsedText.innerHTML = _timeFormat(_currentPosition);
+				_elements.elapsedText.innerHTML = _utils.timeFormat(_currentPosition);
 			}
-		}
-		
-		
-		/** Format the elapsed / remaining text. **/
-		function _timeFormat(sec) {
-			str = "00:00";
-			if (sec > 0) {
-				str = Math.floor(sec / 60) < 10 ? "0" + Math.floor(sec / 60) + ":" : Math.floor(sec / 60) + ":";
-				str += Math.floor(sec % 60) < 10 ? "0" + Math.floor(sec % 60) : Math.floor(sec % 60);
-			}
-			return str;
 		}
 		
 		
@@ -7466,11 +7468,16 @@ playerReady = function(obj) {
 		this.resize = function(width, height) {
 			_width = width;
 			_height = height;
-			var style = {
-				width: _width,
-				height: _height
-			};
-			_css(_wrapper, style);
+			if (_api.jwGetFullscreen()) {
+				_hide(_wrapper);
+			} else {
+				var style = {
+						display: "block",
+						width: _width,
+						height: _height
+				};
+				_css(_wrapper, style);
+			}
 		};
 		
 		this.show = function() {
@@ -7486,7 +7493,7 @@ playerReady = function(obj) {
 			_wrapper = document.createElement("div");
 			_wrapper.id = _api.id + "_jwplayer_playlistcomponent";
 			switch(_settings.position) {
-			case jwplayer.html5.view.positions.RIGHT:				
+			case jwplayer.html5.view.positions.RIGHT:
 			case jwplayer.html5.view.positions.LEFT:
 				_wrapper.style.width = _settings.size + "px";
 				break;
@@ -7587,19 +7594,22 @@ playerReady = function(obj) {
 			li.onmouseover = _itemOver(index);
 			li.onmouseout = _itemOut(index);
 			
-			var image; 
-        	var imgPos = 0; 
+			var image = new Image();
+        	var imgPos = 0;
+        	var imgWidth = 0;
 			if (_showThumbs() && (item.image || item['playlist.image'] || _elements.itemImage) ) {
-				image = new Image();
 	        	image.className = 'image';
 	        	
 	        	if (_elements.itemImage) {
 	        		imgPos = (_settings.itemheight - _elements.itemImage.height) / 2;
+	        		imgWidth = _elements.itemImage.width;
+	        	} else {
+	        		imgWidth = _settings.itemheight * 4 / 3;
 	        	}
-	        	
+	        			
 				_css(image, {
 				    height: _elements.itemImage ? _elements.itemImage.height : _settings.itemheight,
-				    width: _elements.itemImage ? _elements.itemImage.width : _settings.itemheight * 4 / 3,
+				    width: imgWidth,
 				    'float': 'left',
 				    styleFloat: 'left',
 				    cssFloat: 'left',
@@ -7619,21 +7629,50 @@ playerReady = function(obj) {
 				
 				li.appendChild(image);
 	        }
+			
+			var _remainingWidth = _width - imgWidth - imgPos * 2;
+			if (_height < _settings.itemheight * _playlist.length) {
+				_remainingWidth -= 15;
+			}
+			
 	        var textWrapper = document.createElement("div");
 	        _css(textWrapper, {
-	            margin: '0 5px'
+	            position: "relative",
+	            height: "100%",
+	            overflow: "hidden"
 	        });
+
+	        var duration = document.createElement("span");
+    		if (item.duration > 0) {
+        		duration.className = 'duration';
+        		_css(duration, {
+    		    	fontSize: (_settings.fontsize ? _settings.fontsize : 11) + "px",
+                	fontWeight: (_settings.fontweight ? _settings.fontweight : "bold"),
+    		    	width: "40px",
+	            	height: _settings.fontsize ? _settings.fontsize + 10 : 20,
+               		lineHeight: 24,
+	            	'float': 'right',
+				    styleFloat: 'right',
+				    cssFloat: 'right',
+	            });
+        		duration.innerHTML = _utils.timeFormat(item.duration);
+            	textWrapper.appendChild(duration);
+        	}
+	        
         	var title = document.createElement("span");
         	title.className = 'title';
         	_css(title, {
-        	    margin: 0,
-        		padding: "0 0 0 5px",
+        		paddingLeft: (imgPos ? 0 : "5px"),
+        		paddingRight: "5px",
         		height: _settings.fontsize ? _settings.fontsize + 10 : 20,
         		lineHeight: 24,
             	overflow: 'hidden',
-            	display: 'block',
+            	'float': 'left',
+			    styleFloat: 'left',
+			    cssFloat: 'left',
+            	width: ((item.duration > 0) ? _remainingWidth - 50 : _remainingWidth)-5 + "px",
 		    	fontSize: (_settings.fontsize ? _settings.fontsize : 13) + "px",
-            	fontWeight: 'bold'
+            	fontWeight: (_settings.fontweight ? _settings.fontweight : "bold")
         	});
         	title.innerHTML = item ? item.title : "";
         	textWrapper.appendChild(title);
@@ -7643,11 +7682,15 @@ playerReady = function(obj) {
 	        	desc.className = 'description';
 	        	_css(desc,{
 	        	    display: 'block',
+	        	    'float': 'left',
+				    styleFloat: 'left',
+				    cssFloat: 'left',
 	        		margin: 0,
-	        		padding: "0 0 0 5px",
-	            	height: _settings.itemheight - parseInt(title.style.height.replace("px", "")),
+	        		paddingLeft: title.style.paddingLeft,
+	        		paddingRight: title.style.paddingRight,
 	            	lineHeight: (_settings.fontsize ? _settings.fontsize * 1.5 : 18) + "px",
-	            	overflow: 'hidden'
+	            	overflow: 'hidden',
+	            	position: "relative"
 	        	});
 	        	desc.innerHTML = item.description;
 	        	textWrapper.appendChild(desc);
