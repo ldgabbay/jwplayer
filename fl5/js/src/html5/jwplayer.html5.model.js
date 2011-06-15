@@ -38,7 +38,7 @@
 		};
 		var _media;
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
-		var _components = ["display", "logo", "playlist", "controlbar", "dock"];
+		var _components = ["display", "logo", "controlbar", "playlist", "dock"];
 		
 		jwplayer.utils.extend(_model, _eventDispatcher);
 		

@@ -192,6 +192,12 @@
 				var failed = _resizeComponents(_normalscreenComponentResizer, plugins);
 				if (failed.length > 0) {
 					_zIndex += failed.length;
+					var plIndex = failed.indexOf("playlist"),
+						cbIndex = failed.indexOf("controlbar");
+					if (plIndex >= 0 && cbIndex >= 0) {
+						// Reverse order of controlbar and playlist when both are set to "over"
+						failed[plIndex] = failed.splice(cbIndex, 1, failed[plIndex])[0];
+					}
 					_resizeComponents(_overlayComponentResizer, failed, true);
 				}
 			} else if (navigator.vendor.indexOf("Apple") !== 0) {

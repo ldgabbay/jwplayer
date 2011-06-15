@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1847';
+jwplayer.version = '5.7.1848';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4011,6 +4011,12 @@ playerReady = function(obj) {
 				var failed = _resizeComponents(_normalscreenComponentResizer, plugins);
 				if (failed.length > 0) {
 					_zIndex += failed.length;
+					var plIndex = failed.indexOf("playlist"),
+						cbIndex = failed.indexOf("controlbar");
+					if (plIndex >= 0 && cbIndex >= 0) {
+						// Reverse order of controlbar and playlist when both are set to "over"
+						failed[plIndex] = failed.splice(cbIndex, 1, failed[plIndex])[0];
+					}
 					_resizeComponents(_overlayComponentResizer, failed, true);
 				}
 			} else if (navigator.vendor.indexOf("Apple") !== 0) {
@@ -5118,8 +5124,7 @@ playerReady = function(obj) {
 		_setup();
 		return this;
 	};
-})(jwplayer);
-/**
+})(jwplayer);/**
  * JW Player controller component
  *
  * @author zach
@@ -7108,7 +7113,7 @@ playerReady = function(obj) {
 		};
 		var _media;
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
-		var _components = ["display", "logo", "playlist", "controlbar", "dock"];
+		var _components = ["display", "logo", "controlbar", "playlist", "dock"];
 		
 		jwplayer.utils.extend(_model, _eventDispatcher);
 		
@@ -7479,9 +7484,9 @@ playerReady = function(obj) {
 				_hide(_wrapper);
 			} else {
 				var style = {
-						display: "block",
-						width: _width,
-						height: _height
+					display: "block",
+					width: _width,
+					height: _height
 				};
 				_css(_wrapper, style);
 			}

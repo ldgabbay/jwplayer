@@ -76,9 +76,9 @@
 				_hide(_wrapper);
 			} else {
 				var style = {
-						display: "block",
-						width: _width,
-						height: _height
+					display: "block",
+					width: _width,
+					height: _height
 				};
 				_css(_wrapper, style);
 			}

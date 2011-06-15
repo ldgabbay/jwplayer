@@ -22,7 +22,7 @@ package com.longtailvideo.jwplayer.media {
 		/** Loader used to load YouTube chromeless API swf **/
 		private var _loader:Loader;
 		/** Location of chromeless API **/
-		private var _ytApiUrl:String = "http://www.youtube.com/apiplayer?version=3";
+		private var _ytApiUrl:String = "http://www.youtube.com/apiplayer?version=3&modestbranding=1";
 		/** YouTube chromeless player API **/
 		private var _ytAPI:Object;
 		/** Whether or not to play the item once the chromeless API has been loaded **/
