@@ -124,19 +124,9 @@ package com.longtailvideo.jwplayer.view.components {
 
 		protected var animations:Animations;
 		protected var _fadingOut:Number;
-		protected var _sentShow:Boolean = false;
-		protected var _sentHide:Boolean = false;
-		protected var _playerReady:Boolean = false;
-		protected var _showOnReady:Boolean = false;
 		
 		public function ControlbarComponent(player:IPlayer) {
 			super(player, "controlbar");
-			player.addEventListener(PlayerEvent.JWPLAYER_READY, function(evt:PlayerEvent):void {
-				_playerReady = true;
-				if (_showOnReady) {
-					sendShow();
-				}
-			});
 			animations = new Animations(this);
 			if (getConfigParam('position') == "over" && hideOnIdle) {
 				alpha = 0;
@@ -825,14 +815,6 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 		}
 
-		private function get displayRect():Rectangle {
-			if (this.parent && getConfigParam('position') == "over" || _player.config.fullscreen) {
-				return getBounds(this.parent);
-			} else {
-				return new Rectangle(0, 0, 0, 0);
-			}
-		}
-		
 		private function get background():DisplayObject {
 			if (_buttons['background']) {
 				return _buttons['background'];
@@ -854,26 +836,6 @@ package com.longtailvideo.jwplayer.view.components {
 				return _buttons['capRight'];
 			}
 			return (new Sprite());
-		}
-		
-		private function sendShow():void {
-			if (!_sentShow) {
-				if (_playerReady) {
-					dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, displayRect));
-					_sentShow = true;
-					_sentHide = false;
-				} else {
-					_showOnReady = true;
-				}
-			}
-		}
-		
-		private function sendHide():void {
-			if (!_sentHide) {
-				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_HIDE, this, displayRect));
-				_sentShow = false;
-				_sentHide = true;
-			}
 		}
 		
 	}

@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1846';
+jwplayer.version = '5.7.1847';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -913,13 +913,20 @@ jwplayer.source = document.createElement("source");/**
 		if (_animations[domelement.id] != startTime && jwplayer.utils.exists(startTime)) {
 			return;
 		}
+		// No need to fade if the opacity is already where we're going
+		if (domelement.style.opacity == endAlpha) {
+			return;
+		}
+		
 		var currentTime = new Date().getTime();
 		if (startTime > currentTime) {
 			setTimeout(function() {
 				jwplayer.utils.fadeTo(domelement, endAlpha, time, startAlpha, 0, startTime);
 			}, startTime - currentTime);
 		}
-		domelement.style.display = "block";
+		if (domelement.style.display == "none") {
+			domelement.style.display = "block";
+		}
 		if (!jwplayer.utils.exists(startAlpha)) {
 			startAlpha = domelement.style.opacity === "" ? 1 : domelement.style.opacity;
 		}
@@ -936,7 +943,7 @@ jwplayer.source = document.createElement("source");/**
 		if (!jwplayer.utils.exists(delay)) {
 			delay = 0;
 		}
-		var percentTime = (currentTime - startTime) / (time * 1000);
+		var percentTime = (time > 0) ? ((currentTime - startTime) / (time * 1000)) : 0;
 		percentTime = percentTime > 1 ? 1 : percentTime;
 		var delta = endAlpha - startAlpha;
 		var alpha = startAlpha + (percentTime * delta);

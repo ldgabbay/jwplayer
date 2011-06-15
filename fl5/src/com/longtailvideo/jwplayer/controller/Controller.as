@@ -156,7 +156,7 @@ package com.longtailvideo.jwplayer.controller {
 
 		protected function setupComplete(evt:Event):void {
 			_setupComplete = true;
-//			RootReference.stage.dispatchEvent(new Event(Event.RESIZE));
+			RootReference.stage.dispatchEvent(new Event(Event.RESIZE));
 			_view.completeView();
 			finalizeSetup();
 		}

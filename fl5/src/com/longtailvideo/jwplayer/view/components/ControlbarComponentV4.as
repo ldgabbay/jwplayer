@@ -59,20 +59,9 @@ package com.longtailvideo.jwplayer.view.components {
 		private var animations:Animations;
 		/** Last inserted button **/
 		private var lastInsert:MovieClip;
-		private var _playerReady:Boolean = false;
-		private var _showOnReady:Boolean = false;
-		private var _sentShow:Boolean = false;
-		private var _sentHide:Boolean = false;
 
 		public function ControlbarComponentV4(player:IPlayer) {
 			super(player, "controlbar");
-			player.addEventListener(PlayerEvent.JWPLAYER_READY, function(evt:PlayerEvent):void {
-				_playerReady = true;
-				if (_showOnReady) {
-					sendShow();
-				}
-			});
-
 			animations = new Animations(this);
 			controlbarConfig = _player.config.pluginConfig("controlbar");
 			if (controlbarConfig['position'] == "over" && hideOnIdle) {
@@ -636,27 +625,7 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 		}
 
-		private function sendShow():void {
-			if (!_sentShow) {
-				if (_playerReady) {
-					dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, displayRect));
-					_sentShow = true;
-					_sentHide = false;
-				} else {
-					_showOnReady = true;
-				}
-			}
-		}
-
-		private function sendHide():void {
-			if (!_sentHide) {
-				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_HIDE, this, displayRect));
-				_sentShow = false;
-				_sentHide = true;
-			}
-		}
-
-		private function get displayRect():Rectangle {
+		protected override function get displayRect():Rectangle {
 			if (this.parent && getConfigParam('position') == "over" || _fullscreen) {
 				return getBounds(this.parent);
 			} else {

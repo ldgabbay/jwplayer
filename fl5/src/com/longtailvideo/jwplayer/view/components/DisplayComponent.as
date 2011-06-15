@@ -255,21 +255,21 @@
 		
 		
 		public function setIcon(displayIcon:DisplayObject):void {
-			var sendShow:Boolean = false;
-			var sendHide:Boolean = false;
+			var sendShowEvent:Boolean = false;
+			var sendHideEvent:Boolean = false;
 			try {
 				if (_icon && _icon.parent == _overlay) { 
 					_overlay.removeChild(_icon);
 					_icon = null;
-					sendHide = !_hiding;
+					sendHideEvent = !_hiding;
 				} else {
-					sendShow = !_hiding;
+					sendShowEvent = !_hiding;
 				}
 			} catch (err:Error) {
 			}
 			if (_fullscreen != _player.config.fullscreen) {
 				_fullscreen = _player.config.fullscreen;
-				sendShow = true;
+				sendShowEvent = true;
 			}
 			if (displayIcon && _player.config.icons && (getConfigParam("icons") === true || typeof(getConfigParam("icons")) == "undefined")) {
 				if (displayIcon is Sprite) {
@@ -279,12 +279,13 @@
 				_overlay.addChild(_icon);
 				positionIcon();
 				_iconArea = _icon.getRect(_overlay);
-				if (sendShow) {
-					dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, _iconArea));
+
+				if (sendShowEvent) {
+					sendShow();
 				}
 			} else {
-				if (sendHide) {
-					dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_HIDE, this, _iconArea));
+				if (sendHideEvent) {
+					sendHide();
 				}
 				_iconArea = null;
 			}
@@ -442,7 +443,7 @@
 			}
 			if (!_hiding) {
 				if (_icon) {
-					dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_HIDE, this, _iconArea));
+					sendShow();
 				}
 				_hiding = true;
 			}
@@ -455,10 +456,14 @@
 			}
 			if (_hiding) {
 				if (_icon) {
-					dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, _iconArea));
+					sendHide();
 				}
 				_hiding = false;
 			}
+		}
+		
+		protected override function get displayRect():Rectangle {
+			return _iconArea ? _iconArea : super.displayRect;
 		}
 		
 	}

@@ -1,5 +1,6 @@
 package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.events.ComponentEvent;
+	import com.longtailvideo.jwplayer.events.PlayerEvent;
 	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
 	import com.longtailvideo.jwplayer.player.IPlayer;
 	import com.longtailvideo.jwplayer.player.PlayerState;
@@ -48,10 +49,6 @@ package com.longtailvideo.jwplayer.view.components {
 		private var currentTab:Number = 400;
 		/** Keep track of dock icon dimensions **/
 		private var dimensions:Rectangle;
-		/** Have we last sent a show event? **/
-		private var _sentShow:Boolean = false;
-		/** Have we last sent a hide event? **/
-		private var _sentHide:Boolean = false;
 
 
 		public function DockComponent(player:IPlayer) {
@@ -273,21 +270,14 @@ package com.longtailvideo.jwplayer.view.components {
 			}
 		}
 
-		private function sendShow():void {
-			if (!_sentShow && buttons.length > 0) {
-				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_SHOW, this, dimensions));
-				_sentShow = true;
-				_sentHide = false;
+		protected override function get displayRect():Rectangle {
+			if (dimensions) {
+				return dimensions;
+			} else {
+				return super.displayRect;
 			}
 		}
-
-		private function sendHide():void {
-			if (!_sentHide && buttons.length > 0) {
-				dispatchEvent(new ComponentEvent(ComponentEvent.JWPLAYER_COMPONENT_HIDE, this, dimensions));
-				_sentShow = false;
-				_sentHide = true;
-			}
-		}
+		
 	}
 }
 
