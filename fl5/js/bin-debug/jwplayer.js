@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1848';
+jwplayer.version = '5.7.1849';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -7555,7 +7555,7 @@ playerReady = function(obj) {
 				var normalColor = _settings.fontcolor;
 				var normalBG = _elements.item ? "url("+_elements.item.src+")" : ""
 				if (index == _api.jwGetPlaylistIndex()) {
-					if (_settings.activecolor) {
+					if (_settings.activecolor !== "") {
 						normalColor = _settings.activecolor;
 					}
 					if (_elements.itemActive) {
@@ -7563,7 +7563,7 @@ playerReady = function(obj) {
 					}
 				}
 				_css(li, {
-					color: _settings.overcolor ? _settings.overcolor : normalColor,
+					color: _settings.overcolor !== "" ? _settings.overcolor : normalColor,
 				    backgroundImage: _elements.itemOver ? "url("+_elements.itemOver.src+")" : normalBG
 				});
 			}
@@ -7576,7 +7576,7 @@ playerReady = function(obj) {
 				var bg = _elements.item ? "url("+_elements.item.src+")" : "";
 				
 				if (index == _api.jwGetPlaylistIndex()) {
-					if (_settings.activecolor) {
+					if (_settings.activecolor !== "") {
 						color = _settings.activecolor;
 					}
 					if (_elements.itemActive) {
@@ -7605,32 +7605,47 @@ playerReady = function(obj) {
 
 			li.onmouseover = _itemOver(index);
 			li.onmouseout = _itemOut(index);
-			
+
+			var imageWrapper = document.createElement("div");
 			var image = new Image();
         	var imgPos = 0;
         	var imgWidth = 0;
+        	var imgHeight = 0;
 			if (_showThumbs() && (item.image || item['playlist.image'] || _elements.itemImage) ) {
 	        	image.className = 'image';
 	        	
 	        	if (_elements.itemImage) {
 	        		imgPos = (_settings.itemheight - _elements.itemImage.height) / 2;
 	        		imgWidth = _elements.itemImage.width;
+	        		imgHeight = _elements.itemImage.height;
 	        	} else {
 	        		imgWidth = _settings.itemheight * 4 / 3;
+	        		imgHeight = _settings.itemheight
 	        	}
 	        			
-				_css(image, {
-				    height: _elements.itemImage ? _elements.itemImage.height : _settings.itemheight,
+	        	_css(imageWrapper, {
+				    height: imgHeight,
 				    width: imgWidth,
 				    'float': 'left',
 				    styleFloat: 'left',
 				    cssFloat: 'left',
 				    margin: '0 5px 0 0',
-				    background: 'black',
-				    overflow: 'auto',
-				    margin: imgPos + "px"
+					background: 'black',
+					overflow: 'hidden',
+					margin: imgPos + "px",
+					position: "relative"
+	        	});
+	        	
+				_css(image, {
+					position: "relative"
 				});
+				
+				imageWrapper.appendChild(image);
 
+				image.onload = function() {
+				    jwplayer.utils.stretch(jwplayer.utils.stretching.FILL, image, imgWidth, imgHeight, this.naturalWidth, this.naturalHeight);
+				}
+				
 				if (item['playlist.image']) {
 					image.src = item['playlist.image'];	
 				} else if (item.image) {
@@ -7639,7 +7654,7 @@ playerReady = function(obj) {
 					image.src = _elements.itemImage.src;
 				}
 				
-				li.appendChild(image);
+				li.appendChild(imageWrapper);
 	        }
 			
 			var _remainingWidth = _width - imgWidth - imgPos * 2;
