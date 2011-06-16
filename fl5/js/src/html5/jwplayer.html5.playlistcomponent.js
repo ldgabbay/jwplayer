@@ -281,15 +281,14 @@
         	var title = document.createElement("span");
         	title.className = 'title';
         	_css(title, {
-        		paddingLeft: (imgPos ? 0 : "5px"),
-        		paddingRight: "5px",
+        		padding: "5px 5px 0 " + (imgPos ? 0 : "5px"),
         		height: _settings.fontsize ? _settings.fontsize + 10 : 20,
-        		lineHeight: 24,
+        		lineHeight: _settings.fontsize ? _settings.fontsize + 10 : 20,
             	overflow: 'hidden',
             	'float': 'left',
 			    styleFloat: 'left',
 			    cssFloat: 'left',
-            	width: ((item.duration > 0) ? _remainingWidth - 50 : _remainingWidth)-5 + "px",
+            	width: ((item.duration > 0) ? _remainingWidth - 50 : _remainingWidth)-10 + "px",
 		    	fontSize: (_settings.fontsize ? _settings.fontsize : 13) + "px",
             	fontWeight: (_settings.fontweight ? _settings.fontweight : "bold")
         	});
@@ -307,7 +306,7 @@
 	        		margin: 0,
 	        		paddingLeft: title.style.paddingLeft,
 	        		paddingRight: title.style.paddingRight,
-	            	lineHeight: (_settings.fontsize ? _settings.fontsize * 1.5 : 18) + "px",
+	            	lineHeight: (_settings.fontsize ? _settings.fontsize + 4 : 15) + "px",
 	            	overflow: 'hidden',
 	            	position: "relative"
 	        	});
