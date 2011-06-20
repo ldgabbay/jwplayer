@@ -115,7 +115,9 @@
             var scriptPos = -1;
             jwplayer().onTime(startScript);
             jwplayer().onComplete(completeScript);
-            jwplayer().play();
+            if (!jwplayer.utils.isIOS()) {
+	            jwplayer().play();
+            }
             
             var script = [{
             	action: function() {

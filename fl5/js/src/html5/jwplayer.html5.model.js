@@ -164,6 +164,10 @@
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
 				"playlist": _model.playlist
 			});
+			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
+				"index": _model.item
+			});
+			
 			if (_model.playlist[_model.item].file || _model.playlist[_model.item].levels[0].file) {
 				_model.setActiveMediaProvider(_model.playlist[_model.item]);
 			}
@@ -172,9 +176,13 @@
 		_model.loadPlaylist = function(arg) {
 			var input;
 			if (typeof arg == "string") {
-				try {
-					input = eval(arg);
-				} catch (err) {
+				if (arg.indexOf("[") == 0 || arg.indexOf("{") == "0") {
+					try {
+						input = eval(arg);
+					} catch(err) {
+						input = arg;
+					}
+				} else {
 					input = arg;
 				}
 			} else {

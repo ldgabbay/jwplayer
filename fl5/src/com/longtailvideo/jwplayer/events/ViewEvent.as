@@ -127,7 +127,7 @@ package com.longtailvideo.jwplayer.events {
 		 *
 		 * @eventType jwplayerViewClick
 		 */
-		public static var JWPLAYER_VIEW_CLICK:String = "jwplayerDisplayClick";		
+		public static var JWPLAYER_VIEW_CLICK:String = "jwplayerViewClick";		
 
 		/** Sent along with REQUEST Event types. **/
 		public var data:*;

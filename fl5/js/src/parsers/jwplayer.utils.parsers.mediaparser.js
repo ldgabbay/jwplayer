@@ -43,7 +43,7 @@
 						if (obj.childNodes[i].childNodes && obj.childNodes[i].childNodes.length > 0) {
 							itm = jwplayer.utils.parsers.mediaparser.parseGroup(obj.childNodes[i], itm);
 						}
-						if (obj.childNodes[i].attributes.width || obj.childNodes[i].attributes.bitrate) {
+						if (obj.childNodes[i].attributes.width || obj.childNodes[i].attributes.bitrate || obj.childNodes[i].attributes.url) {
 							if (!itm.levels) {
 								itm.levels = [];
 							}
@@ -77,7 +77,7 @@
 						}
 						break;
 					case 'group':
-						itm = jwplayer.utils.parsers.mediaparser.parseGroup(obj.childNodes[i], itm);
+						jwplayer.utils.parsers.mediaparser.parseGroup(obj.childNodes[i], itm);
 						break;
 				}
 			}

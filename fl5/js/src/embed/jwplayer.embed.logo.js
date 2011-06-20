@@ -101,7 +101,7 @@
 				evt.stopPropagation();
 			}
 			if (_settings.link) {
-				window.open(_settings.link, "_self");
+				window.open(_settings.link, "_blank");
 			}
 			return;
 		}

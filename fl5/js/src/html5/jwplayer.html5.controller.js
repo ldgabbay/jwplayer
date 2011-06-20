@@ -21,8 +21,48 @@
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher(_container.id, debug);
 		_utils.extend(this, _eventDispatcher);
 		
+		var _queuedEvents = [];
+		var _ready = false;
+		
 		function forward(evt) {
-			_eventDispatcher.sendEvent(evt.type, evt);
+			if (_ready) {
+				_eventDispatcher.sendEvent(evt.type, evt);
+			} else {
+				_queuedEvents.push(evt);
+			}
+		}
+		
+		function _playerReady(evt) {
+			if (!_ready) {
+				_loadItem(_model.item)
+
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_READY, evt);
+				
+				if (jwplayer.utils.exists(window.playerReady)) {
+					playerReady(evt);
+				}
+
+				if (jwplayer.utils.exists(window[model.config.playerReady])) {
+					window[model.config.playerReady](evt);
+				}
+
+				while (_queuedEvents.length > 0) {
+					var queued = _queuedEvents.shift(); 
+					_eventDispatcher.sendEvent(queued.type, queued);						
+				}
+			
+				if (model.config.autostart && !jwplayer.utils.isIOS()) {
+					controller.item(model.item);
+				}
+
+				while (_queuedCalls.length > 0) {
+					var queuedCall = _queuedCalls.shift();
+					_callMethod(queuedCall.method, queuedCall.arguments);
+				}
+				
+				_ready = true;
+
+			}
 		}
 		
 		_model.addGlobalListener(forward);
@@ -40,7 +80,9 @@
 		_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
 			setTimeout(_completeHandler, 25);
 		});
-		
+		_model.addEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, function(evt) {
+			_loadItem(_model.item);
+		});
 		
 		function _play() {
 			try {
@@ -221,12 +263,17 @@
 		}
 		
 		function _loadItem(item) {
-			_model.item = item;
-			_itemUpdated = true;
-			_model.setActiveMediaProvider(_model.playlist[_model.item]);
-			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
-				"index": item
-			});
+			if (!_model.playlist[item]) {
+				return;
+			}
+			_model.setActiveMediaProvider(_model.playlist[item]);
+			if (_model.item != item) {
+				_model.item = item;
+				_itemUpdated = true;
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
+					"index": item
+				});
+			}
 		}
 		
 		/** Get / set the video's volume level. **/
@@ -362,17 +409,38 @@
 			}
 		}
 		
-		this.play = _play;
-		this.pause = _pause;
-		this.seek = _seek;
-		this.stop = _stop;
-		this.next = _next;
-		this.prev = _prev;
-		this.item = _item;
-		this.setVolume = _setVolume;
-		this.setMute = _setMute;
-		this.resize = _resize;
-		this.setFullscreen = _setFullscreen;
-		this.load = _load;
+		var _queuedCalls = [];
+		
+		function _waitForReady(func) {
+			return function() {
+				if (_ready) {
+					_callMethod(func, arguments);
+				} else {
+					_queuedCalls.push({ method: func, arguments: arguments});
+				}
+			}
+		}
+
+		function _callMethod(func, args) {
+			var _args = [];
+			for (i=0; i < args.length; i++) {
+				_args.push(args[i]);
+			}
+			func.apply(this, _args);
+		}
+		
+		this.play = _waitForReady(_play);
+		this.pause = _waitForReady(_pause);
+		this.seek = _waitForReady(_seek);
+		this.stop = _waitForReady(_stop);
+		this.next = _waitForReady(_next);
+		this.prev = _waitForReady(_prev);
+		this.item = _waitForReady(_item);
+		this.setVolume = _waitForReady(_setVolume);
+		this.setMute = _waitForReady(_setMute);
+		this.resize = _waitForReady(_resize);
+		this.setFullscreen = _waitForReady(_setFullscreen);
+		this.load = _waitForReady(_load);
+		this.playerReady = _playerReady; 
 	};
 })(jwplayer);

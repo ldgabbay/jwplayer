@@ -69,12 +69,12 @@ package com.longtailvideo.jwplayer.player {
 			timer.start();
 		}
 
-		protected function queueEvents(evt:PlayerEvent):void {
+		protected function queueEvents(evt:Event):void {
 			_queuedEvents.push(evt);
 		}
 		
 		protected function clearQueuedEvents():void {
-			for each (var queuedEvent:PlayerEvent in _queuedEvents) {
+			for each (var queuedEvent:Event in _queuedEvents) {
 				listenerCallback(queuedEvent);
 			}
 			_queuedEvents = null;
@@ -179,8 +179,8 @@ package com.longtailvideo.jwplayer.player {
 		
 		
 		
-		protected function listenerCallback(evt:PlayerEvent):void {
-			var args:Object;
+		protected function listenerCallback(evt:Event):void {
+			var args:Object = {};
 			
 			if (evt is MediaEvent)
 				args = listenerCallbackMedia(evt as MediaEvent);
@@ -192,8 +192,9 @@ package com.longtailvideo.jwplayer.player {
 				args = listenerCallbackComponent(evt as ComponentEvent);
 			else if (evt is ViewEvent && (evt as ViewEvent).data != null)
 				args = { data: JavascriptSerialization.stripDots((evt as ViewEvent).data) };
-			else
-				args = { message: evt.message };
+			else if (evt is PlayerEvent) {
+				args = { message: (evt as PlayerEvent).message };
+			}
 			
 			args.type = evt.type;
 			var callbacks:Array = _listeners[evt.type] as Array;

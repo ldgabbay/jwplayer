@@ -123,53 +123,35 @@
 		_api.jwUnlock = function() {
 		};
 		
-		var _playlistLoadComplete = _completeHandler(_model, _view, _controller); 
-		
-		function _finishLoad(model, view, controller) {
-			return function() {
-				model.addEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistLoadComplete);
-				if (model.config.playlistfile) {
-					model.loadPlaylist(model.config.playlistfile);
-				} else if (typeof model.config.playlist == "array") {
-					model.loadPlaylist(model.config.file);
-				} else {
-					model.loadPlaylist(model.config);
-				}
-			};
-		}
-		
-		function _completeHandler(model, view, controller) {
-			return function(evt) {
-				model.removeEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistLoadComplete);
-				model.setupPlugins();
-				view.setup();
-				var evt = {
-						id: _api.id,
-						version: _api.version
-				};
-				controller.sendEvent(jwplayer.api.events.JWPLAYER_READY, evt);
-				if (jwplayer.utils.exists(playerReady)) {
-					playerReady(evt);
-				}
-			
-				if (jwplayer.utils.exists(window[model.config.playerReady])) {
-					window[model.config.playerReady](evt);
-				}
-			
-				model.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
-					"playlist": model.playlist
-				});
-			
-				if (model.config.autostart && !jwplayer.utils.isIOS()) {
-					controller.item(model.item);
-				}			
+		function _skinLoaded() {
+			if (_model.config.playlistfile) {
+				_model.addEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistLoaded);
+				_model.loadPlaylist(_model.config.playlistfile);
+			} else if (typeof _model.config.playlist == "string") {
+				_model.addEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistLoaded);
+				_model.loadPlaylist(_model.config.playlist);
+			} else {
+				_model.loadPlaylist(_model.config);
+				setTimeout(_playlistLoaded, 25);
 			}
 		}
 		
+		function _playlistLoaded(evt) {
+			_model.removeEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistLoaded);
+			_model.setupPlugins();
+			_view.setup();
+			var evt = {
+				id: _api.id,
+				version: _api.version
+			};
+				
+			_controller.playerReady(evt);
+		}
+		
 		if (_model.config.chromeless && !jwplayer.utils.isIPad()) {
-			setTimeout(_finishLoad(_model, _view, _controller), 25);
+			_skinLoaded();
 		} else {
-			_api.skin.load(_model.config.skin, _finishLoad(_model, _view, _controller));
+			_api.skin.load(_model.config.skin, _skinLoaded);
 		}
 		return _api;
 	};

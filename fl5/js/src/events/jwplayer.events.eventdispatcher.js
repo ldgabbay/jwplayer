@@ -41,6 +41,9 @@
 		
 		/** Remove an event listener for a specific type of event. **/
 		this.removeEventListener = function(type, listener) {
+			if (!_listeners[type]) {
+				return;
+			}
 			try {
 				for (var listenerIndex = 0; listenerIndex < _listeners[type].length; listenerIndex++) {
 					if (_listeners[type][listenerIndex].listener.toString() == listener.toString()) {
@@ -72,6 +75,9 @@
 		
 		/** Add an event listener for all events. **/
 		this.removeGlobalListener = function(listener) {
+			if (!_globallisteners[type]) {
+				return;
+			}
 			try {
 				for (var globalListenerIndex = 0; globalListenerIndex < _globallisteners.length; globalListenerIndex++) {
 					if (_globallisteners[globalListenerIndex].listener.toString() == listener.toString()) {

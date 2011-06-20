@@ -295,8 +295,8 @@
 		
 		function _stateHandler(evt) {
 			if ((evt.type == jwplayer.api.events.JWPLAYER_PLAYER_STATE ||
-			evt.type == jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM) &&
-			_error) {
+					evt.type == jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM) &&
+					_error) {
 				_error = false;
 				_hide(_display.display_text);
 			}
@@ -314,7 +314,7 @@
 			if (_showing || _api.jwGetState() == jwplayer.api.events.state.PLAYING || _api.jwGetState() == jwplayer.api.events.state.PAUSED) {
 				_updateDisplay(_api.jwGetState());
 			} else {
-				_updateTimeout = setTimeout(_stateCallback(_api.jwGetState()), 300);
+				_updateTimeout = setTimeout(_stateCallback(_api.jwGetState()), 500);
 			}
 		}
 		
@@ -361,7 +361,7 @@
 					}
 					break;
 				case jwplayer.api.events.state.IDLE:
-					if (_api.jwGetPlaylist()[_api.jwGetItem()].image) {
+					if (_api.jwGetPlaylist()[_api.jwGetItem()] && _api.jwGetPlaylist()[_api.jwGetItem()].image) {
 						_showImage();
 					} else {
 						_resetPoster();
@@ -370,7 +370,7 @@
 					_showing = true;
 					break;
 				default:
-					if (_api.jwGetPlaylist()[_api.jwGetItem()].provider == "sound") {
+					if (_api.jwGetPlaylist()[_api.jwGetItem()] && _api.jwGetPlaylist()[_api.jwGetItem()].provider == "sound") {
 						if (_utils.isIOS()) {
 							_resetPoster();
 							_showing = false;

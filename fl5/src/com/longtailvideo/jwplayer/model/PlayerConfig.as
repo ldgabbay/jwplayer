@@ -25,7 +25,7 @@ package com.longtailvideo.jwplayer.model {
 		protected var _displaytitle:Boolean = true; 
 		protected var _fullscreen:Boolean 	= false;
 		protected var _item:Number			= 0;
-		protected var _linktarget:String 	= "_self";
+		protected var _linktarget:String 	= "_blank";
 		protected var _levels:Array			= null;
 		protected var _mute:Boolean 		= false;
 		protected var _repeat:String 		= RepeatOptions.NONE; 

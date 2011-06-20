@@ -101,7 +101,7 @@
 			_api.jwPause();
 			_api.jwSetFullscreen(false);
 			if (_settings.link) {
-				window.open(_settings.link, "_self");
+				window.open(_settings.link, "_top");
 			}
 			return;
 		}

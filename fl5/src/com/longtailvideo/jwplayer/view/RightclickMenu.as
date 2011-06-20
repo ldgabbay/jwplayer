@@ -73,7 +73,7 @@ package com.longtailvideo.jwplayer.view {
 
 		/** jump to the about page. **/
 		protected function aboutHandler(evt:ContextMenuEvent):void {
-			navigateToURL(new URLRequest('http://www.longtailvideo.com/players/jw-flv-player'), '_self');
+			navigateToURL(new URLRequest('http://www.longtailvideo.com/players/jw-flv-player'), '_top');
 		}
 
 		/** change the debug system. **/
