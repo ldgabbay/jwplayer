@@ -290,9 +290,14 @@
 		
 		
 		_model.setupPlugins = function() {
-			for (var plugin in _model.plugins.order) {
+			if (!jwplayer.utils.exists(_model.plugins) || !jwplayer.utils.exists(_model.plugins.order) || _model.plugins.order.length == 0) {
+				jwplayer.utils.log("No plugins to set up");
+				return _model;
+			}
+			
+			for (var i = 0; i < _model.plugins.order.length; i++) {
 				try {
-					var pluginName = _model.plugins.order[plugin];
+					var pluginName = _model.plugins.order[i];
 					if (jwplayer.utils.exists(jwplayer.html5[pluginName])) {
 						if (pluginName == "playlist") {
 							_model.plugins.object[pluginName] = new jwplayer.html5.playlistcomponent(_api, _model.plugins.config[pluginName]);

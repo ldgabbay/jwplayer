@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1858';
+jwplayer.version = '5.7.1860';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -7439,9 +7439,14 @@ playerReady = function(obj) {
 		
 		
 		_model.setupPlugins = function() {
-			for (var plugin in _model.plugins.order) {
+			if (!jwplayer.utils.exists(_model.plugins) || !jwplayer.utils.exists(_model.plugins.order) || _model.plugins.order.length == 0) {
+				jwplayer.utils.log("No plugins to set up");
+				return _model;
+			}
+			
+			for (var i = 0; i < _model.plugins.order.length; i++) {
 				try {
-					var pluginName = _model.plugins.order[plugin];
+					var pluginName = _model.plugins.order[i];
 					if (jwplayer.utils.exists(jwplayer.html5[pluginName])) {
 						if (pluginName == "playlist") {
 							_model.plugins.object[pluginName] = new jwplayer.html5.playlistcomponent(_api, _model.plugins.config[pluginName]);
@@ -7762,7 +7767,7 @@ playerReady = function(obj) {
                		lineHeight: 24,
 	            	'float': 'right',
 				    styleFloat: 'right',
-				    cssFloat: 'right',
+				    cssFloat: 'right'
 	            });
         		duration.innerHTML = _utils.timeFormat(item.duration);
             	textWrapper.appendChild(duration);

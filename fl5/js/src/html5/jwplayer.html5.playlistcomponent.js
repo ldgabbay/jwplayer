@@ -272,7 +272,7 @@
                		lineHeight: 24,
 	            	'float': 'right',
 				    styleFloat: 'right',
-				    cssFloat: 'right',
+				    cssFloat: 'right'
 	            });
         		duration.innerHTML = _utils.timeFormat(item.duration);
             	textWrapper.appendChild(duration);

@@ -12,17 +12,58 @@
             document.write("<h1>" + document.title + "</h1>");
         </script>
 		 <p>
-           This page contains a player with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "HTML5 Player should replace this".
+           This page contains a player with multiple sources, so it should play back in IE9, FF, Chrome, Safari, and Opera. IE < 9 will simply display "JW Player should replace this".
         </p>
+        
+        <form onsubmit="return false">
+          <label>Select a rendering mode:</label>
+          <select id="renderer">
+            <option value="flashonly">Flash Only</option>
+            <option value="html5only" selected="selected">HTML5 Only</option>
+          </select>
+          <button id="go" onclick="setupAll()">Go</button>
+        </form>
+
 		<p>
 			Integer width / height
 		</p>
         <div id="player1">
-        	 HTML5 Player should replace this.
+        	 JW Player should replace this.
         </div>
         <script type="text/javascript">
+        </script>
+		<p>
+			String width / height
+		</p>
+        <div id="player2">
+        	 JW Player should replace this.
+        </div>
+        <script type="text/javascript">
+        </script>
+		<p>
+			String width / height with px
+		</p>
+        <div id="player3">
+        	 JW Player should replace this.
+        </div>
+        <script type="text/javascript">
+        </script>
+		<p>
+			Percentage width / height
+		</p>
+        <div id="player4">
+        	 JW Player should replace this.
+        </div>
+        <h3>HTML code</h3>
+        
+        
+        <script type="text/javascript">
+        function setupAll() {
+          var mode = document.getElementById("renderer").value;
+        
+        
             jwplayer("player1").setup({
-            	players: settings.players(window.location.href),
+            	players: settings.modes[mode],
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -32,16 +73,9 @@
 				height: 270,
 				width: 480
             });
-        </script>
-		<p>
-			String width / height
-		</p>
-        <div id="player2">
-        	 HTML5 Player should replace this.
-        </div>
-        <script type="text/javascript">
+
             jwplayer("player2").setup({
-            	players: settings.players(window.location.href),
+            	players: settings.modes[mode],
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -51,16 +85,9 @@
 				height: "270",
 				width: "480"
             });
-        </script>
-		<p>
-			String width / height with px
-		</p>
-        <div id="player3">
-        	 HTML5 Player should replace this.
-        </div>
-        <script type="text/javascript">
+        
             jwplayer("player3").setup({
-            	players: settings.players(window.location.href),
+            	players: settings.modes[mode],
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -70,16 +97,8 @@
 				height: "270px",
 				width: "480px"
             });
-        </script>
-		<p>
-			Percentage width / height
-		</p>
-        <div id="player4">
-        	 HTML5 Player should replace this.
-        </div>
-        <script type="text/javascript">
             jwplayer("player4").setup({
-            	players: settings.players(window.location.href),
+            	players: settings.modes[mode],
             	levels: [{
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
             	}, {
@@ -89,7 +108,9 @@
 				height: "100%",
 				width: "100%"
             });
+        }
+
+        setupAll();            
         </script>
-        <h3>HTML code</h3>
     </body>
 </html>
