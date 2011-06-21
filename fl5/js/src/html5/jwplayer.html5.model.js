@@ -84,7 +84,7 @@
 		
 		
 		if (jwplayer.utils.isIPad()) {
-			pluginorder = ["logo","display","playlist"];
+			pluginorder = ["display","logo","dock","playlist"];
 			if (!jwplayer.utils.exists(_model.config.repeat)) {
 				_model.config.repeat = "list";
 			}

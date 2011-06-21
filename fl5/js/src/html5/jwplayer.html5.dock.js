@@ -32,6 +32,8 @@
 		var _dock = document.createElement("div");
 		_dock.id = api.id + "_jwplayer_dock";
 		
+		api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
+		
 		this.getDisplayElement = function() {
 			return _dock;
 		};
@@ -183,13 +185,26 @@
 				}
 			}
 		}
+		
+		function _stateHandler(event) {
+			if (jwplayer.utils.isIOS()) {
+				switch (event.newstate) {
+				case jwplayer.api.events.state.IDLE:
+					_show();
+					break;
+				default:
+					_hide();
+					break;
+				}
+			}
+		}
 
 		var _sendShow = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_SHOW);
 		var _sendHide = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_HIDE);
 
 		this.resize = _resize;
 		
-		this.show = function() {
+		var _show = function() {
 			_css(_dock, {
 				display: "block"
 			});
@@ -199,7 +214,7 @@
 			}
 		}
 
-		this.hide = function() {
+		var _hide = function() {
 			_css(_dock, {
 				display: "none"
 			});
@@ -209,6 +224,9 @@
 			}
 			
 		}
+		
+		this.hide = _hide;
+		this.show = _show;
 		
 		return this;
 	}
