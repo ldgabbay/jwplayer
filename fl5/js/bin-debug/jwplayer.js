@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1861';
+jwplayer.version = '5.7.1862';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -2152,14 +2152,16 @@ jwplayer.source = document.createElement("source");/**
 		
 		function _setButton(ref, plugin) {
 			return function(id, handler, outGraphic, overGraphic) {
-				var handlerString;
-				if (handler) {
-					_callbacks[id] = handler;
-					handlerString = "jwplayer('" + ref.id + "').callback('" + id + "')";
-				} else if (!handler && _callbacks[id]) {
-					delete _callbacks[id];
+				if (this.renderingMode == "flash" || this.renderingMode == "html5") {
+					var handlerString;
+					if (handler) {
+						_callbacks[id] = handler;
+						handlerString = "jwplayer('" + ref.id + "').callback('" + id + "')";
+					} else if (!handler && _callbacks[id]) {
+						delete _callbacks[id];
+					}
+					_player.jwDockSetButton(id, handlerString, outGraphic, overGraphic);
 				}
-				_player['jwDockSetButton'](id, handlerString, outGraphic, overGraphic);
 				return plugin;
 			};
 		}
@@ -7853,7 +7855,7 @@ playerReady = function(obj) {
 			_wrapper.appendChild(_ul);
 
 			if (_utils.isIOS() && window.iScroll) {
-				_ul.style.height = 60 * _playlist.length + "px";
+				_ul.style.height = _settings.itemheight * _playlist.length + "px";
 				var myscroll = new iScroll(_wrapper.id);
 			}
 			

@@ -34,14 +34,16 @@
 		
 		function _setButton(ref, plugin) {
 			return function(id, handler, outGraphic, overGraphic) {
-				var handlerString;
-				if (handler) {
-					_callbacks[id] = handler;
-					handlerString = "jwplayer('" + ref.id + "').callback('" + id + "')";
-				} else if (!handler && _callbacks[id]) {
-					delete _callbacks[id];
+				if (this.renderingMode == "flash" || this.renderingMode == "html5") {
+					var handlerString;
+					if (handler) {
+						_callbacks[id] = handler;
+						handlerString = "jwplayer('" + ref.id + "').callback('" + id + "')";
+					} else if (!handler && _callbacks[id]) {
+						delete _callbacks[id];
+					}
+					_player.jwDockSetButton(id, handlerString, outGraphic, overGraphic);
 				}
-				_player['jwDockSetButton'](id, handlerString, outGraphic, overGraphic);
 				return plugin;
 			};
 		}

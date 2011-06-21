@@ -340,7 +340,7 @@
 			_wrapper.appendChild(_ul);
 
 			if (_utils.isIOS() && window.iScroll) {
-				_ul.style.height = 60 * _playlist.length + "px";
+				_ul.style.height = _settings.itemheight * _playlist.length + "px";
 				var myscroll = new iScroll(_wrapper.id);
 			}
 			

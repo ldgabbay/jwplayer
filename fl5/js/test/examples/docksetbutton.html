@@ -66,10 +66,10 @@
             function addButton() {
             	index++;
             	var name = "button" + index;
-            	player.getPlugin("dock").setButton(name, function() {
+            	var dock = player.getPlugin("dock");
+            	dock.setButton(name, function() {
 					setAlert(name);
-				}
-				, "assets/dock_on_out.png");
+				}, "assets/dock_on_out.png");
             };
             function removeButton() {
             	var name = "button" + index;
