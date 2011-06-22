@@ -114,7 +114,7 @@
 		}
 		
 		function _overHandler(evt) {
-			if (_settings.hide) {
+			if (_settings.hide.toString() == "true") {
 				_logo.style.opacity = _settings.over;
 			}
 			return;
@@ -126,7 +126,7 @@
 				position: "absolute",
 				cursor: "pointer"
 			};
-			_imageStyle.display = _settings.hide ? "none" : "block";
+			_imageStyle.display = (_settings.hide.toString() == "true") ? "none" : "block";
 			var positions = _settings.position.toLowerCase().split("-");
 			for (var position in positions) {
 				_imageStyle[positions[position]] = _settings.margin;
@@ -135,7 +135,7 @@
 		}
 		
 		function _show() {
-			if (_settings.hide) {
+			if (_settings.hide.toString() == "true") {
 				_logo.style.display = "block";
 				_logo.style.opacity = 0;
 				jwplayer.utils.fadeTo(_logo, _settings.out, 0.1, parseFloat(_logo.style.opacity));
@@ -146,7 +146,7 @@
 		}
 		
 		function _hide() {
-			if (_settings.hide) {
+			if (_settings.hide.toString() == "hide") {
 				jwplayer.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity));
 			}
 		}

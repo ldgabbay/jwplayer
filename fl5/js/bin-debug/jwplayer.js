@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1862';
+jwplayer.version = '5.7.1864';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -6402,7 +6402,7 @@ playerReady = function(obj) {
 		}
 		
 		function _overHandler(evt) {
-			if (_settings.hide) {
+			if (_settings.hide.toString() == "true") {
 				_logo.style.opacity = _settings.over;
 			}
 			return;
@@ -6414,7 +6414,7 @@ playerReady = function(obj) {
 				position: "absolute",
 				cursor: "pointer"
 			};
-			_imageStyle.display = _settings.hide ? "none" : "block";
+			_imageStyle.display = (_settings.hide.toString() == "true") ? "none" : "block";
 			var positions = _settings.position.toLowerCase().split("-");
 			for (var position in positions) {
 				_imageStyle[positions[position]] = _settings.margin;
@@ -6423,7 +6423,7 @@ playerReady = function(obj) {
 		}
 		
 		function _show() {
-			if (_settings.hide) {
+			if (_settings.hide.toString() == "true") {
 				_logo.style.display = "block";
 				_logo.style.opacity = 0;
 				jwplayer.utils.fadeTo(_logo, _settings.out, 0.1, parseFloat(_logo.style.opacity));
@@ -6434,7 +6434,7 @@ playerReady = function(obj) {
 		}
 		
 		function _hide() {
-			if (_settings.hide) {
+			if (_settings.hide.toString() == "hide") {
 				jwplayer.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity));
 			}
 		}
