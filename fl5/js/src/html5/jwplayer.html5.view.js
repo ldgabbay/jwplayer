@@ -200,7 +200,7 @@
 					}
 					_resizeComponents(_overlayComponentResizer, failed, true);
 				}
-			} else if (navigator.vendor.indexOf("Apple") !== 0) {
+			} else if ( !(navigator && navigator.vendor && navigator.vendor.indexOf("Apple") == 0) ) {
 				_resizeComponents(_fullscreenComponentResizer, plugins, true);
 			}
 			_resizeMedia();
