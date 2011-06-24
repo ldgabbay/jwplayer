@@ -23,8 +23,6 @@
 		var _state = jwplayer.api.events.state.IDLE;
 		var _object, _embed;
 		
-		_init();
-		
 		function _setState(newstate) {
 			if (_state != newstate) {
 				var oldstate = _state;
@@ -73,8 +71,7 @@
 			_model.position = 0;
 			_setState(jwplayer.api.events.state.IDLE);
 			if (clear) {
-				_css(_object, { display: "none" });
-//				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_LOADED);
+				_css(_container, { display: "none" });
 			}
 		}
 		
@@ -99,7 +96,7 @@
 		
 		/** Resize the player. **/
 		this.resize = function(width, height) {
-			if (width * height > 0) {
+			if (width * height > 0 && _object) {
 				_object.width = _embed.width = width;
 				_object.height = _embed.height = height;
 			}
@@ -123,8 +120,8 @@
 		
 		/** Load a new video into the player. **/
 		this.load = function(playlistItem) {
-			_css(_object, { display: "block" });
 			_embedItem(playlistItem);
+			_css(_object, { display: "block" });
 			_setState(jwplayer.api.events.state.BUFFERING);
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
 				bufferPercent: 0
@@ -140,13 +137,16 @@
 		function _embedItem(playlistItem) {
 			var path = playlistItem.levels[0].file;
 			path = ["http://www.youtube.com/v/", _getYouTubeID(path), "&amp;hl=en_US&amp;fs=1&autoplay=1"].join("");
+
+			_object = document.createElement("object");
+			_object.id = _container.id;
+			_object.style.position = "absolute";
+
 			var objectParams = {
 				movie: path,
 				allowfullscreen: "true",
 				allowscriptaccess: "always"
 			};
-			
-			_object.innerHTML = "";
 			
 			for (var objectParam in objectParams) {
 				var param = document.createElement("param");
@@ -154,6 +154,9 @@
 				param.value = objectParams[objectParam];
 				_object.appendChild(param);
 			}
+
+			_embed = document.createElement("embed");
+			_object.appendChild(_embed);
 			
 			var embedParams = {
 				src: path,
@@ -168,29 +171,13 @@
 			}
 			_object.appendChild(_embed);
 			_object.style.zIndex = 2147483000;
-		}
-		
-		function _init() {
-			_object = document.createElement("object");
-			_object.id = _container.id;
-			
-			_object.style.position = "absolute";
-			_object.width = _model.config.width;
-			_object.height = _model.config.height;
 
-			if (_container.parentNode) {
+			if (_container != _object && _container.parentNode) {
 				_container.parentNode.replaceChild(_object, _container);
 			}
 			_container = _object;
 			
-			_embed = document.createElement("embed");
-			_object.appendChild(_embed);
-
-			if (jwplayer.utils.isIOS() && _model.playlist && _model.playlist[_model.item]) {
-				_embedItem(_model.playlist[_model.item]);
-			}
 		}
-		
 		
 		/** Extract the current ID from a youtube URL.  Supported values include:
 		 * http://www.youtube.com/watch?v=ylLzyHk54Z0

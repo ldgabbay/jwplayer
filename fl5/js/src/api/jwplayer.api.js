@@ -34,7 +34,7 @@
 		
 		function _setButton(ref, plugin) {
 			return function(id, handler, outGraphic, overGraphic) {
-				if (this.renderingMode == "flash" || this.renderingMode == "html5") {
+				if (ref.renderingMode == "flash" || ref.renderingMode == "html5") {
 					var handlerString;
 					if (handler) {
 						_callbacks[id] = handler;

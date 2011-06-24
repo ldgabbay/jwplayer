@@ -148,7 +148,7 @@
 			_controller.playerReady(evt);
 		}
 		
-		if (_model.config.chromeless && !jwplayer.utils.isIPad()) {
+		if (_model.config.chromeless && !jwplayer.utils.isIOS()) {
 			_skinLoaded();
 		} else {
 			_api.skin.load(_model.config.skin, _skinLoaded);

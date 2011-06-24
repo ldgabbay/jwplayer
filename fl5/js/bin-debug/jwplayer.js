@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1867';
+jwplayer.version = '5.7.1871';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -2152,7 +2152,7 @@ jwplayer.source = document.createElement("source");/**
 		
 		function _setButton(ref, plugin) {
 			return function(id, handler, outGraphic, overGraphic) {
-				if (this.renderingMode == "flash" || this.renderingMode == "html5") {
+				if (ref.renderingMode == "flash" || ref.renderingMode == "html5") {
 					var handlerString;
 					if (handler) {
 						_callbacks[id] = handler;
@@ -3930,11 +3930,7 @@ playerReady = function(obj) {
 				for (var pluginIndex = 0; pluginIndex < _model.plugins.order.length; pluginIndex++) {
 					var pluginName = _model.plugins.order[pluginIndex];
 					if (_utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
-						if (_model.getMedia().hasChrome()) {
-							_model.plugins.config[pluginName].currentPosition = jwplayer.html5.view.positions.NONE;
-						} else {
-							_model.plugins.config[pluginName].currentPosition = _model.plugins.config[pluginName].position;
-						}
+						_model.plugins.config[pluginName].currentPosition = _model.plugins.config[pluginName].position;
 					}
 				}
 			}
@@ -4130,7 +4126,12 @@ playerReady = function(obj) {
 						media.videoWidth ? media.videoWidth : 400, 
 						media.videoHeight ? media.videoHeight : 300);
 			} else {
-				_model.getMedia().resize(_utils.parseDimension(_box.style.width), _utils.parseDimension(_box.style.height));
+				var display = _model.plugins.object['display'].getDisplayElement();
+				if(display) {
+					_model.getMedia().resize(_utils.parseDimension(display.style.width), _utils.parseDimension(display.style.height));
+				} else {
+					_model.getMedia().resize(_utils.parseDimension(_box.style.width), _utils.parseDimension(_box.style.height));
+				}
 			}
 		}
 		
@@ -5375,7 +5376,6 @@ playerReady = function(obj) {
 			if (!_model.playlist || !_model.playlist[item]) {
 				return false;
 			}
-			
 			try {
 				if (_model.playlist[item].levels[0].file.length > 0) {
 					var oldstate = _model.state;
@@ -6726,6 +6726,7 @@ playerReady = function(obj) {
 				}, true);
 			}
 
+			_video.setAttribute("x-webkit-airplay", "allow"); 
 			
 			if(_container.parentNode) {
 				_container.parentNode.replaceChild(_video, _container);
@@ -6959,8 +6960,6 @@ playerReady = function(obj) {
 		var _state = jwplayer.api.events.state.IDLE;
 		var _object, _embed;
 		
-		_init();
-		
 		function _setState(newstate) {
 			if (_state != newstate) {
 				var oldstate = _state;
@@ -7009,8 +7008,7 @@ playerReady = function(obj) {
 			_model.position = 0;
 			_setState(jwplayer.api.events.state.IDLE);
 			if (clear) {
-				_css(_object, { display: "none" });
-//				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_LOADED);
+				_css(_container, { display: "none" });
 			}
 		}
 		
@@ -7035,7 +7033,7 @@ playerReady = function(obj) {
 		
 		/** Resize the player. **/
 		this.resize = function(width, height) {
-			if (width * height > 0) {
+			if (width * height > 0 && _object) {
 				_object.width = _embed.width = width;
 				_object.height = _embed.height = height;
 			}
@@ -7059,8 +7057,8 @@ playerReady = function(obj) {
 		
 		/** Load a new video into the player. **/
 		this.load = function(playlistItem) {
-			_css(_object, { display: "block" });
 			_embedItem(playlistItem);
+			_css(_object, { display: "block" });
 			_setState(jwplayer.api.events.state.BUFFERING);
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
 				bufferPercent: 0
@@ -7076,13 +7074,16 @@ playerReady = function(obj) {
 		function _embedItem(playlistItem) {
 			var path = playlistItem.levels[0].file;
 			path = ["http://www.youtube.com/v/", _getYouTubeID(path), "&amp;hl=en_US&amp;fs=1&autoplay=1"].join("");
+
+			_object = document.createElement("object");
+			_object.id = _container.id;
+			_object.style.position = "absolute";
+
 			var objectParams = {
 				movie: path,
 				allowfullscreen: "true",
 				allowscriptaccess: "always"
 			};
-			
-			_object.innerHTML = "";
 			
 			for (var objectParam in objectParams) {
 				var param = document.createElement("param");
@@ -7090,6 +7091,9 @@ playerReady = function(obj) {
 				param.value = objectParams[objectParam];
 				_object.appendChild(param);
 			}
+
+			_embed = document.createElement("embed");
+			_object.appendChild(_embed);
 			
 			var embedParams = {
 				src: path,
@@ -7104,29 +7108,13 @@ playerReady = function(obj) {
 			}
 			_object.appendChild(_embed);
 			_object.style.zIndex = 2147483000;
-		}
-		
-		function _init() {
-			_object = document.createElement("object");
-			_object.id = _container.id;
-			
-			_object.style.position = "absolute";
-			_object.width = _model.config.width;
-			_object.height = _model.config.height;
 
-			if (_container.parentNode) {
+			if (_container != _object && _container.parentNode) {
 				_container.parentNode.replaceChild(_object, _container);
 			}
 			_container = _object;
 			
-			_embed = document.createElement("embed");
-			_object.appendChild(_embed);
-
-			if (jwplayer.utils.isIOS() && _model.playlist && _model.playlist[_model.item]) {
-				_embedItem(_model.playlist[_model.item]);
-			}
 		}
-		
 		
 		/** Extract the current ID from a youtube URL.  Supported values include:
 		 * http://www.youtube.com/watch?v=ylLzyHk54Z0
@@ -8444,7 +8432,7 @@ playerReady = function(obj) {
 			_controller.playerReady(evt);
 		}
 		
-		if (_model.config.chromeless && !jwplayer.utils.isIPad()) {
+		if (_model.config.chromeless && !jwplayer.utils.isIOS()) {
 			_skinLoaded();
 		} else {
 			_api.skin.load(_model.config.skin, _skinLoaded);

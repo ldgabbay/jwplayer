@@ -274,6 +274,7 @@
 				}, true);
 			}
 
+			_video.setAttribute("x-webkit-airplay", "allow"); 
 			
 			if(_container.parentNode) {
 				_container.parentNode.replaceChild(_video, _container);

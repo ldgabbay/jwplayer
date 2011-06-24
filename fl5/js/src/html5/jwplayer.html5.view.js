@@ -103,11 +103,7 @@
 				for (var pluginIndex = 0; pluginIndex < _model.plugins.order.length; pluginIndex++) {
 					var pluginName = _model.plugins.order[pluginIndex];
 					if (_utils.exists(_model.plugins.object[pluginName].getDisplayElement)) {
-						if (_model.getMedia().hasChrome()) {
-							_model.plugins.config[pluginName].currentPosition = jwplayer.html5.view.positions.NONE;
-						} else {
-							_model.plugins.config[pluginName].currentPosition = _model.plugins.config[pluginName].position;
-						}
+						_model.plugins.config[pluginName].currentPosition = _model.plugins.config[pluginName].position;
 					}
 				}
 			}
@@ -303,7 +299,12 @@
 						media.videoWidth ? media.videoWidth : 400, 
 						media.videoHeight ? media.videoHeight : 300);
 			} else {
-				_model.getMedia().resize(_utils.parseDimension(_box.style.width), _utils.parseDimension(_box.style.height));
+				var display = _model.plugins.object['display'].getDisplayElement();
+				if(display) {
+					_model.getMedia().resize(_utils.parseDimension(display.style.width), _utils.parseDimension(display.style.height));
+				} else {
+					_model.getMedia().resize(_utils.parseDimension(_box.style.width), _utils.parseDimension(_box.style.height));
+				}
 			}
 		}
 		
