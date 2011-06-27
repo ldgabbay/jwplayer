@@ -52,7 +52,7 @@
 				}
 			
 				if (model.config.autostart && !jwplayer.utils.isIOS()) {
-					controller.item(model.item);
+					_item(_model.item);
 				}
 
 				while (_queuedCalls.length > 0) {

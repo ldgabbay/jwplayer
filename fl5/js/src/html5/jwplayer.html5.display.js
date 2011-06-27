@@ -392,10 +392,12 @@
 		}
 		
 		function _showImage() {
-			_css(_display.display_image, {
-				display: "block"
-			});
-			_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
+			if (_api.jwGetPlaylist()[_api.jwGetItem()] && _api.jwGetPlaylist()[_api.jwGetItem()].image) {
+				_css(_display.display_image, {
+					display: "block"
+				});
+				_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
+			}
 		}
 		
 		

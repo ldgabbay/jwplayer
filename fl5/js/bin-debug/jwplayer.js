@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1871';
+jwplayer.version = '5.7.1873';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -5187,7 +5187,7 @@ playerReady = function(obj) {
 				}
 			
 				if (model.config.autostart && !jwplayer.utils.isIOS()) {
-					controller.item(model.item);
+					_item(_model.item);
 				}
 
 				while (_queuedCalls.length > 0) {
@@ -5376,6 +5376,7 @@ playerReady = function(obj) {
 			if (!_model.playlist || !_model.playlist[item]) {
 				return false;
 			}
+			
 			try {
 				if (_model.playlist[item].levels[0].file.length > 0) {
 					var oldstate = _model.state;
@@ -5997,10 +5998,12 @@ playerReady = function(obj) {
 		}
 		
 		function _showImage() {
-			_css(_display.display_image, {
-				display: "block"
-			});
-			_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
+			if (_api.jwGetPlaylist()[_api.jwGetItem()] && _api.jwGetPlaylist()[_api.jwGetItem()].image) {
+				_css(_display.display_image, {
+					display: "block"
+				});
+				_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
+			}
 		}
 		
 		
