@@ -343,7 +343,11 @@
 		function _positionHandler(event) {
 			if (_utils.exists(event) && _utils.exists(event.target)) {
 				if (_model.duration <= 0 || isNaN(_model.duration)) {
-					_model.duration = Math.round(event.target.duration * 10) / 10;
+					if (event.target.duration == Infinity) {
+						_model.duration = 0;
+					} else {
+						_model.duration = Math.round(event.target.duration * 10) / 10;
+					}
 				}
 				if (!_start && _video.readyState > 0) {
 					_video.style.display = "block";
@@ -360,9 +364,9 @@
 						_video.volume = _model.volume / 100;
 						_video.muted = _model.mute;
 					}
-					_model.position = Math.round(event.target.currentTime * 10) / 10;
+					_model.position = _model.duration > 0 ? (Math.round(event.target.currentTime * 10) / 10) : 0;
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_TIME, {
-						position: event.target.currentTime,
+						position: _model.position,
 						duration: _model.duration
 					});
 					if (_model.position >= _model.duration && (_model.position > 0 || _model.duration > 0)) {
@@ -393,7 +397,7 @@
 					width: event.target.videoWidth,
 					duration: Math.round(event.target.duration * 10) / 10
 				};
-			if (_model.duration === 0 || isNaN(_model.duration)) {
+			if ( (_model.duration === 0 || isNaN(_model.duration)) && event.target.duration != Infinity) {
 				_model.duration = Math.round(event.target.duration * 10) / 10;
 			}
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_META, {
