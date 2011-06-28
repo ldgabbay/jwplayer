@@ -11,6 +11,20 @@
         <script type="text/javascript">
             document.write("<h1>" + document.title + "</h1>");
         </script>
+
+        <p>Select a rendering mode: 
+          <select id="renderer">
+            <option value="flashonly">
+              Flash Only
+            </option>
+  
+            <option value="html5only" selected="selected">
+              HTML5 Only
+            </option>
+          </select>
+          <button id="go" onclick="setupAll()">Go</button>
+        </p>
+
         <p>
             This is the basic setup for a video that plays natively on FF, Chrome, Safari, and Opera but will fail in IE.
         </p>
@@ -34,24 +48,33 @@
 			<a href="#" onclick="callPlayerFunction('properties');return false;">Get Value</a>
         </div>
         <script type="text/javascript">
-			var player = jwplayer("player").setup({
-            	players: settings.players(window.location.href),
-            	levels: [{
-            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
-            	}, {
-            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
-            	}],
-            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
-				debug: "console"
+        var player;
+        function setupAll() {
+          var mode = document.getElementById("renderer").value;
+    			player = jwplayer("player").setup({
+             	players: settings.modes[mode],
+            	playlist: [{
+            	 levels: [{
+              		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+              	}, {
+              		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+              	}],
+              	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+              	'foo.bar': '17'
+              }],
+		      		debug: "console"
             });
-			
-			function callPlayerFunction(functionid, valueid){
-				if (document.getElementById(valueid) && document.getElementById(valueid).value !== "") {
-					player[document.getElementById(functionid).value](document.getElementById(valueid).value);
-				} else {
-					if (window.console && console.log) console.log(player[document.getElementById(functionid).value]());
-				}
-			}
+			   }
+			   
+			   setupAll();
+			   
+      			function callPlayerFunction(functionid, valueid){
+      				if (document.getElementById(valueid) && document.getElementById(valueid).value !== "") {
+      					player[document.getElementById(functionid).value](document.getElementById(valueid).value);
+      				} else {
+      					if (window.console && console.log) console.log(player[document.getElementById(functionid).value]());
+      				}
+      			}
             
             var controls = {
             	Play: "play",
@@ -72,7 +95,6 @@
             };
             
             var properties = {
-            	Version: "getVersion",
             	State: "getState",
             	Item: "getItem",
             	Width: "getWidth",
