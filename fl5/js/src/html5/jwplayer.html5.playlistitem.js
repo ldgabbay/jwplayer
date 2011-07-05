@@ -54,6 +54,9 @@
 			var extension = jwplayer.utils.extension(item.file);
 			var mimetype;
 			if (extension && jwplayer.utils.extensionmap[extension]) {
+				if (extension == "m3u8") {
+					return "video";
+				}
 				mimetype = jwplayer.utils.extensionmap[extension].html5;
 			} else if (item.type) {
 				mimetype = item.type;

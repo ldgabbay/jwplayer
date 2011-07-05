@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1887';
+jwplayer.version = '5.7.1888';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -7950,6 +7950,9 @@ playerReady = function(obj) {
 			var extension = jwplayer.utils.extension(item.file);
 			var mimetype;
 			if (extension && jwplayer.utils.extensionmap[extension]) {
+				if (extension == "m3u8") {
+					return "video";
+				}
 				mimetype = jwplayer.utils.extensionmap[extension].html5;
 			} else if (item.type) {
 				mimetype = item.type;
