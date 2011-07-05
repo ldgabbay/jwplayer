@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1888';
+jwplayer.version = '5.7.1890';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -1418,7 +1418,7 @@ jwplayer.source = document.createElement("source");/**
 	 * @return {String} Value
 	 */
 	jwplayer.utils.strings.xmlAttribute = function(xml, attribute) {
-		for (var attrib in xml.attributes) {
+		for (var attrib = 0; attrib < xml.attributes.length; attrib++) {
 			if (xml.attributes[attrib].name && xml.attributes[attrib].name.toLowerCase() == attribute.toLowerCase()) 
 				return xml.attributes[attrib].value.toString();
 		}
@@ -1580,6 +1580,30 @@ jwplayer.source = document.createElement("source");/**
 	jwplayer.utils.parsers = function() {
 	};
 	
+	jwplayer.utils.parsers.localName = function(node) {
+		if(!node) {
+			return "";
+		} else if (node.localName) {
+			return node.localName;
+		} else if (node.baseName) {
+			return node.baseName;
+		} else {
+			return "";
+		}
+	}
+
+	jwplayer.utils.parsers.textContent = function(node) {
+		if(!node) {
+			return "";
+		} else if (node.textContent) {
+			return node.textContent;
+		} else if (node.text) {
+			return node.text;
+		} else {
+			return "";
+		}
+	}
+
 })(jwplayer);
 /**
  * Parse a feed item for JWPlayer content.
@@ -1607,9 +1631,9 @@ jwplayer.source = document.createElement("source");/**
 	 * @see			XSPFParser
 	 */
 	jwplayer.utils.parsers.jwparser.parseEntry = function(obj, itm) {
-		for (var i in obj.childNodes) {
+		for (var i = 0; i < obj.childNodes.length; i++) {
 			if (obj.childNodes[i].prefix == jwplayer.utils.parsers.jwparser.PREFIX) {
-				itm[obj.childNodes[i].localName] = jwplayer.utils.strings.serialize(obj.childNodes[i].textContent);
+				itm[jwplayer.utils.parsers.localName(obj.childNodes[i])] = jwplayer.utils.strings.serialize(jwplayer.utils.parsers.textContent(obj.childNodes[i]));
 			}
 			if (!itm['file'] && String(itm['link']).toLowerCase().indexOf('youtube') > -1) {
 				itm['file'] = itm['link'];
@@ -1670,26 +1694,28 @@ jwplayer.source = document.createElement("source");/**
 	jwplayer.utils.parsers.mediaparser.parseGroup = function(obj, itm) {
 		var ytp = false;
 		
-		for (var i in obj.childNodes) {
+		for (var i = 0; i < obj.childNodes.length; i++) {
 			if (obj.childNodes[i].prefix == jwplayer.utils.parsers.mediaparser.PREFIX) {
-				if (!obj.childNodes[i].localName){
+				if (!jwplayer.utils.parsers.localName(obj.childNodes[i])){
 					continue;
 				}
-				switch (obj.childNodes[i].localName.toLowerCase()) {
+				switch (jwplayer.utils.parsers.localName(obj.childNodes[i]).toLowerCase()) {
 					case 'content':
 						if (!ytp) {
 							itm['file'] = jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url');
 						}
-						if (obj.childNodes[i].attributes.duration) {
+						if (jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'duration')) {
 							itm['duration'] = jwplayer.utils.strings.seconds(jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'duration'));
 						}
-						if (obj.childNodes[i].attributes.start) {
+						if (jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'start')) {
 							itm['start'] = jwplayer.utils.strings.seconds(jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'start'));
 						}
 						if (obj.childNodes[i].childNodes && obj.childNodes[i].childNodes.length > 0) {
 							itm = jwplayer.utils.parsers.mediaparser.parseGroup(obj.childNodes[i], itm);
 						}
-						if (obj.childNodes[i].attributes.width || obj.childNodes[i].attributes.bitrate || obj.childNodes[i].attributes.url) {
+						if (jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'width')
+								|| jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'bitrate')
+								|| jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url')) {
 							if (!itm.levels) {
 								itm.levels = [];
 							}
@@ -1701,19 +1727,19 @@ jwplayer.source = document.createElement("source");/**
 						}
 						break;
 					case 'title':
-						itm['title'] = obj.childNodes[i].textContent;
+						itm['title'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 						break;
 					case 'description':
-						itm['description'] = obj.childNodes[i].textContent;
+						itm['description'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 						break;
 					case 'keywords':
-						itm['tags'] = obj.childNodes[i].textContent;
+						itm['tags'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 						break;
 					case 'thumbnail':
 						itm['image'] = jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url');
 						break;
 					case 'credit':
-						itm['author'] = obj.childNodes[i].textContent;
+						itm['author'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 						break;
 					case 'player':
 						var url = obj.childNodes[i].url;
@@ -1751,10 +1777,10 @@ jwplayer.source = document.createElement("source");/**
 	 */
 	jwplayer.utils.parsers.rssparser.parse = function(dat) {
 		var arr = [];
-		for (var i in dat.childNodes) {
-			if (dat.childNodes[i].localName && dat.childNodes[i].localName.toLowerCase() == 'channel') {
-				for (var j in dat.childNodes[i].childNodes) {
-					if (dat.childNodes[i].childNodes[j].localName && dat.childNodes[i].childNodes[j].localName.toLowerCase() == 'item') {
+		for (var i = 0; i < dat.childNodes.length; i++) {
+			if (jwplayer.utils.parsers.localName(dat.childNodes[i]).toLowerCase() == 'channel') {
+				for (var j = 0; j < dat.childNodes[i].childNodes.length; j++) {
+					if (jwplayer.utils.parsers.localName(dat.childNodes[i].childNodes[j]).toLowerCase() == 'item') {
 						arr.push(_parseItem(dat.childNodes[i].childNodes[j]));
 					}
 				}
@@ -1772,31 +1798,31 @@ jwplayer.source = document.createElement("source");/**
 	 */
 	function _parseItem(obj) {
 		var itm = {};
-		for (var i in obj.childNodes) {
-			if (!obj.childNodes[i].localName){
+		for (var i = 0; i < obj.childNodes.length; i++) {
+			if (!jwplayer.utils.parsers.localName(obj.childNodes[i])){
 				continue;
 			}
-			switch (obj.childNodes[i].localName.toLowerCase()) {
+			switch (jwplayer.utils.parsers.localName(obj.childNodes[i]).toLowerCase()) {
 				case 'enclosure':
 					itm['file'] = jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url');
 					break;
 				case 'title':
-					itm['title'] = obj.childNodes[i].textContent;
+					itm['title'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 					break;
 				case 'pubdate':
-					itm['date'] = obj.childNodes[i].textContent;
+					itm['date'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 					break;
 				case 'description':
-					itm['description'] = obj.childNodes[i].textContent;
+					itm['description'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 					break;
 				case 'link':
-					itm['link'] = obj.childNodes[i].textContent;
+					itm['link'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 					break;
 				case 'category':
 					if (itm['tags']) {
-						itm['tags'] += obj.childNodes[i].textContent;
+						itm['tags'] += jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 					} else {
-						itm['tags'] = obj.childNodes[i].textContent;
+						itm['tags'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 					}
 					break;
 			}

@@ -24,26 +24,28 @@
 	jwplayer.utils.parsers.mediaparser.parseGroup = function(obj, itm) {
 		var ytp = false;
 		
-		for (var i in obj.childNodes) {
+		for (var i = 0; i < obj.childNodes.length; i++) {
 			if (obj.childNodes[i].prefix == jwplayer.utils.parsers.mediaparser.PREFIX) {
-				if (!obj.childNodes[i].localName){
+				if (!jwplayer.utils.parsers.localName(obj.childNodes[i])){
 					continue;
 				}
-				switch (obj.childNodes[i].localName.toLowerCase()) {
+				switch (jwplayer.utils.parsers.localName(obj.childNodes[i]).toLowerCase()) {
 					case 'content':
 						if (!ytp) {
 							itm['file'] = jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url');
 						}
-						if (obj.childNodes[i].attributes.duration) {
+						if (jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'duration')) {
 							itm['duration'] = jwplayer.utils.strings.seconds(jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'duration'));
 						}
-						if (obj.childNodes[i].attributes.start) {
+						if (jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'start')) {
 							itm['start'] = jwplayer.utils.strings.seconds(jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'start'));
 						}
 						if (obj.childNodes[i].childNodes && obj.childNodes[i].childNodes.length > 0) {
 							itm = jwplayer.utils.parsers.mediaparser.parseGroup(obj.childNodes[i], itm);
 						}
-						if (obj.childNodes[i].attributes.width || obj.childNodes[i].attributes.bitrate || obj.childNodes[i].attributes.url) {
+						if (jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'width')
+								|| jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'bitrate')
+								|| jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url')) {
 							if (!itm.levels) {
 								itm.levels = [];
 							}
@@ -55,19 +57,19 @@
 						}
 						break;
 					case 'title':
-						itm['title'] = obj.childNodes[i].textContent;
+						itm['title'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 						break;
 					case 'description':
-						itm['description'] = obj.childNodes[i].textContent;
+						itm['description'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 						break;
 					case 'keywords':
-						itm['tags'] = obj.childNodes[i].textContent;
+						itm['tags'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 						break;
 					case 'thumbnail':
 						itm['image'] = jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url');
 						break;
 					case 'credit':
-						itm['author'] = obj.childNodes[i].textContent;
+						itm['author'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 						break;
 					case 'player':
 						var url = obj.childNodes[i].url;

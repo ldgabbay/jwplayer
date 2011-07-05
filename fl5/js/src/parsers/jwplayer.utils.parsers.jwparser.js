@@ -24,9 +24,9 @@
 	 * @see			XSPFParser
 	 */
 	jwplayer.utils.parsers.jwparser.parseEntry = function(obj, itm) {
-		for (var i in obj.childNodes) {
+		for (var i = 0; i < obj.childNodes.length; i++) {
 			if (obj.childNodes[i].prefix == jwplayer.utils.parsers.jwparser.PREFIX) {
-				itm[obj.childNodes[i].localName] = jwplayer.utils.strings.serialize(obj.childNodes[i].textContent);
+				itm[jwplayer.utils.parsers.localName(obj.childNodes[i])] = jwplayer.utils.strings.serialize(jwplayer.utils.parsers.textContent(obj.childNodes[i]));
 			}
 			if (!itm['file'] && String(itm['link']).toLowerCase().indexOf('youtube') > -1) {
 				itm['file'] = itm['link'];

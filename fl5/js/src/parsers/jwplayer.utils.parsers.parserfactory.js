@@ -16,7 +16,7 @@
 	 */
 	jwplayer.utils.parsers.parserfactory.getParser = function(list) {
 	
-		switch (list.localName.toString().toLowerCase()) {
+		switch (jwplayer.utils.parsers.localName(list).toLowerCase()) {
 			case 'asx':
 				return jwplayer.utils.parsers.asxparser;
 				break;

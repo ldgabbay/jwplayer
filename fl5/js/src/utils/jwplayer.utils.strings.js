@@ -88,7 +88,7 @@
 	 * @return {String} Value
 	 */
 	jwplayer.utils.strings.xmlAttribute = function(xml, attribute) {
-		for (var attrib in xml.attributes) {
+		for (var attrib = 0; attrib < xml.attributes.length; attrib++) {
 			if (xml.attributes[attrib].name && xml.attributes[attrib].name.toLowerCase() == attribute.toLowerCase()) 
 				return xml.attributes[attrib].value.toString();
 		}

@@ -17,10 +17,10 @@
 	 */
 	jwplayer.utils.parsers.rssparser.parse = function(dat) {
 		var arr = [];
-		for (var i in dat.childNodes) {
-			if (dat.childNodes[i].localName && dat.childNodes[i].localName.toLowerCase() == 'channel') {
-				for (var j in dat.childNodes[i].childNodes) {
-					if (dat.childNodes[i].childNodes[j].localName && dat.childNodes[i].childNodes[j].localName.toLowerCase() == 'item') {
+		for (var i = 0; i < dat.childNodes.length; i++) {
+			if (jwplayer.utils.parsers.localName(dat.childNodes[i]).toLowerCase() == 'channel') {
+				for (var j = 0; j < dat.childNodes[i].childNodes.length; j++) {
+					if (jwplayer.utils.parsers.localName(dat.childNodes[i].childNodes[j]).toLowerCase() == 'item') {
 						arr.push(_parseItem(dat.childNodes[i].childNodes[j]));
 					}
 				}
@@ -38,31 +38,31 @@
 	 */
 	function _parseItem(obj) {
 		var itm = {};
-		for (var i in obj.childNodes) {
-			if (!obj.childNodes[i].localName){
+		for (var i = 0; i < obj.childNodes.length; i++) {
+			if (!jwplayer.utils.parsers.localName(obj.childNodes[i])){
 				continue;
 			}
-			switch (obj.childNodes[i].localName.toLowerCase()) {
+			switch (jwplayer.utils.parsers.localName(obj.childNodes[i]).toLowerCase()) {
 				case 'enclosure':
 					itm['file'] = jwplayer.utils.strings.xmlAttribute(obj.childNodes[i], 'url');
 					break;
 				case 'title':
-					itm['title'] = obj.childNodes[i].textContent;
+					itm['title'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 					break;
 				case 'pubdate':
-					itm['date'] = obj.childNodes[i].textContent;
+					itm['date'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 					break;
 				case 'description':
-					itm['description'] = obj.childNodes[i].textContent;
+					itm['description'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 					break;
 				case 'link':
-					itm['link'] = obj.childNodes[i].textContent;
+					itm['link'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 					break;
 				case 'category':
 					if (itm['tags']) {
-						itm['tags'] += obj.childNodes[i].textContent;
+						itm['tags'] += jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 					} else {
-						itm['tags'] = obj.childNodes[i].textContent;
+						itm['tags'] = jwplayer.utils.parsers.textContent(obj.childNodes[i]);
 					}
 					break;
 			}
