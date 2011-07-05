@@ -342,7 +342,7 @@
 		/** Update the player's position **/
 		function _positionHandler(event) {
 			if (_utils.exists(event) && _utils.exists(event.target)) {
-				if (!isNaN(event.target.duration) && (isNaN(_model.duration) || _model.duration < event.target.duration * 0.95)) {
+				if (!isNaN(event.target.duration) && (isNaN(_model.duration) || _model.duration < 1)) {
 					if (event.target.duration == Infinity) {
 						_model.duration = 0;
 					} else {
