@@ -306,7 +306,7 @@
 	        		margin: 0,
 	        		paddingLeft: title.style.paddingLeft,
 	        		paddingRight: title.style.paddingRight,
-	            	lineHeight: (_settings.fontsize ? _settings.fontsize + 4 : 15) + "px",
+	            	lineHeight: (_settings.fontsize ? _settings.fontsize + 4 : 16) + "px",
 	            	overflow: 'hidden',
 	            	position: "relative"
 	        	});

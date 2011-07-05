@@ -99,6 +99,10 @@
 			if (typeof evt != "undefined") {
 				evt.stopPropagation();
 			}
+			
+			if (!_showing)
+				return;
+			
 			_api.jwPause();
 			_api.jwSetFullscreen(false);
 			if (_settings.link) {
