@@ -25,6 +25,7 @@
 		var _timeout;
 		var _settings;
 		var _logo;
+		var _showing = false;
 		
 		_setup();
 		
@@ -107,14 +108,14 @@
 		}
 		
 		function _outHandler(evt) {
-			if (_settings.link) {
+			if (_settings.link && _showing) {
 				_logo.style.opacity = _settings.out;
 			}
 			return;
 		}
 		
 		function _overHandler(evt) {
-			if (_settings.hide.toString() == "true") {
+			if (_settings.hide.toString() == "true" && _showing) {
 				_logo.style.opacity = _settings.over;
 			}
 			return;
@@ -143,9 +144,11 @@
 					_hide();
 				}, _settings.timeout * 1000);
 			}
+			_showing = true;
 		}
 		
 		function _hide() {
+			_showing = false;
 			if (_settings.hide.toString() == "true") {
 				jwplayer.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity));
 			}

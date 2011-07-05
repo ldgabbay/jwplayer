@@ -1,5 +1,5 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
     <head>
         <title>getPlugin("dock").setButton</title>
         <style type="text/css">
@@ -25,6 +25,7 @@
             	}, {
             		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
             	}],
+            	file: "foo.mp4",
             	height: 270,
             	image: 'http://content.bitsontherun.com/thumbs/nPripu9l-480.jpg',
             	width: 480
@@ -33,7 +34,7 @@
 				config.players = settings.players(window.location.href, ["flash", "download"])
 			}
 			if (document.location.href.indexOf("?html5") > -1){
-				config.players = settings.players(window.location.href, ["html5", "download"])
+				config.players = settings.players(window.location.href, ["html5", "flash", "download"])
 			}
             jwplayer("container").setup(config);
             var index = 0;

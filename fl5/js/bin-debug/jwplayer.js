@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1890';
+jwplayer.version = '5.7.1891';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -3613,14 +3613,13 @@ playerReady = function(obj) {
 		 * @return {Boolean}
 		 */
 		this.supportsConfig = function() {
-			var vid = document.createElement('video');
-			if (!!vid.canPlayType) {
+			if (!!jwplayer.vid.canPlayType) {
 				if (_options) {
 					var item = jwplayer.utils.getFirstPlaylistItemFromConfig(_options);
 					if (typeof item.file == "undefined" && typeof item.levels == "undefined") {
 						return true;
 					} else if (item.file) {
-						return html5CanPlay(vid, item.file, item.provider, item.playlistfile);
+						return html5CanPlay(jwplayer.vid, item.file, item.provider, item.playlistfile);
 					} else if (item.levels && item.levels.length) {
 						for (var i = 0; i < item.levels.length; i++) {
 							if (item.levels[i].file && html5CanPlay(vid, item.levels[i].file, item.provider, item.playlistfile)) {
@@ -6338,6 +6337,7 @@ playerReady = function(obj) {
 		var _timeout;
 		var _settings;
 		var _logo;
+		var _showing = false;
 		
 		_setup();
 		
@@ -6420,14 +6420,14 @@ playerReady = function(obj) {
 		}
 		
 		function _outHandler(evt) {
-			if (_settings.link) {
+			if (_settings.link && _showing) {
 				_logo.style.opacity = _settings.out;
 			}
 			return;
 		}
 		
 		function _overHandler(evt) {
-			if (_settings.hide.toString() == "true") {
+			if (_settings.hide.toString() == "true" && _showing) {
 				_logo.style.opacity = _settings.over;
 			}
 			return;
@@ -6456,9 +6456,11 @@ playerReady = function(obj) {
 					_hide();
 				}, _settings.timeout * 1000);
 			}
+			_showing = true;
 		}
 		
 		function _hide() {
+			_showing = false;
 			if (_settings.hide.toString() == "true") {
 				jwplayer.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity));
 			}

@@ -53,14 +53,13 @@
 		 * @return {Boolean}
 		 */
 		this.supportsConfig = function() {
-			var vid = document.createElement('video');
-			if (!!vid.canPlayType) {
+			if (!!jwplayer.vid.canPlayType) {
 				if (_options) {
 					var item = jwplayer.utils.getFirstPlaylistItemFromConfig(_options);
 					if (typeof item.file == "undefined" && typeof item.levels == "undefined") {
 						return true;
 					} else if (item.file) {
-						return html5CanPlay(vid, item.file, item.provider, item.playlistfile);
+						return html5CanPlay(jwplayer.vid, item.file, item.provider, item.playlistfile);
 					} else if (item.levels && item.levels.length) {
 						for (var i = 0; i < item.levels.length; i++) {
 							if (item.levels[i].file && html5CanPlay(vid, item.levels[i].file, item.provider, item.playlistfile)) {
