@@ -102,6 +102,7 @@
 					_video.poster = item.image;
 				}
 				_video.controls = "controls";
+				_video.style.display = "block";
 			}
 			
 			_bufferingComplete = _bufferFull = _start = false;
@@ -116,7 +117,6 @@
 				_video.load();
 			}
 			_emptied = false;
-			
 			if (play) {
 				_setState(jwplayer.api.events.state.BUFFERING);
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
@@ -132,12 +132,12 @@
 		this.play = function() {
 			if (_state != jwplayer.api.events.state.PLAYING) {
 				_startInterval();
-				_video.play();
 				if (_bufferFull) {
 					_setState(jwplayer.api.events.state.PLAYING);
 				} else {
 					_setState(jwplayer.api.events.state.BUFFERING);
 				}
+				_video.play();
 			}
 		}
 		

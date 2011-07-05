@@ -78,18 +78,13 @@
 			}
 		}
 		
-		if (typeof _model.config.chromeless == "undefined" && jwplayer.utils.isIPod()) {
-			_model.config.chromeless = true;
-		}
-		
-		
-		if (jwplayer.utils.isIPad()) {
+		if (jwplayer.utils.isIOS()) {
 			pluginorder = ["display","logo","dock","playlist"];
 			if (!jwplayer.utils.exists(_model.config.repeat)) {
 				_model.config.repeat = "list";
 			}
 		} else if (_model.config.chromeless) {
-			pluginorder = ["logo","playlist"];
+			pluginorder = ["logo","dock","playlist"];
 			if (!jwplayer.utils.exists(_model.config.repeat)) {
 				_model.config.repeat = "list";
 			}
@@ -167,10 +162,6 @@
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
 				"index": _model.item
 			});
-			
-			if (_model.playlist[_model.item].file || _model.playlist[_model.item].levels[0].file) {
-				_model.setActiveMediaProvider(_model.playlist[_model.item]);
-			}
 		}
 		
 		_model.loadPlaylist = function(arg) {
@@ -269,9 +260,6 @@
 				}
 			}
 			
-			if (_model.config.chromeless) {
-				_media.load(playlistItem, false);
-			}
 			return true;
 		};
 		

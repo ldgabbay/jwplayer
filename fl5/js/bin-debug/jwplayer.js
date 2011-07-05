@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1884';
+jwplayer.version = '5.7.1885';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -5169,8 +5169,6 @@ playerReady = function(obj) {
 		
 		function _playerReady(evt) {
 			if (!_ready) {
-				_loadItem(_model.item)
-
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_READY, evt);
 				
 				if (jwplayer.utils.exists(window.playerReady)) {
@@ -5215,12 +5213,10 @@ playerReady = function(obj) {
 		_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
 			setTimeout(_completeHandler, 25);
 		});
-		_model.addEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, function(evt) {
-			_loadItem(_model.item);
-		});
 		
 		function _play() {
 			try {
+				_loadItem(_model.item);
 				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					if (_itemUpdated || _model.state == jwplayer.api.events.state.IDLE) {
 						_model.getMedia().load(_model.playlist[_model.item]);
@@ -5782,14 +5778,12 @@ playerReady = function(obj) {
 		this.show = function() {
 			if (_hiding) {
 				_hiding = false;
-				_lastSent = undefined;
-				_showDisplayIcon();
+				_updateDisplay(_api.jwGetState());
 			}
 		}
 
 		this.hide = function() {
 			if (!_hiding) {
-				_lastSent = undefined;
 				_hideDisplayIcon();
 				_hiding = true;
 			}
@@ -6437,7 +6431,7 @@ playerReady = function(obj) {
 		}
 		
 		function _hide() {
-			if (_settings.hide.toString() == "hide") {
+			if (_settings.hide.toString() == "true") {
 				jwplayer.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity));
 			}
 		}
@@ -6557,6 +6551,7 @@ playerReady = function(obj) {
 					_video.poster = item.image;
 				}
 				_video.controls = "controls";
+				_video.style.display = "block";
 			}
 			
 			_bufferingComplete = _bufferFull = _start = false;
@@ -6571,7 +6566,6 @@ playerReady = function(obj) {
 				_video.load();
 			}
 			_emptied = false;
-			
 			if (play) {
 				_setState(jwplayer.api.events.state.BUFFERING);
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
@@ -6587,12 +6581,12 @@ playerReady = function(obj) {
 		this.play = function() {
 			if (_state != jwplayer.api.events.state.PLAYING) {
 				_startInterval();
-				_video.play();
 				if (_bufferFull) {
 					_setState(jwplayer.api.events.state.PLAYING);
 				} else {
 					_setState(jwplayer.api.events.state.BUFFERING);
 				}
+				_video.play();
 			}
 		}
 		
@@ -7242,18 +7236,13 @@ playerReady = function(obj) {
 			}
 		}
 		
-		if (typeof _model.config.chromeless == "undefined" && jwplayer.utils.isIPod()) {
-			_model.config.chromeless = true;
-		}
-		
-		
-		if (jwplayer.utils.isIPad()) {
+		if (jwplayer.utils.isIOS()) {
 			pluginorder = ["display","logo","dock","playlist"];
 			if (!jwplayer.utils.exists(_model.config.repeat)) {
 				_model.config.repeat = "list";
 			}
 		} else if (_model.config.chromeless) {
-			pluginorder = ["logo","playlist"];
+			pluginorder = ["logo","dock","playlist"];
 			if (!jwplayer.utils.exists(_model.config.repeat)) {
 				_model.config.repeat = "list";
 			}
@@ -7331,10 +7320,6 @@ playerReady = function(obj) {
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, {
 				"index": _model.item
 			});
-			
-			if (_model.playlist[_model.item].file || _model.playlist[_model.item].levels[0].file) {
-				_model.setActiveMediaProvider(_model.playlist[_model.item]);
-			}
 		}
 		
 		_model.loadPlaylist = function(arg) {
@@ -7433,9 +7418,6 @@ playerReady = function(obj) {
 				}
 			}
 			
-			if (_model.config.chromeless) {
-				_media.load(playlistItem, false);
-			}
 			return true;
 		};
 		

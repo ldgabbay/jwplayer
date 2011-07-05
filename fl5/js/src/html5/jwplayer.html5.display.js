@@ -176,14 +176,12 @@
 		this.show = function() {
 			if (_hiding) {
 				_hiding = false;
-				_lastSent = undefined;
-				_showDisplayIcon();
+				_updateDisplay(_api.jwGetState());
 			}
 		}
 
 		this.hide = function() {
 			if (!_hiding) {
-				_lastSent = undefined;
 				_hideDisplayIcon();
 				_hiding = true;
 			}

@@ -146,7 +146,7 @@
 		}
 		
 		function _hide() {
-			if (_settings.hide.toString() == "hide") {
+			if (_settings.hide.toString() == "true") {
 				jwplayer.utils.fadeTo(_logo, 0, 0.1, parseFloat(_logo.style.opacity));
 			}
 		}

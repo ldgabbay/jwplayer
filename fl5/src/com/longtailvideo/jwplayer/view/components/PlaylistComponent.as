@@ -695,8 +695,9 @@ package com.longtailvideo.jwplayer.view.components {
 		
 		/** Loading of image failed; hide image **/
 		private function errorHandler(evt:Event):void {
+			var ldr:Loader;
 			try {
-				var ldr:Loader = (evt.target as LoaderInfo).loader;
+				ldr = (evt.target as LoaderInfo).loader;
 				var button:Sprite = getButton(imageLoaderMap[ldr]);
 				if (button) {
 					var img:Sprite = button.getChildByName("image") as Sprite;
@@ -710,7 +711,7 @@ package com.longtailvideo.jwplayer.view.components {
 					}
 				}
 			} catch (err:Error) {
-				Logger.log('Error loading playlist image '+ ldr.loaderInfo.url+': '+err.message);
+				Logger.log('Error loading playlist image '+ ldr.contentLoaderInfo.url+': '+err.message);
 			}
 		}
 		

@@ -34,8 +34,6 @@
 		
 		function _playerReady(evt) {
 			if (!_ready) {
-				_loadItem(_model.item)
-
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_READY, evt);
 				
 				if (jwplayer.utils.exists(window.playerReady)) {
@@ -80,12 +78,10 @@
 		_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
 			setTimeout(_completeHandler, 25);
 		});
-		_model.addEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, function(evt) {
-			_loadItem(_model.item);
-		});
 		
 		function _play() {
 			try {
+				_loadItem(_model.item);
 				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					if (_itemUpdated || _model.state == jwplayer.api.events.state.IDLE) {
 						_model.getMedia().load(_model.playlist[_model.item]);
