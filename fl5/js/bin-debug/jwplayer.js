@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1885';
+jwplayer.version = '5.7.1887';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4218,7 +4218,9 @@ playerReady = function(obj) {
 					};
 					_css(_wrapper, style);
 					style.zIndex = 1;
-					_css(_model.getMedia().getDisplayElement(), style);
+					if (_model.getMedia() && _model.getMedia().getDisplayElement()) {
+						_css(_model.getMedia().getDisplayElement(), style);
+					}
 					style.zIndex = 2;
 					_css(_box, style);
 				} else {

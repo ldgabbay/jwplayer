@@ -391,7 +391,9 @@
 					};
 					_css(_wrapper, style);
 					style.zIndex = 1;
-					_css(_model.getMedia().getDisplayElement(), style);
+					if (_model.getMedia() && _model.getMedia().getDisplayElement()) {
+						_css(_model.getMedia().getDisplayElement(), style);
+					}
 					style.zIndex = 2;
 					_css(_box, style);
 				} else {
