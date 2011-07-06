@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1898';
+jwplayer.version = '5.7.1899';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -3938,7 +3938,7 @@ playerReady = function(obj) {
 		
 		function _stateHandler(evt) {
 			_css(_box, {
-				display: _model.getMedia().hasChrome() ? "none" : "block"
+				display: (_model.getMedia() && _model.getMedia().hasChrome()) ? "none" : "block"
 			});
 		}
 
@@ -4213,7 +4213,9 @@ playerReady = function(obj) {
 		
 		this.fullscreen = function(state) {
 			if (navigator && navigator.vendor && navigator.vendor.indexOf("Apple") === 0) {
-				if (_model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
+				if (_model.getMedia() 
+						&& _model.getMedia().getDisplayElement() 
+						&& _model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
 					if (state) {
 						try {
 							_model.getMedia().getDisplayElement().webkitEnterFullscreen();
@@ -5267,7 +5269,9 @@ playerReady = function(obj) {
 					switch (_model.state) {
 						case jwplayer.api.events.state.PLAYING:
 						case jwplayer.api.events.state.BUFFERING:
-							_model.getMedia().pause();
+							if (_model.getMedia()) {
+								_model.getMedia().pause();
+							}
 							break;
 					}
 				}
@@ -5315,7 +5319,9 @@ playerReady = function(obj) {
 				clear = true;
 			}
 			try {
-				_model.getMedia().stop(clear);
+				if (_model.getMedia()) {
+					_model.getMedia().stop(clear);
+				}
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);

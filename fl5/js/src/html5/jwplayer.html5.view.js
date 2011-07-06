@@ -86,7 +86,7 @@
 		
 		function _stateHandler(evt) {
 			_css(_box, {
-				display: _model.getMedia().hasChrome() ? "none" : "block"
+				display: (_model.getMedia() && _model.getMedia().hasChrome()) ? "none" : "block"
 			});
 		}
 
@@ -361,7 +361,9 @@
 		
 		this.fullscreen = function(state) {
 			if (navigator && navigator.vendor && navigator.vendor.indexOf("Apple") === 0) {
-				if (_model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
+				if (_model.getMedia() 
+						&& _model.getMedia().getDisplayElement() 
+						&& _model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
 					if (state) {
 						try {
 							_model.getMedia().getDisplayElement().webkitEnterFullscreen();

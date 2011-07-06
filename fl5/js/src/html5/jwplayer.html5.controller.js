@@ -105,7 +105,9 @@
 					switch (_model.state) {
 						case jwplayer.api.events.state.PLAYING:
 						case jwplayer.api.events.state.BUFFERING:
-							_model.getMedia().pause();
+							if (_model.getMedia()) {
+								_model.getMedia().pause();
+							}
 							break;
 					}
 				}
@@ -153,7 +155,9 @@
 				clear = true;
 			}
 			try {
-				_model.getMedia().stop(clear);
+				if (_model.getMedia()) {
+					_model.getMedia().stop(clear);
+				}
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
