@@ -275,12 +275,14 @@
 		/** Get / set the video's volume level. **/
 		function _setVolume(volume) {
 			try {
+				_loadItem(_model.item);
+				var media = _model.getMedia();
 				switch (typeof(volume)) {
 					case "number":
-						_model.getMedia().volume(volume);
+						media.volume(volume);
 						break;
 					case "string":
-						_model.getMedia().volume(parseInt(volume, 10));
+						media.volume(parseInt(volume, 10));
 						break;
 				}
 				return true;
@@ -294,13 +296,15 @@
 		/** Get / set the mute state of the player. **/
 		function _setMute(state) {
 			try {
+				_loadItem(_model.item);
+				var media = _model.getMedia();
 				if (typeof state == "undefined") {
-					_model.getMedia().mute(!_model.mute);
+					media.mute(!_model.mute);
 				} else {
 					if (state.toString().toLowerCase() == "true") {
-						_model.getMedia().mute(true);
+						media.mute(true);
 					} else {
-						_model.getMedia().mute(false);
+						media.mute(false);
 					}
 				}
 				return true;
