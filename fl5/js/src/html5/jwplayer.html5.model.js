@@ -156,6 +156,8 @@
 				}
 				_model.item = _model.config.item;
 			}
+			_model.position = 0;
+			_model.duration = _model.playlist.length > 0 ? _model.playlist[_model.item].duration : 0;
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, {
 				"playlist": _model.playlist
 			});
