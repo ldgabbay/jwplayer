@@ -62,7 +62,7 @@
 						return html5CanPlay(jwplayer.vid, item.file, item.provider, item.playlistfile);
 					} else if (item.levels && item.levels.length) {
 						for (var i = 0; i < item.levels.length; i++) {
-							if (item.levels[i].file && html5CanPlay(vid, item.levels[i].file, item.provider, item.playlistfile)) {
+							if (item.levels[i].file && html5CanPlay(jwplayer.vid, item.levels[i].file, item.provider, item.playlistfile)) {
 								return true;
 							}
 						}
