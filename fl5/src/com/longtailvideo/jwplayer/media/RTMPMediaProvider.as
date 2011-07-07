@@ -326,8 +326,8 @@ package com.longtailvideo.jwplayer.media {
 			try {
 			    _responded = false;
 				_connection.connect(item.streamer);
-				if(getConfigProperty("fallback") !== false) {
-				    setTimeout(connectTunneled,3000);
+				if(getConfigProperty("tunneling") !== false) {
+				    // setTimeout(connectTunneled,3000);
 			    }
 			} catch(e:Error) {
 				error("Could not connect to application: " + e.message);
