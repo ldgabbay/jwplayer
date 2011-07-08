@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1899';
+jwplayer.version = '5.7.1901';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4518,8 +4518,8 @@ playerReady = function(obj) {
 		
 		function _setVisiblity(evt) {
 			if (_hiding) { return; }
+			clearTimeout(_fadeTimeout);
 			if (_settings.position == jwplayer.html5.view.positions.OVER || _api.jwGetFullscreen()) {
-				clearTimeout(_fadeTimeout);
 				switch(_api.jwGetState()) {
 				case jwplayer.api.events.state.PAUSED:
 				case jwplayer.api.events.state.IDLE:
@@ -4542,6 +4542,8 @@ playerReady = function(obj) {
 					}, 2000);
 					break;
 				}
+			} else {
+				_fadeIn();
 			}
 		}
 		
@@ -6387,7 +6389,7 @@ playerReady = function(obj) {
 				return;
 			}
 			
-			if (_settings.file.indexOf("http://") === 0) {
+			if (_settings.file.indexOf("/") >= 0) {
 				_logo.src = _settings.file;
 			} else {
 				_logo.src = _settings.prefix + _settings.file;
@@ -7394,8 +7396,9 @@ playerReady = function(obj) {
 					};
 					break;
 				default:
-					_loadExternal(input);
-					return;
+					config = {
+						file: input
+					};
 					break;
 			}
 			_model.playlist = new jwplayer.html5.playlist(config);

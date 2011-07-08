@@ -192,8 +192,9 @@
 					};
 					break;
 				default:
-					_loadExternal(input);
-					return;
+					config = {
+						file: input
+					};
 					break;
 			}
 			_model.playlist = new jwplayer.html5.playlist(config);

@@ -235,8 +235,8 @@
 		
 		function _setVisiblity(evt) {
 			if (_hiding) { return; }
+			clearTimeout(_fadeTimeout);
 			if (_settings.position == jwplayer.html5.view.positions.OVER || _api.jwGetFullscreen()) {
-				clearTimeout(_fadeTimeout);
 				switch(_api.jwGetState()) {
 				case jwplayer.api.events.state.PAUSED:
 				case jwplayer.api.events.state.IDLE:
@@ -259,6 +259,8 @@
 					}, 2000);
 					break;
 				}
+			} else {
+				_fadeIn();
 			}
 		}
 		

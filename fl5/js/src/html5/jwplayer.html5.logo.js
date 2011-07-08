@@ -65,7 +65,7 @@
 				return;
 			}
 			
-			if (_settings.file.indexOf("http://") === 0) {
+			if (_settings.file.indexOf("/") >= 0) {
 				_logo.src = _settings.file;
 			} else {
 				_logo.src = _settings.prefix + _settings.file;
