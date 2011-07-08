@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1901';
+jwplayer.version = '5.7.1902';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -7402,7 +7402,7 @@ playerReady = function(obj) {
 					break;
 			}
 			_model.playlist = new jwplayer.html5.playlist(config);
-			if (jwplayer.utils.extension(_model.playlist[0].file) == "xml" ) {
+			if (!_model.playlist[0].provider) {
 				_loadExternal(_model.playlist[0].file);
 			} else {
 				_loadComplete();

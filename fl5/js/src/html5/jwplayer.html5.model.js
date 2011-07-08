@@ -198,7 +198,7 @@
 					break;
 			}
 			_model.playlist = new jwplayer.html5.playlist(config);
-			if (jwplayer.utils.extension(_model.playlist[0].file) == "xml" ) {
+			if (!_model.playlist[0].provider) {
 				_loadExternal(_model.playlist[0].file);
 			} else {
 				_loadComplete();
