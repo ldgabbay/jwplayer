@@ -58,6 +58,7 @@
 			_currentItem,
 			_interval,
 			_emptied = false,
+			_attached = false,
 			_bufferingComplete, _bufferFull,
 			_sourceError;
 			
@@ -75,6 +76,11 @@
 			if (typeof play == "undefined") {
 				play = true;
 			}
+			
+			if (!_attached) {
+				return;
+			}
+			
 			_currentItem = item;
 			_utils.empty(_video);
 
@@ -130,6 +136,8 @@
 		 * Play the video if paused
 		 */
 		this.play = function() {
+			if (!_attached) return;
+			
 			if (_state != jwplayer.api.events.state.PLAYING) {
 				_startInterval();
 				if (_bufferFull) {
@@ -145,6 +153,8 @@
 		 * Pause the video
 		 */
 		this.pause = function() {
+			if (!_attached) return;
+			
 			_video.pause();
 			_setState(jwplayer.api.events.state.PAUSED);
 		}
@@ -154,6 +164,8 @@
 		 * @param position The requested position, in seconds
 		 */
 		this.seek = function(position) {
+			if (!_attached) return;
+			
 			if (!(_model.duration <= 0 || isNaN(_model.duration)) &&
 				!(_model.position <= 0 || isNaN(_model.position))) {
 					_video.currentTime = position;
@@ -165,6 +177,8 @@
 		 * Stop the playing video and unload it
 		 */
 		_stop = this.stop = function(clear) {
+			if (!_attached) return;
+			
 			if (!_utils.exists(clear)) {
 				clear = true;
 			}
@@ -256,10 +270,32 @@
 			return false;
 		}
 		
+		/**
+		 * Return the video tag and stop listening to events  
+		 */
+		this.detachMedia = function() {
+			_attached = false;
+			return this.getDisplayElement();
+		}
+		
+		/**
+		 * Begin listening to events again  
+		 */
+		this.attachMedia = function() {
+			_attached = true;
+		}
+		
 		/************************************
 		 *           PRIVATE METHODS         * 
 		 ************************************/
 		
+		function _handleMediaEvent(type, handler) {
+			return function(evt) {
+				if (_attached && _utils.exists(evt.target.parentNode)) {
+					handler(evt);
+				}
+			};
+		}
 		
 		/** Initializes the HTML5 video and audio media provider **/
 		function _init() {
@@ -267,12 +303,9 @@
 			_state = jwplayer.api.events.state.IDLE;
  
 			for (var event in _events) {
-				_video.addEventListener(event, function(evt) {
-					if (_utils.exists(evt.target.parentNode)) {
-						_events[evt.type](evt);
-					}
-				}, true);
+				_video.addEventListener(event, _handleMediaEvent(event, _events[event]));
 			}
+			_attached = true;
 
 			_video.setAttribute("x-webkit-airplay", "allow"); 
 			

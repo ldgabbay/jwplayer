@@ -332,6 +332,18 @@
 			return this;
 		};
 		
+		this.detachMedia = function() {
+			if (this.renderingMode == "html5") {
+				return this.callInternal("jwDetachMedia");
+			}
+		}
+
+		this.attachMedia = function() {
+			if (this.renderingMode == "html5") {
+				return this.callInternal("jwAttachMedia");
+			}
+		}
+
 		function stateCallback(state) {
 			return function(args) {
 				var newstate = args.newstate, oldstate = args.oldstate;

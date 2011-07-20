@@ -35,9 +35,12 @@
 			}
 		}
 		
-		this.getDisplayElement = function() {
+		this.getDisplayElement = this.detachMedia = function() {
 			return _container;
 		};
+		
+		/** This API is only useful for the mediavideo class **/
+		this.attachMedia = function() {};
 		
 		this.play = function() {
 			if (_state == jwplayer.api.events.state.IDLE) {

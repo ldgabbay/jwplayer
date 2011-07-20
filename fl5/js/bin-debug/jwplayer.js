@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1902';
+jwplayer.version = '5.7.1924';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -2476,6 +2476,18 @@ jwplayer.source = document.createElement("source");/**
 			return this;
 		};
 		
+		this.detachMedia = function() {
+			if (this.renderingMode == "html5") {
+				return this.callInternal("jwDetachMedia");
+			}
+		}
+
+		this.attachMedia = function() {
+			if (this.renderingMode == "html5") {
+				return this.callInternal("jwAttachMedia");
+			}
+		}
+
 		function stateCallback(state) {
 			return function(args) {
 				var newstate = args.newstate, oldstate = args.oldstate;
@@ -5546,6 +5558,22 @@ playerReady = function(obj) {
 			return false;
 		}
 		
+		function _detachMedia() {
+			try {
+				return _model.getMedia().detachMedia();
+			} catch (err) {
+				return null;
+			}
+		}
+
+		function _attachMedia() {
+			try {
+				return _model.getMedia().attachMedia();
+			} catch (err) {
+				return null;
+			}
+		}
+
 		jwplayer.html5.controller.repeatoptions = {
 			LIST: "LIST",
 			ALWAYS: "ALWAYS",
@@ -5611,7 +5639,9 @@ playerReady = function(obj) {
 		this.resize = _waitForReady(_resize);
 		this.setFullscreen = _waitForReady(_setFullscreen);
 		this.load = _waitForReady(_load);
-		this.playerReady = _playerReady; 
+		this.playerReady = _playerReady;
+		this.detachMedia = _detachMedia; 
+		this.attachMedia = _attachMedia; 
 	};
 })(jwplayer);
 /**
@@ -6553,6 +6583,7 @@ playerReady = function(obj) {
 			_currentItem,
 			_interval,
 			_emptied = false,
+			_attached = false,
 			_bufferingComplete, _bufferFull,
 			_sourceError;
 			
@@ -6570,6 +6601,11 @@ playerReady = function(obj) {
 			if (typeof play == "undefined") {
 				play = true;
 			}
+			
+			if (!_attached) {
+				return;
+			}
+			
 			_currentItem = item;
 			_utils.empty(_video);
 
@@ -6625,6 +6661,8 @@ playerReady = function(obj) {
 		 * Play the video if paused
 		 */
 		this.play = function() {
+			if (!_attached) return;
+			
 			if (_state != jwplayer.api.events.state.PLAYING) {
 				_startInterval();
 				if (_bufferFull) {
@@ -6640,6 +6678,8 @@ playerReady = function(obj) {
 		 * Pause the video
 		 */
 		this.pause = function() {
+			if (!_attached) return;
+			
 			_video.pause();
 			_setState(jwplayer.api.events.state.PAUSED);
 		}
@@ -6649,6 +6689,8 @@ playerReady = function(obj) {
 		 * @param position The requested position, in seconds
 		 */
 		this.seek = function(position) {
+			if (!_attached) return;
+			
 			if (!(_model.duration <= 0 || isNaN(_model.duration)) &&
 				!(_model.position <= 0 || isNaN(_model.position))) {
 					_video.currentTime = position;
@@ -6660,6 +6702,8 @@ playerReady = function(obj) {
 		 * Stop the playing video and unload it
 		 */
 		_stop = this.stop = function(clear) {
+			if (!_attached) return;
+			
 			if (!_utils.exists(clear)) {
 				clear = true;
 			}
@@ -6751,10 +6795,32 @@ playerReady = function(obj) {
 			return false;
 		}
 		
+		/**
+		 * Return the video tag and stop listening to events  
+		 */
+		this.detachMedia = function() {
+			_attached = false;
+			return this.getDisplayElement();
+		}
+		
+		/**
+		 * Begin listening to events again  
+		 */
+		this.attachMedia = function() {
+			_attached = true;
+		}
+		
 		/************************************
 		 *           PRIVATE METHODS         * 
 		 ************************************/
 		
+		function _handleMediaEvent(type, handler) {
+			return function(evt) {
+				if (_attached && _utils.exists(evt.target.parentNode)) {
+					handler(evt);
+				}
+			};
+		}
 		
 		/** Initializes the HTML5 video and audio media provider **/
 		function _init() {
@@ -6762,12 +6828,9 @@ playerReady = function(obj) {
 			_state = jwplayer.api.events.state.IDLE;
  
 			for (var event in _events) {
-				_video.addEventListener(event, function(evt) {
-					if (_utils.exists(evt.target.parentNode)) {
-						_events[evt.type](evt);
-					}
-				}, true);
+				_video.addEventListener(event, _handleMediaEvent(event, _events[event]));
 			}
+			_attached = true;
 
 			_video.setAttribute("x-webkit-airplay", "allow"); 
 			
@@ -7019,9 +7082,12 @@ playerReady = function(obj) {
 			}
 		}
 		
-		this.getDisplayElement = function() {
+		this.getDisplayElement = this.detachMedia = function() {
 			return _container;
 		};
+		
+		/** This API is only useful for the mediavideo class **/
+		this.attachMedia = function() {};
 		
 		this.play = function() {
 			if (_state == jwplayer.api.events.state.IDLE) {
@@ -8380,6 +8446,8 @@ playerReady = function(obj) {
 		_api.jwPlaylistPrev = _controller.prev;
 		_api.jwResize = _controller.resize;
 		_api.jwLoad = _controller.load;
+		_api.jwDetachMedia = _controller.detachMedia;
+		_api.jwAttachMedia = _controller.attachMedia;
 		
 		function _statevarFactory(statevar) {
 			return function() {

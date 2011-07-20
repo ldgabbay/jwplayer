@@ -380,6 +380,22 @@
 			return false;
 		}
 		
+		function _detachMedia() {
+			try {
+				return _model.getMedia().detachMedia();
+			} catch (err) {
+				return null;
+			}
+		}
+
+		function _attachMedia() {
+			try {
+				return _model.getMedia().attachMedia();
+			} catch (err) {
+				return null;
+			}
+		}
+
 		jwplayer.html5.controller.repeatoptions = {
 			LIST: "LIST",
 			ALWAYS: "ALWAYS",
@@ -445,6 +461,8 @@
 		this.resize = _waitForReady(_resize);
 		this.setFullscreen = _waitForReady(_setFullscreen);
 		this.load = _waitForReady(_load);
-		this.playerReady = _playerReady; 
+		this.playerReady = _playerReady;
+		this.detachMedia = _detachMedia; 
+		this.attachMedia = _attachMedia; 
 	};
 })(jwplayer);

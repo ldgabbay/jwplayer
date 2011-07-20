@@ -263,7 +263,7 @@ package com.longtailvideo.jwplayer.media {
 		public override function play():void {
 			if (_ready) {
 				_ytAPI.playVideo();
-				super.play();
+				//super.play();
 			}
 		}
 

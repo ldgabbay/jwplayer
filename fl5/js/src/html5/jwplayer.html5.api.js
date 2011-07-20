@@ -55,6 +55,8 @@
 		_api.jwPlaylistPrev = _controller.prev;
 		_api.jwResize = _controller.resize;
 		_api.jwLoad = _controller.load;
+		_api.jwDetachMedia = _controller.detachMedia;
+		_api.jwAttachMedia = _controller.attachMedia;
 		
 		function _statevarFactory(statevar) {
 			return function() {
