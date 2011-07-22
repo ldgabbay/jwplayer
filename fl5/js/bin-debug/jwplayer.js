@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1924';
+jwplayer.version = '5.7.1925';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -6828,7 +6828,7 @@ playerReady = function(obj) {
 			_state = jwplayer.api.events.state.IDLE;
  
 			for (var event in _events) {
-				_video.addEventListener(event, _handleMediaEvent(event, _events[event]));
+				_video.addEventListener(event, _handleMediaEvent(event, _events[event]), true);
 			}
 			_attached = true;
 

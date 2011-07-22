@@ -303,7 +303,7 @@
 			_state = jwplayer.api.events.state.IDLE;
  
 			for (var event in _events) {
-				_video.addEventListener(event, _handleMediaEvent(event, _events[event]));
+				_video.addEventListener(event, _handleMediaEvent(event, _events[event]), true);
 			}
 			_attached = true;
 
