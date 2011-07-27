@@ -351,6 +351,7 @@
 			<!-- Target Flash Player -->
 			<arg line="-target-player=${flexsdk.target}" />
 			<arg line="-include-classes com.longtailvideo.jwplayer.player.Player" />
+			<arg line="-compiler.external-library-path+='${lib.dir}'" />
 			<arg line="-link-report='${sdk.dir}/jwplayer-5-classes.xml'" />
 		</exec>
 		
