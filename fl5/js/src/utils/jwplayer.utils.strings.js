@@ -111,7 +111,7 @@
 		if (type != "object" || obj === null) {
 			// Object is string or number
 			if (type == "string") {
-				obj = '"'+obj+'"';
+				obj = '"'+obj.replace(/"/g, '\\"')+'"';
 			} else {
 				return String(obj);
 			}
@@ -126,7 +126,7 @@
 				
 				switch (typeof(value)) {
 					case "string":
-						value = '"' + value + '"';
+						value = '"' + value.replace(/"/g, '\\"') + '"';
 						break;
 					case "object":
 						if (jwplayer.utils.exists(value)) {
