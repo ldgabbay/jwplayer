@@ -80,7 +80,7 @@ package com.longtailvideo.jwplayer.view {
 		protected var ErrorScreen:Class;
 
 		protected var loaderScreen:Sprite;
-		
+		protected var loaderAnim:DisplayObject;
 		protected var currentLayer:Number = 0;
 		
 		// Keep track of the first tabIndex
@@ -110,6 +110,10 @@ package com.longtailvideo.jwplayer.view {
 
 			loaderScreen = new Sprite();
 			loaderScreen.name = 'loaderScreen';
+			loaderAnim = new LoadingScreen() as DisplayObject;
+            loaderAnim.alpha = 0.8;
+            loaderAnim.visible = false;
+			loaderScreen.addChild(loaderAnim); 
 
 			RootReference.stage.addChildAt(loaderScreen, 0);
 
@@ -137,6 +141,8 @@ package com.longtailvideo.jwplayer.view {
 			loaderScreen.graphics.beginFill(0, 0);
 			loaderScreen.graphics.drawRect(0, 0, RootReference.stage.stageWidth, RootReference.stage.stageHeight);
 			loaderScreen.graphics.endFill();
+			loaderAnim.x = (RootReference.stage.stageWidth - loaderAnim.width) / 2;
+			loaderAnim.y = (RootReference.stage.stageHeight - loaderAnim.height) / 2;
 		}
 
 
@@ -220,6 +226,7 @@ package com.longtailvideo.jwplayer.view {
 				_root.visible = true;
 				loaderScreen.parent.removeChild(loaderScreen);
 			} else {
+				loaderScreen.removeChild(loaderAnim);
 				var errorScreen:DisplayObject = new ErrorScreen() as DisplayObject;
 				var errorMessage:TextField = new TextField();
 				errorMessage.defaultTextFormat = new TextFormat("_sans", 12, 0xffffff);
