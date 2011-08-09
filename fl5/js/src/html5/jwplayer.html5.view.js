@@ -212,12 +212,14 @@
 						if (!style) {
 							failed.push(pluginName);
 						} else {
-							_model.plugins.object[pluginName].resize(style.width, style.height);
+							var width = style.width;
+							var height = style.height;
 							if (sizeToBox) {
 								delete style.width;
 								delete style.height;
 							}
 							_css(_model.plugins.object[pluginName].getDisplayElement(), style);
+							_model.plugins.object[pluginName].resize(width, height);
 						}
 					} else {
 						_css(_model.plugins.object[pluginName].getDisplayElement(), {

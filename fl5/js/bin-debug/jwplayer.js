@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1939';
+jwplayer.version = '5.7.1945';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4076,12 +4076,14 @@ playerReady = function(obj) {
 						if (!style) {
 							failed.push(pluginName);
 						} else {
-							_model.plugins.object[pluginName].resize(style.width, style.height);
+							var width = style.width;
+							var height = style.height;
 							if (sizeToBox) {
 								delete style.width;
 								delete style.height;
 							}
 							_css(_model.plugins.object[pluginName].getDisplayElement(), style);
+							_model.plugins.object[pluginName].resize(width, height);
 						}
 					} else {
 						_css(_model.plugins.object[pluginName].getDisplayElement(), {
@@ -5212,6 +5214,8 @@ playerReady = function(obj) {
 		
 		function _playerReady(evt) {
 			if (!_ready) {
+				_ready = true;
+
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_READY, evt);
 				
 				if (jwplayer.utils.exists(window.playerReady)) {
@@ -5235,8 +5239,6 @@ playerReady = function(obj) {
 					var queuedCall = _queuedCalls.shift();
 					_callMethod(queuedCall.method, queuedCall.arguments);
 				}
-				
-				_ready = true;
 
 			}
 		}
@@ -5944,7 +5946,7 @@ playerReady = function(obj) {
 		function _errorHandler(evt) {
 			_error = true;
 			_hideDisplayIcon();
-			_display.display_text.innerHTML = evt.error;
+			_display.display_text.innerHTML = evt.message;
 			_show(_display.display_text);
 			_display.display_text.style.top = ((_height - _display.display_text.getBoundingClientRect().height) / 2) + "px";
 		}
@@ -7003,7 +7005,7 @@ playerReady = function(obj) {
 			message += _joinFiles();
 			_error = true;
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
-				error: message
+				message: message
 			});
 			return;		
 		}
@@ -8136,7 +8138,7 @@ playerReady = function(obj) {
 		
 		function _playlistError(msg) {
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
-				error: msg ? msg : 'could not load playlist for whatever reason.  too bad'
+				message: msg ? msg : 'Could not load playlist an unknown reason.'
 			});
 		}
 	};

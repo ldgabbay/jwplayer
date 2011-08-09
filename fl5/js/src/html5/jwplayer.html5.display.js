@@ -273,7 +273,7 @@
 		function _errorHandler(evt) {
 			_error = true;
 			_hideDisplayIcon();
-			_display.display_text.innerHTML = evt.error;
+			_display.display_text.innerHTML = evt.message;
 			_show(_display.display_text);
 			_display.display_text.style.top = ((_height - _display.display_text.getBoundingClientRect().height) / 2) + "px";
 		}

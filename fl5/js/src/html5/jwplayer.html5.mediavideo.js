@@ -478,7 +478,7 @@
 			message += _joinFiles();
 			_error = true;
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
-				error: message
+				message: message
 			});
 			return;		
 		}

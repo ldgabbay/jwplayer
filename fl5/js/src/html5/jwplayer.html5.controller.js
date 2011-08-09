@@ -34,6 +34,8 @@
 		
 		function _playerReady(evt) {
 			if (!_ready) {
+				_ready = true;
+
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_READY, evt);
 				
 				if (jwplayer.utils.exists(window.playerReady)) {
@@ -57,8 +59,6 @@
 					var queuedCall = _queuedCalls.shift();
 					_callMethod(queuedCall.method, queuedCall.arguments);
 				}
-				
-				_ready = true;
 
 			}
 		}

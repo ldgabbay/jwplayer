@@ -28,7 +28,7 @@
 		
 		function _playlistError(msg) {
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
-				error: msg ? msg : 'could not load playlist for whatever reason.  too bad'
+				message: msg ? msg : 'Could not load playlist an unknown reason.'
 			});
 		}
 	};
