@@ -29,7 +29,8 @@
 				case jwplayer.utils.pluginPathType.CDN:
 					var pluginName = jwplayer.utils.getPluginName(url);
 					var pluginVersion = jwplayer.utils.getPluginVersion(url);
-					return _repo + "/" + jwplayer.version.split(".")[0] + "/" + pluginName + "/" 
+					var repo = (window.location.href.indexOf("https://") == 0) ? _repo.replace("http://", "https://secure") : _repo;
+					return repo + "/" + jwplayer.version.split(".")[0] + "/" + pluginName + "/" 
 							+ pluginName + (pluginVersion !== "" ? ("-" + pluginVersion) : "") + ".js";
 			}
 		}

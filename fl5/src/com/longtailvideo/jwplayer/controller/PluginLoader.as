@@ -38,7 +38,7 @@ package com.longtailvideo.jwplayer.controller {
 		protected function get pluginRepository():String {
 			try {
 				if (RootReference.root.loaderInfo.url.indexOf("https://") == 0) {
-					return "https://secure.plugins.longtailvideo.com/"; 
+					return "https://secureplugins.longtailvideo.com/"; 
 				}
 			} catch(e:Error) {}
 			return "http://plugins.longtailvideo.com/"; 

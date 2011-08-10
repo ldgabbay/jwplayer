@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1946';
+jwplayer.version = '5.7.1947';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -1912,7 +1912,8 @@ jwplayer.source = document.createElement("source");/**
 				case jwplayer.utils.pluginPathType.CDN:
 					var pluginName = jwplayer.utils.getPluginName(url);
 					var pluginVersion = jwplayer.utils.getPluginVersion(url);
-					return _repo + "/" + jwplayer.version.split(".")[0] + "/" + pluginName + "/" 
+					var repo = (window.location.href.indexOf("https://") == 0) ? _repo.replace("http://", "https://secure") : _repo;
+					return repo + "/" + jwplayer.version.split(".")[0] + "/" + pluginName + "/" 
 							+ pluginName + (pluginVersion !== "" ? ("-" + pluginVersion) : "") + ".js";
 			}
 		}
@@ -6402,6 +6403,12 @@ playerReady = function(obj) {
 			if (logoConfig.position == jwplayer.html5.view.positions.OVER) {
 				logoConfig.position = _defaults.position;
 			}
+			
+			try {
+				if (window.location.href.indexOf("https") == 0) {
+					_defaults.prefix = _defaults.prefix.replace("http://l.longtailvideo.com", "https://securel.longtailvideo.com");
+				}
+			} catch(e) {}
 			
 			_settings = jwplayer.utils.extend({}, _defaults, logoConfig);
 		}

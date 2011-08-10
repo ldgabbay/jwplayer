@@ -90,7 +90,7 @@ package com.longtailvideo.jwplayer.view {
 			if (getConfigParam('file') && prefix) {
 				try {
 					if (RootReference.root.loaderInfo.url.indexOf("https://") == 0) {
-						prefix = prefix.replace("http://", "https://secure.");
+						prefix = prefix.replace("http://", "https://secure");
 					}
 				} catch(e:Error) {
 					trace("err");

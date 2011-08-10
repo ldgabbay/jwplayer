@@ -47,6 +47,12 @@
 				logoConfig.position = _defaults.position;
 			}
 			
+			try {
+				if (window.location.href.indexOf("https") == 0) {
+					_defaults.prefix = _defaults.prefix.replace("http://l.longtailvideo.com", "https://securel.longtailvideo.com");
+				}
+			} catch(e) {}
+			
 			_settings = jwplayer.utils.extend({}, _defaults, logoConfig);
 		}
 		
