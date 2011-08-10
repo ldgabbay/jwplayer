@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1947';
+jwplayer.version = '5.7.1948';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -728,8 +728,6 @@ jwplayer.source = document.createElement("source");/**
 		return str;
 	}
 	
-	
-
 
 })(jwplayer);
 /**
@@ -3885,6 +3883,7 @@ playerReady = function(obj) {
 		var _zIndex;
 		var _resizeInterval;
 		var _media;
+		var _falseFullscreen = false;
 		
 		function createWrapper() {
 			_wrapper = document.createElement("div");
@@ -4061,7 +4060,7 @@ playerReady = function(obj) {
 					}
 					_resizeComponents(_overlayComponentResizer, failed, true);
 				}
-			} else if ( !(navigator && navigator.vendor && navigator.vendor.indexOf("Apple") == 0) ) {
+			} else if ( !_useNativeFullscreen() ) {
 				_resizeComponents(_fullscreenComponentResizer, plugins, true);
 			}
 			_resizeMedia();
@@ -4227,7 +4226,7 @@ playerReady = function(obj) {
 		this.resize = _resize;
 		
 		this.fullscreen = function(state) {
-			if (navigator && navigator.vendor && navigator.vendor.indexOf("Apple") === 0) {
+			if (_useNativeFullscreen()) {
 				if (_model.getMedia() 
 						&& _model.getMedia().getDisplayElement() 
 						&& _model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
@@ -4243,6 +4242,7 @@ playerReady = function(obj) {
 						}
 					}
 				}
+				_falseFullscreen = false;
 			} else {
 				if (state) {
 					document.onkeydown = _keyHandler;
@@ -4265,6 +4265,7 @@ playerReady = function(obj) {
 					}
 					style.zIndex = 2;
 					_css(_box, style);
+					_falseFullscreen = true;
 				} else {
 					document.onkeydown = "";
 					_model.width = _width;
@@ -4275,16 +4276,30 @@ playerReady = function(obj) {
 						width: _model.width,
 						zIndex: 0
 					});
+					_falseFullscreen = false;
 				}
 				_resize(_model.width, _model.height);
 			}
 		};
 		
+		function _hasPosition(position) {
+			return ([jwplayer.html5.view.positions.TOP, jwplayer.html5.view.positions.RIGHT, jwplayer.html5.view.positions.BOTTOM, jwplayer.html5.view.positions.LEFT].toString().indexOf(position.toUpperCase()) > -1);
+		}
+		
+		function _useNativeFullscreen() {
+			if (_api.jwGetState() != jwplayer.api.events.state.IDLE
+					&& !_falseFullscreen
+					&& navigator 
+					&& navigator.vendor 
+					&& navigator.vendor.indexOf("Apple") == 0) {
+				 return true;
+			}
+			
+			return false;
+		}
+		
 	};
 	
-	function _hasPosition(position) {
-		return ([jwplayer.html5.view.positions.TOP, jwplayer.html5.view.positions.RIGHT, jwplayer.html5.view.positions.BOTTOM, jwplayer.html5.view.positions.LEFT].toString().indexOf(position.toUpperCase()) > -1);
-	}
 	
 	//TODO: Enum
 	jwplayer.html5.view.positions = {
@@ -4365,12 +4380,6 @@ playerReady = function(obj) {
 				}, {
 					"name": "volume",
 					"type": "slider"
-				}, {
-					"name": "divider",
-					"type": "divider"
-				}, {
-					"name": "fullscreen",
-					"type": "button"
 				}]
 			}
 		}
@@ -4618,6 +4627,17 @@ playerReady = function(obj) {
 		
 		/** Draw the jwplayerControlbar elements. **/
 		function _buildElements() {
+			if (_api.jwGetWidth > 40) {
+				_settings.layout.right.push({
+					"name": "divider",
+					"type": "divider"
+				});
+				_settings.layout.right.push({
+					"name": "fullscreen",
+					"type": "button"
+				})
+			}
+			
 			_buildGroup(_settings.layout.left);
 			_buildGroup(_settings.layout.right, -1);
 			_buildGroup(_settings.layout.center);

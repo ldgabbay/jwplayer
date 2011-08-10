@@ -67,12 +67,6 @@
 				}, {
 					"name": "volume",
 					"type": "slider"
-				}, {
-					"name": "divider",
-					"type": "divider"
-				}, {
-					"name": "fullscreen",
-					"type": "button"
 				}]
 			}
 		}
@@ -320,6 +314,17 @@
 		
 		/** Draw the jwplayerControlbar elements. **/
 		function _buildElements() {
+			if (_api.jwGetWidth > 40) {
+				_settings.layout.right.push({
+					"name": "divider",
+					"type": "divider"
+				});
+				_settings.layout.right.push({
+					"name": "fullscreen",
+					"type": "button"
+				})
+			}
+			
 			_buildGroup(_settings.layout.left);
 			_buildGroup(_settings.layout.right, -1);
 			_buildGroup(_settings.layout.center);

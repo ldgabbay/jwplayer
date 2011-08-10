@@ -748,6 +748,9 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		private function redraw():void {
+			if (!_player.config.fullscreen && _height <= 40) {
+				_currentLayout = _currentLayout.replace("fullscreen", "");
+			}
 			clearDividers();
 			alignTextFields();
 			_layoutManager.resize(_width, _height);

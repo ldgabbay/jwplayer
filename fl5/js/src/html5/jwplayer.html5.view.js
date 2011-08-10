@@ -20,6 +20,7 @@
 		var _zIndex;
 		var _resizeInterval;
 		var _media;
+		var _falseFullscreen = false;
 		
 		function createWrapper() {
 			_wrapper = document.createElement("div");
@@ -196,7 +197,7 @@
 					}
 					_resizeComponents(_overlayComponentResizer, failed, true);
 				}
-			} else if ( !(navigator && navigator.vendor && navigator.vendor.indexOf("Apple") == 0) ) {
+			} else if ( !_useNativeFullscreen() ) {
 				_resizeComponents(_fullscreenComponentResizer, plugins, true);
 			}
 			_resizeMedia();
@@ -362,7 +363,7 @@
 		this.resize = _resize;
 		
 		this.fullscreen = function(state) {
-			if (navigator && navigator.vendor && navigator.vendor.indexOf("Apple") === 0) {
+			if (_useNativeFullscreen()) {
 				if (_model.getMedia() 
 						&& _model.getMedia().getDisplayElement() 
 						&& _model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
@@ -378,6 +379,7 @@
 						}
 					}
 				}
+				_falseFullscreen = false;
 			} else {
 				if (state) {
 					document.onkeydown = _keyHandler;
@@ -400,6 +402,7 @@
 					}
 					style.zIndex = 2;
 					_css(_box, style);
+					_falseFullscreen = true;
 				} else {
 					document.onkeydown = "";
 					_model.width = _width;
@@ -410,16 +413,30 @@
 						width: _model.width,
 						zIndex: 0
 					});
+					_falseFullscreen = false;
 				}
 				_resize(_model.width, _model.height);
 			}
 		};
 		
+		function _hasPosition(position) {
+			return ([jwplayer.html5.view.positions.TOP, jwplayer.html5.view.positions.RIGHT, jwplayer.html5.view.positions.BOTTOM, jwplayer.html5.view.positions.LEFT].toString().indexOf(position.toUpperCase()) > -1);
+		}
+		
+		function _useNativeFullscreen() {
+			if (_api.jwGetState() != jwplayer.api.events.state.IDLE
+					&& !_falseFullscreen
+					&& navigator 
+					&& navigator.vendor 
+					&& navigator.vendor.indexOf("Apple") == 0) {
+				 return true;
+			}
+			
+			return false;
+		}
+		
 	};
 	
-	function _hasPosition(position) {
-		return ([jwplayer.html5.view.positions.TOP, jwplayer.html5.view.positions.RIGHT, jwplayer.html5.view.positions.BOTTOM, jwplayer.html5.view.positions.LEFT].toString().indexOf(position.toUpperCase()) > -1);
-	}
 	
 	//TODO: Enum
 	jwplayer.html5.view.positions = {
