@@ -1,5 +1,6 @@
 package com.longtailvideo.jwplayer.controller {
 	import com.longtailvideo.jwplayer.utils.AssetLoader;
+	import com.longtailvideo.jwplayer.utils.RootReference;
 	import com.longtailvideo.jwplayer.utils.Strings;
 	
 	import flash.display.DisplayObject;
@@ -34,7 +35,14 @@ package com.longtailvideo.jwplayer.controller {
 
 		private var loaders:Dictionary;
 		
-		protected function get pluginRepository():String { return "http://plugins.longtailvideo.com/"; }
+		protected function get pluginRepository():String {
+			try {
+				if (RootReference.root.loaderInfo.url.indexOf("https://") == 0) {
+					return "https://secure.plugins.longtailvideo.com/"; 
+				}
+			} catch(e:Error) {}
+			return "http://plugins.longtailvideo.com/"; 
+		}
 		
 		public function PluginLoader() {
 			loaders = new Dictionary();

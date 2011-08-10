@@ -82,7 +82,6 @@ package com.longtailvideo.jwplayer.player {
 		
 		protected function setupPlayerListeners():void {
 			_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, resetPosition);
-			_player.addEventListener(PlayerStateEvent.JWPLAYER_PLAYER_STATE,updatePosition); 
 			_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_TIME, updatePosition);
 			_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_BUFFER, updateBuffer);
 		}

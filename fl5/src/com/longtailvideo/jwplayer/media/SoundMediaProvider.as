@@ -175,7 +175,7 @@ package com.longtailvideo.jwplayer.media {
 				return;
 			}
 			
-			if (_channel && !isNaN(bufferPercent) && bufferPercent > 0 && !_bufferingComplete){
+			if (_sound && !isNaN(bufferPercent) && bufferPercent > 0 && !_bufferingComplete){
 				if (bufferPercent == 100 && _bufferingComplete == false) {
 					_bufferingComplete = true;
 				}

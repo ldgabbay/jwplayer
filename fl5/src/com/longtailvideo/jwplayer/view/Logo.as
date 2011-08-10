@@ -16,6 +16,7 @@ package com.longtailvideo.jwplayer.view {
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.events.MouseEvent;
+	import flash.external.ExternalInterface;
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
 	import flash.system.LoaderContext;
@@ -85,8 +86,16 @@ package com.longtailvideo.jwplayer.view {
 		protected function loadFile():void {
 			var versionRE:RegExp = /(\d+)\.(\d+)\./;
 			var versionInfo:Array = versionRE.exec(_player.version);
-			if (getConfigParam('file') && getConfigParam('prefix')) {
-				defaults['file'] = getConfigParam('prefix') + versionInfo[1] + "/" + versionInfo[2] + "/" + getConfigParam('file');
+			var prefix:String = getConfigParam('prefix');
+			if (getConfigParam('file') && prefix) {
+				try {
+					if (RootReference.root.loaderInfo.url.indexOf("https://") == 0) {
+						prefix = prefix.replace("http://", "https://secure.");
+					}
+				} catch(e:Error) {
+					trace("err");
+				}
+				defaults['file'] = prefix + versionInfo[1] + "/" + versionInfo[2] + "/" + getConfigParam('file');
 			}
 			
 			if (getConfigParam('file') && RootReference.root.loaderInfo.url.indexOf("http")==0) {
