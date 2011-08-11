@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1950';
+jwplayer.version = '5.7.1951';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4382,6 +4382,12 @@ playerReady = function(obj) {
 				}, {
 					"name": "volume",
 					"type": "slider"
+				}, {
+					"name": "divider",
+					"type": "divider"
+				}, {
+					"name": "fullscreen",
+					"type": "button"
 				}]
 			}
 		}
@@ -4432,7 +4438,6 @@ playerReady = function(obj) {
 		var _lastSent;
 		var _eventReady = false;
 		var _fullscreen = false;
-		var _addedFullscreen = false;
 		
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
 		_utils.extend(this, _eventDispatcher);
@@ -4630,16 +4635,20 @@ playerReady = function(obj) {
 		
 		/** Draw the jwplayerControlbar elements. **/
 		function _buildElements() {
-			if (_api.jwGetHeight() > 40 && !_addedFullscreen) {
-				_settings.layout.right.elements.push({
-					"name": "divider",
-					"type": "divider"
-				});
-				_settings.layout.right.elements.push({
-					"name": "fullscreen",
-					"type": "button"
-				});
-				_addedFullscreen = true;
+			if (_api.jwGetHeight() <= 40) {
+				_settings.layout = _utils.clone(_settings.layout);
+				for (var i=0; i < _settings.layout.left.elements.length; i++) {
+					if (_settings.layout.left.elements[i].name == "fullscreen") {
+						_settings.layout.left.elements.splice(i, 1);
+					}
+				}
+				for (i=0; i < _settings.layout.right.elements.length; i++) {
+					if (_settings.layout.right.elements[i].name == "fullscreen") {
+						_settings.layout.right.elements.splice(i, 1);
+					}
+				}
+				
+				cleanupDividers();
 			}
 			
 			_buildGroup(_settings.layout.left);
