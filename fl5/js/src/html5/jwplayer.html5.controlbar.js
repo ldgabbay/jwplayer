@@ -117,6 +117,7 @@
 		var _lastSent;
 		var _eventReady = false;
 		var _fullscreen = false;
+		var _addedFullscreen = false;
 		
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
 		_utils.extend(this, _eventDispatcher);
@@ -314,15 +315,16 @@
 		
 		/** Draw the jwplayerControlbar elements. **/
 		function _buildElements() {
-			if (_api.jwGetWidth > 40) {
-				_settings.layout.right.push({
+			if (_api.jwGetHeight() > 40 && !_addedFullscreen) {
+				_settings.layout.right.elements.push({
 					"name": "divider",
 					"type": "divider"
 				});
-				_settings.layout.right.push({
+				_settings.layout.right.elements.push({
 					"name": "fullscreen",
 					"type": "button"
-				})
+				});
+				_addedFullscreen = true;
 			}
 			
 			_buildGroup(_settings.layout.left);
