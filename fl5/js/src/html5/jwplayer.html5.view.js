@@ -364,17 +364,20 @@
 		
 		this.fullscreen = function(state) {
 			if (_useNativeFullscreen()) {
-				if (_model.getMedia() 
-						&& _model.getMedia().getDisplayElement() 
-						&& _model.getMedia().getDisplayElement().webkitSupportsFullscreen) {
-					if (state) {
+				var videotag;
+				try {
+					videotag = _model.getMedia().getDisplayElement();
+				} catch(e) {}
+				
+				if (videotag && videotag.webkitSupportsFullscreen) {
+					if (state && !videotag.webkitDisplayingFullscreen) {
 						try {
-							_model.getMedia().getDisplayElement().webkitEnterFullscreen();
+							videotag.webkitEnterFullscreen();
 						} catch (err) {
 						}
-					} else {
+					} else if (!state && videotag.webkitDisplayingFullscreen) {
 						try {
-							_model.getMedia().getDisplayElement().webkitExitFullscreen();
+							videotag.webkitExitFullscreen();
 						} catch (err) {
 						}
 					}

@@ -13,7 +13,11 @@
 					displayarea.appendChild(div);
 				}
 				var display = displayarea.style;
-				plugin.resize(parseInt(display.width.replace("px","")), parseInt(display.height.replace("px","")));
+				if (evt.width > 0 && evt.height > 0) {
+					plugin.resize(evt.width, evt.height);
+				} else {
+					plugin.resize(parseInt(display.width.replace("px","")), parseInt(display.height.replace("px","")));
+				}
 				div.left = display.left;
 				div.top = display.top;
 			}

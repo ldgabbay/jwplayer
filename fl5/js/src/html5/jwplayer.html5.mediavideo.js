@@ -386,6 +386,16 @@
 					_video.style.display = "block";
 					_setState(jwplayer.api.events.state.PLAYING);
 				}
+				
+				if (_utils.exists(_video.webkitDisplayingFullscreen)) {
+					if (_video.webkitDisplayingFullscreen != _model.fullscreen) {
+						_model.fullscreen = _video.webkitDisplayingFullscreen;
+						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
+							fullscreen: _model.fullscreen
+						});
+					}
+				}
+				
 				if (_state == jwplayer.api.events.state.PLAYING) {
 					if (!_start && _video.readyState > 0) {
 						_start = true;

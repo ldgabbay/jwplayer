@@ -341,24 +341,23 @@
 		function _setFullscreen(state) {
 			try {
 				if (typeof state == "undefined") {
-					_model.fullscreen = !_model.fullscreen;
-					_view.fullscreen(!_model.fullscreen);
+					state = !_model.fullscreen;
+				} 
+				
+				if (state.toString().toLowerCase() == "true") {
+					_model.fullscreen = true;					
+					_view.fullscreen(true);
+					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
+						fullscreen: true
+					});
 				} else {
-					if (state.toString().toLowerCase() == "true") {
-						_model.fullscreen = true;
-						_view.fullscreen(true);
-					} else {
-						_model.fullscreen = false;
-						_view.fullscreen(false);
-					}
+					_model.fullscreen = false;					
+					_view.fullscreen(false);
+					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
+						fullscreen: false
+					});
 				}
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_RESIZE, {
-					"width": _model.width,
-					"height": _model.height
-				});
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
-					"fullscreen": state
-				});
+
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);

@@ -34,6 +34,7 @@
             
             var scriptPos = -1;
             jwplayer().onTime(startScript);
+            jwplayer().onFullscreen(function(evt){console.log(evt.fullscreen);});
             jwplayer().play();
             
             var script = [{
