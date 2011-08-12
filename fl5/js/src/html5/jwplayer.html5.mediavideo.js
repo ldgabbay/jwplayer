@@ -40,7 +40,7 @@
 			'stalled': _stateHandler,
 			'suspend': _stateHandler,
 			'timeupdate': _positionHandler,
-			'volumechange': _generalHandler,
+			'volumechange': _volumeHandler,
 			'waiting': _stateHandler,
 			'canshowcurrentframe': _generalHandler,
 			'dataunavailable': _generalHandler,
@@ -236,10 +236,6 @@
 		this.volume = function(position) {
 			if (!_isIOS) {
 				_video.volume = position / 100;
-				_model.volume = position;
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
-					volume: Math.round(position)
-				});
 			}
 		};
 		
@@ -248,10 +244,6 @@
 		this.mute = function(state) {
 			if (!_isIOS) {
 				_video.muted = state;
-				_model.mute = state;
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
-					mute: state
-				});
 			}
 		};
 
@@ -316,6 +308,8 @@
 			if (!_video.id) {
 				_video.id = _container.id;
 			}
+			
+			_video.volume = _model.volume / 100;
 		}
 		
 		/** Set the current player state **/
@@ -339,7 +333,24 @@
 		/** Handle general <video> tag events **/
 		function _generalHandler(event) {
 		}
-		
+
+		/** Handle volume change and muting events **/
+		function _volumeHandler(event) {
+			var newVol = Math.round(_video.volume * 100);
+			if (newVol != _model.volume) {
+				_model.volume = newVol;
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
+					volume: _model.volume
+				});
+			}
+			if (_video.muted != _model.mute) {
+				_model.mute = _video.muted;
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
+					mute: _model.mute
+				});
+			}
+		}
+
 		/** Update the player progress **/
 		function _progressHandler(event) {
 			var bufferPercent;
