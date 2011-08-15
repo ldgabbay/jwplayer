@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1953';
+jwplayer.version = '5.7.1954';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -2798,6 +2798,8 @@ playerReady = function(obj) {
  * @version 5.5
  */
 (function(jwplayer) {
+	var _utils = jwplayer.utils;
+	
 	jwplayer.embed = function(playerApi) {
 		var _defaults = {
 			width: 400,
@@ -2808,8 +2810,8 @@ playerReady = function(obj) {
 				}
 			}
 		};
-		var mediaConfig = jwplayer.utils.mediaparser.parseMedia(playerApi.container);
-		var _config = new jwplayer.embed.config(jwplayer.utils.extend(_defaults, mediaConfig, playerApi.config), this);
+		var mediaConfig = _utils.mediaparser.parseMedia(playerApi.container);
+		var _config = new jwplayer.embed.config(_utils.extend(_defaults, mediaConfig, playerApi.config), this);
 		var _pluginloader = jwplayer.plugins.loadPlugins(playerApi.id, _config.plugins);
 		
 		function _setupEvents(api, events) {
@@ -2821,12 +2823,29 @@ playerReady = function(obj) {
 		}
 		
 		function _embedPlayer() {
-			if (_pluginloader.getStatus() == jwplayer.utils.loaderstatus.COMPLETE) {
+			if (_pluginloader.getStatus() == _utils.loaderstatus.COMPLETE) {
 				for (var mode = 0; mode < _config.modes.length; mode++) {
 					if (_config.modes[mode].type && jwplayer.embed[_config.modes[mode].type]) {
+						var modeconfig = _config.modes[mode].config;
 						var configClone = _config;
-						if (_config.modes[mode].config) {
-							configClone = jwplayer.utils.extend(jwplayer.utils.clone(_config), _config.modes[mode].config);
+						if (modeconfig) {
+							configClone = _utils.extend(_utils.clone(_config), modeconfig);
+
+							/** Remove fields from top-level config which are overridden in mode config **/ 
+							var overrides = ["file", "levels", "playlist"];
+							for (var i=0; i < overrides.length; i++) {
+								var field = overrides[i];
+								if (_utils.exists(modeconfig[field])) {
+									for (var j=0; j < overrides.length; j++) {
+										if (j != i) {
+											var other = overrides[j];
+											if (_utils.exists(configClone[other]) && !_utils.exists(modeconfig[other])) {
+												delete configClone[other];
+											}
+										}
+									}
+								}
+							}
 						}
 						var embedder = new jwplayer.embed[_config.modes[mode].type](document.getElementById(playerApi.id), _config.modes[mode], configClone, _pluginloader, playerApi);
 						if (embedder.supportsConfig()) {
@@ -2838,8 +2857,8 @@ playerReady = function(obj) {
 						}
 					}
 				}
-				jwplayer.utils.log("No suitable players found");
-				new jwplayer.embed.logo(jwplayer.utils.extend({
+				_utils.log("No suitable players found");
+				new jwplayer.embed.logo(_utils.extend({
 					hide: true
 				}, _config.components.logo), "none", playerApi.id);
 			}
@@ -2856,7 +2875,7 @@ playerReady = function(obj) {
 		if (!document.body) {
 			return setTimeout(noviceEmbed, 15);
 		}
-		var videoTags = jwplayer.utils.selectors.getElementsByTagAndClass('video', 'jwplayer');
+		var videoTags = _utils.selectors.getElementsByTagAndClass('video', 'jwplayer');
 		for (var i = 0; i < videoTags.length; i++) {
 			var video = videoTags[i];
 			jwplayer(video.id).setup({});
