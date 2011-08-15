@@ -92,17 +92,18 @@
 						}
 					}
 					// Make sure that this gets loaded and is cached so that rollovers are smooth
-					if (_buttons[id].overGraphic) {
-						_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
-					}
-					if (_buttons[id].outGraphic) {
-						_buttons[id].div.childNodes[0].src = _buttons[id].outGraphic;
-					}
 					if (api.skin.getSkinElement("dock", "button")) {
 						_buttons[id].div.childNodes[1].src = api.skin.getSkinElement("dock", "button").src;
 					}
 				}
-				
+
+				if (_buttons[id].overGraphic) {
+					_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
+				}
+				if (_buttons[id].outGraphic) {
+					_buttons[id].div.childNodes[0].src = _buttons[id].outGraphic;
+				}
+
 				if (handler) {
 					_buttons[id].div.onclick = function(evt) {
 						evt.preventDefault();

@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1954';
+jwplayer.version = '5.7.1955';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -6249,17 +6249,18 @@ playerReady = function(obj) {
 						}
 					}
 					// Make sure that this gets loaded and is cached so that rollovers are smooth
-					if (_buttons[id].overGraphic) {
-						_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
-					}
-					if (_buttons[id].outGraphic) {
-						_buttons[id].div.childNodes[0].src = _buttons[id].outGraphic;
-					}
 					if (api.skin.getSkinElement("dock", "button")) {
 						_buttons[id].div.childNodes[1].src = api.skin.getSkinElement("dock", "button").src;
 					}
 				}
-				
+
+				if (_buttons[id].overGraphic) {
+					_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
+				}
+				if (_buttons[id].outGraphic) {
+					_buttons[id].div.childNodes[0].src = _buttons[id].outGraphic;
+				}
+
 				if (handler) {
 					_buttons[id].div.onclick = function(evt) {
 						evt.preventDefault();
