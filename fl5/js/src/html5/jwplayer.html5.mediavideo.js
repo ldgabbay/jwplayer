@@ -189,7 +189,7 @@
 				var agent = navigator.userAgent;
 				if(agent.match(/chrome/i)) {
 					_video.src = undefined;
-				} else if(agent.match(/safari/i)) {
+				} else if(agent.match(/safari/i) || agent.match(/firefox/i)) {
 					_video.removeAttribute("src");
 				} else {
 					_video.src = "";

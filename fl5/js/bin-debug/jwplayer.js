@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1955';
+jwplayer.version = '5.7.1959';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4772,6 +4772,7 @@ playerReady = function(obj) {
 					_addElement("volumeSliderCapLeft", alignment, true, _volumeslider, alignment == "left" ? 0 : offset);
 					_addElement("volumeSliderRail", alignment, true, _volumeslider, offset);
 					_addElement("volumeSliderProgress", alignment, false, _volumeslider, offset);
+					_addElement("volumeSliderThumb", alignment, false, _volumeslider, offset);
 					_addElement("volumeSliderCapRight", alignment, true, _volumeslider, alignment == "right" ? 0 : offset);
 					_addSliderListener("volume");
 					break;
@@ -4977,7 +4978,7 @@ playerReady = function(obj) {
 				if (_scrubber == "time") {
 					_mousedown = true;
 					var xps = evt.pageX - _positions[name + "Slider"].left - window.pageXOffset;
-					_css(_elements.timeSliderThumb, {
+					_css(_elements[_scrubber + "SliderThumb"], {
 						left: xps
 					});
 				}
@@ -5207,6 +5208,15 @@ playerReady = function(obj) {
 					width: progressWidth,
 					left: volumeSliderLeft
 				});
+
+				if (_elements.volumeSliderThumb) {
+					var thumbPos = (progressWidth - Math.round(_utils.parseDimension(_elements.volumeSliderThumb.style.width) / 2));
+					thumbPos = Math.min(Math.max(thumbPos, 0), width - _utils.parseDimension(_elements.volumeSliderThumb.style.width));
+					
+					_css(_elements.volumeSliderThumb, {
+						left: thumbPos
+					});
+				}
 				
 				if (_utils.exists(_elements.volumeSliderCapLeft)) {
 					_css(_elements.volumeSliderCapLeft, {
@@ -6782,7 +6792,7 @@ playerReady = function(obj) {
 				var agent = navigator.userAgent;
 				if(agent.match(/chrome/i)) {
 					_video.src = undefined;
-				} else if(agent.match(/safari/i)) {
+				} else if(agent.match(/safari/i) || agent.match(/firefox/i)) {
 					_video.removeAttribute("src");
 				} else {
 					_video.src = "";
