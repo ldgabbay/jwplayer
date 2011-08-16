@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1959';
+jwplayer.version = '5.7.1960';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4464,6 +4464,7 @@ playerReady = function(obj) {
 		var _lastSent;
 		var _eventReady = false;
 		var _fullscreen = false;
+		var _root;
 		
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
 		_utils.extend(this, _eventDispatcher);
@@ -4523,8 +4524,8 @@ playerReady = function(obj) {
 		};
 		
 		this.resize = function(width, height) {
+			_setMouseListeners();
 			_utils.cancelAnimation(_wrapper);
-			document.getElementById(_api.id).onmousemove = _setVisiblity;
 			_width = width;
 			_height = height;
 			
@@ -4534,7 +4535,7 @@ playerReady = function(obj) {
 			}
 			
 			var style = _resizeBar();
-			_setVisiblity();
+			_setVisibility();
 			_timeHandler({
 				id: _api.id,
 				duration: _currentDuration,
@@ -4574,14 +4575,14 @@ playerReady = function(obj) {
 		}
 		
 		
-		function _setVisiblity(evt) {
+		function _setVisibility(evt) {
 			if (_hiding) { return; }
 			clearTimeout(_fadeTimeout);
 			if (_settings.position == jwplayer.html5.view.positions.OVER || _api.jwGetFullscreen()) {
 				switch(_api.jwGetState()) {
 				case jwplayer.api.events.state.PAUSED:
 				case jwplayer.api.events.state.IDLE:
-					if (!_settings.idlehide || _utils.exists(evt)) {
+					if (_wrapper && _wrapper.style.opacity < 1 && (!_settings.idlehide || _utils.exists(evt))) {
 						_fadeIn();
 					}
 					if (_settings.idlehide) {
@@ -4605,16 +4606,24 @@ playerReady = function(obj) {
 			}
 		}
 		
-		function _fadeOut(delay) {
-			_sendHide();
-			_utils.cancelAnimation(_wrapper);
-			_utils.fadeTo(_wrapper, 0, 0.1, 1, 0);
+		function _fadeOut() {
+			if (!_hiding) {
+				_sendHide();
+				if (_wrapper.style.opacity == 1) {
+					_utils.cancelAnimation(_wrapper);
+					_utils.fadeTo(_wrapper, 0, 0.1, 1, 0);
+				}
+			}
 		}
 		
 		function _fadeIn() {
-			_sendShow();
-			_utils.cancelAnimation(_wrapper);
-			_utils.fadeTo(_wrapper, 1, 0, 1, 0);
+			if (!_hiding) {
+				_sendShow();
+				if (_wrapper.style.opacity == 0) {
+					_utils.cancelAnimation(_wrapper);
+					_utils.fadeTo(_wrapper, 1, 0.1, 0, 0);
+				}
+			}
 		}
 		
 		function _sendVisibilityEvent(eventType) {
@@ -5059,7 +5068,7 @@ playerReady = function(obj) {
 				_show(_elements.playButton);
 			}
 			
-			_setVisiblity();
+			_setVisibility();
 			// Show / hide progress bar
 			if (event.newstate == jwplayer.api.events.state.IDLE) {
 				_hide(_elements.timeSliderBuffer);
@@ -5226,6 +5235,11 @@ playerReady = function(obj) {
 			}
 		}
 		
+		function _setMouseListeners() {
+			_root = document.getElementById(_api.id);
+			_root.addEventListener("mousemove", _setVisibility);
+		}
+		
 		function _setup() {
 			_buildBase();
 			_buildElements();
@@ -5237,11 +5251,13 @@ playerReady = function(obj) {
 				_wrapper.style.opacity = 0;
 				_eventReady = true;
 			} else {
+				_wrapper.style.opacity = 1;
 				setTimeout((function() { 
 					_eventReady = true;
 					_sendShow();
 				}), 1);
-			}				
+			}
+			_setMouseListeners();
 			_init();
 		}
 		
@@ -6169,8 +6185,8 @@ playerReady = function(obj) {
  * JW Player dock component
  */
 (function(jwplayer) {
-
-	_css = jwplayer.utils.css; 
+	var _utils = jwplayer.utils;
+	var _css = _utils.css; 
 	
 	jwplayer.html5.dock = function(api, config) {
 		function _defaults() {
@@ -6179,7 +6195,7 @@ playerReady = function(obj) {
 			};
 		};
 		
-		var _config = jwplayer.utils.extend({}, _defaults(), config);
+		var _config = _utils.extend({}, _defaults(), config);
 		
 		if (_config.align == "FALSE") {
 			return;
@@ -6192,12 +6208,17 @@ playerReady = function(obj) {
 		var _fullscreen = false;
 		var _dimensions = { x: 0, y: 0, width: 0, height: 0 };
 		var _lastSent;
+		var _root;
+		var _fadeTimeout;
 		
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
 		_utils.extend(this, _eventDispatcher);
 		
 		var _dock = document.createElement("div");
 		_dock.id = api.id + "_jwplayer_dock";
+		_dock.style.opacity = 1;
+		
+		_setMouseListeners();
 		
 		api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 		
@@ -6207,7 +6228,7 @@ playerReady = function(obj) {
 		
 		this.setButton = function(id, handler, outGraphic, overGraphic) {
 			if (!handler && _buttons[id]) {
-				jwplayer.utils.arrays.remove(_buttonArray, id);
+				_utils.arrays.remove(_buttonArray, id);
 				_dock.removeChild(_buttons[id].div);
 				delete _buttons[id];
 			} else if (handler) {
@@ -6289,6 +6310,8 @@ playerReady = function(obj) {
 		}
 		
 		function _resize(width, height) {
+			_setMouseListeners();
+			
 			if (_buttonArray.length > 0) {
 				var margin = 10;
 				var usedHeight = margin;
@@ -6311,8 +6334,8 @@ playerReady = function(obj) {
 					button.style.top = (usedHeight % height) + "px";
 					button.style.left = (xStart + (api.skin.getSkinElement("dock", "button").width + margin) * row * direction) + "px";
 					var buttonDims = {
-						x: jwplayer.utils.parseDimension(button.style.left),
-						y: jwplayer.utils.parseDimension(button.style.top),
+						x: _utils.parseDimension(button.style.left),
+						y: _utils.parseDimension(button.style.top),
 						width: buttonWidth,
 						height: buttonHeight
 					}
@@ -6355,17 +6378,48 @@ playerReady = function(obj) {
 		}
 		
 		function _stateHandler(event) {
-			if (jwplayer.utils.isIOS()) {
-				switch (event.newstate) {
-				case jwplayer.api.events.state.IDLE:
+			if (_utils.isIOS()) {
+				if (event.newstate == jwplayer.api.events.state.IDLE) {
 					_show();
-					break;
-				default:
+				} else {
 					_hide();
-					break;
 				}
+			} else {
+				_setVisibility();
 			}
 		}
+		
+		function _setVisibility(evt) {
+			if (_hiding) { return; }
+			clearTimeout(_fadeTimeout);
+			if (config.position == jwplayer.html5.view.positions.OVER || api.jwGetFullscreen()) {
+				switch(api.jwGetState()) {
+				case jwplayer.api.events.state.PAUSED:
+				case jwplayer.api.events.state.IDLE:
+					if (_dock && _dock.style.opacity < 1 && (!config.idlehide || _utils.exists(evt))) {
+						_fadeIn();
+					}
+					if (config.idlehide) {
+						_fadeTimeout = setTimeout(function() {
+							_fadeOut();
+						}, 2000);
+					}
+					break;
+				default:
+					if (_utils.exists(evt)) {
+						// Fade in on mouse move
+						_fadeIn();
+					}
+					_fadeTimeout = setTimeout(function() {
+						_fadeOut();
+					}, 2000);
+					break;
+				}
+			} else {
+				_fadeIn();
+			}
+		}
+
 
 		var _sendShow = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_SHOW);
 		var _sendHide = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_HIDE);
@@ -6393,6 +6447,31 @@ playerReady = function(obj) {
 			
 		}
 		
+		function _fadeOut() {
+			if (!_hiding) {
+				_sendHide();
+				if (_dock.style.opacity == 1) {
+					_utils.cancelAnimation(_dock);
+					_utils.fadeTo(_dock, 0, 0.1, 1, 0);
+				}
+			}
+		}
+		
+		function _fadeIn() {
+			if (!_hiding) {
+				_sendShow();
+				if (_dock.style.opacity == 0) {
+					_utils.cancelAnimation(_dock);
+					_utils.fadeTo(_dock, 1, 0.1, 0, 0);
+				}
+			}
+		}
+		
+		function _setMouseListeners() {
+			_root = document.getElementById(api.id);
+			_root.addEventListener("mousemove", _setVisibility);
+		}
+				
 		this.hide = _hide;
 		this.show = _show;
 		
@@ -7498,6 +7577,12 @@ playerReady = function(obj) {
 			if (typeof _model.plugins.config.dock.position != "undefined") {
 				_model.plugins.config.dock.align = _model.plugins.config.dock.position;
 				_model.plugins.config.dock.position = jwplayer.html5.view.positions.OVER;
+			}
+			
+			if (typeof _model.plugins.config.dock.idlehide == "undefined") {
+				try {
+					_model.plugins.config.dock.idlehide = _model.plugins.config.controlbar.idlehide;
+				} catch (e) {}
 			}
 		}
 		

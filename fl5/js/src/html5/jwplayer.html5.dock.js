@@ -2,8 +2,8 @@
  * JW Player dock component
  */
 (function(jwplayer) {
-
-	_css = jwplayer.utils.css; 
+	var _utils = jwplayer.utils;
+	var _css = _utils.css; 
 	
 	jwplayer.html5.dock = function(api, config) {
 		function _defaults() {
@@ -12,7 +12,7 @@
 			};
 		};
 		
-		var _config = jwplayer.utils.extend({}, _defaults(), config);
+		var _config = _utils.extend({}, _defaults(), config);
 		
 		if (_config.align == "FALSE") {
 			return;
@@ -25,12 +25,17 @@
 		var _fullscreen = false;
 		var _dimensions = { x: 0, y: 0, width: 0, height: 0 };
 		var _lastSent;
+		var _root;
+		var _fadeTimeout;
 		
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
 		_utils.extend(this, _eventDispatcher);
 		
 		var _dock = document.createElement("div");
 		_dock.id = api.id + "_jwplayer_dock";
+		_dock.style.opacity = 1;
+		
+		_setMouseListeners();
 		
 		api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 		
@@ -40,7 +45,7 @@
 		
 		this.setButton = function(id, handler, outGraphic, overGraphic) {
 			if (!handler && _buttons[id]) {
-				jwplayer.utils.arrays.remove(_buttonArray, id);
+				_utils.arrays.remove(_buttonArray, id);
 				_dock.removeChild(_buttons[id].div);
 				delete _buttons[id];
 			} else if (handler) {
@@ -122,6 +127,8 @@
 		}
 		
 		function _resize(width, height) {
+			_setMouseListeners();
+			
 			if (_buttonArray.length > 0) {
 				var margin = 10;
 				var usedHeight = margin;
@@ -144,8 +151,8 @@
 					button.style.top = (usedHeight % height) + "px";
 					button.style.left = (xStart + (api.skin.getSkinElement("dock", "button").width + margin) * row * direction) + "px";
 					var buttonDims = {
-						x: jwplayer.utils.parseDimension(button.style.left),
-						y: jwplayer.utils.parseDimension(button.style.top),
+						x: _utils.parseDimension(button.style.left),
+						y: _utils.parseDimension(button.style.top),
 						width: buttonWidth,
 						height: buttonHeight
 					}
@@ -188,17 +195,48 @@
 		}
 		
 		function _stateHandler(event) {
-			if (jwplayer.utils.isIOS()) {
-				switch (event.newstate) {
-				case jwplayer.api.events.state.IDLE:
+			if (_utils.isIOS()) {
+				if (event.newstate == jwplayer.api.events.state.IDLE) {
 					_show();
-					break;
-				default:
+				} else {
 					_hide();
-					break;
 				}
+			} else {
+				_setVisibility();
 			}
 		}
+		
+		function _setVisibility(evt) {
+			if (_hiding) { return; }
+			clearTimeout(_fadeTimeout);
+			if (config.position == jwplayer.html5.view.positions.OVER || api.jwGetFullscreen()) {
+				switch(api.jwGetState()) {
+				case jwplayer.api.events.state.PAUSED:
+				case jwplayer.api.events.state.IDLE:
+					if (_dock && _dock.style.opacity < 1 && (!config.idlehide || _utils.exists(evt))) {
+						_fadeIn();
+					}
+					if (config.idlehide) {
+						_fadeTimeout = setTimeout(function() {
+							_fadeOut();
+						}, 2000);
+					}
+					break;
+				default:
+					if (_utils.exists(evt)) {
+						// Fade in on mouse move
+						_fadeIn();
+					}
+					_fadeTimeout = setTimeout(function() {
+						_fadeOut();
+					}, 2000);
+					break;
+				}
+			} else {
+				_fadeIn();
+			}
+		}
+
 
 		var _sendShow = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_SHOW);
 		var _sendHide = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_HIDE);
@@ -226,6 +264,31 @@
 			
 		}
 		
+		function _fadeOut() {
+			if (!_hiding) {
+				_sendHide();
+				if (_dock.style.opacity == 1) {
+					_utils.cancelAnimation(_dock);
+					_utils.fadeTo(_dock, 0, 0.1, 1, 0);
+				}
+			}
+		}
+		
+		function _fadeIn() {
+			if (!_hiding) {
+				_sendShow();
+				if (_dock.style.opacity == 0) {
+					_utils.cancelAnimation(_dock);
+					_utils.fadeTo(_dock, 1, 0.1, 0, 0);
+				}
+			}
+		}
+		
+		function _setMouseListeners() {
+			_root = document.getElementById(api.id);
+			_root.addEventListener("mousemove", _setVisibility);
+		}
+				
 		this.hide = _hide;
 		this.show = _show;
 		

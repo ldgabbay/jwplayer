@@ -130,6 +130,12 @@
 				_model.plugins.config.dock.align = _model.plugins.config.dock.position;
 				_model.plugins.config.dock.position = jwplayer.html5.view.positions.OVER;
 			}
+			
+			if (typeof _model.plugins.config.dock.idlehide == "undefined") {
+				try {
+					_model.plugins.config.dock.idlehide = _model.plugins.config.controlbar.idlehide;
+				} catch (e) {}
+			}
 		}
 		
 		function _loadExternal(playlistfile) {

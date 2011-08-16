@@ -123,6 +123,7 @@
 		var _lastSent;
 		var _eventReady = false;
 		var _fullscreen = false;
+		var _root;
 		
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
 		_utils.extend(this, _eventDispatcher);
@@ -182,8 +183,8 @@
 		};
 		
 		this.resize = function(width, height) {
+			_setMouseListeners();
 			_utils.cancelAnimation(_wrapper);
-			document.getElementById(_api.id).onmousemove = _setVisiblity;
 			_width = width;
 			_height = height;
 			
@@ -193,7 +194,7 @@
 			}
 			
 			var style = _resizeBar();
-			_setVisiblity();
+			_setVisibility();
 			_timeHandler({
 				id: _api.id,
 				duration: _currentDuration,
@@ -233,14 +234,14 @@
 		}
 		
 		
-		function _setVisiblity(evt) {
+		function _setVisibility(evt) {
 			if (_hiding) { return; }
 			clearTimeout(_fadeTimeout);
 			if (_settings.position == jwplayer.html5.view.positions.OVER || _api.jwGetFullscreen()) {
 				switch(_api.jwGetState()) {
 				case jwplayer.api.events.state.PAUSED:
 				case jwplayer.api.events.state.IDLE:
-					if (!_settings.idlehide || _utils.exists(evt)) {
+					if (_wrapper && _wrapper.style.opacity < 1 && (!_settings.idlehide || _utils.exists(evt))) {
 						_fadeIn();
 					}
 					if (_settings.idlehide) {
@@ -264,16 +265,24 @@
 			}
 		}
 		
-		function _fadeOut(delay) {
-			_sendHide();
-			_utils.cancelAnimation(_wrapper);
-			_utils.fadeTo(_wrapper, 0, 0.1, 1, 0);
+		function _fadeOut() {
+			if (!_hiding) {
+				_sendHide();
+				if (_wrapper.style.opacity == 1) {
+					_utils.cancelAnimation(_wrapper);
+					_utils.fadeTo(_wrapper, 0, 0.1, 1, 0);
+				}
+			}
 		}
 		
 		function _fadeIn() {
-			_sendShow();
-			_utils.cancelAnimation(_wrapper);
-			_utils.fadeTo(_wrapper, 1, 0, 1, 0);
+			if (!_hiding) {
+				_sendShow();
+				if (_wrapper.style.opacity == 0) {
+					_utils.cancelAnimation(_wrapper);
+					_utils.fadeTo(_wrapper, 1, 0.1, 0, 0);
+				}
+			}
 		}
 		
 		function _sendVisibilityEvent(eventType) {
@@ -718,7 +727,7 @@
 				_show(_elements.playButton);
 			}
 			
-			_setVisiblity();
+			_setVisibility();
 			// Show / hide progress bar
 			if (event.newstate == jwplayer.api.events.state.IDLE) {
 				_hide(_elements.timeSliderBuffer);
@@ -885,6 +894,11 @@
 			}
 		}
 		
+		function _setMouseListeners() {
+			_root = document.getElementById(_api.id);
+			_root.addEventListener("mousemove", _setVisibility);
+		}
+		
 		function _setup() {
 			_buildBase();
 			_buildElements();
@@ -896,11 +910,13 @@
 				_wrapper.style.opacity = 0;
 				_eventReady = true;
 			} else {
+				_wrapper.style.opacity = 1;
 				setTimeout((function() { 
 					_eventReady = true;
 					_sendShow();
 				}), 1);
-			}				
+			}
+			_setMouseListeners();
 			_init();
 		}
 		
