@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1960';
+jwplayer.version = '5.7.1962';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -140,6 +140,27 @@ jwplayer.source = document.createElement("source");/**
 			if (xmlhttp.readyState === 4) {
 				if (xmlhttp.status === 200) {
 					if (completecallback) {
+						// Handle the case where an XML document was returned with an incorrect MIME type.
+						if (!jwplayer.utils.exists(xmlhttp.responseXML)) {
+							try {
+								if (window.DOMParser) {
+									var parsedXML = (new DOMParser()).parseFromString(xmlhttp.responseText,"text/xml");
+									if (parsedXML) {
+										xmlhttp = jwplayer.utils.extend({}, xmlhttp, {responseXML:parsedXML});
+									}
+								} else { 
+									// Internet Explorer
+									parsedXML = new ActiveXObject("Microsoft.XMLDOM");
+									parsedXML.async="false";
+									parsedXML.loadXML(xmlhttp.responseText);
+									xmlhttp = jwplayer.utils.extend({}, xmlhttp, {responseXML:parsedXML});									
+								}
+							} catch(e) {
+								if (errorcallback) {
+									errorcallback(xmldocpath);
+								}
+							}
+						}
 						completecallback(xmlhttp);
 					}
 				} else {
