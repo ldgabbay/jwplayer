@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1962';
+jwplayer.version = '5.7.1963';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -3956,8 +3956,10 @@ playerReady = function(obj) {
 			}
 			
 			_css(_container, {
-				width: _model.width,
-				height: _model.height,
+//				width: _model.width,
+//				height: _model.height,
+				width: "100%",
+				height: "100%",
 				top: 0,
 				left: 0,
 				zIndex: 1,
@@ -4087,9 +4089,9 @@ playerReady = function(obj) {
 					bottom: 0,
 					left: 0,
 					right: 0,
-					width: width,
-					height: height,
-					position: "relative"
+					width: "100%",
+					height: "100%",
+					position: "absolute"
 				});
 				_css(_wrapper, {
 					height: _height,
@@ -4159,20 +4161,22 @@ playerReady = function(obj) {
 			if (!_utils.exists(_model.plugins.object[pluginName].getDisplayElement().parentNode)) {
 				_box.appendChild(_model.plugins.object[pluginName].getDisplayElement());
 			}
-			var _iwidth = _model.width, _iheight = _model.height;
-			if (typeof _model.width == "string" && _model.width.lastIndexOf("%") > -1) {
-				percentage = parseFloat(_model.width.substring(0, _model.width.lastIndexOf("%"))) / 100;
-				_iwidth = Math.round(window.innerWidth * percentage);
-			}
-			
-			if (typeof _model.height == "string" && _model.height.lastIndexOf("%") > -1) {
-				percentage = parseFloat(_model.height.substring(0, _model.height.lastIndexOf("%"))) / 100;
-				_iheight = Math.round(window.innerHeight * percentage);
-			}
+//			var _iwidth = _model.width, 
+//				_iheight = _model.height, 
+//				percentage;
+//			if (typeof _model.width == "string" && _model.width.lastIndexOf("%") > -1) {
+//				percentage = parseFloat(_model.width.substring(0, _model.width.lastIndexOf("%"))) / 100;
+//				_iwidth = Math.round(_wrapper.clientWidth * percentage);
+//			}
+//			
+//			if (typeof _model.height == "string" && _model.height.lastIndexOf("%") > -1) {
+//				percentage = parseFloat(_model.height.substring(0, _model.height.lastIndexOf("%"))) / 100;
+//				_iheight = Math.round(_wrapper.clientHeight * percentage);
+//			}
 			return {
 				position: "absolute",
-				width: (_iwidth - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right)),
-				height: (_iheight - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom)),
+				width: (_wrapper.clientWidth - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right)),
+				height: (_wrapper.clientHeight - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom)),
 				zIndex: zIndex
 			};
 		}
@@ -4194,20 +4198,11 @@ playerReady = function(obj) {
 			var media = _model.getMedia().getDisplayElement();
 			if (media && media.tagName.toLowerCase() == "video") {
 				media.style.position = "absolute";
-				var iwidth, iheight;
-				if (_box.style.width.toString().lastIndexOf("%") > -1 || _box.style.width.toString().lastIndexOf("%") > -1) {
-					var rect = _box.getBoundingClientRect();
-					iwidth = Math.abs(rect.left) + Math.abs(rect.right);
-					iheight = Math.abs(rect.top) + Math.abs(rect.bottom);
-				} else {
-					iwidth = _utils.parseDimension(_box.style.width);
-					iheight = _utils.parseDimension(_box.style.height);
-				}
 				if (media.parentNode) {
 					media.parentNode.style.left = _box.style.left;
 					media.parentNode.style.top = _box.style.top;
 				}
-				_utils.stretch(_api.jwGetStretching(), media, iwidth, iheight, 
+				_utils.stretch(_api.jwGetStretching(), media, _box.clientWidth, _box.clientHeight, 
 						media.videoWidth ? media.videoWidth : 400, 
 						media.videoHeight ? media.videoHeight : 300);
 			} else {
@@ -6306,11 +6301,11 @@ playerReady = function(obj) {
 					}
 				}
 
-				if (_buttons[id].overGraphic) {
-					_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
-				}
+
 				if (_buttons[id].outGraphic) {
 					_buttons[id].div.childNodes[0].src = _buttons[id].outGraphic;
+				} else if (_buttons[id].overGraphic) {
+					_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
 				}
 
 				if (handler) {
@@ -6328,6 +6323,10 @@ playerReady = function(obj) {
 			}
 			
 			_resize(_width, _height);
+		}
+		
+		function _onImageLoad(evt) {
+			
 		}
 		
 		function _resize(width, height) {

@@ -102,11 +102,11 @@
 					}
 				}
 
-				if (_buttons[id].overGraphic) {
-					_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
-				}
+
 				if (_buttons[id].outGraphic) {
 					_buttons[id].div.childNodes[0].src = _buttons[id].outGraphic;
+				} else if (_buttons[id].overGraphic) {
+					_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
 				}
 
 				if (handler) {
@@ -124,6 +124,10 @@
 			}
 			
 			_resize(_width, _height);
+		}
+		
+		function _onImageLoad(evt) {
+			
 		}
 		
 		function _resize(width, height) {
