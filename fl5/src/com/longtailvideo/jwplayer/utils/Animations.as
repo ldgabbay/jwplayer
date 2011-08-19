@@ -82,13 +82,13 @@ package com.longtailvideo.jwplayer.utils {
 		
 		/** The ease enterframe function. **/
 		private function easeHandler(evt:Event):void {
-			if (Math.abs(_tgt.x - _tgt.xps) < 1 && Math.abs(_tgt.y - _tgt.yps) < 1) {
+			if (Math.abs(_tgt.x - _xps) < 1 && Math.abs(_tgt.y - _yps) < 1) {
 				_tgt.removeEventListener(Event.ENTER_FRAME, easeHandler);
-				_tgt.x = _tgt.xps;
-				_tgt.y = _tgt.yps;
+				_tgt.x = _xps;
+				_tgt.y = _yps;
 			} else {
-				_tgt.x = _tgt.xps - (_tgt.xps - _tgt.x) / _spd;
-				_tgt.y = _tgt.yps - (_tgt.yps - _tgt.y) / _spd;
+				_tgt.x = _xps - (_xps - _tgt.x) / _spd;
+				_tgt.y = _yps - (_yps - _tgt.y) / _spd;
 			}
 		}
 		
