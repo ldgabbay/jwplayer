@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1966';
+jwplayer.version = '5.7.1967';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4559,7 +4559,7 @@ playerReady = function(obj) {
 			}
 			
 			var style = _resizeBar();
-			_setVisibility();
+			//_setVisibility();
 			_timeHandler({
 				id: _api.id,
 				duration: _currentDuration,
@@ -4598,6 +4598,7 @@ playerReady = function(obj) {
 			}
 		}
 		
+		var _cancelled;
 		
 		function _setVisibility(evt) {
 			if (_hiding) { return; }
@@ -4607,7 +4608,12 @@ playerReady = function(obj) {
 				case jwplayer.api.events.state.PAUSED:
 				case jwplayer.api.events.state.IDLE:
 					if (_wrapper && _wrapper.style.opacity < 1 && (!_settings.idlehide || _utils.exists(evt))) {
-						_fadeIn();
+						_cancelled = false;
+						setTimeout(function() {
+							if (!_cancelled) {
+								_fadeIn();
+							}
+						}, 100);
 					}
 					if (_settings.idlehide) {
 						_fadeTimeout = setTimeout(function() {
@@ -4616,6 +4622,7 @@ playerReady = function(obj) {
 					}
 					break;
 				default:
+					_cancelled = true;
 					if (evt) {
 						// Fade in on mouse move
 						_fadeIn();

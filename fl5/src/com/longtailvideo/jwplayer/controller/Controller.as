@@ -19,8 +19,11 @@ package com.longtailvideo.jwplayer.controller {
 	
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
+	import flash.events.TimerEvent;
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
+	import flash.utils.Timer;
+	import flash.utils.setTimeout;
 
 	/**
 	 * Sent when the player has been initialized and skins and plugins have been successfully loaded.
@@ -175,10 +178,10 @@ package com.longtailvideo.jwplayer.controller {
 
 				_player.addEventListener(ErrorEvent.ERROR, errorHandler);
 
-				_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, playlistLoadHandler, false, -1);
-				_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, playlistItemHandler, false, 1000);
-				_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_COMPLETE, completeHandler, false);
-				_player.addEventListener(PlayerStateEvent.JWPLAYER_PLAYER_STATE, playerStateHandler);
+				_model.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, playlistLoadHandler, false, -1);
+				_model.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, playlistItemHandler, false, 1000);
+				_model.addEventListener(MediaEvent.JWPLAYER_MEDIA_COMPLETE, completeHandler, false);
+				_model.addEventListener(PlayerStateEvent.JWPLAYER_PLAYER_STATE, playerStateHandler);
 				
 				dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_READY));
 
