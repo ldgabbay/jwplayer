@@ -20,6 +20,6 @@ whiteSpace = re.compile('>(.*?)<', re.S)
 skinText = whiteSpace.sub('><', skinText)
 
 outputPath = skinPath = basePath + '/' + skinName + '/' + skinName + '-min.xml'
-outputFile = open(skinPath,'w')
+outputFile = open(outputPath,'w')
 outputFile.write(skinText)
 outputFile.close()
