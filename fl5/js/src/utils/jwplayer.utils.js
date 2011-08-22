@@ -697,7 +697,7 @@
 		}
 		return dimension;
 	}
-
+	
 	/**
 	 * Returns dimensions (x,y,width,height) of a display object
 	 */

@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1963';
+jwplayer.version = '5.7.1966';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -722,7 +722,7 @@ jwplayer.source = document.createElement("source");/**
 		}
 		return dimension;
 	}
-
+	
 	/**
 	 * Returns dimensions (x,y,width,height) of a display object
 	 */
@@ -4082,8 +4082,16 @@ playerReady = function(obj) {
 			if (!_model.fullscreen) {
 				_model.width = width;
 				_model.height = height;
-				_width = width;
-				_height = height;
+				if (typeof width == "string" && width.indexOf("%")) {
+					_width = _wrapper.parentElement.clientWidth * parseInt(width.replace("%"),"") / 100;
+				} else {
+					_width = width;
+				}
+				if (typeof height == "string" && height.indexOf("%")) {
+					_height = _wrapper.parentElement.clientHeight * parseInt(height.replace("%"),"") / 100;
+				} else {
+					_height = height;
+				}
 				_css(_box, {
 					top: 0,
 					bottom: 0,

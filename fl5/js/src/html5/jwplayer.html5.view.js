@@ -173,8 +173,16 @@
 			if (!_model.fullscreen) {
 				_model.width = width;
 				_model.height = height;
-				_width = width;
-				_height = height;
+				if (typeof width == "string" && width.indexOf("%")) {
+					_width = _wrapper.parentElement.clientWidth * parseInt(width.replace("%"),"") / 100;
+				} else {
+					_width = width;
+				}
+				if (typeof height == "string" && height.indexOf("%")) {
+					_height = _wrapper.parentElement.clientHeight * parseInt(height.replace("%"),"") / 100;
+				} else {
+					_height = height;
+				}
 				_css(_box, {
 					top: 0,
 					bottom: 0,
