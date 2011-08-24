@@ -112,6 +112,12 @@ package com.longtailvideo.jwplayer.model {
 		}
 
 
+        /** Levels need to be cleared e.g. for reloading a multibitrate SMIL. **/
+        public function clearLevels():void {
+            _levels = new Array();
+        };
+
+
 		/** Blacklist a level from usage (e.g. if it cannot be played or drops too many frames). **/
 		public function blacklistLevel(level:Number,state:Boolean=true):void {
 			if(levels[level]) {

@@ -347,7 +347,8 @@ package com.longtailvideo.jwplayer.media {
 			var arr:Array = LoadbalanceParser.parse((evt.target as AssetLoader).loadedObject);
 			var smilLocation:String = _xmlLoaders[evt.target];
 			delete _xmlLoaders[evt.target];
-			if(arr.length > 1) { 
+			if(arr.length > 1) {
+				item.clearLevels()
 				for(var i:Number=0; i<arr.length; i++) { item.addLevel(arr[i]); }
 				item.setLevel(item.getLevel(config.bandwidth, config.width));
 			} else if (item.levels.length > 0) {
