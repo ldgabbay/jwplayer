@@ -211,19 +211,26 @@ package com.longtailvideo.jwplayer.media {
 			try {
 				var bwd:Number = Math.round(_stream.info.maxBytesPerSecond * 8 / 1024);
 				var drf:Number = _stream.info.droppedFrames;
-				_streamInfo.push({bwd:bwd,drf:drf});
+				var stt:String = state;
+				_streamInfo.push({bwd:bwd,drf:drf,stt:stt});
 				var len:Number = _streamInfo.length;
 				if(len > 5 && state == PlayerState.PLAYING) {
 					bwd = Math.round((_streamInfo[len-1].bwd + _streamInfo[len-2].bwd + _streamInfo[len-3].bwd + 
 						_streamInfo[len-4].bwd+ + _streamInfo[len-5].bwd)/5);
 					config.bandwidth = bwd;
 					Configger.saveCookie('bandwidth',bwd);
-					drf = Math.round((_streamInfo[len-1].drf - _streamInfo[len-5].drf)*2)/10;
+					// Don't trust framedrops when player buffered during last samplings.
+					if(_streamInfo[len-2].stt==PlayerState.BUFFERING ||
+						_streamInfo[len-3].stt==PlayerState.BUFFERING) {
+						drf = 0;
+					} else {
+						drf = Math.round((_streamInfo[len-1].drf - _streamInfo[len-3].drf)*5)/10;
+					}
 					if(item.levels.length > 0 && item.getLevel(bwd,config.width) != item.currentLevel) {
 						Logger.log("swapping to another level b/c of bandwidth",bwd.toString());
 						swap(item.getLevel(bwd, config.width));
 					}
-					if(item.levels.length > 0 && drf > 7 && item.currentLevel < item.levels.length-1) {
+					if(item.levels.length > 0 && drf > 12 && item.currentLevel < item.levels.length-1) {
 						var lvl:Number = item.currentLevel;
 						item.blacklistLevel(lvl);
 						setTimeout(unBlacklist,30000,lvl);
