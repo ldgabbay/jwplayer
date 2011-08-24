@@ -502,9 +502,23 @@
 	 * @param {Object}
 	 *            domelement
 	 * @param {Object}
-	 *            value
+	 *            xscale
+	 * @param {Object}
+	 *            yscale
+	 * @param {Object}
+	 *            xoffset
+	 * @param {Object}
+	 *            yoffset
 	 */
-	jwplayer.utils.transform = function(domelement, value) {
+	jwplayer.utils.transform = function(domelement, xscale, yscale, xoffset, yoffset) {
+		// Set defaults
+		if (!jwplayer.utils.exists(xscale)) xscale = 1;
+		if (!jwplayer.utils.exists(yscale)) yscale = 1;
+		if (!jwplayer.utils.exists(xoffset)) xoffset = 0;
+		if (!jwplayer.utils.exists(yoffset)) yoffset = 0;
+		
+		var value = "scale("+xscale+","+yscale+") translate("+xoffset+"px,"+yoffset+"px)";
+		
 		domelement.style.webkitTransform = value;
 		domelement.style.MozTransform = value;
 		domelement.style.OTransform = value;
@@ -541,14 +555,21 @@
 		var yscale = parentHeight / elementHeight;
 		var x = 0;
 		var y = 0;
-		domelement.style.overflow = "hidden";
-		jwplayer.utils.transform(domelement, "");
 		var style = {};
+		
+		if (domelement.parentElement) {
+			domelement.parentElement.style.overflow = "hidden";
+		}
+		
+		jwplayer.utils.transform(domelement, "");		
+
 		switch (stretching.toUpperCase()) {
 		case jwplayer.utils.stretching.NONE:
 			// Maintain original dimensions
 			style.width = elementWidth;
 			style.height = elementHeight;
+			style.top = (parentHeight - style.height) / 2;
+			style.left = (parentWidth - style.width) / 2;
 			break;
 		case jwplayer.utils.stretching.UNIFORM:
 			// Scale on the dimension that would overflow most
@@ -561,6 +582,8 @@
 				style.width = elementWidth * xscale;
 				style.height = elementHeight * xscale;
 			}
+			style.top = (parentHeight - style.height) / 2;
+			style.left = (parentWidth - style.width) / 2;
 			break;
 		case jwplayer.utils.stretching.FILL:
 			// Scale on the smaller dimension and crop
@@ -571,19 +594,27 @@
 				style.width = elementWidth * yscale;
 				style.height = elementHeight * yscale;
 			}
+			style.top = (parentHeight - style.height) / 2;
+			style.left = (parentWidth - style.width) / 2;
 			break;
 		case jwplayer.utils.stretching.EXACTFIT:
 			// Distort to fit
-			jwplayer.utils.transform(domelement, [ "scale(", xscale, ",",
-					yscale, ")", " translate(0px,0px)" ].join(""));
+//			jwplayer.utils.transform(domelement, [ "scale(", xscale, ",",
+//					yscale, ")", " translate(0px,0px)" ].join(""));
 			style.width = elementWidth;
 			style.height = elementHeight;
+			
+		    var xoff = Math.round((elementWidth / 2) * (1-1/xscale));
+	        var yoff = Math.round((elementHeight / 2) * (1-1/yscale));
+			
+			jwplayer.utils.transform(domelement, xscale, yscale, xoff, yoff);
+			//style.width = style.height = "100%";
+			style.top = style.left = 0;
+
 			break;
 		default:
 			break;
 		}
-		style.top = (parentHeight - style.height) / 2;
-		style.left = (parentWidth - style.width) / 2;
 		jwplayer.utils.css(domelement, style);
 	};
 
@@ -724,7 +755,12 @@
 		return str;
 	}
 	
-	
+
+	/** Returns true if the player should use the browser's native fullscreen mode **/
+	jwplayer.utils.useNativeFullscreen = function() {
+		return (navigator && navigator.vendor && navigator.vendor.indexOf("Apple") == 0);
+	}
+
 
 
 })(jwplayer);

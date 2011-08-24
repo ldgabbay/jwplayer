@@ -43,6 +43,7 @@
 		var _lastSent;
 		var _hiding = false;
 		var _ready = false;
+		var _normalscreenWidth, _normalscreenHeight;
 		
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
 		_utils.extend(this, _eventDispatcher);
@@ -169,6 +170,10 @@
 				_lastSent = undefined;
 				_sendShow();
 			}
+			if (!_api.jwGetFullscreen()) {
+				_normalscreenWidth = width;
+				_normalscreenHeight = height;
+			}
 			_stretch();
 			_stateHandler({});
 		};
@@ -194,7 +199,21 @@
 		}
 		
 		function _stretch() {
-			_utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
+			if (_api.jwGetFullscreen() && _api.jwGetStretching() == jwplayer.utils.stretching.EXACTFIT) {
+				var tmp = document.createElement("div");
+				_utils.stretch(jwplayer.utils.stretching.UNIFORM, tmp, _width, _height, _normalscreenWidth, _normalscreenHeight);
+				
+				_utils.stretch(jwplayer.utils.stretching.EXACTFIT, _display.display_image, 
+						_utils.parseDimension(tmp.style.width), _utils.parseDimension(tmp.style.height),
+						_imageWidth, _imageHeight);
+				
+				_css(_display.display_image, {
+					left: tmp.style.left,
+					top: tmp.style.top
+				});
+			} else {
+				_utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
+			}
 		};
 		
 		function createElement(tag, element) {

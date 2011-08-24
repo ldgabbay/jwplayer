@@ -96,6 +96,7 @@
 		function _setup() {
 			_wrapper = document.createElement("div");
 			_wrapper.id = _api.id + "_jwplayer_playlistcomponent";
+			_wrapper.style.overflow = "hidden";
 			switch(_settings.position) {
 			case jwplayer.html5.view.positions.RIGHT:
 			case jwplayer.html5.view.positions.LEFT:

@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1974';
+jwplayer.version = '5.7.1978';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -527,9 +527,23 @@ jwplayer.source = document.createElement("source");/**
 	 * @param {Object}
 	 *            domelement
 	 * @param {Object}
-	 *            value
+	 *            xscale
+	 * @param {Object}
+	 *            yscale
+	 * @param {Object}
+	 *            xoffset
+	 * @param {Object}
+	 *            yoffset
 	 */
-	jwplayer.utils.transform = function(domelement, value) {
+	jwplayer.utils.transform = function(domelement, xscale, yscale, xoffset, yoffset) {
+		// Set defaults
+		if (!jwplayer.utils.exists(xscale)) xscale = 1;
+		if (!jwplayer.utils.exists(yscale)) yscale = 1;
+		if (!jwplayer.utils.exists(xoffset)) xoffset = 0;
+		if (!jwplayer.utils.exists(yoffset)) yoffset = 0;
+		
+		var value = "scale("+xscale+","+yscale+") translate("+xoffset+"px,"+yoffset+"px)";
+		
 		domelement.style.webkitTransform = value;
 		domelement.style.MozTransform = value;
 		domelement.style.OTransform = value;
@@ -566,14 +580,21 @@ jwplayer.source = document.createElement("source");/**
 		var yscale = parentHeight / elementHeight;
 		var x = 0;
 		var y = 0;
-		domelement.style.overflow = "hidden";
-		jwplayer.utils.transform(domelement, "");
 		var style = {};
+		
+		if (domelement.parentElement) {
+			domelement.parentElement.style.overflow = "hidden";
+		}
+		
+		jwplayer.utils.transform(domelement, "");		
+
 		switch (stretching.toUpperCase()) {
 		case jwplayer.utils.stretching.NONE:
 			// Maintain original dimensions
 			style.width = elementWidth;
 			style.height = elementHeight;
+			style.top = (parentHeight - style.height) / 2;
+			style.left = (parentWidth - style.width) / 2;
 			break;
 		case jwplayer.utils.stretching.UNIFORM:
 			// Scale on the dimension that would overflow most
@@ -586,6 +607,8 @@ jwplayer.source = document.createElement("source");/**
 				style.width = elementWidth * xscale;
 				style.height = elementHeight * xscale;
 			}
+			style.top = (parentHeight - style.height) / 2;
+			style.left = (parentWidth - style.width) / 2;
 			break;
 		case jwplayer.utils.stretching.FILL:
 			// Scale on the smaller dimension and crop
@@ -596,19 +619,27 @@ jwplayer.source = document.createElement("source");/**
 				style.width = elementWidth * yscale;
 				style.height = elementHeight * yscale;
 			}
+			style.top = (parentHeight - style.height) / 2;
+			style.left = (parentWidth - style.width) / 2;
 			break;
 		case jwplayer.utils.stretching.EXACTFIT:
 			// Distort to fit
-			jwplayer.utils.transform(domelement, [ "scale(", xscale, ",",
-					yscale, ")", " translate(0px,0px)" ].join(""));
+//			jwplayer.utils.transform(domelement, [ "scale(", xscale, ",",
+//					yscale, ")", " translate(0px,0px)" ].join(""));
 			style.width = elementWidth;
 			style.height = elementHeight;
+			
+		    var xoff = Math.round((elementWidth / 2) * (1-1/xscale));
+	        var yoff = Math.round((elementHeight / 2) * (1-1/yscale));
+			
+			jwplayer.utils.transform(domelement, xscale, yscale, xoff, yoff);
+			//style.width = style.height = "100%";
+			style.top = style.left = 0;
+
 			break;
 		default:
 			break;
 		}
-		style.top = (parentHeight - style.height) / 2;
-		style.left = (parentWidth - style.width) / 2;
 		jwplayer.utils.css(domelement, style);
 	};
 
@@ -749,7 +780,12 @@ jwplayer.source = document.createElement("source");/**
 		return str;
 	}
 	
-	
+
+	/** Returns true if the player should use the browser's native fullscreen mode **/
+	jwplayer.utils.useNativeFullscreen = function() {
+		return (navigator && navigator.vendor && navigator.vendor.indexOf("Apple") == 0);
+	}
+
 
 
 })(jwplayer);
@@ -3930,6 +3966,7 @@ playerReady = function(obj) {
 		var _resizeInterval;
 		var _media;
 		var _falseFullscreen = false;
+		var _normalscreenWidth, _normalscreenHeight;
 		
 		function createWrapper() {
 			_wrapper = document.createElement("div");
@@ -4072,22 +4109,27 @@ playerReady = function(obj) {
 			}
 		}
 		
+		
 		function _resize(width, height) {
 			if (_wrapper.style.display == "none") {
 				return;
 			}
+			
 			var plugins = [].concat(_model.plugins.order);
 			plugins.reverse();
 			_zIndex = plugins.length + 2;
 			if (!_model.fullscreen) {
 				_model.width = width;
 				_model.height = height;
-				if (typeof width == "string" && width.indexOf("%")) {
+				_width = width;
+				_height = height;
+
+				if (typeof width == "string" && width.indexOf("%") > 0) {
 					_width = _wrapper.parentElement.clientWidth * parseInt(width.replace("%"),"") / 100;
 				} else {
 					_width = width;
 				}
-				if (typeof height == "string" && height.indexOf("%")) {
+				if (typeof height == "string" && height.indexOf("%") > 0) {
 					_height = _wrapper.parentElement.clientHeight * parseInt(height.replace("%"),"") / 100;
 				} else {
 					_height = height;
@@ -4097,14 +4139,16 @@ playerReady = function(obj) {
 					bottom: 0,
 					left: 0,
 					right: 0,
-					width: "100%",
-					height: "100%",
+					width: _width,
+					height: _height,
 					position: "absolute"
 				});
 				_css(_wrapper, {
 					height: _height,
 					width: _width
 				});
+
+				
 				var failed = _resizeComponents(_normalscreenComponentResizer, plugins);
 				if (failed.length > 0) {
 					_zIndex += failed.length;
@@ -4116,6 +4160,8 @@ playerReady = function(obj) {
 					}
 					_resizeComponents(_overlayComponentResizer, failed, true);
 				}
+				_normalscreenWidth = _box.clientWidth;
+				_normalscreenHeight = _box.clientHeight;
 			} else if ( !_useNativeFullscreen() ) {
 				_resizeComponents(_fullscreenComponentResizer, plugins, true);
 			}
@@ -4169,22 +4215,10 @@ playerReady = function(obj) {
 			if (!_utils.exists(_model.plugins.object[pluginName].getDisplayElement().parentNode)) {
 				_box.appendChild(_model.plugins.object[pluginName].getDisplayElement());
 			}
-//			var _iwidth = _model.width, 
-//				_iheight = _model.height, 
-//				percentage;
-//			if (typeof _model.width == "string" && _model.width.lastIndexOf("%") > -1) {
-//				percentage = parseFloat(_model.width.substring(0, _model.width.lastIndexOf("%"))) / 100;
-//				_iwidth = Math.round(_wrapper.clientWidth * percentage);
-//			}
-//			
-//			if (typeof _model.height == "string" && _model.height.lastIndexOf("%") > -1) {
-//				percentage = parseFloat(_model.height.substring(0, _model.height.lastIndexOf("%"))) / 100;
-//				_iheight = Math.round(_wrapper.clientHeight * percentage);
-//			}
 			return {
 				position: "absolute",
-				width: (_wrapper.clientWidth - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right)),
-				height: (_wrapper.clientHeight - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom)),
+				width: (_box.clientWidth - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right)),
+				height: (_box.clientHeight - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom)),
 				zIndex: zIndex
 			};
 		}
@@ -4210,9 +4244,25 @@ playerReady = function(obj) {
 					media.parentNode.style.left = _box.style.left;
 					media.parentNode.style.top = _box.style.top;
 				}
-				_utils.stretch(_api.jwGetStretching(), media, _box.clientWidth, _box.clientHeight, 
+				if (_model.fullscreen && _api.jwGetStretching() == jwplayer.utils.stretching.EXACTFIT) {
+					var tmp = document.createElement("div");
+					_utils.stretch(jwplayer.utils.stretching.UNIFORM, tmp, _box.clientWidth, _box.clientHeight, _normalscreenWidth, _normalscreenHeight);
+					
+					_utils.stretch(jwplayer.utils.stretching.EXACTFIT, media, 
+							_utils.parseDimension(tmp.style.width), _utils.parseDimension(tmp.style.height),
+							media.videoWidth ? media.videoWidth : 400, 
+							media.videoHeight ? media.videoHeight : 300);
+					
+					_css(media, {
+						left: tmp.style.left,
+						top: tmp.style.top
+					});
+				} else {
+					_utils.stretch(_api.jwGetStretching(), media, _box.clientWidth, _box.clientHeight, 
 						media.videoWidth ? media.videoWidth : 400, 
 						media.videoHeight ? media.videoHeight : 300);
+				}
+				
 			} else {
 				var display = _model.plugins.object['display'].getDisplayElement();
 				if(display) {
@@ -4239,23 +4289,21 @@ playerReady = function(obj) {
 					plugincss.width = _width - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right);
 					plugincss.height = _model.plugins.object[pluginName].height;
 					_box.style[position] = _utils.parseDimension(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
-					_box.style.height = _utils.parseDimension(_box.style.height) - plugincss.height + "px";
+					_box.style.height = _utils.parseDimension(_box.clientHeight) - plugincss.height + "px";
 					break;
 				case jwplayer.html5.view.positions.RIGHT:
 					plugincss.top = _utils.parseDimension(_box.style.top);
 					plugincss.right = _utils.parseDimension(_box.style.right);
 					plugincss.width = _model.plugins.object[pluginName].width;
 					plugincss.height = _height - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom);
-					_box.style[position] = _utils.parseDimension(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
-					_box.style.width = _utils.parseDimension(_box.style.width) - plugincss.width + "px";
+					_box.style.width = _utils.parseDimension(_box.clientWidth) - plugincss.width + "px";
 					break;
 				case jwplayer.html5.view.positions.BOTTOM:
 					plugincss.bottom = _utils.parseDimension(_box.style.bottom);
 					plugincss.left = _utils.parseDimension(_box.style.left);
 					plugincss.width = _width - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right);
 					plugincss.height = _model.plugins.object[pluginName].height;
-					_box.style[position] = _utils.parseDimension(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
-					_box.style.height = _utils.parseDimension(_box.style.height) - plugincss.height + "px";
+					_box.style.height = _utils.parseDimension(_box.clientHeight) - plugincss.height + "px";
 					break;
 				case jwplayer.html5.view.positions.LEFT:
 					plugincss.top = _utils.parseDimension(_box.style.top);
@@ -4263,7 +4311,7 @@ playerReady = function(obj) {
 					plugincss.width = _model.plugins.object[pluginName].width;
 					plugincss.height = _height - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom);
 					_box.style[position] = _utils.parseDimension(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
-					_box.style.width = _utils.parseDimension(_box.style.width) - plugincss.width + "px";
+					_box.style.width = _utils.parseDimension(_box.clientWidth) - plugincss.width + "px";
 					break;
 				default:
 					break;
@@ -4341,9 +4389,7 @@ playerReady = function(obj) {
 		function _useNativeFullscreen() {
 			if (_api.jwGetState() != jwplayer.api.events.state.IDLE
 					&& !_falseFullscreen
-					&& navigator 
-					&& navigator.vendor 
-					&& navigator.vendor.indexOf("Apple") == 0) {
+					&& _utils.useNativeFullscreen()) {
 				 return true;
 			}
 			
@@ -5832,6 +5878,7 @@ playerReady = function(obj) {
 		var _lastSent;
 		var _hiding = false;
 		var _ready = false;
+		var _normalscreenWidth, _normalscreenHeight;
 		
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
 		_utils.extend(this, _eventDispatcher);
@@ -5958,6 +6005,10 @@ playerReady = function(obj) {
 				_lastSent = undefined;
 				_sendShow();
 			}
+			if (!_api.jwGetFullscreen()) {
+				_normalscreenWidth = width;
+				_normalscreenHeight = height;
+			}
 			_stretch();
 			_stateHandler({});
 		};
@@ -5983,7 +6034,21 @@ playerReady = function(obj) {
 		}
 		
 		function _stretch() {
-			_utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
+			if (_api.jwGetFullscreen() && _api.jwGetStretching() == jwplayer.utils.stretching.EXACTFIT) {
+				var tmp = document.createElement("div");
+				_utils.stretch(jwplayer.utils.stretching.UNIFORM, tmp, _width, _height, _normalscreenWidth, _normalscreenHeight);
+				
+				_utils.stretch(jwplayer.utils.stretching.EXACTFIT, _display.display_image, 
+						_utils.parseDimension(tmp.style.width), _utils.parseDimension(tmp.style.height),
+						_imageWidth, _imageHeight);
+				
+				_css(_display.display_image, {
+					left: tmp.style.left,
+					top: tmp.style.top
+				});
+			} else {
+				_utils.stretch(_api.jwGetStretching(), _display.display_image, _width, _height, _imageWidth, _imageHeight);
+			}
 		};
 		
 		function createElement(tag, element) {
@@ -6936,12 +7001,6 @@ playerReady = function(obj) {
 
 		/** Resize the player. **/
 		this.resize = function(width, height) {
-			if (false) {
-				_css(_container, {
-					width: width,
-					height: height
-				});
-			}
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
 				fullscreen: _model.fullscreen,
 				width: width,
@@ -7117,7 +7176,8 @@ playerReady = function(obj) {
 				
 				if (_utils.exists(_video.webkitDisplayingFullscreen)) {
 					if (_video.webkitDisplayingFullscreen != _model.fullscreen) {
-						_model.fullscreen = _video.webkitDisplayingFullscreen;
+						//console.log("Video setting fullscreen to %s", _video.webkitDisplayingFullscreen);
+						//_model.fullscreen = _video.webkitDisplayingFullscreen;
 						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
 							fullscreen: _model.fullscreen
 						});
@@ -7922,6 +7982,7 @@ playerReady = function(obj) {
 		function _setup() {
 			_wrapper = document.createElement("div");
 			_wrapper.id = _api.id + "_jwplayer_playlistcomponent";
+			_wrapper.style.overflow = "hidden";
 			switch(_settings.position) {
 			case jwplayer.html5.view.positions.RIGHT:
 			case jwplayer.html5.view.positions.LEFT:
@@ -8695,7 +8756,9 @@ playerReady = function(obj) {
 		_api.jwSetVolume = _controller.setVolume;
 		_api.jwGetMute = _statevarFactory('mute');
 		_api.jwSetMute = _controller.setMute;
-		_api.jwGetStretching = _statevarFactory('stretching');
+		_api.jwGetStretching = function() {
+			return _model.stretching.toUpperCase();
+		}
 		
 		_api.jwGetState = _statevarFactory('state');
 		_api.jwGetVersion = function() {

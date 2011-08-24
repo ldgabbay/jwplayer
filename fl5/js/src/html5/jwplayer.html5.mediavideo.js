@@ -219,12 +219,6 @@
 
 		/** Resize the player. **/
 		this.resize = function(width, height) {
-			if (false) {
-				_css(_container, {
-					width: width,
-					height: height
-				});
-			}
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
 				fullscreen: _model.fullscreen,
 				width: width,
@@ -400,7 +394,8 @@
 				
 				if (_utils.exists(_video.webkitDisplayingFullscreen)) {
 					if (_video.webkitDisplayingFullscreen != _model.fullscreen) {
-						_model.fullscreen = _video.webkitDisplayingFullscreen;
+						//console.log("Video setting fullscreen to %s", _video.webkitDisplayingFullscreen);
+						//_model.fullscreen = _video.webkitDisplayingFullscreen;
 						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
 							fullscreen: _model.fullscreen
 						});
