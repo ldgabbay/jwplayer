@@ -81,13 +81,13 @@ package com.longtailvideo.jwplayer.media {
 			_userDuration = itm.duration;
 			if (!_item || _item.file != itm.file || !_bufferingComplete) {
 				_bufferingComplete = false;
-				_item = itm;
 				_sound = new Sound();
 				_sound.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
 				_sound.addEventListener(Event.ID3, id3Handler);
 				_sound.addEventListener(ProgressEvent.PROGRESS, positionHandler);
-				_sound.load(new URLRequest(_item.file), _context);
+				_sound.load(new URLRequest(itm.file), _context);
 			}
+			_item = itm;
 			if (!_positionInterval) {
 				_positionInterval = setInterval(positionHandler, 100);
 			}

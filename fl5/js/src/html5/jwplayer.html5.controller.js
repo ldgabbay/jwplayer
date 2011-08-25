@@ -121,6 +121,7 @@
 		
 		/** Seek to a position in the video. **/
 		function _seek(position) {
+			console.log("Seek requested at %s", position);
 			try {
 				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					if (typeof position != "number") {
