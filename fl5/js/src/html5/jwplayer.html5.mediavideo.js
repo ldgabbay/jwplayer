@@ -90,6 +90,7 @@
 				if (item.levels.length == 1) {
 					_video.src = item.levels[0].file;
 				} else {
+					_iOSClean(item.levels);
 					if (_video.src) {
 						_video.removeAttribute("src");
 					}
@@ -533,6 +534,24 @@
 			}
 		}
 		
-
+		/** Works around a bug where iOS 3 devices require the mp4 file to be the first source listed in a multi-source <video> tag **/
+		function _iOSClean(levels) {
+			if (levels.length > 0 && _utils.isIOS()) {
+				if (_utils.extension(levels[0].file) != "mp4") {
+					var position = -1;
+					for (var i = 1; i < levels.length; i++) {
+						if (_utils.extension(levels[i].file) == "mp4") {
+							position = i;
+							break;
+						}
+					}
+					if (position > -1) {
+						var mp4 = levels.splice(position, 1)[0];
+						levels.unshift(mp4);
+					}
+				}
+			}
+		}
+		
 	};
 })(jwplayer);
