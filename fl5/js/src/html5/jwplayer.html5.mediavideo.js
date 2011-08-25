@@ -219,11 +219,11 @@
 
 		/** Resize the player. **/
 		this.resize = function(width, height) {
-			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
-				fullscreen: _model.fullscreen,
-				width: width,
-				hieght: height
-			});
+//			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
+//				fullscreen: _model.fullscreen,
+//				width: width,
+//				hieght: height
+//			});
 		};
 		
 		/** Change the video's volume level. **/

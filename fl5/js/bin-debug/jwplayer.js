@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1978';
+jwplayer.version = '5.7.1981';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -3661,14 +3661,9 @@ playerReady = function(obj) {
 				if (onready) {
 					displayarea.appendChild(div);
 				}
-				var display = displayarea.style;
-				if (evt.width > 0 && evt.height > 0) {
-					plugin.resize(evt.width, evt.height);
-				} else {
-					plugin.resize(parseInt(display.width.replace("px","")), parseInt(display.height.replace("px","")));
-				}
-				div.left = display.left;
-				div.top = display.top;
+				plugin.resize(displayarea.clientWidth, displayarea.clientHeight);
+				div.left = displayarea.style.left;
+				div.top = displayarea.style.top;
 			}
 		}
 		
@@ -4118,9 +4113,17 @@ playerReady = function(obj) {
 			var plugins = [].concat(_model.plugins.order);
 			plugins.reverse();
 			_zIndex = plugins.length + 2;
+			
+			if (_utils.useNativeFullscreen()) {
+				try {
+					// Check to see if we're in safari and the user has exited fullscreen (the model is not updated)
+					if (_model.fullscreen && !_model.getMedia().getDisplayElement().webkitDisplayingFullscreen) {
+						_model.fullscreen = false;
+					}
+				} catch(e) {}
+			}
+			
 			if (!_model.fullscreen) {
-				_model.width = width;
-				_model.height = height;
 				_width = width;
 				_height = height;
 
@@ -5700,7 +5703,10 @@ playerReady = function(obj) {
 						fullscreen: false
 					});
 				}
-
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_RESIZE, {
+					"width": _model.width,
+					"height": _model.height
+				});
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -7001,11 +7007,11 @@ playerReady = function(obj) {
 
 		/** Resize the player. **/
 		this.resize = function(width, height) {
-			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
-				fullscreen: _model.fullscreen,
-				width: width,
-				hieght: height
-			});
+//			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
+//				fullscreen: _model.fullscreen,
+//				width: width,
+//				hieght: height
+//			});
 		};
 		
 		/** Change the video's volume level. **/
@@ -7423,11 +7429,11 @@ playerReady = function(obj) {
 				_object.width = _embed.width = width;
 				_object.height = _embed.height = height;
 			}
-			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
-				fullscreen: _model.fullscreen,
-				width: width,
-				height: height
-			});
+//			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
+//				fullscreen: _model.fullscreen,
+//				width: width,
+//				height: height
+//			});
 		};
 		
 		

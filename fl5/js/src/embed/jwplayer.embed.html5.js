@@ -12,14 +12,9 @@
 				if (onready) {
 					displayarea.appendChild(div);
 				}
-				var display = displayarea.style;
-				if (evt.width > 0 && evt.height > 0) {
-					plugin.resize(evt.width, evt.height);
-				} else {
-					plugin.resize(parseInt(display.width.replace("px","")), parseInt(display.height.replace("px","")));
-				}
-				div.left = display.left;
-				div.top = display.top;
+				plugin.resize(displayarea.clientWidth, displayarea.clientHeight);
+				div.left = displayarea.style.left;
+				div.top = displayarea.style.top;
 			}
 		}
 		

@@ -357,7 +357,10 @@
 						fullscreen: false
 					});
 				}
-
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_RESIZE, {
+					"width": _model.width,
+					"height": _model.height
+				});
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);

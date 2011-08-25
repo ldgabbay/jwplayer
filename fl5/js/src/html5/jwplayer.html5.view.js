@@ -173,9 +173,17 @@
 			var plugins = [].concat(_model.plugins.order);
 			plugins.reverse();
 			_zIndex = plugins.length + 2;
+			
+			if (_utils.useNativeFullscreen()) {
+				try {
+					// Check to see if we're in safari and the user has exited fullscreen (the model is not updated)
+					if (_model.fullscreen && !_model.getMedia().getDisplayElement().webkitDisplayingFullscreen) {
+						_model.fullscreen = false;
+					}
+				} catch(e) {}
+			}
+			
 			if (!_model.fullscreen) {
-				_model.width = width;
-				_model.height = height;
 				_width = width;
 				_height = height;
 

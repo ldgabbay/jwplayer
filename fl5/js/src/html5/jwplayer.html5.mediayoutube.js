@@ -103,11 +103,11 @@
 				_object.width = _embed.width = width;
 				_object.height = _embed.height = height;
 			}
-			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
-				fullscreen: _model.fullscreen,
-				width: width,
-				height: height
-			});
+//			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
+//				fullscreen: _model.fullscreen,
+//				width: width,
+//				height: height
+//			});
 		};
 		
 		
