@@ -447,12 +447,12 @@
 					width: event.target.videoWidth,
 					duration: Math.round(event.target.duration * 10) / 10
 				};
-			if ( (_model.duration === 0 || isNaN(_model.duration)) && event.target.duration != Infinity) {
+			if ( (_model.duration < 1 || isNaN(_model.duration)) && event.target.duration != Infinity) {
 				_model.duration = Math.round(event.target.duration * 10) / 10;
 			}
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_META, {
 				metadata: meta
-			});			
+			});
 		}
 
 		function _errorHandler(event) {
