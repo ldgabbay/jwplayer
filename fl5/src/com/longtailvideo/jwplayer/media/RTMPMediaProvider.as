@@ -230,7 +230,7 @@ package com.longtailvideo.jwplayer.media {
 						Logger.log("swapping to another level b/c of bandwidth",bwd.toString());
 						swap(item.getLevel(bwd, config.width));
 					}
-					if(item.levels.length > 0 && drf > 12 && item.currentLevel < item.levels.length-1) {
+					if(item.levels.length > 0 && drf > 10 && item.currentLevel < item.levels.length-1) {
 						var lvl:Number = item.currentLevel;
 						item.blacklistLevel(lvl);
 						setTimeout(unBlacklist,30000,lvl);
@@ -334,7 +334,7 @@ package com.longtailvideo.jwplayer.media {
 			    _responded = false;
 				_connection.connect(item.streamer);
 				if(getConfigProperty("tunneling") !== false) {
-				    setTimeout(connectTunneled,3000);
+					setTimeout(connectTunneled,5000);
 			    }
 			} catch(e:Error) {
 				error("Could not connect to application: " + e.message);
@@ -629,8 +629,12 @@ package com.longtailvideo.jwplayer.media {
 					stop();
 					break;
 				case 'NetConnection.Connect.Failed':
-					stop();
-					sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: "Server not found: " + item.streamer});
+					if(item.streamer.substr(0,5) == 'rtmpt') { 
+						stop();
+						sendMediaEvent(MediaEvent.JWPLAYER_MEDIA_ERROR, {message: "Server not found: " + item.streamer});
+					} else { 
+						_responded = false;
+					}
 					break;
                 case 'NetStream.Play.UnpublishNotify':
                     stop();
