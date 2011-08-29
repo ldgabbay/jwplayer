@@ -92,9 +92,7 @@ package com.longtailvideo.jwplayer.view {
 					if (RootReference.root.loaderInfo.url.indexOf("https://") == 0) {
 						prefix = prefix.replace("http://", "https://secure");
 					}
-				} catch(e:Error) {
-					trace("err");
-				}
+				} catch(e:Error) {}
 				defaults['file'] = prefix + versionInfo[1] + "/" + versionInfo[2] + "/" + getConfigParam('file');
 			}
 			

@@ -89,7 +89,7 @@ package com.longtailvideo.jwplayer.controller {
 		/** Set this value if a seek request comes in before the seek is possible **/
 		protected var _queuedSeek:Number = -1;
 		/** Saving whether a seek was sent on idle. **/
-		protected var _idleSeek:Boolean;
+		protected var _idleSeek:Number = -1;
 
 
 		/** A list with legacy CDN classes that are now redirected to buit-in ones. **/
@@ -181,7 +181,7 @@ package com.longtailvideo.jwplayer.controller {
 				_model.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_LOADED, playlistLoadHandler, false, -1);
 				_model.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, playlistItemHandler, false, 1000);
 				_model.addEventListener(MediaEvent.JWPLAYER_MEDIA_COMPLETE, completeHandler, false);
-				_model.addEventListener(PlayerStateEvent.JWPLAYER_PLAYER_STATE, playerStateHandler);
+				_model.addEventListener(MediaEvent.JWPLAYER_MEDIA_TIME, timeHandler);
 				
 				dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_READY));
 
@@ -499,6 +499,7 @@ package com.longtailvideo.jwplayer.controller {
 				return false;
 			}
 			if (!_model.media || pos == -1) {
+				// Couldn't seek since media wasn't initialized
 				return false;
 			}
 
@@ -509,7 +510,7 @@ package com.longtailvideo.jwplayer.controller {
 					return true;
 				case PlayerState.IDLE:
 					_model.playlist.currentItem.start = pos;
-					_idleSeek = true;
+					_idleSeek = pos;
 					play();
 					return true;
 				case PlayerState.BUFFERING:
@@ -665,10 +666,10 @@ package com.longtailvideo.jwplayer.controller {
 		}
 
 
-		private function playerStateHandler(evt:PlayerStateEvent):void {
-			if(_model.media.state == PlayerState.PLAYING && _idleSeek) {
+		private function timeHandler(evt:MediaEvent):void {
+			if(_idleSeek > 0 && evt.position >= _idleSeek) {
 				_model.playlist.currentItem.start = 0;
-				_idleSeek = false;
+				_idleSeek = -1;
 			}
 		};
 

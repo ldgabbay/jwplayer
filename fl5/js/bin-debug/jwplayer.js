@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1986';
+jwplayer.version = '5.7.1987';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -7183,7 +7183,6 @@ playerReady = function(obj) {
 				
 				if (_utils.exists(_video.webkitDisplayingFullscreen)) {
 					if (_video.webkitDisplayingFullscreen != _model.fullscreen) {
-						//console.log("Video setting fullscreen to %s", _video.webkitDisplayingFullscreen);
 						//_model.fullscreen = _video.webkitDisplayingFullscreen;
 						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
 							fullscreen: _model.fullscreen

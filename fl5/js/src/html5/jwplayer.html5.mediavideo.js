@@ -395,7 +395,6 @@
 				
 				if (_utils.exists(_video.webkitDisplayingFullscreen)) {
 					if (_video.webkitDisplayingFullscreen != _model.fullscreen) {
-						//console.log("Video setting fullscreen to %s", _video.webkitDisplayingFullscreen);
 						//_model.fullscreen = _video.webkitDisplayingFullscreen;
 						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
 							fullscreen: _model.fullscreen
