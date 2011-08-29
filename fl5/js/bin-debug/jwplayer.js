@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1984';
+jwplayer.version = '5.7.1986';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -5467,7 +5467,6 @@ playerReady = function(obj) {
 		
 		/** Seek to a position in the video. **/
 		function _seek(position) {
-			console.log("Seek requested at %s", position);
 			try {
 				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					if (typeof position != "number") {
