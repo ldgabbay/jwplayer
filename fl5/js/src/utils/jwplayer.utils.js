@@ -745,6 +745,38 @@
 		}
 	}
 
+	/**
+	 * Gets the clientWidth of an element, or returns its style.width
+	 */
+	jwplayer.utils.getElementWidth = function(obj) {
+		if (!obj) {
+			return null;
+		} else if (obj.clientWidth > 0) {
+			return obj.clientWidth;
+		} else if (obj.style) {
+			return jwplayer.utils.parseDimension(obj.style.width);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Gets the clientHeight of an element, or returns its style.height
+	 */
+	jwplayer.utils.getElementHeight = function(obj) {
+		if (!obj) {
+			return null;
+		} else if (obj.clientHeight > 0) {
+			return obj.clientHeight;
+		} else if (obj.style) {
+			return jwplayer.utils.parseDimension(obj.style.height);
+		} else {
+			return null;
+		}
+	}
+
+	
+	
 	/** Format the elapsed / remaining text. **/
 	jwplayer.utils.timeFormat = function(sec) {
 		str = "00:00";

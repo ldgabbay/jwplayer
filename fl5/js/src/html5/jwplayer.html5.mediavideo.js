@@ -254,7 +254,7 @@
 		 * Whether this media component has its own chrome
 		 */
 		this.hasChrome = function() {
-			return false;
+			return _utils.isIOS();
 		}
 		
 		/**
