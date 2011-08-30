@@ -31,6 +31,7 @@
 		
 		function _setup() {
 			_setupConfig();
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 			_setupDisplayElements();
 			_setupMouseEvents();
 		}
@@ -63,7 +64,6 @@
 			
 			_logo.onload = function(evt) {
 				_css(_logo, _getStyle());
-				_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 				_outHandler();
 			};
 			
@@ -137,7 +137,7 @@
 				position: "absolute",
 				cursor: "pointer"
 			};
-			_imageStyle.display = (_settings.hide.toString() == "true") ? "none" : "block";
+			_imageStyle.display = (_settings.hide.toString() == "true" && !_showing) ? "none" : "block";
 			var positions = _settings.position.toLowerCase().split("-");
 			for (var position in positions) {
 				_imageStyle[positions[position]] = _settings.margin;

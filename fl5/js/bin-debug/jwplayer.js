@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1987';
+jwplayer.version = '5.7.1988';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -6642,6 +6642,7 @@ playerReady = function(obj) {
 		
 		function _setup() {
 			_setupConfig();
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 			_setupDisplayElements();
 			_setupMouseEvents();
 		}
@@ -6674,7 +6675,6 @@ playerReady = function(obj) {
 			
 			_logo.onload = function(evt) {
 				_css(_logo, _getStyle());
-				_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 				_outHandler();
 			};
 			
@@ -6748,7 +6748,7 @@ playerReady = function(obj) {
 				position: "absolute",
 				cursor: "pointer"
 			};
-			_imageStyle.display = (_settings.hide.toString() == "true") ? "none" : "block";
+			_imageStyle.display = (_settings.hide.toString() == "true" && !_showing) ? "none" : "block";
 			var positions = _settings.position.toLowerCase().split("-");
 			for (var position in positions) {
 				_imageStyle[positions[position]] = _settings.margin;
