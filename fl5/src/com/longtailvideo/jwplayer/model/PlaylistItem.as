@@ -148,7 +148,7 @@ package com.longtailvideo.jwplayer.model {
 		public function getLevel(bitrate:Number, width:Number):Number {
 			for (var i:Number=0; i < _levels.length; i++) {
 				var level:PlaylistItemLevel = _levels[i] as PlaylistItemLevel;
-				if ((isNaN(level.bitrate) || bitrate >= level.bitrate * 1.2) && (isNaN(level.width) || width >= level.width * 0.8) && !level.blacklisted) {
+				if ((isNaN(level.bitrate) || bitrate >= level.bitrate * 1.5) && (isNaN(level.width) || width >= level.width * 0.67) && !level.blacklisted) {
 					return i;
 				}
 			}

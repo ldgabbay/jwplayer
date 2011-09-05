@@ -541,8 +541,8 @@ package com.longtailvideo.jwplayer.media {
 			_stream.addEventListener(NetStatusEvent.NET_STATUS, statusHandler);
 			_stream.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
 			_stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, errorHandler);
-			if(getConfigProperty('dvr') || getConfigProperty('subscribe')) {
-				_stream.bufferTime = 3;
+			if(getConfigProperty('dvr') || getConfigProperty('subscribe') || _dynamic) {
+				_stream.bufferTime = 4;
 			} else { 
 				_stream.bufferTime = config.bufferlength;
 			}
@@ -700,7 +700,8 @@ package com.longtailvideo.jwplayer.media {
 
 		/** Dynamically switch streams **/
 		private function swap(newLevel:Number):void {
-			if (_transitionLevel == -1) {
+			if (_transitionLevel == -1 && (newLevel < item.currentLevel || 
+				_stream.bufferLength < _stream.bufferTime * 1.5 || item.levels[item.currentLevel].blacklisted)) {
 				_transitionLevel = newLevel;
 				item.setLevel(newLevel);
 				var nso:NetStreamPlayOptions = new NetStreamPlayOptions();
