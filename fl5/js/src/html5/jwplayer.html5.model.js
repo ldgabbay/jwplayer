@@ -78,7 +78,7 @@
 			}
 		}
 		
-		if (jwplayer.utils.isIOS()) {
+		if (jwplayer.utils.isMobile()) {
 			pluginorder = ["display","logo","dock","playlist"];
 			if (!jwplayer.utils.exists(_model.config.repeat)) {
 				_model.config.repeat = "list";
@@ -102,6 +102,8 @@
 			}
 		}
 		
+		var playlistVisible = false;
+		
 		for (var pluginIndex in _model.plugins.order) {
 			var pluginName = _model.plugins.order[pluginIndex];
 			var pluginConfig = !jwplayer.utils.exists(_model.plugins.config[pluginName]) ? {} : _model.plugins.config[pluginName];
@@ -113,8 +115,16 @@
 					_model.plugins.config[pluginName].position = jwplayer.html5.view.positions.OVER;
 				}
 			} else {
+				if (pluginName == "playlist") {
+					playlistVisible = true;
+				}
 				_model.plugins.config[pluginName].position = _model.plugins.config[pluginName].position.toString().toUpperCase();
 			}
+		}
+		
+		/** Hide the next/prev buttons if the playlist is visible **/
+		if (_model.plugins.config.controlbar && playlistVisible) {
+			_model.plugins.config.controlbar.hideplaylistcontrols = true;
 		}
 		
 		// Fix the dock

@@ -199,7 +199,7 @@
 		}
 		
 		function _stateHandler(event) {
-			if (_utils.isIOS()) {
+			if (_utils.isMobile()) {
 				if (event.newstate == jwplayer.api.events.state.IDLE) {
 					_show();
 				} else {

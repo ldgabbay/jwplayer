@@ -260,7 +260,7 @@ package com.longtailvideo.jwplayer.view.components {
 		/** Handle a change in the current item **/
 		private function itemHandler(evt:PlaylistEvent=null):void {
 			try {
-				if (_player.playlist && _player.playlist.length > 1) {
+				if (_player.playlist && _player.playlist.length > 1 && _player.config.playlist.toLowerCase() == "none") {
 					getSkinComponent('prevButton').visible = getSkinComponent('nextButton').visible = true;
 				} else {
 					getSkinComponent('prevButton').visible = getSkinComponent('nextButton').visible = false;

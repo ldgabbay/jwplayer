@@ -298,15 +298,6 @@
 		}
 		
 		function _resetPoster() {
-			/*
-			var oldDisplayImage = _display.display_image;
-			_display.display_image = createElement("img", "display_image");
-			_display.display_image.onerror = function(evt) {
-				_hide(_display.display_image);
-			};
-			_display.display_image.onload = _onImageLoad;
-			_display.display.replaceChild(_display.display_image, oldDisplayImage);
-			*/
 			_display.display_image.style.display = "none";
 		}
 		
@@ -319,7 +310,7 @@
 			}
 			
 			var state = _api.jwGetState();
-			if (state == _lastState) {
+			if (evt.type == jwplayer.api.events.JWPLAYER_PLAYER_STATE && state == _lastState) {
 				return;
 			}
 			_lastState = state;
@@ -350,7 +341,7 @@
 			}
 			switch (state) {
 				case jwplayer.api.events.state.BUFFERING:
-					if (_utils.isIOS()) {
+					if (_utils.isMobile()) {
 						_resetPoster();
 						_hideDisplayIcon();
 					} else {
@@ -367,7 +358,7 @@
 					}
 					break;
 				case jwplayer.api.events.state.PAUSED:
-					if (!_utils.isIOS()) {
+					if (!_utils.isMobile()) {
 						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
 							_css(_display.display_image, {
 								background: "transparent no-repeat center center"
@@ -388,7 +379,7 @@
 					break;
 				default:
 					if (_api.jwGetPlaylist()[_api.jwGetItem()] && _api.jwGetPlaylist()[_api.jwGetItem()].provider == "sound") {
-						if (_utils.isIOS()) {
+						if (_utils.isMobile()) {
 							_resetPoster();
 							_showing = false;
 						} else {

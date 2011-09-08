@@ -132,7 +132,6 @@ package com.longtailvideo.jwplayer.view.components {
 				alpha = 0;
 				visible = false;
 			}
-			
 			_layoutManager = new ControlbarLayoutManager(this);
 			_dividers = [];
 			_dividerElements = {
@@ -333,7 +332,7 @@ package com.longtailvideo.jwplayer.view.components {
 			} else {
 				hideButton('pause');
 			}
-			if (player.playlist.length <= 1) {
+			if (player.playlist.length <= 1 || player.config.playlist.toLowerCase() != "none") {
 				newLayout = newLayout.replace("|prev|next", "");
 				hideButton('prev');
 				hideButton('next');

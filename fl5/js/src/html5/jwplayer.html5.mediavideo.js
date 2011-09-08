@@ -16,7 +16,7 @@
 	
 	var _utils = jwplayer.utils;
 	var _css = _utils.css;
-	var _isIOS = _utils.isIOS();
+	var _isMobile = _utils.isMobile();
 	
 	jwplayer.html5.mediavideo = function(model, container) {
 		var _events = {
@@ -104,7 +104,7 @@
 			} else {
 				_video.src = item.file;
 			}
-			if (_isIOS) {
+			if (_isMobile) {
 				if (item.image) {
 					_video.poster = item.image;
 				}
@@ -120,7 +120,7 @@
 			}
 			_model.duration = item.duration;
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_LOADED);
-			if((!_isIOS && item.levels.length == 1) || !_emptied) {
+			if((!_isMobile && item.levels.length == 1) || !_emptied) {
 				_video.load();
 			}
 			_emptied = false;
@@ -229,7 +229,7 @@
 		
 		/** Change the video's volume level. **/
 		this.volume = function(position) {
-			if (!_isIOS) {
+			if (!_isMobile) {
 				_video.volume = position / 100;
 			}
 		};
@@ -237,7 +237,7 @@
 		
 		/** Switch the mute state of the player. **/
 		this.mute = function(state) {
-			if (!_isIOS) {
+			if (!_isMobile) {
 				_video.muted = state;
 			}
 		};
@@ -254,7 +254,7 @@
 		 * Whether this media component has its own chrome
 		 */
 		this.hasChrome = function() {
-			return _utils.isIOS();
+			return _isMobile;
 		}
 		
 		/**

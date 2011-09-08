@@ -195,33 +195,50 @@
 		return ((!+"\v1") || (typeof window.ActiveXObject != "undefined"));
 	};
 
+	jwplayer.utils.userAgentMatch = function(regex) {
+		var agent = navigator.userAgent.toLowerCase();
+		return (agent.match(regex) !== null);
+	};
+	
+	/**
+	 * Detects whether the current browser is mobile Safari.
+	 */
+	jwplayer.utils.isIOS = function() {
+		return jwplayer.utils.userAgentMatch(/iP(hone|ad|od)/i);
+	};
+	
+	jwplayer.utils.isIPad = function() {
+		return jwplayer.utils.userAgentMatch(/iPad/i);
+	};
+
+	jwplayer.utils.isIPod = function() {
+		return jwplayer.utils.userAgentMatch(/iP(hone|od)/i);
+	};
+	
+	jwplayer.utils.isAndroid = function() {
+		return jwplayer.utils.userAgentMatch(/android/i);
+	};
+
 	/**
 	 * Detects whether the current browser is Android 2.0, 2.1 or 2.2 which do
 	 * have some support for HTML5
 	 */
 	jwplayer.utils.isLegacyAndroid = function() {
-		var agent = navigator.userAgent.toLowerCase();
-		return (agent.match(/android 2.[012]/i) !== null);
+		return jwplayer.utils.userAgentMatch(/android 2.[012]/i);
 	};
 
-	/**
-	 * Detects whether the current browser is mobile Safari.
-	 */
-	jwplayer.utils.isIOS = function(regex) {
-		if (typeof regex == "undefined") {
-			regex = /iP(hone|ad|od)/i;
-		}
-		var agent = navigator.userAgent.toLowerCase();
-		return (agent.match(regex) !== null);
+	
+	jwplayer.utils.isBlackberry = function() {
+		return jwplayer.utils.userAgentMatch(/blackberry/i);
 	};
 	
-	jwplayer.utils.isIPad = function() {
-		return jwplayer.utils.isIOS(/iPad/i);
-	};
+	jwplayer.utils.isMobile = function() {
+		// Simply return iOS for now
+		return jwplayer.utils.isIOS();
+		// Later this function will include other mobile platforms
+		return jwplayer.utils.userAgentMatch(/(iP(hone|ad|od))|android|blackberry/i);
+	}
 
-	jwplayer.utils.isIPod = function() {
-		return jwplayer.utils.isIOS(/iP(hone|od)/i);
-	};
 
 	jwplayer.utils.getFirstPlaylistItemFromConfig = function(config) {
 		var item = {};

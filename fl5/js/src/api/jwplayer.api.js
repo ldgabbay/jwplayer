@@ -197,6 +197,11 @@
 			} else {
 				this.container.width = width;
 				this.container.height = height;
+				var wrapper = document.getElementById(this.id + "_wrapper");
+				if (wrapper) {
+					wrapper.style.width = width + "px";
+					wrapper.style.height = height + "px";
+				}
 			}
 			return this;
 		};

@@ -17,6 +17,7 @@
 		buttoncolor: parseInt("ffffff", 16),
 		position: jwplayer.html5.view.positions.BOTTOM,
 		idlehide: false,
+		hideplaylistcontrols: false,
 		layout: {
 			"left": {
 				"position": "left",
@@ -94,6 +95,7 @@
 	};
 	
 	jwplayer.html5.controlbar = function(api, config) {
+		window.controlbar = this;
 		var _api = api;
 		var _settings = _utils.extend({}, _defaults, _api.skin.getComponentSettings("controlbar"), config);
 		if (_settings.position == jwplayer.html5.view.positions.NONE
@@ -161,18 +163,20 @@
 			if (capLeft) {
 				_addElement("capLeft", "left", false, _wrapper);
 			}
-			var domelementcss = {
+			_appendNewElement("background", _wrapper, {
 				position: "absolute",
 				height: _getBack().height,
 				left: (capLeft ? capLeft.width : 0),
 				zIndex: 0
-			};
-			_appendNewElement("background", _wrapper, domelementcss, "img");
+			}, "img");
 			if (_getBack().src) {
 				_elements.background.src = _getBack().src;
 			}
-			domelementcss.zIndex = 1;
-			_appendNewElement("elements", _wrapper, domelementcss);
+			_appendNewElement("elements", _wrapper, {
+				position: "relative",
+				height: _getBack().height,
+				zIndex: 1
+			});
 			if (capRight) {
 				_addElement("capRight", "right", false, _wrapper);
 			}
@@ -194,7 +198,6 @@
 			}
 			
 			var style = _resizeBar();
-			//_setVisibility();
 			_timeHandler({
 				id: _api.id,
 				duration: _currentDuration,
@@ -353,8 +356,8 @@
 			}
 			
 			_buildGroup(_settings.layout.left);
-			_buildGroup(_settings.layout.right, -1);
 			_buildGroup(_settings.layout.center);
+			_buildGroup(_settings.layout.right);
 		}
 		
 		/** Layout a group of elements**/
@@ -364,8 +367,14 @@
 			if (_utils.exists(order)) {
 				elements.reverse();
 			}
+		    var group = _appendNewElement(group.position+"Group", _elements.elements, {
+				'float': 'left',
+				styleFloat: 'left',
+				cssFloat: 'left',
+				height: '100%'
+			});
 			for (var i = 0; i < elements.length; i++) {
-				_buildElement(elements[i], alignment);
+				_buildElement(elements[i], alignment, group);
 			}
 		}
 		
@@ -374,60 +383,63 @@
 		}
 		
 		/** Draw a single element into the jwplayerControlbar. **/
-		function _buildElement(element, alignment) {
+		function _buildElement(element, alignment, parent) {
 			var offset, offsetLeft, offsetRight, width, slidercss;
 			
+			if (!parent) {
+				parent = _elements.elements;
+			}
+			
 			if (element.type == "divider") {
-				_addElement("divider" + getNewDividerId(), alignment, true, undefined, undefined, element.width, element.element);
+				_addElement("divider" + getNewDividerId(), alignment, true, parent, undefined, element.width, element.element);
 				return;
 			}
 			
 			switch (element.name) {
 				case "play":
-					_addElement("playButton", alignment, false);
-					_addElement("pauseButton", alignment, true);
+					_addElement("playButton", alignment, false, parent);
+					_addElement("pauseButton", alignment, true, parent);
 					_buildHandler("playButton", "jwPlay");
 					_buildHandler("pauseButton", "jwPause");
 					break;
 				case "prev":
-					_addElement("prevButton", alignment, true);
+					_addElement("prevButton", alignment, true, parent);
 					_buildHandler("prevButton", "jwPlaylistPrev");
 					break;
 				case "stop":
-					_addElement("stopButton", alignment, true);
+					_addElement("stopButton", alignment, true, parent);
 					_buildHandler("stopButton", "jwStop");
 					break;
 				case "next":
-					_addElement("nextButton", alignment, true);
+					_addElement("nextButton", alignment, true, parent);
 					_buildHandler("nextButton", "jwPlaylistNext");
 					break;
 				case "elapsed":
-					_addElement("elapsedText", alignment, true);
+					_addElement("elapsedText", alignment, true, parent);
 					break;
 				case "time":
 					offsetLeft = !_utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapLeft")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
 					offsetRight = !_utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapRight")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapRight").width;
 					offset = alignment == "left" ? offsetLeft : offsetRight;
-					width = _api.skin.getSkinElement("controlbar", "timeSliderRail").width + offsetLeft + offsetRight;
 					slidercss = {
 						height: _getBack().height,
-						position: "absolute",
-						top: 0,
-						width: width
+						position: "relative",
+						'float': 'left',
+						styleFloat: 'left',
+						cssFloat: 'left'
 					};
-					slidercss[alignment] = alignment == "left" ? _marginleft : _marginright;
-					var _timeslider = _appendNewElement("timeSlider", _elements.elements, slidercss);
-					_addElement("timeSliderCapLeft", alignment, true, _timeslider, alignment == "left" ? 0 : offset);
-					_addElement("timeSliderRail", alignment, false, _timeslider, offset);
-					_addElement("timeSliderBuffer", alignment, false, _timeslider, offset);
-					_addElement("timeSliderProgress", alignment, false, _timeslider, offset);
-					_addElement("timeSliderThumb", alignment, false, _timeslider, offset);
-					_addElement("timeSliderCapRight", alignment, true, _timeslider, alignment == "right" ? 0 : offset);
+					var _timeslider = _appendNewElement("timeSlider", parent, slidercss);
+					_addElement("timeSliderCapLeft", alignment, true, _timeslider, "relative");
+					_addElement("timeSliderRail", alignment, false, _timeslider, "relative");
+					_addElement("timeSliderBuffer", alignment, false, _timeslider, "absolute");
+					_addElement("timeSliderProgress", alignment, false, _timeslider, "absolute");
+					_addElement("timeSliderThumb", alignment, false, _timeslider, "absolute");
+					_addElement("timeSliderCapRight", alignment, true, _timeslider, "relative");
 					_addSliderListener("time");
 					break;
 				case "fullscreen":
-					_addElement("fullscreenButton", alignment, false);
-					_addElement("normalscreenButton", alignment, true);
+					_addElement("fullscreenButton", alignment, false, parent);
+					_addElement("normalscreenButton", alignment, true, parent);
 					_buildHandler("fullscreenButton", "jwSetFullscreen", true);
 					_buildHandler("normalscreenButton", "jwSetFullscreen", false);
 					break;
@@ -438,28 +450,29 @@
 					width = _api.skin.getSkinElement("controlbar", "volumeSliderRail").width + offsetLeft + offsetRight;
 					slidercss = {
 						height: _getBack().height,
-						position: "absolute",
-						top: 0,
-						width: width
+						position: "relative",
+						width: width,
+						'float': 'left',
+						styleFloat: 'left',
+						cssFloat: 'left'
 					};
-					slidercss[alignment] = alignment == "left" ? _marginleft : _marginright;
-					var _volumeslider = _appendNewElement("volumeSlider", _elements.elements, slidercss);
-					_addElement("volumeSliderCapLeft", alignment, true, _volumeslider, alignment == "left" ? 0 : offset);
-					_addElement("volumeSliderRail", alignment, true, _volumeslider, offset);
-					_addElement("volumeSliderProgress", alignment, false, _volumeslider, offset);
-					_addElement("volumeSliderThumb", alignment, false, _volumeslider, offset);
-					_addElement("volumeSliderCapRight", alignment, true, _volumeslider, alignment == "right" ? 0 : offset);
+					var _volumeslider = _appendNewElement("volumeSlider", parent, slidercss);
+					_addElement("volumeSliderCapLeft", alignment, false, _volumeslider, "relative");
+					_addElement("volumeSliderRail", alignment, false, _volumeslider, "relative");
+					_addElement("volumeSliderProgress", alignment, false, _volumeslider, "absolute");
+					_addElement("volumeSliderThumb", alignment, false, _volumeslider, "absolute");
+					_addElement("volumeSliderCapRight", alignment, false, _volumeslider, "relative");
 					_addSliderListener("volume");
 					break;
 				case "mute":
-					_addElement("muteButton", alignment, false);
-					_addElement("unmuteButton", alignment, true);
+					_addElement("muteButton", alignment, false, parent);
+					_addElement("unmuteButton", alignment, true, parent);
 					_buildHandler("muteButton", "jwSetMute", true);
 					_buildHandler("unmuteButton", "jwSetMute", false);
 					
 					break;
 				case "duration":
-					_addElement("durationText", alignment, true);
+					_addElement("durationText", alignment, true, parent);
 					break;
 			}
 		}
@@ -467,12 +480,14 @@
 		function _addElement(element, alignment, offset, parent, position, width, skinElement) {
 			if (_utils.exists(_api.skin.getSkinElement("controlbar", element)) || element.indexOf("Text") > 0 || element.indexOf("divider") === 0)  {
 				var css = {
-					height: _getBack().height,
-					position: "absolute",
+					height: "100%",
+					position: position ? position : "relative",
 					display: "block",
-					top: 0
+					'float': "left",
+					styleFloat: "left",
+					cssFloat: "left"
 				};
-				if ((element.indexOf("next") === 0 || element.indexOf("prev") === 0) && _api.jwGetPlaylist().length < 2) {
+				if ((element.indexOf("next") === 0 || element.indexOf("prev") === 0) && (_api.jwGetPlaylist().length < 2 || _settings.hideplaylistcontrols)) {
 					offset = false;
 					css.display = "none";
 				}
@@ -506,12 +521,10 @@
 					wid = _api.skin.getSkinElement("controlbar", element).width;
 				}
 				if (alignment == "left") {
-					css.left = isNaN(position) ? _marginleft : position;
 					if (offset) {
 						_marginleft += wid;
 					}
 				} else if (alignment == "right") {
-					css.right = isNaN(position) ? _marginright : position;
 					if (offset) {
 						_marginright += wid;
 					}
@@ -536,6 +549,9 @@
 							newelement.style.backgroundImage = ["url(", _api.skin.getSkinElement("controlbar", element).src, ")"].join("");
 						};
 					}
+					if (element.indexOf("divider") == 0) {
+						newelement.setAttribute("class", "divider");
+					}
 				}
 			}
 		}
@@ -553,10 +569,18 @@
 		}
 		
 		function _playlistHandler() {
-			_buildBase();
-			_buildElements();
-			_resizeBar();
-			_init();
+			if (!_settings.hideplaylistcontrols) {
+				if (_api.jwGetPlaylist().length > 1) {
+					_show(_elements.nextButton);
+					_show(_elements.prevButton);
+				} else {
+					_hide(_elements.nextButton);
+					_hide(_elements.prevButton);
+				}
+			
+				_resizeBar();
+				_init();
+			}
 		}
 
 		function _itemHandler(evt) {
@@ -700,10 +724,12 @@
 				_currentBuffer = event.bufferPercent;
 			}
 			if (_positions.timeSliderRail) {
+	            var timeSliderCapLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft"); 
 				var wid = _positions.timeSliderRail.width;
 				var bufferWidth = isNaN(Math.round(wid * _currentBuffer / 100)) ? 0 : Math.round(wid * _currentBuffer / 100);
 				_css(_elements.timeSliderBuffer, {
-					width: bufferWidth
+					width: bufferWidth,
+					left: timeSliderCapLeft ? timeSliderCapLeft.width : 0
 				});
 			}
 		}
@@ -779,9 +805,13 @@
 			var progressElement = _positions.timeSliderRail;
 			if (progressElement) {
 				var progressWidth = isNaN(Math.round(progressElement.width * progress)) ? 0 : Math.round(progressElement.width * progress);
-				var thumbPosition = progressWidth;
+	            var timeSliderCapLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft");
+				var thumbPosition = progressWidth + (timeSliderCapLeft ? timeSliderCapLeft.width : 0);
 				if (_elements.timeSliderProgress) {
-					_elements.timeSliderProgress.style.width = progressWidth + "px";
+					_css(_elements.timeSliderProgress, {
+						width: progressWidth,
+						left: timeSliderCapLeft ? timeSliderCapLeft.width : 0
+					});
 					if (!_mousedown) {
 						if (_elements.timeSliderThumb) {
 							_elements.timeSliderThumb.style.left = thumbPosition + "px";
@@ -799,35 +829,33 @@
 		
 		
 		function cleanupDividers() {
+			var groups =  _elements.elements.childNodes;
 			var lastElement, lastVisibleElement;
-			var elements = document.getElementById(_wrapper.id + "_elements");
-			if (!elements) {
-				return;
-			}
 			
-			var childNodes = elements.childNodes;
-			for (var childNode in elements.childNodes) {
-				if (isNaN(parseInt(childNode, 10))) {
-					continue;
+			for (var i = 0; i < groups.length; i++) {
+				var childNodes = groups[i].childNodes;
+				
+				for (var childNode in childNodes) {
+					if (isNaN(parseInt(childNode, 10))) {
+						continue;
+					}
+					if (childNodes[childNode].id.indexOf(_wrapper.id + "_divider") === 0 
+							&& lastVisibleElement 
+							&& lastVisibleElement.id.indexOf(_wrapper.id + "_divider") === 0 
+							&& childNodes[childNode].style.backgroundImage == lastVisibleElement.style.backgroundImage) {
+						childNodes[childNode].style.display = "none";
+					} else if (childNodes[childNode].id.indexOf(_wrapper.id + "_divider") === 0 && lastElement && lastElement.style.display != "none") {
+						childNodes[childNode].style.display = "block";
+					}
+					if (childNodes[childNode].style.display != "none") {
+						lastVisibleElement = childNodes[childNode];
+					}
+					lastElement = childNodes[childNode];
 				}
-				if (childNodes[childNode].id.indexOf(_wrapper.id + "_divider") === 0 
-						&& lastVisibleElement 
-						&& lastVisibleElement.id.indexOf(_wrapper.id + "_divider") === 0 
-						&& childNodes[childNode].style.backgroundImage == lastVisibleElement.style.backgroundImage) {
-					childNodes[childNode].style.display = "none";
-				} else if (childNodes[childNode].id.indexOf(_wrapper.id + "_divider") === 0 && lastElement && lastElement.style.display != "none") {
-					childNodes[childNode].style.display = "block";
-				}
-				if (childNodes[childNode].style.display != "none") {
-					lastVisibleElement = childNodes[childNode];
-				}
-				lastElement = childNodes[childNode];
 			}
 		}
 		
-		/** Resize the jwplayerControlbar. **/
-		function _resizeBar() {
-			cleanupDividers();
+		function setToggles() {
 			if (_api.jwGetFullscreen()) {
 				_show(_elements.normalscreenButton);
 				_hide(_elements.fullscreenButton);
@@ -835,10 +863,36 @@
 				_hide(_elements.normalscreenButton);
 				_show(_elements.fullscreenButton);
 			}
+			
+			if (_api.jwGetState() == jwplayer.api.events.state.BUFFERING || _api.jwGetState() == jwplayer.api.events.state.PLAYING) {
+				_show(_elements.pauseButton);
+				_hide(_elements.playButton);
+			} else {
+				_hide(_elements.pauseButton);
+				_show(_elements.playButton);
+			}
+			
+			if (_api.jwGetMute() == true) {
+				_hide(_elements.muteButton);
+				_show(_elements.unmuteButton);
+			} else {
+				_show(_elements.muteButton);
+				_hide(_elements.unmuteButton);
+			}
+		}
+		
+		/** Resize the jwplayerControlbar. **/
+		function _resizeBar() {
+			cleanupDividers();
+			setToggles();
 			var controlbarcss = {
 				width: _width
 			};
-			var elementcss = {};
+			var elementcss = {
+				'float': 'left',
+				styleFloat: 'left',
+				cssFloat: 'left'
+			};
 			if (_settings.position == jwplayer.html5.view.positions.OVER || _api.jwGetFullscreen()) {
 				controlbarcss.left = _settings.margin;
 				controlbarcss.width -= 2 * _settings.margin;
@@ -849,23 +903,31 @@
 			var capLeft = _api.skin.getSkinElement("controlbar", "capLeft"); 
 			var capRight = _api.skin.getSkinElement("controlbar", "capRight"); 
 			
-			elementcss.left = capLeft ? capLeft.width : 0;
-			elementcss.width = controlbarcss.width - elementcss.left - (capRight ? capRight.width : 0);
+			elementcss.width = controlbarcss.width - (capLeft ? capLeft.width : 0) - (capRight ? capRight.width : 0);
 
-			var timeSliderLeft = !_utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapLeft")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
-			_css(_elements.timeSliderRail, {
-				width: (elementcss.width - _marginleft - _marginright),
-				left: timeSliderLeft
-			});
-			if (_utils.exists(_elements.timeSliderCapRight)) {
-				_css(_elements.timeSliderCapRight, {
-					left: timeSliderLeft + (elementcss.width - _marginleft - _marginright)
-				});
+			var leftWidth = _elements.leftGroup.getBoundingClientRect().width;
+			var rightWidth = _elements.rightGroup.getBoundingClientRect().width;
+			var timeSliderWidth = elementcss.width - leftWidth - rightWidth;
+			var timeSliderRailWidth = timeSliderWidth;
+            var timeSliderCapLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft"); 
+            var timeSliderCapRight = _api.skin.getSkinElement("controlbar", "timeSliderCapRight"); 
+			
+			if (_utils.exists(timeSliderCapLeft)) {
+				timeSliderRailWidth -= timeSliderCapLeft.width;
 			}
+			if (_utils.exists(timeSliderCapRight)) {
+				timeSliderRailWidth -= timeSliderCapRight.width;
+			}
+
+			_elements.timeSlider.style.width = timeSliderWidth + "px";
+			_elements.timeSliderRail.style.width = timeSliderRailWidth + "px";   
+
 			_css(_wrapper, controlbarcss);
 			_css(_elements.elements, elementcss);
 			_css(_elements.background, elementcss);
+
 			_updatePositions();
+
 			return controlbarcss;
 		}
 		

@@ -307,7 +307,7 @@
 					media.parentNode.style.left = _box.style.left;
 					media.parentNode.style.top = _box.style.top;
 				}
-				if (_model.fullscreen && _api.jwGetStretching() == jwplayer.utils.stretching.EXACTFIT && !_utils.isIOS()) {
+				if (_model.fullscreen && _api.jwGetStretching() == jwplayer.utils.stretching.EXACTFIT && !_utils.isMobile()) {
 					var tmp = document.createElement("div");
 					_utils.stretch(jwplayer.utils.stretching.UNIFORM, tmp, 
 							_utils.getElementWidth(_box), 
@@ -354,7 +354,7 @@
 				case jwplayer.html5.view.positions.TOP:
 					plugincss.top = _utils.parseDimension(_box.style.top);
 					plugincss.left = _utils.parseDimension(_box.style.left);
-					plugincss.width = _width - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right);
+					plugincss.width = _utils.getElementWidth(_box) - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right);
 					plugincss.height = _model.plugins.object[pluginName].height;
 					_box.style[position] = _utils.parseDimension(_box.style[position]) + _model.plugins.object[pluginName].height + "px";
 					_box.style.height = _utils.getElementHeight(_box) - plugincss.height + "px";
@@ -363,13 +363,13 @@
 					plugincss.top = _utils.parseDimension(_box.style.top);
 					plugincss.right = _utils.parseDimension(_box.style.right);
 					plugincss.width = _model.plugins.object[pluginName].width;
-					plugincss.height = _height - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom);
+					plugincss.height = _utils.getElementHeight(_box) - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom);
 					_box.style.width = _utils.getElementWidth(_box) - plugincss.width + "px";
 					break;
 				case jwplayer.html5.view.positions.BOTTOM:
 					plugincss.bottom = _utils.parseDimension(_box.style.bottom);
 					plugincss.left = _utils.parseDimension(_box.style.left);
-					plugincss.width = _width - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right);
+					plugincss.width = _utils.getElementWidth(_box) - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right);
 					plugincss.height = _model.plugins.object[pluginName].height;
 					_box.style.height = _utils.getElementHeight(_box) - plugincss.height + "px";
 					break;
@@ -377,7 +377,7 @@
 					plugincss.top = _utils.parseDimension(_box.style.top);
 					plugincss.left = _utils.parseDimension(_box.style.left);
 					plugincss.width = _model.plugins.object[pluginName].width;
-					plugincss.height = _height - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom);
+					plugincss.height = _utils.getElementHeight(_box) - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom);
 					_box.style[position] = _utils.parseDimension(_box.style[position]) + _model.plugins.object[pluginName].width + "px";
 					_box.style.width = _utils.getElementWidth(_box) - plugincss.width + "px";
 					break;
