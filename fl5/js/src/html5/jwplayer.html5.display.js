@@ -310,7 +310,7 @@
 			}
 			
 			var state = _api.jwGetState();
-			if (evt.type == jwplayer.api.events.JWPLAYER_PLAYER_STATE && state == _lastState) {
+			if (state == _lastState) {
 				return;
 			}
 			_lastState = state;
