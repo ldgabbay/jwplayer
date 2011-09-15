@@ -84,6 +84,9 @@
 		var videoTags = _utils.selectors.getElementsByTagAndClass('video', 'jwplayer');
 		for (var i = 0; i < videoTags.length; i++) {
 			var video = videoTags[i];
+			if (video.id == "") {
+				video.id = "jwplayer_" + Math.round(Math.random()*100000);
+			}
 			jwplayer(video.id).setup({});
 		}
 	}

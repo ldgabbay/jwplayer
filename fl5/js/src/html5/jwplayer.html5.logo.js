@@ -125,7 +125,7 @@
 		}
 		
 		function _overHandler(evt) {
-			if (_settings.hide.toString() == "true" && _showing) {
+			if (_showing) {
 				_logo.style.opacity = _settings.over;
 			}
 			return;
