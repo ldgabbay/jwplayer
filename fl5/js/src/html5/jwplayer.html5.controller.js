@@ -52,7 +52,8 @@
 				}
 			
 				if (model.config.autostart && !jwplayer.utils.isIOS()) {
-					_item(_model.item);
+					//_item(_model.item);
+					_playlistLoadHandler();
 				}
 
 				while (_queuedCalls.length > 0) {
@@ -78,6 +79,7 @@
 		_model.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, function(evt) {
 			setTimeout(_completeHandler, 25);
 		});
+		_model.addEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistLoadHandler);
 		
 		function _play() {
 			try {
@@ -374,12 +376,27 @@
 			try {
 				_stop();
 				_model.loadPlaylist(arg);
-				_loadItem(_model.item);
-				return true;
+				if (_model.playlist[_model.item].provider) {
+					_loadItem(_model.item);
+					if (_model.config.autostart.toString().toLowerCase() == "true") {
+						_play();
+					}
+					return true;
+				} else {
+					return false;
+				}
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
 			}
 			return false;
+		}
+		
+		
+		function _playlistLoadHandler(evt) {
+			_loadItem(_model.playlist[_model.item]);
+			if (_model.config.autostart.toString().toLowerCase() == "true") {
+				_play();
+			}
 		}
 		
 		function _detachMedia() {

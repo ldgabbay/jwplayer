@@ -214,8 +214,9 @@
 					break;
 			}
 			_model.playlist = new jwplayer.html5.playlist(config);
-			if (!_model.playlist[0].provider) {
-				_loadExternal(_model.playlist[0].file);
+			_model.item = _model.config.item >= 0 ? _model.config.item : 0;
+			if (!_model.playlist[_model.item].provider) {
+				_loadExternal(_model.playlist[_model.item].file);
 			} else {
 				_loadComplete();
 			}
