@@ -1,9 +1,9 @@
 /**
  * JW Player Video Media component
  *
- * @author zach
+ * @author zach,pablo
  * 
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 
@@ -441,13 +441,14 @@
 		}
 
 		function _metaHandler(event) {
+			var newDuration = Math.round(event.target.duration * 10) / 10;
 			var meta = {
 					height: event.target.videoHeight,
 					width: event.target.videoWidth,
-					duration: Math.round(event.target.duration * 10) / 10
+					duration: newDuration
 				};
-			if ( (_model.duration < 1 || isNaN(_model.duration)) && event.target.duration != Infinity) {
-				_model.duration = Math.round(event.target.duration * 10) / 10;
+			if ( (_model.duration < newDuration || isNaN(_model.duration)) && event.target.duration != Infinity) {
+				_model.duration = newDuration;
 			}
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_META, {
 				metadata: meta

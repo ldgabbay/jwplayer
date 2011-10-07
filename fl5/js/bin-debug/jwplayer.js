@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.7.1999';
+jwplayer.version = '5.8.2002';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -27,7 +27,7 @@ jwplayer.source = document.createElement("source");/**
  * Utility methods for the JW Player.
  * 
  * @author zach, pablo
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 
@@ -6921,9 +6921,9 @@ playerReady = function(obj) {
 /**
  * JW Player Video Media component
  *
- * @author zach
+ * @author zach,pablo
  * 
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 
@@ -7361,13 +7361,14 @@ playerReady = function(obj) {
 		}
 
 		function _metaHandler(event) {
+			var newDuration = Math.round(event.target.duration * 10) / 10;
 			var meta = {
 					height: event.target.videoHeight,
 					width: event.target.videoWidth,
-					duration: Math.round(event.target.duration * 10) / 10
+					duration: newDuration
 				};
-			if ( (_model.duration < 1 || isNaN(_model.duration)) && event.target.duration != Infinity) {
-				_model.duration = Math.round(event.target.duration * 10) / 10;
+			if ( (_model.duration < newDuration || isNaN(_model.duration)) && event.target.duration != Infinity) {
+				_model.duration = newDuration;
 			}
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_META, {
 				metadata: meta
