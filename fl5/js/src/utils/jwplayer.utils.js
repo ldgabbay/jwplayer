@@ -768,6 +768,8 @@
 	jwplayer.utils.getElementWidth = function(obj) {
 		if (!obj) {
 			return null;
+		} else if (obj == document.body) {
+			return jwplayer.utils.parentNode(obj).clientWidth;
 		} else if (obj.clientWidth > 0) {
 			return obj.clientWidth;
 		} else if (obj.style) {
@@ -783,6 +785,8 @@
 	jwplayer.utils.getElementHeight = function(obj) {
 		if (!obj) {
 			return null;
+		} else if (obj == document.body) {
+			return jwplayer.utils.parentNode(obj).clientHeight;
 		} else if (obj.clientHeight > 0) {
 			return obj.clientHeight;
 		} else if (obj.style) {
@@ -810,6 +814,18 @@
 		return (navigator && navigator.vendor && navigator.vendor.indexOf("Apple") == 0);
 	}
 
-
+	/** Returns an element's parent element.  If no parent is available, return the element itself **/
+	jwplayer.utils.parentNode = function(element) {
+		if (!element) {
+			return docuemnt.body;
+		} else if (element.parentNode) {
+			return element.parentNode;
+		} else if (element.parentElement) {
+			return element.parentElement;
+		} else {
+			return element;
+		}
+	}
+	
 
 })(jwplayer);

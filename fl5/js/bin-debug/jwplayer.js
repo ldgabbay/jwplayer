@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.8.2002';
+jwplayer.version = '5.8.2004';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -793,6 +793,8 @@ jwplayer.source = document.createElement("source");/**
 	jwplayer.utils.getElementWidth = function(obj) {
 		if (!obj) {
 			return null;
+		} else if (obj == document.body) {
+			return jwplayer.utils.parentNode(obj).clientWidth;
 		} else if (obj.clientWidth > 0) {
 			return obj.clientWidth;
 		} else if (obj.style) {
@@ -808,6 +810,8 @@ jwplayer.source = document.createElement("source");/**
 	jwplayer.utils.getElementHeight = function(obj) {
 		if (!obj) {
 			return null;
+		} else if (obj == document.body) {
+			return jwplayer.utils.parentNode(obj).clientHeight;
 		} else if (obj.clientHeight > 0) {
 			return obj.clientHeight;
 		} else if (obj.style) {
@@ -835,7 +839,19 @@ jwplayer.source = document.createElement("source");/**
 		return (navigator && navigator.vendor && navigator.vendor.indexOf("Apple") == 0);
 	}
 
-
+	/** Returns an element's parent element.  If no parent is available, return the element itself **/
+	jwplayer.utils.parentNode = function(element) {
+		if (!element) {
+			return docuemnt.body;
+		} else if (element.parentNode) {
+			return element.parentNode;
+		} else if (element.parentElement) {
+			return element.parentElement;
+		} else {
+			return element;
+		}
+	}
+	
 
 })(jwplayer);
 /**
@@ -4185,12 +4201,12 @@ playerReady = function(obj) {
 				_height = height;
 
 				if (typeof width == "string" && width.indexOf("%") > 0) {
-					_width = _utils.getElementWidth(_wrapper.parentElement) * parseInt(width.replace("%"),"") / 100;
+					_width = _utils.getElementWidth(_utils.parentNode(_wrapper)) * parseInt(width.replace("%"),"") / 100;
 				} else {
 					_width = width;
 				}
 				if (typeof height == "string" && height.indexOf("%") > 0) {
-					_height = _utils.getElementHeight(_wrapper.parentElement) * parseInt(height.replace("%"),"") / 100;
+					_height = _utils.getElementHeight(_utils.parentNode(_wrapper)) * parseInt(height.replace("%"),"") / 100;
 				} else {
 					_height = height;
 				}

@@ -188,12 +188,12 @@
 				_height = height;
 
 				if (typeof width == "string" && width.indexOf("%") > 0) {
-					_width = _utils.getElementWidth(_wrapper.parentElement) * parseInt(width.replace("%"),"") / 100;
+					_width = _utils.getElementWidth(_utils.parentNode(_wrapper)) * parseInt(width.replace("%"),"") / 100;
 				} else {
 					_width = width;
 				}
 				if (typeof height == "string" && height.indexOf("%") > 0) {
-					_height = _utils.getElementHeight(_wrapper.parentElement) * parseInt(height.replace("%"),"") / 100;
+					_height = _utils.getElementHeight(_utils.parentNode(_wrapper)) * parseInt(height.replace("%"),"") / 100;
 				} else {
 					_height = height;
 				}
