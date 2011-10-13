@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.8.2008';
+jwplayer.version = '5.8.2009';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -261,7 +261,7 @@ jwplayer.source = document.createElement("source");/**
 		// Simply return iOS for now
 		return jwplayer.utils.isIOS();
 		// Later this function will include other mobile platforms
-		return jwplayer.utils.userAgentMatch(/(iP(hone|ad|od))|android|blackberry/i);
+		//return jwplayer.utils.userAgentMatch(/(iP(hone|ad|od))|android|blackberry/i);
 	}
 
 
@@ -7068,8 +7068,10 @@ playerReady = function(obj) {
 				if (item.image) {
 					_video.poster = item.image;
 				}
-				_video.controls = "controls";
 				_video.style.display = "block";
+				setTimeout(function() {
+					_video.setAttribute("controls", "controls");
+				}, 100);
 			}
 			
 			_bufferingComplete = _bufferFull = _start = false;

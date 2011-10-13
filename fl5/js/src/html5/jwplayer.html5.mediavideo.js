@@ -109,8 +109,10 @@
 				if (item.image) {
 					_video.poster = item.image;
 				}
-				_video.controls = "controls";
 				_video.style.display = "block";
+				setTimeout(function() {
+					_video.setAttribute("controls", "controls");
+				}, 100);
 			}
 			
 			_bufferingComplete = _bufferFull = _start = false;

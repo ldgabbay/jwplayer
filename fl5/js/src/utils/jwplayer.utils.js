@@ -236,7 +236,7 @@
 		// Simply return iOS for now
 		return jwplayer.utils.isIOS();
 		// Later this function will include other mobile platforms
-		return jwplayer.utils.userAgentMatch(/(iP(hone|ad|od))|android|blackberry/i);
+		//return jwplayer.utils.userAgentMatch(/(iP(hone|ad|od))|android|blackberry/i);
 	}
 
 
