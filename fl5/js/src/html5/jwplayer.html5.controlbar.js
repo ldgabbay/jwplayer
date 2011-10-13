@@ -231,7 +231,7 @@
 			for (var positionElement in positionElements) {
 				var elementName = positionElements[positionElement];
 				if (typeof _elements[elementName] != "undefined") {
-					_positions[elementName] = _elements[elementName].getBoundingClientRect();
+					_positions[elementName] = _utils.getBoundingClientRect(_elements[elementName]);
 				}
 			}
 		}
@@ -905,8 +905,8 @@
 			
 			elementcss.width = controlbarcss.width - (capLeft ? capLeft.width : 0) - (capRight ? capRight.width : 0);
 
-			var leftWidth = _elements.leftGroup.getBoundingClientRect().width;
-			var rightWidth = _elements.rightGroup.getBoundingClientRect().width;
+			var leftWidth = _utils.getBoundingClientRect(_elements.leftGroup).width;
+			var rightWidth = _utils.getBoundingClientRect(_elements.rightGroup).width;
 			var timeSliderWidth = elementcss.width - leftWidth - rightWidth;
 			var timeSliderRailWidth = timeSliderWidth;
             var timeSliderCapLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft"); 

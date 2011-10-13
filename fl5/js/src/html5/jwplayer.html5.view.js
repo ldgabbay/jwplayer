@@ -139,7 +139,7 @@
 				}
 				if (_api.jwGetFullscreen()) {
 					if (!_useNativeFullscreen()) {
-						var rect = document.body.getBoundingClientRect();
+						var rect = _utils.getBoundingClientRect(document.body);
 						_model.width = Math.abs(rect.left) + Math.abs(rect.right);
 						_model.height = window.innerHeight;
 						_resize(_model.width, _model.height);
@@ -421,7 +421,7 @@
 				if (state) {
 					document.onkeydown = _keyHandler;
 					clearInterval(_resizeInterval);
-					var rect = document.body.getBoundingClientRect();
+					var rect = _utils.getBoundingClientRect(document.body);
 					_model.width = Math.abs(rect.left) + Math.abs(rect.right);
 					_model.height = window.innerHeight;
 					var style = {

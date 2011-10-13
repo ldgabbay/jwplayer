@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.8.2010';
+jwplayer.version = '5.8.2011';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -856,6 +856,20 @@ jwplayer.source = document.createElement("source");/**
 			return element.parentElement;
 		} else {
 			return element;
+		}
+	}
+	
+	/** Replacement for getBoundingClientRect, which isn't supported in iOS 3.1.2 **/
+	jwplayer.utils.getBoundingClientRect = function(element) {
+		if (typeof element.getBoundingClientRect == "function") {
+			return element.getBoundingClientRect();
+		} else {
+			return { 
+				left: element.offsetLeft + document.body.scrollLeft, 
+				top: element.offsetTop + document.body.scrollTop, 
+				width: element.offsetWidth, 
+				height: element.offsetHeight
+			};
 		}
 	}
 	
@@ -4159,7 +4173,7 @@ playerReady = function(obj) {
 				}
 				if (_api.jwGetFullscreen()) {
 					if (!_useNativeFullscreen()) {
-						var rect = document.body.getBoundingClientRect();
+						var rect = _utils.getBoundingClientRect(document.body);
 						_model.width = Math.abs(rect.left) + Math.abs(rect.right);
 						_model.height = window.innerHeight;
 						_resize(_model.width, _model.height);
@@ -4441,7 +4455,7 @@ playerReady = function(obj) {
 				if (state) {
 					document.onkeydown = _keyHandler;
 					clearInterval(_resizeInterval);
-					var rect = document.body.getBoundingClientRect();
+					var rect = _utils.getBoundingClientRect(document.body);
 					_model.width = Math.abs(rect.left) + Math.abs(rect.right);
 					_model.height = window.innerHeight;
 					var style = {
@@ -4737,7 +4751,7 @@ playerReady = function(obj) {
 			for (var positionElement in positionElements) {
 				var elementName = positionElements[positionElement];
 				if (typeof _elements[elementName] != "undefined") {
-					_positions[elementName] = _elements[elementName].getBoundingClientRect();
+					_positions[elementName] = _utils.getBoundingClientRect(_elements[elementName]);
 				}
 			}
 		}
@@ -5411,8 +5425,8 @@ playerReady = function(obj) {
 			
 			elementcss.width = controlbarcss.width - (capLeft ? capLeft.width : 0) - (capRight ? capRight.width : 0);
 
-			var leftWidth = _elements.leftGroup.getBoundingClientRect().width;
-			var rightWidth = _elements.rightGroup.getBoundingClientRect().width;
+			var leftWidth = _utils.getBoundingClientRect(_elements.leftGroup).width;
+			var rightWidth = _utils.getBoundingClientRect(_elements.rightGroup).width;
 			var timeSliderWidth = elementcss.width - leftWidth - rightWidth;
 			var timeSliderRailWidth = timeSliderWidth;
             var timeSliderCapLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft"); 
@@ -6177,7 +6191,7 @@ playerReady = function(obj) {
 			});
 			_css(_display.display_text, {
 				width: (width - 10),
-				top: ((height - _display.display_text.getBoundingClientRect().height) / 2)
+				top: ((height - _utils.getBoundingClientRect(_display.display_text).height) / 2)
 			});
 			_css(_display.display_iconBackground, {
 				top: ((height - _api.skin.getSkinElement("display", "background").height) / 2),
@@ -6313,7 +6327,7 @@ playerReady = function(obj) {
 			_hideDisplayIcon();
 			_display.display_text.innerHTML = evt.message;
 			_show(_display.display_text);
-			_display.display_text.style.top = ((_height - _display.display_text.getBoundingClientRect().height) / 2) + "px";
+			_display.display_text.style.top = ((_height - _utils.getBoundingClientRect(_display.display_text).height) / 2) + "px";
 		}
 		
 		function _resetPoster() {

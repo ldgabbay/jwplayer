@@ -158,7 +158,7 @@
 			});
 			_css(_display.display_text, {
 				width: (width - 10),
-				top: ((height - _display.display_text.getBoundingClientRect().height) / 2)
+				top: ((height - _utils.getBoundingClientRect(_display.display_text).height) / 2)
 			});
 			_css(_display.display_iconBackground, {
 				top: ((height - _api.skin.getSkinElement("display", "background").height) / 2),
@@ -294,7 +294,7 @@
 			_hideDisplayIcon();
 			_display.display_text.innerHTML = evt.message;
 			_show(_display.display_text);
-			_display.display_text.style.top = ((_height - _display.display_text.getBoundingClientRect().height) / 2) + "px";
+			_display.display_text.style.top = ((_height - _utils.getBoundingClientRect(_display.display_text).height) / 2) + "px";
 		}
 		
 		function _resetPoster() {
