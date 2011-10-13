@@ -138,11 +138,15 @@
 					}
 				}
 				if (_api.jwGetFullscreen()) {
-					var rect = document.body.getBoundingClientRect();
-					_model.width = Math.abs(rect.left) + Math.abs(rect.right);
-					_model.height = window.innerHeight;
+					if (!_utils.useNativeFullscreen()) {
+						var rect = document.body.getBoundingClientRect();
+						_model.width = Math.abs(rect.left) + Math.abs(rect.right);
+						_model.height = window.innerHeight;
+						_resize(_model.width, _model.height);
+					}
+				} else {
+					_resize(_model.width, _model.height);
 				}
-				_resize(_model.width, _model.height);
 			};
 		};
 		
@@ -400,13 +404,17 @@
 				if (videotag && videotag.webkitSupportsFullscreen) {
 					if (state && !videotag.webkitDisplayingFullscreen) {
 						try {
+							_utils.transform(videotag);
 							videotag.webkitEnterFullscreen();
 						} catch (err) {
 						}
-					} else if (!state && videotag.webkitDisplayingFullscreen) {
-						try {
-							videotag.webkitExitFullscreen();
-						} catch (err) {
+					} else if (!state) {
+						_resizeMedia();
+						if (videotag.webkitDisplayingFullscreen) {
+							try {
+								videotag.webkitExitFullscreen();
+							} catch (err) {
+							}
 						}
 					}
 				}

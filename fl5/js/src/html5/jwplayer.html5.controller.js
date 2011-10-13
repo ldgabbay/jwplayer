@@ -80,6 +80,7 @@
 			setTimeout(_completeHandler, 25);
 		});
 		_model.addEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistLoadHandler);
+		_model.addEventListener(jwplayer.api.events.JWPLAYER_FULLSCREEN, _fullscreenHandler);
 		
 		function _play() {
 			try {
@@ -346,23 +347,26 @@
 					state = !_model.fullscreen;
 				} 
 				
-				if (state.toString().toLowerCase() == "true") {
-					_model.fullscreen = true;					
-					_view.fullscreen(true);
-					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
-						fullscreen: true
-					});
-				} else {
-					_model.fullscreen = false;					
-					_view.fullscreen(false);
-					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
-						fullscreen: false
+				if (state != _model.fullscreen) {
+					if (state.toString().toLowerCase() == "true") {
+						_model.fullscreen = true;					
+						_view.fullscreen(true);
+						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
+							fullscreen: true
+						});
+					} else {
+						console.log("setting fs false");
+						_model.fullscreen = false;					
+						_view.fullscreen(false);
+						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
+							fullscreen: false
+						});
+					}
+					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_RESIZE, {
+						"width": _model.width,
+						"height": _model.height
 					});
 				}
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_RESIZE, {
-					"width": _model.width,
-					"height": _model.height
-				});
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -397,6 +401,10 @@
 			if (_model.config.autostart.toString().toLowerCase() == "true") {
 				_play();
 			}
+		}
+		
+		function _fullscreenHandler(evt) {
+			_setFullscreen(evt.fullscreen);
 		}
 		
 		function _detachMedia() {

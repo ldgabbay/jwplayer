@@ -534,11 +534,17 @@
 		if (!jwplayer.utils.exists(xoffset)) xoffset = 0;
 		if (!jwplayer.utils.exists(yoffset)) yoffset = 0;
 		
-		var value = "scale("+xscale+","+yscale+") translate("+xoffset+"px,"+yoffset+"px)";
-		
-		domelement.style.webkitTransform = value;
-		domelement.style.MozTransform = value;
-		domelement.style.OTransform = value;
+		if (xscale == 1 && yscale == 1 && xoffset == 0 && yoffset == 0) {
+			domelement.style.webkitTransform = "";
+			domelement.style.MozTransform = "";
+			domelement.style.OTransform = "";
+		} else {
+			var value = "scale("+xscale+","+yscale+") translate("+xoffset+"px,"+yoffset+"px)";
+			
+			domelement.style.webkitTransform = value;
+			domelement.style.MozTransform = value;
+			domelement.style.OTransform = value;
+		}
 	};
 
 	/**
@@ -578,7 +584,7 @@
 			domelement.parentElement.style.overflow = "hidden";
 		}
 		
-		jwplayer.utils.transform(domelement, "");		
+		jwplayer.utils.transform(domelement);		
 
 		switch (stretching.toUpperCase()) {
 		case jwplayer.utils.stretching.NONE:
@@ -811,6 +817,7 @@
 
 	/** Returns true if the player should use the browser's native fullscreen mode **/
 	jwplayer.utils.useNativeFullscreen = function() {
+		//return jwplayer.utils.isIOS();
 		return (navigator && navigator.vendor && navigator.vendor.indexOf("Apple") == 0);
 	}
 

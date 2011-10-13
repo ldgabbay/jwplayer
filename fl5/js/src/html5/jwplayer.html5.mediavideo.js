@@ -46,7 +46,8 @@
 			'dataunavailable': _generalHandler,
 			'empty': _generalHandler,
 			'load': _loadHandler,
-			'loadedfirstframe': _generalHandler
+			'loadedfirstframe': _generalHandler,
+			'webkitfullscreenchange': _positionHandler
 		};
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
 		_utils.extend(this, _eventDispatcher);
@@ -397,7 +398,7 @@
 					if (_video.webkitDisplayingFullscreen != _model.fullscreen) {
 						//_model.fullscreen = _video.webkitDisplayingFullscreen;
 						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
-							fullscreen: _model.fullscreen
+							fullscreen: _video.webkitDisplayingFullscreen
 						});
 					}
 				}
