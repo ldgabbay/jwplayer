@@ -355,7 +355,6 @@
 							fullscreen: true
 						});
 					} else {
-						console.log("setting fs false");
 						_model.fullscreen = false;					
 						_view.fullscreen(false);
 						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {

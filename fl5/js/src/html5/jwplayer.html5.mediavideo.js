@@ -47,7 +47,7 @@
 			'empty': _generalHandler,
 			'load': _loadHandler,
 			'loadedfirstframe': _generalHandler,
-			'webkitfullscreenchange': _positionHandler
+			'webkitfullscreenchange': _fullscreenHandler
 		};
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
 		_utils.extend(this, _eventDispatcher);
@@ -396,15 +396,6 @@
 					_setState(jwplayer.api.events.state.PLAYING);
 				}
 				
-				if (_utils.exists(_video.webkitDisplayingFullscreen)) {
-					if (_video.webkitDisplayingFullscreen != _model.fullscreen) {
-						//_model.fullscreen = _video.webkitDisplayingFullscreen;
-						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
-							fullscreen: _video.webkitDisplayingFullscreen
-						});
-					}
-				}
-				
 				if (_state == jwplayer.api.events.state.PLAYING) {
 					if (!_start && _video.readyState > 0) {
 						_start = true;
@@ -534,6 +525,17 @@
 			if (_state != jwplayer.api.events.state.IDLE) {
 				_stop(false);
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
+			}
+		}
+		
+		function _fullscreenHandler(evt) {
+			if (_utils.exists(_video.webkitDisplayingFullscreen)) {
+				if (_model.fullscreen && !_video.webkitDisplayingFullscreen) {
+					//_model.fullscreen = _video.webkitDisplayingFullscreen;
+					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
+						fullscreen: false
+					});
+				}
 			}
 		}
 		

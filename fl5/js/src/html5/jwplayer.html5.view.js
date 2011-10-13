@@ -138,7 +138,7 @@
 					}
 				}
 				if (_api.jwGetFullscreen()) {
-					if (!_utils.useNativeFullscreen()) {
+					if (!_useNativeFullscreen()) {
 						var rect = document.body.getBoundingClientRect();
 						_model.width = Math.abs(rect.left) + Math.abs(rect.right);
 						_model.height = window.innerHeight;
@@ -178,7 +178,7 @@
 			plugins.reverse();
 			_zIndex = plugins.length + 2;
 			
-			if (_utils.useNativeFullscreen()) {
+			if (_useNativeFullscreen()) {
 				try {
 					// Check to see if we're in safari and the user has exited fullscreen (the model is not updated)
 					if (_model.fullscreen && !_model.getMedia().getDisplayElement().webkitDisplayingFullscreen) {
@@ -395,26 +395,24 @@
 		this.resize = _resize;
 		
 		this.fullscreen = function(state) {
-			if (_useNativeFullscreen()) {
-				var videotag;
-				try {
-					videotag = _model.getMedia().getDisplayElement();
-				} catch(e) {}
-				
-				if (videotag && videotag.webkitSupportsFullscreen) {
-					if (state && !videotag.webkitDisplayingFullscreen) {
+			var videotag;
+			try {
+				videotag = _model.getMedia().getDisplayElement();
+			} catch(e) {}
+
+			if (_useNativeFullscreen() && videotag && videotag.webkitSupportsFullscreen) {
+				if (state && !videotag.webkitDisplayingFullscreen) {
+					try {
+						_utils.transform(videotag);
+						videotag.webkitEnterFullscreen();
+					} catch (err) {
+					}
+				} else if (!state) {
+					_resizeMedia();
+					if (videotag.webkitDisplayingFullscreen) {
 						try {
-							_utils.transform(videotag);
-							videotag.webkitEnterFullscreen();
+							videotag.webkitExitFullscreen();
 						} catch (err) {
-						}
-					} else if (!state) {
-						_resizeMedia();
-						if (videotag.webkitDisplayingFullscreen) {
-							try {
-								videotag.webkitExitFullscreen();
-							} catch (err) {
-							}
 						}
 					}
 				}
@@ -465,6 +463,7 @@
 		function _useNativeFullscreen() {
 			if (_api.jwGetState() != jwplayer.api.events.state.IDLE
 					&& !_falseFullscreen
+					&& (_model.getMedia() && _model.getMedia().getDisplayElement() && _model.getMedia().getDisplayElement().webkitSupportsFullscreen)
 					&& _utils.useNativeFullscreen()) {
 				 return true;
 			}
