@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.8.2011';
+jwplayer.version = '5.8.2013';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -7162,9 +7162,11 @@ playerReady = function(obj) {
 				_video.style.display = "none";
 				_bufferFull = false;
 				var agent = navigator.userAgent;
+				
+				/* Some browsers require that the video source be cleared in a different way. */
 				if(agent.match(/chrome/i)) {
 					_video.src = undefined;
-				} else if(agent.match(/safari/i) || agent.match(/firefox/i)) {
+				} else if(agent.match(/safari/i) || agent.match(/firefox/i) || agent.match(/opera/i)) {
 					_video.removeAttribute("src");
 				} else {
 					_video.src = "";
