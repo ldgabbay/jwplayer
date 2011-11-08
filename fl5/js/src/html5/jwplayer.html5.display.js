@@ -2,7 +2,7 @@
  * JW Player display component
  *
  * @author zach
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 	_utils = jwplayer.utils;

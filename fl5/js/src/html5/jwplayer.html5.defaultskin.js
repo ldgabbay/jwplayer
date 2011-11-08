@@ -2,7 +2,7 @@
  * JW Player Default skin
  *
  * @author zach
- * @version 5.4
+ * @version 5.8
  */
 (function(jwplayer) {
 	jwplayer.html5.defaultSkin = function() {

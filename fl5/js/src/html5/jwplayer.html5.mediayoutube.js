@@ -2,7 +2,7 @@
  * JW Player YouTube Media component
  *
  * @author pablo
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 

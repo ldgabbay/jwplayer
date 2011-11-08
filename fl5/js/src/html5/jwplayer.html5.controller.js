@@ -2,7 +2,7 @@
  * JW Player controller component
  *
  * @author zach
- * @version 5.7
+ * @version 5.9
  */
 (function(jwplayer) {
 
@@ -396,7 +396,7 @@
 		
 		
 		function _playlistLoadHandler(evt) {
-			_loadItem(_model.playlist[_model.item]);
+			_loadItem(_model.item);
 			if (_model.config.autostart.toString().toLowerCase() == "true") {
 				_play();
 			}

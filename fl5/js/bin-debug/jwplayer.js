@@ -8,7 +8,7 @@
 
  if (typeof jwplayer == "undefined") {/**
  * JW Player namespace definition
- * @version 5.7
+ * @version 5.8
  */
 var jwplayer = function(container) {
 	if (jwplayer.api){
@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.8.2013';
+jwplayer.version = '5.8.2021';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -1475,7 +1475,7 @@ jwplayer.source = document.createElement("source");/**
  * String utilities for the JW Player.
  *
  * @author zach
- * @version 5.4
+ * @version 5.8
  */
 (function(jwplayer) {
 
@@ -1628,7 +1628,8 @@ jwplayer.source = document.createElement("source");/**
 		}
 	}
 	
-})(jwplayer);/**
+})(jwplayer);
+/**
  * Utility methods for the JW Player.
  *
  * @author zach
@@ -2027,7 +2028,7 @@ jwplayer.source = document.createElement("source");/**
 /**
  * Internal plugin model
  * @author zach
- * @version 5.5
+ * @version 5.8
  */
 (function(jwplayer) {
 	jwplayer.plugins.pluginmodes = {
@@ -2290,7 +2291,7 @@ jwplayer.source = document.createElement("source");/**
  * API for the JW Player
  * 
  * @author Pablo
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 	var _players = [];
@@ -2943,7 +2944,7 @@ playerReady = function(obj) {
 /**
  * Embedder for the JW Player
  * @author Zach
- * @version 5.5
+ * @version 5.8
  */
 (function(jwplayer) {
 	var _utils = jwplayer.utils;
@@ -3744,7 +3745,7 @@ playerReady = function(obj) {
 /**
  * HTML5 mode embedder for the JW Player
  * @author Zach
- * @version 5.5
+ * @version 5.8
  */
 (function(jwplayer) {
 
@@ -4036,7 +4037,7 @@ playerReady = function(obj) {
  * JW Player view component
  *
  * @author zach
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 
@@ -4522,7 +4523,7 @@ playerReady = function(obj) {
  * jwplayer controlbar component of the JW Player.
  *
  * @author zach
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 	/** Map with config for the jwplayerControlbar plugin. **/
@@ -5512,11 +5513,12 @@ playerReady = function(obj) {
 		_setup();
 		return this;
 	};
-})(jwplayer);/**
+})(jwplayer);
+/**
  * JW Player controller component
  *
  * @author zach
- * @version 5.7
+ * @version 5.9
  */
 (function(jwplayer) {
 
@@ -5910,7 +5912,7 @@ playerReady = function(obj) {
 		
 		
 		function _playlistLoadHandler(evt) {
-			_loadItem(_model.playlist[_model.item]);
+			_loadItem(_model.item);
 			if (_model.config.autostart.toString().toLowerCase() == "true") {
 				_play();
 			}
@@ -6010,7 +6012,7 @@ playerReady = function(obj) {
  * JW Player Default skin
  *
  * @author zach
- * @version 5.4
+ * @version 5.8
  */
 (function(jwplayer) {
 	jwplayer.html5.defaultSkin = function() {
@@ -6035,7 +6037,7 @@ playerReady = function(obj) {
  * JW Player display component
  *
  * @author zach
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 	_utils = jwplayer.utils;
@@ -6796,7 +6798,7 @@ playerReady = function(obj) {
  * JW Player logo component
  *
  * @author zach
- * @version 5.4
+ * @version 5.8
  */
 (function(jwplayer) {
 
@@ -7537,7 +7539,7 @@ playerReady = function(obj) {
  * JW Player YouTube Media component
  *
  * @author pablo
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 
@@ -7760,7 +7762,7 @@ playerReady = function(obj) {
  * JW Player model component
  *
  * @author zach
- * @version 5.7
+ * @version 5.9
  */
 (function(jwplayer) {
 	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen", "item", "plugins", "stretching"];
@@ -7973,8 +7975,8 @@ playerReady = function(obj) {
 			}
 			_model.playlist = new jwplayer.html5.playlist(config);
 			_model.item = _model.config.item >= 0 ? _model.config.item : 0;
-			if (!_model.playlist[_model.item].provider) {
-				_loadExternal(_model.playlist[_model.item].file);
+			if (!_model.playlist[0].provider) {
+				_loadExternal(_model.playlist[0].file);
 			} else {
 				_loadComplete();
 			}
@@ -8114,7 +8116,7 @@ playerReady = function(obj) {
  * jwplayer Playlist component for the JW Player.
  *
  * @author pablo
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 	var _defaults = {
@@ -8616,7 +8618,7 @@ playerReady = function(obj) {
  * JW Player playlist loader
  *
  * @author pablo
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 	jwplayer.html5.playlistloader = function() {
@@ -8899,7 +8901,7 @@ playerReady = function(obj) {
  * A factory for API calls that either set listeners or return data
  *
  * @author zach
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 

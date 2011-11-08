@@ -2,7 +2,7 @@
  * JW Player playlist loader
  *
  * @author pablo
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 	jwplayer.html5.playlistloader = function() {

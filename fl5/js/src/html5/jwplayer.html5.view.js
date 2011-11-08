@@ -2,7 +2,7 @@
  * JW Player view component
  *
  * @author zach
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 

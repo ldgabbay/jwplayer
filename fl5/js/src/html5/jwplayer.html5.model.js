@@ -2,7 +2,7 @@
  * JW Player model component
  *
  * @author zach
- * @version 5.7
+ * @version 5.9
  */
 (function(jwplayer) {
 	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen", "item", "plugins", "stretching"];
@@ -215,8 +215,8 @@
 			}
 			_model.playlist = new jwplayer.html5.playlist(config);
 			_model.item = _model.config.item >= 0 ? _model.config.item : 0;
-			if (!_model.playlist[_model.item].provider) {
-				_loadExternal(_model.playlist[_model.item].file);
+			if (!_model.playlist[0].provider) {
+				_loadExternal(_model.playlist[0].file);
 			} else {
 				_loadComplete();
 			}

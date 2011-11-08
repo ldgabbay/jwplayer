@@ -1,7 +1,7 @@
 /**
  * Internal plugin model
  * @author zach
- * @version 5.5
+ * @version 5.8
  */
 (function(jwplayer) {
 	jwplayer.plugins.pluginmodes = {

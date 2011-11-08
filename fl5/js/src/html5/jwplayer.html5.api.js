@@ -2,7 +2,7 @@
  * A factory for API calls that either set listeners or return data
  *
  * @author zach
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 

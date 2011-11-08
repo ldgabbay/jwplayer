@@ -1,7 +1,7 @@
 /**
  * Embedder for the JW Player
  * @author Zach
- * @version 5.5
+ * @version 5.8
  */
 (function(jwplayer) {
 	var _utils = jwplayer.utils;

@@ -2,7 +2,7 @@
  * API for the JW Player
  * 
  * @author Pablo
- * @version 5.7
+ * @version 5.8
  */
 (function(jwplayer) {
 	var _players = [];

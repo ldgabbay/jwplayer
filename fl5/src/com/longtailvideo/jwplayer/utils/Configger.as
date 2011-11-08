@@ -99,12 +99,16 @@ package com.longtailvideo.jwplayer.utils {
 
 		private function loadComplete(evt:Event):void {
 			var loadedXML:XML = XML((evt.target as URLLoader).data);
-			if (loadedXML.name().toString().toLowerCase() == "config" && loadedXML.children().length() > 0) {
+			if (loadedXML && 
+				loadedXML.name() &&
+				loadedXML.name().toString().toLowerCase() == "config" && 
+				loadedXML.children().length() > 0
+			) {
 				parseXML(loadedXML);
-				loadFlashvars(RootReference.root.loaderInfo.parameters);
 			} else {
-				dispatchEvent(new ErrorEvent(ErrorEvent.ERROR, false, false, "Config was empty"));
+				Logger.log("Config XML was empty");
 			}
+			loadFlashvars(RootReference.root.loaderInfo.parameters);
 		}
 
 		private function xmlFail(evt:ErrorEvent):void {

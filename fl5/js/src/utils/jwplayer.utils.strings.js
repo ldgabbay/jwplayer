@@ -2,7 +2,7 @@
  * String utilities for the JW Player.
  *
  * @author zach
- * @version 5.4
+ * @version 5.8
  */
 (function(jwplayer) {
 
