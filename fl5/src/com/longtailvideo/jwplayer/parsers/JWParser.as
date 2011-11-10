@@ -52,6 +52,10 @@ package com.longtailvideo.jwplayer.parsers {
 			for each (var i:XML in obj.children()) {
 				if (i.namespace().prefix == JWParser.PREFIX) {
 					itm[i.localName()] = Strings.serialize(i.text().toString());
+					if (i.localName() == "file" && itm.levels) {
+						// jwplayer namespace file should override existing level (probably set in MediaParser)
+						delete itm.levels;
+					}
 				}
 				if(!itm['file'] && String(itm['link']).toLowerCase().indexOf('youtube') > -1) {
 					itm['file'] = itm['link'];

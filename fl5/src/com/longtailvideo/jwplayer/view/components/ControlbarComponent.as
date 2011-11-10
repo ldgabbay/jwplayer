@@ -710,6 +710,9 @@ package com.longtailvideo.jwplayer.view.components {
 				x = margin + player.config.pluginConfig('display')['x'];
 				y = height - background.height - margin + player.config.pluginConfig('display')['y'];
 				_width = width - 2 * margin;
+				_bgColorSheet.visible = false;
+			} else {
+				_bgColorSheet.visible = true;
 			}
 
 			//shade.width = _width;

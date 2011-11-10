@@ -27,6 +27,10 @@
 		for (var i = 0; i < obj.childNodes.length; i++) {
 			if (obj.childNodes[i].prefix == jwplayer.utils.parsers.jwparser.PREFIX) {
 				itm[jwplayer.utils.parsers.localName(obj.childNodes[i])] = jwplayer.utils.strings.serialize(jwplayer.utils.parsers.textContent(obj.childNodes[i]));
+				if (jwplayer.utils.parsers.localName(obj.childNodes[i]) == "file" && itm.levels) {
+					// jwplayer namespace file should override existing level (probably set in MediaParser)
+					delete itm.levels;
+				}
 			}
 			if (!itm['file'] && String(itm['link']).toLowerCase().indexOf('youtube') > -1) {
 				itm['file'] = itm['link'];

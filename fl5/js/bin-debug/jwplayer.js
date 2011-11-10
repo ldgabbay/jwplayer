@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.8.2021';
+jwplayer.version = '5.9.2022';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -1778,6 +1778,10 @@ jwplayer.source = document.createElement("source");/**
 		for (var i = 0; i < obj.childNodes.length; i++) {
 			if (obj.childNodes[i].prefix == jwplayer.utils.parsers.jwparser.PREFIX) {
 				itm[jwplayer.utils.parsers.localName(obj.childNodes[i])] = jwplayer.utils.strings.serialize(jwplayer.utils.parsers.textContent(obj.childNodes[i]));
+				if (jwplayer.utils.parsers.localName(obj.childNodes[i]) == "file" && itm.levels) {
+					// jwplayer namespace file should override existing level (probably set in MediaParser)
+					delete itm.levels;
+				}
 			}
 			if (!itm['file'] && String(itm['link']).toLowerCase().indexOf('youtube') > -1) {
 				itm['file'] = itm['link'];

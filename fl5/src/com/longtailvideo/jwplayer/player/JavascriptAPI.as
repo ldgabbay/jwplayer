@@ -440,13 +440,15 @@ package com.longtailvideo.jwplayer.player {
 
 		protected function js_fullscreen(fullscreenstate:*=null):void {
 			if (fullscreenstate == null){
-				_player.fullscreen(!_player.config.fullscreen);
+				fullscreenstate = !_player.config.fullscreen;
+			}
+			
+			if (String(fullscreenstate).toLowerCase() == "true") {
+				// This won't ever work - Flash fullscreen mode can't be set from JavaScript
+				Logger.log("Can't activate Flash fullscreen mode from JavaScript API");
+				return;
 			} else {
-				if (String(fullscreenstate).toLowerCase() == "true") {
-					_player.fullscreen(true);
-				} else {
-					_player.fullscreen(false);
-				}
+				_player.fullscreen(false);
 			}
 		}
 		
