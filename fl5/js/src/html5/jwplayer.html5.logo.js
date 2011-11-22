@@ -10,6 +10,7 @@
 		prefix: "http://l.longtailvideo.com/html5/",
 		file: "logo.png",
 		link: "http://www.longtailvideo.com/players/jw-flv-player/",
+		linktarget: "_top",
 		margin: 8,
 		out: 0.5,
 		over: 1,
@@ -112,7 +113,7 @@
 			_api.jwPause();
 			_api.jwSetFullscreen(false);
 			if (_settings.link) {
-				window.open(_settings.link, "_top");
+				window.open(_settings.link, _settings.linktarget);
 			}
 			return;
 		}
@@ -140,7 +141,7 @@
 			_imageStyle.display = (_settings.hide.toString() == "true" && !_showing) ? "none" : "block";
 			var positions = _settings.position.toLowerCase().split("-");
 			for (var position in positions) {
-				_imageStyle[positions[position]] = _settings.margin;
+				_imageStyle[positions[position]] = parseInt(_settings.margin);
 			}
 			return _imageStyle;
 		}
