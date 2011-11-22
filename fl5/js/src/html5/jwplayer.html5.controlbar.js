@@ -194,6 +194,9 @@
 			
 			if (_fullscreen != _api.jwGetFullscreen()) {
 				_fullscreen = _api.jwGetFullscreen();
+				if (!_fullscreen) {
+					_setVisibility();
+				}
 				_lastSent = undefined;
 			}
 			

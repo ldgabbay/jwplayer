@@ -381,7 +381,7 @@
 				_model.loadPlaylist(arg);
 				if (_model.playlist[_model.item].provider) {
 					_loadItem(_model.item);
-					if (_model.config.autostart.toString().toLowerCase() == "true") {
+					if (_model.config.autostart.toString().toLowerCase() == "true" && !_utils.isIOS()) {
 						_play();
 					}
 					return true;
@@ -397,7 +397,7 @@
 		
 		function _playlistLoadHandler(evt) {
 			_loadItem(_model.item);
-			if (_model.config.autostart.toString().toLowerCase() == "true") {
+			if (_model.config.autostart.toString().toLowerCase() == "true" && !_utils.isIOS()) {
 				_play();
 			}
 		}
