@@ -36,7 +36,7 @@
 		};
 		
 		this.getComponentSettings = function(component) {
-			if (_loaded) {
+			if (_loaded && _components && _components[component]) {
 				return _components[component].settings;
 			}
 			return null;

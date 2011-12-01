@@ -84,7 +84,7 @@
             var playersDiv = document.getElementById(div);
             playersDiv.innerHTML = "";
             
-            var selected = window.location.href.match(/\?skin=(\w+)/);
+            var selected = window.location.href.match(/skin=(\w+)/);
             var toRender = skins;
             if (selected && selected.length > 0) {
               toRender = {};
@@ -109,9 +109,18 @@
             }
              
           }
-          
-          setupAll("html5only");
-          setupAll("flashonly");
+
+          var mode = window.location.href.match(/mode=(\w+)/);
+          if (mode && mode.length > 0) {
+              if (mode[1] == "flash") {
+	           	  setupAll("flashonly");
+              } else {
+				  setupAll("html5only");
+              }
+          } else {
+          	setupAll("html5only");
+          	setupAll("flashonly");
+          }
           
         </script>
         

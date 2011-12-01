@@ -289,8 +289,12 @@
 		}
 		
 		function _setMouseListeners() {
-			_root = document.getElementById(api.id);
-			_root.addEventListener("mousemove", _setVisibility);
+			try {
+				_root = document.getElementById(api.id);
+				_root.addEventListener("mousemove", _setVisibility);
+			} catch (e) {
+				_utils.log("Could not add mouse listeners to dock: " + e);
+			}
 		}
 				
 		this.hide = _hide;

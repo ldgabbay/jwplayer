@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2025';
+jwplayer.version = '5.9.2030';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -5492,8 +5492,12 @@ playerReady = function(obj) {
 		}
 		
 		function _setMouseListeners() {
-			_root = document.getElementById(_api.id);
-			_root.addEventListener("mousemove", _setVisibility);
+			try {
+				_root = document.getElementById(_api.id);
+				_root.addEventListener("mousemove", _setVisibility);
+			} catch (e) {
+				_utils.log("Could not add mouse listeners to controlbar: " + e);
+			}
 		}
 		
 		function _setup() {
@@ -6766,8 +6770,12 @@ playerReady = function(obj) {
 		}
 		
 		function _setMouseListeners() {
-			_root = document.getElementById(api.id);
-			_root.addEventListener("mousemove", _setVisibility);
+			try {
+				_root = document.getElementById(api.id);
+				_root.addEventListener("mousemove", _setVisibility);
+			} catch (e) {
+				_utils.log("Could not add mouse listeners to dock: " + e);
+			}
 		}
 				
 		this.hide = _hide;
@@ -8696,7 +8704,7 @@ playerReady = function(obj) {
 		};
 		
 		this.getComponentSettings = function(component) {
-			if (_loaded) {
+			if (_loaded && _components && _components[component]) {
 				return _components[component].settings;
 			}
 			return null;
