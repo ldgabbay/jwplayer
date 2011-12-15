@@ -57,6 +57,12 @@ package com.longtailvideo.jwplayer.model {
 	 */
 	[Event(name="jwplayerMediaVolume", type="com.longtailvideo.jwplayer.events.MediaEvent")]
 	/**
+	 * Sent when the player has been muted or unmuted
+	 * 
+	 * @eventType com.longtailvideo.jwplayer.events.MediaEvent.JWPLAYER_MEDIA_MUTE
+	 */
+	[Event(name="jwplayerMediaMute", type="com.longtailvideo.jwplayer.events.MediaEvent")]
+	/**
 	 * Fired when the currently playing media has completed its playback
 	 * 
 	 * @eventType com.longtailvideo.jwplayer.events.MediaEvent.JWPLAYER_MEDIA_COMPLETE

@@ -335,7 +335,7 @@
 	<!--
 		 Builds the player code library used by plugins
 	-->
-	<target name="build-lib" depends="build-release-player">
+	<target name="build-lib">
 		<!-- Clean the SDK directory -->
 		<antcall target="clean-dir">
 			<param name="clean-directory" value="${sdk.dir}"/>

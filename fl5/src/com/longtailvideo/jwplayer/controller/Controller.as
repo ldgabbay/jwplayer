@@ -90,7 +90,11 @@ package com.longtailvideo.jwplayer.controller {
 		protected var _queuedSeek:Number = -1;
 		/** Saving whether a seek was sent on idle. **/
 		protected var _idleSeek:Number = -1;
-
+		/** Set this to true if play should be interrupted after onBeforePlay propagates. **/
+		protected var _interruptPlay:Boolean = false;
+		/** This is set to true while the onBeforePlay event is propagating **/
+		protected var _preplay:Boolean = false;
+		
 
 		/** A list with legacy CDN classes that are now redirected to buit-in ones. **/
 		protected var cdns:Object = {
@@ -282,8 +286,10 @@ package com.longtailvideo.jwplayer.controller {
 			var wasLocked:Boolean = locking;
 			if (_lockManager.lock(plugin, callback)) {
 				// If it was playing, pause playback and plan to resume when you're done
-				if (_player.state == PlayerState.PLAYING || _player.state == PlayerState.BUFFERING) {
-					_model.media.pause();
+				if (_player.state == PlayerState.PLAYING || _player.state == PlayerState.BUFFERING || _preplay) {
+					if (!_preplay) {
+						_model.media.pause();	
+					}
 					_lockingResume = true;
 				}
 				
@@ -361,6 +367,16 @@ package com.longtailvideo.jwplayer.controller {
 
 
 		public function play():Boolean {
+			if (!_preplay) {
+				_preplay = true;
+				dispatchEvent(new PlayerEvent(MediaEvent.JWPLAYER_MEDIA_BEFOREPLAY));
+				_preplay = false;
+				if (_interruptPlay) {
+					_interruptPlay = false;
+					return false;
+				}
+			}
+			
 			if (!_playlistReady) {
 				Logger.log("Attempted to begin playback before playlist is ready");
 				return false;
@@ -408,6 +424,10 @@ package com.longtailvideo.jwplayer.controller {
 					_model.media.pause();
 					return true;
 					break;
+				default:
+					if (_preplay) {
+						_interruptPlay = true;
+					}
 			}
 
 			return false;
@@ -423,6 +443,8 @@ package com.longtailvideo.jwplayer.controller {
 				return false;
 			}
 			
+			_interruptPlay = true;
+
 			switch (_model.media.state) {
 				case PlayerState.PLAYING:
 				case PlayerState.BUFFERING:
@@ -431,6 +453,7 @@ package com.longtailvideo.jwplayer.controller {
 					return true;
 					break;
 			}
+			
 
 			return false;
 		}
@@ -511,7 +534,9 @@ package com.longtailvideo.jwplayer.controller {
 				case PlayerState.IDLE:
 					_model.playlist.currentItem.start = pos;
 					_idleSeek = pos;
-					play();
+					if (!_preplay) {
+						play();
+					}
 					return true;
 				case PlayerState.BUFFERING:
 					_queuedSeek = pos;

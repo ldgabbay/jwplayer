@@ -90,7 +90,7 @@
 		/** Switch the mute state of the player. **/
 		this.mute = function(state) {
 			_container.muted = state;
-			_model.mute = state;
+//			_model.mute = state;
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
 				mute: state
 			});

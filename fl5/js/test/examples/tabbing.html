@@ -32,7 +32,11 @@
         <script type="text/javascript">
             jwplayer("player").setup({
             	players: settings.players(window.location.href, ["flash","html5"]),
-            	file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
+            	levels: [{
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
             	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
             	height: "270",
             	width: "480",
@@ -46,7 +50,11 @@
 
             jwplayer("player2").setup({
             	players: settings.players(window.location.href, ["flash","html5"]),
-            	file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4",
+            	levels: [{
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
             	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
             	height: "270",
             	width: "480",

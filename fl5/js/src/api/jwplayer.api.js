@@ -286,6 +286,9 @@
 		this.onVolume = function(callback) {
 			return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, callback);
 		};
+		this.onBeforePlay = function(callback) {
+			return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_BEFOREPLAY, callback);
+		};
 		// State events
 		this.onBuffer = function(callback) {
 			return this.stateListener(jwplayer.api.events.state.BUFFERING, callback);
@@ -555,6 +558,7 @@
 		JWPLAYER_FULLSCREEN: 'jwplayerFullscreen',
 		JWPLAYER_RESIZE: 'jwplayerResize',
 		JWPLAYER_ERROR: 'jwplayerError',
+		JWPLAYER_MEDIA_BEFOREPLAY: 'jwplayerMediaBeforePlay',
 		JWPLAYER_COMPONENT_SHOW: 'jwplayerComponentShow',
 		JWPLAYER_COMPONENT_HIDE: 'jwplayerComponentHide',
 		JWPLAYER_MEDIA_BUFFER: 'jwplayerMediaBuffer',

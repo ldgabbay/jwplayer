@@ -238,8 +238,16 @@
 		}
 		
 		function forward(evt) {
-			if (evt.type == jwplayer.api.events.JWPLAYER_MEDIA_LOADED) {
+			switch (evt.type) {
+			case jwplayer.api.events.JWPLAYER_MEDIA_LOADED:
 				_container = _media.getDisplayElement();
+				break;
+			case jwplayer.api.events.JWPLAYER_MEDIA_MUTE:
+				this.mute = evt.mute;
+				break;
+			case jwplayer.api.events.JWPLAYER_MEDIA_VOLUME:
+				this.volume = evt.volume
+				break;
 			}
 			_eventDispatcher.sendEvent(evt.type, evt);
 		}

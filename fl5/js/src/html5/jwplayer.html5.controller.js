@@ -10,19 +10,22 @@
 	var _utils = jwplayer.utils;
 	
 	jwplayer.html5.controller = function(api, container, model, view) {
-		var _api = api;
-		var _model = model;
-		var _view = view;
-		var _container = container;
-		var _itemUpdated = true;
-		var _oldstart = -1;
+		var _api = api,
+			_model = model,
+			_view = view,
+			_container = container,
+			_itemUpdated = true,
+			_oldstart = -1,
+			_preplay = false,
+			_interruptPlay = false,
+			_queuedEvents = [],
+			_ready = false;
 		
-		var debug = _utils.exists(_model.config.debug) && (_model.config.debug.toString().toLowerCase() == 'console');
-		var _eventDispatcher = new jwplayer.html5.eventdispatcher(_container.id, debug);
+		
+		var _debug = (_utils.exists(_model.config.debug) && (_model.config.debug.toString().toLowerCase() == 'console')),
+			_eventDispatcher = new jwplayer.html5.eventdispatcher(_container.id, _debug);
+			
 		_utils.extend(this, _eventDispatcher);
-		
-		var _queuedEvents = [];
-		var _ready = false;
 		
 		function forward(evt) {
 			if (_ready) {
@@ -84,6 +87,16 @@
 		
 		function _play() {
 			try {
+				if (!_preplay) {
+					_preplay = true;
+					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BEFOREPLAY);
+					_preplay = false;
+					if (_interruptPlay) {
+						_interruptPlay = false;
+						return;
+					}
+				}
+				
 				_loadItem(_model.item);
 				if (_model.playlist[_model.item].levels[0].file.length > 0) {
 					if (_itemUpdated || _model.state == jwplayer.api.events.state.IDLE) {
@@ -112,6 +125,10 @@
 								_model.getMedia().pause();
 							}
 							break;
+						default:
+							if (_preplay) {
+								_interruptPlay = true;
+							}
 					}
 				}
 				return true;
@@ -135,7 +152,9 @@
 								_oldstart = _model.playlist[_model.item].start;
 								_model.playlist[_model.item].start = position;
 							}
-							_play();
+							if (!_preplay) {
+								_play();
+							}
 							break;
 						case jwplayer.api.events.state.PLAYING:
 						case jwplayer.api.events.state.PAUSED:
@@ -158,8 +177,11 @@
 				clear = true;
 			}
 			try {
-				if (_model.getMedia()) {
+				if (_model.state != jwplayer.api.events.state.IDLE && _model.getMedia()) {
 					_model.getMedia().stop(clear);
+				}
+				if (_preplay) {
+					_interruptPlay = true;
 				}
 				return true;
 			} catch (err) {
@@ -307,11 +329,14 @@
 				var media = _model.getMedia();
 				if (typeof state == "undefined") {
 					media.mute(!_model.mute);
+					_model.mute = !_model.mute;
 				} else {
 					if (state.toString().toLowerCase() == "true") {
 						media.mute(true);
+						_model.mute = true;
 					} else {
 						media.mute(false);
+						_model.mute = false;
 					}
 				}
 				return true;
@@ -378,10 +403,14 @@
 		function _load(arg) {
 			try {
 				_stop();
+				if (_preplay) {
+					// stop() during preplay sets interruptPlay -- we don't want to do this.
+					_interruptPlay = false;
+				}
 				_model.loadPlaylist(arg);
 				if (_model.playlist[_model.item].provider) {
 					_loadItem(_model.item);
-					if (_model.config.autostart.toString().toLowerCase() == "true" && !_utils.isIOS()) {
+					if (_model.config.autostart.toString().toLowerCase() == "true" && !_utils.isIOS() && !_preplay) {
 						_play();
 					}
 					return true;

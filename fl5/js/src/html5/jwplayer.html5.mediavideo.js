@@ -193,12 +193,13 @@
 				var agent = navigator.userAgent;
 				
 				/* Some browsers require that the video source be cleared in a different way. */
-				if(agent.match(/chrome/i)) {
-					_video.src = undefined;
-				} else if(agent.match(/safari/i) || agent.match(/firefox/i) || agent.match(/opera/i)) {
-					_video.removeAttribute("src");
-				} else {
+//				if(agent.match(/chrome/i)) {
+//					_video.src = undefined;
+//				} else 
+				if (_utils.isIE()) {
 					_video.src = "";
+				} else {
+					_video.removeAttribute("src");
 				}
 				_video.removeAttribute("controls");
 				_video.removeAttribute("poster");
@@ -236,6 +237,9 @@
 		this.volume = function(position) {
 			if (!_isMobile) {
 				_video.volume = position / 100;
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
+					volume: (position / 100)
+				});
 			}
 		};
 		
@@ -244,6 +248,9 @@
 		this.mute = function(state) {
 			if (!_isMobile) {
 				_video.muted = state;
+				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
+					mute: state
+				});
 			}
 		};
 
@@ -338,15 +345,13 @@
 		function _volumeHandler(event) {
 			var newVol = Math.round(_video.volume * 100);
 			if (newVol != _model.volume) {
-				_model.volume = newVol;
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
-					volume: _model.volume
+					volume: newVol
 				});
 			}
 			if (_video.muted != _model.mute) {
-				_model.mute = _video.muted;
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
-					mute: _model.mute
+					mute: _video.muted
 				});
 			}
 		}

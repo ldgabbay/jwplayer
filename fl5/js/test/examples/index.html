@@ -1,25 +1,25 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-    <head>
-        <title>HTML5 Player Examples</title>
-        <style type="text/css">
-            body {
-                font-family: Arial, Verdana, sans-serif;
-                font-size: .8em;
-                padding-left: 1em;
-            }
-            
-            ul {
-                margin-left: 0;
-                padding: 1em;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Examples</h1>
-        <ul id="examples">
-        </ul>
-        <script type="text/javascript">
+<head>
+<title>HTML5 Player Examples</title>
+<style type="text/css">
+body {
+	font-family: Arial, Verdana, sans-serif;
+	font-size: .8em;
+	padding-left: 1em;
+}
+
+ul {
+	margin-left: 0;
+	padding: 1em;
+}
+</style>
+</head>
+<body>
+<h1>Examples</h1>
+<ul id="examples">
+</ul>
+<script type="text/javascript">
             var list = document.getElementById("examples");
             var examplePages = {
             	"Basic Tests": {
@@ -184,23 +184,24 @@
           		 	    "Display.showmute": "showmute.html"
             		}
             	},
-            	"Player 5.7": {
+	        	"Player 5.7": {
             		"Bugs": {
             		},
             		"Features": {
             			"image.duration": "imageduration.html",
             			"Show and Hide events": "showhide.html"
-            	  }
-              },
-            	"Player 5.8": {
+            	  	}
+              	},
+              	"Player 5.8": {
             		"Bugs": {
             		  "100% Height / Width (parent is &lt;body&gt;)": "hundredpercent.html"
             		},
-            		"Features": {
-            			"image.duration": "imageduration.html",
-            			"Show and Hide events": "showhide.html"
-            	  }
-              }
+              	},
+	        	"Player 5.9": {
+                	"Features": {
+                		"onBeforePlay Event": "onbeforeplay.html"
+                	}
+                }
             };
             
             function createList(examples, parentDOM) {
@@ -224,5 +225,5 @@
             
             createList(examplePages, list);
         </script>
-    </body>
+</body>
 </html>
