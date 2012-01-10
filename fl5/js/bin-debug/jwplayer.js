@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2045';
+jwplayer.version = '5.9.2046';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -5956,7 +5956,7 @@ playerReady = function(obj) {
 		
 		
 		function _playlistLoadHandler(evt) {
-			if (!_utils.isIOS() {
+			if (!_utils.isIOS()) {
 				_loadItem(_model.item);
 				if (_model.config.autostart.toString().toLowerCase() == "true" && !_utils.isIOS()) {
 					_play();

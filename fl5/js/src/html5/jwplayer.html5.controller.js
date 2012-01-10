@@ -425,7 +425,7 @@
 		
 		
 		function _playlistLoadHandler(evt) {
-			if (!_utils.isIOS() {
+			if (!_utils.isIOS()) {
 				_loadItem(_model.item);
 				if (_model.config.autostart.toString().toLowerCase() == "true" && !_utils.isIOS()) {
 					_play();
