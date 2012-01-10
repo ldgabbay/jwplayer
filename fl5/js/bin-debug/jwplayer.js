@@ -8,7 +8,7 @@
 
  if (typeof jwplayer == "undefined") {/**
  * JW Player namespace definition
- * @version 5.8
+ * @version 5.7
  */
 var jwplayer = function(container) {
 	if (jwplayer.api){
@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2032';
+jwplayer.version = '5.9.2044';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -8029,8 +8029,8 @@ playerReady = function(obj) {
 			}
 			_model.playlist = new jwplayer.html5.playlist(config);
 			_model.item = _model.config.item >= 0 ? _model.config.item : 0;
-			if (!_model.playlist[0].provider) {
-				_loadExternal(_model.playlist[0].file);
+			if (!_model.playlist[_model.item].provider) {
+				_loadExternal(_model.playlist[_model.item].file);
 			} else {
 				_loadComplete();
 			}
