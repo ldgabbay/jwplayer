@@ -710,7 +710,7 @@
 			} else if (_scrubber == "volume") {
 				xps = msx - _positions.volumeSliderRail.left - window.pageXOffset;
 				var pct = Math.round(xps / _positions.volumeSliderRail.width * 100);
-				if (pct < 0) {
+				if (pct < 10) {
 					pct = 0;
 				} else if (pct > 100) {
 					pct = 100;

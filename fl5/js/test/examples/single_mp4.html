@@ -15,9 +15,9 @@
             This sets up a player for IE9, FF, Chrome, Safari, and Opera, however, playback will fail in FF and Opera. IE < 9 will simply display "HTML5 Player should replace this".
         </p>
         <p>Rendering mode:
-            <select id="renderer">
-              <option value="flashonly"  selected="selected">Flash Only</option>
-              <option value="html5only">HTML5 Only</option>
+            <select id="mode">
+              <option id="mode_html5" value="html5" selected="selected">HTML5</option>
+              <option id="mode_flash" value="flash">Flash</option>
             </select>
 			<button id="update" onclick="return setupAll();">Update</button>
         </p>
@@ -26,8 +26,10 @@
         	Player should replace this
         </div>
         <script type="text/javascript">
+			setDefault("mode");
+       
         	function setupAll() {
-                var mode = document.getElementById('renderer').value;
+                var mode = document.getElementById('mode').value;
 
                 jwplayer("player").setup({
    		         	players: settings.modes[mode],

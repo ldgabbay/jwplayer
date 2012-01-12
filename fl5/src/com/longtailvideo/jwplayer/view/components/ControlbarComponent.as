@@ -569,6 +569,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 		private function volumeHandler(evt:ViewEvent):void {
 			var volume:Number = Math.round(evt.data * 100);
+			volume = volume < 10 ? 0 : volume;
 			if (!_player.locked) {
 				var volumeEvent:MediaEvent = new MediaEvent(MediaEvent.JWPLAYER_MEDIA_VOLUME);
 				volumeEvent.volume = volume;

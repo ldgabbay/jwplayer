@@ -29,3 +29,20 @@ var settings = {
  }
 
 };
+
+function getVariable(name) {
+	var regex = new RegExp(name+"=([\\w\\,]+)");
+	var match = window.location.href.match(regex);
+	if (match && match.length > 1) {
+		return match[1];
+	} else {
+		return "";
+	}
+}
+
+function setDefault(name) {
+	var val = getVariable(name);
+	if (val) {
+		document.getElementById(name+"_"+val).selected = true;
+	}
+}
