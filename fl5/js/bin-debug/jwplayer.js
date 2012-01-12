@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2053';
+jwplayer.version = '5.9.2054';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -6434,6 +6434,7 @@ playerReady = function(obj) {
 		};
 		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, _stateHandler);
+		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_LOADED, _playlistLoadHandler);
 		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYLIST_ITEM, _stateHandler);
 		_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_ERROR, _errorHandler);
 		_setupDisplay();
@@ -6620,6 +6621,11 @@ playerReady = function(obj) {
 		
 		function _resetPoster() {
 			_display.display_image.style.display = "none";
+		}
+		
+		function _playlistLoadHandler() {
+			// We're going to force a refresh once we get the playlist item event.
+			_lastState = "";
 		}
 		
 		function _stateHandler(evt) {
