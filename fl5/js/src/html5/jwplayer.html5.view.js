@@ -422,6 +422,8 @@
 		
 		this.resize = _resize;
 		
+		var _beforeNative;
+		
 		this.fullscreen = function(state) {
 			var videotag;
 			try {
@@ -432,6 +434,8 @@
 				if (state && !videotag.webkitDisplayingFullscreen) {
 					try {
 						_utils.transform(videotag);
+						_beforeNative = _box.style.display; 
+						_box.style.display="none";
 						videotag.webkitEnterFullscreen();
 					} catch (err) {
 					}
@@ -443,6 +447,7 @@
 						} catch (err) {
 						}
 					}
+					_box.style.display=_beforeNative;
 				}
 				_falseFullscreen = false;
 			} else {

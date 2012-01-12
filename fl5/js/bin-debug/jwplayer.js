@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2054';
+jwplayer.version = '5.9.2055';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4635,6 +4635,8 @@ playerReady = function(obj) {
 		
 		this.resize = _resize;
 		
+		var _beforeNative;
+		
 		this.fullscreen = function(state) {
 			var videotag;
 			try {
@@ -4645,6 +4647,8 @@ playerReady = function(obj) {
 				if (state && !videotag.webkitDisplayingFullscreen) {
 					try {
 						_utils.transform(videotag);
+						_beforeNative = _box.style.display; 
+						_box.style.display="none";
 						videotag.webkitEnterFullscreen();
 					} catch (err) {
 					}
@@ -4656,6 +4660,7 @@ playerReady = function(obj) {
 						} catch (err) {
 						}
 					}
+					_box.style.display=_beforeNative;
 				}
 				_falseFullscreen = false;
 			} else {
