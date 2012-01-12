@@ -249,7 +249,8 @@
 			<fileset dir="${basedir}/js/src/parsers" includes="jwplayer.utils.parsers.rssparser.js" />
 			<fileset dir="${basedir}/js/src/plugins" includes="jwplayer.plugins.js" />
 			<fileset dir="${basedir}/js/src/plugins" includes="**/*.js" excludes="jwplayer.plugins.js" />
-			<fileset dir="${basedir}/js/src/api" includes="**/*.js" />
+			<fileset dir="${basedir}/js/src/api" includes="jwplayer.api.js" />
+			<fileset dir="${basedir}/js/src/api" includes="jwplayer.api.instream.js" />
 			<fileset dir="${basedir}/js/src/embed" includes="jwplayer.embed.js" />
 			<fileset dir="${basedir}/js/src/embed" includes="**/*.js" excludes="jwplayer.embed.js" />
 			<fileset dir="${basedir}/js/src/html5" includes="jwplayer.html5.js" />

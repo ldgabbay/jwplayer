@@ -2,7 +2,7 @@
  * A factory for API calls that either set listeners or return data
  *
  * @author zach
- * @version 5.8
+ * @version 5.9
  */
 (function(jwplayer) {
 
@@ -50,7 +50,16 @@
 		
 		_api.jwStop = _controller.stop;
 		_api.jwSeek = _controller.seek;
-		_api.jwPlaylistItem = _controller.item;
+		_api.jwPlaylistItem = function(item) {
+			if (_instreamPlayer) {
+				if (_instreamPlayer.playlistClickable()) {
+					_instreamPlayer.jwInstreamDestroy();
+					return _controller.item(item);
+				}
+			} else {
+				return _controller.item(item);
+			}
+		}
 		_api.jwPlaylistNext = _controller.next;
 		_api.jwPlaylistPrev = _controller.prev;
 		_api.jwResize = _controller.resize;
@@ -73,7 +82,7 @@
 			};
 		}
 		
-		_api.jwGetItem = _statevarFactory('item');
+		_api.jwGetPlaylistIndex = _statevarFactory('item');
 		_api.jwGetPosition = _statevarFactory('position');
 		_api.jwGetDuration = _statevarFactory('duration');
 		_api.jwGetBuffer = _statevarFactory('buffer');
@@ -96,7 +105,6 @@
 		_api.jwGetPlaylist = function() {
 			return _model.playlist;
 		};
-		_api.jwGetPlaylistIndex = _api.jwGetItem;
 		
 		_api.jwAddEventListener = _controller.addEventListener;
 		_api.jwRemoveEventListener = _controller.removeEventListener;
@@ -114,6 +122,44 @@
 		_api.jwDockHide = _componentCommandFactory("dock", "hide");
 		_api.jwDisplayShow = _componentCommandFactory("display", "show");
 		_api.jwDisplayHide = _componentCommandFactory("display", "hide");
+		
+		
+		var _instreamPlayer;
+		
+		//InStream API
+		_api.jwLoadInstream = function(item, options) {
+			if (!_instreamPlayer) {
+				_instreamPlayer = new jwplayer.html5.instream(_api, _model, _view, _controller);
+			}
+			setTimeout(function() {
+				_instreamPlayer.load(item, options);
+			}, 10);
+		}
+		_api.jwInstreamDestroy = function() {
+			if (_instreamPlayer) {
+				_instreamPlayer.jwInstreamDestroy();
+			}
+		}
+		
+		_api.jwInstreamAddEventListener = _callInstream('jwInstreamAddEventListener');
+		_api.jwInstreamRemoveEventListener = _callInstream('jwInstreamRemoveEventListener');
+		_api.jwInstreamGetState = _callInstream('jwInstreamGetState');
+		_api.jwInstreamGetDuration = _callInstream('jwInstreamGetDuration');
+		_api.jwInstreamGetPosition = _callInstream('jwInstreamGetPosition');
+		_api.jwInstreamPlay = _callInstream('jwInstreamPlay');
+		_api.jwInstreamPause = _callInstream('jwInstreamPause');
+		_api.jwInstreamSeek = _callInstream('jwInstreamSeek');
+		
+		function _callInstream(funcName) {
+			return function() {
+				if (_instreamPlayer && typeof _instreamPlayer[funcName] == "function") {
+					return _instreamPlayer[funcName].apply(this, arguments);
+				} else {
+					_utils.log("Could not call instream method - instream API not initialized");
+				}
+			}
+		}
+		
 		
 		//UNIMPLEMENTED
 		_api.jwGetLevel = function() {

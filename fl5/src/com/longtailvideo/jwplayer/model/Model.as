@@ -211,7 +211,9 @@ package com.longtailvideo.jwplayer.model {
 		
 		protected function forwardEvents(evt:Event):void {
 			if (evt is PlayerEvent) {
-				if (evt.type == MediaEvent.JWPLAYER_MEDIA_ERROR) {
+				if (evt.type == MediaEvent.JWPLAYER_MEDIA_COMPLETE) {
+					dispatchEvent(new MediaEvent(MediaEvent.JWPLAYER_MEDIA_BEFORECOMPLETE));
+				} else if (evt.type == MediaEvent.JWPLAYER_MEDIA_ERROR) {
 					// Translate media error into player error.
 					dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_ERROR, (evt as MediaEvent).message));
 				} 

@@ -1,11 +1,17 @@
 package com.longtailvideo.jwplayer.player {
 	import com.longtailvideo.jwplayer.events.ComponentEvent;
+	import com.longtailvideo.jwplayer.events.InstreamEvent;
 	import com.longtailvideo.jwplayer.events.MediaEvent;
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
 	import com.longtailvideo.jwplayer.events.PlayerStateEvent;
 	import com.longtailvideo.jwplayer.events.PlaylistEvent;
 	import com.longtailvideo.jwplayer.events.ViewEvent;
+	import com.longtailvideo.jwplayer.model.IInstreamOptions;
+	import com.longtailvideo.jwplayer.model.InstreamOptions;
 	import com.longtailvideo.jwplayer.model.Playlist;
+	import com.longtailvideo.jwplayer.model.PlaylistItem;
+	import com.longtailvideo.jwplayer.plugins.AbstractPlugin;
+	import com.longtailvideo.jwplayer.plugins.IPlugin;
 	import com.longtailvideo.jwplayer.utils.JavascriptSerialization;
 	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.RootReference;
@@ -29,10 +35,15 @@ package com.longtailvideo.jwplayer.player {
 		
 		protected var _listeners:Object;
 		protected var _queuedEvents:Array = [];
-
+		
+		protected var _lockPlugin:IPlugin;
+		protected var _instream:IInstreamPlayer;
+		protected var _isItem:PlaylistItem;
+		protected var _isConfig:IInstreamOptions;
 		
 		public function JavascriptAPI(player:IPlayer) {
 			_listeners = {};
+			_lockPlugin = new AbstractPlugin();
 			
 			_player = player;
 			_player.addEventListener(PlayerEvent.JWPLAYER_READY, playerReady);
@@ -142,6 +153,9 @@ package com.longtailvideo.jwplayer.player {
 				ExternalInterface.addCallback("jwDockHide", js_hideDock);
 				ExternalInterface.addCallback("jwDockSetButton", js_dockSetButton);
 				ExternalInterface.addCallback("jwDockShow", js_showDock);
+				
+				// Instream API
+				ExternalInterface.addCallback("jwLoadInstream", js_loadInstream);
 				
 				// UNIMPLEMENTED
 				//ExternalInterface.addCallback("jwGetBandwidth", js_getBandwidth); 
@@ -450,6 +464,30 @@ package com.longtailvideo.jwplayer.player {
 			} else {
 				_player.fullscreen(false);
 			}
+		}
+		
+		protected function js_loadInstream(item:Object, config:Object):void {
+			_isItem = new PlaylistItem(item);
+			_isConfig = new InstreamOptions(config);
+
+			if (!_isConfig.autoload) {
+				_player.lock(_lockPlugin, function():void {
+					_instream = _player.loadInstream(_lockPlugin, _isItem, _isConfig);
+					beginInstream();
+				});
+			} else {
+				_instream = _player.loadInstream(_lockPlugin, _isItem, _isConfig);
+				beginInstream();
+			}
+		}
+		
+		protected function beginInstream():void {
+			if (_instream) {
+				_instream.addEventListener(InstreamEvent.JWPLAYER_INSTREAM_DESTROYED, function(evt:InstreamEvent):void {
+					_player.unlock(_lockPlugin);
+				});
+				new JavascriptInstreamAPI(_instream, _isConfig, _player, _lockPlugin);	
+			}	
 		}
 		
 		protected function setComponentVisibility(component:IPlayerComponent, state:Boolean):void {

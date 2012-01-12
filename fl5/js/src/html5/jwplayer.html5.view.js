@@ -22,6 +22,7 @@
 		var _media;
 		var _falseFullscreen = false;
 		var _normalscreenWidth, _normalscreenHeight;
+		var _instremArea, _instreamMode;
 		
 		function createWrapper() {
 			_wrapper = document.createElement("div");
@@ -74,6 +75,20 @@
 			_box = document.createElement("div");
 			_box.id = _wrapper.id + "_displayarea";
 			_wrapper.appendChild(_box);
+			
+			_instreamArea = document.createElement("div");
+			_instreamArea.id = _wrapper.id + "_instreamarea";
+			_css(_instreamArea, {
+				overflow: "hidden",
+				position: "absolute",
+				top: 0,
+				left: 0,
+				bottom: 0,
+				right: 0,
+				background: '000000',
+				display: 'none'
+			});
+			_wrapper.appendChild(_instreamArea);
 		}
 		
 		function layoutComponents() {
@@ -89,9 +104,20 @@
 		}
 		
 		function _stateHandler(evt) {
-			_css(_box, {
-				display: (_model.getMedia() && _model.getMedia().hasChrome() && evt.newstate != jwplayer.api.events.state.IDLE) ? "none" : "block"
-			});
+			if (_instreamMode) { return; }
+			
+			if (_model.getMedia() && _model.getMedia().hasChrome()) {
+				_box.style.display = "block";
+			} else {
+				switch (evt.newstate) {
+				case evt.newstate == jwplayer.api.events.state.PLAYING:
+					_box.style.display = "none";
+					break;
+				default:
+					_box.style.display = "block";
+					break;
+				}
+			}
 		}
 
 		function _loadedHandler(evt) {
@@ -122,7 +148,7 @@
 			layoutComponents();
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_LOADED, _loadedHandler);
-			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, function() {
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, function(evt) {
 				_resizeMedia();
 			});
 			var oldresize;
@@ -299,7 +325,7 @@
 			};
 		}
 		
-		function _resizeMedia() {
+		var _resizeMedia = this.resizeMedia = function() {
 			if (!_utils.exists(_model.getMedia())) {
 				return;
 			}
@@ -345,7 +371,7 @@
 			}
 		}
 		
-		function _getComponentPosition(pluginName) {
+		var _getComponentPosition = this.getComponentPosition = function(pluginName) {
 			var plugincss = {
 				position: "absolute",
 				margin: 0,
@@ -471,10 +497,23 @@
 			return false;
 		}
 		
+		this.setupInstream = function(instreamDisplay) {
+			_instreamArea.style.display = "block";
+			_box.style.display = "none";
+			_instreamArea.appendChild(instreamDisplay);
+			_instreamMode = true;
+		}
+		
+		var _destroyInstream = this.destroyInstream = function() {
+			_instreamArea.style.display = "none";
+			_instreamArea.innerHTML = "";
+			_box.style.display = "block";
+			_instreamMode = false;
+			_resize(_model.width, _model.height);
+		}
 	};
 	
 	
-	//TODO: Enum
 	jwplayer.html5.view.positions = {
 		TOP: "TOP",
 		RIGHT: "RIGHT",

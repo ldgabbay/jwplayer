@@ -15,8 +15,9 @@
 	};
 	
 	var _utils = jwplayer.utils;
-	var _css = _utils.css;
 	var _isMobile = _utils.isMobile();
+	
+	var _allvideos = {};
 	
 	jwplayer.html5.mediavideo = function(model, container) {
 		var _events = {
@@ -58,8 +59,10 @@
 			_start,
 			_currentItem,
 			_interval,
+			_delayedSeek, 
 			_emptied = false,
 			_attached = false,
+			_userDuration = false,
 			_bufferingComplete, _bufferFull,
 			_sourceError;
 			
@@ -83,6 +86,9 @@
 			}
 			
 			_currentItem = item;
+			_userDuration = (_currentItem.duration > 0);
+			_model.duration = _currentItem.duration;
+			
 			_utils.empty(_video);
 
 			_sourceError = 0; 
@@ -105,14 +111,11 @@
 			} else {
 				_video.src = item.file;
 			}
+			_video.style.display = "block";
+			_video.volume = _model.volume / 100;
+			_video.muted = _model.mute;
 			if (_isMobile) {
-				if (item.image) {
-					_video.poster = item.image;
-				}
-				_video.style.display = "block";
-				setTimeout(function() {
-					_video.setAttribute("controls", "controls");
-				}, 100);
+				_setControls();
 			}
 			
 			_bufferingComplete = _bufferFull = _start = false;
@@ -121,15 +124,15 @@
 			if (!_utils.exists(item.start)) {
 				item.start = 0;
 			}
-			_model.duration = item.duration;
-			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_LOADED);
+			_delayedSeek = (item.start > 0) ? item.start : -1;
+			_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_LOADED);
 			if((!_isMobile && item.levels.length == 1) || !_emptied) {
 				_video.load();
 			}
 			_emptied = false;
 			if (play) {
 				_setState(jwplayer.api.events.state.BUFFERING);
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
+				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
 					bufferPercent: 0
 				});
 				this.play();
@@ -142,15 +145,13 @@
 		this.play = function() {
 			if (!_attached) return;
 			
-			if (_state != jwplayer.api.events.state.PLAYING) {
-				_startInterval();
-				if (_bufferFull) {
-					_setState(jwplayer.api.events.state.PLAYING);
-				} else {
-					_setState(jwplayer.api.events.state.BUFFERING);
-				}
-				_video.play();
+			_startInterval();
+			if (_bufferFull) {
+				_setState(jwplayer.api.events.state.PLAYING);
+			} else {
+				_setState(jwplayer.api.events.state.BUFFERING);
 			}
+			_video.play();
 		}
 		
 		/**
@@ -169,11 +170,14 @@
 		 */
 		this.seek = function(position) {
 			if (!_attached) return;
-			
-			if (!(_model.duration <= 0 || isNaN(_model.duration)) &&
-				!(_model.position <= 0 || isNaN(_model.position))) {
-					_video.currentTime = position;
-					_video.play();
+			if (!_start && _video.readyState > 0) {
+				if (!(_model.duration <= 0 || isNaN(_model.duration)) &&
+						!(_model.position <= 0 || isNaN(_model.position))) {
+						_video.currentTime = position;
+						_video.play();
+				}
+			} else {
+				_delayedSeek = position;
 			}
 		}
 		
@@ -201,8 +205,7 @@
 				} else {
 					_video.removeAttribute("src");
 				}
-				_video.removeAttribute("controls");
-				_video.removeAttribute("poster");
+				_hideControls();
 				_utils.empty(_video);
 				_video.load();
 				_emptied = true;
@@ -226,7 +229,7 @@
 
 		/** Resize the player. **/
 		this.resize = function(width, height) {
-//			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
+//			_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
 //				fullscreen: _model.fullscreen,
 //				width: width,
 //				hieght: height
@@ -237,7 +240,7 @@
 		this.volume = function(position) {
 			if (!_isMobile) {
 				_video.volume = position / 100;
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
+				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
 					volume: (position / 100)
 				});
 			}
@@ -248,7 +251,7 @@
 		this.mute = function(state) {
 			if (!_isMobile) {
 				_video.muted = state;
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
+				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
 					mute: state
 				});
 			}
@@ -290,7 +293,7 @@
 		
 		function _handleMediaEvent(type, handler) {
 			return function(evt) {
-				if (_attached && _utils.exists(evt.target.parentNode)) {
+				if (_utils.exists(evt.target.parentNode)) {
 					handler(evt);
 				}
 			};
@@ -298,13 +301,11 @@
 		
 		/** Initializes the HTML5 video and audio media provider **/
 		function _init() {
-			_video = document.createElement("video");
 			_state = jwplayer.api.events.state.IDLE;
  
-			for (var event in _events) {
-				_video.addEventListener(event, _handleMediaEvent(event, _events[event]), true);
-			}
 			_attached = true;
+			
+			_video = _getVideoElement();
 
 			_video.setAttribute("x-webkit-airplay", "allow"); 
 			
@@ -315,8 +316,22 @@
 			if (!_video.id) {
 				_video.id = _container.id;
 			}
-			
-			_video.volume = _model.volume / 100;
+		}
+		
+		function _getVideoElement() {
+			var vid;
+			if (!_allvideos[_model.id]) {
+				if (_container.tagName.toLowerCase() == "video") {
+					vid = _container;
+				} else {
+					vid = document.createElement("video");
+				}
+				for (var event in _events) {
+					vid.addEventListener(event, _handleMediaEvent(event, _events[event]), true);
+				}
+				_allvideos[_model.id] = vid;
+			}
+			return _allvideos[_model.id];
 		}
 		
 		/** Set the current player state **/
@@ -326,10 +341,21 @@
 				return;
 			}
 
+			if (_isMobile) {
+				switch (newstate) {
+				case jwplayer.api.events.state.PLAYING:
+					_setControls();
+					break;
+				default:
+					_hideControls();
+					break;
+				}
+			}
+			
 			if (_state != newstate) {
 				var oldstate = _state;
 				_model.state = _state = newstate;
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYER_STATE, {
+				_sendEvent(jwplayer.api.events.JWPLAYER_PLAYER_STATE, {
 					oldstate: oldstate,
 					newstate: newstate
 				});
@@ -344,20 +370,18 @@
 		/** Handle volume change and muting events **/
 		function _volumeHandler(event) {
 			var newVol = Math.round(_video.volume * 100);
-			if (newVol != _model.volume) {
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
-					volume: newVol
-				});
-			}
-			if (_video.muted != _model.mute) {
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
-					mute: _video.muted
-				});
-			}
+			_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
+				volume: newVol
+			}, true);
+			_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
+				mute: _video.muted
+			}, true);
 		}
 
 		/** Update the player progress **/
 		function _progressHandler(event) {
+			if (!_attached) return;
+
 			var bufferPercent;
 			if (_utils.exists(event) && event.lengthComputable && event.total) {
 				bufferPercent = event.loaded / event.total * 100;
@@ -369,7 +393,7 @@
 			}
 			
 			if (_bufferFull === false && _state == jwplayer.api.events.state.BUFFERING) {
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL);
+				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL);
 				_bufferFull = true;
 			}
 			
@@ -380,7 +404,7 @@
 				
 				if (_utils.exists(bufferPercent) && (bufferPercent > _model.buffer)) {
 					_model.buffer = Math.round(bufferPercent);
-					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
+					_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
 						bufferPercent: Math.round(bufferPercent)
 					});
 				}
@@ -390,32 +414,36 @@
 		
 		/** Update the player's position **/
 		function _positionHandler(event) {
+			if (!_attached) return;
+
 			if (_utils.exists(event) && _utils.exists(event.target)) {
-				if (!isNaN(event.target.duration) && (isNaN(_model.duration) || _model.duration < 1)) {
-					if (event.target.duration == Infinity) {
-						_model.duration = 0;
-					} else {
-						_model.duration = Math.round(event.target.duration * 10) / 10;
+				if (_userDuration > 0) {
+					if (!isNaN(event.target.duration) && (isNaN(_model.duration) || _model.duration < 1)) {
+						if (event.target.duration == Infinity) {
+							_model.duration = 0;
+						} else {
+							_model.duration = Math.round(event.target.duration * 10) / 10;
+						}
 					}
 				}
 				if (!_start && _video.readyState > 0) {
-					_video.style.display = "block";
 					_setState(jwplayer.api.events.state.PLAYING);
 				}
 				
 				if (_state == jwplayer.api.events.state.PLAYING) {
-					if (!_start && _video.readyState > 0) {
+					if (_video.readyState > 0 && (_delayedSeek > -1 || !_start)) {
 						_start = true;
 						try {
-							if (_video.currentTime < _currentItem.start) {
-								_video.currentTime = _currentItem.start;
+							if (_video.currentTime != _delayedSeek && _delayedSeek > -1) {
+								_video.currentTime = _delayedSeek;
+								_delayedSeek = -1;
 							}
 						} catch (err) {}
 						_video.volume = _model.volume / 100;
 						_video.muted = _model.mute;
 					}
 					_model.position = _model.duration > 0 ? (Math.round(event.target.currentTime * 10) / 10) : 0;
-					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_TIME, {
+					_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_TIME, {
 						position: _model.position,
 						duration: _model.duration
 					});
@@ -432,6 +460,8 @@
 		}
 
 		function _stateHandler(event) {
+			if (!_attached) return;
+
 			if (_states[event.type]) {
 				if (event.type == "ended") {
 					_complete();
@@ -442,21 +472,26 @@
 		}
 
 		function _metaHandler(event) {
+			if (!_attached) return;
 			var newDuration = Math.round(event.target.duration * 10) / 10;
 			var meta = {
 					height: event.target.videoHeight,
 					width: event.target.videoWidth,
 					duration: newDuration
 				};
-			if ( (_model.duration < newDuration || isNaN(_model.duration)) && event.target.duration != Infinity) {
-				_model.duration = newDuration;
+			if (!_userDuration) {
+				if ( (_model.duration < newDuration || isNaN(_model.duration)) && event.target.duration != Infinity) {
+					_model.duration = newDuration;
+				}
 			}
-			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_META, {
+			_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_META, {
 				metadata: meta
 			});
 		}
 
 		function _errorHandler(event) {
+			if (!_attached) return;
+
 			if (_state == jwplayer.api.events.state.IDLE) {
 				return;
 			}
@@ -495,7 +530,7 @@
 			_stop(false);
 			message += _joinFiles();
 			_error = true;
-			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
+			_sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
 				message: message
 			});
 			return;		
@@ -529,9 +564,11 @@
 		}
 		
 		function _complete() {
-			if (_state != jwplayer.api.events.state.IDLE) {
+			if (_state == jwplayer.api.events.state.PLAYING) {
 				_stop(false);
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
+				setTimeout(function() {
+					_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
+				}, 10);
 			}
 		}
 		
@@ -539,9 +576,9 @@
 			if (_utils.exists(_video.webkitDisplayingFullscreen)) {
 				if (_model.fullscreen && !_video.webkitDisplayingFullscreen) {
 					//_model.fullscreen = _video.webkitDisplayingFullscreen;
-					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
+					_sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
 						fullscreen: false
-					});
+					},true);
 				}
 			}
 		}
@@ -561,6 +598,30 @@
 						var mp4 = levels.splice(position, 1)[0];
 						levels.unshift(mp4);
 					}
+				}
+			}
+		}
+		
+		function _setControls() {
+			if (_currentItem.image) {
+				_video.poster = _currentItem.image;
+			}
+			setTimeout(function() {
+				_video.setAttribute("controls", "controls");
+			}, 100);
+		}
+		
+		function _hideControls() {
+			_video.removeAttribute("controls");
+			_video.removeAttribute("poster");
+		}
+		
+		function _sendEvent(type, obj, alwaysSend) {
+			if (_attached || alwaysSend) {
+				if (obj) {
+					_eventDispatcher.sendEvent(type, obj);
+				} else {
+					_eventDispatcher.sendEvent(type);
 				}
 			}
 		}

@@ -3,9 +3,12 @@
 	import com.longtailvideo.jwplayer.events.GlobalEventDispatcher;
 	import com.longtailvideo.jwplayer.events.IGlobalEventDispatcher;
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
+	import com.longtailvideo.jwplayer.model.IInstreamOptions;
 	import com.longtailvideo.jwplayer.model.IPlaylist;
+	import com.longtailvideo.jwplayer.model.InstreamOptions;
 	import com.longtailvideo.jwplayer.model.Model;
 	import com.longtailvideo.jwplayer.model.PlayerConfig;
+	import com.longtailvideo.jwplayer.model.PlaylistItem;
 	import com.longtailvideo.jwplayer.plugins.IPlugin;
 	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.RootReference;
@@ -278,6 +281,15 @@
 		public function getPlugin(id:String):Object {
 			return view.getPlugin(id);
 		} 
+		
+		/**
+		 * @inheritDoc
+		 **/
+		public function loadInstream(target:IPlugin, item:PlaylistItem, options:IInstreamOptions=null):IInstreamPlayer {
+			if (!options) options = new InstreamOptions();
+			var instream:IInstreamPlayer = new InstreamPlayer(target, item, options, model, view, controller);
+			return instream;
+		}
 
 		/** The player should not accept any calls referencing its display stack **/
 		public override function addChild(child:DisplayObject):DisplayObject {
@@ -298,7 +310,6 @@
 		public override function removeChildAt(index:int):DisplayObject {
 			return null;
 		}
-		
 		
 		///////////////////////////////////////////		
 		/// IGlobalEventDispatcher implementation

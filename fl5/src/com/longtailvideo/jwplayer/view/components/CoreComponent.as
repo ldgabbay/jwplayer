@@ -12,7 +12,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import flash.events.Event;
 	import flash.geom.Rectangle;
 
-	public class CoreComponent extends MovieClip implements IGlobalEventDispatcher,IPlayerComponent {
+	public class CoreComponent extends MovieClip implements IGlobalEventDispatcher, IPlayerComponent {
 
 		private var _dispatcher:IGlobalEventDispatcher;
 		protected var _player:IPlayer;

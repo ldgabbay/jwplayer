@@ -848,5 +848,26 @@
 		}
 	}
 	
+	/* Normalizes differences between Flash and HTML5 internal players' event responses. */
+	jwplayer.utils.translateEventResponse = function(type, eventProperties) {
+		var translated = jwplayer.utils.extend({}, eventProperties);
+		if (type == jwplayer.api.events.JWPLAYER_FULLSCREEN && !translated.fullscreen) {
+			translated.fullscreen = translated.message == "true" ? true : false;
+			delete translated.message;
+		} else if (typeof translated.data == "object") {
+			// Takes ViewEvent "data" block and moves it up a level
+			translated = jwplayer.utils.extend(translated, translated.data);
+			delete translated.data;
+		}
+		
+		var rounders = ["position", "duration", "offset"];
+		for (var rounder in rounders) {
+			if (translated[rounders[rounder]]) {
+				translated[rounders[rounder]] = Math.round(translated[rounders[rounder]] * 1000) / 1000;
+			}
+		}
+		
+		return translated;
+	}
 
 })(jwplayer);

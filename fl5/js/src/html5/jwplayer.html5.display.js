@@ -43,6 +43,7 @@
 		var _lastSent;
 		var _hiding = false;
 		var _ready = false;
+		var _alternateClickHandler;
 		var _normalscreenWidth, _normalscreenHeight;
 		
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
@@ -239,10 +240,15 @@
 			} else {
 				evt.returnValue = false; // IE
 			}
-			if (_api.jwGetState() != jwplayer.api.events.state.PLAYING) {
-				_api.jwPlay();
+			if (typeof _alternateClickHandler == "function") {
+				_alternateClickHandler(evt);
+				return;
 			} else {
-				_api.jwPause();
+				if (_api.jwGetState() != jwplayer.api.events.state.PLAYING) {
+					_api.jwPlay();
+				} else {
+					_api.jwPause();
+				}
 			}
 		}
 		
@@ -313,6 +319,7 @@
 			if (state == _lastState) {
 				return;
 			}
+
 			_lastState = state;
 
 			if (_updateTimeout >= 0) {
@@ -341,11 +348,11 @@
 			}
 			switch (state) {
 				case jwplayer.api.events.state.BUFFERING:
-					if (_utils.isMobile()) {
+					if (_utils.isIPod()) {
 						_resetPoster();
 						_hideDisplayIcon();
 					} else {
-						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider == "sound") {
+						if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].provider == "sound") {
 							_showImage();
 						}
 						_degreesRotated = 0;
@@ -358,8 +365,8 @@
 					}
 					break;
 				case jwplayer.api.events.state.PAUSED:
-					if (!_utils.isMobile()) {
-						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
+					if (!_utils.isIPod()) {
+						if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].provider != "sound") {
 							_css(_display.display_image, {
 								background: "transparent no-repeat center center"
 							});
@@ -369,7 +376,7 @@
 					}
 					break;
 				case jwplayer.api.events.state.IDLE:
-					if (_api.jwGetPlaylist()[_api.jwGetItem()] && _api.jwGetPlaylist()[_api.jwGetItem()].image) {
+					if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()] && _api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image) {
 						_showImage();
 					} else {
 						_resetPoster();
@@ -378,8 +385,8 @@
 					_showing = true;
 					break;
 				default:
-					if (_api.jwGetPlaylist()[_api.jwGetItem()] && _api.jwGetPlaylist()[_api.jwGetItem()].provider == "sound") {
-						if (_utils.isMobile()) {
+					if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()] && _api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].provider == "sound") {
+						if (_utils.isIPod()) {
 							_resetPoster();
 							_showing = false;
 						} else {
@@ -400,11 +407,11 @@
 		}
 		
 		function _showImage() {
-			if (_api.jwGetPlaylist()[_api.jwGetItem()] && _api.jwGetPlaylist()[_api.jwGetItem()].image) {
+			if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()] && _api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image) {
 				_css(_display.display_image, {
 					display: "block"
 				});
-				_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
+				_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image);
 			}
 		}
 		
@@ -426,6 +433,13 @@
 		var _sendShow = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_SHOW);
 		var _sendHide = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_HIDE);
 
+		/** NOT SUPPORTED : Using this for now to hack around instream API **/
+		this.setAlternateClickHandler = function(handler) {
+			_alternateClickHandler = handler;
+		}
+		this.revertAlternateClickHandler = function() {
+			_alternateClickHandler = undefined;
+		}
 		
 		return this;
 	};

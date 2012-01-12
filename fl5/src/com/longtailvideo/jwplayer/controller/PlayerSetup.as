@@ -5,6 +5,7 @@ package com.longtailvideo.jwplayer.controller {
 	import com.longtailvideo.jwplayer.model.Model;
 	import com.longtailvideo.jwplayer.player.IPlayer;
 	import com.longtailvideo.jwplayer.plugins.IPlugin;
+	import com.longtailvideo.jwplayer.plugins.InStreamAdPlugin;
 	import com.longtailvideo.jwplayer.plugins.PluginConfig;
 	import com.longtailvideo.jwplayer.plugins.V4Plugin;
 	import com.longtailvideo.jwplayer.utils.Configger;
@@ -222,6 +223,7 @@ package com.longtailvideo.jwplayer.controller {
 			
 			// Compiled in plugins go here.  Example:
 			// _view.addPlugin("test", new TestPlugin());
+			//_view.addPlugin("instreamads", new InStreamAdPlugin());
 		}
 
 		protected function loadPlaylist():void {

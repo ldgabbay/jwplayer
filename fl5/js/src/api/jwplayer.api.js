@@ -18,6 +18,7 @@
 		var _player = undefined;
 		var _playerReady = false;
 		var _queuedCalls = [];
+		var _instream = undefined;
 		
 		var _originalHTML = jwplayer.utils.getOuterHTML(container);
 		
@@ -243,6 +244,10 @@
 			this.callInternal("jwSetVolume", volume);
 			return this;
 		};
+		this.loadInstream = function(item, instreamOptions) {
+			_instream = new jwplayer.api.instream(this, _player, item, instreamOptions);
+			return _instream;
+		};
 		// Player Events
 		this.onBufferChange = function(callback) {
 			return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, callback);
@@ -415,7 +420,7 @@
 		
 		this.dispatchEvent = function(type) {
 			if (_listeners[type]) {
-				var args = translateEventResponse(type, arguments[1]);
+				var args = _utils.translateEventResponse(type, arguments[1]);
 				for (var l = 0; l < _listeners[type].length; l++) {
 					if (typeof _listeners[type][l] == 'function') {
 						_listeners[type][l].call(this, args);
@@ -423,40 +428,34 @@
 				}
 			}
 		};
-		
-		function translateEventResponse(type, eventProperties) {
-			var translated = jwplayer.utils.extend({}, eventProperties);
-			if (type == jwplayer.api.events.JWPLAYER_FULLSCREEN && !translated.fullscreen) {
-				translated.fullscreen = translated.message == "true" ? true : false;
-				delete translated.message;
-			} else if (typeof translated.data == "object") {
-				// Takes ViewEvent "data" block and moves it up a level
-				translated = jwplayer.utils.extend(translated, translated.data);
-				delete translated.data;
+
+		this.dispatchInstreamEvent = function(type) {
+			if (_instream) {
+				_instream.dispatchEvent(type, arguments);
 			}
-			
-			var rounders = ["position", "duration", "offset"];
-			for (var rounder in rounders) {
-				if (translated[rounders[rounder]]) {
-					translated[rounders[rounder]] = Math.round(translated[rounders[rounder]] * 1000) / 1000;
-				}
-			}
-			
-			return translated;
-		}
-		
-		this.callInternal = function(funcName, args) {
+		};
+
+		this.callInternal = function() {
 			/*this.callInternal = function() {
 			 var	funcName = arguments[0],
 			 args = [];
 			 for (var argument = 1; argument < arguments.length; argument++){
 			 args[argument] = arguments[argument];
 			 }*/
+
 			if (_playerReady) {
+				var funcName = arguments[0],
+					args = [];
+				
+				for (var argument = 1; argument < arguments.length; argument++) {
+					 args.push(arguments[argument]);
+				}
+				
 				if (typeof _player != "undefined" && typeof _player[funcName] == "function") {
-					if (jwplayer.utils.exists(args)) {
-						//return (_player[funcName]).apply(this, args);
-						return (_player[funcName])(args);
+					if (args.length == 2) { 
+						return (_player[funcName])(args[0], args[1]);
+					} else if (args.length == 1) {
+						return (_player[funcName])(args[0]);
 					} else {
 						return (_player[funcName])();
 					}
@@ -573,7 +572,9 @@
 		JWPLAYER_MEDIA_MUTE: 'jwplayerMediaMute',
 		JWPLAYER_PLAYER_STATE: 'jwplayerPlayerState',
 		JWPLAYER_PLAYLIST_LOADED: 'jwplayerPlaylistLoaded',
-		JWPLAYER_PLAYLIST_ITEM: 'jwplayerPlaylistItem'
+		JWPLAYER_PLAYLIST_ITEM: 'jwplayerPlaylistItem',
+		JWPLAYER_INSTREAM_CLICK: 'jwplayerInstreamClicked',
+		JWPLAYER_INSTREAM_DESTROYED: 'jwplayerInstreamDestroyed'
 	};
 	
 	jwplayer.api.events.state = {

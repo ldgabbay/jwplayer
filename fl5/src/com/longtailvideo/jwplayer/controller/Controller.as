@@ -84,6 +84,8 @@ package com.longtailvideo.jwplayer.controller {
 		protected var _lockManager:LockManager;
 		/** Load after unlock - My favorite variable ever **/
 		protected var _unlockAndLoad:Boolean;
+		/** The lock swallowed the complete action; we should go to the next playlist item if necessary **/
+		protected var _completeOnUnlock:Boolean;
 		/** Whether the playlist has been loaded yet **/
 		protected var _playlistReady:Boolean = false;
 		/** Set this value if a seek request comes in before the seek is possible **/
@@ -228,6 +230,7 @@ package com.longtailvideo.jwplayer.controller {
 
 		protected function playlistItemHandler(evt:PlaylistEvent):void {
 			_model.config.item = _model.playlist.currentIndex;
+			_interruptPlay = false;
 			load(_model.playlist.currentItem);
 		}
 
@@ -244,7 +247,12 @@ package com.longtailvideo.jwplayer.controller {
 		}
 
 
-		protected function completeHandler(evt:MediaEvent):void {
+		protected function completeHandler(evt:MediaEvent=null):void {
+			if (locking) {
+				_completeOnUnlock = true;
+				return;
+			}
+			
 			switch (_model.config.repeat) {
 				case RepeatOptions.SINGLE:
 					play();
@@ -286,12 +294,16 @@ package com.longtailvideo.jwplayer.controller {
 			var wasLocked:Boolean = locking;
 			if (_lockManager.lock(plugin, callback)) {
 				// If it was playing, pause playback and plan to resume when you're done
-				if (_player.state == PlayerState.PLAYING || _player.state == PlayerState.BUFFERING || _preplay) {
+				if (_player.state == PlayerState.PLAYING || _player.state == PlayerState.BUFFERING || _preplay || continueOnRepeat) {
 					if (!_preplay) {
 						_model.media.pause();	
 					}
 					_lockingResume = true;
+					_interruptPlay = false;
+				} else {
+					_interruptPlay = true;
 				}
+				
 				
 				// Tell everyone you're locked
 				if (!wasLocked) {
@@ -316,7 +328,12 @@ package com.longtailvideo.jwplayer.controller {
 					finalizeSetup();
 				}
 				if (!locking) {
-					if (_unlockAndLoad) {
+					if (_completeOnUnlock) {
+						_completeOnUnlock = false;
+						completeHandler();
+						_interruptPlay = false;
+						return true;
+					} else if (_unlockAndLoad) {
 						load(_player.playlist.currentItem);
 						_unlockAndLoad = false;
 					}
@@ -327,6 +344,7 @@ package com.longtailvideo.jwplayer.controller {
 							_unlockAutostart = false;
 						}
 					}
+					_interruptPlay = false;
 					return true;
 				}
 			}
@@ -335,9 +353,10 @@ package com.longtailvideo.jwplayer.controller {
 
 
 		public function setVolume(vol:Number):Boolean {
-			if (locking) {
+/*			if (locking) {
 				return false;
 			}
+*/
 			if (_model.media) {
 				mute(false); 
 				_model.config.volume = vol;
@@ -350,9 +369,10 @@ package com.longtailvideo.jwplayer.controller {
 
 
 		public function mute(muted:Boolean):Boolean {
-			if (locking) {
+/*			if (locking) {
 				return false;
 			}
+*/
 			if (muted && !_model.mute) {
 				_model.mute = true;
 				setCookie('mute', true);
@@ -369,7 +389,7 @@ package com.longtailvideo.jwplayer.controller {
 		public function play():Boolean {
 			if (!_preplay) {
 				_preplay = true;
-				dispatchEvent(new PlayerEvent(MediaEvent.JWPLAYER_MEDIA_BEFOREPLAY));
+				dispatchEvent(new MediaEvent(MediaEvent.JWPLAYER_MEDIA_BEFOREPLAY));
 				_preplay = false;
 				if (_interruptPlay) {
 					_interruptPlay = false;
@@ -511,6 +531,7 @@ package com.longtailvideo.jwplayer.controller {
 			if (0 <= index && index < _player.playlist.length) {
 				stop();
 				_player.playlist.currentIndex = index;
+				_interruptPlay = false;
 				play();
 				return true;
 			}
@@ -718,6 +739,10 @@ package com.longtailvideo.jwplayer.controller {
 
 		protected function setCookie(name:String, value:*):void {
 			Configger.saveCookie(name, value);
+		}
+		
+		protected function get continueOnRepeat():Boolean {
+			return (_model.config.repeat != RepeatOptions.NONE);
 		}
 
 	}

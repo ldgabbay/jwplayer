@@ -878,9 +878,11 @@
 			if (_api.jwGetMute() == true) {
 				_hide(_elements.muteButton);
 				_show(_elements.unmuteButton);
+				_hide(_elements.volumeSliderProgress);
 			} else {
 				_show(_elements.muteButton);
 				_hide(_elements.unmuteButton);
+				_show(_elements.volumeSliderProgress);
 			}
 		}
 		

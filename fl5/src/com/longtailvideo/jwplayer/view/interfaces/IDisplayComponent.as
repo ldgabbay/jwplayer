@@ -38,5 +38,7 @@ package com.longtailvideo.jwplayer.view.interfaces {
 	public interface IDisplayComponent extends IPlayerComponent {
 		function setIcon(displayIcon:DisplayObject):void;
 		function setText(displayText:String):void;
+		function forceState(forcedState:String):void;
+		function releaseState():void;
 	}
 }

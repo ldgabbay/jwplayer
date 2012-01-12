@@ -9,6 +9,7 @@ package com.longtailvideo.jwplayer.view.components {
 	import com.longtailvideo.jwplayer.player.PlayerState;
 	import com.longtailvideo.jwplayer.plugins.PluginConfig;
 	import com.longtailvideo.jwplayer.utils.Animations;
+	import com.longtailvideo.jwplayer.utils.DisplayObjectUtils;
 	import com.longtailvideo.jwplayer.utils.Draw;
 	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.RootReference;
@@ -29,11 +30,13 @@ package com.longtailvideo.jwplayer.view.components {
 	import flash.text.TextField;
 	import flash.ui.Mouse;
 	import flash.utils.clearTimeout;
+	import flash.utils.getDefinitionByName;
+	import flash.utils.getQualifiedClassName;
 	import flash.utils.setTimeout;
 	
 	public class ControlbarComponentV4 extends CoreComponent implements IControlbarComponent {
 		/** Reference to the original skin **/
-		private var skin:Sprite;
+		private var skin:*;
 		/** A list with all controls. **/
 		private var stacker:Stacker;
 		/** Timeout for hiding the  **/
@@ -80,6 +83,15 @@ package com.longtailvideo.jwplayer.view.components {
 					muteButton: ViewEvent.JWPLAYER_VIEW_MUTE,
 					unmuteButton: ViewEvent.JWPLAYER_VIEW_MUTE};
 			skin = _player.skin.getSWFSkin().getChildByName('controlbar') as Sprite;
+			if (!skin) {
+				var clip:DisplayObject = Draw.clone(_player.skin.getSWFSkin()['controlbar'], false);
+				if (clip is Sprite) {
+					skin = clip as Sprite;
+				}
+				stacker = new Stacker(skin);
+			} else {
+				stacker = new Stacker(skin as MovieClip);
+			}
 			skin.x = 0;
 			skin.y = 0;
 			skin.tabChildren = this.tabChildren = true;
@@ -96,7 +108,6 @@ package com.longtailvideo.jwplayer.view.components {
 			RootReference.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeftStage);
 			RootReference.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveHandler);
 			RootReference.stage.addEventListener(KeyboardEvent.KEY_DOWN, moveHandler);
-			stacker = new Stacker(skin as MovieClip);
 			try {
 				getSkinComponent("linkButton").visible = false;
 			} catch (e:Error) {}
@@ -181,7 +192,7 @@ package com.longtailvideo.jwplayer.view.components {
 			try {
 				getSkinComponent('fullscreenButton').visible = false;
 				getSkinComponent('normalscreenButton').visible = false;
-				if (stage['displayState'] && _player.config.height > 40) {
+				if (RootReference.stage['displayState'] && _player.config.height > 40) {
 					if (_player.config.fullscreen) {
 						getSkinComponent('fullscreenButton').visible = false;
 						getSkinComponent('normalscreenButton').visible = true;
@@ -571,7 +582,7 @@ package com.longtailvideo.jwplayer.view.components {
 			var mpl:Number = 0;
 			var sliderType:String = scrubber.name;
 
-			stage.removeEventListener(MouseEvent.MOUSE_UP, upHandler);
+			RootReference.stage.removeEventListener(MouseEvent.MOUSE_UP, upHandler);
 			scrubber.icon.stopDrag();
 			if (sliderType == 'timeSlider' && _player.playlist && _player.playlist.currentItem) {
 				mpl = _player.playlist.currentItem.duration;
@@ -601,12 +612,26 @@ package com.longtailvideo.jwplayer.view.components {
 
 
 		private function getSkinComponent(element:String):DisplayObject {
-			return skin.getChildByName(element) as DisplayObject;
+			var component:DisplayObject = skin.getChildByName(element) as DisplayObject;
+			if (component) {
+				return component;
+			} else if (skin[element]) {
+				return Draw.clone(skin[element], false);
+			}
+			return null;
 		}
 
 
 		private function getSkinElementChild(element:String, child:String):DisplayObject {
-			return (skin.getChildByName(element) as MovieClip).getChildByName(child);
+			var clip:DisplayObject = (skin.getChildByName(element) as MovieClip).getChildByName(child);
+			if (clip) {
+				return clip;
+			} else if (skin[element] is DisplayObject) {
+				clip = Draw.clone(skin[element], false);
+				return clip;
+			} else {
+				return null;
+			}
 		}
 		
 		override public function show():void {

@@ -387,6 +387,15 @@ package com.longtailvideo.jwplayer.model {
 			}
 		}
 		
+		/**
+		 * Overwrites a plugin's configuration.  Use with caution.
+		 **/
+		public function setPluginConfig(pluginId:String, pluginConfig:PluginConfig):void {
+			if (pluginId && pluginConfig) {
+				_pluginConfig[pluginId] = pluginConfig;
+			}
+		}
+		
 		/** A list of available pluginConfig keys. **/
 		public function get pluginIds():Array {
 			var names:Array = [];

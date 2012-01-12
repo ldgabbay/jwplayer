@@ -14,6 +14,7 @@ package com.longtailvideo.jwplayer.view {
 	import com.longtailvideo.jwplayer.player.PlayerVersion;
 	import com.longtailvideo.jwplayer.plugins.IPlugin;
 	import com.longtailvideo.jwplayer.plugins.PluginConfig;
+	import com.longtailvideo.jwplayer.utils.Animations;
 	import com.longtailvideo.jwplayer.utils.Draw;
 	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.RootReference;
@@ -65,9 +66,12 @@ package com.longtailvideo.jwplayer.view {
 		protected var _componentsLayer:MovieClip;
 		protected var _pluginsLayer:MovieClip;
 		protected var _plugins:Object;
-
+		protected var _instreamLayer:MovieClip;
+		protected var _instreamPlugin:IPlugin;
+		protected var _instreamAnim:Animations;
+		
 		protected var _displayMasker:MovieClip;
-
+		
 		protected var _image:Loader;
 		protected var _logo:Logo;
 
@@ -270,6 +274,11 @@ package com.longtailvideo.jwplayer.view {
 			_pluginsLayer = setupLayer("plugins", currentLayer++);
 			_plugins = {};
 			
+			_instreamLayer = setupLayer("instream", currentLayer++);
+			_instreamLayer.alpha = 0;
+			_instreamLayer.visible = false;
+			_instreamAnim = new Animations(_instreamLayer);
+			_instreamAnim.addEventListener(Event.COMPLETE, instreamAnimationComplete);
 		}
 			
 		protected function setupLogo():void {
@@ -339,9 +348,9 @@ package com.longtailvideo.jwplayer.view {
 			if (_model.fullscreen != _fullscreen) {
 				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_FULLSCREEN, _fullscreen));
 			}
-			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_RESIZE, {width: RootReference.stage.stageWidth, height: RootReference.stage.stageHeight}));
-
 			redraw();
+			
+			dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_RESIZE, {width: RootReference.stage.stageWidth, height: RootReference.stage.stageHeight}));
 		}
 
 
@@ -601,6 +610,40 @@ package com.longtailvideo.jwplayer.view {
 		protected function forward(evt:Event):void {
 			if (evt is PlayerEvent)
 				dispatchEvent(evt);
+		}
+		
+		public function setupInstream(instreamDisplay:DisplayObject, plugin:IPlugin):void {
+			_instreamPlugin = plugin;
+			if (instreamDisplay) {
+				_instreamLayer.addChild(instreamDisplay);
+			}
+			try {
+				var pluginDO:DisplayObject = plugin as DisplayObject;
+				if (pluginDO) {
+					_pluginsLayer.removeChild(pluginDO);
+					_instreamLayer.addChild(pluginDO);
+				}
+			} catch(e:Error) {
+				Logger.log("Could not add instream plugin to display stack");
+			}
+			
+			_instreamAnim.fade(1);
+		}
+		
+		public function destroyInstream():void {
+			if (_instreamPlugin && _instreamPlugin is DisplayObject) {
+				_pluginsLayer.addChild(_instreamPlugin as DisplayObject);
+			}
+			_instreamAnim.fade(0);
+		}
+		
+		protected function instreamAnimationComplete(evt:Event):void {
+			if (_instreamLayer.alpha == 0) {
+				while(_instreamLayer.numChildren > 0) {
+					_instreamLayer.removeChildAt(0);
+				}
+				_instreamPlugin = null;
+			}
 		}
 		
 	}

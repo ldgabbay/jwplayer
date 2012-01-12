@@ -75,7 +75,7 @@
 		
 		/** Add an event listener for all events. **/
 		this.removeGlobalListener = function(listener) {
-			if (!_globallisteners[type]) {
+			if (!listener) {
 				return;
 			}
 			try {

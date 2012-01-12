@@ -1,7 +1,9 @@
 package com.longtailvideo.jwplayer.player {
 	import com.longtailvideo.jwplayer.events.IGlobalEventDispatcher;
+	import com.longtailvideo.jwplayer.model.IInstreamOptions;
 	import com.longtailvideo.jwplayer.model.IPlaylist;
 	import com.longtailvideo.jwplayer.model.PlayerConfig;
+	import com.longtailvideo.jwplayer.model.PlaylistItem;
 	import com.longtailvideo.jwplayer.plugins.IPlugin;
 	import com.longtailvideo.jwplayer.view.IPlayerComponents;
 	import com.longtailvideo.jwplayer.view.interfaces.IPlayerComponent;
@@ -72,5 +74,6 @@ package com.longtailvideo.jwplayer.player {
 		function fullscreen(on:Boolean):void;
 		function get controls():IPlayerComponents;
 		function overrideComponent(plugin:IPlayerComponent):void;
+		function loadInstream(target:IPlugin, item:PlaylistItem, options:IInstreamOptions=null):IInstreamPlayer;
 	}
 }

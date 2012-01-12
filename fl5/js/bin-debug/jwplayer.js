@@ -8,7 +8,7 @@
 
  if (typeof jwplayer == "undefined") {/**
  * JW Player namespace definition
- * @version 5.7
+ * @version 5.8
  */
 var jwplayer = function(container) {
 	if (jwplayer.api){
@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2046';
+jwplayer.version = '5.9.2049';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -873,6 +873,27 @@ jwplayer.source = document.createElement("source");/**
 		}
 	}
 	
+	/* Normalizes differences between Flash and HTML5 internal players' event responses. */
+	jwplayer.utils.translateEventResponse = function(type, eventProperties) {
+		var translated = jwplayer.utils.extend({}, eventProperties);
+		if (type == jwplayer.api.events.JWPLAYER_FULLSCREEN && !translated.fullscreen) {
+			translated.fullscreen = translated.message == "true" ? true : false;
+			delete translated.message;
+		} else if (typeof translated.data == "object") {
+			// Takes ViewEvent "data" block and moves it up a level
+			translated = jwplayer.utils.extend(translated, translated.data);
+			delete translated.data;
+		}
+		
+		var rounders = ["position", "duration", "offset"];
+		for (var rounder in rounders) {
+			if (translated[rounders[rounder]]) {
+				translated[rounders[rounder]] = Math.round(translated[rounders[rounder]] * 1000) / 1000;
+			}
+		}
+		
+		return translated;
+	}
 
 })(jwplayer);
 /**
@@ -965,7 +986,7 @@ jwplayer.source = document.createElement("source");/**
 		
 		/** Add an event listener for all events. **/
 		this.removeGlobalListener = function(listener) {
-			if (!_globallisteners[type]) {
+			if (!listener) {
 				return;
 			}
 			try {
@@ -2311,6 +2332,7 @@ jwplayer.source = document.createElement("source");/**
 		var _player = undefined;
 		var _playerReady = false;
 		var _queuedCalls = [];
+		var _instream = undefined;
 		
 		var _originalHTML = jwplayer.utils.getOuterHTML(container);
 		
@@ -2536,6 +2558,10 @@ jwplayer.source = document.createElement("source");/**
 			this.callInternal("jwSetVolume", volume);
 			return this;
 		};
+		this.loadInstream = function(item, instreamOptions) {
+			_instream = new jwplayer.api.instream(this, _player, item, instreamOptions);
+			return _instream;
+		};
 		// Player Events
 		this.onBufferChange = function(callback) {
 			return this.eventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, callback);
@@ -2708,7 +2734,7 @@ jwplayer.source = document.createElement("source");/**
 		
 		this.dispatchEvent = function(type) {
 			if (_listeners[type]) {
-				var args = translateEventResponse(type, arguments[1]);
+				var args = _utils.translateEventResponse(type, arguments[1]);
 				for (var l = 0; l < _listeners[type].length; l++) {
 					if (typeof _listeners[type][l] == 'function') {
 						_listeners[type][l].call(this, args);
@@ -2716,40 +2742,34 @@ jwplayer.source = document.createElement("source");/**
 				}
 			}
 		};
-		
-		function translateEventResponse(type, eventProperties) {
-			var translated = jwplayer.utils.extend({}, eventProperties);
-			if (type == jwplayer.api.events.JWPLAYER_FULLSCREEN && !translated.fullscreen) {
-				translated.fullscreen = translated.message == "true" ? true : false;
-				delete translated.message;
-			} else if (typeof translated.data == "object") {
-				// Takes ViewEvent "data" block and moves it up a level
-				translated = jwplayer.utils.extend(translated, translated.data);
-				delete translated.data;
+
+		this.dispatchInstreamEvent = function(type) {
+			if (_instream) {
+				_instream.dispatchEvent(type, arguments);
 			}
-			
-			var rounders = ["position", "duration", "offset"];
-			for (var rounder in rounders) {
-				if (translated[rounders[rounder]]) {
-					translated[rounders[rounder]] = Math.round(translated[rounders[rounder]] * 1000) / 1000;
-				}
-			}
-			
-			return translated;
-		}
-		
-		this.callInternal = function(funcName, args) {
+		};
+
+		this.callInternal = function() {
 			/*this.callInternal = function() {
 			 var	funcName = arguments[0],
 			 args = [];
 			 for (var argument = 1; argument < arguments.length; argument++){
 			 args[argument] = arguments[argument];
 			 }*/
+
 			if (_playerReady) {
+				var funcName = arguments[0],
+					args = [];
+				
+				for (var argument = 1; argument < arguments.length; argument++) {
+					 args.push(arguments[argument]);
+				}
+				
 				if (typeof _player != "undefined" && typeof _player[funcName] == "function") {
-					if (jwplayer.utils.exists(args)) {
-						//return (_player[funcName]).apply(this, args);
-						return (_player[funcName])(args);
+					if (args.length == 2) { 
+						return (_player[funcName])(args[0], args[1]);
+					} else if (args.length == 1) {
+						return (_player[funcName])(args[0]);
 					} else {
 						return (_player[funcName])();
 					}
@@ -2866,7 +2886,9 @@ jwplayer.source = document.createElement("source");/**
 		JWPLAYER_MEDIA_MUTE: 'jwplayerMediaMute',
 		JWPLAYER_PLAYER_STATE: 'jwplayerPlayerState',
 		JWPLAYER_PLAYLIST_LOADED: 'jwplayerPlaylistLoaded',
-		JWPLAYER_PLAYLIST_ITEM: 'jwplayerPlaylistItem'
+		JWPLAYER_PLAYLIST_ITEM: 'jwplayerPlaylistItem',
+		JWPLAYER_INSTREAM_CLICK: 'jwplayerInstreamClicked',
+		JWPLAYER_INSTREAM_DESTROYED: 'jwplayerInstreamDestroyed'
 	};
 	
 	jwplayer.api.events.state = {
@@ -2949,6 +2971,154 @@ playerReady = function(obj) {
 		_userPlayerReady.call(this, obj);
 	}
 };
+/**
+ * InStream API 
+ * 
+ * @author Pablo
+ * @version 5.9
+ */
+(function(jwplayer) {
+	
+	jwplayer.api.instream = function(api, player, item, options) {
+		
+		var _api = api;
+		var _player = player;
+		var _item = item;
+		var _options = options;
+		var _listeners = {};
+		var _stateListeners = {};
+		
+		function _init() {
+		   	_api.callInternal("jwLoadInstream", item, options);
+		}
+		
+		function _addInternalListener(player, type) {
+			_player.jwInstreamAddEventListener(type, 'function(dat) { jwplayer("' + _api.id + '").dispatchInstreamEvent("' + type + '", dat); }');
+		};
+
+		function _eventListener(type, callback) {
+			if (!_listeners[type]) {
+				_listeners[type] = [];
+				_addInternalListener(_player, type);
+			}
+			_listeners[type].push(callback);
+			return this;
+		};
+
+		function _stateListener(state, callback) {
+			if (!_stateListeners[state]) {
+				_stateListeners[state] = [];
+				_eventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateCallback(state));
+			}
+			_stateListeners[state].push(callback);
+			return this;
+		};
+
+		function _stateCallback(state) {
+			return function(args) {
+				var newstate = args.newstate, oldstate = args.oldstate;
+				if (newstate == state) {
+					var callbacks = _stateListeners[newstate];
+					if (callbacks) {
+						for (var c = 0; c < callbacks.length; c++) {
+							if (typeof callbacks[c] == 'function') {
+								callbacks[c].call(this, {
+									oldstate: oldstate,
+									newstate: newstate,
+									type: args.type
+								});
+							}
+						}
+					}
+				}
+			};
+		}		
+		this.dispatchEvent = function(type, calledArguments) {
+			if (_listeners[type]) {
+				var args = _utils.translateEventResponse(type, calledArguments[1]);
+				for (var l = 0; l < _listeners[type].length; l++) {
+					if (typeof _listeners[type][l] == 'function') {
+						_listeners[type][l].call(this, args);
+					}
+				}
+			}
+		}
+		
+		
+		this.onError = function(callback) {
+			return _eventListener(jwplayer.api.events.JWPLAYER_ERROR, callback);
+		};
+		this.onFullscreen = function(callback) {
+			return _eventListener(jwplayer.api.events.JWPLAYER_FULLSCREEN, callback);
+		};
+		this.onMeta = function(callback) {
+			return _eventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, callback);
+		};
+		this.onMute = function(callback) {
+			return _eventListener(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, callback);
+		};
+		this.onComplete = function(callback) {
+			return _eventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, callback);
+		};
+		this.onSeek = function(callback) {
+			return _eventListener(jwplayer.api.events.JWPLAYER_MEDIA_SEEK, callback);
+		};
+		this.onTime = function(callback) {
+			return _eventListener(jwplayer.api.events.JWPLAYER_MEDIA_TIME, callback);
+		};
+		this.onVolume = function(callback) {
+			return _eventListener(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, callback);
+		};
+		// State events
+		this.onBuffer = function(callback) {
+			return _stateListener(jwplayer.api.events.state.BUFFERING, callback);
+		};
+		this.onPause = function(callback) {
+			return _stateListener(jwplayer.api.events.state.PAUSED, callback);
+		};
+		this.onPlay = function(callback) {
+			return _stateListener(jwplayer.api.events.state.PLAYING, callback);
+		};
+		this.onIdle = function(callback) {
+			return _stateListener(jwplayer.api.events.state.IDLE, callback);
+		};
+		// Instream events
+		this.onInstreamClick = function(callback) {
+			return _eventListener(jwplayer.api.events.JWPLAYER_INSTREAM_CLICK, callback);
+		};
+		this.onInstreamDestroyed = function(callback) {
+			return _eventListener(jwplayer.api.events.JWPLAYER_INSTREAM_DESTROYED, callback);
+		};
+		
+		this.play = function(state) {
+			_player.jwInstreamPlay(state);
+		};
+		this.pause= function(state) {
+			_player.jwInstreamPause(state);
+		};
+		this.seek = function(pos) {
+			_player.jwInstreamSeek(pos);
+		};
+		this.destroy = function() {
+			_player.jwInstreamDestroy();
+		};
+		this.getState = function() {
+			return _player.jwInstreamGetState();
+		}
+		this.getDuration = function() {
+			return _player.jwInstreamGetDuration();
+		}
+		this.getPosition = function() {
+			return _player.jwInstreamGetPosition();
+		}
+
+		_init();
+		
+		
+	}
+	
+})(jwplayer);
+
 /**
  * Embedder for the JW Player
  * @author Zach
@@ -3732,7 +3902,7 @@ playerReady = function(obj) {
 		flashCanPlay = function(file, provider) {
 			var providers = ["video", "http", "sound", "image"];
 			// Provider is set, and is not video, http, sound, image - play in Flash
-			if (provider && (providers.toString().indexOf(provider < 0))) {
+			if (provider && (providers.toString().indexOf(provider) < 0) ) {
 				return true;
 			}
 			var extension = jwplayer.utils.extension(file);
@@ -4065,6 +4235,7 @@ playerReady = function(obj) {
 		var _media;
 		var _falseFullscreen = false;
 		var _normalscreenWidth, _normalscreenHeight;
+		var _instremArea, _instreamMode;
 		
 		function createWrapper() {
 			_wrapper = document.createElement("div");
@@ -4117,6 +4288,20 @@ playerReady = function(obj) {
 			_box = document.createElement("div");
 			_box.id = _wrapper.id + "_displayarea";
 			_wrapper.appendChild(_box);
+			
+			_instreamArea = document.createElement("div");
+			_instreamArea.id = _wrapper.id + "_instreamarea";
+			_css(_instreamArea, {
+				overflow: "hidden",
+				position: "absolute",
+				top: 0,
+				left: 0,
+				bottom: 0,
+				right: 0,
+				background: '000000',
+				display: 'none'
+			});
+			_wrapper.appendChild(_instreamArea);
 		}
 		
 		function layoutComponents() {
@@ -4132,9 +4317,20 @@ playerReady = function(obj) {
 		}
 		
 		function _stateHandler(evt) {
-			_css(_box, {
-				display: (_model.getMedia() && _model.getMedia().hasChrome() && evt.newstate != jwplayer.api.events.state.IDLE) ? "none" : "block"
-			});
+			if (_instreamMode) { return; }
+			
+			if (_model.getMedia() && _model.getMedia().hasChrome()) {
+				_box.style.display = "block";
+			} else {
+				switch (evt.newstate) {
+				case evt.newstate == jwplayer.api.events.state.PLAYING:
+					_box.style.display = "none";
+					break;
+				default:
+					_box.style.display = "block";
+					break;
+				}
+			}
 		}
 
 		function _loadedHandler(evt) {
@@ -4165,7 +4361,7 @@ playerReady = function(obj) {
 			layoutComponents();
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_LOADED, _loadedHandler);
-			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, function() {
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, function(evt) {
 				_resizeMedia();
 			});
 			var oldresize;
@@ -4342,7 +4538,7 @@ playerReady = function(obj) {
 			};
 		}
 		
-		function _resizeMedia() {
+		var _resizeMedia = this.resizeMedia = function() {
 			if (!_utils.exists(_model.getMedia())) {
 				return;
 			}
@@ -4388,7 +4584,7 @@ playerReady = function(obj) {
 			}
 		}
 		
-		function _getComponentPosition(pluginName) {
+		var _getComponentPosition = this.getComponentPosition = function(pluginName) {
 			var plugincss = {
 				position: "absolute",
 				margin: 0,
@@ -4514,10 +4710,23 @@ playerReady = function(obj) {
 			return false;
 		}
 		
+		this.setupInstream = function(instreamDisplay) {
+			_instreamArea.style.display = "block";
+			_box.style.display = "none";
+			_instreamArea.appendChild(instreamDisplay);
+			_instreamMode = true;
+		}
+		
+		var _destroyInstream = this.destroyInstream = function() {
+			_instreamArea.style.display = "none";
+			_instreamArea.innerHTML = "";
+			_box.style.display = "block";
+			_instreamMode = false;
+			_resize(_model.width, _model.height);
+		}
 	};
 	
 	
-	//TODO: Enum
 	jwplayer.html5.view.positions = {
 		TOP: "TOP",
 		RIGHT: "RIGHT",
@@ -5407,9 +5616,11 @@ playerReady = function(obj) {
 			if (_api.jwGetMute() == true) {
 				_hide(_elements.muteButton);
 				_show(_elements.unmuteButton);
+				_hide(_elements.volumeSliderProgress);
 			} else {
 				_show(_elements.muteButton);
 				_hide(_elements.unmuteButton);
+				_show(_elements.volumeSliderProgress);
 			}
 		}
 		
@@ -5549,6 +5760,7 @@ playerReady = function(obj) {
 			_oldstart = -1,
 			_preplay = false,
 			_interruptPlay = false,
+			_actionOnAttach,
 			_queuedEvents = [],
 			_ready = false;
 		
@@ -5618,12 +5830,14 @@ playerReady = function(obj) {
 		
 		function _play() {
 			try {
+				_actionOnAttach = _play;
 				if (!_preplay) {
 					_preplay = true;
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BEFOREPLAY);
 					_preplay = false;
 					if (_interruptPlay) {
 						_interruptPlay = false;
+						_actionOnAttach = null;
 						return;
 					}
 				}
@@ -5640,6 +5854,7 @@ playerReady = function(obj) {
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
+				_actionOnAttach = null;
 			}
 			return false;
 		}
@@ -5704,6 +5919,7 @@ playerReady = function(obj) {
 		
 		/** Stop playback and loading of the video. **/
 		function _stop(clear) {
+			_actionOnAttach = null;
 			if (!_utils.exists(clear)) {
 				clear = true;
 			}
@@ -5845,6 +6061,7 @@ playerReady = function(obj) {
 						media.volume(parseInt(volume, 10));
 						break;
 				}
+				_model.volume = volume;
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -5978,7 +6195,10 @@ playerReady = function(obj) {
 
 		function _attachMedia() {
 			try {
-				return _model.getMedia().attachMedia();
+				var ret = _model.getMedia().attachMedia();
+				if (typeof _actionOnAttach == "function") {
+					_actionOnAttach();
+				}
 			} catch (err) {
 				return null;
 			}
@@ -5992,6 +6212,7 @@ playerReady = function(obj) {
 		};
 		
 		function _completeHandler() {
+			_actionOnAttach = _completeHandler;			
 			switch (_model.config.repeat.toUpperCase()) {
 				case jwplayer.html5.controller.repeatoptions.SINGLE:
 					_play();
@@ -6051,7 +6272,10 @@ playerReady = function(obj) {
 		this.load = _waitForReady(_load);
 		this.playerReady = _playerReady;
 		this.detachMedia = _detachMedia; 
-		this.attachMedia = _attachMedia; 
+		this.attachMedia = _attachMedia;
+		this.beforePlay = function() { 
+			return _preplay; 
+		}
 	};
 })(jwplayer);
 /**
@@ -6124,6 +6348,7 @@ playerReady = function(obj) {
 		var _lastSent;
 		var _hiding = false;
 		var _ready = false;
+		var _alternateClickHandler;
 		var _normalscreenWidth, _normalscreenHeight;
 		
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
@@ -6320,10 +6545,15 @@ playerReady = function(obj) {
 			} else {
 				evt.returnValue = false; // IE
 			}
-			if (_api.jwGetState() != jwplayer.api.events.state.PLAYING) {
-				_api.jwPlay();
+			if (typeof _alternateClickHandler == "function") {
+				_alternateClickHandler(evt);
+				return;
 			} else {
-				_api.jwPause();
+				if (_api.jwGetState() != jwplayer.api.events.state.PLAYING) {
+					_api.jwPlay();
+				} else {
+					_api.jwPause();
+				}
 			}
 		}
 		
@@ -6394,6 +6624,7 @@ playerReady = function(obj) {
 			if (state == _lastState) {
 				return;
 			}
+
 			_lastState = state;
 
 			if (_updateTimeout >= 0) {
@@ -6422,11 +6653,11 @@ playerReady = function(obj) {
 			}
 			switch (state) {
 				case jwplayer.api.events.state.BUFFERING:
-					if (_utils.isMobile()) {
+					if (_utils.isIPod()) {
 						_resetPoster();
 						_hideDisplayIcon();
 					} else {
-						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider == "sound") {
+						if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].provider == "sound") {
 							_showImage();
 						}
 						_degreesRotated = 0;
@@ -6439,8 +6670,8 @@ playerReady = function(obj) {
 					}
 					break;
 				case jwplayer.api.events.state.PAUSED:
-					if (!_utils.isMobile()) {
-						if (_api.jwGetPlaylist()[_api.jwGetItem()].provider != "sound") {
+					if (!_utils.isIPod()) {
+						if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].provider != "sound") {
 							_css(_display.display_image, {
 								background: "transparent no-repeat center center"
 							});
@@ -6450,7 +6681,7 @@ playerReady = function(obj) {
 					}
 					break;
 				case jwplayer.api.events.state.IDLE:
-					if (_api.jwGetPlaylist()[_api.jwGetItem()] && _api.jwGetPlaylist()[_api.jwGetItem()].image) {
+					if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()] && _api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image) {
 						_showImage();
 					} else {
 						_resetPoster();
@@ -6459,8 +6690,8 @@ playerReady = function(obj) {
 					_showing = true;
 					break;
 				default:
-					if (_api.jwGetPlaylist()[_api.jwGetItem()] && _api.jwGetPlaylist()[_api.jwGetItem()].provider == "sound") {
-						if (_utils.isMobile()) {
+					if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()] && _api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].provider == "sound") {
+						if (_utils.isIPod()) {
 							_resetPoster();
 							_showing = false;
 						} else {
@@ -6481,11 +6712,11 @@ playerReady = function(obj) {
 		}
 		
 		function _showImage() {
-			if (_api.jwGetPlaylist()[_api.jwGetItem()] && _api.jwGetPlaylist()[_api.jwGetItem()].image) {
+			if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()] && _api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image) {
 				_css(_display.display_image, {
 					display: "block"
 				});
-				_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetItem()].image);
+				_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image);
 			}
 		}
 		
@@ -6507,6 +6738,13 @@ playerReady = function(obj) {
 		var _sendShow = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_SHOW);
 		var _sendHide = _sendVisibilityEvent(jwplayer.api.events.JWPLAYER_COMPONENT_HIDE);
 
+		/** NOT SUPPORTED : Using this for now to hack around instream API **/
+		this.setAlternateClickHandler = function(handler) {
+			_alternateClickHandler = handler;
+		}
+		this.revertAlternateClickHandler = function() {
+			_alternateClickHandler = undefined;
+		}
 		
 		return this;
 	};
@@ -6844,6 +7082,308 @@ playerReady = function(obj) {
 		};
 	};
 })(jwplayer);
+/** 
+ * API to control instream playback without interrupting currently playing video
+ *
+ * @author pablo
+ * @version 5.9
+ */
+(function(jwplayer) {
+	var _utils = jwplayer.utils;
+	
+	jwplayer.html5.instream = function(api, model, view, controller) {
+		var _defaultOptions = {
+			controlbarseekable:"always",
+			controlbarpausable:true,
+			controlbarstoppable:true,
+			playlistclickable:true
+		};
+		
+		var _item,
+			_options,
+			_api=api, _model=model, _view=view, _controller=controller,
+			_video, _oldsrc, _oldsources, _oldpos, _oldstate, _olditem,
+			_provider, _cbar, _disp, _instreamMode = false,
+			_dispatcher, _instreamContainer,
+			_self = this;
+
+
+		/*****************************************
+		 *****  Public instream API methods  *****
+		 *****************************************/
+
+		/** Load an instream item and initialize playback **/
+		this.load = function(item, options) {
+			// Update the instream player's model
+			_copyModel();
+			// Sets internal instream mode to true
+			_instreamMode = true;
+			// Instream playback options
+			_options = _utils.extend(_defaultOptions, options);
+			// Copy the playlist item passed in and make sure it's formatted as a proper playlist item
+			_item = jwplayer.html5.playlistitem(item);
+			// Create (or reuse) video media provider.  No checks right now to make sure it's a valid playlist item (i.e. provider="video").
+			_setupProvider();
+			// Create the container in which the controls will be placed
+			_instreamContainer = document.createElement("div");
+			_instreamContainer.id = _self.id + "_instream_container";
+			// Get the video tag, and make sure the original player's provider stops broadcasting events (pseudo-lock...)
+			_video = _controller.detachMedia();
+			// Store this to compare later (in case the main player switches to the next playlist item when we switch out of instream playback mode 
+			_olditem = _model.playlist[_model.item];
+			// Keep track of the original player state
+			_oldstate = _api.jwGetState();
+			// If the player's currently playing, pause the video tag
+			if (_oldstate == jwplayer.api.events.state.BUFFERING || _oldstate == jwplayer.api.events.state.PLAYING) {
+				_video.pause();
+			}
+			
+			// Copy the video src/sources tags and store the current playback time
+			_oldsrc = _video.src;
+			_oldsources = _video.innerHTML;
+			_oldpos = _video.currentTime;
+			
+			// Instream display component
+			_disp = new jwplayer.html5.display(_self, _utils.extend({},_model.plugins.config.display));
+			_disp.setAlternateClickHandler(function(evt) {
+				_sendEvent(jwplayer.api.events.JWPLAYER_INSTREAM_CLICK, evt);
+			});
+			_instreamContainer.appendChild(_disp.getDisplayElement());
+
+			// Instream controlbar (if not iOS/Android)
+			if (!_utils.isMobile()) {
+				_cbar = new jwplayer.html5.controlbar(_self, _utils.extend({},_model.plugins.config.controlbar, {}));
+				_instreamContainer.appendChild(_cbar.getDisplayElement());
+			}
+
+			// Show the instream layer
+			_view.setupInstream(_instreamContainer);
+			// Resize the instream components to the proper size
+			_resize();
+			// Load the instream item and begin playback
+			_provider.load(_item);
+		}
+			
+		/** Stop the instream playback and revert the main player back to its original state **/
+		this.jwInstreamDestroy = function(complete) {
+			if (!_instreamMode) return;
+			// We're not in instream mode anymore.
+			_instreamMode = false;
+			// Load the original item into our provider, which sets up the regular player's video tag
+			_provider.load(_olditem, false);
+			// We don't want the position interval to be running anymore
+			_provider.stop(false);
+			// We don't want the instream provider to be attached to the video tag anymore
+			_provider.detachMedia();
+			// Return the view to its normal state
+			_view.destroyInstream();
+			// Let listeners know the instream player has been destroyed, and why
+			_sendEvent(jwplayer.api.events.JWPLAYER_INSTREAM_DESTROYED, {reason:(complete ? "complete":"destroyed")}, true);
+			// Re-attach the controller
+			_controller.attachMedia();
+			if (_oldstate == jwplayer.api.events.state.BUFFERING || _oldstate == jwplayer.api.events.state.PLAYING) {
+				// Model was already correct; just resume playback
+				_video.play();
+				if (_model.playlist[_model.item] == _olditem) {
+					// We need to seek using the player's real provider, since the seek may have to be delayed
+					_model.getMedia().seek(_oldpos);
+				}
+			}
+			return;
+		};
+		
+		/** Forward any calls to add and remove events directly to our event dispatcher **/
+		this.jwInstreamAddEventListener = function(type, listener) {
+			_dispatcher.addEventListener(type, listener);
+		} 
+		this.jwInstreamRemoveEventListener = function(type, listener) {
+			_dispatcher.removeEventListener(type, listener);
+		}
+
+		/** Start instream playback **/
+		this.jwInstreamPlay = function() {
+			if (!_instreamMode) return;
+			_provider.play(true);
+		}
+
+		/** Pause instream playback **/
+		this.jwInstreamPause = function() {
+			if (!_instreamMode) return;
+			_provider.pause(true);
+		}
+		
+		/** Seek to a point in instream media **/
+		this.jwInstreamSeek = function(position) {
+			if (!_instreamMode) return;
+			_provider.seek(position);
+		}
+		
+		/** Get the current instream state **/
+		this.jwInstreamGetState = function() {
+			if (!_instreamMode) return undefined;
+			return _fakemodel.state;
+		}
+
+		/** Get the current instream playback position **/
+		this.jwInstreamGetPosition = function() {
+			if (!_instreamMode) return undefined;
+			return _fakemodel.position;
+		}
+
+		/** Get the current instream media duration **/
+		this.jwInstreamGetDuration = function() {
+			if (!_instreamMode) return undefined;
+			return _fakemodel.duration;
+		}
+		
+		this.playlistClickable = function() {
+			return (!_instreamMode || _options.playlistclickable.toString().toLowerCase()=="true");
+		}
+		
+
+		/*****************************
+		 ****** Private methods ****** 
+		 *****************************/
+
+		function _init() {
+			// Initialize the instream player's model copied from main player's model
+			_fakemodel = new jwplayer.html5.model(this, _model.getMedia() ? _model.getMedia().getDisplayElement() : _model.container, _model);
+			// Create new event dispatcher
+			_dispatcher = new jwplayer.html5.eventdispatcher();
+			// Listen for player resize events
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_RESIZE, _resize);
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_FULLSCREEN, _resize);
+		}
+
+		function _copyModel() {
+			_fakemodel.mute = _model.mute;
+			_fakemodel.volume = _model.volume;
+		}
+		
+		function _setupProvider() {
+			if (!_provider) {
+				_provider = new jwplayer.html5.mediavideo(_fakemodel, _model.getMedia() ? _model.getMedia().getDisplayElement() : _model.container);
+				_provider.addGlobalListener(_forward);
+				_provider.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, _metaHandler);
+				_provider.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, _completeHandler);
+			}
+			_provider.attachMedia();
+		}
+		
+		/** Forward provider events to listeners **/		
+		function _forward(evt) {
+			if (_instreamMode) {
+				_sendEvent(evt.type, evt);
+			}
+		}
+		
+		/** Handle the JWPLAYER_MEDIA_COMPLETE event **/		
+		function _completeHandler(evt) {
+			if (_instreamMode) {
+				setTimeout(function() {
+					_self.jwInstreamDestroy(true);
+				}, 10);
+			}
+		}
+		
+		/** Handle the JWPLAYER_MEDIA_META event **/		
+		function _metaHandler(evt) {
+			// If we're getting video dimension metadata from the provider, allow the view to resize the media
+			if (evt.metadata.width && evt.metadata.height) {
+				_view.resizeMedia();
+			}
+		}
+		
+		function _sendEvent(type, data, forceSend) {
+			if (_instreamMode || forceSend) {
+				_dispatcher.sendEvent(type, data);
+			}
+		}
+		
+		// Resize handler; resize the components.
+		function _resize() {
+			if (_cbar) {
+				var originalBar = _model.plugins.object.controlbar.getDisplayElement().style;
+				_css(_cbar.getDisplayElement(), _utils.extend({}, originalBar, { zIndex: 1000 }));
+				_cbar.resize(_utils.parseDimension(originalBar.width), _utils.parseDimension(originalBar.height));
+			}
+			if (_disp) {
+				var originalDisp = _model.plugins.object.display.getDisplayElement().style;
+				_css(_disp.getDisplayElement(), _utils.extend({}, originalDisp, { zIndex: 1001 }));
+				_disp.resize(_utils.parseDimension(originalDisp.width), _utils.parseDimension(originalDisp.height));
+			}
+			if (_view) {
+				_view.resizeMedia();
+			}
+		}
+		
+		
+		/**************************************
+		 *****  Duplicate main html5 api  *****
+		 **************************************/
+		
+		this.jwPlay = function(state) {
+			if (_options.controlbarpausable.toString().toLowerCase()=="true") {
+				this.jwInstreamPlay();
+			}
+		};
+		
+		this.jwPause = function(state) {
+			if (_options.controlbarpausable.toString().toLowerCase()=="true") {
+				this.jwInstreamPause();
+			}
+		};
+
+		this.jwStop = function() {
+			if (_options.controlbarstoppable.toString().toLowerCase()=="true") {
+				this.jwInstreamDestroy();
+			}
+		};
+
+		this.jwSeek = function(position) {
+			switch(_options.controlbarseekable.toLowerCase()) {
+			case "always":
+				this.jwInstreamSeek(position);
+				break;
+			case "backwards":
+				if (_fakemodel.position > position) {
+					this.jwInstreamSeek(position);
+				}
+				break;
+			}
+		};
+		
+		this.jwGetPosition = function() {};
+		this.jwGetDuration = function() {};
+		this.jwGetWidth = _api.jwGetWidth;
+		this.jwGetHeight = _api.jwGetHeight;
+		this.jwGetFullscreen = _api.jwGetFullscreen;
+		this.jwSetFullscreen = _api.jwSetFullscreen;
+		this.jwGetVolume = function() { return _model.volume; };
+		this.jwSetVolume = function(vol) {
+			_provider.volume(vol);
+			_api.jwSetVolume(vol);
+		}
+		this.jwGetMute = function() { return _model.mute; };
+		this.jwSetMute = function(state) {
+			_provider.mute(state);
+			_api.jwSetMute(state);
+		}
+		this.jwGetState = function() { return _fakemodel.state; };
+		this.jwGetPlaylist = function() { return [_item]; };
+		this.jwGetPlaylistIndex = function() { return 0; };
+		this.jwGetStretching = function() { return _model.config.stretching; };
+		this.jwAddEventListener = function(type, handler) { _dispatcher.addEventListener(type, handler); };
+		this.jwRemoveEventListener = function(type, handler) { _dispatcher.removeEventListener(type, handler); };
+
+		this.skin = _api.skin;
+		this.id = _api.id;
+
+		_init();
+		return this;
+	};
+})(jwplayer);
+
 /**
  * JW Player logo component
  *
@@ -7039,8 +7579,9 @@ playerReady = function(obj) {
 	};
 	
 	var _utils = jwplayer.utils;
-	var _css = _utils.css;
 	var _isMobile = _utils.isMobile();
+	
+	var _allvideos = {};
 	
 	jwplayer.html5.mediavideo = function(model, container) {
 		var _events = {
@@ -7082,8 +7623,10 @@ playerReady = function(obj) {
 			_start,
 			_currentItem,
 			_interval,
+			_delayedSeek, 
 			_emptied = false,
 			_attached = false,
+			_userDuration = false,
 			_bufferingComplete, _bufferFull,
 			_sourceError;
 			
@@ -7107,6 +7650,9 @@ playerReady = function(obj) {
 			}
 			
 			_currentItem = item;
+			_userDuration = (_currentItem.duration > 0);
+			_model.duration = _currentItem.duration;
+			
 			_utils.empty(_video);
 
 			_sourceError = 0; 
@@ -7129,14 +7675,11 @@ playerReady = function(obj) {
 			} else {
 				_video.src = item.file;
 			}
+			_video.style.display = "block";
+			_video.volume = _model.volume / 100;
+			_video.muted = _model.mute;
 			if (_isMobile) {
-				if (item.image) {
-					_video.poster = item.image;
-				}
-				_video.style.display = "block";
-				setTimeout(function() {
-					_video.setAttribute("controls", "controls");
-				}, 100);
+				_setControls();
 			}
 			
 			_bufferingComplete = _bufferFull = _start = false;
@@ -7145,15 +7688,15 @@ playerReady = function(obj) {
 			if (!_utils.exists(item.start)) {
 				item.start = 0;
 			}
-			_model.duration = item.duration;
-			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_LOADED);
+			_delayedSeek = (item.start > 0) ? item.start : -1;
+			_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_LOADED);
 			if((!_isMobile && item.levels.length == 1) || !_emptied) {
 				_video.load();
 			}
 			_emptied = false;
 			if (play) {
 				_setState(jwplayer.api.events.state.BUFFERING);
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
+				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
 					bufferPercent: 0
 				});
 				this.play();
@@ -7166,15 +7709,13 @@ playerReady = function(obj) {
 		this.play = function() {
 			if (!_attached) return;
 			
-			if (_state != jwplayer.api.events.state.PLAYING) {
-				_startInterval();
-				if (_bufferFull) {
-					_setState(jwplayer.api.events.state.PLAYING);
-				} else {
-					_setState(jwplayer.api.events.state.BUFFERING);
-				}
-				_video.play();
+			_startInterval();
+			if (_bufferFull) {
+				_setState(jwplayer.api.events.state.PLAYING);
+			} else {
+				_setState(jwplayer.api.events.state.BUFFERING);
 			}
+			_video.play();
 		}
 		
 		/**
@@ -7193,11 +7734,14 @@ playerReady = function(obj) {
 		 */
 		this.seek = function(position) {
 			if (!_attached) return;
-			
-			if (!(_model.duration <= 0 || isNaN(_model.duration)) &&
-				!(_model.position <= 0 || isNaN(_model.position))) {
-					_video.currentTime = position;
-					_video.play();
+			if (!_start && _video.readyState > 0) {
+				if (!(_model.duration <= 0 || isNaN(_model.duration)) &&
+						!(_model.position <= 0 || isNaN(_model.position))) {
+						_video.currentTime = position;
+						_video.play();
+				}
+			} else {
+				_delayedSeek = position;
 			}
 		}
 		
@@ -7225,8 +7769,7 @@ playerReady = function(obj) {
 				} else {
 					_video.removeAttribute("src");
 				}
-				_video.removeAttribute("controls");
-				_video.removeAttribute("poster");
+				_hideControls();
 				_utils.empty(_video);
 				_video.load();
 				_emptied = true;
@@ -7250,7 +7793,7 @@ playerReady = function(obj) {
 
 		/** Resize the player. **/
 		this.resize = function(width, height) {
-//			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
+//			_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
 //				fullscreen: _model.fullscreen,
 //				width: width,
 //				hieght: height
@@ -7261,7 +7804,7 @@ playerReady = function(obj) {
 		this.volume = function(position) {
 			if (!_isMobile) {
 				_video.volume = position / 100;
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
+				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
 					volume: (position / 100)
 				});
 			}
@@ -7272,7 +7815,7 @@ playerReady = function(obj) {
 		this.mute = function(state) {
 			if (!_isMobile) {
 				_video.muted = state;
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
+				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
 					mute: state
 				});
 			}
@@ -7314,7 +7857,7 @@ playerReady = function(obj) {
 		
 		function _handleMediaEvent(type, handler) {
 			return function(evt) {
-				if (_attached && _utils.exists(evt.target.parentNode)) {
+				if (_utils.exists(evt.target.parentNode)) {
 					handler(evt);
 				}
 			};
@@ -7322,13 +7865,11 @@ playerReady = function(obj) {
 		
 		/** Initializes the HTML5 video and audio media provider **/
 		function _init() {
-			_video = document.createElement("video");
 			_state = jwplayer.api.events.state.IDLE;
  
-			for (var event in _events) {
-				_video.addEventListener(event, _handleMediaEvent(event, _events[event]), true);
-			}
 			_attached = true;
+			
+			_video = _getVideoElement();
 
 			_video.setAttribute("x-webkit-airplay", "allow"); 
 			
@@ -7339,8 +7880,22 @@ playerReady = function(obj) {
 			if (!_video.id) {
 				_video.id = _container.id;
 			}
-			
-			_video.volume = _model.volume / 100;
+		}
+		
+		function _getVideoElement() {
+			var vid;
+			if (!_allvideos[_model.id]) {
+				if (_container.tagName.toLowerCase() == "video") {
+					vid = _container;
+				} else {
+					vid = document.createElement("video");
+				}
+				for (var event in _events) {
+					vid.addEventListener(event, _handleMediaEvent(event, _events[event]), true);
+				}
+				_allvideos[_model.id] = vid;
+			}
+			return _allvideos[_model.id];
 		}
 		
 		/** Set the current player state **/
@@ -7350,10 +7905,21 @@ playerReady = function(obj) {
 				return;
 			}
 
+			if (_isMobile) {
+				switch (newstate) {
+				case jwplayer.api.events.state.PLAYING:
+					_setControls();
+					break;
+				default:
+					_hideControls();
+					break;
+				}
+			}
+			
 			if (_state != newstate) {
 				var oldstate = _state;
 				_model.state = _state = newstate;
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_PLAYER_STATE, {
+				_sendEvent(jwplayer.api.events.JWPLAYER_PLAYER_STATE, {
 					oldstate: oldstate,
 					newstate: newstate
 				});
@@ -7368,20 +7934,18 @@ playerReady = function(obj) {
 		/** Handle volume change and muting events **/
 		function _volumeHandler(event) {
 			var newVol = Math.round(_video.volume * 100);
-			if (newVol != _model.volume) {
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
-					volume: newVol
-				});
-			}
-			if (_video.muted != _model.mute) {
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
-					mute: _video.muted
-				});
-			}
+			_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
+				volume: newVol
+			}, true);
+			_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
+				mute: _video.muted
+			}, true);
 		}
 
 		/** Update the player progress **/
 		function _progressHandler(event) {
+			if (!_attached) return;
+
 			var bufferPercent;
 			if (_utils.exists(event) && event.lengthComputable && event.total) {
 				bufferPercent = event.loaded / event.total * 100;
@@ -7393,7 +7957,7 @@ playerReady = function(obj) {
 			}
 			
 			if (_bufferFull === false && _state == jwplayer.api.events.state.BUFFERING) {
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL);
+				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL);
 				_bufferFull = true;
 			}
 			
@@ -7404,7 +7968,7 @@ playerReady = function(obj) {
 				
 				if (_utils.exists(bufferPercent) && (bufferPercent > _model.buffer)) {
 					_model.buffer = Math.round(bufferPercent);
-					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
+					_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
 						bufferPercent: Math.round(bufferPercent)
 					});
 				}
@@ -7414,32 +7978,36 @@ playerReady = function(obj) {
 		
 		/** Update the player's position **/
 		function _positionHandler(event) {
+			if (!_attached) return;
+
 			if (_utils.exists(event) && _utils.exists(event.target)) {
-				if (!isNaN(event.target.duration) && (isNaN(_model.duration) || _model.duration < 1)) {
-					if (event.target.duration == Infinity) {
-						_model.duration = 0;
-					} else {
-						_model.duration = Math.round(event.target.duration * 10) / 10;
+				if (_userDuration > 0) {
+					if (!isNaN(event.target.duration) && (isNaN(_model.duration) || _model.duration < 1)) {
+						if (event.target.duration == Infinity) {
+							_model.duration = 0;
+						} else {
+							_model.duration = Math.round(event.target.duration * 10) / 10;
+						}
 					}
 				}
 				if (!_start && _video.readyState > 0) {
-					_video.style.display = "block";
 					_setState(jwplayer.api.events.state.PLAYING);
 				}
 				
 				if (_state == jwplayer.api.events.state.PLAYING) {
-					if (!_start && _video.readyState > 0) {
+					if (_video.readyState > 0 && (_delayedSeek > -1 || !_start)) {
 						_start = true;
 						try {
-							if (_video.currentTime < _currentItem.start) {
-								_video.currentTime = _currentItem.start;
+							if (_video.currentTime != _delayedSeek && _delayedSeek > -1) {
+								_video.currentTime = _delayedSeek;
+								_delayedSeek = -1;
 							}
 						} catch (err) {}
 						_video.volume = _model.volume / 100;
 						_video.muted = _model.mute;
 					}
 					_model.position = _model.duration > 0 ? (Math.round(event.target.currentTime * 10) / 10) : 0;
-					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_TIME, {
+					_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_TIME, {
 						position: _model.position,
 						duration: _model.duration
 					});
@@ -7456,6 +8024,8 @@ playerReady = function(obj) {
 		}
 
 		function _stateHandler(event) {
+			if (!_attached) return;
+
 			if (_states[event.type]) {
 				if (event.type == "ended") {
 					_complete();
@@ -7466,21 +8036,26 @@ playerReady = function(obj) {
 		}
 
 		function _metaHandler(event) {
+			if (!_attached) return;
 			var newDuration = Math.round(event.target.duration * 10) / 10;
 			var meta = {
 					height: event.target.videoHeight,
 					width: event.target.videoWidth,
 					duration: newDuration
 				};
-			if ( (_model.duration < newDuration || isNaN(_model.duration)) && event.target.duration != Infinity) {
-				_model.duration = newDuration;
+			if (!_userDuration) {
+				if ( (_model.duration < newDuration || isNaN(_model.duration)) && event.target.duration != Infinity) {
+					_model.duration = newDuration;
+				}
 			}
-			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_META, {
+			_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_META, {
 				metadata: meta
 			});
 		}
 
 		function _errorHandler(event) {
+			if (!_attached) return;
+
 			if (_state == jwplayer.api.events.state.IDLE) {
 				return;
 			}
@@ -7519,7 +8094,7 @@ playerReady = function(obj) {
 			_stop(false);
 			message += _joinFiles();
 			_error = true;
-			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
+			_sendEvent(jwplayer.api.events.JWPLAYER_ERROR, {
 				message: message
 			});
 			return;		
@@ -7553,9 +8128,11 @@ playerReady = function(obj) {
 		}
 		
 		function _complete() {
-			if (_state != jwplayer.api.events.state.IDLE) {
+			if (_state == jwplayer.api.events.state.PLAYING) {
 				_stop(false);
-				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
+				setTimeout(function() {
+					_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
+				}, 10);
 			}
 		}
 		
@@ -7563,9 +8140,9 @@ playerReady = function(obj) {
 			if (_utils.exists(_video.webkitDisplayingFullscreen)) {
 				if (_model.fullscreen && !_video.webkitDisplayingFullscreen) {
 					//_model.fullscreen = _video.webkitDisplayingFullscreen;
-					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
+					_sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
 						fullscreen: false
-					});
+					},true);
 				}
 			}
 		}
@@ -7585,6 +8162,30 @@ playerReady = function(obj) {
 						var mp4 = levels.splice(position, 1)[0];
 						levels.unshift(mp4);
 					}
+				}
+			}
+		}
+		
+		function _setControls() {
+			if (_currentItem.image) {
+				_video.poster = _currentItem.image;
+			}
+			setTimeout(function() {
+				_video.setAttribute("controls", "controls");
+			}, 100);
+		}
+		
+		function _hideControls() {
+			_video.removeAttribute("controls");
+			_video.removeAttribute("poster");
+		}
+		
+		function _sendEvent(type, obj, alwaysSend) {
+			if (_attached || alwaysSend) {
+				if (obj) {
+					_eventDispatcher.sendEvent(type, obj);
+				} else {
+					_eventDispatcher.sendEvent(type);
 				}
 			}
 		}
@@ -7832,6 +8433,7 @@ playerReady = function(obj) {
 			state: jwplayer.api.events.state.IDLE,
 			position: 0,
 			buffer: 0,
+			container: _container,
 			config: {
 				width: 480,
 				height: 320,
@@ -8965,7 +9567,7 @@ playerReady = function(obj) {
  * A factory for API calls that either set listeners or return data
  *
  * @author zach
- * @version 5.8
+ * @version 5.9
  */
 (function(jwplayer) {
 
@@ -9013,7 +9615,16 @@ playerReady = function(obj) {
 		
 		_api.jwStop = _controller.stop;
 		_api.jwSeek = _controller.seek;
-		_api.jwPlaylistItem = _controller.item;
+		_api.jwPlaylistItem = function(item) {
+			if (_instreamPlayer) {
+				if (_instreamPlayer.playlistClickable()) {
+					_instreamPlayer.jwInstreamDestroy();
+					return _controller.item(item);
+				}
+			} else {
+				return _controller.item(item);
+			}
+		}
 		_api.jwPlaylistNext = _controller.next;
 		_api.jwPlaylistPrev = _controller.prev;
 		_api.jwResize = _controller.resize;
@@ -9036,7 +9647,7 @@ playerReady = function(obj) {
 			};
 		}
 		
-		_api.jwGetItem = _statevarFactory('item');
+		_api.jwGetPlaylistIndex = _statevarFactory('item');
 		_api.jwGetPosition = _statevarFactory('position');
 		_api.jwGetDuration = _statevarFactory('duration');
 		_api.jwGetBuffer = _statevarFactory('buffer');
@@ -9059,7 +9670,6 @@ playerReady = function(obj) {
 		_api.jwGetPlaylist = function() {
 			return _model.playlist;
 		};
-		_api.jwGetPlaylistIndex = _api.jwGetItem;
 		
 		_api.jwAddEventListener = _controller.addEventListener;
 		_api.jwRemoveEventListener = _controller.removeEventListener;
@@ -9077,6 +9687,44 @@ playerReady = function(obj) {
 		_api.jwDockHide = _componentCommandFactory("dock", "hide");
 		_api.jwDisplayShow = _componentCommandFactory("display", "show");
 		_api.jwDisplayHide = _componentCommandFactory("display", "hide");
+		
+		
+		var _instreamPlayer;
+		
+		//InStream API
+		_api.jwLoadInstream = function(item, options) {
+			if (!_instreamPlayer) {
+				_instreamPlayer = new jwplayer.html5.instream(_api, _model, _view, _controller);
+			}
+			setTimeout(function() {
+				_instreamPlayer.load(item, options);
+			}, 10);
+		}
+		_api.jwInstreamDestroy = function() {
+			if (_instreamPlayer) {
+				_instreamPlayer.jwInstreamDestroy();
+			}
+		}
+		
+		_api.jwInstreamAddEventListener = _callInstream('jwInstreamAddEventListener');
+		_api.jwInstreamRemoveEventListener = _callInstream('jwInstreamRemoveEventListener');
+		_api.jwInstreamGetState = _callInstream('jwInstreamGetState');
+		_api.jwInstreamGetDuration = _callInstream('jwInstreamGetDuration');
+		_api.jwInstreamGetPosition = _callInstream('jwInstreamGetPosition');
+		_api.jwInstreamPlay = _callInstream('jwInstreamPlay');
+		_api.jwInstreamPause = _callInstream('jwInstreamPause');
+		_api.jwInstreamSeek = _callInstream('jwInstreamSeek');
+		
+		function _callInstream(funcName) {
+			return function() {
+				if (_instreamPlayer && typeof _instreamPlayer[funcName] == "function") {
+					return _instreamPlayer[funcName].apply(this, arguments);
+				} else {
+					_utils.log("Could not call instream method - instream API not initialized");
+				}
+			}
+		}
+		
 		
 		//UNIMPLEMENTED
 		_api.jwGetLevel = function() {

@@ -20,8 +20,12 @@ package com.longtailvideo.jwplayer.utils {
          * @param clp	The MovieClip to manage.
          **/
         public function Stacker(clp:MovieClip):void {
-            clip = clp;
-            analyze();
+			if (clp is MovieClip) {
+	            clip = clp;
+    	        analyze();
+			} else {
+				throw new TypeError("Expecting a MovieClip");
+			}
         }
 
         /** Analyze the MovieClip and save its children. **/

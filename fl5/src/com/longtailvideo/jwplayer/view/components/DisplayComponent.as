@@ -63,6 +63,8 @@
 		protected var _playStateTimer:Timer;
 		protected var _previousState:String;
 		
+		protected var _forced:String = "";
+		
 		public function DisplayComponent(player:IPlayer) {
 			super(player, "display");
 			addListeners();
@@ -347,16 +349,20 @@
 			setDisplay(null, '');
 		}
 		
+		protected function get currentState():String {
+			return (_forced ? _forced : (_player ? _player.state : PlayerState.IDLE));
+		}
 		
 		protected function stateHandler(event:PlayerEvent = null):void {
-			if (_previousState != player.state || !(event is PlayerStateEvent)) {
+			if (_previousState != currentState || !(event is PlayerStateEvent)) {
+				_previousState = currentState;
 				//TODO: Handle mute button in error state
 				clearRotation();
 				_bufferStateTimer.reset();
 				_playStateTimer.reset();
 				_bufferStateTimer.delay = (_icon ? 10 : 200);
 				_playStateTimer.delay = (_icon ? 10 : 10);
-				switch (player.state) {
+				switch (currentState) {
 					case PlayerState.BUFFERING:
 						_bufferStateTimer.start();
 						break;
@@ -418,7 +424,7 @@
 				if(link) {
 					navigateToURL(new URLRequest(Strings.cleanLink(link)),_player.config.linktarget);
 				}
-			} else if (player.state == PlayerState.PLAYING || player.state == PlayerState.BUFFERING) {
+			} else if (currentState == PlayerState.PLAYING || currentState == PlayerState.BUFFERING) {
 				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_PAUSE));
 			} else {
 				dispatchEvent(new ViewEvent(ViewEvent.JWPLAYER_VIEW_PLAY));
@@ -460,6 +466,26 @@
 				}
 				_hiding = false;
 			}
+		}
+		
+		public function forceState(forcedState:String):void {
+			switch(forcedState) {
+				case PlayerState.BUFFERING:
+				case PlayerState.PAUSED:
+				case PlayerState.IDLE:
+				case PlayerState.PLAYING:
+					_forced = forcedState;
+					stateHandler();
+					break;
+				default:
+					_forced = "";
+			}
+			
+		}
+		
+		public function releaseState():void {
+			_forced = "";
+			stateHandler();
 		}
 		
 		protected override function get displayRect():Rectangle {

@@ -16,6 +16,7 @@
 			state: jwplayer.api.events.state.IDLE,
 			position: 0,
 			buffer: 0,
+			container: _container,
 			config: {
 				width: 480,
 				height: 320,

@@ -1,10 +1,17 @@
 package com.longtailvideo.jwplayer.utils {
 	import flash.display.MovieClip;
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	
 	
+	/**
+	 * Fired when an animation has completed
+	 *
+	 * @eventType flash.events.Event.COMPLETE
+	 */
+	[Event(name="complete", type="flash.events.Event")]
 	
-	public class Animations {
+	public class Animations extends EventDispatcher {
 		/** Target MovieClip **/
 		private var _tgt:MovieClip;
 		/** Transition speed **/
@@ -50,6 +57,7 @@ package com.longtailvideo.jwplayer.utils {
 				if (_end == 0) {
 					_tgt.visible = false;
 				}
+				dispatchEvent(new Event(Event.COMPLETE));
 			} else {
 				_tgt.visible = true;
 				_tgt.alpha += _spd;
@@ -86,6 +94,7 @@ package com.longtailvideo.jwplayer.utils {
 				_tgt.removeEventListener(Event.ENTER_FRAME, easeHandler);
 				_tgt.x = _xps;
 				_tgt.y = _yps;
+				dispatchEvent(new Event(Event.COMPLETE));
 			} else {
 				_tgt.x = _xps - (_xps - _tgt.x) / _spd;
 				_tgt.y = _yps - (_yps - _tgt.y) / _spd;
@@ -114,6 +123,7 @@ package com.longtailvideo.jwplayer.utils {
 			if (_tgt.tf.text == _str) {
 				_tgt.tf.htmlText = _str;
 				_tgt.removeEventListener(Event.ENTER_FRAME, easeHandler);
+				dispatchEvent(new Event(Event.COMPLETE));
 			}
 		}
 	}

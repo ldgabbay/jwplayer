@@ -1,0 +1,15 @@
+<?xml?>
+<adschedule simulate="false">
+	<preroll>
+	 <ad>http://pablotest.longtailvideo.com/trunk/fl5/js/test/examples/instream/ad1.xml</ad>
+	 <ad>http://pablotest.longtailvideo.com/trunk/fl5/js/test/examples/instream/ad2.xml</ad>
+	</preroll>
+	<midroll>
+	 <ad delay="5">http://pablotest.longtailvideo.com/trunk/fl5/js/test/examples/instream/ad1.xml</ad>
+	 <ad delay="5">http://pablotest.longtailvideo.com/trunk/fl5/js/test/examples/instream/ad2.xml</ad>
+	 <ad delay="10">http://pablotest.longtailvideo.com/trunk/fl5/js/test/examples/instream/ad2.xml</ad>
+	</midroll>
+	<postroll>
+	 <ad>http://pablotest.longtailvideo.com/trunk/fl5/js/test/examples/instream/ad1.xml</ad>
+	</postroll>
+</adschedule>

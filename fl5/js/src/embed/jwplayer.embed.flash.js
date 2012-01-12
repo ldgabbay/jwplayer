@@ -237,7 +237,7 @@
 		flashCanPlay = function(file, provider) {
 			var providers = ["video", "http", "sound", "image"];
 			// Provider is set, and is not video, http, sound, image - play in Flash
-			if (provider && (providers.toString().indexOf(provider < 0))) {
+			if (provider && (providers.toString().indexOf(provider) < 0) ) {
 				return true;
 			}
 			var extension = jwplayer.utils.extension(file);

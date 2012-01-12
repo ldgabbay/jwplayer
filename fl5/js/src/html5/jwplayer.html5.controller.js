@@ -18,6 +18,7 @@
 			_oldstart = -1,
 			_preplay = false,
 			_interruptPlay = false,
+			_actionOnAttach,
 			_queuedEvents = [],
 			_ready = false;
 		
@@ -87,12 +88,14 @@
 		
 		function _play() {
 			try {
+				_actionOnAttach = _play;
 				if (!_preplay) {
 					_preplay = true;
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BEFOREPLAY);
 					_preplay = false;
 					if (_interruptPlay) {
 						_interruptPlay = false;
+						_actionOnAttach = null;
 						return;
 					}
 				}
@@ -109,6 +112,7 @@
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
+				_actionOnAttach = null;
 			}
 			return false;
 		}
@@ -173,6 +177,7 @@
 		
 		/** Stop playback and loading of the video. **/
 		function _stop(clear) {
+			_actionOnAttach = null;
 			if (!_utils.exists(clear)) {
 				clear = true;
 			}
@@ -314,6 +319,7 @@
 						media.volume(parseInt(volume, 10));
 						break;
 				}
+				_model.volume = volume;
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -447,7 +453,10 @@
 
 		function _attachMedia() {
 			try {
-				return _model.getMedia().attachMedia();
+				var ret = _model.getMedia().attachMedia();
+				if (typeof _actionOnAttach == "function") {
+					_actionOnAttach();
+				}
 			} catch (err) {
 				return null;
 			}
@@ -461,6 +470,7 @@
 		};
 		
 		function _completeHandler() {
+			_actionOnAttach = _completeHandler;			
 			switch (_model.config.repeat.toUpperCase()) {
 				case jwplayer.html5.controller.repeatoptions.SINGLE:
 					_play();
@@ -520,6 +530,9 @@
 		this.load = _waitForReady(_load);
 		this.playerReady = _playerReady;
 		this.detachMedia = _detachMedia; 
-		this.attachMedia = _attachMedia; 
+		this.attachMedia = _attachMedia;
+		this.beforePlay = function() { 
+			return _preplay; 
+		}
 	};
 })(jwplayer);
