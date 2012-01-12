@@ -80,7 +80,7 @@
 		
 		/** Change the video's volume level. **/
 		this.volume = function(position) {
-			_model.volume = position;
+			_model.setVolume(position);
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
 				volume: Math.round(position)
 			});
@@ -90,7 +90,7 @@
 		/** Switch the mute state of the player. **/
 		this.mute = function(state) {
 			_container.muted = state;
-//			_model.mute = state;
+//			_model.setMute(state);
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
 				mute: state
 			});

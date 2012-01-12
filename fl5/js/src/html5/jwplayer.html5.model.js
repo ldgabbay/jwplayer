@@ -6,10 +6,12 @@
  */
 (function(jwplayer) {
 	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen", "item", "plugins", "stretching"];
+	var _utils = jwplayer.utils;
 	
 	jwplayer.html5.model = function(api, container, options) {
 		var _api = api;
 		var _container = container;
+		var _cookies = _utils.getCookies();
 		var _model = {
 			id: _container.id,
 			playlist: [],
@@ -27,8 +29,8 @@
 				start: 0,
 				duration: 0,
 				bufferlength: 5,
-				volume: 90,
-				mute: false,
+				volume: _cookies.volume ? _cookies.volume : 90,
+				mute: _cookies.mute && _cookies.mute.toString().toLowerCase() == "true" ? true : false,
 				fullscreen: false,
 				repeat: "",
 				stretching: jwplayer.utils.stretching.UNIFORM,
@@ -303,6 +305,16 @@
 			});
 			return _media.seek(pos);
 		};
+		
+		_model.setVolume = function(newVol) {
+			_utils.saveCookie("volume", newVol);
+			_model.volume = newVol;
+		}
+
+		_model.setMute = function(state) {
+			_utils.saveCookie("mute", state);
+			_model.mute = state;
+		}
 
 		
 		

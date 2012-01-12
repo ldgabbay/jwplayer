@@ -447,7 +447,8 @@ package com.longtailvideo.jwplayer.view {
 					_image.width = _image.contentLoaderInfo.width;
 					_image.height = _image.contentLoaderInfo.height;
 				} catch(e:Error) {
-					Logger.log("no good");
+					// Resize image later
+					return;
 				}
 				if (_preserveAspect) {
 					if (_fullscreen && _player.config.stretching == Stretcher.EXACTFIT) {

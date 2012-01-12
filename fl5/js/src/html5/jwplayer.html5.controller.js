@@ -319,7 +319,7 @@
 						media.volume(parseInt(volume, 10));
 						break;
 				}
-				_model.volume = volume;
+				_model.setVolume(volume);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -335,14 +335,14 @@
 				var media = _model.getMedia();
 				if (typeof state == "undefined") {
 					media.mute(!_model.mute);
-					_model.mute = !_model.mute;
+					_model.setMute(!_model.mute);
 				} else {
 					if (state.toString().toLowerCase() == "true") {
 						media.mute(true);
-						_model.mute = true;
+						_model.setMute(true);
 					} else {
 						media.mute(false);
-						_model.mute = false;
+						_model.setMute(false);
 					}
 				}
 				return true;

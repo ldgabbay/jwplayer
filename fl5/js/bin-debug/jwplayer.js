@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2057';
+jwplayer.version = '5.9.2058';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -911,6 +911,26 @@ jwplayer.source = document.createElement("source");/**
 		}
 		
 		return translated;
+	}
+	
+	jwplayer.utils.saveCookie = function(name, value) {
+		document.cookie = "jwplayer." + name + "=" + value + "; path=/";
+	}
+
+	jwplayer.utils.getCookies = function() {
+		var jwCookies = {};
+		var cookies = document.cookie.split('; ');
+		for (var i=0; i<cookies.length; i++) {
+			var split = cookies[i].split('=');
+			if (split[0].indexOf("jwplayer.") == 0) {
+				jwCookies[split[0].substring(9, split[0].length)] = split[1];
+			}
+		}
+		return jwCookies;
+	}
+	
+	jwplayer.utils.readCookie = function(name) {
+		return jwplayer.utils.getCookies()[name];
 	}
 
 })(jwplayer);
@@ -3840,6 +3860,14 @@ playerReady = function(obj) {
 				}
 			}
 			
+			// If we've set any cookies in HTML5 mode, bring them into flash
+			var cookies = jwplayer.utils.getCookies();
+			for (var cookie in cookies) {
+				if (typeof(params[cookie])=="undefined") {
+					params[cookie] = cookies[cookie];
+				}
+			}
+			
 			var bgcolor = "#000000";
 			
 			var flashPlayer;
@@ -6094,7 +6122,7 @@ playerReady = function(obj) {
 						media.volume(parseInt(volume, 10));
 						break;
 				}
-				_model.volume = volume;
+				_model.setVolume(volume);
 				return true;
 			} catch (err) {
 				_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_ERROR, err);
@@ -6110,14 +6138,14 @@ playerReady = function(obj) {
 				var media = _model.getMedia();
 				if (typeof state == "undefined") {
 					media.mute(!_model.mute);
-					_model.mute = !_model.mute;
+					_model.setMute(!_model.mute);
 				} else {
 					if (state.toString().toLowerCase() == "true") {
 						media.mute(true);
-						_model.mute = true;
+						_model.setMute(true);
 					} else {
 						media.mute(false);
-						_model.mute = false;
+						_model.setMute(false);
 					}
 				}
 				return true;
@@ -7295,8 +7323,8 @@ playerReady = function(obj) {
 		}
 
 		function _copyModel() {
-			_fakemodel.mute = _model.mute;
-			_fakemodel.volume = _model.volume;
+			_fakemodel.setMute(_model.mute);
+			_fakemodel.setVolume(_model.volume);
 		}
 		
 		function _setupProvider() {
@@ -8313,7 +8341,7 @@ playerReady = function(obj) {
 		
 		/** Change the video's volume level. **/
 		this.volume = function(position) {
-			_model.volume = position;
+			_model.setVolume(position);
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_VOLUME, {
 				volume: Math.round(position)
 			});
@@ -8323,7 +8351,7 @@ playerReady = function(obj) {
 		/** Switch the mute state of the player. **/
 		this.mute = function(state) {
 			_container.muted = state;
-//			_model.mute = state;
+//			_model.setMute(state);
 			_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_MUTE, {
 				mute: state
 			});
@@ -8462,10 +8490,12 @@ playerReady = function(obj) {
  */
 (function(jwplayer) {
 	var _configurableStateVariables = ["width", "height", "start", "duration", "volume", "mute", "fullscreen", "item", "plugins", "stretching"];
+	var _utils = jwplayer.utils;
 	
 	jwplayer.html5.model = function(api, container, options) {
 		var _api = api;
 		var _container = container;
+		var _cookies = _utils.getCookies();
 		var _model = {
 			id: _container.id,
 			playlist: [],
@@ -8483,8 +8513,8 @@ playerReady = function(obj) {
 				start: 0,
 				duration: 0,
 				bufferlength: 5,
-				volume: 90,
-				mute: false,
+				volume: _cookies.volume ? _cookies.volume : 90,
+				mute: _cookies.mute && _cookies.mute.toString().toLowerCase() == "true" ? true : false,
 				fullscreen: false,
 				repeat: "",
 				stretching: jwplayer.utils.stretching.UNIFORM,
@@ -8759,6 +8789,16 @@ playerReady = function(obj) {
 			});
 			return _media.seek(pos);
 		};
+		
+		_model.setVolume = function(newVol) {
+			_utils.saveCookie("volume", newVol);
+			_model.volume = newVol;
+		}
+
+		_model.setMute = function(state) {
+			_utils.saveCookie("mute", state);
+			_model.mute = state;
+		}
 
 		
 		

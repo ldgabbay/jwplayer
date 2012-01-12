@@ -157,6 +157,14 @@
 				}
 			}
 			
+			// If we've set any cookies in HTML5 mode, bring them into flash
+			var cookies = jwplayer.utils.getCookies();
+			for (var cookie in cookies) {
+				if (typeof(params[cookie])=="undefined") {
+					params[cookie] = cookies[cookie];
+				}
+			}
+			
 			var bgcolor = "#000000";
 			
 			var flashPlayer;

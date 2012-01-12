@@ -95,6 +95,8 @@ package com.longtailvideo.jwplayer.player {
 			_player.addEventListener(PlaylistEvent.JWPLAYER_PLAYLIST_ITEM, resetPosition);
 			_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_TIME, updatePosition);
 			_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_BUFFER, updateBuffer);
+			_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_VOLUME, updateVolumeCookie);
+			_player.addEventListener(MediaEvent.JWPLAYER_MEDIA_MUTE, updateMuteCookie);
 		}
 		
 		protected function resetPosition(evt:PlaylistEvent):void {
@@ -108,6 +110,14 @@ package com.longtailvideo.jwplayer.player {
 
 		protected function updateBuffer(evt:MediaEvent):void {
 			_playerBuffer = evt.bufferPercent;
+		}
+		
+		protected function updateVolumeCookie(evt:MediaEvent):void {
+			ExternalInterface.call("function(vol) { try { jwplayer.utils.saveCookie('volume', vol) } catch(e) {} }", evt.volume.toString());
+		}
+
+		protected function updateMuteCookie(evt:MediaEvent):void {
+			ExternalInterface.call("function(state) { try { jwplayer.utils.saveCookie('mute', state) } catch(e) {} }", evt.mute.toString());
 		}
 
 		protected function setupJSListeners():void {

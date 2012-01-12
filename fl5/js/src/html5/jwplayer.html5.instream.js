@@ -172,8 +172,8 @@
 		}
 
 		function _copyModel() {
-			_fakemodel.mute = _model.mute;
-			_fakemodel.volume = _model.volume;
+			_fakemodel.setMute(_model.mute);
+			_fakemodel.setVolume(_model.volume);
 		}
 		
 		function _setupProvider() {

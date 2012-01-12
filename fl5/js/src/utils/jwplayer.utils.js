@@ -887,5 +887,25 @@
 		
 		return translated;
 	}
+	
+	jwplayer.utils.saveCookie = function(name, value) {
+		document.cookie = "jwplayer." + name + "=" + value + "; path=/";
+	}
+
+	jwplayer.utils.getCookies = function() {
+		var jwCookies = {};
+		var cookies = document.cookie.split('; ');
+		for (var i=0; i<cookies.length; i++) {
+			var split = cookies[i].split('=');
+			if (split[0].indexOf("jwplayer.") == 0) {
+				jwCookies[split[0].substring(9, split[0].length)] = split[1];
+			}
+		}
+		return jwCookies;
+	}
+	
+	jwplayer.utils.readCookie = function(name) {
+		return jwplayer.utils.getCookies()[name];
+	}
 
 })(jwplayer);
