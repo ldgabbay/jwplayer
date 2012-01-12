@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2049';
+jwplayer.version = '5.9.2050';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4298,6 +4298,7 @@ playerReady = function(obj) {
 				left: 0,
 				bottom: 0,
 				right: 0,
+				zIndex: 100,
 				background: '000000',
 				display: 'none'
 			});
@@ -4449,6 +4450,7 @@ playerReady = function(obj) {
 					height: _height,
 					position: "absolute"
 				});
+				_css(_instreamArea, _utils.extend({}, _box.style, {zIndex: _instreamArea.style.zIndex, display: _instreamArea.style.display}));
 				_css(_wrapper, {
 					height: _height,
 					width: _width
@@ -4711,7 +4713,12 @@ playerReady = function(obj) {
 		}
 		
 		this.setupInstream = function(instreamDisplay) {
-			_instreamArea.style.display = "block";
+			_utils.css(_instreamArea, {
+				display: "block",
+				width: _wrapper.style.width,
+				height: _wrapper.style.height,
+				position: "absolute"
+			});
 			_box.style.display = "none";
 			_instreamArea.appendChild(instreamDisplay);
 			_instreamMode = true;
@@ -7302,15 +7309,15 @@ playerReady = function(obj) {
 		
 		// Resize handler; resize the components.
 		function _resize() {
+			var originalBar = _model.plugins.object.controlbar.getDisplayElement().style;
+			var originalDisp = _model.plugins.object.display.getDisplayElement().style;
 			if (_cbar) {
-				var originalBar = _model.plugins.object.controlbar.getDisplayElement().style;
-				_css(_cbar.getDisplayElement(), _utils.extend({}, originalBar, { zIndex: 1000 }));
-				_cbar.resize(_utils.parseDimension(originalBar.width), _utils.parseDimension(originalBar.height));
+				_cbar.resize(_utils.parseDimension(originalDisp.width), _utils.parseDimension(originalBar.height));
+				_css(_cbar.getDisplayElement(), _utils.extend({}, originalBar, { zIndex: 1001, opacity: 1 }));
 			}
 			if (_disp) {
-				var originalDisp = _model.plugins.object.display.getDisplayElement().style;
-				_css(_disp.getDisplayElement(), _utils.extend({}, originalDisp, { zIndex: 1001 }));
 				_disp.resize(_utils.parseDimension(originalDisp.width), _utils.parseDimension(originalDisp.height));
+				_css(_disp.getDisplayElement(), _utils.extend({}, originalDisp, { zIndex: 1000 }));
 			}
 			if (_view) {
 				_view.resizeMedia();

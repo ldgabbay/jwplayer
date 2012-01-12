@@ -85,6 +85,7 @@
 				left: 0,
 				bottom: 0,
 				right: 0,
+				zIndex: 100,
 				background: '000000',
 				display: 'none'
 			});
@@ -236,6 +237,7 @@
 					height: _height,
 					position: "absolute"
 				});
+				_css(_instreamArea, _utils.extend({}, _box.style, {zIndex: _instreamArea.style.zIndex, display: _instreamArea.style.display}));
 				_css(_wrapper, {
 					height: _height,
 					width: _width
@@ -498,7 +500,12 @@
 		}
 		
 		this.setupInstream = function(instreamDisplay) {
-			_instreamArea.style.display = "block";
+			_utils.css(_instreamArea, {
+				display: "block",
+				width: _wrapper.style.width,
+				height: _wrapper.style.height,
+				position: "absolute"
+			});
 			_box.style.display = "none";
 			_instreamArea.appendChild(instreamDisplay);
 			_instreamMode = true;
