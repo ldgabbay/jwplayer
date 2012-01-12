@@ -52,9 +52,15 @@ package com.longtailvideo.jwplayer.utils {
 					if (xsc > ysc) {
 						clp.width *= ysc;
 						clp.height *= ysc;
+						if (clp.width/wid > 0.95) {
+							clp.width = wid;
+						}
 					} else {
 						clp.width *= xsc;
 						clp.height *= xsc;
+						if (clp.height/hei > 0.95) {
+							clp.height = hei;
+						}
 					}
 					break;
 			}

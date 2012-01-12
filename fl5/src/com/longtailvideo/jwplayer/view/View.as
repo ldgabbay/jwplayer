@@ -443,6 +443,12 @@ package com.longtailvideo.jwplayer.view {
 
 		protected function resizeImage(width:Number, height:Number):void {
 			if (_imageLayer.numChildren > 0) {
+				try {
+					_image.width = _image.contentLoaderInfo.width;
+					_image.height = _image.contentLoaderInfo.height;
+				} catch(e:Error) {
+					Logger.log("no good");
+				}
 				if (_preserveAspect) {
 					if (_fullscreen && _player.config.stretching == Stretcher.EXACTFIT) {
 						Stretcher.stretch(_image, _normalScreen.width, _normalScreen.height, _player.config.stretching);

@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2056';
+jwplayer.version = '5.9.2057';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -603,6 +603,7 @@ jwplayer.source = document.createElement("source");/**
 		var yscale = parentHeight / elementHeight;
 		var x = 0;
 		var y = 0;
+		var transform = false;
 		var style = {};
 		
 		if (domelement.parentElement) {
@@ -625,10 +626,22 @@ jwplayer.source = document.createElement("source");/**
 				// Taller than wide
 				style.width = elementWidth * yscale;
 				style.height = elementHeight * yscale;
+				if (style.width/parentWidth > 0.95) {
+					transform = true;
+					xscale = Math.ceil(1000 * parentWidth / style.width) / 1000;
+					yscale = 1;
+					style.width = parentWidth;
+				}
 			} else {
 				// Wider than tall
 				style.width = elementWidth * xscale;
 				style.height = elementHeight * xscale;
+				if (style.height/parentHeight > 0.95) {
+					transform = true;
+					xscale = 1;
+					yscale = Math.ceil(1000 * parentHeight / style.height) / 1000;
+					style.height = parentHeight;
+				}
 			}
 			style.top = (parentHeight - style.height) / 2;
 			style.left = (parentWidth - style.width) / 2;
@@ -655,7 +668,7 @@ jwplayer.source = document.createElement("source");/**
 		    var xoff = Math.round((elementWidth / 2) * (1-1/xscale));
 	        var yoff = Math.round((elementHeight / 2) * (1-1/yscale));
 			
-			jwplayer.utils.transform(domelement, xscale, yscale, xoff, yoff);
+	        transform = true;
 			//style.width = style.height = "100%";
 			style.top = style.left = 0;
 
@@ -663,6 +676,11 @@ jwplayer.source = document.createElement("source");/**
 		default:
 			break;
 		}
+
+		if (transform) {
+			jwplayer.utils.transform(domelement, xscale, yscale, xoff, yoff);
+		}
+
 		jwplayer.utils.css(domelement, style);
 	};
 
