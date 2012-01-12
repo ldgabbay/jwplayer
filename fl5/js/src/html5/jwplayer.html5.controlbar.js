@@ -418,7 +418,7 @@
 					_buildHandler("nextButton", "jwPlaylistNext");
 					break;
 				case "elapsed":
-					_addElement("elapsedText", alignment, true, parent);
+					_addElement("elapsedText", alignment, true, parent, null, null, _api.skin.getSkinElement("controlbar", "elapsedBackground"));
 					break;
 				case "time":
 					offsetLeft = !_utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapLeft")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
@@ -475,7 +475,7 @@
 					
 					break;
 				case "duration":
-					_addElement("durationText", alignment, true, parent);
+					_addElement("durationText", alignment, true, parent, null, null, _api.skin.getSkinElement("controlbar", "durationBackground"));
 					break;
 			}
 		}
@@ -503,6 +503,9 @@
 					css.fontWeight = _settings.fontweight;
 					css.fontStyle = _settings.fontstyle;
 					css.cursor = "default";
+					if (skinElement) {
+						css.background = "url(" + skinElement.src + ") no-repeat center";
+					}
 					wid = 14 + 3 * _settings.fontsize;
 				} else if (element.indexOf("divider") === 0) {
 					if (width) {

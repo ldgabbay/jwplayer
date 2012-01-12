@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2050';
+jwplayer.version = '5.9.2053';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -5163,7 +5163,7 @@ playerReady = function(obj) {
 					_buildHandler("nextButton", "jwPlaylistNext");
 					break;
 				case "elapsed":
-					_addElement("elapsedText", alignment, true, parent);
+					_addElement("elapsedText", alignment, true, parent, null, null, _api.skin.getSkinElement("controlbar", "elapsedBackground"));
 					break;
 				case "time":
 					offsetLeft = !_utils.exists(_api.skin.getSkinElement("controlbar", "timeSliderCapLeft")) ? 0 : _api.skin.getSkinElement("controlbar", "timeSliderCapLeft").width;
@@ -5220,7 +5220,7 @@ playerReady = function(obj) {
 					
 					break;
 				case "duration":
-					_addElement("durationText", alignment, true, parent);
+					_addElement("durationText", alignment, true, parent, null, null, _api.skin.getSkinElement("controlbar", "durationBackground"));
 					break;
 			}
 		}
@@ -5248,6 +5248,9 @@ playerReady = function(obj) {
 					css.fontWeight = _settings.fontweight;
 					css.fontStyle = _settings.fontstyle;
 					css.cursor = "default";
+					if (skinElement) {
+						css.background = "url(" + skinElement.src + ") no-repeat center";
+					}
 					wid = 14 + 3 * _settings.fontsize;
 				} else if (element.indexOf("divider") === 0) {
 					if (width) {
@@ -8640,7 +8643,7 @@ playerReady = function(obj) {
 			}
 			_model.playlist = new jwplayer.html5.playlist(config);
 			_model.item = _model.config.item >= 0 ? _model.config.item : 0;
-			if (!_model.playlist[_model.item].provider) {
+			if (!_model.playlist[_model.item].provider && _model.playlist[_model.item].file) {
 				_loadExternal(_model.playlist[_model.item].file);
 			} else {
 				_loadComplete();
