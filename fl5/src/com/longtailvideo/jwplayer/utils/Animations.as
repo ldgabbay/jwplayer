@@ -24,6 +24,8 @@ package com.longtailvideo.jwplayer.utils {
 		private var _yps:Number;
 		/** Text **/
 		private var _str:String;
+		/** The function to execute on enter_frame **/
+		private var frameHandler:Function;
 		
 		/** Constructor 
 		 * @param tgt	The Movielip to animate.
@@ -45,14 +47,15 @@ package com.longtailvideo.jwplayer.utils {
 			} else {
 				_spd = Math.abs(spd);
 			}
-			_tgt.addEventListener(Event.ENTER_FRAME, fadeHandler);
+			frameHandler = fadeHandler;
+			_tgt.addEventListener(Event.ENTER_FRAME, frameHandler);
 		}
 		
 		
 		/** The fade enterframe function. **/
 		private function fadeHandler(evt:Event):void {
 			if ((_tgt.alpha >= _end - _spd && _spd > 0) || (_tgt.alpha <= _end + _spd && _spd < 0)) {
-				_tgt.removeEventListener(Event.ENTER_FRAME, fadeHandler);
+				_tgt.removeEventListener(Event.ENTER_FRAME, frameHandler);
 				_tgt.alpha = _end;
 				if (_end == 0) {
 					_tgt.visible = false;
@@ -84,6 +87,7 @@ package com.longtailvideo.jwplayer.utils {
 			} else {
 				_yps = yps;
 			}
+			frameHandler = easeHandler;
 			_tgt.addEventListener(Event.ENTER_FRAME, easeHandler);
 		}
 		
@@ -91,7 +95,7 @@ package com.longtailvideo.jwplayer.utils {
 		/** The ease enterframe function. **/
 		private function easeHandler(evt:Event):void {
 			if (Math.abs(_tgt.x - _xps) < 1 && Math.abs(_tgt.y - _yps) < 1) {
-				_tgt.removeEventListener(Event.ENTER_FRAME, easeHandler);
+				_tgt.removeEventListener(Event.ENTER_FRAME, frameHandler);
 				_tgt.x = _xps;
 				_tgt.y = _yps;
 				dispatchEvent(new Event(Event.COMPLETE));
@@ -112,7 +116,8 @@ package com.longtailvideo.jwplayer.utils {
 			_str = str;
 			_spd = spd;
 			_tgt.tf.text = '';
-			_tgt.addEventListener(Event.ENTER_FRAME, writeHandler);
+			frameHandler = writeHandler;
+			_tgt.addEventListener(Event.ENTER_FRAME, frameHandler);
 		}
 		
 		
@@ -122,9 +127,16 @@ package com.longtailvideo.jwplayer.utils {
 			_tgt.tf.text = _str.substr(0, _str.length - dif);
 			if (_tgt.tf.text == _str) {
 				_tgt.tf.htmlText = _str;
-				_tgt.removeEventListener(Event.ENTER_FRAME, easeHandler);
+				_tgt.removeEventListener(Event.ENTER_FRAME, frameHandler);
 				dispatchEvent(new Event(Event.COMPLETE));
 			}
+		}
+
+		/** Stop executing the current animation **/
+		public function cancelAnimation():void {
+			try {
+				_tgt.removeEventListener(Event.ENTER_FRAME, frameHandler);
+			} catch(e:Error) {}
 		}
 	}
 }

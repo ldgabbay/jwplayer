@@ -589,7 +589,9 @@ package com.longtailvideo.jwplayer.view {
 				} catch (e:Error) {
 					Logger.log('Could not smooth preview image: ' + e.message);
 				}
-				showImage();
+				if (_model.state == PlayerState.IDLE) { 
+					showImage();
+				}
 			}
 		}
 
@@ -602,7 +604,8 @@ package com.longtailvideo.jwplayer.view {
 		protected function showImage(evt:TimerEvent=null):void {
 			_imageLayer.alpha = 0;
 			_imageFade.fade(1);
-			_mediaFade.fade(0);
+			_mediaFade.cancelAnimation();
+			_mediaLayer.alpha = 0;
 		}
 		
 		protected function hideImage():void {
@@ -612,7 +615,8 @@ package com.longtailvideo.jwplayer.view {
 		protected function showMedia(evt:TimerEvent):void {
 			if (_model.media.display) {
 				_mediaFade.fade(1);
-				_imageFade.fade(0);
+				_imageFade.cancelAnimation();
+				_imageLayer.alpha = 0;
 			} else {
 				_mediaFade.fade(0);
 				_imageFade.fade(1);

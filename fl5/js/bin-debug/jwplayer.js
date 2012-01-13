@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2067';
+jwplayer.version = '5.9.2068';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -7786,7 +7786,7 @@ playerReady = function(obj) {
 				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER, {
 					bufferPercent: 0
 				});
-				this.play();
+				_startInterval();
 			}
 		}
 		
@@ -7848,9 +7848,6 @@ playerReady = function(obj) {
 				var agent = navigator.userAgent;
 				
 				/* Some browsers require that the video source be cleared in a different way. */
-//				if(agent.match(/chrome/i)) {
-//					_video.src = undefined;
-//				} else 
 				if (_utils.isIE()) {
 					_video.src = "";
 				} else {
