@@ -334,7 +334,12 @@
 			_box.style.position = "absolute";
 			var media = _model.getMedia().getDisplayElement();
 			if (media && media.tagName.toLowerCase() == "video") {
+				if (!media.videoWidth || !media.videoHeight) {
+					media.style.opacity = 0;
+					return;
+				}
 				media.style.position = "absolute";
+				_utils.fadeTo(media, 1, 0.25);
 				if (media.parentNode) {
 					media.parentNode.style.left = _box.style.left;
 					media.parentNode.style.top = _box.style.top;

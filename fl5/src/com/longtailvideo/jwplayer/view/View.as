@@ -62,7 +62,10 @@ package com.longtailvideo.jwplayer.view {
 		protected var _maskedLayers:MovieClip;
 		protected var _backgroundLayer:MovieClip;
 		protected var _mediaLayer:MovieClip;
+		protected var _mediaFade:Animations;
 		protected var _imageLayer:MovieClip;
+		protected var _imageFade:Animations;
+
 		protected var _componentsLayer:MovieClip;
 		protected var _pluginsLayer:MovieClip;
 		protected var _plugins:Object;
@@ -182,6 +185,8 @@ package com.longtailvideo.jwplayer.view {
 			layoutManager = new PlayerLayoutManager(_player);
 			setupRightClick();
 
+			stateHandler();
+
 			redraw();
 		}
 		
@@ -256,13 +261,16 @@ package com.longtailvideo.jwplayer.view {
 			setupBackground();
 
 			_mediaLayer = setupLayer("media", 1, _maskedLayers);
-			_mediaLayer.visible = false;
+			_mediaLayer.alpha = 0;
+			_mediaFade = new Animations(_mediaLayer);
 
 			_imageLayer = setupLayer("image", 1, _maskedLayers);
 			_image = new Loader();
 			_image.contentLoaderInfo.addEventListener(Event.COMPLETE, imageComplete);
 			_image.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, imageError);
 			_imageLayer.addChild(_image);
+			_imageLayer.alpha = 0;
+			_imageFade = new Animations(_imageLayer);
 
 			imageDelay.addEventListener(TimerEvent.TIMER_COMPLETE, showImage);
 			mediaDelay.addEventListener(TimerEvent.TIMER_COMPLETE, showMedia);
@@ -581,6 +589,7 @@ package com.longtailvideo.jwplayer.view {
 				} catch (e:Error) {
 					Logger.log('Could not smooth preview image: ' + e.message);
 				}
+				showImage();
 			}
 		}
 
@@ -589,20 +598,31 @@ package com.longtailvideo.jwplayer.view {
 			Logger.log('Error loading preview image: '+evt.text);
 		}
 
-		protected function showImage(evt:TimerEvent):void {
-			_imageLayer.visible = true;
-			_mediaLayer.visible = false;
+		
+		protected function showImage(evt:TimerEvent=null):void {
+			_imageLayer.alpha = 0;
+			_imageFade.fade(1);
+			_mediaFade.fade(0);
+		}
+		
+		protected function hideImage():void {
+			_imageFade.fade(0);
 		}
 
 		protected function showMedia(evt:TimerEvent):void {
-			_mediaLayer.visible = Boolean(_model.media.display);
-			_imageLayer.visible = !Boolean(_model.media.display);
+			if (_model.media.display) {
+				_mediaFade.fade(1);
+				_imageFade.fade(0);
+			} else {
+				_mediaFade.fade(0);
+				_imageFade.fade(1);
+			} 
 		}
 		
-		protected function stateHandler(evt:PlayerStateEvent):void {
+		protected function stateHandler(evt:PlayerStateEvent=null):void {
 			imageDelay.reset();
 			mediaDelay.reset();
-			switch (evt.newstate) {
+			switch (_model.state) {
 				case PlayerState.IDLE:
 					imageDelay.start();
 					break;

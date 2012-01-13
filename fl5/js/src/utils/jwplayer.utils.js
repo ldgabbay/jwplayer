@@ -603,7 +603,7 @@
 				style.height = elementHeight * yscale;
 				if (style.width/parentWidth > 0.95) {
 					transform = true;
-					xscale = Math.ceil(1000 * parentWidth / style.width) / 1000;
+					xscale = Math.ceil(100 * parentWidth / style.width) / 100;
 					yscale = 1;
 					style.width = parentWidth;
 				}
@@ -614,7 +614,7 @@
 				if (style.height/parentHeight > 0.95) {
 					transform = true;
 					xscale = 1;
-					yscale = Math.ceil(1000 * parentHeight / style.height) / 1000;
+					yscale = Math.ceil(100 * parentHeight / style.height) / 100;
 					style.height = parentHeight;
 				}
 			}

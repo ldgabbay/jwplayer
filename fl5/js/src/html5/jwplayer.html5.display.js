@@ -41,6 +41,7 @@
 		var _lastState = "";
 		var _showing = true;
 		var _lastSent;
+		var _imageLoading = false;
 		var _hiding = false;
 		var _ready = false;
 		var _alternateClickHandler;
@@ -198,6 +199,12 @@
 			_imageWidth = _display.display_image.naturalWidth;
 			_imageHeight = _display.display_image.naturalHeight;
 			_stretch();
+			_css(_display.display_image, {
+				display: "block",
+				opacity: 0
+			});
+			_utils.fadeTo(_display.display_image, 1, 0.1);
+			_imageLoading = false;
 		}
 		
 		function _stretch() {
@@ -413,11 +420,19 @@
 		}
 		
 		function _showImage() {
-			if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()] && _api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image) {
-				_css(_display.display_image, {
-					display: "block"
-				});
-				_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image);
+			if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()]) {
+				var newsrc = _api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image;
+				if (newsrc) {
+					if (newsrc != _display.display_image.src) {
+						_display.display_image.style.display = "none";
+						_imageLoading = true;
+						_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image);
+					} else if (!_imageLoading) {
+						_display.display_image.style.display = "block";
+						_utils.fadeTo(_display.display_image, 1, 0.1);
+					}
+					
+				}
 			}
 		}
 		
