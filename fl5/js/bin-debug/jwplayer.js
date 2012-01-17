@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2077';
+jwplayer.version = '5.9.2078';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -5306,8 +5306,10 @@ playerReady = function(obj) {
 					css.cursor = "default";
 					if (skinElement) {
 						css.background = "url(" + skinElement.src + ") no-repeat center";
+						css.backgroundSize = "100% " + _getBack().height + "px";
 					}
-					wid = 14 + 3 * _settings.fontsize;
+					css.padding = "0 5px";
+//					wid = 14 + 3 * _settings.fontsize;
 				} else if (element.indexOf("divider") === 0) {
 					if (width) {
 						if (!isNaN(parseInt(width))) {

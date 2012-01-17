@@ -505,8 +505,10 @@
 					css.cursor = "default";
 					if (skinElement) {
 						css.background = "url(" + skinElement.src + ") no-repeat center";
+						css.backgroundSize = "100% " + _getBack().height + "px";
 					}
-					wid = 14 + 3 * _settings.fontsize;
+					css.padding = "0 5px";
+//					wid = 14 + 3 * _settings.fontsize;
 				} else if (element.indexOf("divider") === 0) {
 					if (width) {
 						if (!isNaN(parseInt(width))) {
