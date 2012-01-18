@@ -44,6 +44,7 @@ package com.longtailvideo.jwplayer.view {
 	import flash.system.LoaderContext;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
+	import flash.ui.Keyboard;
 	import flash.utils.Timer;
 
 
@@ -92,11 +93,7 @@ package com.longtailvideo.jwplayer.view {
 		
 		// Keep track of the first tabIndex
 		protected var firstIndex:Number = -1;
-
-		// Keep track of the next-to-last tabIndex
-		protected var nextLastIndex:Number = -1;
-		
-		// Keep track of the latest tab tabIndex
+		// Keep track of the last seen tabIndex
 		protected var lastIndex:Number = -1;
 
 		// Delay between IDLE state and when the preview image is shown
@@ -193,8 +190,12 @@ package com.longtailvideo.jwplayer.view {
 		protected function keyFocusOutHandler(evt:FocusEvent):void {
 			var button:Sprite = evt.target as Sprite;
 			if (!button) { return; }
-			lastIndex = nextLastIndex;
-			nextLastIndex = button.tabIndex;
+
+			if (evt.shiftKey && firstIndex >= 0 && button.tabIndex == firstIndex) {
+				// User is tabbing backwards, and the button we're tabbing out of was the first tab index
+				blurPlayer(evt);
+			}
+			lastIndex = button.tabIndex;
 		}
 
 		/** 
@@ -204,24 +205,29 @@ package com.longtailvideo.jwplayer.view {
 		 **/
 		protected function keyFocusInHandler(evt:FocusEvent):void {
 			var button:Sprite = evt.target as Sprite;
-			
 			if (!button) { return; }
-			
-			if (firstIndex >= 0 && button.tabIndex == firstIndex && nextLastIndex > lastIndex) {
-				// Prevent focus from wrapping to the first button
-				evt.preventDefault();
-				// Nothing should be focused now
-				RootReference.stage.focus = null;
-				// Try to blur the Flash object in the browser
-				if (ExternalInterface.available) {
-					ExternalInterface.call("(function() { try { document.getElementById('"+PlayerVersion.id+"').blur(); } catch(e) {} })"); 
-				}
-				firstIndex = -1;
-				lastIndex = -1;
-				nextLastIndex = -1;
-			} else if (firstIndex < 0) {
+
+			if (!evt.shiftKey && firstIndex >= 0 && button.tabIndex == firstIndex && lastIndex > firstIndex) {
+				// Tabbing forward and we've wrapped around to the first button.
+				blurPlayer(evt);
+			} else if (firstIndex < 0 || button.tabIndex < firstIndex) {
 				firstIndex = button.tabIndex;
 			}
+		}
+		
+		/**
+		 * Attempts to force the browser to blur the focus of the Flash player
+		 **/
+		protected function blurPlayer(evt:FocusEvent):void {
+			// Prevent focus from wrapping to the first button
+			evt.preventDefault();
+			// Nothing should be focused now
+			RootReference.stage.focus = null;
+			// Try to blur the Flash object in the browser
+			if (ExternalInterface.available) {
+				ExternalInterface.call("(function() { try { document.getElementById('"+PlayerVersion.id+"').blur(); } catch(e) {} })"); 
+			}
+			lastIndex = firstIndex;
 		}
 		
 		
