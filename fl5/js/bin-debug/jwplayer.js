@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2078';
+jwplayer.version = '5.9.2079';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -5361,6 +5361,8 @@ playerReady = function(obj) {
 					if (element.indexOf("divider") == 0) {
 						newelement.setAttribute("class", "divider");
 					}
+					// Required for some browsers to display sized elements.
+					newelement.innerHTML = "&nbsp;";
 				}
 			}
 		}
@@ -5718,7 +5720,7 @@ playerReady = function(obj) {
 
 			var leftWidth = _utils.getBoundingClientRect(_elements.leftGroup).width;
 			var rightWidth = _utils.getBoundingClientRect(_elements.rightGroup).width;
-			var timeSliderWidth = elementcss.width - leftWidth - rightWidth;
+			var timeSliderWidth = elementcss.width - leftWidth - rightWidth - 1;  // IE requires a 1px margin
 			var timeSliderRailWidth = timeSliderWidth;
             var timeSliderCapLeft = _api.skin.getSkinElement("controlbar", "timeSliderCapLeft"); 
             var timeSliderCapRight = _api.skin.getSkinElement("controlbar", "timeSliderCapRight"); 

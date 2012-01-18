@@ -37,6 +37,7 @@ formset {
 	<option id="timing_button" value="button">Button click</option>
 	<option id="timing_time" value="time">At 5 seconds</option>
 	<option id="timing_complete" value="complete">onComplete</option>
+	<option id="timing_plugin" value="plugin">InStream Ad Plugin (Flash only)</option>
 </select><br />
 <label>Controlbar Position</label> <select id="controlbar"
 	onchange="return setupAll();">
@@ -169,6 +170,7 @@ Getters</button>
 				};
     			
                 var events = {};
+                var plugins = {};
                 var timingHit = false;
                 var played = false;
 
@@ -205,6 +207,15 @@ Getters</button>
                     	}
                     }
                     break;
+                case "plugin":
+                    if (mode.indexOf("flash") >= 0) {
+	                    plugins = {
+	                        'instream/instreamads.swf': {
+	                        	'adconfig':'instream/adschedule.xml'
+	                    	}
+	                    }
+                    }
+                    break;
                 }
 
 				var setupBlock = {
@@ -225,9 +236,7 @@ Getters</button>
     	        	stretching: stretching,
     	        	width: playlist == "none" ? 480 : 680,
 					repeat: repeat,
-					plugins: {
-//						'hd-2': { file: '/testing/files/oorlogswinter.mp4' }
-					}
+					plugins: plugins
 	            };
 	            if (skin) {
 	                setupBlock.skin = "../../../../../tags/skins/" + skin + "/" + skin + ".zip";
