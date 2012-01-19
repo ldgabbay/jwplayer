@@ -225,9 +225,17 @@ package com.longtailvideo.jwplayer.player {
 			
 			
 			if (callbacks) {
+				// These events should be sent immediately to JavaScript
+				var synchronousEvents:Array = [
+					MediaEvent.JWPLAYER_MEDIA_COMPLETE,
+					MediaEvent.JWPLAYER_MEDIA_BEFOREPLAY,
+					MediaEvent.JWPLAYER_MEDIA_BEFORECOMPLETE,
+					PlayerStateEvent.JWPLAYER_PLAYER_STATE
+				];
+				
 				for each (var call:String in callbacks) {
 					// Not a great workaround, but the JavaScript API competes with the Controller when dealing with certain events
-					if (evt.type == MediaEvent.JWPLAYER_MEDIA_COMPLETE || evt.type == MediaEvent.JWPLAYER_MEDIA_BEFOREPLAY) {
+					if (synchronousEvents.indexOf(evt.type) >= 0) {
 						ExternalInterface.call(call, args);
 					} else {
 						//Insert 1ms delay to allow all Flash listeners to complete before notifying JavaScript

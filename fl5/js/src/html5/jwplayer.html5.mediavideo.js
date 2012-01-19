@@ -226,11 +226,6 @@
 
 		/** Resize the player. **/
 		this.resize = function(width, height) {
-//			_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
-//				fullscreen: _model.fullscreen,
-//				width: width,
-//				hieght: height
-//			});
 		};
 		
 		/** Change the video's volume level. **/
@@ -455,6 +450,7 @@
 					});
 					if (_model.position >= _model.duration && (_model.position > 0 || _model.duration > 0)) {
 						_complete();
+						return;
 					}
 				}
 			}
@@ -572,9 +568,10 @@
 		function _complete() {
 			if (_state == jwplayer.api.events.state.PLAYING) {
 				_stop(false);
-				setTimeout(function() {
+				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BEFORECOMPLETE);
+//				setTimeout(function() {
 					_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
-				}, 10);
+//				}, 10);
 			}
 		}
 		

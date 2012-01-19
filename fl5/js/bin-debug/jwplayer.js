@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2084';
+jwplayer.version = '5.9.2085';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -6281,6 +6281,10 @@ playerReady = function(obj) {
 		};
 		
 		function _completeHandler() {
+			if (_model.state != jwplayer.api.events.state.IDLE) {
+				// Something has made an API call before the complete handler has fired.
+				return;
+			}
 			_actionOnAttach = _completeHandler;			
 			switch (_model.config.repeat.toUpperCase()) {
 				case jwplayer.html5.controller.repeatoptions.SINGLE:
@@ -7891,11 +7895,6 @@ playerReady = function(obj) {
 
 		/** Resize the player. **/
 		this.resize = function(width, height) {
-//			_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_RESIZE, {
-//				fullscreen: _model.fullscreen,
-//				width: width,
-//				hieght: height
-//			});
 		};
 		
 		/** Change the video's volume level. **/
@@ -8120,6 +8119,7 @@ playerReady = function(obj) {
 					});
 					if (_model.position >= _model.duration && (_model.position > 0 || _model.duration > 0)) {
 						_complete();
+						return;
 					}
 				}
 			}
@@ -8237,9 +8237,10 @@ playerReady = function(obj) {
 		function _complete() {
 			if (_state == jwplayer.api.events.state.PLAYING) {
 				_stop(false);
-				setTimeout(function() {
+				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BEFORECOMPLETE);
+//				setTimeout(function() {
 					_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
-				}, 10);
+//				}, 10);
 			}
 		}
 		
