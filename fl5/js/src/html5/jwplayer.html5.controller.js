@@ -372,24 +372,21 @@
 		
 		
 		/** Jumping the player to/from fullscreen. **/
-		function _setFullscreen(state) {
+		function _setFullscreen(state, forwardEvent) {
 			try {
 				if (typeof state == "undefined") {
 					state = !_model.fullscreen;
 				} 
+				if (typeof forwardEvent == "undefined") {
+					forwardEvent = true;
+				} 
 				
 				if (state != _model.fullscreen) {
-					if (state.toString().toLowerCase() == "true") {
-						_model.fullscreen = true;					
-						_view.fullscreen(true);
+					_model.fullscreen = (state.toString().toLowerCase() == "true");	
+					_view.fullscreen(_model.fullscreen);
+					if (forwardEvent) {
 						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
-							fullscreen: true
-						});
-					} else {
-						_model.fullscreen = false;					
-						_view.fullscreen(false);
-						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
-							fullscreen: false
+							fullscreen: _model.fullscreen
 						});
 					}
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_RESIZE, {
@@ -440,7 +437,7 @@
 		}
 		
 		function _fullscreenHandler(evt) {
-			_setFullscreen(evt.fullscreen);
+			_setFullscreen(evt.fullscreen, false);
 		}
 		
 		function _detachMedia() {

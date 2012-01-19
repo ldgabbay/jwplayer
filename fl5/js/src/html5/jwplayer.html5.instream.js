@@ -76,8 +76,9 @@
 			_view.setupInstream(_instreamContainer);
 			// Resize the instream components to the proper size
 			_resize();
-			// Load the instream item and begin playback
+			// Load the instream item
 			_provider.load(_item);
+			
 		}
 			
 		/** Stop the instream playback and revert the main player back to its original state **/
@@ -182,6 +183,7 @@
 				_provider.addGlobalListener(_forward);
 				_provider.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, _metaHandler);
 				_provider.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, _completeHandler);
+				_provider.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, _bufferFullHandler);
 			}
 			_provider.attachMedia();
 		}
@@ -193,6 +195,13 @@
 			}
 		}
 		
+		/** Handle the JWPLAYER_MEDIA_BUFFER_FULL event **/		
+		function _bufferFullHandler(evt) {
+			if (_instreamMode) {
+				_provider.play();
+			}
+		}
+
 		/** Handle the JWPLAYER_MEDIA_COMPLETE event **/		
 		function _completeHandler(evt) {
 			if (_instreamMode) {
@@ -201,7 +210,7 @@
 				}, 10);
 			}
 		}
-		
+
 		/** Handle the JWPLAYER_MEDIA_META event **/		
 		function _metaHandler(evt) {
 			// If we're getting video dimension metadata from the provider, allow the view to resize the media

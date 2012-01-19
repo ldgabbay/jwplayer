@@ -228,7 +228,7 @@
 				} else {
 					_height = height;
 				}
-				_css(_box, {
+				var boxStyle = {
 					top: 0,
 					bottom: 0,
 					left: 0,
@@ -236,8 +236,10 @@
 					width: _width,
 					height: _height,
 					position: "absolute"
-				});
-				_css(_instreamArea, _utils.extend({}, _box.style, {zIndex: _instreamArea.style.zIndex, display: _instreamArea.style.display}));
+				}; 
+				_css(_box, boxStyle);
+				var instreamStyle = _utils.extend({}, boxStyle, {zIndex: _instreamArea.style.zIndex, display: _instreamArea.style.display});
+				_css(_instreamArea, instreamStyle);
 				_css(_wrapper, {
 					height: _height,
 					width: _width

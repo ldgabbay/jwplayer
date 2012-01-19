@@ -199,11 +199,13 @@
 			_imageWidth = _display.display_image.naturalWidth;
 			_imageHeight = _display.display_image.naturalHeight;
 			_stretch();
-			_css(_display.display_image, {
-				display: "block",
-				opacity: 0
-			});
-			_utils.fadeTo(_display.display_image, 1, 0.1);
+			if (_api.jwGetState() == jwplayer.api.events.state.IDLE) {
+				_css(_display.display_image, {
+					display: "block",
+					opacity: 0
+				});
+				_utils.fadeTo(_display.display_image, 1, 0.1);
+			}
 			_imageLoading = false;
 		}
 		

@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2082';
+jwplayer.version = '5.9.2083';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4487,7 +4487,7 @@ playerReady = function(obj) {
 				} else {
 					_height = height;
 				}
-				_css(_box, {
+				var boxStyle = {
 					top: 0,
 					bottom: 0,
 					left: 0,
@@ -4495,8 +4495,10 @@ playerReady = function(obj) {
 					width: _width,
 					height: _height,
 					position: "absolute"
-				});
-				_css(_instreamArea, _utils.extend({}, _box.style, {zIndex: _instreamArea.style.zIndex, display: _instreamArea.style.display}));
+				}; 
+				_css(_box, boxStyle);
+				var instreamStyle = _utils.extend({}, boxStyle, {zIndex: _instreamArea.style.zIndex, display: _instreamArea.style.display});
+				_css(_instreamArea, instreamStyle);
 				_css(_wrapper, {
 					height: _height,
 					width: _width
@@ -6184,24 +6186,21 @@ playerReady = function(obj) {
 		
 		
 		/** Jumping the player to/from fullscreen. **/
-		function _setFullscreen(state) {
+		function _setFullscreen(state, forwardEvent) {
 			try {
 				if (typeof state == "undefined") {
 					state = !_model.fullscreen;
 				} 
+				if (typeof forwardEvent == "undefined") {
+					forwardEvent = true;
+				} 
 				
 				if (state != _model.fullscreen) {
-					if (state.toString().toLowerCase() == "true") {
-						_model.fullscreen = true;					
-						_view.fullscreen(true);
+					_model.fullscreen = (state.toString().toLowerCase() == "true");	
+					_view.fullscreen(_model.fullscreen);
+					if (forwardEvent) {
 						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
-							fullscreen: true
-						});
-					} else {
-						_model.fullscreen = false;					
-						_view.fullscreen(false);
-						_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
-							fullscreen: false
+							fullscreen: _model.fullscreen
 						});
 					}
 					_eventDispatcher.sendEvent(jwplayer.api.events.JWPLAYER_RESIZE, {
@@ -6252,7 +6251,7 @@ playerReady = function(obj) {
 		}
 		
 		function _fullscreenHandler(evt) {
-			_setFullscreen(evt.fullscreen);
+			_setFullscreen(evt.fullscreen, false);
 		}
 		
 		function _detachMedia() {
@@ -6574,11 +6573,13 @@ playerReady = function(obj) {
 			_imageWidth = _display.display_image.naturalWidth;
 			_imageHeight = _display.display_image.naturalHeight;
 			_stretch();
-			_css(_display.display_image, {
-				display: "block",
-				opacity: 0
-			});
-			_utils.fadeTo(_display.display_image, 1, 0.1);
+			if (_api.jwGetState() == jwplayer.api.events.state.IDLE) {
+				_css(_display.display_image, {
+					display: "block",
+					opacity: 0
+				});
+				_utils.fadeTo(_display.display_image, 1, 0.1);
+			}
 			_imageLoading = false;
 		}
 		
@@ -7251,8 +7252,9 @@ playerReady = function(obj) {
 			_view.setupInstream(_instreamContainer);
 			// Resize the instream components to the proper size
 			_resize();
-			// Load the instream item and begin playback
+			// Load the instream item
 			_provider.load(_item);
+			
 		}
 			
 		/** Stop the instream playback and revert the main player back to its original state **/
@@ -7357,6 +7359,7 @@ playerReady = function(obj) {
 				_provider.addGlobalListener(_forward);
 				_provider.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, _metaHandler);
 				_provider.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE, _completeHandler);
+				_provider.addEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL, _bufferFullHandler);
 			}
 			_provider.attachMedia();
 		}
@@ -7368,6 +7371,13 @@ playerReady = function(obj) {
 			}
 		}
 		
+		/** Handle the JWPLAYER_MEDIA_BUFFER_FULL event **/		
+		function _bufferFullHandler(evt) {
+			if (_instreamMode) {
+				_provider.play();
+			}
+		}
+
 		/** Handle the JWPLAYER_MEDIA_COMPLETE event **/		
 		function _completeHandler(evt) {
 			if (_instreamMode) {
@@ -7376,7 +7386,7 @@ playerReady = function(obj) {
 				}, 10);
 			}
 		}
-		
+
 		/** Handle the JWPLAYER_MEDIA_META event **/		
 		function _metaHandler(evt) {
 			// If we're getting video dimension metadata from the provider, allow the view to resize the media
@@ -8044,6 +8054,15 @@ playerReady = function(obj) {
 				}
 			}
 			
+			if (_utils.useNativeFullscreen() && _utils.exists(_video.webkitDisplayingFullscreen)) {
+				if (_model.fullscreen != _video.webkitDisplayingFullscreen) {
+					//_model.fullscreen = _video.webkitDisplayingFullscreen;
+					_sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
+						fullscreen: _video.webkitDisplayingFullscreen
+					},true);
+				}
+			}
+
 			if (_bufferFull === false && _state == jwplayer.api.events.state.BUFFERING) {
 				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL);
 				_bufferFull = true;

@@ -730,10 +730,14 @@ package com.longtailvideo.jwplayer.controller {
 
 
 		public function fullscreen(mode:Boolean):Boolean {
-			_view.fullscreen(mode);
-			_model.fullscreen = mode;
-			dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_FULLSCREEN, mode.toString()));
-			return true;
+			if (mode != _model.fullscreen) {
+				_model.fullscreen = mode;
+				_view.fullscreen(mode);
+				dispatchEvent(new PlayerEvent(PlayerEvent.JWPLAYER_FULLSCREEN, mode.toString()));
+				return true;
+			} else {
+				return false;
+			}
 		}
 
 

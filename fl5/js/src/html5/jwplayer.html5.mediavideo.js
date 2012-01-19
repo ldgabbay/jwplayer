@@ -389,6 +389,15 @@
 				}
 			}
 			
+			if (_utils.useNativeFullscreen() && _utils.exists(_video.webkitDisplayingFullscreen)) {
+				if (_model.fullscreen != _video.webkitDisplayingFullscreen) {
+					//_model.fullscreen = _video.webkitDisplayingFullscreen;
+					_sendEvent(jwplayer.api.events.JWPLAYER_FULLSCREEN, {
+						fullscreen: _video.webkitDisplayingFullscreen
+					},true);
+				}
+			}
+
 			if (_bufferFull === false && _state == jwplayer.api.events.state.BUFFERING) {
 				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BUFFER_FULL);
 				_bufferFull = true;
