@@ -98,6 +98,9 @@
 				return false;
 			}
 			
+			// HTML5 playback is not sufficiently supported on Blackberry devices; should fail over automatically.
+			if(navigator.userAgent.match(/BlackBerry/i) !== null) { return false; }
+			
 			var extension = jwplayer.utils.extension(file);
 			// If no extension or unrecognized extension, allow to play
 			if (!jwplayer.utils.exists(extension) || !jwplayer.utils.exists(jwplayer.utils.extensionmap[extension])){

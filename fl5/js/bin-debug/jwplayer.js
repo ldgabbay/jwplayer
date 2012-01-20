@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2086';
+jwplayer.version = '5.9.2087';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4065,6 +4065,9 @@ playerReady = function(obj) {
 			if (provider && provider != "video" && provider != "http" && provider != "sound") {
 				return false;
 			}
+			
+			// HTML5 playback is not sufficiently supported on Blackberry devices; should fail over automatically.
+			if(navigator.userAgent.match(/BlackBerry/i) !== null) { return false; }
 			
 			var extension = jwplayer.utils.extension(file);
 			// If no extension or unrecognized extension, allow to play
