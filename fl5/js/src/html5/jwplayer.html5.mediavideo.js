@@ -93,11 +93,12 @@
 
 			_sourceError = 0; 
 
+			_iOSClean(item.levels);
+			
 			if (item.levels && item.levels.length > 0) {
-				if (item.levels.length == 1) {
+				if (item.levels.length == 1 || _utils.isIOS()) {
 					_video.src = item.levels[0].file;
 				} else {
-					_iOSClean(item.levels);
 					if (_video.src) {
 						_video.removeAttribute("src");
 					}
@@ -112,12 +113,13 @@
 				_video.src = item.file;
 			}
 			_video.style.display = "block";
+			_video.style.opacity = 1;
 			_video.volume = _model.volume / 100;
 			_video.muted = _model.mute;
 			if (_isMobile) {
 				_setControls();
 			}
-			
+
 			_bufferingComplete = _bufferFull = _start = false;
 			_model.buffer = 0;
 			
@@ -137,6 +139,10 @@
 				});
 				_startInterval();
 			}
+			if (_video.videoWidth > 0 && _video.videoHeight > 0) {
+				_metaHandler();
+			}
+			
 		}
 		
 		/**
@@ -159,7 +165,6 @@
 		 */
 		this.pause = function() {
 			if (!_attached) return;
-			
 			_video.pause();
 			_setState(jwplayer.api.events.state.PAUSED);
 		}
@@ -191,10 +196,18 @@
 				clear = true;
 			}
 			_clearInterval();
+
 			if (clear) {
-				_video.style.display = "none";
 				_bufferFull = false;
 				var agent = navigator.userAgent;
+				
+				if(_video.webkitSupportsFullscreen) {
+					try {
+						_video.webkitExitFullscreen();
+					} catch(err) {}
+				}
+				_video.style.opacity = 0;
+				_hideControls();
 				
 				/* Some browsers require that the video source be cleared in a different way. */
 				if (_utils.isIE()) {
@@ -202,15 +215,10 @@
 				} else {
 					_video.removeAttribute("src");
 				}
-				_hideControls();
+				
 				_utils.empty(_video);
 				_video.load();
 				_emptied = true;
-				if(_video.webkitSupportsFullscreen) {
-					try {
-						_video.webkitExitFullscreen();
-					} catch(err) {}
-				}
 			}
 			_setState(jwplayer.api.events.state.IDLE);
 		}
@@ -261,7 +269,7 @@
 		 * Whether this media component has its own chrome
 		 */
 		this.hasChrome = function() {
-			return _isMobile;
+			return _isMobile && (_state == jwplayer.api.events.state.PLAYING);
 		}
 		
 		/**
@@ -338,7 +346,8 @@
 				case jwplayer.api.events.state.PLAYING:
 					_setControls();
 					break;
-				default:
+				case jwplayer.api.events.state.BUFFERING:
+				case jwplayer.api.events.state.PAUSED:
 					_hideControls();
 					break;
 				}
@@ -475,14 +484,14 @@
 
 		function _metaHandler(event) {
 			if (!_attached) return;
-			var newDuration = Math.round(event.target.duration * 10) / 10;
+			var newDuration = Math.round(_video.duration * 10) / 10;
 			var meta = {
-					height: event.target.videoHeight,
-					width: event.target.videoWidth,
+					height: _video.videoHeight,
+					width: _video.videoWidth,
 					duration: newDuration
 				};
 			if (!_userDuration) {
-				if ( (_model.duration < newDuration || isNaN(_model.duration)) && event.target.duration != Infinity) {
+				if ( (_model.duration < newDuration || isNaN(_model.duration)) && _video.duration != Infinity) {
 					_model.duration = newDuration;
 				}
 			}
@@ -569,9 +578,7 @@
 			if (_state == jwplayer.api.events.state.PLAYING) {
 				_stop(false);
 				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BEFORECOMPLETE);
-//				setTimeout(function() {
-					_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
-//				}, 10);
+				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
 			}
 		}
 		
@@ -588,35 +595,39 @@
 		
 		/** Works around a bug where iOS 3 devices require the mp4 file to be the first source listed in a multi-source <video> tag **/
 		function _iOSClean(levels) {
-			if (levels.length > 0 && _utils.isIOS()) {
-				if (_utils.extension(levels[0].file) != "mp4") {
-					var position = -1;
-					for (var i = 1; i < levels.length; i++) {
-						if (_utils.extension(levels[i].file) == "mp4") {
-							position = i;
-							break;
-						}
+			if (levels.length > 0 && _utils.userAgentMatch(/Safari/i)) {
+				var position = -1;
+				for (var i = 0; i < levels.length; i++) {
+					switch(_utils.extension(levels[i].file)) {
+					case "mp4":
+						if (position < 0) position = i;
+						break;
+					case "webm":
+						levels.splice(i, 1);
+						break;
 					}
-					if (position > -1) {
-						var mp4 = levels.splice(position, 1)[0];
-						levels.unshift(mp4);
-					}
+				}
+				if (position > 0) {
+					var mp4 = levels.splice(position, 1)[0];
+					levels.unshift(mp4);
 				}
 			}
 		}
 		
 		function _setControls() {
-			if (_currentItem.image) {
-				_video.poster = _currentItem.image;
-			}
+//			if (_currentItem.image) {
+//				_video.poster = _currentItem.image;
+//			}
 			setTimeout(function() {
 				_video.setAttribute("controls", "controls");
 			}, 100);
 		}
 		
 		function _hideControls() {
-			_video.removeAttribute("controls");
-			_video.removeAttribute("poster");
+			setTimeout(function() {
+				_video.removeAttribute("controls");
+//				_video.removeAttribute("poster");
+			}, 250);
 		}
 		
 		function _sendEvent(type, obj, alwaysSend) {

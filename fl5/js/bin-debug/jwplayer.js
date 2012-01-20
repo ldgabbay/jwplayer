@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2085';
+jwplayer.version = '5.9.2086';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4281,7 +4281,7 @@ playerReady = function(obj) {
 		var _media;
 		var _falseFullscreen = false;
 		var _normalscreenWidth, _normalscreenHeight;
-		var _instremArea, _instreamMode;
+		var _instremArea, _instreamMode, _instreamVideo;
 		
 		function createWrapper() {
 			_wrapper = document.createElement("div");
@@ -4367,7 +4367,7 @@ playerReady = function(obj) {
 			if (_instreamMode) { return; }
 			
 			if (_model.getMedia() && _model.getMedia().hasChrome()) {
-				_box.style.display = "block";
+				_box.style.display = "none";
 			} else {
 				switch (evt.newstate) {
 				case evt.newstate == jwplayer.api.events.state.PLAYING:
@@ -4589,14 +4589,11 @@ playerReady = function(obj) {
 		}
 		
 		var _resizeMedia = this.resizeMedia = function() {
-			if (!_utils.exists(_model.getMedia())) {
-				return;
-			}
 			_box.style.position = "absolute";
-			var media = _model.getMedia().getDisplayElement();
+			var media = _model.getMedia() ? _model.getMedia().getDisplayElement() : _instreamVideo;
+			if (!media) { return; }
 			if (media && media.tagName.toLowerCase() == "video") {
 				if (!media.videoWidth || !media.videoHeight) {
-					media.style.opacity = 0;
 					return;
 				}
 				media.style.position = "absolute";
@@ -4770,7 +4767,7 @@ playerReady = function(obj) {
 			return false;
 		}
 		
-		this.setupInstream = function(instreamDisplay) {
+		this.setupInstream = function(instreamDisplay, instreamVideo) {
 			_utils.css(_instreamArea, {
 				display: "block",
 				width: _wrapper.style.width,
@@ -4779,6 +4776,7 @@ playerReady = function(obj) {
 			});
 			_box.style.display = "none";
 			_instreamArea.appendChild(instreamDisplay);
+			_instreamVideo = instreamVideo;
 			_instreamMode = true;
 		}
 		
@@ -4786,6 +4784,7 @@ playerReady = function(obj) {
 			_instreamArea.style.display = "none";
 			_instreamArea.innerHTML = "";
 			_box.style.display = "block";
+			_instreamVideo = null;
 			_instreamMode = false;
 			_resize(_model.width, _model.height);
 		}
@@ -5996,7 +5995,7 @@ playerReady = function(obj) {
 				clear = true;
 			}
 			try {
-				if (_model.state != jwplayer.api.events.state.IDLE && _model.getMedia()) {
+				if ((_model.state != jwplayer.api.events.state.IDLE || clear) && _model.getMedia()) {
 					_model.getMedia().stop(clear);
 				}
 				if (_preplay) {
@@ -6285,7 +6284,7 @@ playerReady = function(obj) {
 				// Something has made an API call before the complete handler has fired.
 				return;
 			}
-			_actionOnAttach = _completeHandler;			
+			_actionOnAttach = _completeHandler;
 			switch (_model.config.repeat.toUpperCase()) {
 				case jwplayer.html5.controller.repeatoptions.SINGLE:
 					_play();
@@ -6420,6 +6419,7 @@ playerReady = function(obj) {
 		var _showing = true;
 		var _lastSent;
 		var _imageLoading = false;
+		var _currentImage = "";
 		var _hiding = false;
 		var _ready = false;
 		var _alternateClickHandler;
@@ -6533,6 +6533,11 @@ playerReady = function(obj) {
 		};
 		
 		this.resize = function(width, height) {
+			if (_api.jwGetFullscreen() && _utils.useNativeFullscreen()) {
+				//No need to resize components; handled by the device
+				return;
+			}
+			
 			_css(_display.display, {
 				width: width,
 				height: height
@@ -6803,11 +6808,13 @@ playerReady = function(obj) {
 			if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()]) {
 				var newsrc = _api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image;
 				if (newsrc) {
-					if (newsrc != _display.display_image.src) {
+					if (newsrc != _currentImage) {
+						_currentImage = newsrc;
 						_display.display_image.style.display = "none";
 						_imageLoading = true;
-						_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image);
+						_display.display_image.src = _utils.getAbsolutePath(newsrc);
 					} else if (!_imageLoading) {
+						_display.display_image.style.opacity = 0;
 						_display.display_image.style.display = "block";
 						_utils.fadeTo(_display.display_image, 1, 0.1);
 					}
@@ -7223,8 +7230,10 @@ playerReady = function(obj) {
 			// Create the container in which the controls will be placed
 			_instreamContainer = document.createElement("div");
 			_instreamContainer.id = _self.id + "_instream_container";
-			// Get the video tag, and make sure the original player's provider stops broadcasting events (pseudo-lock...)
-			_video = _controller.detachMedia();
+			// Make sure the original player's provider stops broadcasting events (pseudo-lock...)
+			_controller.detachMedia();
+			// Get the video tag
+			_video = _provider.getDisplayElement();
 			// Store this to compare later (in case the main player switches to the next playlist item when we switch out of instream playback mode 
 			_olditem = _model.playlist[_model.item];
 			// Keep track of the original player state
@@ -7235,7 +7244,7 @@ playerReady = function(obj) {
 			}
 			
 			// Copy the video src/sources tags and store the current playback time
-			_oldsrc = _video.src;
+			_oldsrc = _video.src ? _video.src : _video.currentSrc;
 			_oldsources = _video.innerHTML;
 			_oldpos = _video.currentTime;
 			
@@ -7253,7 +7262,7 @@ playerReady = function(obj) {
 			}
 
 			// Show the instream layer
-			_view.setupInstream(_instreamContainer);
+			_view.setupInstream(_instreamContainer, _video);
 			// Resize the instream components to the proper size
 			_resize();
 			// Load the instream item
@@ -7266,10 +7275,14 @@ playerReady = function(obj) {
 			if (!_instreamMode) return;
 			// We're not in instream mode anymore.
 			_instreamMode = false;
-			// Load the original item into our provider, which sets up the regular player's video tag
-			_provider.load(_olditem, false);
-			// We don't want the position interval to be running anymore
-			_provider.stop(false);
+			if (_oldstate != jwplayer.api.events.state.IDLE) {
+				// Load the original item into our provider, which sets up the regular player's video tag
+				_provider.load(_olditem, false);
+				// We don't want the position interval to be running anymore
+				_provider.stop(false);
+			} else {
+				_provider.stop(true);
+			}
 			// We don't want the instream provider to be attached to the video tag anymore
 			_provider.detachMedia();
 			// Return the view to its normal state
@@ -7407,13 +7420,15 @@ playerReady = function(obj) {
 		
 		// Resize handler; resize the components.
 		function _resize() {
-			var originalBar = _model.plugins.object.controlbar.getDisplayElement().style;
 			var originalDisp = _model.plugins.object.display.getDisplayElement().style;
+			
 			if (_cbar) {
+				var originalBar = _model.plugins.object.controlbar.getDisplayElement().style; 
 				_cbar.resize(_utils.parseDimension(originalDisp.width), _utils.parseDimension(originalBar.height));
 				_css(_cbar.getDisplayElement(), _utils.extend({}, originalBar, { zIndex: 1001, opacity: 1 }));
 			}
 			if (_disp) {
+				
 				_disp.resize(_utils.parseDimension(originalDisp.width), _utils.parseDimension(originalDisp.height));
 				_css(_disp.getDisplayElement(), _utils.extend({}, originalDisp, { zIndex: 1000 }));
 			}
@@ -7762,11 +7777,12 @@ playerReady = function(obj) {
 
 			_sourceError = 0; 
 
+			_iOSClean(item.levels);
+			
 			if (item.levels && item.levels.length > 0) {
-				if (item.levels.length == 1) {
+				if (item.levels.length == 1 || _utils.isIOS()) {
 					_video.src = item.levels[0].file;
 				} else {
-					_iOSClean(item.levels);
 					if (_video.src) {
 						_video.removeAttribute("src");
 					}
@@ -7781,12 +7797,13 @@ playerReady = function(obj) {
 				_video.src = item.file;
 			}
 			_video.style.display = "block";
+			_video.style.opacity = 1;
 			_video.volume = _model.volume / 100;
 			_video.muted = _model.mute;
 			if (_isMobile) {
 				_setControls();
 			}
-			
+
 			_bufferingComplete = _bufferFull = _start = false;
 			_model.buffer = 0;
 			
@@ -7806,6 +7823,10 @@ playerReady = function(obj) {
 				});
 				_startInterval();
 			}
+			if (_video.videoWidth > 0 && _video.videoHeight > 0) {
+				_metaHandler();
+			}
+			
 		}
 		
 		/**
@@ -7828,7 +7849,6 @@ playerReady = function(obj) {
 		 */
 		this.pause = function() {
 			if (!_attached) return;
-			
 			_video.pause();
 			_setState(jwplayer.api.events.state.PAUSED);
 		}
@@ -7860,10 +7880,18 @@ playerReady = function(obj) {
 				clear = true;
 			}
 			_clearInterval();
+
 			if (clear) {
-				_video.style.display = "none";
 				_bufferFull = false;
 				var agent = navigator.userAgent;
+				
+				if(_video.webkitSupportsFullscreen) {
+					try {
+						_video.webkitExitFullscreen();
+					} catch(err) {}
+				}
+				_video.style.opacity = 0;
+				_hideControls();
 				
 				/* Some browsers require that the video source be cleared in a different way. */
 				if (_utils.isIE()) {
@@ -7871,15 +7899,10 @@ playerReady = function(obj) {
 				} else {
 					_video.removeAttribute("src");
 				}
-				_hideControls();
+				
 				_utils.empty(_video);
 				_video.load();
 				_emptied = true;
-				if(_video.webkitSupportsFullscreen) {
-					try {
-						_video.webkitExitFullscreen();
-					} catch(err) {}
-				}
 			}
 			_setState(jwplayer.api.events.state.IDLE);
 		}
@@ -7930,7 +7953,7 @@ playerReady = function(obj) {
 		 * Whether this media component has its own chrome
 		 */
 		this.hasChrome = function() {
-			return _isMobile;
+			return _isMobile && (_state == jwplayer.api.events.state.PLAYING);
 		}
 		
 		/**
@@ -8007,7 +8030,8 @@ playerReady = function(obj) {
 				case jwplayer.api.events.state.PLAYING:
 					_setControls();
 					break;
-				default:
+				case jwplayer.api.events.state.BUFFERING:
+				case jwplayer.api.events.state.PAUSED:
 					_hideControls();
 					break;
 				}
@@ -8144,14 +8168,14 @@ playerReady = function(obj) {
 
 		function _metaHandler(event) {
 			if (!_attached) return;
-			var newDuration = Math.round(event.target.duration * 10) / 10;
+			var newDuration = Math.round(_video.duration * 10) / 10;
 			var meta = {
-					height: event.target.videoHeight,
-					width: event.target.videoWidth,
+					height: _video.videoHeight,
+					width: _video.videoWidth,
 					duration: newDuration
 				};
 			if (!_userDuration) {
-				if ( (_model.duration < newDuration || isNaN(_model.duration)) && event.target.duration != Infinity) {
+				if ( (_model.duration < newDuration || isNaN(_model.duration)) && _video.duration != Infinity) {
 					_model.duration = newDuration;
 				}
 			}
@@ -8238,9 +8262,7 @@ playerReady = function(obj) {
 			if (_state == jwplayer.api.events.state.PLAYING) {
 				_stop(false);
 				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_BEFORECOMPLETE);
-//				setTimeout(function() {
-					_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
-//				}, 10);
+				_sendEvent(jwplayer.api.events.JWPLAYER_MEDIA_COMPLETE);
 			}
 		}
 		
@@ -8257,35 +8279,39 @@ playerReady = function(obj) {
 		
 		/** Works around a bug where iOS 3 devices require the mp4 file to be the first source listed in a multi-source <video> tag **/
 		function _iOSClean(levels) {
-			if (levels.length > 0 && _utils.isIOS()) {
-				if (_utils.extension(levels[0].file) != "mp4") {
-					var position = -1;
-					for (var i = 1; i < levels.length; i++) {
-						if (_utils.extension(levels[i].file) == "mp4") {
-							position = i;
-							break;
-						}
+			if (levels.length > 0 && _utils.userAgentMatch(/Safari/i)) {
+				var position = -1;
+				for (var i = 0; i < levels.length; i++) {
+					switch(_utils.extension(levels[i].file)) {
+					case "mp4":
+						if (position < 0) position = i;
+						break;
+					case "webm":
+						levels.splice(i, 1);
+						break;
 					}
-					if (position > -1) {
-						var mp4 = levels.splice(position, 1)[0];
-						levels.unshift(mp4);
-					}
+				}
+				if (position > 0) {
+					var mp4 = levels.splice(position, 1)[0];
+					levels.unshift(mp4);
 				}
 			}
 		}
 		
 		function _setControls() {
-			if (_currentItem.image) {
-				_video.poster = _currentItem.image;
-			}
+//			if (_currentItem.image) {
+//				_video.poster = _currentItem.image;
+//			}
 			setTimeout(function() {
 				_video.setAttribute("controls", "controls");
 			}, 100);
 		}
 		
 		function _hideControls() {
-			_video.removeAttribute("controls");
-			_video.removeAttribute("poster");
+			setTimeout(function() {
+				_video.removeAttribute("controls");
+//				_video.removeAttribute("poster");
+			}, 250);
 		}
 		
 		function _sendEvent(type, obj, alwaysSend) {

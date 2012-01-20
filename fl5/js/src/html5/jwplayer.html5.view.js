@@ -22,7 +22,7 @@
 		var _media;
 		var _falseFullscreen = false;
 		var _normalscreenWidth, _normalscreenHeight;
-		var _instremArea, _instreamMode;
+		var _instremArea, _instreamMode, _instreamVideo;
 		
 		function createWrapper() {
 			_wrapper = document.createElement("div");
@@ -108,7 +108,7 @@
 			if (_instreamMode) { return; }
 			
 			if (_model.getMedia() && _model.getMedia().hasChrome()) {
-				_box.style.display = "block";
+				_box.style.display = "none";
 			} else {
 				switch (evt.newstate) {
 				case evt.newstate == jwplayer.api.events.state.PLAYING:
@@ -330,14 +330,11 @@
 		}
 		
 		var _resizeMedia = this.resizeMedia = function() {
-			if (!_utils.exists(_model.getMedia())) {
-				return;
-			}
 			_box.style.position = "absolute";
-			var media = _model.getMedia().getDisplayElement();
+			var media = _model.getMedia() ? _model.getMedia().getDisplayElement() : _instreamVideo;
+			if (!media) { return; }
 			if (media && media.tagName.toLowerCase() == "video") {
 				if (!media.videoWidth || !media.videoHeight) {
-					media.style.opacity = 0;
 					return;
 				}
 				media.style.position = "absolute";
@@ -511,7 +508,7 @@
 			return false;
 		}
 		
-		this.setupInstream = function(instreamDisplay) {
+		this.setupInstream = function(instreamDisplay, instreamVideo) {
 			_utils.css(_instreamArea, {
 				display: "block",
 				width: _wrapper.style.width,
@@ -520,6 +517,7 @@
 			});
 			_box.style.display = "none";
 			_instreamArea.appendChild(instreamDisplay);
+			_instreamVideo = instreamVideo;
 			_instreamMode = true;
 		}
 		
@@ -527,6 +525,7 @@
 			_instreamArea.style.display = "none";
 			_instreamArea.innerHTML = "";
 			_box.style.display = "block";
+			_instreamVideo = null;
 			_instreamMode = false;
 			_resize(_model.width, _model.height);
 		}

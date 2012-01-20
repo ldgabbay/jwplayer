@@ -182,7 +182,7 @@
 				clear = true;
 			}
 			try {
-				if (_model.state != jwplayer.api.events.state.IDLE && _model.getMedia()) {
+				if ((_model.state != jwplayer.api.events.state.IDLE || clear) && _model.getMedia()) {
 					_model.getMedia().stop(clear);
 				}
 				if (_preplay) {
@@ -471,7 +471,7 @@
 				// Something has made an API call before the complete handler has fired.
 				return;
 			}
-			_actionOnAttach = _completeHandler;			
+			_actionOnAttach = _completeHandler;
 			switch (_model.config.repeat.toUpperCase()) {
 				case jwplayer.html5.controller.repeatoptions.SINGLE:
 					_play();

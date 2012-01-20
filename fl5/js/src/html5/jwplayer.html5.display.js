@@ -42,6 +42,7 @@
 		var _showing = true;
 		var _lastSent;
 		var _imageLoading = false;
+		var _currentImage = "";
 		var _hiding = false;
 		var _ready = false;
 		var _alternateClickHandler;
@@ -155,6 +156,11 @@
 		};
 		
 		this.resize = function(width, height) {
+			if (_api.jwGetFullscreen() && _utils.useNativeFullscreen()) {
+				//No need to resize components; handled by the device
+				return;
+			}
+			
 			_css(_display.display, {
 				width: width,
 				height: height
@@ -425,11 +431,13 @@
 			if (_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()]) {
 				var newsrc = _api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image;
 				if (newsrc) {
-					if (newsrc != _display.display_image.src) {
+					if (newsrc != _currentImage) {
+						_currentImage = newsrc;
 						_display.display_image.style.display = "none";
 						_imageLoading = true;
-						_display.display_image.src = _utils.getAbsolutePath(_api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].image);
+						_display.display_image.src = _utils.getAbsolutePath(newsrc);
 					} else if (!_imageLoading) {
+						_display.display_image.style.opacity = 0;
 						_display.display_image.style.display = "block";
 						_utils.fadeTo(_display.display_image, 1, 0.1);
 					}

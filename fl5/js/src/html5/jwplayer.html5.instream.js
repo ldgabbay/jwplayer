@@ -43,8 +43,10 @@
 			// Create the container in which the controls will be placed
 			_instreamContainer = document.createElement("div");
 			_instreamContainer.id = _self.id + "_instream_container";
-			// Get the video tag, and make sure the original player's provider stops broadcasting events (pseudo-lock...)
-			_video = _controller.detachMedia();
+			// Make sure the original player's provider stops broadcasting events (pseudo-lock...)
+			_controller.detachMedia();
+			// Get the video tag
+			_video = _provider.getDisplayElement();
 			// Store this to compare later (in case the main player switches to the next playlist item when we switch out of instream playback mode 
 			_olditem = _model.playlist[_model.item];
 			// Keep track of the original player state
@@ -55,7 +57,7 @@
 			}
 			
 			// Copy the video src/sources tags and store the current playback time
-			_oldsrc = _video.src;
+			_oldsrc = _video.src ? _video.src : _video.currentSrc;
 			_oldsources = _video.innerHTML;
 			_oldpos = _video.currentTime;
 			
@@ -73,7 +75,7 @@
 			}
 
 			// Show the instream layer
-			_view.setupInstream(_instreamContainer);
+			_view.setupInstream(_instreamContainer, _video);
 			// Resize the instream components to the proper size
 			_resize();
 			// Load the instream item
@@ -86,10 +88,14 @@
 			if (!_instreamMode) return;
 			// We're not in instream mode anymore.
 			_instreamMode = false;
-			// Load the original item into our provider, which sets up the regular player's video tag
-			_provider.load(_olditem, false);
-			// We don't want the position interval to be running anymore
-			_provider.stop(false);
+			if (_oldstate != jwplayer.api.events.state.IDLE) {
+				// Load the original item into our provider, which sets up the regular player's video tag
+				_provider.load(_olditem, false);
+				// We don't want the position interval to be running anymore
+				_provider.stop(false);
+			} else {
+				_provider.stop(true);
+			}
 			// We don't want the instream provider to be attached to the video tag anymore
 			_provider.detachMedia();
 			// Return the view to its normal state
@@ -227,13 +233,15 @@
 		
 		// Resize handler; resize the components.
 		function _resize() {
-			var originalBar = _model.plugins.object.controlbar.getDisplayElement().style;
 			var originalDisp = _model.plugins.object.display.getDisplayElement().style;
+			
 			if (_cbar) {
+				var originalBar = _model.plugins.object.controlbar.getDisplayElement().style; 
 				_cbar.resize(_utils.parseDimension(originalDisp.width), _utils.parseDimension(originalBar.height));
 				_css(_cbar.getDisplayElement(), _utils.extend({}, originalBar, { zIndex: 1001, opacity: 1 }));
 			}
 			if (_disp) {
+				
 				_disp.resize(_utils.parseDimension(originalDisp.width), _utils.parseDimension(originalDisp.height));
 				_css(_disp.getDisplayElement(), _utils.extend({}, originalDisp, { zIndex: 1000 }));
 			}
