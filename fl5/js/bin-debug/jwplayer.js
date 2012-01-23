@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2087';
+jwplayer.version = '5.9.2088';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4500,7 +4500,17 @@ playerReady = function(obj) {
 					position: "absolute"
 				}; 
 				_css(_box, boxStyle);
-				var instreamStyle = _utils.extend({}, boxStyle, {zIndex: _instreamArea.style.zIndex, display: _instreamArea.style.display});
+				var displayDimensions = {}
+				var display = _model.plugins.object['display'].getDisplayElement();
+				if(display) {
+					displayDimensions.width = _utils.parseDimension(display.style.width);
+					displayDimensions.height = _utils.parseDimension(display.style.height);
+				}
+				
+				var instreamStyle = _utils.extend({}, boxStyle, displayDimensions, {
+					zIndex: _instreamArea.style.zIndex, 
+					display: _instreamArea.style.display
+				});
 				_css(_instreamArea, instreamStyle);
 				_css(_wrapper, {
 					height: _height,
@@ -4773,8 +4783,6 @@ playerReady = function(obj) {
 		this.setupInstream = function(instreamDisplay, instreamVideo) {
 			_utils.css(_instreamArea, {
 				display: "block",
-				width: _wrapper.style.width,
-				height: _wrapper.style.height,
 				position: "absolute"
 			});
 			_box.style.display = "none";
