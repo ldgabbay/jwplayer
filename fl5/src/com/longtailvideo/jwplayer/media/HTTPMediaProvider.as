@@ -189,7 +189,7 @@ package com.longtailvideo.jwplayer.media {
 				off = Math.ceil(_timeoffset*100)/100;
 				_mp4 = true;
 			}
-			if ((!_mp4 || off > 0) && !getConfigProperty('dvr')) {
+			if (!getConfigProperty('dvr')) {
 				url = getURLConcat(url, _startparam, off);
 			}
 			if (config['token'] || item['token']) {
