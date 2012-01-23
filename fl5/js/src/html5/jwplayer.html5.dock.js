@@ -59,13 +59,13 @@
 				if (!_buttons[id].div) {
 					_buttonArray.push(id);
 					_buttons[id].div = document.createElement("div");
-					_buttons[id].div.style.position = "relative";
+					_buttons[id].div.style.position = "absolute";
 					_dock.appendChild(_buttons[id].div);
 					
-					_buttons[id].div.appendChild(document.createElement("img"));
-					_buttons[id].div.childNodes[0].style.position = "absolute";
-					_buttons[id].div.childNodes[0].style.left = 0;
-					_buttons[id].div.childNodes[0].style.top = 0;
+					_buttons[id].div.appendChild(document.createElement("div"));
+					_buttons[id].div.childNodes[0].style.position = "relative";
+					_buttons[id].div.childNodes[0].style.width = "100%";
+					_buttons[id].div.childNodes[0].style.height = "100%";
 					_buttons[id].div.childNodes[0].style.zIndex = 10;
 					_buttons[id].div.childNodes[0].style.cursor = "pointer";
 					
@@ -81,7 +81,7 @@
 					
 					_buttons[id].div.onmouseover = function() {
 						if (_buttons[id].overGraphic) {
-							_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
+							_buttons[id].div.childNodes[0].style.background = _bgStyle(_buttons[id].overGraphic);
 						}
 						if (api.skin.getSkinElement("dock", "buttonOver")) {
 							_buttons[id].div.childNodes[1].src = api.skin.getSkinElement("dock", "buttonOver").src;
@@ -90,7 +90,7 @@
 					
 					_buttons[id].div.onmouseout = function() {
 						if (_buttons[id].outGraphic) {
-							_buttons[id].div.childNodes[0].src = _buttons[id].outGraphic;
+							_buttons[id].div.childNodes[0].style.background = _bgStyle(_buttons[id].outGraphic);
 						}
 						if (api.skin.getSkinElement("dock", "button")) {
 							_buttons[id].div.childNodes[1].src = api.skin.getSkinElement("dock", "button").src;
@@ -104,9 +104,9 @@
 
 
 				if (_buttons[id].outGraphic) {
-					_buttons[id].div.childNodes[0].src = _buttons[id].outGraphic;
+					_buttons[id].div.childNodes[0].style.background = _bgStyle(_buttons[id].outGraphic);
 				} else if (_buttons[id].overGraphic) {
-					_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
+					_buttons[id].div.childNodes[0].style.background = _bgStyle(_buttons[id].overGraphic);
 				}
 
 				if (handler) {
@@ -114,7 +114,7 @@
 						evt.preventDefault();
 						jwplayer(api.id).callback(id);
 						if (_buttons[id].overGraphic) {
-							_buttons[id].div.childNodes[0].src = _buttons[id].overGraphic;
+							_buttons[id].div.childNodes[0].style.background = _bgStyle(_buttons[id].overGraphic);
 						}
 						if (api.skin.getSkinElement("dock", "button")) {
 							_buttons[id].div.childNodes[1].src = api.skin.getSkinElement("dock", "button").src;
@@ -124,6 +124,10 @@
 			}
 			
 			_resize(_width, _height);
+		}
+		
+		function _bgStyle(url) {
+			return "url("+ url + ") no-repeat center center" 
 		}
 		
 		function _onImageLoad(evt) {
@@ -164,6 +168,9 @@
 						topLeft = buttonDims;
 					if (!bottomRight || (buttonDims.x >= bottomRight.x && buttonDims.y >= bottomRight.y))
 						bottomRight = buttonDims;
+					
+					button.style.width = buttonWidth + "px";
+					button.style.height = buttonHeight + "px";
 					
 					usedHeight += api.skin.getSkinElement("dock", "button").height + margin;
 				}

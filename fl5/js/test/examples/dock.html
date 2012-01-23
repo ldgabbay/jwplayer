@@ -79,6 +79,12 @@
         <div height="270" id="player9" width="480">
             HTML5 Player should replace this
         </div>
+		<p>
+			With a skin
+		</p>
+        <div height="270" id="player10" width="480">
+            HTML5 Player should replace this
+        </div>
 
         <script type="text/javascript">
        	  function setupAll() {
@@ -204,6 +210,20 @@
 					'./plugins/dockplugin.js': {}
 				},
 				dock: "right"
+            });
+            jwplayer("player10").setup({
+            	modes: settings.modes[mode],
+             	levels: [{
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-486405.mp4"
+            	}, {
+            		file: "http://content.bitsontherun.com/videos/gSzpo2wh-604476.ogv"
+            	}],
+            	image: "http://content.bitsontherun.com/thumbs/gSzpo2wh-480.jpg",
+				plugins: {
+					'./plugins/dockplugin.js': {}
+				},
+				dock: "right",
+				skin: "./testskin/testskin.xml"
             });
        	  }
 
