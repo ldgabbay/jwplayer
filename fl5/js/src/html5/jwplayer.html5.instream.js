@@ -270,6 +270,7 @@
 		this.jwStop = function() {
 			if (_options.controlbarstoppable.toString().toLowerCase()=="true") {
 				this.jwInstreamDestroy();
+				_api.jwStop();
 			}
 		};
 
