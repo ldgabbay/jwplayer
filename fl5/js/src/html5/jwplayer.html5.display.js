@@ -436,7 +436,7 @@
 						_display.display_image.style.display = "none";
 						_imageLoading = true;
 						_display.display_image.src = _utils.getAbsolutePath(newsrc);
-					} else if (!_imageLoading) {
+					} else if (!_imageLoading && _display.display_image.style.opacity < 1) {
 						_display.display_image.style.opacity = 0;
 						_display.display_image.style.display = "block";
 						_utils.fadeTo(_display.display_image, 1, 0.1);

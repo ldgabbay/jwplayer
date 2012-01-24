@@ -40,6 +40,7 @@ function getVariable(name) {
 	}
 }
 
+
 function setDefault(name) {
 	var val = getVariable(name);
 	if (val) {

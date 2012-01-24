@@ -449,7 +449,7 @@
 			}
 			if (!_hiding) {
 				if (_icon) {
-					sendShow();
+					sendHide();
 				}
 				_hiding = true;
 			}
@@ -462,7 +462,7 @@
 			}
 			if (_hiding) {
 				if (_icon) {
-					sendHide();
+					sendShow();
 				}
 				_hiding = false;
 			}
