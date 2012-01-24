@@ -513,8 +513,10 @@
 				var element = !_utils.exists(event.target.error) ? event.target.parentNode.error : event.target.error;
 				switch (element.code) {
 					case element.MEDIA_ERR_ABORTED:
-						message = "You aborted the video playback: ";
-						break;
+						// This message doesn't need to be displayed to the user
+						_utils.log("User aborted the video playback.");
+						// Shouldn't continue error handling
+						return;
 					case element.MEDIA_ERR_NETWORK:
 						message = "A network error caused the video download to fail part-way: ";
 						break;
@@ -533,7 +535,14 @@
 				if (_sourceError > 0) {
 					return;
 				}
-				message = "The video could not be loaded, either because the server or network failed or because the format is not supported: ";
+				if (_utils.userAgentMatch(/firefox/i)) {
+					// Don't send this as an error event in firefox
+					_utils.log("The video could not be loaded, either because the server or network failed or because the format is not supported.");
+					_stop(false);
+					return;
+				} else {
+					message = "The video could not be loaded, either because the server or network failed or because the format is not supported: ";
+				}
 			} else {
 				_utils.log("An unknown error occurred.  Continuing...");
 				return;
