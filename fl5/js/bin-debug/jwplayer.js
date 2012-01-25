@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2096';
+jwplayer.version = '5.9.2097';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -6433,7 +6433,7 @@ playerReady = function(obj) {
 		var _lastState = "";
 		var _showing = true;
 		var _lastSent;
-		var _imageLoading = false;
+		var _imageLoading = false, _imageShowing = true;
 		var _currentImage = "";
 		var _hiding = false;
 		var _ready = false;
@@ -6712,6 +6712,7 @@ playerReady = function(obj) {
 		}
 		
 		function _resetPoster() {
+			_imageShowing = false;
 			_display.display_image.style.display = "none";
 		}
 		
@@ -6828,7 +6829,8 @@ playerReady = function(obj) {
 						_display.display_image.style.display = "none";
 						_imageLoading = true;
 						_display.display_image.src = _utils.getAbsolutePath(newsrc);
-					} else if (!_imageLoading && _display.display_image.style.opacity < 1) {
+					} else if (!(_imageLoading || _imageShowing)) {
+						_imageShowing = true;
 						_display.display_image.style.opacity = 0;
 						_display.display_image.style.display = "block";
 						_utils.fadeTo(_display.display_image, 1, 0.1);
@@ -7273,7 +7275,11 @@ playerReady = function(obj) {
 			// Instream display component
 			_disp = new jwplayer.html5.display(_self, _utils.extend({},_model.plugins.config.display));
 			_disp.setAlternateClickHandler(function(evt) {
-				_sendEvent(jwplayer.api.events.JWPLAYER_INSTREAM_CLICK, evt);
+				if (_fakemodel.state == jwplayer.api.events.state.PAUSED) {
+					_self.jwInstreamPlay();
+				} else {
+					_sendEvent(jwplayer.api.events.JWPLAYER_INSTREAM_CLICK, evt);
+				}
 			});
 			_instreamContainer.appendChild(_disp.getDisplayElement());
 

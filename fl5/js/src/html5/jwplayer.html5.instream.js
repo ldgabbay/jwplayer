@@ -64,7 +64,11 @@
 			// Instream display component
 			_disp = new jwplayer.html5.display(_self, _utils.extend({},_model.plugins.config.display));
 			_disp.setAlternateClickHandler(function(evt) {
-				_sendEvent(jwplayer.api.events.JWPLAYER_INSTREAM_CLICK, evt);
+				if (_fakemodel.state == jwplayer.api.events.state.PAUSED) {
+					_self.jwInstreamPlay();
+				} else {
+					_sendEvent(jwplayer.api.events.JWPLAYER_INSTREAM_CLICK, evt);
+				}
 			});
 			_instreamContainer.appendChild(_disp.getDisplayElement());
 
