@@ -24,84 +24,76 @@ formset {
             document.write("<h1>" + document.title + "</h1>");
         </script>
 
-<form><formset>
+<form action="" method="get"><formset>
 <h3>Player Options</h3>
-<label>Rendering mode</label> <select id="mode">
+<label>Rendering mode</label> <select id="mode" name="mode">
 	<option id="mode_flash" value="flash" selected="selected">Flash
 	-> HTML5</option>
 	<option id="mode_html5" value="html5">HTML5 -> Flash</option>
 </select><br />
-<label>Instream Timing</label> <select id="timing"
-	onchange="return setupAll();">
+<label>Instream Timing</label> <select id="timing" name="timing">
 	<option id="timing_beforeplay" value="beforeplay" selected="selected">onBeforePlay</option>
 	<option id="timing_button" value="button">Button click</option>
 	<option id="timing_time" value="time">At 5 seconds</option>
 	<option id="timing_complete" value="complete">onComplete</option>
-	<option id="timing_plugin" value="plugin">InStream Ad Plugin (Flash only)</option>
+	<option id="timing_plugin" value="plugin">InStream Ad Plugin
+	(Flash only)</option>
 </select><br />
-<label>Controlbar Position</label> <select id="controlbar"
-	onchange="return setupAll();">
+<label>Controlbar Position</label> <select id="controlbar" name="controlbar">
 	<option id="controlbar_over" value="over" selected="selected">Over</option>
 	<option id="controlbar_bottom" value="bottom">Bottom</option>
 	<option id="controlbar_top" value="top">Top</option>
 </select><br />
-<label>Playlist Position</label> <select id="playlist"
-	onchange="return setupAll();">
+<label>Playlist Position</label> <select id="playlist" name="playlist">
 	<option id="playlist_none" value="none" selected="selected">None</option>
 	<option id="playlist_right" value="right">Right</option>
 </select><br />
-<label>Repeat</label> <select id="repeat" onchange="return setupAll();">
+<label>Repeat</label> <select id="repeat" name="repeat">
 	<option id="repeat_none" value="none" selected="selected">None</option>
 	<option id="repeat_list" value="list">List</option>
 	<option id="repeat_always" value="always">Always</option>
 	<option id="repeat_single" value="single">Single</option>
 </select><br />
-<label>Skin</label> <select id="skin" onchange="return setupAll();">
+<label>Skin</label> <select id="skin" name="skin">
 	<option id="skin_" value="" selected="selected">None</option>
 	<option id="skin_beelden" value="beelden">Beelden</option>
 	<option id="skin_classic" value="classic">Classic</option>
 </select><br />
-<label>Stretching</label> <select id="stretching"
-	onchange="return setupAll();">
+<label>Stretching</label> <select id="stretching" name="stretching">
 	<option id="stretching_uniform" value="uniform" selected="selected">Uniform</option>
 	<option id="stretching_exactfit" value="exactfit">Exactfit</option>
 	<option id="stretching_fill" value="fill">Fill</option>
 	<option id="stretching_none" value="none">None</option>
 </select> </formset> <formset>
 <h3>InStream Options</h3>
-<label>Controlbar Seekable</label> <select id="seekable"
-	onchange="return setupAll();">
+<label>Controlbar Seekable</label> <select id="seekable" name="seekable">
 	<option id="seekable_always" value="always" selected="selected">Always</option>
 	<option id="seekable_never" value="never">Never</option>
 	<option id="seekable_backwards" value="backwards">Backwards</option>
 </select><br />
-<label>Controlbar Pausable</label> <select id="controlbarpausable"
-	onchange="return setupAll();">
+<label>Controlbar Pausable</label> <select id="controlbarpausable" name="controlbarpausable">
 	<option id="controlbarpausable_true" value="true" selected="selected">True</option>
 	<option id="controlbarpausable_false" value="false">False</option>
 </select><br />
-<label>Controlbar Stoppable</label> <select id="controlbarstoppable"
-	onchange="return setupAll();">
+<label>Controlbar Stoppable</label> <select id="controlbarstoppable" name="controlbarstoppable">
 	<option id="controlbarstoppable_true" value="true" selected="selected">True</option>
 	<option id="controlbarstoppable_false" value="false">False</option>
 </select><br />
-<label>Playlist Clickable</label> <select id="playlistclickable"
-	onchange="return setupAll();">
+<label>Playlist Clickable</label> <select id="playlistclickable" name="playlistclickable">
 	<option id="playlistclickable_true" value="true" selected="selected">True</option>
 	<option id="playlistclickable_false" value="false">False</option>
 </select><br />
-<label>Autoload</label> <select id="autoload"
-	onchange="return setupAll();">
+<label>Autoload</label> <select id="autoload" name="autoload">
 	<option id="autoload_false" value="false" selected="selected">False</option>
 	<option id="autoload_true" value="true">True</option>
 </select><br />
 </formset> <formset>
 <h3>Log Events</h3>
-<label>Action</label> <select id="log">
+<label>Action</label> <select id="log" name="log">
 	<option id="log_console" value="console" selected="selected">console.log</option>
 	<option id="log_alert" value="alert">alert</option>
 </select><br />
-<label>Event</label> <select id="events" multiple="multiple" size="10">
+<label>Event</label> <select id="events" multiple="multiple" size="10" name="events" multiple="multiple" size="10">
 	<option id="events_onPlay" value="onPlay">onPlay</option>
 	<option id="events_onPause" value="onPause">onPause</option>
 	<option id="events_onBuffer" value="onBuffer">onBuffer</option>
@@ -118,8 +110,7 @@ formset {
 	<option id="events_onInstreamDestroyed" value="onInstreamDestroyed">onInstreamDestroyed</option>
 </select> </formset>
 
-<button id="go" onclick="return setupAll();"
-	style="float: left; clear: left">Update</button>
+<input type="submit" id="go" style="float: left; clear: left" value="Update" />
 </form>
 </p>
 
@@ -308,7 +299,9 @@ Getters</button>
 
 
 			function setDefaultEvents() {
-				var selectedEvents = getVariable("events").split(',');
+				var events = getVariable("events");
+				if (!events) return;
+				var selectedEvents = events.split(',');
 				for (var i=0; i<selectedEvents.length; i++) {
 					var opt = document.getElementById("events_"+selectedEvents[i]);
 					if (opt) {

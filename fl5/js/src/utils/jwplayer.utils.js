@@ -2,7 +2,7 @@
  * Utility methods for the JW Player.
  * 
  * @author zach, pablo
- * @version 5.8
+ * @version 5.9
  */
 (function(jwplayer) {
 
@@ -232,11 +232,9 @@
 		return jwplayer.utils.userAgentMatch(/blackberry/i);
 	};
 	
+	/** Matches iOS and Android devices **/	
 	jwplayer.utils.isMobile = function() {
-		// Simply return iOS for now
-		return jwplayer.utils.isIOS();
-		// Later this function will include other mobile platforms
-		//return jwplayer.utils.userAgentMatch(/(iP(hone|ad|od))|android|blackberry/i);
+		return jwplayer.utils.userAgentMatch(/(iP(hone|ad|od))|android/i);
 	}
 
 

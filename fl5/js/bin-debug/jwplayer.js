@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2097';
+jwplayer.version = '5.9.2098';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -27,7 +27,7 @@ jwplayer.source = document.createElement("source");/**
  * Utility methods for the JW Player.
  * 
  * @author zach, pablo
- * @version 5.8
+ * @version 5.9
  */
 (function(jwplayer) {
 
@@ -257,11 +257,9 @@ jwplayer.source = document.createElement("source");/**
 		return jwplayer.utils.userAgentMatch(/blackberry/i);
 	};
 	
+	/** Matches iOS and Android devices **/	
 	jwplayer.utils.isMobile = function() {
-		// Simply return iOS for now
-		return jwplayer.utils.isIOS();
-		// Later this function will include other mobile platforms
-		//return jwplayer.utils.userAgentMatch(/(iP(hone|ad|od))|android|blackberry/i);
+		return jwplayer.utils.userAgentMatch(/(iP(hone|ad|od))|android/i);
 	}
 
 
@@ -3261,18 +3259,26 @@ playerReady = function(obj) {
 /**
  * Configuration for the JW Player Embedder
  * @author Zach
- * @version 5.7
+ * @version 5.9
  */
 (function(jwplayer) {
-	function _playerDefaults() {
-		return [{
+	var _utils = jwplayer.utils;
+	
+	function _playerDefaults(flashplayer) {
+		var modes = [{
 			type: "flash",
-			src: "/jwplayer/player.swf"
+			src: flashplayer ? flashplayer : "/jwplayer/player.swf"
 		}, {
 			type: 'html5'
 		}, {
 			type: 'download'
 		}];
+		if (_utils.isAndroid()) {
+			// If Android, then swap html5 and flash modes - default should be HTML5
+			modes[0] = modes.splice(1, 1, modes[0])[0];
+		}
+
+		return modes;
 	}
 	
 	var _aliases = {
@@ -3317,16 +3323,16 @@ playerReady = function(obj) {
 	
 	function getPluginNames(config) {
 		var pluginNames = {};
-		switch(jwplayer.utils.typeOf(config.plugins)){
+		switch(_utils.typeOf(config.plugins)){
 			case "object":
 				for (var plugin in config.plugins) {
-					pluginNames[jwplayer.utils.getPluginName(plugin)] = plugin;
+					pluginNames[_utils.getPluginName(plugin)] = plugin;
 				}
 				break;
 			case "string":
 				var pluginArray = config.plugins.split(",");
 				for (var i=0; i < pluginArray.length; i++) {
-					pluginNames[jwplayer.utils.getPluginName(pluginArray[i])] = pluginArray[i];	
+					pluginNames[_utils.getPluginName(pluginArray[i])] = pluginArray[i];	
 				}
 				break;
 		}
@@ -3334,18 +3340,18 @@ playerReady = function(obj) {
 	}
 	
 	function addConfigParameter(config, componentType, componentName, componentParameter){
-		if (jwplayer.utils.typeOf(config[componentType]) != "object"){
+		if (_utils.typeOf(config[componentType]) != "object"){
 			config[componentType] = {};
 		}
 		var componentConfig = config[componentType][componentName];
 
-		if (jwplayer.utils.typeOf(componentConfig) != "object") {
+		if (_utils.typeOf(componentConfig) != "object") {
 			config[componentType][componentName] = componentConfig = {};
 		}
 
 		if (componentParameter) {
 			if (componentType == "plugins") {
-				var pluginName = jwplayer.utils.getPluginName(componentName);
+				var pluginName = _utils.getPluginName(componentName);
 				componentConfig[componentParameter] = config[pluginName+"."+componentParameter];
 				delete config[pluginName+"."+componentParameter];
 			} else {
@@ -3368,7 +3374,7 @@ playerReady = function(obj) {
 				var prefix = path[0];
 				var parameter = path[1];
 
-				if (jwplayer.utils.isInArray(components, prefix)) {
+				if (_utils.isInArray(components, prefix)) {
 					addConfigParameter(config, "components", prefix, parameter);
 				} else if (pluginNames[prefix]) {
 					addConfigParameter(config, "plugins", pluginNames[prefix], parameter);
@@ -3379,7 +3385,7 @@ playerReady = function(obj) {
 	}
 	
 	jwplayer.embed.config = function(config, embedder) {
-		var parsedConfig = jwplayer.utils.extend({}, config);
+		var parsedConfig = _utils.extend({}, config);
 		
 		var _tempPlaylist;
 		
@@ -3399,7 +3405,7 @@ playerReady = function(obj) {
 				parsedConfig.plugins = {};
 			}
 			for (var plugin = 0; plugin < pluginArray.length; plugin++) {
-				var pluginName = jwplayer.utils.getPluginName(pluginArray[plugin]);
+				var pluginName = _utils.getPluginName(pluginArray[plugin]);
 				if (typeof parsedConfig[pluginName] == "object") {
 					parsedConfig.plugins[pluginArray[plugin]] = parsedConfig[pluginName];
 					delete parsedConfig[pluginName];
@@ -3411,7 +3417,7 @@ playerReady = function(obj) {
 						
 		for (var component = 0; component < components.length; component++) {
 			var comp = components[component];
-			if (jwplayer.utils.exists(parsedConfig[comp])) {
+			if (_utils.exists(parsedConfig[comp])) {
 				if (typeof parsedConfig[comp] != "object") {
 					if (!parsedConfig.components[comp]) {
 						parsedConfig.components[comp] = {};
@@ -3426,7 +3432,7 @@ playerReady = function(obj) {
 					if (!parsedConfig.components[comp]) {
 						parsedConfig.components[comp] = {};
 					}
-					jwplayer.utils.extend(parsedConfig.components[comp], parsedConfig[comp]);
+					_utils.extend(parsedConfig.components[comp], parsedConfig[comp]);
 					delete parsedConfig[comp];
 				}
 			} 
@@ -3459,13 +3465,11 @@ playerReady = function(obj) {
 		
 		var _modes;
 		if (parsedConfig.flashplayer && !parsedConfig.modes) {
-			_modes = _playerDefaults();
-			_modes[0].src = parsedConfig.flashplayer;
+			_modes = _playerDefaults(parsedConfig.flashplayer);
 			delete parsedConfig.flashplayer;
 		} else if (parsedConfig.modes) {
 			if (typeof parsedConfig.modes == "string") {
-				_modes = _playerDefaults();
-				_modes[0].src = parsedConfig.modes;
+				_modes = _playerDefaults(parsedConfig.modes);
 			} else if (parsedConfig.modes instanceof Array) {
 				_modes = parsedConfig.modes;
 			} else if (typeof parsedConfig.modes == "object" && parsedConfig.modes.type) {
