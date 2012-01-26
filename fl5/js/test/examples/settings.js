@@ -23,8 +23,8 @@ var settings = {
     flashonly: [{type:'flash',src:'../../../player.swf'}],
     html5only: [{type:'html5'}],
     flashhtml5: [{type:'flash',src:'../../../player.swf'},{type:'html5'}],
-    flash: [{type:'flash',src:'../../../player.swf'},{type:'html5'}],
-    html5: [{type:'html5'},{type:'flash',src:'../../../player.swf'}],
+    flash: [{type:'flash',src:'../../../player.swf'},{type:'html5'},{type:'download'}],
+    html5: [{type:'html5'},{type:'flash',src:'../../../player.swf'},{type:'download'}],
     standard: [{type:'flash',src:'../../../player.swf'},{type:'html5'},{type:'download'}]
  }
 
