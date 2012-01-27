@@ -977,7 +977,8 @@
 		
 		function _setMouseListeners() {
 			try {
-				_root = document.getElementById(_api.id);
+				var id = (_api.id.indexOf("_instream") > 0 ? _api.id.replace("_instream","") : _api.id);
+				_root = document.getElementById(id);
 				_root.addEventListener("mousemove", _setVisibility);
 			} catch (e) {
 				_utils.log("Could not add mouse listeners to controlbar: " + e);

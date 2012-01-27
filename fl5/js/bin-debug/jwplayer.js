@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2098';
+jwplayer.version = '5.9.2100';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -5798,7 +5798,8 @@ playerReady = function(obj) {
 		
 		function _setMouseListeners() {
 			try {
-				_root = document.getElementById(_api.id);
+				var id = (_api.id.indexOf("_instream") > 0 ? _api.id.replace("_instream","") : _api.id);
+				_root = document.getElementById(id);
 				_root.addEventListener("mousemove", _setVisibility);
 			} catch (e) {
 				_utils.log("Could not add mouse listeners to controlbar: " + e);
@@ -7290,7 +7291,12 @@ playerReady = function(obj) {
 			// Instream controlbar (if not iOS/Android)
 			if (!_utils.isMobile()) {
 				_cbar = new jwplayer.html5.controlbar(_self, _utils.extend({},_model.plugins.config.controlbar, {}));
-				_instreamContainer.appendChild(_cbar.getDisplayElement());
+				if (_model.plugins.config.controlbar.position == jwplayer.html5.view.positions.OVER) {
+					_instreamContainer.appendChild(_cbar.getDisplayElement());
+				} else {
+					var cbarParent = _model.plugins.object.controlbar.getDisplayElement().parentNode;
+					cbarParent.appendChild(_cbar.getDisplayElement());
+				}
 			}
 
 			// Show the instream layer
@@ -7530,7 +7536,7 @@ playerReady = function(obj) {
 		this.jwRemoveEventListener = function(type, handler) { _dispatcher.removeEventListener(type, handler); };
 
 		this.skin = _api.skin;
-		this.id = _api.id;
+		this.id = _api.id + "_instream";
 
 		_init();
 		return this;

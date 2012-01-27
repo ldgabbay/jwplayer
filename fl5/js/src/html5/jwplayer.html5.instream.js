@@ -75,7 +75,12 @@
 			// Instream controlbar (if not iOS/Android)
 			if (!_utils.isMobile()) {
 				_cbar = new jwplayer.html5.controlbar(_self, _utils.extend({},_model.plugins.config.controlbar, {}));
-				_instreamContainer.appendChild(_cbar.getDisplayElement());
+				if (_model.plugins.config.controlbar.position == jwplayer.html5.view.positions.OVER) {
+					_instreamContainer.appendChild(_cbar.getDisplayElement());
+				} else {
+					var cbarParent = _model.plugins.object.controlbar.getDisplayElement().parentNode;
+					cbarParent.appendChild(_cbar.getDisplayElement());
+				}
 			}
 
 			// Show the instream layer
@@ -315,7 +320,7 @@
 		this.jwRemoveEventListener = function(type, handler) { _dispatcher.removeEventListener(type, handler); };
 
 		this.skin = _api.skin;
-		this.id = _api.id;
+		this.id = _api.id + "_instream";
 
 		_init();
 		return this;
