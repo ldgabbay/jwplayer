@@ -332,7 +332,7 @@ package com.longtailvideo.jwplayer.view.components {
 			} else {
 				hideButton('pause');
 			}
-			if (player.playlist.length <= 1 || player.config.playlist.toLowerCase() != "none") {
+			if (!getConfigParam('forcenextprev') && (player.playlist.length <= 1 || player.config.playlist.toLowerCase() != "none")) {
 //				newLayout = newLayout.replace("|prev|next", "");
 				newLayout = newLayout.replace(/\|?(prev|next)/g, "");
 				hideButton('prev');

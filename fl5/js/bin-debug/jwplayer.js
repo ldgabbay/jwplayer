@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2101';
+jwplayer.version = '5.9.2102';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4839,6 +4839,7 @@ playerReady = function(obj) {
 		position: jwplayer.html5.view.positions.BOTTOM,
 		idlehide: false,
 		hideplaylistcontrols: false,
+		forcenextprev: false,
 		layout: {
 			"left": {
 				"position": "left",
@@ -5311,9 +5312,11 @@ playerReady = function(obj) {
 					styleFloat: "left",
 					cssFloat: "left"
 				};
-				if ((element.indexOf("next") === 0 || element.indexOf("prev") === 0) && (_api.jwGetPlaylist().length < 2 || _settings.hideplaylistcontrols)) {
-					offset = false;
-					css.display = "none";
+				if ((element.indexOf("next") === 0 || element.indexOf("prev") === 0) && (_api.jwGetPlaylist().length < 2 || _settings.hideplaylistcontrols.toString()=="true")) {
+					if (_settings.forcenextprev.toString() != "true") {
+						offset = false;
+						css.display = "none";
+					}
 				}
 				var wid;
 				if (element.indexOf("Text") > 0) {
@@ -5401,7 +5404,7 @@ playerReady = function(obj) {
 		
 		function _playlistHandler() {
 			if (!_settings.hideplaylistcontrols) {
-				if (_api.jwGetPlaylist().length > 1) {
+				if (_api.jwGetPlaylist().length > 1 || _settings.forcenextprev.toString()=="true") {
 					_show(_elements.nextButton);
 					_show(_elements.prevButton);
 				} else {
