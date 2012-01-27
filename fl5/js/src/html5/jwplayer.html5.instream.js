@@ -109,6 +109,8 @@
 			_provider.detachMedia();
 			// Return the view to its normal state
 			_view.destroyInstream();
+			// If we added the controlbar anywhere, let's get rid of it
+			if (_cbar) try { _cbar.getDisplayElement().parentNode.removeChild(_cbar.getDisplayElement()); } catch(e) {}
 			// Let listeners know the instream player has been destroyed, and why
 			_sendEvent(jwplayer.api.events.JWPLAYER_INSTREAM_DESTROYED, {reason:(complete ? "complete":"destroyed")}, true);
 			// Re-attach the controller
