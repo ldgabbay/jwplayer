@@ -38,7 +38,7 @@
 		var _bufferRotation = !_utils.exists(_api.skin.getComponentSettings("display").bufferrotation) ? 15 : parseInt(_api.skin.getComponentSettings("display").bufferrotation, 10);
 		var _bufferInterval = !_utils.exists(_api.skin.getComponentSettings("display").bufferinterval) ? 100 : parseInt(_api.skin.getComponentSettings("display").bufferinterval, 10);
 		var _updateTimeout = -1;
-		var _lastState = "";
+		var _lastState = jwplayer.api.events.state.IDLE;
 		var _showing = true;
 		var _lastSent;
 		var _imageLoading = false, _imageShowing = true;

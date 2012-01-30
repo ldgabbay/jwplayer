@@ -19,6 +19,7 @@
 	
 	var _allvideos = {};
 	
+	
 	jwplayer.html5.mediavideo = function(model, container) {
 		var _events = {
 			'abort': _generalHandler,
@@ -189,7 +190,7 @@
 		/**
 		 * Stop the playing video and unload it
 		 */
-		_stop = this.stop = function(clear) {
+		var _stop = this.stop = function(clear) {
 			if (!_attached) return;
 			
 			if (!_utils.exists(clear)) {
@@ -313,9 +314,6 @@
 				_container.parentNode.replaceChild(_video, _container);
 			}
 			
-			if (!_video.id) {
-				_video.id = _container.id;
-			}
 		}
 		
 		function _getVideoElement() {
@@ -326,10 +324,13 @@
 				} else {
 					vid = document.createElement("video");
 				}
+				_allvideos[_model.id] = vid;
+				if (!vid.id) {
+					vid.id = _container.id;
+				}
 				for (var event in _events) {
 					vid.addEventListener(event, _handleMediaEvent(event, _events[event]), true);
 				}
-				_allvideos[_model.id] = vid;
 			}
 			return _allvideos[_model.id];
 		}
@@ -650,4 +651,5 @@
 		}
 		
 	};
+
 })(jwplayer);

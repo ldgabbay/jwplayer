@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2108';
+jwplayer.version = '5.9.2109';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -6438,7 +6438,7 @@ playerReady = function(obj) {
 		var _bufferRotation = !_utils.exists(_api.skin.getComponentSettings("display").bufferrotation) ? 15 : parseInt(_api.skin.getComponentSettings("display").bufferrotation, 10);
 		var _bufferInterval = !_utils.exists(_api.skin.getComponentSettings("display").bufferinterval) ? 100 : parseInt(_api.skin.getComponentSettings("display").bufferinterval, 10);
 		var _updateTimeout = -1;
-		var _lastState = "";
+		var _lastState = jwplayer.api.events.state.IDLE;
 		var _showing = true;
 		var _lastSent;
 		var _imageLoading = false, _imageShowing = true;
@@ -7747,6 +7747,7 @@ playerReady = function(obj) {
 	
 	var _allvideos = {};
 	
+	
 	jwplayer.html5.mediavideo = function(model, container) {
 		var _events = {
 			'abort': _generalHandler,
@@ -7917,7 +7918,7 @@ playerReady = function(obj) {
 		/**
 		 * Stop the playing video and unload it
 		 */
-		_stop = this.stop = function(clear) {
+		var _stop = this.stop = function(clear) {
 			if (!_attached) return;
 			
 			if (!_utils.exists(clear)) {
@@ -8041,9 +8042,6 @@ playerReady = function(obj) {
 				_container.parentNode.replaceChild(_video, _container);
 			}
 			
-			if (!_video.id) {
-				_video.id = _container.id;
-			}
 		}
 		
 		function _getVideoElement() {
@@ -8054,10 +8052,13 @@ playerReady = function(obj) {
 				} else {
 					vid = document.createElement("video");
 				}
+				_allvideos[_model.id] = vid;
+				if (!vid.id) {
+					vid.id = _container.id;
+				}
 				for (var event in _events) {
 					vid.addEventListener(event, _handleMediaEvent(event, _events[event]), true);
 				}
-				_allvideos[_model.id] = vid;
 			}
 			return _allvideos[_model.id];
 		}
@@ -8378,6 +8379,7 @@ playerReady = function(obj) {
 		}
 		
 	};
+
 })(jwplayer);
 /**
  * JW Player YouTube Media component
