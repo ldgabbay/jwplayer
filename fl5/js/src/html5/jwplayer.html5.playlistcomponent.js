@@ -321,7 +321,7 @@
 		function _rebuildPlaylist(evt) {
 			_wrapper.innerHTML = "";
 			
-			_playlist = _api.jwGetPlaylist();
+			_playlist = _getPlaylist();
 			if (!_playlist) {
 				return;
 			}
@@ -345,6 +345,17 @@
 				var myscroll = new iScroll(_wrapper.id);
 			}
 			
+		}
+		
+		function _getPlaylist() {
+			var list = _api.jwGetPlaylist();
+			var strippedList = [];
+			for (var i=0; i<list.length; i++) {
+				if (!list[i]['ova.hidden']) {
+					strippedList.push(list[i]);
+				}
+			}
+			return strippedList;
 		}
 		
 		function _clickHandler(index) {

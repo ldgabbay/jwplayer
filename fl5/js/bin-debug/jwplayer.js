@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2102';
+jwplayer.version = '5.9.2108';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -9300,7 +9300,7 @@ playerReady = function(obj) {
 		function _rebuildPlaylist(evt) {
 			_wrapper.innerHTML = "";
 			
-			_playlist = _api.jwGetPlaylist();
+			_playlist = _getPlaylist();
 			if (!_playlist) {
 				return;
 			}
@@ -9324,6 +9324,17 @@ playerReady = function(obj) {
 				var myscroll = new iScroll(_wrapper.id);
 			}
 			
+		}
+		
+		function _getPlaylist() {
+			var list = _api.jwGetPlaylist();
+			var strippedList = [];
+			for (var i=0; i<list.length; i++) {
+				if (!list[i]['ova.hidden']) {
+					strippedList.push(list[i]);
+				}
+			}
+			return strippedList;
 		}
 		
 		function _clickHandler(index) {
