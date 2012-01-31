@@ -10,6 +10,7 @@
 			prefix: 'http://l.longtailvideo.com/'+mode+'/',
 			file: "logo.png",
 			link: "http://www.longtailvideo.com/players/jw-flv-player/",
+			linktarget: "_top",
 			margin: 8,
 			out: 0.5,
 			over: 1,
@@ -101,7 +102,7 @@
 				evt.stopPropagation();
 			}
 			if (_settings.link) {
-				window.open(_settings.link, "_blank");
+				window.open(_settings.link, _settings.linktarget);
 			}
 			return;
 		}
