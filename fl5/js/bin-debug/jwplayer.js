@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2110';
+jwplayer.version = '5.9.2115';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -700,8 +700,7 @@ jwplayer.source = document.createElement("source");/**
 	 *            The string to replace in the object's key names
 	 * @returns The modified object.
 	 */
-	jwplayer.utils.deepReplaceKeyName = function(obj, searchString,
-			replaceString) {
+	jwplayer.utils.deepReplaceKeyName = function(obj, searchString, replaceString) {
 		switch (jwplayer.utils.typeOf(obj)) {
 		case "array":
 			for ( var i = 0; i < obj.length; i++) {
@@ -711,10 +710,23 @@ jwplayer.source = document.createElement("source");/**
 			break;
 		case "object":
 			for ( var key in obj) {
-				var newkey = key.replace(new RegExp(searchString, "g"),
-						replaceString);
-				obj[newkey] = jwplayer.utils.deepReplaceKeyName(obj[key],
-						searchString, replaceString);
+				var searches, replacements;
+				if (searchString instanceof Array && replaceString instanceof Array) {
+					if (searchString.length != replaceString.length)
+						continue;
+					else {
+						searches = searchString;
+						replacements = replaceString;
+					}
+				} else {
+					searches = [searchString];
+					replacements = [replaceString];
+				}
+				var newkey = key;
+				for (var i=0; i < searches.length; i++) {
+					newkey = newkey.replace(new RegExp(searchString[i], "g"), replaceString[i]);
+				}
+				obj[newkey] = jwplayer.utils.deepReplaceKeyName(obj[key], searchString, replaceString);
 				if (key != newkey) {
 					delete obj[key];
 				}
@@ -899,6 +911,8 @@ jwplayer.source = document.createElement("source");/**
 			// Takes ViewEvent "data" block and moves it up a level
 			translated = jwplayer.utils.extend(translated, translated.data);
 			delete translated.data;
+		} else if (typeof translated.metadata == "object") {
+			jwplayer.utils.deepReplaceKeyName(translated.metadata, ["__dot__","__spc__","__dsh__"], ["."," ","-"]);
 		}
 		
 		var rounders = ["position", "duration", "offset"];
@@ -2473,7 +2487,7 @@ jwplayer.source = document.createElement("source");/**
 		this.getPlaylist = function() {
 			var playlist = this.callInternal('jwGetPlaylist');
 			if (this.renderingMode == "flash") {
-				jwplayer.utils.deepReplaceKeyName(playlist, "__dot__", ".");	
+				jwplayer.utils.deepReplaceKeyName(playlist, ["__dot__","__spc__","__dsh__"], ["."," ","-"]);	
 			}
 			for (var i = 0; i < playlist.length; i++) {
 				if (!jwplayer.utils.exists(playlist[i].index)) {
@@ -4510,7 +4524,8 @@ playerReady = function(obj) {
 				}; 
 				_css(_box, boxStyle);
 				var displayDimensions = {}
-				var display = _model.plugins.object['display'].getDisplayElement();
+				var display;
+				try { display = _model.plugins.object['display'].getDisplayElement(); } catch(e) {}
 				if(display) {
 					displayDimensions.width = _utils.parseDimension(display.style.width);
 					displayDimensions.height = _utils.parseDimension(display.style.height);

@@ -675,8 +675,7 @@
 	 *            The string to replace in the object's key names
 	 * @returns The modified object.
 	 */
-	jwplayer.utils.deepReplaceKeyName = function(obj, searchString,
-			replaceString) {
+	jwplayer.utils.deepReplaceKeyName = function(obj, searchString, replaceString) {
 		switch (jwplayer.utils.typeOf(obj)) {
 		case "array":
 			for ( var i = 0; i < obj.length; i++) {
@@ -686,10 +685,23 @@
 			break;
 		case "object":
 			for ( var key in obj) {
-				var newkey = key.replace(new RegExp(searchString, "g"),
-						replaceString);
-				obj[newkey] = jwplayer.utils.deepReplaceKeyName(obj[key],
-						searchString, replaceString);
+				var searches, replacements;
+				if (searchString instanceof Array && replaceString instanceof Array) {
+					if (searchString.length != replaceString.length)
+						continue;
+					else {
+						searches = searchString;
+						replacements = replaceString;
+					}
+				} else {
+					searches = [searchString];
+					replacements = [replaceString];
+				}
+				var newkey = key;
+				for (var i=0; i < searches.length; i++) {
+					newkey = newkey.replace(new RegExp(searchString[i], "g"), replaceString[i]);
+				}
+				obj[newkey] = jwplayer.utils.deepReplaceKeyName(obj[key], searchString, replaceString);
 				if (key != newkey) {
 					delete obj[key];
 				}
@@ -874,6 +886,8 @@
 			// Takes ViewEvent "data" block and moves it up a level
 			translated = jwplayer.utils.extend(translated, translated.data);
 			delete translated.data;
+		} else if (typeof translated.metadata == "object") {
+			jwplayer.utils.deepReplaceKeyName(translated.metadata, ["__dot__","__spc__","__dsh__"], ["."," ","-"]);
 		}
 		
 		var rounders = ["position", "duration", "offset"];

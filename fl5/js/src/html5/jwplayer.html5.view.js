@@ -239,7 +239,8 @@
 				}; 
 				_css(_box, boxStyle);
 				var displayDimensions = {}
-				var display = _model.plugins.object['display'].getDisplayElement();
+				var display;
+				try { display = _model.plugins.object['display'].getDisplayElement(); } catch(e) {}
 				if(display) {
 					displayDimensions.width = _utils.parseDimension(display.style.width);
 					displayDimensions.height = _utils.parseDimension(display.style.height);

@@ -123,7 +123,7 @@
 		this.getPlaylist = function() {
 			var playlist = this.callInternal('jwGetPlaylist');
 			if (this.renderingMode == "flash") {
-				jwplayer.utils.deepReplaceKeyName(playlist, "__dot__", ".");	
+				jwplayer.utils.deepReplaceKeyName(playlist, ["__dot__","__spc__","__dsh__"], ["."," ","-"]);	
 			}
 			for (var i = 0; i < playlist.length; i++) {
 				if (!jwplayer.utils.exists(playlist[i].index)) {
