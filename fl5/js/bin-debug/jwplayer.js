@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2117';
+jwplayer.version = '5.9.2118';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -2803,19 +2803,12 @@ jwplayer.source = document.createElement("source");/**
 		};
 
 		this.callInternal = function() {
-			/*this.callInternal = function() {
-			 var	funcName = arguments[0],
-			 args = [];
-			 for (var argument = 1; argument < arguments.length; argument++){
-			 args[argument] = arguments[argument];
-			 }*/
-
 			if (_playerReady) {
 				var funcName = arguments[0],
-					args = [];
-				
+				args = [];
+			
 				for (var argument = 1; argument < arguments.length; argument++) {
-					 args.push(arguments[argument]);
+					args.push(arguments[argument]);
 				}
 				
 				if (typeof _player != "undefined" && typeof _player[funcName] == "function") {
@@ -2829,10 +2822,7 @@ jwplayer.source = document.createElement("source");/**
 				}
 				return null;
 			} else {
-				_queuedCalls.push({
-					method: funcName,
-					parameters: args
-				});
+				_queuedCalls.push(arguments);
 			}
 		};
 		
@@ -2858,8 +2848,7 @@ jwplayer.source = document.createElement("source");/**
 			this.dispatchEvent(jwplayer.api.events.API_READY);
 			
 			while (_queuedCalls.length > 0) {
-				var call = _queuedCalls.shift();
-				this.callInternal(call.method, call.parameters);
+				this.callInternal.apply(this, _queuedCalls.shift());
 			}
 		};
 		
