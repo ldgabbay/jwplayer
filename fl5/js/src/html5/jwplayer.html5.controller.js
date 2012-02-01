@@ -276,7 +276,7 @@
 				if (_model.playlist[item].levels[0].file.length > 0) {
 					var oldstate = _model.state;
 					if (oldstate !== jwplayer.api.events.state.IDLE) {
-						if (_model.playlist[_model.item].provider == _model.playlist[item].provider) {
+						if (_model.playlist[_model.item] && _model.playlist[_model.item].provider == _model.playlist[item].provider) {
 							_stop(false);
 						} else {
 							_stop();
