@@ -41,6 +41,8 @@ package com.longtailvideo.jwplayer.player {
 		protected var _isItem:PlaylistItem;
 		protected var _isConfig:IInstreamOptions;
 		
+		protected var _destroyed:Boolean = false;
+		
 		public function JavascriptAPI(player:IPlayer) {
 			_listeners = {};
 			_lockPlugin = new AbstractPlugin();
@@ -64,7 +66,7 @@ package com.longtailvideo.jwplayer.player {
 				if (ExternalInterface.available) {
 					for each (var callback:String in callbacks.replace(/\s/,"").split(",")) {
 						try {
-							ExternalInterface.call(callback,{
+							callJS(callback,{
 								id:evt.id,
 								client:evt.client,
 								version:evt.version
@@ -113,11 +115,11 @@ package com.longtailvideo.jwplayer.player {
 		}
 		
 		protected function updateVolumeCookie(evt:MediaEvent):void {
-			ExternalInterface.call("function(vol) { try { jwplayer.utils.saveCookie('volume', vol) } catch(e) {} }", evt.volume.toString());
+			callJS("function(vol) { try { jwplayer.utils.saveCookie('volume', vol) } catch(e) {} }", evt.volume.toString());
 		}
 
 		protected function updateMuteCookie(evt:MediaEvent):void {
-			ExternalInterface.call("function(state) { try { jwplayer.utils.saveCookie('mute', state) } catch(e) {} }", evt.mute.toString());
+			callJS("function(state) { try { jwplayer.utils.saveCookie('mute', state) } catch(e) {} }", evt.mute.toString());
 		}
 
 		protected function setupJSListeners():void {
@@ -166,7 +168,10 @@ package com.longtailvideo.jwplayer.player {
 				
 				// Instream API
 				ExternalInterface.addCallback("jwLoadInstream", js_loadInstream);
-				
+
+				// The player shouldn't send any events if it's been destroyed
+				ExternalInterface.addCallback("jwDestroyAPI", js_destroyAPI);
+
 				// UNIMPLEMENTED
 				//ExternalInterface.addCallback("jwGetBandwidth", js_getBandwidth); 
 				//ExternalInterface.addCallback("jwGetLevel", js_getLevel);
@@ -236,11 +241,11 @@ package com.longtailvideo.jwplayer.player {
 				for each (var call:String in callbacks) {
 					// Not a great workaround, but the JavaScript API competes with the Controller when dealing with certain events
 					if (synchronousEvents.indexOf(evt.type) >= 0) {
-						ExternalInterface.call(call, args);
+						callJS(call, args);
 					} else {
 						//Insert 1ms delay to allow all Flash listeners to complete before notifying JavaScript
 						setTimeout(function():void {
-							ExternalInterface.call(call, args);
+							callJS(call, args);
 						}, 0);
 					}
 				}
@@ -534,6 +539,16 @@ package com.longtailvideo.jwplayer.player {
 		
 		protected function js_hideDisplay():void {
 			setComponentVisibility(_player.controls.display, false);
+		}
+
+		protected function js_destroyAPI():void {
+			_destroyed = true;
+		}
+
+		protected function callJS(functionName:String, args:*):void {
+			if (!_destroyed) {
+				ExternalInterface.call(functionName, args);
+			}
 		}
 
 		

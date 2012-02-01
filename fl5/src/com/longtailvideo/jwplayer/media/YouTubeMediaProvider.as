@@ -156,7 +156,7 @@ package com.longtailvideo.jwplayer.media {
 						error("Invalid video ID: " + _videoId);
 						break;
 					case 100:
-						error("The requested video could not found, or has been marked as private.");
+						error("The requested video could not be found, or has been marked as private.");
 						break;
 					case 101:
 					case 150:
