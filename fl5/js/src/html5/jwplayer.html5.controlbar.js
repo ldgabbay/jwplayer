@@ -811,8 +811,10 @@
 			if (_utils.exists(event.position)) {
 				_currentPosition = event.position;
 			}
-			if (_utils.exists(event.duration)) {
+			var newDuration = false;
+			if (_utils.exists(event.duration) && event.duration != _currentDuration) {
 				_currentDuration = event.duration;
+				newDuration = true;
 			}
 			var progress = (_currentPosition === _currentDuration === 0) ? 0 : _currentPosition / _currentDuration;
 			var progressElement = _positions.timeSliderRail;
@@ -837,6 +839,9 @@
 			}
 			if (_elements.elapsedText) {
 				_elements.elapsedText.innerHTML = _utils.timeFormat(_currentPosition);
+			}
+			if (newDuration) {
+				_resizeBar();
 			}
 		}
 		

@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2118';
+jwplayer.version = '5.9.2128';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -5637,8 +5637,10 @@ playerReady = function(obj) {
 			if (_utils.exists(event.position)) {
 				_currentPosition = event.position;
 			}
-			if (_utils.exists(event.duration)) {
+			var newDuration = false;
+			if (_utils.exists(event.duration) && event.duration != _currentDuration) {
 				_currentDuration = event.duration;
+				newDuration = true;
 			}
 			var progress = (_currentPosition === _currentDuration === 0) ? 0 : _currentPosition / _currentDuration;
 			var progressElement = _positions.timeSliderRail;
@@ -5663,6 +5665,9 @@ playerReady = function(obj) {
 			}
 			if (_elements.elapsedText) {
 				_elements.elapsedText.innerHTML = _utils.timeFormat(_currentPosition);
+			}
+			if (newDuration) {
+				_resizeBar();
 			}
 		}
 		
