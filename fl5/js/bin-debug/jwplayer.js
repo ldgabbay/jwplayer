@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2148';
+jwplayer.version = '5.9.2149';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4393,6 +4393,7 @@ playerReady = function(obj) {
 					break;
 				}
 			}
+			_resizeMedia();
 		}
 
 		function _loadedHandler(evt) {
@@ -4620,6 +4621,8 @@ playerReady = function(obj) {
 			if (!media) { return; }
 			if (media && media.tagName.toLowerCase() == "video") {
 				if (!media.videoWidth || !media.videoHeight) {
+					media.style.width = _box.style.width;
+					media.style.height = _box.style.height;
 					return;
 				}
 				media.style.position = "absolute";
@@ -6844,7 +6847,6 @@ playerReady = function(obj) {
 				if (newsrc) {
 					if (newsrc != _currentImage) {
 						_currentImage = newsrc;
-						_display.display_image.style.display = "none";
 						_imageLoading = true;
 						_display.display_image.src = _utils.getAbsolutePath(newsrc);
 					} else if (!(_imageLoading || _imageShowing)) {

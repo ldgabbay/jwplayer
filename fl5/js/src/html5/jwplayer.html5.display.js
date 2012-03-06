@@ -434,7 +434,6 @@
 				if (newsrc) {
 					if (newsrc != _currentImage) {
 						_currentImage = newsrc;
-						_display.display_image.style.display = "none";
 						_imageLoading = true;
 						_display.display_image.src = _utils.getAbsolutePath(newsrc);
 					} else if (!(_imageLoading || _imageShowing)) {

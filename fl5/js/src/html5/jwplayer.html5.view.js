@@ -119,6 +119,7 @@
 					break;
 				}
 			}
+			_resizeMedia();
 		}
 
 		function _loadedHandler(evt) {
@@ -346,6 +347,8 @@
 			if (!media) { return; }
 			if (media && media.tagName.toLowerCase() == "video") {
 				if (!media.videoWidth || !media.videoHeight) {
+					media.style.width = _box.style.width;
+					media.style.height = _box.style.height;
 					return;
 				}
 				media.style.position = "absolute";
