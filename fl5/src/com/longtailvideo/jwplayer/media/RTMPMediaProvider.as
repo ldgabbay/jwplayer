@@ -13,6 +13,7 @@ package com.longtailvideo.jwplayer.media {
     import com.longtailvideo.jwplayer.utils.Configger;
     import com.longtailvideo.jwplayer.utils.Logger;
     import com.longtailvideo.jwplayer.utils.NetClient;
+    import com.longtailvideo.jwplayer.utils.Strings;
     import com.wowza.encryptionAS3.TEA;
     
     import flash.events.*;
@@ -321,10 +322,8 @@ package com.longtailvideo.jwplayer.media {
 		
 		/** Finalizes the loading process **/
 		private function finishLoad():void {
-			if (item.file.substr(-4) == '.mp3' || 
-				item.file.substr(0,4) == 'mp3:' ||
-				item.file.substr(-4) == '.aac' ||
-				item.file.substr(-4) == '.m4a') {
+			var ext:String = Strings.extension(item.file);
+			if (ext == 'mp3' || item.file.substr(0,4) == 'mp3:' || ext == 'aac' || ext == 'm4a') {
 				media = null;
 			} else if (!media) {
 				media = _video;

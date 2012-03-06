@@ -301,7 +301,7 @@ package com.longtailvideo.jwplayer.controller {
 					_lockingResume = true;
 					_interruptPlay = false;
 				} else {
-					_interruptPlay = true;
+					_interruptPlay = _preplay;
 				}
 				
 				
@@ -445,9 +445,8 @@ package com.longtailvideo.jwplayer.controller {
 					return true;
 					break;
 				default:
-					if (_preplay) {
-						_interruptPlay = true;
-					}
+					_interruptPlay = _preplay;
+					break;
 			}
 
 			return false;
@@ -463,7 +462,7 @@ package com.longtailvideo.jwplayer.controller {
 				return false;
 			}
 			
-			_interruptPlay = true;
+			_interruptPlay = _preplay;
 
 			switch (_model.media.state) {
 				case PlayerState.PLAYING:

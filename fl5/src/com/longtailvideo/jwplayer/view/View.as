@@ -436,6 +436,9 @@ package com.longtailvideo.jwplayer.view {
 		}
 
 		protected function resizeMedia(width:Number, height:Number):void {
+			// Don't need to resize the media if width/height are 0 (i.e. player is hidden in the DOM)
+			if (width * height == 0) return;
+			
 			if (_mediaLayer.numChildren > 0 && _model.media.display) {
 				if (_preserveAspect && _model.media.stretchMedia) {
 					if (_fullscreen && _player.config.stretching == Stretcher.EXACTFIT) {
@@ -595,7 +598,7 @@ package com.longtailvideo.jwplayer.view {
 				} catch (e:Error) {
 					Logger.log('Could not smooth preview image: ' + e.message);
 				}
-				if (_model.state == PlayerState.IDLE) { 
+				if (_model.state != PlayerState.PLAYING && _model.state != PlayerState.PAUSED) { 
 					showImage();
 				}
 			}
