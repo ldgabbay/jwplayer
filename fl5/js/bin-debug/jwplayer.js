@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2147';
+jwplayer.version = '5.9.2148';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -8343,7 +8343,7 @@ playerReady = function(obj) {
 		
 		/** Works around a bug where iOS 3 devices require the mp4 file to be the first source listed in a multi-source <video> tag **/
 		function _iOSClean(levels) {
-			if (levels.length > 0 && _utils.userAgentMatch(/Safari/i)) {
+			if (levels.length > 0 && _utils.userAgentMatch(/Safari/i) && !_utils.userAgentMatch(/Chrome/i)) {
 				var position = -1;
 				for (var i = 0; i < levels.length; i++) {
 					switch(_utils.extension(levels[i].file)) {

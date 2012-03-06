@@ -605,7 +605,7 @@
 		
 		/** Works around a bug where iOS 3 devices require the mp4 file to be the first source listed in a multi-source <video> tag **/
 		function _iOSClean(levels) {
-			if (levels.length > 0 && _utils.userAgentMatch(/Safari/i)) {
+			if (levels.length > 0 && _utils.userAgentMatch(/Safari/i) && !_utils.userAgentMatch(/Chrome/i)) {
 				var position = -1;
 				for (var i = 0; i < levels.length; i++) {
 					switch(_utils.extension(levels[i].file)) {
