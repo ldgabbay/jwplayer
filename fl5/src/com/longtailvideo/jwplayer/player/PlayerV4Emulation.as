@@ -410,7 +410,7 @@ package com.longtailvideo.jwplayer.player {
 				playlistIndex = _player.playlist.currentIndex;
 			
 			if (playlistIndex >= 0 && playlistIndex < _player.playlist.length) {
-				navigateToURL(new URLRequest(_player.playlist.getItemAt(playlistIndex).link), _player.config.linktarget);
+				navigateToURL(new URLRequest(Strings.cleanLink(_player.playlist.getItemAt(playlistIndex).link)), _player.config.linktarget);
 			}
 		}
 	}

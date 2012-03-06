@@ -1,5 +1,4 @@
 package com.longtailvideo.jwplayer.controller {
-	import com.jeroenwijering.events.ModelStates;
 	import com.longtailvideo.jwplayer.events.GlobalEventDispatcher;
 	import com.longtailvideo.jwplayer.events.MediaEvent;
 	import com.longtailvideo.jwplayer.events.PlayerEvent;
@@ -19,11 +18,6 @@ package com.longtailvideo.jwplayer.controller {
 	
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
-	import flash.events.TimerEvent;
-	import flash.net.URLRequest;
-	import flash.net.navigateToURL;
-	import flash.utils.Timer;
-	import flash.utils.setTimeout;
 
 	/**
 	 * Sent when the player has been initialized and skins and plugins have been successfully loaded.
@@ -573,7 +567,7 @@ package com.longtailvideo.jwplayer.controller {
 				return false;
 			}
 			
-			if (_model.state != ModelStates.IDLE) {
+			if (_model.state != PlayerState.IDLE) {
 				_model.media.stop();
 			}
 			if (item is PlaylistItem) {
