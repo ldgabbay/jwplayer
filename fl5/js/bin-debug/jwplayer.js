@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2146';
+jwplayer.version = '5.9.2147';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4599,8 +4599,8 @@ playerReady = function(obj) {
 			}
 			return {
 				position: "absolute",
-				width: (_utils.getElementWidth(_box) - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right)),
-				height: (_utils.getElementHeight(_box) - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom)),
+				width: (_utils.getElementWidth(_box) - _utils.parseDimension(_box.style.right)),
+				height: (_utils.getElementHeight(_box) - _utils.parseDimension(_box.style.bottom)),
 				zIndex: zIndex
 			};
 		}

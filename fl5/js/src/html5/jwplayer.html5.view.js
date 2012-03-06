@@ -325,8 +325,8 @@
 			}
 			return {
 				position: "absolute",
-				width: (_utils.getElementWidth(_box) - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right)),
-				height: (_utils.getElementHeight(_box) - _utils.parseDimension(_box.style.top) - _utils.parseDimension(_box.style.bottom)),
+				width: (_utils.getElementWidth(_box) - _utils.parseDimension(_box.style.right)),
+				height: (_utils.getElementHeight(_box) - _utils.parseDimension(_box.style.bottom)),
 				zIndex: zIndex
 			};
 		}
