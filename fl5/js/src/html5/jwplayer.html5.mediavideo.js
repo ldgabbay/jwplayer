@@ -311,14 +311,15 @@
 			_video.setAttribute("x-webkit-airplay", "allow"); 
 			
 			if(_container.parentNode) {
+				_video.id = _container.id;
 				_container.parentNode.replaceChild(_video, _container);
 			}
 			
 		}
 		
 		function _getVideoElement() {
-			var vid;
-			if (!_allvideos[_model.id]) {
+			var vid = _allvideos[_model.id];
+			if (!vid) {
 				if (_container.tagName.toLowerCase() == "video") {
 					vid = _container;
 				} else {
@@ -328,11 +329,11 @@
 				if (!vid.id) {
 					vid.id = _container.id;
 				}
-				for (var event in _events) {
-					vid.addEventListener(event, _handleMediaEvent(event, _events[event]), true);
-				}
 			}
-			return _allvideos[_model.id];
+			for (var event in _events) {
+				vid.addEventListener(event, _handleMediaEvent(event, _events[event]), true);
+			}
+			return vid;
 		}
 		
 		/** Set the current player state **/

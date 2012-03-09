@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2149';
+jwplayer.version = '5.9.2150';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -2675,18 +2675,25 @@ jwplayer.source = document.createElement("source");/**
 			return this.stateListener(jwplayer.api.events.state.IDLE, callback);
 		};
 		this.remove = function() {
-			_listeners = {};
-			_queuedCalls = [];
-			if (jwplayer.utils.getOuterHTML(this.container) != _originalHTML) {
-				jwplayer.api.destroyPlayer(this.id, _originalHTML);
+			if (!_playerReady) {
+				throw "Cannot call remove() before player is ready";
+				return;
 			}
+			_remove(this);
 		};
+		
+		function _remove(player) {
+			_queuedCalls = [];
+			if (jwplayer.utils.getOuterHTML(player.container) != _originalHTML) {
+				jwplayer.api.destroyPlayer(player.id, _originalHTML);
+			}
+		}
 		
 		this.setup = function(options) {
 			if (jwplayer.embed) {
 				// Destroy original API on setup() to remove existing listeners
 				var newId = this.id;
-				this.remove();
+				_remove(this);
 				var newApi = jwplayer(newId);
 				newApi.config = options;
 				return new jwplayer.embed(newApi);
@@ -2771,7 +2778,11 @@ jwplayer.source = document.createElement("source");/**
 		}		
 		
 		this.addInternalListener = function(player, type) {
-			player.jwAddEventListener(type, 'function(dat) { jwplayer("' + this.id + '").dispatchEvent("' + type + '", dat); }');
+			try {
+				player.jwAddEventListener(type, 'function(dat) { jwplayer("' + this.id + '").dispatchEvent("' + type + '", dat); }');
+			} catch(e) {
+				jwplayer.utils.log("Could not add internal listener");
+			}
 		};
 		
 		this.eventListener = function(type, callback) {
@@ -2828,6 +2839,7 @@ jwplayer.source = document.createElement("source");/**
 		
 		this.playerReady = function(obj) {
 			_playerReady = true;
+			
 			if (!_player) {
 				this.setPlayer(document.getElementById(obj.id));
 			}
@@ -2970,6 +2982,7 @@ jwplayer.source = document.createElement("source");/**
 			}
 		}
 		if (index >= 0) {
+			
 			var toDestroy = document.getElementById(_players[index].id);
 			if (document.getElementById(_players[index].id + "_wrapper")) {
 				toDestroy = document.getElementById(_players[index].id + "_wrapper");
@@ -3004,6 +3017,7 @@ var _userPlayerReady = (typeof playerReady == 'function') ? playerReady : undefi
 
 playerReady = function(obj) {
 	var api = jwplayer.api.playerById(obj.id);
+
 	if (api) {
 		api.playerReady(obj);
 	} else {
@@ -8051,14 +8065,15 @@ playerReady = function(obj) {
 			_video.setAttribute("x-webkit-airplay", "allow"); 
 			
 			if(_container.parentNode) {
+				_video.id = _container.id;
 				_container.parentNode.replaceChild(_video, _container);
 			}
 			
 		}
 		
 		function _getVideoElement() {
-			var vid;
-			if (!_allvideos[_model.id]) {
+			var vid = _allvideos[_model.id];
+			if (!vid) {
 				if (_container.tagName.toLowerCase() == "video") {
 					vid = _container;
 				} else {
@@ -8068,11 +8083,11 @@ playerReady = function(obj) {
 				if (!vid.id) {
 					vid.id = _container.id;
 				}
-				for (var event in _events) {
-					vid.addEventListener(event, _handleMediaEvent(event, _events[event]), true);
-				}
 			}
-			return _allvideos[_model.id];
+			for (var event in _events) {
+				vid.addEventListener(event, _handleMediaEvent(event, _events[event]), true);
+			}
+			return vid;
 		}
 		
 		/** Set the current player state **/
