@@ -156,7 +156,7 @@
 		};
 		
 		this.resize = function(width, height) {
-			if (_api.jwGetFullscreen() && _utils.useNativeFullscreen()) {
+			if (_api.jwGetFullscreen() && _utils.isMobile()) {
 				//No need to resize components; handled by the device
 				return;
 			}

@@ -21,6 +21,7 @@
 		var _resizeInterval;
 		var _media;
 		var _falseFullscreen = false;
+		var _fsBeforePlay = false;
 		var _normalscreenWidth, _normalscreenHeight;
 		var _instremArea, _instreamMode, _instreamVideo;
 		
@@ -103,7 +104,11 @@
 			}
 			_loadedHandler();
 		}
-		
+
+		function _beforePlayHandler(evt) {
+			_fsBeforePlay = _model.fullscreen;
+		}
+
 		function _stateHandler(evt) {
 			if (_instreamMode) { return; }
 			
@@ -150,6 +155,7 @@
 			layoutComponents();
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_LOADED, _loadedHandler);
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BEFOREPLAY, _beforePlayHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, function(evt) {
 				_resizeMedia();
 			});
@@ -206,7 +212,7 @@
 			plugins.reverse();
 			_zIndex = plugins.length + 2;
 			
-			if (_useNativeFullscreen()) {
+			if (_fsBeforePlay && _useNativeFullscreen()) {
 				try {
 					// Check to see if we're in safari and the user has exited fullscreen (the model is not updated)
 					if (_model.fullscreen && !_model.getMedia().getDisplayElement().webkitDisplayingFullscreen) {

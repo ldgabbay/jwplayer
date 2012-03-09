@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2150';
+jwplayer.version = '5.9.2152';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4309,6 +4309,7 @@ playerReady = function(obj) {
 		var _resizeInterval;
 		var _media;
 		var _falseFullscreen = false;
+		var _fsBeforePlay = false;
 		var _normalscreenWidth, _normalscreenHeight;
 		var _instremArea, _instreamMode, _instreamVideo;
 		
@@ -4391,7 +4392,11 @@ playerReady = function(obj) {
 			}
 			_loadedHandler();
 		}
-		
+
+		function _beforePlayHandler(evt) {
+			_fsBeforePlay = _model.fullscreen;
+		}
+
 		function _stateHandler(evt) {
 			if (_instreamMode) { return; }
 			
@@ -4438,6 +4443,7 @@ playerReady = function(obj) {
 			layoutComponents();
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_PLAYER_STATE, _stateHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_LOADED, _loadedHandler);
+			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_BEFOREPLAY, _beforePlayHandler);
 			_api.jwAddEventListener(jwplayer.api.events.JWPLAYER_MEDIA_META, function(evt) {
 				_resizeMedia();
 			});
@@ -4494,7 +4500,7 @@ playerReady = function(obj) {
 			plugins.reverse();
 			_zIndex = plugins.length + 2;
 			
-			if (_useNativeFullscreen()) {
+			if (_fsBeforePlay && _useNativeFullscreen()) {
 				try {
 					// Check to see if we're in safari and the user has exited fullscreen (the model is not updated)
 					if (_model.fullscreen && !_model.getMedia().getDisplayElement().webkitDisplayingFullscreen) {
@@ -6583,7 +6589,7 @@ playerReady = function(obj) {
 		};
 		
 		this.resize = function(width, height) {
-			if (_api.jwGetFullscreen() && _utils.useNativeFullscreen()) {
+			if (_api.jwGetFullscreen() && _utils.isMobile()) {
 				//No need to resize components; handled by the device
 				return;
 			}
