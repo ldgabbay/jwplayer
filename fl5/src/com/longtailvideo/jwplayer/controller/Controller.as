@@ -288,9 +288,9 @@ package com.longtailvideo.jwplayer.controller {
 			var wasLocked:Boolean = locking;
 			if (_lockManager.lock(plugin, callback)) {
 				// If it was playing, pause playback and plan to resume when you're done
-				if (_player.state == PlayerState.PLAYING || _player.state == PlayerState.BUFFERING || _preplay || continueOnRepeat) {
+				if (_player.state == PlayerState.PLAYING || _player.state == PlayerState.BUFFERING || _preplay) {
 					if (!_preplay) {
-						_model.media.pause();	
+						_model.media.pause();
 					}
 					_lockingResume = true;
 					_interruptPlay = false;
@@ -381,16 +381,6 @@ package com.longtailvideo.jwplayer.controller {
 
 
 		public function play():Boolean {
-			if (!_preplay) {
-				_preplay = true;
-				dispatchEvent(new MediaEvent(MediaEvent.JWPLAYER_MEDIA_BEFOREPLAY));
-				_preplay = false;
-				if (_interruptPlay) {
-					_interruptPlay = false;
-					return false;
-				}
-			}
-			
 			if (!_playlistReady) {
 				Logger.log("Attempted to begin playback before playlist is ready");
 				return false;
@@ -405,6 +395,16 @@ package com.longtailvideo.jwplayer.controller {
 				return false;
 			}
 
+			if (!_preplay) {
+				_preplay = true;
+				dispatchEvent(new MediaEvent(MediaEvent.JWPLAYER_MEDIA_BEFOREPLAY));
+				_preplay = false;
+				if (_interruptPlay) {
+					_interruptPlay = false;
+					return false;
+				}
+			}
+			
 			if (_model.playlist.currentItem) {
 				switch (_player.state) {
 					case PlayerState.IDLE:
@@ -738,9 +738,5 @@ package com.longtailvideo.jwplayer.controller {
 			Configger.saveCookie(name, value);
 		}
 		
-		protected function get continueOnRepeat():Boolean {
-			return (_model.config.repeat != RepeatOptions.NONE);
-		}
-
 	}
 }
