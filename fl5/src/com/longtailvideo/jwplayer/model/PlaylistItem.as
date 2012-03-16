@@ -1,4 +1,5 @@
 package com.longtailvideo.jwplayer.model {
+	import com.longtailvideo.jwplayer.utils.Logger;
 	import com.longtailvideo.jwplayer.utils.Strings;
 
 	/**
@@ -28,7 +29,10 @@ package com.longtailvideo.jwplayer.model {
 		
 		public function PlaylistItem(obj:Object = null) {
 			for (var itm:String in obj) {
-				if (itm == "levels" && obj[itm] is Array) {
+				if (itm == "levels") {
+					if (!(obj[itm] is Array)) {
+						continue;						
+					}
 					var levels:Array = obj[itm] as Array;
 					for each (var level:Object in levels) {
 						if (level['file']) {
@@ -52,7 +56,11 @@ package com.longtailvideo.jwplayer.model {
 						}
 					}
 				} else {
-					this[itm] = obj[itm];
+					try {
+						this[itm] = obj[itm];
+					} catch(e:Error) {
+						Logger.log("Could not set playlist item property " + itm + " (" + e.message+")");
+					}
 				}
 			}
 		}

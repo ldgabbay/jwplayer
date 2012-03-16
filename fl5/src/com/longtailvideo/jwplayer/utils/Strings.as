@@ -227,7 +227,7 @@ package com.longtailvideo.jwplayer.utils {
 
 		/** Removes potentially harmful string headers from a link **/
 		public static function cleanLink(link:String):String {
-			return link.replace(/(javascript|asfunction|vbscript)\:/g, "");
+			return link.replace(/(javascript|asfunction|vbscript)\:/gi, "");
 		}
 		
 
