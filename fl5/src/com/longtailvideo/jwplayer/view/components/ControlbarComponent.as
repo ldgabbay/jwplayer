@@ -545,22 +545,18 @@ package com.longtailvideo.jwplayer.view.components {
 			var textField:TextField = new TextField();
 			textField.defaultTextFormat = textFormat;
 			textField.selectable = false;
-			//textField.autoSize = TextFieldAutoSize.LEFT;
+			textField.autoSize = TextFieldAutoSize.LEFT;
 			textField.name = 'text';
 
 			var textContainer:Sprite = new Sprite();
 			textContainer.name = name;
 			
 			var textBackground:DisplayObject = getSkinElement(name + 'Background'); 
-			if (!textBackground) {
-				var textbg:Sprite = new Sprite();
-				textbg.graphics.beginFill(0, 0);
-				textbg.graphics.drawRect(0, 0, 1, 1);
-				textBackground = textbg;
+			if (textBackground) {
+				textBackground.name = 'back';
+				textBackground.x = textBackground.y = 0;
+				textContainer.addChild(textBackground);
 			}
-			textBackground.name = 'back';
-			textBackground.x = textBackground.y = 0;
-			textContainer.addChild(textBackground);
 			textContainer.addChild(textField);
 			addChild(textContainer);
 			_buttons[name] = textContainer;
@@ -782,36 +778,14 @@ package com.longtailvideo.jwplayer.view.components {
 				var textContainer:Sprite = getButton(fieldName) as Sprite;
 				textContainer.tabEnabled = false;
 				textContainer.buttonMode = false;
-				var textField:TextField = textContainer.getChildByName('text') as TextField;
+				var textField:TextField = getTextField(fieldName);
 				var textBackground:DisplayObject = textContainer.getChildByName('back');
-
+				
 				if (textField && textBackground) {
-					textBackground.width = textField.textWidth + 10;
-					textBackground.height = background.height;
-
-					textField.autoSize = TextFieldAutoSize.CENTER;
-					var realWidth:Number = textField.width;
-					var realHeight:Number = textField.height;
-					textField.autoSize = TextFieldAutoSize.NONE;
-					// Some strange cropping behavior occurs when you don't do this
-					textField.width = realWidth + 1;
-					textField.height = realHeight;
-
-					if (textField.width > textBackground.width) {
-						textField.x = 0;
-						textBackground.x = Math.max(0, (textBackground.width - textField.width) / 2);
-					} else {
-						textBackground.x = 0;
-						textField.x = Math.max(0, (textBackground.width - textField.width) / 2);
-					}
-					
-					if (textField.height > textBackground.height) {
-						textField.y = 0;
-						textBackground.y = (textField.height - textBackground.height) / 2;
-					} else {
-						textBackground.y = 0;
-						textField.y = (textBackground.height - textField.height) / 2;
-					}
+					textBackground.width = textField.textWidth + 10; 
+					textBackground.height = background.height; 
+					textField.x = (textBackground.width - textField.width) / 2; 
+					textField.y = (textBackground.height - textField.height) / 2;
 				}
 			} 
 		}

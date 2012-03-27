@@ -99,7 +99,7 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 				
 				var doc:DisplayObjectContainer = displayObject as DisplayObjectContainer;
-				if (doc && doc.getChildByName('texty') is TextField) {
+				if (doc && doc.getChildByName('text') is TextField && !doc.getChildByName('back') ) {
 					_currentLeft += 5;
 				} else if (displayObject is Slider && (displayObject as Slider).capsWidth == 0) {
 					_currentLeft += 5;
@@ -110,7 +110,7 @@ package com.longtailvideo.jwplayer.view.components {
 
 				_currentLeft = _currentLeft + displayObject.width;								
 
-				if (doc && doc.getChildByName('texty') is TextField) {
+				if (doc && doc.getChildByName('text') is TextField && !doc.getChildByName('back')) {
 					_currentLeft += 5;
 				} else if (displayObject is Slider && (displayObject as Slider).capsWidth == 0) {
 					_currentLeft += 5;
@@ -128,17 +128,17 @@ package com.longtailvideo.jwplayer.view.components {
 				}
 
 				var doc:DisplayObjectContainer = displayObject as DisplayObjectContainer;
-				if (doc && doc.getChildByName('texty') is TextField) {
-					_currentRight -= 5;
+				if (doc && doc.getChildByName('text') is TextField && !doc.getChildByName('back')) {
+					_currentRight -= 6;
 				} else if (displayObject is Slider && (displayObject as Slider).capsWidth == 0) {
-					_currentRight -= 5;
+					_currentRight -= 6;
 				}
 				
 				_currentRight = _currentRight - displayObject.width;
 				displayObject.x = _currentRight;
 				displayObject.y = (_height - displayObject.height) / 2;
 
-				if (doc && doc.getChildByName('texty') is TextField) {
+				if (doc && doc.getChildByName('text') is TextField && !doc.getChildByName('back')) {
 					_currentRight -= 5;
 				} else if (displayObject is Slider && (displayObject as Slider).capsWidth == 0) {
 					_currentRight -= 5;
