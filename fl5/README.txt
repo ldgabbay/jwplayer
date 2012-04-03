@@ -13,7 +13,7 @@ To compile with Flex and Ant, enter the following command:
 
 ant -buildfile build\build.xml
 
-If the build is successful, player.swf will appear in the "bin-release" folder.
+If the build is successful, the new player.swf will appear in the base folder (where this README.txt file is located)
 
 === Compiling the Player With Flex / Flash Builder ===
 
