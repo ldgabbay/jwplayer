@@ -66,11 +66,14 @@ package com.longtailvideo.jwplayer.player {
 				if (ExternalInterface.available) {
 					for each (var callback:String in callbacks.replace(/\s/,"").split(",")) {
 						try {
-							callJS(callback,{
-								id:evt.id,
-								client:evt.client,
-								version:evt.version
-							});
+							Logger.log("asdf");
+							if (callback.toLowerCase().search(/[^0-9a-z\.]/) < 0) {
+								callJS(callback,{
+									id:evt.id,
+									client:evt.client,
+									version:evt.version
+								});
+							}
 						} catch (e:Error) {}
 					}
 					
