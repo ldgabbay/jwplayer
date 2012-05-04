@@ -8,6 +8,7 @@
             <arg line="-static-link-runtime-shared-libraries=true" />
             <arg line="-use-network=false" />
             <arg line="-optimize=true" />
+            <arg line="-debug=true" />
             <arg line="-incremental=false" />
         </exec>
         <echo message="Compiled SWF plugin." />

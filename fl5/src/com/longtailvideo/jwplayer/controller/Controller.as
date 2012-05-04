@@ -293,10 +293,8 @@ package com.longtailvideo.jwplayer.controller {
 						_model.media.pause();
 					}
 					_lockingResume = true;
-					_interruptPlay = false;
-				} else {
-					_interruptPlay = _preplay;
 				}
+				_interruptPlay = _preplay;
 				
 				
 				// Tell everyone you're locked

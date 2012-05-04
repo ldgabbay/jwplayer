@@ -248,7 +248,7 @@
 			
 			if (_cbar) {
 				var originalBar = _model.plugins.object.controlbar.getDisplayElement().style; 
-				_cbar.resize(_utils.parseDimension(originalDisp.width), _utils.parseDimension(originalBar.height));
+				_cbar.resize(_utils.parseDimension(originalDisp.width), _utils.parseDimension(originalDisp.height));
 				_css(_cbar.getDisplayElement(), _utils.extend({}, originalBar, { zIndex: 1001, opacity: 1 }));
 			}
 			if (_disp) {
