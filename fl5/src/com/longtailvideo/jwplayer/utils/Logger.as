@@ -86,11 +86,7 @@ package com.longtailvideo.jwplayer.utils {
 					trace(text);
 					break;
 				case NONE:
-					break;
 				default:
-					if (ExternalInterface.available) {
-						ExternalInterface.call(_config.debug, text);
-					}
 					break;
 			}
 		}

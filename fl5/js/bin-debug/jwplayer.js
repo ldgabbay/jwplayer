@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2182';
+jwplayer.version = '5.9.2206';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -877,7 +877,7 @@ jwplayer.source = document.createElement("source");/**
 	/** Returns an element's parent element.  If no parent is available, return the element itself **/
 	jwplayer.utils.parentNode = function(element) {
 		if (!element) {
-			return docuemnt.body;
+			return document.body;
 		} else if (element.parentNode) {
 			return element.parentNode;
 		} else if (element.parentElement) {

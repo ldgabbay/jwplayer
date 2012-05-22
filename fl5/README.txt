@@ -3,7 +3,7 @@ https://www.longtailvideo.com/players/order.
 
 To build the JW Player, you will need the following software:
 
- * Flex SDK 3.3: http://opensource.adobe.com/wiki/display/flexsdk/Downloads
+ * Flex SDK 4.1: http://sourceforge.net/adobe/flexsdk/wiki/Downloads/
  * Ant 1.7.0: http://ant.apache.org/bindownload.cgi
  * FlexUnit 4: http://opensource.adobe.com/wiki/display/flexunit/FlexUnit (for testing the player)
 

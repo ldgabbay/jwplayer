@@ -852,7 +852,7 @@
 	/** Returns an element's parent element.  If no parent is available, return the element itself **/
 	jwplayer.utils.parentNode = function(element) {
 		if (!element) {
-			return docuemnt.body;
+			return document.body;
 		} else if (element.parentNode) {
 			return element.parentNode;
 		} else if (element.parentElement) {
