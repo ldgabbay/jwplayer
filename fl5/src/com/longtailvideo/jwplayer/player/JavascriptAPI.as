@@ -62,23 +62,16 @@ package com.longtailvideo.jwplayer.player {
 			
 			timer.addEventListener(TimerEvent.TIMER_COMPLETE, function(timerEvent:TimerEvent):void {
 				_player.removeGlobalListener(queueEvents);
-				var callbacks:String = _player.config.playerready ? _player.config.playerready + "," + "playerReady" : "playerReady";  
 				if (ExternalInterface.available) {
-					for each (var callback:String in callbacks.replace(/\s/,"").split(",")) {
-						try {
-							if (callback.toLowerCase().search(/[\{\}\(\)]/) < 0) {
-								callJS(callback,{
-									id:evt.id,
-									client:evt.client,
-									version:evt.version
-								});
-							}
-						} catch (e:Error) {}
-					}
-					
+					try {
+						callJS("playerReady",{
+							id:evt.id,
+							client:evt.client,
+							version:evt.version
+						});
+					} catch (e:Error) {}
 					clearQueuedEvents();
 				}
-				
 
 			});
 			timer.start();
