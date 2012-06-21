@@ -590,7 +590,7 @@ package com.longtailvideo.jwplayer.view.components {
 				mpl = 100;
 			}
 			var pct:Number = (scrubber.icon.x - scrubber.rail.x) / (scrubber.rail.width - scrubber.icon.width) * mpl;
-			pct = pct < 10 ? 0 : pct;
+			pct = (pct < 10 && sliderType == 'volumeSlider') ? 0 : pct;
 			
 			scrubber = null;
 			if (sliderType == 'volumeSlider') {

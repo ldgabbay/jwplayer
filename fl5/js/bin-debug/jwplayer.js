@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2274';
+jwplayer.version = '5.9.2280';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4969,6 +4969,7 @@ playerReady = function(obj) {
 		var _elements = {};
 		var _ready = false;
 		var _positions = {};
+		var _positionDigits = -1;
 		var _bgElement;
 		var _hiding = false;
 		var _fadeTimeout;
@@ -5447,6 +5448,7 @@ playerReady = function(obj) {
 
 		function _itemHandler(evt) {
 			_currentDuration = _api.jwGetPlaylist()[evt.index].duration;
+			_positionDigits = -1;
 			_timeHandler({
 				id: _api.id,
 				duration: _currentDuration,
@@ -5660,10 +5662,10 @@ playerReady = function(obj) {
 			if (_utils.exists(event.position)) {
 				_currentPosition = event.position;
 			}
-			var newDuration = false;
+			var refreshRequired = false;
 			if (_utils.exists(event.duration) && event.duration != _currentDuration) {
 				_currentDuration = event.duration;
-				newDuration = true;
+				refreshRequired = true;
 			}
 			var progress = (_currentPosition === _currentDuration === 0) ? 0 : _currentPosition / _currentDuration;
 			var progressElement = _positions.timeSliderRail;
@@ -5687,9 +5689,14 @@ playerReady = function(obj) {
 				_elements.durationText.innerHTML = _utils.timeFormat(_currentDuration);
 			}
 			if (_elements.elapsedText) {
-				_elements.elapsedText.innerHTML = _utils.timeFormat(_currentPosition);
+				var elapsed = _utils.timeFormat(_currentPosition);
+				_elements.elapsedText.innerHTML = elapsed;
+				if (_positionDigits != elapsed.length) {
+					refreshRequired = true;
+					_positionDigits = elapsed.length;
+				}
 			}
-			if (newDuration) {
+			if (refreshRequired) {
 				_resizeBar();
 			}
 		}
