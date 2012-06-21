@@ -845,7 +845,7 @@
 
 	/** Returns true if the player should use the browser's native fullscreen mode **/
 	jwplayer.utils.useNativeFullscreen = function() {
-		//return jwplayer.utils.isIOS();
+		//return jwplayer.utils.isIOS(); // Only use iOS for now -- Safari's video.webkitRequestFullScreen is buggy
 		return (navigator && navigator.vendor && navigator.vendor.indexOf("Apple") == 0);
 	}
 

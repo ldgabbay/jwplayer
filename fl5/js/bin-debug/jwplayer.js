@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2280';
+jwplayer.version = '5.9.2281';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -870,7 +870,7 @@ jwplayer.source = document.createElement("source");/**
 
 	/** Returns true if the player should use the browser's native fullscreen mode **/
 	jwplayer.utils.useNativeFullscreen = function() {
-		//return jwplayer.utils.isIOS();
+		//return jwplayer.utils.isIOS(); // Only use iOS for now -- Safari's video.webkitRequestFullScreen is buggy
 		return (navigator && navigator.vendor && navigator.vendor.indexOf("Apple") == 0);
 	}
 
@@ -4338,8 +4338,6 @@ playerReady = function(obj) {
 			}
 			
 			_css(_container, {
-//				width: _model.width,
-//				height: _model.height,
 				width: "100%",
 				height: "100%",
 				top: 0,
@@ -4571,7 +4569,10 @@ playerReady = function(obj) {
 			_resizeMedia();
 		}
 		
+		var bottomHeight;
+		
 		function _resizeComponents(componentResizer, plugins, sizeToBox) {
+			bottomHeight = 0;
 			var failed = [];
 			for (var pluginIndex = 0; pluginIndex < plugins.length; pluginIndex++) {
 				var pluginName = plugins[pluginIndex];
@@ -4711,10 +4712,11 @@ playerReady = function(obj) {
 					_box.style.width = _utils.getElementWidth(_box) - plugincss.width + "px";
 					break;
 				case jwplayer.html5.view.positions.BOTTOM:
-					plugincss.bottom = _utils.parseDimension(_box.style.bottom);
 					plugincss.left = _utils.parseDimension(_box.style.left);
 					plugincss.width = _utils.getElementWidth(_box) - _utils.parseDimension(_box.style.left) - _utils.parseDimension(_box.style.right);
 					plugincss.height = _model.plugins.object[pluginName].height;
+					plugincss.bottom = _utils.parseDimension(_box.style.bottom + bottomHeight);
+					bottomHeight += plugincss.height; 
 					_box.style.height = _utils.getElementHeight(_box) - plugincss.height + "px";
 					break;
 				case jwplayer.html5.view.positions.LEFT:
@@ -4742,9 +4744,24 @@ playerReady = function(obj) {
 				videotag = _model.getMedia().getDisplayElement();
 			} catch(e) {}
 
+			var fsStyle = {
+				position: "fixed",
+				width: "100%",
+				height: "100%",
+				top: 0,
+				left: 0,
+				zIndex: 2147483000
+			}, normalStyle = {
+				position: "relative",
+				height: _model.height,
+				width: _model.width,
+				zIndex: 0
+			};
+			
 			if (_useNativeFullscreen() && videotag && videotag.webkitSupportsFullscreen) {
 				if (state && !videotag.webkitDisplayingFullscreen) {
 					try {
+						_css(videotag, fsStyle);
 						_utils.transform(videotag);
 						_beforeNative = _box.style.display; 
 						_box.style.display="none";
@@ -4752,6 +4769,7 @@ playerReady = function(obj) {
 					} catch (err) {
 					}
 				} else if (!state) {
+					_css(videotag, normalStyle);
 					_resizeMedia();
 					if (videotag.webkitDisplayingFullscreen) {
 						try {
@@ -4769,15 +4787,7 @@ playerReady = function(obj) {
 					var rect = _utils.getBoundingClientRect(document.body);
 					_model.width = Math.abs(rect.left) + Math.abs(rect.right);
 					_model.height = window.innerHeight;
-					var style = {
-						position: "fixed",
-						width: "100%",
-						height: "100%",
-						top: 0,
-						left: 0,
-						zIndex: 2147483000
-					};
-					_css(_wrapper, style);
+					_css(_wrapper, fsStyle);
 					style.zIndex = 1;
 					if (_model.getMedia() && _model.getMedia().getDisplayElement()) {
 						_css(_model.getMedia().getDisplayElement(), style);
@@ -4789,12 +4799,7 @@ playerReady = function(obj) {
 					document.onkeydown = "";
 					_model.width = _width;
 					_model.height = _height;
-					_css(_wrapper, {
-						position: "relative",
-						height: _model.height,
-						width: _model.width,
-						zIndex: 0
-					});
+					_css(_wrapper, normalStyle);
 					_falseFullscreen = false;
 				}
 				_resize(_model.width, _model.height);
