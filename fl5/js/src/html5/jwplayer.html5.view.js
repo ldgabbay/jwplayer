@@ -8,6 +8,7 @@
 
 	var _utils = jwplayer.utils;
 	var _css = _utils.css;
+	var _isIOS = _utils.isIOS();
 	
 	jwplayer.html5.view = function(api, container, model) {
 		var _api = api;
@@ -109,18 +110,15 @@
 
 		function _stateHandler(evt) {
 			if (_instreamMode) { return; }
-			
-			if (_model.getMedia() && _model.getMedia().hasChrome()) {
-				_box.style.display = "none";
-			} else {
-				switch (evt.newstate) {
-				case evt.newstate == jwplayer.api.events.state.PLAYING:
+			switch (evt.newstate) {
+			case jwplayer.api.events.state.PLAYING:
+				if (_model.getMedia() && _model.getMedia().hasChrome()) {
 					_box.style.display = "none";
-					break;
-				default:
-					_box.style.display = "block";
-					break;
 				}
+				break;
+			default:
+				_box.style.display = "block";
+				break;
 			}
 			_resizeMedia();
 		}
@@ -275,7 +273,7 @@
 				}
 				_normalscreenWidth = _utils.getElementWidth(_box);
 				_normalscreenHeight = _utils.getElementHeight(_box);
-			} else if ( !_useNativeFullscreen() ) {
+			} else if ( !_useNativeFullscreen() && !_isIOS) {
 				_resizeComponents(_fullscreenComponentResizer, plugins, true);
 			}
 			_resizeMedia();
@@ -380,7 +378,7 @@
 						left: tmp.style.left,
 						top: tmp.style.top
 					});
-				} else {
+				} else if (!_isIOS) {
 					_utils.stretch(_api.jwGetStretching(), media, 
 							_utils.getElementWidth(_box), 
 							_utils.getElementHeight(_box), 
@@ -448,14 +446,21 @@
 		
 		this.resize = _resize;
 		
-		var _beforeNative;
+		var _beforeNative, _normalWidth, _normalHeight;
 		
-		this.fullscreen = function(state) {
+		var _fullscreen = this.fullscreen = function(state) {
+			if (_isIOS) return;
+			
 			var videotag;
 			try {
 				videotag = _model.getMedia().getDisplayElement();
 			} catch(e) {}
 
+			if (state) {
+				_normalWidth = _model.width;
+				_normalHeight = _model.height;
+			}
+			
 			var fsStyle = {
 				position: "fixed",
 				width: "100%",
@@ -465,8 +470,8 @@
 				zIndex: 2147483000
 			}, normalStyle = {
 				position: "relative",
-				height: _model.height,
-				width: _model.width,
+				height: _normalWidth,
+				width: _normalHeight,
 				zIndex: 0
 			};
 			

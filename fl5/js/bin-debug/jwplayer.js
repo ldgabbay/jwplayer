@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2281';
+jwplayer.version = '5.9.2286';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -4296,6 +4296,7 @@ playerReady = function(obj) {
 
 	var _utils = jwplayer.utils;
 	var _css = _utils.css;
+	var _isIOS = _utils.isIOS();
 	
 	jwplayer.html5.view = function(api, container, model) {
 		var _api = api;
@@ -4397,18 +4398,15 @@ playerReady = function(obj) {
 
 		function _stateHandler(evt) {
 			if (_instreamMode) { return; }
-			
-			if (_model.getMedia() && _model.getMedia().hasChrome()) {
-				_box.style.display = "none";
-			} else {
-				switch (evt.newstate) {
-				case evt.newstate == jwplayer.api.events.state.PLAYING:
+			switch (evt.newstate) {
+			case jwplayer.api.events.state.PLAYING:
+				if (_model.getMedia() && _model.getMedia().hasChrome()) {
 					_box.style.display = "none";
-					break;
-				default:
-					_box.style.display = "block";
-					break;
 				}
+				break;
+			default:
+				_box.style.display = "block";
+				break;
 			}
 			_resizeMedia();
 		}
@@ -4563,7 +4561,7 @@ playerReady = function(obj) {
 				}
 				_normalscreenWidth = _utils.getElementWidth(_box);
 				_normalscreenHeight = _utils.getElementHeight(_box);
-			} else if ( !_useNativeFullscreen() ) {
+			} else if ( !_useNativeFullscreen() && !_isIOS) {
 				_resizeComponents(_fullscreenComponentResizer, plugins, true);
 			}
 			_resizeMedia();
@@ -4668,7 +4666,7 @@ playerReady = function(obj) {
 						left: tmp.style.left,
 						top: tmp.style.top
 					});
-				} else {
+				} else if (!_isIOS) {
 					_utils.stretch(_api.jwGetStretching(), media, 
 							_utils.getElementWidth(_box), 
 							_utils.getElementHeight(_box), 
@@ -4736,14 +4734,21 @@ playerReady = function(obj) {
 		
 		this.resize = _resize;
 		
-		var _beforeNative;
+		var _beforeNative, _normalWidth, _normalHeight;
 		
-		this.fullscreen = function(state) {
+		var _fullscreen = this.fullscreen = function(state) {
+			if (_isIOS) return;
+			
 			var videotag;
 			try {
 				videotag = _model.getMedia().getDisplayElement();
 			} catch(e) {}
 
+			if (state) {
+				_normalWidth = _model.width;
+				_normalHeight = _model.height;
+			}
+			
 			var fsStyle = {
 				position: "fixed",
 				width: "100%",
@@ -4753,8 +4758,8 @@ playerReady = function(obj) {
 				zIndex: 2147483000
 			}, normalStyle = {
 				position: "relative",
-				height: _model.height,
-				width: _model.width,
+				height: _normalWidth,
+				width: _normalHeight,
 				zIndex: 0
 			};
 			
@@ -7788,6 +7793,7 @@ playerReady = function(obj) {
 	
 	var _utils = jwplayer.utils;
 	var _isMobile = _utils.isMobile();
+	var _previousWidth, _previousHeight;
 	
 	var _allvideos = {};
 	
@@ -7864,6 +7870,13 @@ playerReady = function(obj) {
 			
 			_utils.empty(_video);
 
+			_video.style.display = "block";
+			_video.style.opacity = 1;
+			if (_previousWidth && _previousHeight) {
+				_video.style.width = _previousWidth;
+				_video.style.height = _previousHeight;
+			}
+
 			_sourceError = 0; 
 
 			_iOSClean(item.levels);
@@ -7885,8 +7898,7 @@ playerReady = function(obj) {
 			} else {
 				_video.src = item.file;
 			}
-			_video.style.display = "block";
-			_video.style.opacity = 1;
+
 			_video.volume = _model.volume / 100;
 			_video.muted = _model.mute;
 			if (_isMobile) {
@@ -7992,6 +8004,16 @@ playerReady = function(obj) {
 				_utils.empty(_video);
 				_video.load();
 				_emptied = true;
+			}
+			
+			if (_utils.isIPod()) {
+				// Can't just hide the video tag because of a problem with iOS 5.
+				_previousWidth = _video.style.width;
+				_previousHeight = _video.style.height;
+				_video.style.width = 0;
+				_video.style.height = 0;
+			} else if (_utils.isIPad()) {
+				_video.style.display = "none";
 			}
 			_setState(jwplayer.api.events.state.IDLE);
 		}
@@ -8398,9 +8420,6 @@ playerReady = function(obj) {
 		}
 		
 		function _setControls() {
-//			if (_currentItem.image) {
-//				_video.poster = _currentItem.image;
-//			}
 			setTimeout(function() {
 				_video.setAttribute("controls", "controls");
 			}, 100);

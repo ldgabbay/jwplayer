@@ -16,6 +16,7 @@
 	
 	var _utils = jwplayer.utils;
 	var _isMobile = _utils.isMobile();
+	var _previousWidth, _previousHeight;
 	
 	var _allvideos = {};
 	
@@ -92,6 +93,13 @@
 			
 			_utils.empty(_video);
 
+			_video.style.display = "block";
+			_video.style.opacity = 1;
+			if (_previousWidth && _previousHeight) {
+				_video.style.width = _previousWidth;
+				_video.style.height = _previousHeight;
+			}
+
 			_sourceError = 0; 
 
 			_iOSClean(item.levels);
@@ -113,8 +121,7 @@
 			} else {
 				_video.src = item.file;
 			}
-			_video.style.display = "block";
-			_video.style.opacity = 1;
+
 			_video.volume = _model.volume / 100;
 			_video.muted = _model.mute;
 			if (_isMobile) {
@@ -220,6 +227,16 @@
 				_utils.empty(_video);
 				_video.load();
 				_emptied = true;
+			}
+			
+			if (_utils.isIPod()) {
+				// Can't just hide the video tag because of a problem with iOS 5.
+				_previousWidth = _video.style.width;
+				_previousHeight = _video.style.height;
+				_video.style.width = 0;
+				_video.style.height = 0;
+			} else if (_utils.isIPad()) {
+				_video.style.display = "none";
 			}
 			_setState(jwplayer.api.events.state.IDLE);
 		}
@@ -626,9 +643,6 @@
 		}
 		
 		function _setControls() {
-//			if (_currentItem.image) {
-//				_video.poster = _currentItem.image;
-//			}
 			setTimeout(function() {
 				_video.setAttribute("controls", "controls");
 			}, 100);
