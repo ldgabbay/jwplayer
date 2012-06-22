@@ -200,12 +200,11 @@
 				_hiding = true;
 			}
 		}
-
 		function _onImageLoad(evt) {
 			_imageWidth = _display.display_image.naturalWidth;
 			_imageHeight = _display.display_image.naturalHeight;
 			_stretch();
-			if (_api.jwGetState() == jwplayer.api.events.state.IDLE) {
+			if (_api.jwGetState() == jwplayer.api.events.state.IDLE || _api.jwGetPlaylist()[_api.jwGetPlaylistIndex()].provider == "sound") {
 				_css(_display.display_image, {
 					display: "block",
 					opacity: 0
