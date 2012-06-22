@@ -75,7 +75,7 @@ package com.longtailvideo.jwplayer.model {
 			} else {
 				getFile = _file;
 			}
-			return getFile.replace(/feed:/g, "");
+			return Strings.cleanLink(getFile);
 		}
 		
 		/** File setter.  Note, if levels are defined, this will be ignored. **/
