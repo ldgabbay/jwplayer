@@ -18,7 +18,7 @@ var jwplayer = function(container) {
 
 var $jw = jwplayer;
 
-jwplayer.version = '5.9.2286';
+jwplayer.version = '5.9.2288';
 
 // "Shiv" method for older IE browsers; required for parsing media tags
 jwplayer.vid = document.createElement("video");
@@ -2982,7 +2982,9 @@ jwplayer.source = document.createElement("source");/**
 			}
 		}
 		if (index >= 0) {
-			
+			try {
+				_players[index].callInternal("jwDestroy");
+			} catch (e) {}
 			var toDestroy = document.getElementById(_players[index].id);
 			if (document.getElementById(_players[index].id + "_wrapper")) {
 				toDestroy = document.getElementById(_players[index].id + "_wrapper");
@@ -6421,6 +6423,11 @@ playerReady = function(obj) {
 		this.beforePlay = function() { 
 			return _preplay; 
 		}
+		this.destroy = function() {
+			if (_model.getMedia()) {
+				_model.getMedia().destroy();
+			}
+		}
 	};
 })(jwplayer);
 /**
@@ -7829,6 +7836,7 @@ playerReady = function(obj) {
 			'loadedfirstframe': _generalHandler,
 			'webkitfullscreenchange': _fullscreenHandler
 		};
+		var _handlers = {};
 		var _eventDispatcher = new jwplayer.html5.eventdispatcher();
 		_utils.extend(this, _eventDispatcher);
 		var _model = model,
@@ -8082,16 +8090,37 @@ playerReady = function(obj) {
 			_attached = true;
 		}
 		
+		/** Clean out the video tag **/
+		this.destroy = function() {
+			if (_video && _video.parentNode) {
+				_clearInterval();
+				for (var event in _events) {
+					_video.removeEventListener(event, _handleMediaEvent(event, _events[event]), true);
+				}
+				_utils.empty(_video);
+				_container = _video.parentNode;
+				_video.parentNode.removeChild(_video);
+				delete _allvideos[_model.id];
+				_video = null;
+			}
+		}
+		
+
+		
 		/************************************
 		 *           PRIVATE METHODS         * 
 		 ************************************/
 		
 		function _handleMediaEvent(type, handler) {
-			return function(evt) {
-				if (_utils.exists(evt.target.parentNode)) {
-					handler(evt);
-				}
-			};
+			if (_handlers[type]) return _handlers[type];
+			else {
+				_handlers[type] = function(evt) {
+					if (_utils.exists(evt.target.parentNode)) {
+						handler(evt);
+					}
+				};
+				return _handlers[type];
+			}
 		}
 		
 		/** Initializes the HTML5 video and audio media provider **/
@@ -10001,6 +10030,10 @@ playerReady = function(obj) {
 			}
 		}
 		
+		
+		_api.jwDestroy = function() {
+			_controller.destroy();
+		}
 		
 		//UNIMPLEMENTED
 		_api.jwGetLevel = function() {

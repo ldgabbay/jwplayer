@@ -535,5 +535,10 @@
 		this.beforePlay = function() { 
 			return _preplay; 
 		}
+		this.destroy = function() {
+			if (_model.getMedia()) {
+				_model.getMedia().destroy();
+			}
+		}
 	};
 })(jwplayer);

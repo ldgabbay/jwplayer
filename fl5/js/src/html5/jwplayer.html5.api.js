@@ -161,6 +161,10 @@
 		}
 		
 		
+		_api.jwDestroy = function() {
+			_controller.destroy();
+		}
+		
 		//UNIMPLEMENTED
 		_api.jwGetLevel = function() {
 		};

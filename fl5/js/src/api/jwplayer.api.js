@@ -618,7 +618,9 @@
 			}
 		}
 		if (index >= 0) {
-			
+			try {
+				_players[index].callInternal("jwDestroy");
+			} catch (e) {}
 			var toDestroy = document.getElementById(_players[index].id);
 			if (document.getElementById(_players[index].id + "_wrapper")) {
 				toDestroy = document.getElementById(_players[index].id + "_wrapper");
