@@ -99,6 +99,7 @@
 			if (_previousWidth && _previousHeight) {
 				_video.style.width = _previousWidth;
 				_video.style.height = _previousHeight;
+				_previousWidth = _previousHieght = 0;
 			}
 
 			_sourceError = 0; 
@@ -164,6 +165,7 @@
 			if (_bufferFull) {
 				_setState(jwplayer.api.events.state.PLAYING);
 			} else {
+				_video.load();
 				_setState(jwplayer.api.events.state.BUFFERING);
 			}
 			_video.play();
@@ -238,6 +240,9 @@
 				_video.style.height = 0;
 			} else if (_utils.isIPad()) {
 				_video.style.display = "none";
+				try {
+					_video.webkitExitFullscreen();
+				} catch(e) {}
 			}
 			_setState(jwplayer.api.events.state.IDLE);
 		}
@@ -513,6 +518,12 @@
 
 		function _stateHandler(event) {
 			if (!_attached) return;
+
+			if (_previousWidth && _previousHeight) {
+				_video.style.width = _previousWidth;
+				_video.style.height = _previousHeight;
+				_previousWidth = _previousHieght = 0;
+			}
 
 			if (_states[event.type]) {
 				if (event.type == "ended") {
